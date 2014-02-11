@@ -3,7 +3,7 @@ Wings
 
 ### Lightweight 3D framework built on Kha
 
-Sample code showing how to render rotating 3D cube:
+Sample code showing how to render a rotating 3D cube:
 ```haxe
 class Game {
 
@@ -49,7 +49,7 @@ class Game {
 }
 ```
 
-Default vertex shader:
+Vertex shader:
 ```glsl
 attribute vec3 vertexPosition;
 attribute vec2 texPosition;
@@ -65,7 +65,7 @@ void kore() {
 }
 ```
 
-Default fragment shader:
+Fragment shader:
 ```glsl
 uniform sampler2D tex;
 
