@@ -1,9 +1,19 @@
-Wings
-===
+# Wings
 
-### Lightweight 3D framework built on Kha
+### Lightweight 3D framework build with Haxe & Kha
 
-Sample code showing how to render a rotating 3D cube:
+- Cross-platform thanks to Kha
+- Custom shaders thanks to Kha
+- Fbx & Obj support
+- Integrated 3D physics
+- Scene hierarchy, Camera, Skydome, Billboards, Terrain, Grass,...
+- UI
+- 2D drawing
+
+[Samples](http://) - [Documentation](http://)
+
+### Usage
+Rendering a rotating 3D cube:
 ```haxe
 class Game {
 
