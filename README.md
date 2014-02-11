@@ -18,8 +18,13 @@ For rendering related stuff I went through [OpenGL-tutorial](http://www.opengl-t
 
 If you are using Kha together with Sublime Text, check out my [Kha Sublime Bundle](https://github.com/luboslenco/kha-sublime-bundle), forked from [Haxe Sublime Bundle](https://github.com/clemos/haxe-sublime-bundle) by Clemos.
 
+### Demos
+- [Fbx rendering](https://googledrive.com/host/0B22ElR_OUmfdNzluUmJJZjZQZUU/index.html)
+- [3D physics](https://googledrive.com/host/0B22ElR_OUmfdRUk0M24xUDR4VUU/index.html)
+- [Sculpting & Ray casting](https://googledrive.com/host/0B22ElR_OUmfdWEhUN2VyUW5HWVk/index.html)
+
 ### Usage
-Rendering a rotating 3D cube:
+Rendering a [rotating 3D cube](https://googledrive.com/host/0B22ElR_OUmfddkFKczhfQ243LWs/index.html):
 ```haxe
 class Game {
 
