@@ -1,18 +1,18 @@
 # Wings
 
-### Lightweight 3D framework built with [Haxe](https://github.com/HaxeFoundation/haxe) & [Kha](https://github.com/KTXSoftware/Kha/)
+### Lightweight 3D game framework built with [Haxe](https://github.com/HaxeFoundation/haxe) & [Kha](https://github.com/KTXSoftware/Kha/)
 
 - [Cross-platform](http://kha.ktxsoftware.com/?systems)
-- Custom shaders
+- GLSL shaders
 - [Fbx](https://github.com/ncannasse/h3d/tree/master/h3d/fbx) & Obj support
 - Integrated [3D physics](https://github.com/gbpaul/cannon.hx)
 - Scene hierarchy, Camera, Skydome, Billboards, Terrain, Grass,...
 - UI
-- 2D drawing and some 2D stuff included
+- 2D drawing and some 2D stuff
 
 Wings is possible only thanks to the Haxe and Kha, which are the two most awesome things ever. The goal is to have a little framework for rapid prototyping of mini 3D games. It's inspired by H3D, ThreeJS and more.
 
-Please note that this is done mainly for learning purposes. Still I though that there may be some valuable code for people working with Kha. Most of the stuff is just putting things together, like using Cannon.js 3D physics by [Stefan Hedman](https://github.com/schteppe/) or Fbx loading from H3D engine by [Nicolas](https://github.com/ncannasse/), who must by one of the most talented people out there.
+Please note that this is done mainly for learning purposes and shows what you can achieve with Kha with little effort. Most of the stuff is just putting things together, like using Cannon.js 3D physics by [Stefan Hedman](https://github.com/schteppe/) or Fbx loading from H3D engine by [Nicolas](https://github.com/ncannasse/), who must by one of the most talented people out there.
 
 For rendering related stuff I went through [OpenGL-tutorial](http://www.opengl-tutorial.org/) that I found to be really well written, [Rastertek tutorials](http://rastertek.com/tutindex.html) and various [GPU Gems](http://http.developer.nvidia.com/GPUGems/gpugems_ch07.html) articles.
 
