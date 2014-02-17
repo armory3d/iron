@@ -42,17 +42,20 @@ class Game {
 		var scene = new Scene(camera);
 		Root.addChild(scene);
 
+		// Create cube geometry of size 1x1x1
+		var geometry = new CubeGeometry(1, 1, 1);
+
 		// Create material with default shader and box texture
 		var material = new Material(R.shader, R.box);
 
-		// Create cube mesh of size 1x1x1
-		var mesh = new CubeMesh(1, 1, 1);
+		// Create cube mesh
+		var mesh = new Mesh(geometry, material);
 
-		// Create model that renders cube mesh using our material
-		model = new Model(mesh, material);
+		// Create model that renders cube mesh
+		model = new Model(mesh);
 
 		// Set shader uniforms(you can write your own glsl shaders)
-		// Default shader needs model matrix
+		// Default shader needs model-view-projection matrix
 		model.setMat4(model.mvpMatrix);
 
 		// Add cube to scene
