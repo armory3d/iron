@@ -10,6 +10,10 @@
 - UI
 - 2D drawing and some 2D stuff
 
+In Progress
+- FBX & MD2 Animation
+- Frustum culling
+
 Wings is possible only thanks to the Haxe and Kha, which are the two most awesome things ever. The goal is to have a little framework for rapid prototyping of mini 3D games. It's inspired by H3D, ThreeJS and more.
 
 Please note that this is done mainly for learning purposes and shows what you can achieve with Kha with little effort. Most of the stuff is just putting things together, like using Cannon.js 3D physics by [Stefan Hedman](https://github.com/schteppe/) or Fbx loading from H3D engine by [Nicolas](https://github.com/ncannasse/), who must by one of the most talented people out there.
