@@ -50,7 +50,7 @@ class Game {
 		var geometry = new CubeGeometry(1, 1, 1);
 
 		// Create material with default shader and box texture
-		var material = new Material(R.shader, R.box);
+		var material = new TextureMaterial(R.shader, R.box);
 
 		// Create cube mesh
 		var mesh = new Mesh(geometry, material);
