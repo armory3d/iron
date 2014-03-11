@@ -1,7 +1,5 @@
 package wings.w2d.particles;
 
-// Unfinished
-
 import kha.Color;
 import kha.Painter;
 import wings.wxd.Time;

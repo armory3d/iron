@@ -19,6 +19,8 @@ class Object2D extends EventListener {
 	public var _x:Float;
 	public var _y:Float;
 
+	public var rotation:Float;
+
 	public function new() {
 		super();
 		reset();
@@ -28,11 +30,17 @@ class Object2D extends EventListener {
 	public override function update() {
 
 		super.update();
-		for (i in 0...children.length) if (children[i] != null) children[i].update();
+		_updatePos();
+
+		// Children on top receive events first
+		var i = children.length - 1;
+		while (i >= 0) {
+			if (children[i] != null) children[i].update();
+			i--;
+		}
 	}
 
 	public function render(painter:Painter) {
-		_updatePos();
 
 		for (i in 0...children.length) if (children[i] != null) children[i].render(painter);
 	}
@@ -57,6 +65,7 @@ class Object2D extends EventListener {
 
 		x = y = w = h = 0;
 		a = 1;
+		rotation = 0;
 	}
 
 	public function hitTest(x:Float, y:Float):Bool {

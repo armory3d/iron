@@ -6,6 +6,8 @@ class Input {
 	public static var touch(default, null):Bool;
 	public static var released(default, default):Bool;
 
+	public static var preventRelease(default, default):Bool;
+
 	public static var touchAlt(default, null):Bool;
 
 	public static var x(default, null):Float;
@@ -24,6 +26,8 @@ class Input {
 		touch = false;
 		released = false;
 
+		preventRelease = false;
+
 		touchAlt = false;
 
 		left = right = up = down = false;
@@ -36,7 +40,9 @@ class Input {
 	
 	public static function onTouchEnd() {
 		touch = false;
-		released = true;
+
+		if (!preventRelease) released = true;
+		else preventRelease = false;
 	}
 
 	public static function onTouchAltBegin() {

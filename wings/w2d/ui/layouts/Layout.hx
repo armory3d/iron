@@ -7,4 +7,7 @@ class Layout extends Object2D {
 	public function new() {
 		super();
 	}
+
+	public function updateLayout() {
+	}
 }

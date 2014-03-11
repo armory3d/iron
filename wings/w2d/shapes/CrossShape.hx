@@ -3,25 +3,22 @@ package wings.w2d.shapes;
 import kha.Painter;
 import kha.Color;
 
-class RectShape extends Shape {
+class CrossShape extends Shape {
 
-	public var shapeW:Float;
-	public var shapeH:Float;
-
-	public function new(x:Float, y:Float, w:Float, h:Float, color:Int = 0xffffffff) {
+	public function new(x:Float, y:Float, w:Float, h:Float, color:Int = 0xff000000) {
 		super(x, y);
 
 		this.w = w;
 		this.h = h;
-		shapeW = w;
-		shapeH = h;
 		this.color = color;
 	}
 
 	public override function render(painter:Painter) {
 
 		painter.setColor(Color.fromValue(color));
-		painter.fillRect(_x, _y, shapeW, shapeH);
+
+		painter.drawLine(_x, _y, _x + w, _y + h, 2);
+		painter.drawLine(_x + w, _y, _x, _y + h, 2);
 
 		super.render(painter);
 	}

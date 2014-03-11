@@ -5,24 +5,29 @@ import wings.wxd.Input;
 
 class TapEvent extends UpdateEvent {
 
-	var touched:Bool;
+	public static inline var TYPE_START = 0;
+	public static inline var TYPE_TOUCH = 1;
+	public static inline var TYPE_RELEASE = 2;
 
-	public function new(onEvent:Void->Void) {
+	var type:Int;
+
+	public function new(onEvent:Void->Void, type:Int = TYPE_RELEASE) {
 		super(onEvent);
 
-		touched = false;
+		this.type = type;
 	}
 
 	override public function update() {
-		if (Input.touch && !touched) {
+		if ((type == TYPE_RELEASE && Input.released) ||
+			(type == TYPE_TOUCH && Input.touch) ||
+			(type == TYPE_START && Input.started)) {
+
 			if (Std.is(parent, Object2D)) {
 				var p = cast(parent, Object2D);
 				if (p.hitTest(Input.x, Input.y)) {
-					touched = true;
 					onUpdate();
 				}
 			}
 		}
-		else if (!Input.touch) touched = false;
 	}
 }

@@ -12,6 +12,7 @@ import wings.wxd.Input;
 import wings.wxd.Storage;
 import wings.wxd.Audio;
 import wings.wxd.Random;
+import wings.wxd.Net;
 
 class Root  {
 
@@ -22,12 +23,15 @@ class Root  {
 		root = new Object();
 		root2D = new Object2D();
 
+		// TODO: set root size
+
 		new Assets();
 		new Pos();
 		new Time();
 		new Input();
 		new Storage();
 		new Audio();
+		new Net();
 		new Random(Std.random(999999));
 	}
 
@@ -72,6 +76,7 @@ class Root  {
     public static inline function buttonDown(button:kha.Button) {
     	Input.onButtonDown(button);
     }
+
 	public static inline function buttonUp(button:kha.Button) {
 		Input.onButtonUp(button);
 	}
@@ -94,6 +99,18 @@ class Root  {
 
 	public static function addEvent(event:Event) {
 		root.addEvent(event);
+	}
+
+	public static function removeEvent(event:Event) {
+		root.removeEvent(event);
+	}
+
+	public static function addEvent2D(event:Event) {
+		root2D.addEvent(event);
+	}
+
+	public static function removeEvent2D(event:Event) {
+		root2D.removeEvent(event);
 	}
 
 	public static function reset() {

@@ -35,11 +35,12 @@ class Model extends Object {
 	public override function render(painter:Painter) {
 		super.render(painter);
 
-		if (mesh.geometry == null || mesh.material == null) {
+		// TODO: prevent empty material
+		/*if (mesh.geometry == null || mesh.material == null) {
 			if (mesh.material == null)
 				mesh.material = new TextureMaterial(com.luboslenco.test.R.shader, com.luboslenco.test.R.box);
 			return;
-		}
+		}*/
 		
 		Sys.graphics.setVertexBuffer(mesh.geometry.vertexBuffer);
 		Sys.graphics.setIndexBuffer(mesh.geometry.indexBuffer);

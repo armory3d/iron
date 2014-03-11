@@ -20,9 +20,7 @@ class EventListener {
 	}
 
 	public function removeEvent(event:Event) {
-		for (i in 0...events.length) {
-			if (event == events[i]) events.splice(i, 1);
-		}
+		events.remove(event);
 	}
 
 	public function reset() {
