@@ -25,7 +25,7 @@ class Random {
 //#end
 	}
 
-	public static inline function float(to:Int):Float {
-		return int(to) / 1073741823.0; // divided by 2^30-1
+	public static inline function float(to:Float):Float {
+		return int(Std.int(to)) / 1073741823.0; // divided by 2^30-1
 	}
 }

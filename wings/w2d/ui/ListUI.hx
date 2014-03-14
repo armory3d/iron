@@ -12,7 +12,7 @@ class ListUI extends ButtonUI {
 	var layout:ListLayout;
 	var arrow:PolyShape;
 
-	public function new(title:String) {
+	public function new(title:String /*TODO , show:Bool = false*/) {
 		super(title, onTap, 0xff1a1a1a);
 
 		// Arrow
@@ -50,24 +50,37 @@ class ListUI extends ButtonUI {
 		
 		// Set size
 		w = layout.w;
-		h = shapeH + layout.h;
+		if (layout.parent != null) {
+			// Update size if contents are visible
+			h = shapeH + layout.h;
+		}
 	}
 
 	function onTap() {
-		// Display contents
+		// Switch contents
 		if (layout.parent == null) {
+			showContents(true);
+		}
+		else {
+			showContents(false);
+		}
+
+		// Update items in layout
+		if (Std.is(parent, Layout)) cast(parent, Layout).updateLayout();
+	}
+
+	public function showContents(show:Bool) {
+		// Display contents
+		if (show && layout.parent == null) {
 			addChild(layout);
 			arrow.rotation = 0;
 			h = shapeH + layout.h;
 		}
 		// Hide contents
-		else {
+		else if (layout.parent != null) {
 			removeChild(layout);
 			arrow.rotation = 270;
 			h = shapeH;
 		}
-
-		// Update items in layout
-		if (Std.is(parent, Layout)) cast(parent, Layout).updateLayout();
 	}
 }

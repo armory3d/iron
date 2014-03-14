@@ -22,7 +22,8 @@ class SlideUI extends ButtonUI {
 	public function new(title:String, onTap:Void->Void, value:Float = 0, valueFrom:Float = 0, valueTo:Float = 1) {
 		super(title, _onTap, 0xff2fa1d6);
 
-		this.value = value;
+		// From value from-to to 0-1;
+		this.value = (value - valueFrom) / (valueTo - valueFrom);
 		this.valueFrom = valueFrom;
 		this.valueTo = valueTo;
 		this.onTap = onTap;
@@ -33,7 +34,7 @@ class SlideUI extends ButtonUI {
 		addChild(sliderBg);
 
 		// Slider
-		slider = new RectShape(sliderBg.x, sliderBg.y, sliderBg.w * value, sliderBg.h, 0xff2fa1d6);
+		slider = new RectShape(sliderBg.x, sliderBg.y, sliderBg.w * this.value, sliderBg.h, 0xff2fa1d6);
 		addChild(slider);
 
 		// State
@@ -70,14 +71,20 @@ class SlideUI extends ButtonUI {
 	}
 
 	function stateToString():String {
-		return Std.int(value * 10) / 10 + "";
+
+		return Std.int(getUnclampedValue() * 10) / 10 + "";
 	}
 
 	function _onTap() {
 		
-		// From 0-1 to value from-to
-		var result = (valueFrom + valueTo) * value - valueFrom;
+		var result = getUnclampedValue();
 		
 		onTap();
+	}
+
+	function getUnclampedValue():Float {
+
+		// From 0-1 to value from-to
+		return (valueFrom + valueTo) * value - valueFrom;
 	}
 }

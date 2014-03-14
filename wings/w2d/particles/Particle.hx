@@ -1,43 +1,35 @@
 package wings.w2d.particles;
 
-import wings.wxd.Time;
-import wings.wxd.Random;
-
 class Particle {
+    // Where the emitter was when the particle was spawned
+    public var emitX:Float = 0;
+    public var emitY:Float = 0;
 
-	public var x:Float;
-	public var y:Float;
+    public var x:Float = 0;
+    public var velX:Float = 0;
 
-	var gravityX:Float;
-	var gravityY:Float;
+    public var y:Float = 0;
+    public var velY:Float = 0;
 
-	var velocityX:Float;
-	var velocityY:Float;
+    public var radialRadius:Float = 0;
+    public var velRadialRadius:Float = 0;
 
-	var speed:Float;
-	var time:Int;
+    public var radialRotation:Float = 0;
+    public var velRadialRotation:Float = 0;
 
-	public function new() {
-		x = 0;
-		y = 0;
+    public var radialAccel:Float = 0;
+    public var tangentialAccel:Float = 0;
 
-		gravityX = ((Random.int(600) - 300) / 100);
-		gravityY = ((Random.int(200) + 200) / 100);
+    public var scale:Float = 0;
+    public var velScale:Float = 0;
 
-		velocityX = 0;
-		velocityY = -4;
-	}
+    public var rotation:Float = 0;
+    public var velRotation:Float = 0;
 
-	public function update() {
-		
-		velocityX += gravityX / Time.delta;
-		velocityY += gravityY / Time.delta;
+    public var alpha:Float = 0;
+    public var velAlpha:Float = 0;
 
-		if (velocityX > 4) velocityX = 4;
-		else if (velocityX < -4)velocityX = -4;
-		if (velocityY > 7) velocityY = 7;
+    public var life:Float = 0;
 
-		x += velocityX / 10;
-		y += velocityY / 10;
-	}
+    public function new () {}
 }
