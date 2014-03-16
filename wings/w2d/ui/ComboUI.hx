@@ -37,12 +37,12 @@ class ComboUI extends ButtonUI {
 
 	var state:Int;
 	var states:Array<String>;
-	var onTap:Void->Void;
+	var onTap:Int->Void;
 
 	var comboBox:ListLayout;
 	var stateText:Text2D;
 
-	public function new(title:String, onTap:Void->Void, states:Array<String>, state:Int = 0) {
+	public function new(title:String, onTap:Int->Void, states:Array<String>, state:Int = 0) {
 		super(title, _onTap, 0xff1ed36f);
 
 		this.onTap = onTap;
@@ -94,6 +94,6 @@ class ComboUI extends ButtonUI {
 		if (comboBox.parent != null) Root.removeChild2D(comboBox);
 
 		// Propagate event
-		onTap();
+		onTap(state);
 	}
 }

@@ -11,17 +11,17 @@ class RectShape extends Shape {
 	public function new(x:Float, y:Float, w:Float, h:Float, color:Int = 0xffffffff) {
 		super(x, y);
 
-		this.w = w;
-		this.h = h;
+		rel.w = w;
+		rel.h = h;
 		shapeW = w;
 		shapeH = h;
-		this.color = color;
+		rel.color = Color.fromValue(color);
 	}
 
 	public override function render(painter:Painter) {
 
-		painter.setColor(Color.fromValue(color));
-		painter.fillRect(_x, _y, shapeW, shapeH);
+		painter.setColor(abs.color);
+		painter.fillRect(abs.x, abs.y, shapeW, shapeH);
 
 		super.render(painter);
 	}

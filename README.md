@@ -9,6 +9,8 @@
 - Scene hierarchy, Camera, Skydome, Billboards, Terrain, Grass,...
 - UI
 - 2D drawing and some 2D stuff
+- 2D particle system [importer](http://onebyonedesign.com/flash/particleeditor/) & renderer
+- [Parallax effect](https://github.com/wagerfield/parallax)
 
 In Progress
 - FBX & MD2 Animation
@@ -16,16 +18,15 @@ In Progress
 
 Wings is possible only thanks to the Haxe and Kha, which are the two most awesome things ever. The goal is to have a little framework for rapid prototyping of mini 3D games. It's inspired by H3D, ThreeJS and more.
 
-Please note that this is done mainly for learning purposes and shows what you can achieve with Kha with little effort. Most of the stuff is just putting things together, like using Cannon.js 3D physics by [Stefan Hedman](https://github.com/schteppe/) or Fbx loading from H3D engine by [Nicolas](https://github.com/ncannasse/), who must by one of the most talented people out there.
-
-For rendering related stuff I went through [OpenGL-tutorial](http://www.opengl-tutorial.org/) that I found to be really well written, [Rastertek tutorials](http://rastertek.com/tutindex.html) and various [GPU Gems](http://http.developer.nvidia.com/GPUGems/gpugems_ch07.html) articles.
-
 If you are using Kha together with Sublime Text, check out my [Kha Sublime Bundle](https://github.com/luboslenco/kha-sublime-bundle), forked from [Haxe Sublime Bundle](https://github.com/clemos/haxe-sublime-bundle) by Clemos.
 
 ### Demos
 - [Fbx rendering](https://googledrive.com/host/0B22ElR_OUmfdNzluUmJJZjZQZUU/index.html)
 - [3D physics](https://googledrive.com/host/0B22ElR_OUmfdRUk0M24xUDR4VUU/index.html)
 - [Sculpting & Ray casting](https://googledrive.com/host/0B22ElR_OUmfdWEhUN2VyUW5HWVk/index.html)
+- [2D particle systems](https://googledrive.com/host/0B22ElR_OUmfdUkI4SDhFWnVlS2s/index.html)
+- [2D parallax effect](https://googledrive.com/host/0B22ElR_OUmfdS1NLUjRBUEtJM1k/index.html)
+- [Basic UI](https://googledrive.com/host/0B22ElR_OUmfdOUh6Y1hlVE1xM1U/index.html)
 
 ### Usage
 Rendering a [rotating 3D cube](https://googledrive.com/host/0B22ElR_OUmfddkFKczhfQ243LWs/index.html):

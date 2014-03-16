@@ -7,6 +7,8 @@ import wings.w2d.ui.layouts.ListLayout;
 import wings.w2d.shapes.RectShape;
 import wings.w2d.Text2D;
 
+// TODO: support nested ListUIs
+
 class ListUI extends ButtonUI {
 
 	var layout:ListLayout;

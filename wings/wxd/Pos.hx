@@ -5,6 +5,8 @@ class Pos {
 	public static var w(default, null):Int;
 	public static var h(default, null):Int;
 
+	// TODO: hw hh
+
 	public function new(width:Int = 1136, height:Int = 640) {
 		w = width;	// TODO: Get resolution from kha
 		h = height;

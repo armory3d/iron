@@ -5,7 +5,7 @@ import kha.Color;
 
 class CircleShape extends Shape {
 
-	var radius:Float;
+	public var radius:Float;
 
 	public function new(x:Float = 0, y:Float = 0, radius:Float, color:Int) {
 		super(x, y);
@@ -20,7 +20,7 @@ class CircleShape extends Shape {
 
 		painter.setColor(Color.fromValue(color));
 
-		var triangles = 20;
+		var triangles = 30;
 		var twoPi = 2.0 * 3.14159;
 
 		var x1 = _x, y1 = _y;

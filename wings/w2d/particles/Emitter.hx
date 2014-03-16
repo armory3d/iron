@@ -323,7 +323,14 @@ class Emitter extends Object2D {
 	        // This trick only works in Flash and JS
 	        (untyped arr).length = length;
 		#else
-	        #error "Arrays.resize unimplemented on this target"
+            if (arr.length < length) {
+                for (i in arr.length...length) {
+                    arr.push(null);
+                }
+            }
+            else if (arr.length > length) {
+                arr.splice(length, arr.length - length);
+            }
 		#end
 	}
 
@@ -350,6 +357,7 @@ class Emitter extends Object2D {
             var destX = offset + particle.x;
             var destY = offset + particle.y;
             
+            //painter.setColor(Color.fromValue(0xffff0000));
             painter.opacity = particle.alpha;
             painter.drawImage2(texture, 0, 0, texture.width, texture.height,
             				   destX, destY,

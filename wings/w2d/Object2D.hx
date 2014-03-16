@@ -1,36 +1,46 @@
 package wings.w2d;
 
 import kha.Painter;
+import kha.Color;
+import kha.Rotation;
 import wings.wxd.EventListener;
 
 class Object2D extends EventListener {
 
 	public var parent:Object2D;
-
 	public var children:Array<Object2D>;
 
-	public var x:Float;
-	public var y:Float;
-	public var w:Float;
-	public var h:Float;
-	public var a:Float;
+	// Relative and absolute transforms
+	public var rel:Transform;
+	public var abs:Transform;
 
-	// Actual pos
-	public var _x:Float;
-	public var _y:Float;
-
-	public var rotation:Float;
+	// Handy access to relative transform
+	public var x(get, set):Float;
+	public var y(get, set):Float;
+	public var rotation(get, set):Rotation;
+	public var w(get, set):Float;
+	public var h(get, set):Float;
+	public var scaleX(get, set):Float;
+	public var scaleY(get, set):Float;
+	public var color(get, set):Color;
 
 	public function new() {
-		super();
-		reset();
+		
 		parent = null;
+		rel = new Transform();
+		abs = new Transform();
+
+		super();
+		reset();	// TODO: reset called in super class
 	}
 
 	public override function update() {
 
 		super.update();
-		_updatePos();
+		
+		if (rel.changed || abs.changed) {
+			updateTransform();
+		}
 
 		// Children on top receive events first
 		var i = children.length - 1;
@@ -61,34 +71,85 @@ class Object2D extends EventListener {
 
 	public override function reset() {
 		super.reset();
+
 		children = new Array();
-
-		x = y = w = h = 0;
-		a = 1;
-		rotation = 0;
+		rel.reset();
+		abs.reset();
 	}
 
-	public function hitTest(x:Float, y:Float):Bool {
-		if (x >= this._x && x <= this._x + w &&
-			y >= this._y && y <= this._y + h) {
-			return true;
-		}
+	function updateTransform() {
 
-		return false;
-	}
-
-	function _updatePos() {
-		_x = x;
-		_y = y;
+		// Calculate transforms
+		// TODO: separate rel & abs changes
+		abs.x = rel.x;
+		abs.y = rel.y;
+		abs.rotation = rel.rotation;
+		abs.w = rel.w;
+		abs.h = rel.h;
+		abs.scaleX = rel.scaleX;
+		abs.scaleY = rel.scaleY;
+		var colorR = rel.color.R;
+		var colorG = rel.color.G;
+		var colorB = rel.color.B;
+		var colorA = rel.color.A;
 
 		var p:Object2D = parent;
-		while (p != null) {
-			_x += p.x;
-			_y += p.y;
-			p = p.parent;
+		if (p != null) {
+
+			// Pos
+			abs.x += p.abs.x;
+			abs.y += p.abs.y;
+
+			// Rotation
+			// TODO: rotation center
+			abs.rotation.angle += p.abs.rotation.angle;
+
+			// Scale
+			abs.scaleX *= p.abs.scaleX;
+			abs.scaleX *= p.abs.scaleY;
+
+			// Color
+			colorR *= p.abs.color.R;
+			colorG *= p.abs.color.G;
+			colorB *= p.abs.color.B;
+			colorA *= p.abs.color.A;
 		}
 
-		_x = Std.int(_x);
-		_y = Std.int(_y);
+		abs.color = Color.fromFloats(colorR, colorG, colorB, colorA);
+		abs.x = Std.int(abs.x);
+		abs.y = Std.int(abs.y);
+
+		// Update children
+		for (i in 0...children.length) {
+			children[i].rel.changed = true;
+			children[i].abs.changed = true;
+		}
+
+		rel.changed = false;
+		abs.changed = false;
 	}
+
+	inline function get_x():Float { return rel.x; }
+	inline function set_x(f:Float):Float { return rel.x = f; }
+
+	inline function get_y():Float { return rel.y; }
+	inline function set_y(f:Float):Float { return rel.y = f; }
+
+	inline function get_rotation():Rotation { return rel.rotation; }
+	inline function set_rotation(r:Rotation):Rotation { return rel.rotation = r; }
+
+	inline function get_w():Float { return rel.w; }
+	inline function set_w(f:Float):Float { return rel.w = f; }
+
+	inline function get_h():Float { return rel.h; }
+	inline function set_h(f:Float):Float { return rel.h = f; }
+
+	inline function get_scaleX():Float { return rel.scaleX; }
+	inline function set_scaleX(f:Float):Float { return rel.scaleX = f; }
+
+	inline function get_scaleY():Float { return rel.scaleY; }
+	inline function set_scaleY(f:Float):Float { return rel.scaleY = f; }
+
+	inline function get_color():Color { return rel.color; }
+	inline function set_color(c:Color):Color { return rel.color = c; }
 }

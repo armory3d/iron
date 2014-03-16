@@ -11,7 +11,7 @@ class SlideUI extends ButtonUI {
 	var value:Float;
 	var valueFrom:Float;
 	var valueTo:Float;
-	var onTap:Void->Void;
+	var onTap:Float->Void;
 
 	var sliderBg:RectShape;
 	var slider:RectShape;
@@ -19,7 +19,7 @@ class SlideUI extends ButtonUI {
 
 	var updateEvent:UpdateEvent;
 
-	public function new(title:String, onTap:Void->Void, value:Float = 0, valueFrom:Float = 0, valueTo:Float = 1) {
+	public function new(title:String, onTap:Float->Void, value:Float = 0, valueFrom:Float = 0, valueTo:Float = 1) {
 		super(title, _onTap, 0xff2fa1d6);
 
 		// From value from-to to 0-1;
@@ -63,6 +63,9 @@ class SlideUI extends ButtonUI {
 
 			value = slider.w / sliderBg.w;
 			stateText.text = stateToString();
+
+			// Propagate event
+			onTap(getUnclampedValue());
 		}
 		else {
 			// Stop sliding
@@ -77,9 +80,6 @@ class SlideUI extends ButtonUI {
 
 	function _onTap() {
 		
-		var result = getUnclampedValue();
-		
-		onTap();
 	}
 
 	function getUnclampedValue():Float {
