@@ -16,6 +16,7 @@ class Sprite extends Object2D {
 	var pause:Bool;
 	var reversed:Bool;
 	var flipped:Bool;
+
 	public var repeat:Bool;
 
 	public function new(tilesheet:Tilesheet, x:Float = 0, y:Float = 0) {
@@ -54,6 +55,18 @@ class Sprite extends Object2D {
 		return animations[currentAnimation].name;
 	}
 
+	public function play() {
+
+	}
+
+	public function _pause() {
+
+	}
+
+	public function stop() {
+		
+	}
+
 	public override function update() {
 		super.update();
 
@@ -90,6 +103,6 @@ class Sprite extends Object2D {
 		var frameY:Int = posY * tilesheet.tileH;
 
 		painter.drawImage2(tilesheet.image, frameX, frameY, tilesheet.tileW, tilesheet.tileH,
-						   _x, _y, tilesheet.tileW, tilesheet.tileH);
+						   abs.x, abs.y, tilesheet.tileW, tilesheet.tileH);
 	}
 }

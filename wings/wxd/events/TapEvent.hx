@@ -3,24 +3,26 @@ package wings.wxd.events;
 import wings.w2d.Object2D;
 import wings.wxd.Input;
 
+enum TapType {
+	Start; Touch; Release;
+}
+
 class TapEvent extends UpdateEvent {
 
-	public static inline var TYPE_START = 0;
-	public static inline var TYPE_TOUCH = 1;
-	public static inline var TYPE_RELEASE = 2;
+	var type:TapType;
 
-	var type:Int;
-
-	public function new(onEvent:Void->Void, type:Int = TYPE_RELEASE) {
+	public function new(onEvent:Void->Void, type:TapType = null) {
+		if (type == null) type = TapType.Release;
 		super(onEvent);
 
 		this.type = type;
 	}
 
 	override public function update() {
-		if ((type == TYPE_RELEASE && Input.released) ||
-			(type == TYPE_TOUCH && Input.touch) ||
-			(type == TYPE_START && Input.started)) {
+		// TODO: release tap event only when touch starts over object
+		if ((type == TapType.Release && Input.released) ||
+			(type == TapType.Touch && Input.touch) ||
+			(type == TapType.Start && Input.started)) {
 
 			if (Std.is(parent, Object2D)) {
 				var p = cast(parent, Object2D);

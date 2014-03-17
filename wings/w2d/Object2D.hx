@@ -104,6 +104,11 @@ class Object2D extends EventListener {
 			// TODO: rotation center
 			abs.rotation.angle += p.abs.rotation.angle;
 
+			// Size
+			// TODO: proper nested size calculation
+			if (abs.w > p.abs.w) p.abs.w = abs.w;
+			if (abs.h > p.abs.h) p.abs.h = abs.h;
+
 			// Scale
 			abs.scaleX *= p.abs.scaleX;
 			abs.scaleX *= p.abs.scaleY;
@@ -152,4 +157,6 @@ class Object2D extends EventListener {
 
 	inline function get_color():Color { return rel.color; }
 	inline function set_color(c:Color):Color { return rel.color = c; }
+
+	public inline function hitTest(x:Float, y:Float):Bool { return abs.hitTest(x, y); }
 }

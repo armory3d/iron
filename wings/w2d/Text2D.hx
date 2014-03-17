@@ -16,7 +16,7 @@ class Text2D extends Object2D {
 	var align:TextAlign;
 
 	public function new(text:String, font:Font, x:Float = 0, y:Float = 0, color:Int = 0xff000000,
-						?align:TextAlign) {
+						align:TextAlign = null) {
 		if (align == null) align = TextAlign.Left;
 
 		super();
