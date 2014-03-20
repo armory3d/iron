@@ -83,7 +83,9 @@ class Object2D extends EventListener {
 		// TODO: separate rel & abs changes
 		abs.x = rel.x;
 		abs.y = rel.y;
-		abs.rotation = rel.rotation;
+		abs.rotation.angle = rel.rotation.angle;
+		abs.rotation.center.x = rel.rotation.center.x;
+		abs.rotation.center.y = rel.rotation.center.y;
 		abs.w = rel.w;
 		abs.h = rel.h;
 		abs.scaleX = rel.scaleX;

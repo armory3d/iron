@@ -13,7 +13,7 @@ class Sprite extends Object2D {
 	var currentFrame:Int;
 	var currentFrameTime:Int;
 
-	var pause:Bool;
+	var paused:Bool;
 	var reversed:Bool;
 	var flipped:Bool;
 
@@ -28,7 +28,7 @@ class Sprite extends Object2D {
 		currentFrameTime = 0;
 
 		repeat = true;
-		pause = false;
+		paused = false;
 
 		this.tilesheet = tilesheet;
 		this.x = x;
@@ -56,21 +56,23 @@ class Sprite extends Object2D {
 	}
 
 	public function play() {
-
+		paused = false;
 	}
 
-	public function _pause() {
-
+	public function pause() {
+		paused = true;
 	}
 
 	public function stop() {
-		
+		paused = true;
+		currentFrame = 0;
+		currentFrameTime = 0;
 	}
 
 	public override function update() {
 		super.update();
 
-		if (pause) return;
+		if (paused) return;
 
 		// Add time
 		currentFrameTime += Time.delta;
@@ -83,7 +85,7 @@ class Sprite extends Object2D {
 
 			// Animation passed
 			if (currentFrame >= animations[currentAnimation].frames.length) {
-				if (!repeat) {currentFrame--; pause = true;} // TODO: stops only at end, make possible to stop it at the start
+				if (!repeat) {currentFrame--; paused = true;} // TODO: stops only at end, make possible to stop it at the start
 				else currentFrame = 0;
 			}
 		}
