@@ -8,7 +8,7 @@ class TabButton extends Button {
 	var onTap:Int->Void;
 
 	public function new(title:String, tab:Int, onTap:Int->Void) {
-		super(title, _onTap);
+		super(title, 100, 35, _onTap);
 		this.tab = tab;
 		this.onTap = onTap;
 	}
