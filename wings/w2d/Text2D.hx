@@ -3,7 +3,7 @@ package wings.w2d;
 import kha.Painter;
 import kha.Image;
 import kha.Font;
-import wings.wxd.Color;
+import kha.Color;
 
 enum TextAlign {
 	Left; Center; Right;
@@ -23,7 +23,7 @@ class Text2D extends Object2D {
 
 		this.font = font;
 		this.text = text;
-		this.color = color;
+		this.color = Color.fromValue(color);
 		this.align = align;
 
 		this.x = x;
@@ -42,12 +42,12 @@ class Text2D extends Object2D {
 	public override function render(painter:Painter) {
 		super.render(painter);
 		
-		painter.setColor(_color);
+		painter.setColor(color);
 		painter.setFont(font);
 		
 		// Draw text
-		if (align == TextAlign.Left) painter.drawString(text, _x, _y);
-		else if (align == TextAlign.Center) painter.drawString(text, _x - w / 2, _y);
-		else painter.drawString(text, _x - w, _y);
+		if (align == TextAlign.Left) painter.drawString(text, abs.x, abs.y);
+		else if (align == TextAlign.Center) painter.drawString(text, abs.x - w / 2, abs.y);
+		else painter.drawString(text, abs.x - w, abs.y);
 	}
 }

@@ -31,6 +31,8 @@ class Transform {
 
 		x = y = w = h = 0;
 
+		scaleX = scaleY = 1;
+
 		color = Color.fromValue(0xffffffff);
 		
 		rotation = new Rotation(new Vector2(0, 0), 0);
@@ -39,8 +41,8 @@ class Transform {
 	}
 
 	public function hitTest(x:Float, y:Float):Bool {
-		if (x >= this.x && x <= this.x + w &&
-			y >= this.y && y <= this.y + h) {
+		if (x > this.x && x <= this.x + w &&
+			y > this.y && y <= this.y + h) {
 			return true;
 		}
 

@@ -37,10 +37,6 @@ class Object2D extends EventListener {
 	public override function update() {
 
 		super.update();
-		
-		if (rel.changed || abs.changed) {
-			updateTransform();
-		}
 
 		// Children on top receive events first
 		var i = children.length - 1;
@@ -52,12 +48,20 @@ class Object2D extends EventListener {
 
 	public function render(painter:Painter) {
 
+		if (rel.changed || abs.changed) {
+			updateTransform();
+		}
+
 		for (i in 0...children.length) if (children[i] != null) children[i].render(painter);
 	}
 
 	public function addChild(child:Object2D) {
 		children.push(child);
 		child.parent = this;
+
+		// TODO: calc in updateTransform
+		if (child.w > w) w = child.w;
+		if (child.h > h) h = child.h;
 	}
 
 	public function removeChild(child:Object2D) {

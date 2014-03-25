@@ -6,7 +6,8 @@ class ListLayout extends Layout {
 	var offset:Float;
 	var vertical:Bool;
 
-	public function new(spacing:Float = 35, vertical:Bool = true) {
+	// TODO: vertical as enum
+	public function new(spacing:Float = 0, vertical:Bool = true) {
 		super();
 
 		this.spacing = spacing;
@@ -22,9 +23,9 @@ class ListLayout extends Layout {
 		// Adjust pos
 		if (children.length > 1) {
 			if (vertical)
-				child.y = children[children.length - 2].y + children[children.length - 2].h;
+				child.y = children[children.length - 2].y + children[children.length - 2].h + spacing;
 			else
-				child.x = children[children.length - 2].x + children[children.length - 2].w;
+				child.x = children[children.length - 2].x + children[children.length - 2].w + spacing;
 		}
 	}
 
@@ -50,10 +51,19 @@ class ListLayout extends Layout {
 			h = children[children.length - 1].y + children[children.length - 1].h;
 		}
 
+
 		// TODO: proper size calculation
-		h = 0;
-		for (i in 0...children.length) {
-			if (vertical) h += children[i].h;
+		if (vertical) {
+			h = 0;
+			for (i in 0...children.length) {
+				h += children[i].h;
+			}
+		}
+		else {
+			w = 0;
+			for (i in 0...children.length) {
+				w += children[i].w;
+			}
 		}
 	}
 }

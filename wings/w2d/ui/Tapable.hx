@@ -19,11 +19,11 @@ class Tapable extends Object2D {
 	function onMouseOver(b:Bool) {
 		if (b) {
 			color = kha.Color.fromFloats(color.R, color.G, color.B, color.A - 0.1);
-			kha.Loader.the.setHandCursor();
+			//kha.Loader.the.setHandCursor();
 		}
 		else {
 			color = kha.Color.fromFloats(color.R, color.G, color.B, color.A + 0.1);
-			kha.Loader.the.setNormalCursor();
+			//kha.Loader.the.setNormalCursor();
 		}
 	}
 }

@@ -105,9 +105,10 @@ class Helper
         end.sub(vector);
         end.normalize2();
 
-        var v1 = new io.schteppe.cannon.math.Vec3(vector.x, vector.y, vector.z);
-        var v2 = new io.schteppe.cannon.math.Vec3(end.x, end.y, end.z);
-        return new io.schteppe.cannon.collision.Ray(v1, v2);
+        // TODO: use kha vec
+        //var v1 = new io.schteppe.cannon.math.Vec3(vector.x, vector.y, vector.z);
+        //var v2 = new io.schteppe.cannon.math.Vec3(end.x, end.y, end.z);
+        //return new io.schteppe.cannon.collision.Ray(v1, v2);
     }
 
 

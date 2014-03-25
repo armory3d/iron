@@ -189,8 +189,8 @@ class Emitter extends Object2D {
                     particle.radialRadius += particle.velRadialRadius * dt;
 
                     var radius = particle.radialRadius;
-                    particle.x = _x /*emitX*/ - Math.cos(particle.radialRotation) * radius;
-                    particle.y = _y /*emitY*/ - Math.sin(particle.radialRotation) * radius;
+                    particle.x = abs.x /*emitX*/ - Math.cos(particle.radialRotation) * radius;
+                    particle.y = abs.y /*emitY*/ - Math.sin(particle.radialRotation) * radius;
 
                     if (radius < minRadius) {
                         particle.life = 0; // Kill it
@@ -250,8 +250,8 @@ class Emitter extends Object2D {
         }
 
         // Don't include the variance here
-        particle.emitX = _x;//emitX;
-        particle.emitY = _y;//emitY;
+        particle.emitX = abs.x;//emitX;
+        particle.emitY = abs.y;//emitY;
 
         var angle = wings.math.Math.degToRad(random(angle, angleVariance));
         var speed = random(speed, speedVariance);
@@ -267,13 +267,13 @@ class Emitter extends Object2D {
         particle.velRadialRotation = wings.math.Math.degToRad(random(rotatePerSecond, rotatePerSecondVariance));
 
         if (type == Gravity) {
-            particle.x = random(_x /*emitX*/, emitXVariance);
-            particle.y = random(_y /*emitY*/, emitYVariance);
+            particle.x = random(abs.x /*emitX*/, emitXVariance);
+            particle.y = random(abs.y /*emitY*/, emitYVariance);
 
         } else { // type == Radial
             var radius = particle.radialRadius;
-            particle.x = _x /*emitX*/ - Math.cos(particle.radialRotation) * radius;
-            particle.y = _y /*emitY*/ - Math.sin(particle.radialRotation) * radius;
+            particle.x = abs.x /*emitX*/ - Math.cos(particle.radialRotation) * radius;
+            particle.y = abs.y /*emitY*/ - Math.sin(particle.radialRotation) * radius;
         }
 
         // Assumes that the texture is always square
