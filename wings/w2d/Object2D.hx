@@ -24,6 +24,7 @@ class Object2D extends EventListener {
 	public var scaleY(get, set):Float;
 	public var color(get, set):Color;
 
+	// TODO: Take pos in constructor
 	public function new() {
 		
 		parent = null;
@@ -48,6 +49,7 @@ class Object2D extends EventListener {
 
 	public function render(painter:Painter) {
 
+		// Update transform
 		if (rel.changed || abs.changed) {
 			updateTransform();
 		}
@@ -81,7 +83,7 @@ class Object2D extends EventListener {
 		abs.reset();
 	}
 
-	function updateTransform() {
+	public function updateTransform() {
 
 		// Calculate transforms
 		// TODO: separate rel & abs changes
@@ -132,8 +134,9 @@ class Object2D extends EventListener {
 
 		// Update children
 		for (i in 0...children.length) {
-			children[i].rel.changed = true;
-			children[i].abs.changed = true;
+			children[i].updateTransform();
+			//children[i].rel.changed = true;
+			//children[i].abs.changed = true;
 		}
 
 		rel.changed = false;

@@ -4,11 +4,12 @@ class Input {
 	
 	public static var started(default, default):Bool;
 	public static var touch(default, null):Bool;
+	public static var touchAlt(default, null):Bool;
 	public static var released(default, default):Bool;
 
-	public static var preventRelease(default, default):Bool;
+	public static var moved(default, default):Bool;
 
-	public static var touchAlt(default, null):Bool;
+	public static var preventRelease(default, default):Bool;
 
 	public static var x(default, null):Float;
 	public static var y(default, null):Float;
@@ -19,16 +20,21 @@ class Input {
 	public static var down:Bool;
 
 	public function new() {
+		reset();
+	}
+
+	public static function reset() {
 		x = 0;
 		y = 0;
 
 		started = false;
 		touch = false;
+		touchAlt = false;
 		released = false;
 
-		preventRelease = false;
+		moved = false;
 
-		touchAlt = false;
+		preventRelease = false;
 
 		left = right = up = down = false;
 	}
@@ -70,5 +76,6 @@ class Input {
 	public static function update(_x:Float, _y:Float) {
 		x = _x;
 		y = _y;
+		moved = true;
 	}
 }

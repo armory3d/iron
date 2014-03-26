@@ -23,19 +23,20 @@ class MouseEvent extends UpdateEvent {
 	}
 
 	override public function update() {
-		// TODO: perform only on mouse pos change
 		// TODO: input.x is 0 in first frame
-		if ((type == MouseType.Over)) {
-			if (Std.is(parent, Object2D)) {
-				var p = cast(parent, Object2D);
-				var test = p.hitTest(Input.x, Input.y) && Input.x != 0;
-				if (test && !propagated) {
-					onEvent(true);
-					propagated = true;
-				}
-				else if (!test && propagated) {
-					onEvent(false);
-					propagated = false;
+		if (Input.moved) {
+			if ((type == MouseType.Over)) {
+				if (Std.is(parent, Object2D)) {
+					var p = cast(parent, Object2D);
+					var test = p.hitTest(Input.x, Input.y) && Input.x != 0;
+					if (test && !propagated) {
+						onEvent(true);
+						propagated = true;
+					}
+					else if (!test && propagated) {
+						onEvent(false);
+						propagated = false;
+					}
 				}
 			}
 		}

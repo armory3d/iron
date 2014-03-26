@@ -41,6 +41,7 @@ class Root  {
 		root2D.update();
 		Input.released = false;
 		Input.started = false;
+		Input.moved = false;
 	}
 
 	public static function render(painter:Painter) {

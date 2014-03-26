@@ -18,7 +18,7 @@ class Image2D extends Object2D {
 		rel.x = x;
 		rel.y = y;
 		
-		if (image != null) this.image = image;
+		this.image = image;
 		sourceW = w;
 		sourceH = h;
 	}
@@ -48,8 +48,12 @@ class Image2D extends Object2D {
 	}
 
 	function set_image(img:Image):Image {
-		rel.w = img.width;
-		rel.h = img.height;
+		// Update object size
+		if (img != null) {
+			rel.w = img.width;
+			rel.h = img.height;
+		}
+
 		return image = img;
 	}
 }
