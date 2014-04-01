@@ -26,6 +26,7 @@ class Image2D extends Object2D {
 	public override function render(painter:Painter) {
 		if (image == null) return;
 
+		painter.setColor(abs.color);
 		painter.opacity = abs.color.A;
 
 		if (abs.rotation.angle == 0 && sourceW == 0 && scaleX == 1 && scaleY == 1) {
@@ -40,7 +41,8 @@ class Image2D extends Object2D {
 			if (sourceH == 0) sourceH = image.height;
 
 			painter.drawImage2(image, sourceX, sourceY, sourceW, sourceH,
-									  abs.x, abs.y, abs.w, abs.h, abs.rotation);
+							   abs.x, abs.y, abs.w * abs.scaleX, abs.h * abs.scaleY,
+							   abs.rotation);
 		}
 
 		super.render(painter);

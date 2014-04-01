@@ -116,6 +116,7 @@ class Object2D extends EventListener {
 
 			// Size
 			// TODO: proper nested size calculation
+			// base scaling only on scale
 			if (abs.w > p.abs.w) p.abs.w = abs.w;
 			if (abs.h > p.abs.h) p.abs.h = abs.h;
 
