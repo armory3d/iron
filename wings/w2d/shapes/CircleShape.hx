@@ -27,7 +27,7 @@ class CircleShape extends Shape {
 		var x2, y2;
 		var x3, y3;
 
-		for(i in 1...(triangles + 1)) { 
+		for (i in 1...(triangles + 1)) { 
 
 			x2 = radius * Math.cos((i - 1) *  twoPi / triangles) + x1; 
 			y2 = radius * Math.sin((i - 1) * twoPi / triangles) + y1;

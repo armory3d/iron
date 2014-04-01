@@ -11,6 +11,8 @@ class Object2D extends EventListener {
 	public var children:Array<Object2D>;
 
 	// Relative and absolute transforms
+	// TODO: transform origin
+	// TODO: color tweening - set color vals directly
 	public var rel:Transform;
 	public var abs:Transform;
 

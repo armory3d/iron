@@ -41,7 +41,11 @@ class Root  {
 		root2D.update();
 		Input.released = false;
 		Input.started = false;
+		Input.releasedAlt = false;
+		Input.startedAlt = false;
 		Input.moved = false;
+		Input.deltaX = 0;
+		Input.deltaY = 0;
 	}
 
 	public static function render(painter:Painter) {

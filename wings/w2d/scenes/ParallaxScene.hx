@@ -72,8 +72,15 @@ class ParallaxScene extends Scene {
 
 	public function move(ix:Float, iy:Float) {
 
+		// Mouse
 		ix = (ix - Pos.w / 2) / (Pos.w / 2);
     	iy = (iy - Pos.h / 2) / (Pos.h / 2);
+
+    	// Accelerometer
+    	// Extract Rotation
+    	//var MAGIC_NUMBER = 30;
+      	//ix = (ix) / MAGIC_NUMBER; //  -90 :: 90 beta
+      	//iy = (iy) / MAGIC_NUMBER; // -180 :: 180 gamma
 
 		var dx = ix - cx;
 	    var dy = iy - cy;
