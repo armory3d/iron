@@ -11,8 +11,8 @@ class RectShape extends Shape {
 	public function new(x:Float, y:Float, w:Float, h:Float, color:Int = 0xffffffff) {
 		super(x, y);
 
-		rel.w = w;
-		rel.h = h;
+		abs.w = w;
+		abs.h = h;
 		shapeW = w;
 		shapeH = h;
 		rel.color = Color.fromValue(color);

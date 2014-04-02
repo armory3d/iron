@@ -46,14 +46,13 @@ class Image2D extends Object2D {
 		}
 
 		super.render(painter);
-		// TODO: proper rendering order
 	}
 
 	function set_image(img:Image):Image {
 		// Update object size
 		if (img != null) {
-			rel.w = img.width;
-			rel.h = img.height;
+			w = img.width;
+			h = img.height;
 		}
 
 		return image = img;

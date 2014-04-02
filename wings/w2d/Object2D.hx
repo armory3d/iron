@@ -26,6 +26,8 @@ class Object2D extends EventListener {
 	public var scaleY(get, set):Float;
 	public var color(get, set):Color;
 
+	public var visible:Bool;
+
 	// TODO: Take pos in constructor
 	public function new() {
 		
@@ -63,9 +65,14 @@ class Object2D extends EventListener {
 		children.push(child);
 		child.parent = this;
 
-		// TODO: calc in updateTransform
-		if (child.w > w) w = child.w;
-		if (child.h > h) h = child.h;
+		// Calc abs size
+		var p = this;
+		// TODO: do recursively for every children
+		while (p != null) { 
+			updateTransform();
+			updateSize();
+			p = p.parent;
+		}
 	}
 
 	public function removeChild(child:Object2D) {
@@ -83,6 +90,32 @@ class Object2D extends EventListener {
 		children = new Array();
 		rel.reset();
 		abs.reset();
+
+		visible = true;
+	}
+
+	public function updateSize() {
+
+		// Calc abs size // TODO: switch with rel
+		var left = abs.x;
+		var top = abs.y;
+		var right = w + left;
+		var bottom = h + top;
+
+		for (i in 0...children.length) {
+
+			// TODO: update all children recursively
+			var child = children[i];
+
+			if (child.abs.x < left) left = child.abs.x;
+			else if (child.abs.x + child.w > right) right = child.abs.x + child.w;
+
+			if (child.abs.y < top) top = child.abs.y;
+			else if (child.abs.y + child.h > bottom) bottom = child.abs.y + child.h;
+		}
+
+		w = right - left;
+		h = bottom - top;
 	}
 
 	public function updateTransform() {
@@ -94,8 +127,6 @@ class Object2D extends EventListener {
 		abs.rotation.angle = rel.rotation.angle;
 		abs.rotation.center.x = rel.rotation.center.x;
 		abs.rotation.center.y = rel.rotation.center.y;
-		abs.w = rel.w;
-		abs.h = rel.h;
 		abs.scaleX = rel.scaleX;
 		abs.scaleY = rel.scaleY;
 		var colorR = rel.color.R;
@@ -114,12 +145,6 @@ class Object2D extends EventListener {
 			// TODO: rotation center
 			abs.rotation.angle += p.abs.rotation.angle;
 
-			// Size
-			// TODO: proper nested size calculation
-			// base scaling only on scale
-			if (abs.w > p.abs.w) p.abs.w = abs.w;
-			if (abs.h > p.abs.h) p.abs.h = abs.h;
-
 			// Scale
 			abs.scaleX *= p.abs.scaleX;
 			abs.scaleX *= p.abs.scaleY;
@@ -132,18 +157,19 @@ class Object2D extends EventListener {
 		}
 
 		abs.color = Color.fromFloats(colorR, colorG, colorB, colorA);
-		abs.x = Std.int(abs.x);
-		abs.y = Std.int(abs.y);
 
 		// Update children
 		for (i in 0...children.length) {
 			children[i].updateTransform();
-			//children[i].rel.changed = true;
-			//children[i].abs.changed = true;
 		}
 
 		rel.changed = false;
 		abs.changed = false;
+	}
+
+	public function moveInDirection(deltaX:Float, deltaY:Float) {
+		x += deltaX * Math.cos(rotation.angle);
+		y += deltaY * Math.sin(rotation.angle);
 	}
 
 	inline function get_x():Float { return rel.x; }
@@ -155,11 +181,11 @@ class Object2D extends EventListener {
 	inline function get_rotation():Rotation { return rel.rotation; }
 	inline function set_rotation(r:Rotation):Rotation { return rel.rotation = r; }
 
-	inline function get_w():Float { return rel.w; }
-	inline function set_w(f:Float):Float { return rel.w = f; }
+	function get_w():Float { return abs.w; }
+	function set_w(f:Float):Float { return abs.w = f; }
 
-	inline function get_h():Float { return rel.h; }
-	inline function set_h(f:Float):Float { return rel.h = f; }
+	function get_h():Float { return abs.h; }
+	function set_h(f:Float):Float { return abs.h = f; }
 
 	inline function get_scaleX():Float { return rel.scaleX; }
 	inline function set_scaleX(f:Float):Float { return rel.scaleX = f; }

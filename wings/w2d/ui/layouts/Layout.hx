@@ -8,6 +8,6 @@ class Layout extends Object2D {
 		super();
 	}
 
-	public function updateLayout() {
-	}
+	//public function updateLayout() {
+	//}
 }
