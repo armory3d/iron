@@ -19,6 +19,8 @@ class TapEvent extends UpdateEvent {
 	}
 
 	override public function update() {
+		if (parent.forcedInput) Input.forced = true;
+
 		// TODO: release tap event only when touch starts over object
 		if ((type == TapType.Release && Input.released) ||
 			(type == TapType.Touch && Input.touch) ||
@@ -31,5 +33,7 @@ class TapEvent extends UpdateEvent {
 				}
 			}
 		}
+
+		if (parent.forcedInput) Input.forced = false;
 	}
 }

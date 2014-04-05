@@ -13,4 +13,8 @@ class Event {
 	public function update() {
 		
 	}
+
+	public function added() {
+		
+	}
 }

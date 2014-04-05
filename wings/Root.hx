@@ -5,14 +5,7 @@ import kha.Sys;
 import wings.w2d.Object2D;
 import wings.w3d.Object;
 import wings.wxd.events.Event;
-import wings.wxd.Assets;
-import wings.wxd.Pos;
-import wings.wxd.Time;
-import wings.wxd.Input;
-import wings.wxd.Storage;
-import wings.wxd.Audio;
-import wings.wxd.Random;
-import wings.wxd.Net;
+import wings.wxd.*;
 
 class Root  {
 
@@ -39,6 +32,7 @@ class Root  {
 		Time.update();
 		root.update();
 		root2D.update();
+
 		Input.released = false;
 		Input.started = false;
 		Input.releasedAlt = false;
@@ -46,6 +40,7 @@ class Root  {
 		Input.moved = false;
 		Input.deltaX = 0;
 		Input.deltaY = 0;
+		Input.wheel = 0;
 	}
 
 	public static function render(painter:Painter) {
@@ -86,6 +81,10 @@ class Root  {
 		Input.onButtonUp(button);
 	}
 
+	public static inline function mouseWheel(delta:Int) {
+		Input.onWheel(delta);
+	}
+
 	public static function addChild(child:Object) {
 		root.addChild(child);
 	}
@@ -121,6 +120,7 @@ class Root  {
 	public static function reset() {
 		root.reset();
 		root2D.reset();
+		Input.reset();
 	}
 
 	/*public static function draw(image:Image, x:Float, y:Float, a:Float = 1,

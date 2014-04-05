@@ -22,6 +22,7 @@ class Object2D extends EventListener {
 	public var rotation(get, set):Rotation;
 	public var w(get, set):Float;
 	public var h(get, set):Float;
+	public var scale(get, set):Float;
 	public var scaleX(get, set):Float;
 	public var scaleY(get, set):Float;
 	public var color(get, set):Color;
@@ -147,7 +148,7 @@ class Object2D extends EventListener {
 
 			// Scale
 			abs.scaleX *= p.abs.scaleX;
-			abs.scaleX *= p.abs.scaleY;
+			abs.scaleY *= p.abs.scaleY;
 
 			// Color
 			colorR *= p.abs.color.R;
@@ -186,6 +187,9 @@ class Object2D extends EventListener {
 
 	function get_h():Float { return abs.h; }
 	function set_h(f:Float):Float { return abs.h = f; }
+
+	inline function get_scale():Float { return rel.scale; }
+	inline function set_scale(f:Float):Float { return rel.scale = f; }
 
 	inline function get_scaleX():Float { return rel.scaleX; }
 	inline function set_scaleX(f:Float):Float { return rel.scaleX = f; }

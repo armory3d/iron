@@ -24,6 +24,8 @@ class MouseEvent extends UpdateEvent {
 
 	override public function update() {
 		// TODO: input.x is 0 in first frame
+		if (parent.forcedInput) Input.forced = true;
+
 		if (Input.moved) {
 			if ((type == MouseType.Over)) {
 				if (Std.is(parent, Object2D)) {
@@ -40,6 +42,8 @@ class MouseEvent extends UpdateEvent {
 				}
 			}
 		}
+
+		if (parent.forcedInput) Input.forced = false;
 	}
 
 	function _update() {

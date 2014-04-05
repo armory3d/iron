@@ -3,27 +3,19 @@ package wings.w2d;
 import kha.Color;
 import kha.Rotation;
 import kha.math.Vector2;
+import wings.math.Rect;
 
-class Transform {
+class Transform extends Rect {
 
 	public var changed:Bool;
 
-	public var x(default, set):Float;
-	public var y(default, set):Float;
-
 	public var rotation(default, set):Rotation;
-
-	public var w(default, set):Float;
-	public var h(default, set):Float;
-
-	public var scaleX(default, set):Float;
-	public var scaleY(default, set):Float;
 
 	// Blending
 	public var color(default, set):Color;
 
 	public function new() {
-		
+		super();
 		reset();
 	}
 
@@ -41,20 +33,20 @@ class Transform {
 	}
 
 	public function hitTest(x:Float, y:Float):Bool {
-		if (x > this.x && x <= this.x + w &&
-			y > this.y && y <= this.y + h) {
+		if (x > this.x && x <= this.x + w * scaleX &&
+			y > this.y && y <= this.y + h * scaleY) {
 			return true;
 		}
 
 		return false;
 	}
 
-	inline function set_x(f:Float):Float {
+	override function set_x(f:Float):Float {
 		changed = true;
 		return x = f;
 	}
 
-	inline function set_y(f:Float):Float {
+	override function set_y(f:Float):Float {
 		changed = true;
 		return y = f;
 	}
@@ -64,22 +56,22 @@ class Transform {
 		return rotation = r;
 	}
 
-	inline function set_w(f:Float):Float {
+	override function set_w(f:Float):Float {
 		changed = true;
 		return w = f;
 	}
 
-	inline function set_h(f:Float):Float {
+	override function set_h(f:Float):Float {
 		changed = true;
 		return h = f;
 	}
 
-	inline function set_scaleX(f:Float):Float {
+	override function set_scaleX(f:Float):Float {
 		changed = true;
 		return scaleX = f;
 	}
 
-	inline function set_scaleY(f:Float):Float {
+	override function set_scaleY(f:Float):Float {
 		changed = true;
 		return scaleY = f;
 	}

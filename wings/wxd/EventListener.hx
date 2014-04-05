@@ -6,6 +6,8 @@ class EventListener {
 
 	public var events:Array<Event>;
 
+	public var forcedInput:Bool = false;
+
 	public function new() {
 		reset();
 	}
@@ -17,6 +19,7 @@ class EventListener {
 	public function addEvent(event:Event) {
 		events.push(event);
 		event.parent = this;
+		event.added();
 	}
 
 	public function removeEvent(event:Event) {

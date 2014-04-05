@@ -2,15 +2,13 @@ package wings.w2d;
 
 import kha.Painter;
 import kha.Image;
+import wings.math.Rect;
 
 class Image2D extends Object2D {
 
 	public var image(default, set):Image;
 
-	public var sourceX:Float = 0;
-	public var sourceY:Float = 0;
-	public var sourceW:Float = 0;
-	public var sourceH:Float = 0;
+	public var source:Rect;
 
 	public function new(image:Image, x:Float = 0, y:Float = 0) {
 		super();
@@ -19,8 +17,8 @@ class Image2D extends Object2D {
 		rel.y = y;
 		
 		this.image = image;
-		sourceW = w;
-		sourceH = h;
+
+		source = new Rect(0, 0, w, h);
 	}
 
 	public override function render(painter:Painter) {
@@ -29,7 +27,7 @@ class Image2D extends Object2D {
 		painter.setColor(abs.color);
 		painter.opacity = abs.color.A;
 
-		if (abs.rotation.angle == 0 && sourceW == 0 && scaleX == 1 && scaleY == 1) {
+		if (abs.rotation.angle == 0 && source.w == 0 && scaleX == 1 && scaleY == 1) {
 			painter.drawImage(image, abs.x, abs.y);
 		}
 		else {
@@ -37,10 +35,10 @@ class Image2D extends Object2D {
 			abs.rotation.center = new kha.math.Vector2(abs.w / 2, abs.h / 2);
 
 			// TODO: auto-set source size
-			if (sourceW == 0) sourceW = image.width;
-			if (sourceH == 0) sourceH = image.height;
+			if (source.w == 0) source.w = image.width;
+			if (source.h == 0) source.h = image.height;
 
-			painter.drawImage2(image, sourceX, sourceY, sourceW, sourceH,
+			painter.drawImage2(image, source.x, source.y, source.w * source.scaleX, source.h * source.scaleY,
 							   abs.x, abs.y, abs.w * abs.scaleX, abs.h * abs.scaleY,
 							   abs.rotation);
 		}
