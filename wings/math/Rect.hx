@@ -1,7 +1,11 @@
 package wings.math;
 
+import wings.w2d.Object2D;
+
 // Base transform
 class Rect {
+
+	public var parent:Object2D;
 
 	public var x(default, set):Float;
 	public var y(default, set):Float;
@@ -13,7 +17,8 @@ class Rect {
 	public var scaleX(default, set):Float;
 	public var scaleY(default, set):Float;
 
-	public function new(x:Float = 0, y:Float = 0, w:Float = 0, h:Float = 0) {
+	public function new(parent:Object2D, x:Float = 0, y:Float = 0, w:Float = 0, h:Float = 0) {
+		this.parent = parent;
 		this.x = x;
 		this.y = y;
 		this.w = w;
@@ -55,5 +60,14 @@ class Rect {
 
 	function set_scaleY(f:Float):Float {
 		return scaleY = f;
+	}
+
+	public function hitTest(x:Float, y:Float):Bool {
+		if (x > this.x /* * parent.scaleX*/ && x <= this.x /* * parent.scaleX */+ w * scaleX &&
+			y > this.y /* * parent.scaleY*/ && y <= this.y /* * parent.scaleY */+ h * scaleY) {
+			return true;
+		}
+
+		return false;
 	}
 }

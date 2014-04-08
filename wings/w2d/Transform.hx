@@ -4,6 +4,7 @@ import kha.Color;
 import kha.Rotation;
 import kha.math.Vector2;
 import wings.math.Rect;
+import wings.w2d.Object2D;
 
 class Transform extends Rect {
 
@@ -14,8 +15,8 @@ class Transform extends Rect {
 	// Blending
 	public var color(default, set):Color;
 
-	public function new() {
-		super();
+	public function new(parent:Object2D) {
+		super(parent);
 		reset();
 	}
 
@@ -30,15 +31,6 @@ class Transform extends Rect {
 		rotation = new Rotation(new Vector2(0, 0), 0);
 
 		changed = true;
-	}
-
-	public function hitTest(x:Float, y:Float):Bool {
-		if (x > this.x && x <= this.x + w * scaleX &&
-			y > this.y && y <= this.y + h * scaleY) {
-			return true;
-		}
-
-		return false;
 	}
 
 	override function set_x(f:Float):Float {

@@ -25,6 +25,7 @@ class Root  {
 		new Storage();
 		new Audio();
 		new Net();
+		new Log();
 		new Random(Std.random(999999));
 	}
 

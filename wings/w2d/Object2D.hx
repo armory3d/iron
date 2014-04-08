@@ -33,8 +33,8 @@ class Object2D extends EventListener {
 	public function new() {
 		
 		parent = null;
-		rel = new Transform();
-		abs = new Transform();
+		rel = new Transform(this);
+		abs = new Transform(this);
 
 		super();
 		reset();	// TODO: reset called in super class
