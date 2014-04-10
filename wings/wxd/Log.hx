@@ -20,6 +20,8 @@ class Log {
 	}
 
 	public static function clear() {
+		#if flash
 		haxe.Log.clear();
+		#end
 	}
 }

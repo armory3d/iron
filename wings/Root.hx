@@ -102,12 +102,12 @@ class Root  {
 		root2D.removeChild(child2D);
 	}
 
-	public static function addEvent(event:Event) {
-		root.addEvent(event);
+	public static function addEvent(event:Event, permanent:Bool = false) {
+		root.addEvent(event, permanent);
 	}
 
-	public static function removeEvent(event:Event) {
-		root.removeEvent(event);
+	public static function removeEvent(event:Event, permanent:Bool = false) {
+		root.removeEvent(event, permanent);
 	}
 
 	public static function addEvent2D(event:Event) {

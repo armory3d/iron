@@ -74,7 +74,7 @@ class ParallaxScene extends Scene {
 
 		// Mouse
 		ix = (ix - Pos.w / 2) / (Pos.w / 2);
-    	iy = (iy - Pos.h / 2) / (Pos.h / 2);
+    	iy = (iy - Pos.h / 2) / (Pos.h / 2) / 8;
 
     	// Accelerometer
     	// Extract Rotation
