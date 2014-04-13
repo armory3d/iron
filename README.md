@@ -1,6 +1,6 @@
 # Wings
 
-### Lightweight 3D game framework built with [Haxe](https://github.com/HaxeFoundation/haxe) & [Kha](https://github.com/KTXSoftware/Kha/)
+### Lightweight 2D/3D game framework built with [Haxe](https://github.com/HaxeFoundation/haxe) & [Kha](https://github.com/KTXSoftware/Kha/)
 
 - [Cross-platform](http://kha.ktxsoftware.com/?systems)
 - GLSL shaders
@@ -27,6 +27,7 @@ If you are using Kha together with Sublime Text, check out my [Kha Sublime Bundl
 - [2D particle systems](https://googledrive.com/host/0B22ElR_OUmfdUkI4SDhFWnVlS2s/index.html)
 - [2D parallax effect](https://googledrive.com/host/0B22ElR_OUmfdS1NLUjRBUEtJM1k/index.html)
 - [Basic UI](https://googledrive.com/host/0B22ElR_OUmfdOUh6Y1hlVE1xM1U/index.html)
+- [Perlin Noise Shader](https://googledrive.com/host/0B22ElR_OUmfddm1LRVpjbjFFUVE/index.html)
 
 ### Usage
 Rendering a [rotating 3D cube](https://googledrive.com/host/0B22ElR_OUmfddkFKczhfQ243LWs/index.html):

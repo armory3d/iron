@@ -51,6 +51,7 @@ class Root  {
 
 		painter.begin();
 		root2D.render(painter);
+		Sys.mouse.render(painter);
 		painter.end();
 	}
 
