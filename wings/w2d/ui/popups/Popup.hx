@@ -33,7 +33,7 @@ class Popup extends Object2D {
 		okButton.forcedInput = true;
 		addChild(okButton);
 
-		Act.tween(background.color, 0.1, {A: 0.3}).ease(motion.easing.Cubic.easeOut);
+		Act.tween(background, 0.1, {a: 0.3}).ease(motion.easing.Cubic.easeOut);
 		Act.tween(this, 0.1, {y: 150}).ease(motion.easing.Cubic.easeOut);
 
 		//Prevent any other input activity
@@ -46,7 +46,7 @@ class Popup extends Object2D {
 	}
 
 	function onOkTap() {
-		Act.tween(background.color, 0.1, {A: 0}).ease(motion.easing.Cubic.easeOut);
+		Act.tween(background, 0.1, {a: 0}).ease(motion.easing.Cubic.easeOut);
 		Act.tween(this, 0.1, {y: Pos.h + 100}).ease(motion.easing.Cubic.easeOut).onComplete(onPopupComplete);
 	}
 

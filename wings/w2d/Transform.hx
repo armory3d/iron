@@ -14,6 +14,10 @@ class Transform extends Rect {
 
 	// Blending
 	public var color(default, set):Color;
+	public var r(get, set):Float;
+	public var g(get, set):Float;
+	public var b(get, set):Float;
+	public var a(get, set):Float;
 
 	public function new(parent:Object2D) {
 		super(parent);
@@ -71,5 +75,41 @@ class Transform extends Rect {
 	inline function set_color(c:Color):Color {
 		changed = true;
 		return color = c;
+	}
+
+	inline function get_r():Float {
+		return color.R;
+	}
+
+	inline function set_r(f:Float):Float {
+		changed = true;
+		return color.R = f;
+	}
+
+	inline function get_g():Float {
+		return color.G;
+	}
+
+	inline function set_g(f:Float):Float {
+		changed = true;
+		return color.G = f;
+	}
+
+	inline function get_b():Float {
+		return color.B;
+	}
+
+	inline function set_b(f:Float):Float {
+		changed = true;
+		return color.B = f;
+	}
+
+	inline function get_a():Float {
+		return color.A;
+	}
+
+	inline function set_a(f:Float):Float {
+		changed = true;
+		return color.A = f;
 	}
 }

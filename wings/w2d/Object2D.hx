@@ -12,7 +12,6 @@ class Object2D extends EventListener {
 
 	// Relative and absolute transforms
 	// TODO: transform origin
-	// TODO: color tweening - set color vals directly
 	public var rel:Transform;
 	public var abs:Transform;
 
@@ -25,7 +24,12 @@ class Object2D extends EventListener {
 	public var scale(get, set):Float;
 	public var scaleX(get, set):Float;
 	public var scaleY(get, set):Float;
+
 	public var color(get, set):Color;
+	public var r(get, set):Float;
+	public var g(get, set):Float;
+	public var b(get, set):Float;
+	public var a(get, set):Float;
 
 	public var visible:Bool;
 
@@ -199,6 +203,18 @@ class Object2D extends EventListener {
 
 	inline function get_color():Color { return rel.color; }
 	inline function set_color(c:Color):Color { return rel.color = c; }
+
+	inline function get_r():Float { return rel.r; }
+	inline function set_r(f:Float):Float { return rel.r = f; }
+
+	inline function get_g():Float { return rel.g; }
+	inline function set_g(f:Float):Float { return rel.g = f; }
+
+	inline function get_b():Float { return rel.b; }
+	inline function set_b(f:Float):Float { return rel.b = f; }
+
+	inline function get_a():Float { return rel.a; }
+	inline function set_a(f:Float):Float { return rel.a = f; }
 
 	public inline function hitTest(x:Float, y:Float):Bool { return abs.hitTest(x, y); }
 }
