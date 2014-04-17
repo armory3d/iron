@@ -12,27 +12,27 @@ class PolyShape extends Shape {
 
 		this.w = w;
 		this.h = h;
-		this.color = color;
+		this.rel.color = kha.Color.fromValue(color);
 		this.sides = sides;
-		this.rotation = rotation;
+		this.rotation.angle = rotation;
 	}
 
 	public override function render(painter:Painter) {
 
-		painter.setColor(Color.fromValue(color));
+		painter.setColor(color);
 		
 		// TODO: proper coords & w:h ratio
-		if (rotation == 0) {	// Facing down
-			painter.fillTriangle(_x - w / 2, _y - h / 4, _x + w / 2, _y - h / 4, _x, _y + h / 4);
+		if (rotation.angle == 0) {	// Facing down
+			painter.fillTriangle(abs.x - w / 2, abs.y - h / 4, abs.x + w / 2, abs.y - h / 4, abs.x, abs.y + h / 4);
 		}
-		else if (rotation == 90) {
-			painter.fillTriangle(_x + w / 4, _y - h / 2, _x + w / 4, _y + h / 2, _x - w / 4, _y);
+		else if (rotation.angle == 90) {
+			painter.fillTriangle(abs.x + w / 4, abs.y - h / 2, abs.x + w / 4, abs.y + h / 2, abs.x - w / 4, abs.y);
 		}
-		else if (rotation == 180) {
-			painter.fillTriangle(_x - w / 2, _y + h / 4, _x + w / 2, _y + h / 4, _x, _y - h / 4);
+		else if (rotation.angle == 180) {
+			painter.fillTriangle(abs.x - w / 2, abs.y + h / 4, abs.x + w / 2, abs.y + h / 4, abs.x, abs.y - h / 4);
 		}
-		else if (rotation == 270) {
-			painter.fillTriangle(_x - w / 4, _y - h / 2, _x - w / 4, _y + h / 2, _x + w / 4, _y);
+		else if (rotation.angle == 270) {
+			painter.fillTriangle(abs.x - w / 4, abs.y - h / 2, abs.x - w / 4, abs.y + h / 2, abs.x + w / 4, abs.y);
 		}
 
 		super.render(painter);

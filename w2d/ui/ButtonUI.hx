@@ -17,12 +17,12 @@ class ButtonUI extends ObjectUI {
 		addEvent(new TapEvent(onTap));
 	}
 
-	public override function hitTest(x:Float, y:Float):Bool {
-		if (x >= this._x && x <= this._x + shapeW &&
-			y >= this._y && y <= this._y + shapeH) {
+	/*public override function hitTest(x:Float, y:Float):Bool {
+		if (x >= abs.x && x <= abs.x + shapeW &&
+			y >= abs.y && y <= abs.y + shapeH) {
 			return true;
 		}
 
 		return false;
-	}
+	}*/
 }

@@ -46,6 +46,18 @@ class Input {
 		forced = false;
 	}
 
+	public static function update() {
+		// TODO: make setters private
+		released = false;
+		started = false;
+		releasedAlt = false;
+		startedAlt = false;
+		moved = false;
+		deltaX = 0;
+		deltaY = 0;
+		wheel = 0;
+	}
+
 	public static function reset() {
 		x = 0;
 		y = 0;
@@ -113,7 +125,7 @@ class Input {
 		_wheel = delta;
 	}
 	
-	public static function update(_x:Float, _y:Float) {
+	public static function onMove(_x:Float, _y:Float) {
 		// TODO: check first frame delta
 		deltaX = _x - x;
 		deltaY = _y - y;

@@ -5,6 +5,7 @@ import flash.net.URLLoader;
 import flash.net.URLRequest;
 import flash.net.URLRequestMethod;
 import flash.net.URLLoaderDataFormat;
+import flash.net.URLVariables;
 import flash.errors.Error;
 import flash.events.Event;
 import flash.events.IOErrorEvent;
@@ -74,6 +75,13 @@ class Request {
 	}
 
 	#if flash
+	public function postVars(vars:URLVariables) {
+		request.method = URLRequestMethod.POST;
+		request.data = vars;
+
+		load();
+	}
+
 	function initRequest(url:String) {
 		request = new URLRequest(url);
 		loader = new URLLoader();
@@ -121,7 +129,7 @@ class Request {
     }
 	
 	function dataHandler(data:String) {
-		if (onData != null) onData(loader.data);
+		if (onData != null) onData(data);
     }
 
 	function statusHandler(e:Int) {

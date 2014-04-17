@@ -90,7 +90,7 @@ class Perlin {
     octFreqPers(falloff);
   }
 
-  public function fill(_w:Int, _h:Int, _x:Float, _y:Float, _z:Float, ?_):Array<Int> {
+  public function fill(_w:Int, _h:Int, _x:Float, _y:Float, _z:Float, ?_): Array<Int> {
 
     var result:Array<Int> = new Array();
 
@@ -190,7 +190,6 @@ class Perlin {
         var color = Std.int( ( s * fPersMax + 1 ) * 128 );
 
         result.push(color);
-        //bitmap.setPixel32( px, py, 0xff000000 | color << 16 | color << 8 | color );
 
         _x += baseFactor;
       }

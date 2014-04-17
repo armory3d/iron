@@ -18,14 +18,15 @@ class ListLayout extends Layout {
 	}
 
 	public function addUI(child:Object2D) {
-		super.addChild(child);
 
 		// Adjust pos
-		if (children.length > 1) {
+		if (children.length > 0) {
 			if (type == Vertical)
-				child.y = children[children.length - 2].y + children[children.length - 2].h + spacing;
+				child.y = children[children.length - 1].y + children[children.length - 1].h + spacing;
 			else
-				child.x = children[children.length - 2].x + children[children.length - 2].w + spacing;
+				child.x = children[children.length - 1].x + children[children.length - 1].w + spacing;
 		}
+
+		super.addChild(child);
 	}
 }

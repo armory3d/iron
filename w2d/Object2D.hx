@@ -162,6 +162,8 @@ class Object2D extends EventListener {
 		}
 
 		abs.color = Color.fromFloats(colorR, colorG, colorB, colorA);
+		abs.x = Std.int(abs.x);
+		abs.y = Std.int(abs.y);
 
 		// Update children
 		for (i in 0...children.length) {

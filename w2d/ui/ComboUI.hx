@@ -79,8 +79,8 @@ class ComboUI extends ButtonUI {
 	function _onTap() {
 		// Show combo box
 		if (comboBox.parent == null) {
-			comboBox.x = _x + w - comboBox.w;
-			comboBox.y = _y;
+			comboBox.x = abs.x + w - comboBox.w;
+			comboBox.y = abs.y;
 			Root.addChild2D(comboBox);
 		}
 		else Root.removeChild2D(comboBox);

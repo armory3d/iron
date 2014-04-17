@@ -33,15 +33,7 @@ class Root  {
 		Time.update();
 		root.update();
 		root2D.update();
-
-		Input.released = false;
-		Input.started = false;
-		Input.releasedAlt = false;
-		Input.startedAlt = false;
-		Input.moved = false;
-		Input.deltaX = 0;
-		Input.deltaY = 0;
-		Input.wheel = 0;
+		Input.update();
 	}
 
 	public static function render(painter:Painter) {
@@ -72,7 +64,7 @@ class Root  {
     }
 
     public static inline function mouseMove(x:Int, y:Int) { 
-    	Input.update(x, y);
+    	Input.onMove(x, y);
     }
 
     public static inline function buttonDown(button:kha.Button) {
