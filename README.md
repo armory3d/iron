@@ -29,6 +29,14 @@ If you are using Kha together with Sublime Text, check out my [Kha Sublime Bundl
 - [Basic UI](https://googledrive.com/host/0B22ElR_OUmfdOUh6Y1hlVE1xM1U/index.html)
 - [Perlin Noise Shader](https://googledrive.com/host/0B22ElR_OUmfddm1LRVpjbjFFUVE/index.html)
 
+### Getting started
+Clone empty wings project
+- git clone --recursive https://github.com/luboslenco/empty
+- git submodule foreach git pull origin master
+
+Clone one of the examples
+- TBD
+
 ### Usage
 Rendering a [rotating 3D cube](https://googledrive.com/host/0B22ElR_OUmfddkFKczhfQ243LWs/index.html):
 ```haxe
