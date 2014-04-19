@@ -41,6 +41,10 @@ class Assets  {
 		return Loader.the.getBlob(name);
 	}
 
+	public static inline function getString(name:String):String {
+		return Loader.the.getBlob(name).toString();
+	}
+
 	public static inline function getShader(name:String):Blob {
 		return Loader.the.getShader(name);
 	}

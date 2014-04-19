@@ -29,8 +29,8 @@ class Map extends Object2D {
 		var tilesH:Int = Std.int(tilesheet.height / tileH);
 
 		// First visible tile
-		var firstTileX:Int = Std.int(Math.abs(_x) / tileW);
-		var firstTileY:Int = Std.int(Math.abs(_y) / tileH);
+		var firstTileX:Int = Std.int(Math.abs(abs.x) / tileW);
+		var firstTileY:Int = Std.int(Math.abs(abs.y) / tileH);
 		var firstTile:Int = firstTileY * tilesW + firstTileX;
 
 		// How many tiles to draw
@@ -75,13 +75,13 @@ class Map extends Object2D {
 				var frameX:Int = posX * tileW;
 				var frameY:Int = posY * tileH;
 
-				var targetX:Float = _x + Std.int(j % data.layers[i].width) * tileW;
-				var targetY:Float = _y + Std.int(j / data.layers[i].width) * tileH;
+				var targetX:Float = abs.x + Std.int(j % data.layers[i].width) * tileW * abs.scaleX;
+				var targetY:Float = abs.y + Std.int(j / data.layers[i].width) * tileH * abs.scaleY;
 
 				// Tile not visible
 				//if (targetX + tileW < 0 || targetY + tileH < 0 || targetX > Pos.w || targetY > Pos.h) continue;
 				
-				painter.drawImage2(tilesheet, frameX, frameY, tileW, tileH, targetX, targetY, tileW, tileH);
+				painter.drawImage2(tilesheet, frameX, frameY, tileW, tileH, Std.int(targetX), Std.int(targetY), Std.int(tileW * abs.scaleX), Std.int(tileH * abs.scaleY));
 			
 				j++;
 			}

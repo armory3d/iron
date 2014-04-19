@@ -30,7 +30,7 @@ class Image2D extends Object2D {
 
 		if (abs.rotation.angle == 0 && source.w == 0 && scaleX == 1 && scaleY == 1) {
 			if (!customShader) painter.drawImage(image, abs.x, abs.y);
-			else painter.drawCustom(image, abs.x, abs.y);
+			//else painter.drawCustom(image, abs.x, abs.y);
 		}
 		else {
 			// TODO: calc center only when needed in updateTransform()
@@ -48,9 +48,9 @@ class Image2D extends Object2D {
 							   abs.rotation);
 			}
 			else {
-				painter.drawCustom2(image, source.x, source.y, source.w * source.scaleX, source.h * source.scaleY,
-							   abs.x, abs.y, abs.w * abs.scaleX, abs.h * abs.scaleY,
-							   abs.rotation);
+				//painter.drawCustom2(image, source.x, source.y, source.w * source.scaleX, source.h * source.scaleY,
+				//			   abs.x, abs.y, abs.w * abs.scaleX, abs.h * abs.scaleY,
+				//			   abs.rotation);
 			}
 		}
 
