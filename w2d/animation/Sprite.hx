@@ -3,6 +3,7 @@ package wings.w2d.animation;
 import kha.Painter;
 import wings.wxd.Time;
 import wings.w2d.Object2D;
+import wings.w2d.tiles.Tilesheet;
 
 class Sprite extends Object2D {
 

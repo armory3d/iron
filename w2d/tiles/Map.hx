@@ -7,35 +7,45 @@ import wings.wxd.Pos;
 class Map extends Object2D {
 
 	var data:Format;
-	var tilesheet:Image;
 
-	public function new(json:String, tilesheet:Image, x:Int = 0, y:Int = 0) {
+	var tilesheet:Tilesheet;
+	var tileW:Int;
+	var tileH:Int;
+	var tilesX:Int;
+	var tilesY:Int;
+
+	var drawX:Int;
+	var drawY:Int;
+
+	var image:Image;
+
+	public function new(json:String, tilesheet:Tilesheet) {
 		super();
 
 		data = haxe.Json.parse(json);
-		this.tilesheet = tilesheet;
 
-		this.x = x;
-		this.y = y;
+		// Tilesheet data
+		this.tilesheet = tilesheet;
+		tileW = tilesheet.tileW;
+		tileH = tilesheet.tileH;
+		tilesX = tilesheet.tilesX;
+		tilesY = tilesheet.tilesY;
+
+		// How many tiles to draw
+		drawX = Std.int(Pos.w / tileW);
+		drawY = Std.int(Pos.h / tileH);
+
+		// Texture
+		image = tilesheet.image;
 	}
 
 	public override function render(painter:Painter) {
 		super.render(painter);
 
-		var tileW:Int = data.tilesets[0].tilewidth;
-		var tileH:Int = data.tilesets[0].tileheight;
-
-		var tilesW:Int = Std.int(tilesheet.width / tileW);
-		var tilesH:Int = Std.int(tilesheet.height / tileH);
-
 		// First visible tile
 		var firstTileX:Int = Std.int(Math.abs(abs.x) / tileW);
 		var firstTileY:Int = Std.int(Math.abs(abs.y) / tileH);
-		var firstTile:Int = firstTileY * tilesW + firstTileX;
-
-		// How many tiles to draw
-		var tilesX:Int = Std.int(Pos.w / tileW);
-		var tilesY:Int = Std.int(Pos.h / tileH);
+		var firstTile:Int = firstTileY * tilesX + firstTileX;
 
 		// Draw layers
 		for (i in 0...data.layers.length) {
@@ -47,41 +57,49 @@ class Map extends Object2D {
 			var j:Int = 0;//firstTile;
 			while (j < data.layers[i].data.length) {
 
-
-				// Next row
 				currentTileX++;
 
-				if (currentTileX >= tilesX) {
+				// Next row
+				if (currentTileX >= drawX) {
 					currentTileX = 0;
 					currentTileY++;
-					//j += 50 - 21;//tilesW - tilesX;
+					//j += tilesX - drawX;
 				}
 
 				// Last row
-				if (currentTileY > tilesY) {
+				if (currentTileY > drawY) {
 					//break;
 				}
 
 				// Empty tile
-				if (data.layers[i].data[j] == 0) { j++; continue; }
+				if (data.layers[i].data[j] == 0) { 
+					j++;
+					continue;
+				}
 
 				// Actual frame on tileset
 				var frame:Int = data.layers[i].data[j] - 1;
 				
 				// Pos on tileset
-				var posX:Int = Std.int(frame % tilesW);
-				var posY:Int = Std.int(frame / tilesW);
+				var posX:Int = frame % tilesX;
+				var posY:Int = Std.int(frame / tilesX);
 
 				var frameX:Int = posX * tileW;
 				var frameY:Int = posY * tileH;
 
-				var targetX:Float = abs.x + Std.int(j % data.layers[i].width) * tileW * abs.scaleX;
+				var targetX:Float = abs.x + (j % data.layers[i].width) * tileW * abs.scaleX;
 				var targetY:Float = abs.y + Std.int(j / data.layers[i].width) * tileH * abs.scaleY;
 
 				// Tile not visible
-				//if (targetX + tileW < 0 || targetY + tileH < 0 || targetX > Pos.w || targetY > Pos.h) continue;
+				if (targetX + tileW < 0 || targetY + tileH < 0 ||
+					targetX > Pos.w || targetY > Pos.h) {
+					j++;
+					continue;
+				}
 				
-				painter.drawImage2(tilesheet, frameX, frameY, tileW, tileH, Std.int(targetX), Std.int(targetY), Std.int(tileW * abs.scaleX), Std.int(tileH * abs.scaleY));
+				// Draw tile
+				painter.drawImage2(image, frameX, frameY, tileW, tileH, targetX, targetY,
+								   tileW * abs.scaleX, tileH * abs.scaleY);
 			
 				j++;
 			}

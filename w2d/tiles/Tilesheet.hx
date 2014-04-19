@@ -1,4 +1,4 @@
-package wings.w2d.animation;
+package wings.w2d.tiles;
 
 import kha.Image;
 
@@ -9,8 +9,8 @@ class Tilesheet {
 	public var tileW:Int;
 	public var tileH:Int;
 
-	public var tilesW:Int;
-	public var tilesH:Int;
+	public var tilesX:Int;
+	public var tilesY:Int;
 
 	public function new(image:Image, tileW:Int, tileH:Int) {
 		this.image = image;
@@ -18,7 +18,7 @@ class Tilesheet {
 		this.tileW = tileW;
 		this.tileH = tileH;
 
-		tilesW = Std.int(image.width / tileW);
-		tilesH = Std.int(image.height / tileH);
+		tilesX = Std.int(image.width / tileW);
+		tilesY = Std.int(image.height / tileH);
 	}
 }
