@@ -35,6 +35,10 @@ class Map extends Object2D {
 		drawX = Std.int(Pos.w / tileW);
 		drawY = Std.int(Pos.h / tileH);
 
+		// Map size
+		w = data.layers[0].width * tileW;
+		h = data.layers[0].height * tileH;
+
 		// Texture
 		image = tilesheet.image;
 	}
@@ -87,11 +91,13 @@ class Map extends Object2D {
 				var frameX:Int = posX * tileW;
 				var frameY:Int = posY * tileH;
 
+				// Pos on screen
 				var targetX:Float = abs.x + (j % data.layers[i].width) * tileW * abs.scaleX;
 				var targetY:Float = abs.y + Std.int(j / data.layers[i].width) * tileH * abs.scaleY;
 
+				// TODO: temporary check
 				// Tile not visible
-				if (targetX + tileW < 0 || targetY + tileH < 0 ||
+				if (targetX + (tileW * abs.scaleX) < 0 || targetY + (tileH * abs.scaleY) < 0 ||
 					targetX > Pos.w || targetY > Pos.h) {
 					j++;
 					continue;

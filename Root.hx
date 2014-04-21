@@ -48,19 +48,19 @@ class Root  {
 	}
 
 	public static inline function mouseDown(x:Int, y:Int) { 
-		Input.onTouchBegin();
+		Input.onTouchBegin(x, y);
 	}
 
     public static inline function mouseUp(x:Int, y:Int) { 
-    	Input.onTouchEnd();
+    	Input.onTouchEnd(x, y);
     }
 
     public static inline function rightMouseDown(x:Int, y:Int) { 
-		Input.onTouchAltBegin();
+		Input.onTouchAltBegin(x, y);
 	}
 
     public static inline function rightMouseUp(x:Int, y:Int) { 
-    	Input.onTouchAltEnd();
+    	Input.onTouchAltEnd(x, y);
     }
 
     public static inline function mouseMove(x:Int, y:Int) { 

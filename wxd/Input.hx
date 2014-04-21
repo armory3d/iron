@@ -83,28 +83,40 @@ class Input {
 		left = right = up = down = false;
 	}
 	
-	public static function onTouchBegin() {
+	public static function onTouchBegin(_x:Float, _y:Float) {
 		_touch = true;
 		_started = true;
+
+		x = _x;
+		y = _y;
 	}
 	
-	public static function onTouchEnd() {
+	public static function onTouchEnd(_x:Float, _y:Float) {
 		_touch = false;
 
 		if (!preventRelease) _released = true;
 		else preventRelease = false;
+
+		x = _x;
+		y = _y;
 	}
 
-	public static function onTouchAltBegin() {
+	public static function onTouchAltBegin(_x:Float, _y:Float) {
 		_touchAlt = true;
 		_startedAlt = true;
+
+		x = _x;
+		y = _y;
 	}
 	
-	public static function onTouchAltEnd() {
+	public static function onTouchAltEnd(_x:Float, _y:Float) {
 		_touchAlt = false;
 		
 		if (!preventReleaseAlt) _releasedAlt = true;
 		else preventReleaseAlt = false;
+
+		x = _x;
+		y = _y;
 	}
 
 	public static function onButtonDown(button:kha.Button) {
@@ -129,6 +141,11 @@ class Input {
 		// TODO: check first frame delta
 		deltaX = _x - x;
 		deltaY = _y - y;
+
+		#if cpp
+		deltaX *= -1;
+		deltaY *= -1;
+		#end
 
 		x = _x;
 		y = _y;

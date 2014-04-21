@@ -17,6 +17,7 @@ class ListLayout extends Layout {
 		this.type = type;
 	}
 
+	// TODO: override addChild instead
 	public function addUI(child:Object2D) {
 
 		// Adjust pos

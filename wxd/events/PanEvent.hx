@@ -11,7 +11,8 @@ class PanEvent extends UpdateEvent {
 	var reverse:Int = 1;
 	var stayOnScreen:Bool;
 
-	public function new(rect:Rect, power:Float = 1, reversed:Bool = false, stayOnScreen:Bool = false) {
+	public function new(rect:Rect, power:Float = 1, reversed:Bool = false,
+						stayOnScreen:Bool = false) {
 		super(_update);
 
 		this.rect = rect;
@@ -32,16 +33,29 @@ class PanEvent extends UpdateEvent {
 
 			if (stayOnScreen) {
 
-				// TODO: proper bounds
-				var w = cast(parent, wings.w2d.Image2D).image.width;
-				var h = cast(parent, wings.w2d.Image2D).image.height;
-
+				// TODO: unify
 				// Out of bounds
-				if (rect.x < 0) rect.x = 0;
-				else if (rect.x + rect.w * rect.scale > w) rect.x = w - rect.w * rect.scale;
+				if (reverse == -1) {
+					// TODO: proper bounds
+					var w = cast(parent, wings.w2d.Image2D).image.width;
+					var h = cast(parent, wings.w2d.Image2D).image.height;
 
-				if (rect.y < 0) rect.y = 0;
-				else if (rect.y + rect.h * rect.scale > h) rect.y = h - rect.h * rect.scale;
+					if (rect.x < 0) rect.x = 0;
+					else if (rect.x + rect.w * rect.scale > w) rect.x = w - rect.w * rect.scale;
+
+					if (rect.y < 0) rect.y = 0;
+					else if (rect.y + rect.h * rect.scale > h) rect.y = h - rect.h * rect.scale;
+				}
+				else {
+					var w = cast(parent, wings.w2d.Object2D).w;
+					var h = cast(parent, wings.w2d.Object2D).h;
+
+					if (rect.x > 0) rect.x = 0;
+					else if (rect.x + w * rect.scale < Pos.w) rect.x = Pos.w - w * rect.scale;
+
+					if (rect.y > 0) rect.y = 0;
+					else if (rect.y + h * rect.scale < Pos.h) rect.y = Pos.h - h * rect.scale;
+				}
 			}
 		}
 	}
