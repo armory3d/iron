@@ -11,7 +11,7 @@ class Button extends Tapable {
 		super(onTap);
 
 		// Rect
-		addChild(new RectShape(0, 0, w, h, 0xffffffff));
+		addChild(new RectShape(0, 0, w, h, 0xffeeeeee));
 
 		// Title
 		addChild(new Text2D(title, Theme.FONT, w / 2, h / 3.5, 0xff000000, TextAlign.Center));

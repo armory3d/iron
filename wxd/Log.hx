@@ -13,7 +13,7 @@ class Log {
 
 	}
 
-	public static function trace(message:String) {
+	public static function trace(message:Dynamic) {
 		if (showTraces) {
             trace(message);
         }

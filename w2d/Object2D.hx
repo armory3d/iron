@@ -4,6 +4,7 @@ import kha.Painter;
 import kha.Color;
 import kha.Rotation;
 import wings.wxd.EventListener;
+import wings.wxd.Pos;
 
 class Object2D extends EventListener {
 
@@ -11,9 +12,13 @@ class Object2D extends EventListener {
 	public var children:Array<Object2D>;
 
 	// Relative and absolute transforms
-	// TODO: transform origin
 	public var rel:Transform;
 	public var abs:Transform;
+
+	// TODO: update transform when origin changes
+	// TODO: take origin in mind when accesing transform directly
+	//public var originX:Float;
+	//public var originY:Float;
 
 	// Handy access to relative transform
 	public var x(get, set):Float;
@@ -174,20 +179,26 @@ class Object2D extends EventListener {
 		abs.changed = false;
 	}
 
+	public function align(x:Float, y:Float, originX:Float, originY:Float) {
+		this.x = Pos.x(x) - w * originX;
+		this.y = Pos.y(y) - h * originY;
+	}
+
 	public function moveInDirection(deltaX:Float, deltaY:Float) {
 		x += deltaX * Math.cos(rotation.angle);
 		y += deltaY * Math.sin(rotation.angle);
 	}
 
 	inline function get_x():Float { return rel.x; }
-	inline function set_x(f:Float):Float { return rel.x = f; }
+	inline function set_x(f:Float):Float { return rel.x = f;/*(f - originX * abs.w);*/ }
 
 	inline function get_y():Float { return rel.y; }
-	inline function set_y(f:Float):Float { return rel.y = f; }
+	inline function set_y(f:Float):Float { return rel.y = f;/*(f - originY * abs.h);*/ }
 
 	inline function get_rotation():Rotation { return rel.rotation; }
 	inline function set_rotation(r:Rotation):Rotation { return rel.rotation = r; }
 
+	// TODO: switch abs and rel size references
 	function get_w():Float { return abs.w; }
 	function set_w(f:Float):Float { return abs.w = f; }
 

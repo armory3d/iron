@@ -17,13 +17,13 @@ class Popup extends Object2D {
 		super();
 
 		this.x = 300;
-		this.y = Pos.h;
+		this.y = 150;
 
 		background = new RectShape(0, 0, Pos.w, Pos.h, 0xff000000);
-		background.color.A = 0;
 		Root.addChild2D(background);
 
-		addChild(new RectShape(0, 0, 500, 300, 0xff444444));
+		addChild(new RectShape(0, 0, 500, 70, 0xff00aeef));
+		addChild(new RectShape(0, h, w, 230, 0xffffffff));
 
 		addChild(new Text2D(title, font, 250, 30, 0xffffffff, TextAlign.Center));
 
@@ -33,8 +33,10 @@ class Popup extends Object2D {
 		okButton.forcedInput = true;
 		addChild(okButton);
 
-		Act.tween(background, 0.1, {a: 0.3}).ease(motion.easing.Cubic.easeOut);
-		Act.tween(this, 0.1, {y: 150}).ease(motion.easing.Cubic.easeOut);
+		background.a = 0;
+		a = 0;
+		Act.tween(background, 0.15, {a: 0.3}).ease(motion.easing.Cubic.easeOut);
+		Act.tween(this, 0.15, {a: 1}).ease(motion.easing.Cubic.easeOut);
 
 		//Prevent any other input activity
 		Input.enabled = false;
@@ -42,17 +44,20 @@ class Popup extends Object2D {
 
 	public override function update() {
 		super.update();
-		background.rel.changed = true;
 	}
 
 	function onOkTap() {
-		Act.tween(background, 0.1, {a: 0}).ease(motion.easing.Cubic.easeOut);
-		Act.tween(this, 0.1, {y: Pos.h + 100}).ease(motion.easing.Cubic.easeOut).onComplete(onPopupComplete);
+		closePopup();
 	}
 
 	function onPopupComplete() {
 		remove();
 		Root.removeChild2D(background);
 		Input.enabled = true;
+	}
+
+	function closePopup() {
+		Act.tween(background, 0.1, {a: 0}).ease(motion.easing.Cubic.easeOut);
+		Act.tween(this, 0.1, {a: 0}).ease(motion.easing.Cubic.easeOut).onComplete(onPopupComplete);
 	}
 }

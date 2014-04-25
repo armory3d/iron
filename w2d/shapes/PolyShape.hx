@@ -19,21 +19,60 @@ class PolyShape extends Shape {
 
 	public override function render(painter:Painter) {
 
-		painter.setColor(color);
+		painter.setColor(abs.color);
 		
+		var p1X = 0.0;
+		var p1Y = 0.0;
+		var p2X = 0.0;
+		var p2Y = 0.0;
+		var p3X = 0.0;
+		var p3Y = 0.0;
+
 		// TODO: proper coords & w:h ratio
 		if (rotation.angle == 0) {	// Facing down
-			painter.fillTriangle(abs.x - w / 2, abs.y - h / 4, abs.x + w / 2, abs.y - h / 4, abs.x, abs.y + h / 4);
+			p1X = abs.x - w / 2;
+			p1Y = abs.y - h / 4;
+
+			p2X = abs.x + w / 2;
+			p2Y = abs.y - h / 4;
+
+			p3X = abs.x;
+			p3Y = abs.y + h / 4;
 		}
 		else if (rotation.angle == 90) {
-			painter.fillTriangle(abs.x + w / 4, abs.y - h / 2, abs.x + w / 4, abs.y + h / 2, abs.x - w / 4, abs.y);
+			p1X = abs.x + w / 4;
+			p1Y = abs.y - h / 2;
+
+			p2X = abs.x + w / 4;
+			p2Y = abs.y + h / 2;
+
+			p3X = abs.x - w / 4;
+			p3Y = abs.y;
 		}
 		else if (rotation.angle == 180) {
-			painter.fillTriangle(abs.x - w / 2, abs.y + h / 4, abs.x + w / 2, abs.y + h / 4, abs.x, abs.y - h / 4);
+			p1X = abs.x - w / 2;
+			p1Y = abs.y + h / 4;
+
+			p2X = abs.x + w / 2;
+			p2Y = abs.y + h / 4;
+
+			p3X = abs.x;
+			p3Y = abs.y - h / 4;
 		}
 		else if (rotation.angle == 270) {
-			painter.fillTriangle(abs.x - w / 4, abs.y - h / 2, abs.x - w / 4, abs.y + h / 2, abs.x + w / 4, abs.y);
+			p1X = abs.x - w / 4;
+			p1Y = abs.y - h / 2;
+
+			p2X = abs.x - w / 4;
+			p2Y = abs.y + h / 2;
+
+			p3X = abs.x + w / 4;
+			p3Y = abs.y;
 		}
+
+		painter.fillTriangle(p1X * abs.scaleX, p1Y * abs.scaleY,
+							 p2X * abs.scaleX, p2Y * abs.scaleY,
+							 p3X * abs.scaleX, p3Y * abs.scaleY);
 
 		super.render(painter);
 	}
