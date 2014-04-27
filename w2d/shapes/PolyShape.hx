@@ -12,7 +12,7 @@ class PolyShape extends Shape {
 
 		this.w = w;
 		this.h = h;
-		this.rel.color = kha.Color.fromValue(color);
+		this.rel.color = Color.fromValue(color);
 		this.sides = sides;
 		this.rotation.angle = rotation;
 	}

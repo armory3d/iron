@@ -19,15 +19,15 @@ class ListUI extends ButtonUI {
 
 		// Arrow
 		arrow = new PolyShape(10, 15, 10, 10);
-		addChild(arrow);
+		super.addChild(arrow);
 
 		layout = new ListLayout();
 		layout.y = h;
-		addChild(layout);
+		super.addChild(layout);
 	}
 
-	public function addUI(child:ObjectUI) {
-		layout.addUI(child);
+	public override function addChild(child:Object2D) {
+		layout.addChild(child);
 
 		// Offset
 		var offset = 5;
@@ -46,15 +46,14 @@ class ListUI extends ButtonUI {
 
 		// Set child size based on depth
 		child.w -= offset * depth;
-		child.shapeW = child.w;
-		child.lineRect.w -= offset * depth;
-		child.lineRect.shapeW = child.lineRect.w;
+		//child.lineRect.w -= offset * depth;
+		//child.lineRect.w = child.lineRect.w;
 		
 		// Set size
 		w = layout.w;
 		if (layout.parent != null) {
 			// Update size if contents are visible
-			h = shapeH + layout.h;
+			h = h + layout.h;
 		}
 	}
 
@@ -68,21 +67,21 @@ class ListUI extends ButtonUI {
 		}
 
 		// Update items in layout
-		if (Std.is(parent, Layout)) cast(parent, Layout).updateLayout();
+		//if (Std.is(parent, Layout)) cast(parent, Layout).updateLayout();
 	}
 
 	public function showContents(show:Bool) {
 		// Display contents
 		if (show && layout.parent == null) {
 			addChild(layout);
-			arrow.rotation = 0;
-			h = shapeH + layout.h;
+			arrow.rotation.angle = 0;
+			h = h + layout.h;
 		}
 		// Hide contents
 		else if (layout.parent != null) {
 			removeChild(layout);
-			arrow.rotation = 270;
-			h = shapeH;
+			arrow.rotation.angle = 270;
+			h = h - layout.h;
 		}
 	}
 }

@@ -26,11 +26,11 @@ class Image2D extends Object2D {
 		if (image == null || !visible) return;
 
 		painter.setColor(abs.color);
-		painter.opacity = abs.color.A;
+		painter.opacity = abs.a;
 
 		if (abs.rotation.angle == 0 && source.w == 0 && scaleX == 1 && scaleY == 1) {
 			if (!customShader) painter.drawImage(image, abs.x, abs.y);
-			else painter.drawCustom(image, abs.x, abs.y);
+			//else painter.drawCustom(image, abs.x, abs.y);
 		}
 		else {
 			// TODO: calc center only when needed in updateTransform()
@@ -47,11 +47,11 @@ class Image2D extends Object2D {
 							   abs.x, abs.y, abs.w * abs.scaleX, abs.h * abs.scaleY,
 							   abs.rotation);
 			}
-			else {
-				painter.drawCustom2(image, source.x, source.y, source.w * source.scaleX, source.h * source.scaleY,
-							   abs.x, abs.y, abs.w * abs.scaleX, abs.h * abs.scaleY,
-							   abs.rotation);
-			}
+			//else {
+			//	painter.drawCustom2(image, source.x, source.y, source.w * source.scaleX, source.h * source.scaleY,
+			//				   abs.x, abs.y, abs.w * abs.scaleX, abs.h * abs.scaleY,
+			//				   abs.rotation);
+			//}
 		}
 
 		super.render(painter);

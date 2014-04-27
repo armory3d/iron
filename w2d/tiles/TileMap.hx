@@ -4,9 +4,9 @@ import kha.Painter;
 import kha.Image;
 import wings.wxd.Pos;
 
-class Map extends Object2D {
+class TileMap extends Object2D {
 
-	var data:Format;
+	var layers:Array<Layer>;
 
 	var tilesheet:Tilesheet;
 	var tileW:Int;
@@ -19,13 +19,13 @@ class Map extends Object2D {
 
 	var image:Image;
 
-	public function new(json:String, tilesheet:Tilesheet) {
+	public function new(layers:Array<Layer>, tilesheet:Tilesheet) {
 		super();
 
-		data = haxe.Json.parse(json);
+		this.layers = layers;
+		this.tilesheet = tilesheet;
 
 		// Tilesheet data
-		this.tilesheet = tilesheet;
 		tileW = tilesheet.tileW;
 		tileH = tilesheet.tileH;
 		tilesX = tilesheet.tilesX;
@@ -36,8 +36,8 @@ class Map extends Object2D {
 		drawY = Std.int(Pos.h / tileH);
 
 		// Map size
-		w = data.layers[0].width * tileW;
-		h = data.layers[0].height * tileH;
+		w = layers[0].w * tileW;
+		h = layers[0].h * tileH;
 
 		// Texture
 		image = tilesheet.image;
@@ -46,20 +46,23 @@ class Map extends Object2D {
 	public override function render(painter:Painter) {
 		super.render(painter);
 
+		painter.setColor(abs.color);
+		painter.opacity = abs.a;
+
 		// First visible tile
 		var firstTileX:Int = Std.int(Math.abs(abs.x) / tileW);
 		var firstTileY:Int = Std.int(Math.abs(abs.y) / tileH);
 		var firstTile:Int = firstTileY * tilesX + firstTileX;
 
 		// Draw layers
-		for (i in 0...data.layers.length) {
+		for (i in 0...layers.length) {
 
 			var currentTileX:Int = 0;
 			var currentTileY:Int = 0;
 
 			// Draw tiles
 			var j:Int = 0;//firstTile;
-			while (j < data.layers[i].data.length) {
+			while (j < layers[i].tiles.length) {
 
 				currentTileX++;
 
@@ -76,13 +79,13 @@ class Map extends Object2D {
 				}
 
 				// Empty tile
-				if (data.layers[i].data[j] == 0) { 
+				if (layers[i].tiles[j] == 0) { 
 					j++;
 					continue;
 				}
 
 				// Actual frame on tileset
-				var frame:Int = data.layers[i].data[j] - 1;
+				var frame:Int = layers[i].tiles[j] - 1;
 				
 				// Pos on tileset
 				var posX:Int = frame % tilesX;
@@ -92,8 +95,8 @@ class Map extends Object2D {
 				var frameY:Int = posY * tileH;
 
 				// Pos on screen
-				var targetX:Float = abs.x + (j % data.layers[i].width) * tileW * abs.scaleX;
-				var targetY:Float = abs.y + Std.int(j / data.layers[i].width) * tileH * abs.scaleY;
+				var targetX:Float = abs.x + (j % layers[i].w) * tileW * abs.scaleX;
+				var targetY:Float = abs.y + Std.int(j / layers[i].w) * tileH * abs.scaleY;
 
 				// TODO: temporary check
 				// Tile not visible

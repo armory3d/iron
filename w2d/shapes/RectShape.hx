@@ -10,7 +10,7 @@ class RectShape extends Shape {
 
 		this.w = w;
 		this.h = h;
-		rel.color = Color.fromValue(color);
+		this.color = Color.fromValue(color);
 	}
 
 	public override function render(painter:Painter) {

@@ -60,7 +60,7 @@ class ComboUI extends ButtonUI {
 		// Combo box
 		comboBox = new ListLayout();
 		for (i in 0...states.length) {
-			comboBox.addUI(new ComboEntryUI(states[i], i, this));
+			comboBox.addChild(new ComboEntryUI(states[i], i, this));
 		}
 
 		addEvent(new UpdateEvent(onUpdate));

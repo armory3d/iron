@@ -139,10 +139,11 @@ class Object2D extends EventListener {
 		abs.rotation.center.y = rel.rotation.center.y;
 		abs.scaleX = rel.scaleX;
 		abs.scaleY = rel.scaleY;
-		var colorR = rel.color.R;
-		var colorG = rel.color.G;
-		var colorB = rel.color.B;
-		var colorA = rel.color.A;
+		// TODO: only alpha is inherited
+		abs.r = rel.r;
+		abs.g = rel.g;
+		abs.b = rel.b;
+		abs.a = rel.a;
 
 		var p:Object2D = parent;
 		if (p != null) {
@@ -160,13 +161,12 @@ class Object2D extends EventListener {
 			abs.scaleY *= p.abs.scaleY;
 
 			// Color
-			colorR *= p.abs.color.R;
-			colorG *= p.abs.color.G;
-			colorB *= p.abs.color.B;
-			colorA *= p.abs.color.A;
+			//abs.r *= p.abs.r;
+			//abs.g *= p.abs.g;
+			//abs.b *= p.abs.b;
+			abs.a *= p.abs.a;
 		}
 
-		abs.color = Color.fromFloats(colorR, colorG, colorB, colorA);
 		abs.x = Std.int(abs.x);
 		abs.y = Std.int(abs.y);
 
