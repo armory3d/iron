@@ -9,6 +9,8 @@ class ListLayout extends Layout {
 	var spacing:Float;
 	var type:ListType;
 
+	var addLine:Bool = false;
+
 	public function new(spacing:Float = 0, type:ListType = null) {
 		if (type == null) type = Vertical;
 		super();
@@ -17,15 +19,31 @@ class ListLayout extends Layout {
 		this.type = type;
 	}
 
+	public function nextLine() {
+		addLine = true;
+	}
+
 	// TODO: override addChild instead
 	public override function addChild(child:Object2D) {
 
 		// Adjust pos
-		if (children.length > 0) {
+		if (addLine) {
+			addLine = false;
+
 			if (type == Vertical)
-				child.y = children[children.length - 1].y + children[children.length - 1].h + spacing;
+				child.x = w;
 			else
+				child.y = h;
+		}
+		else if (children.length > 0) {
+			if (type == Vertical) {
+				child.x = children[children.length - 1].x;
+				child.y = children[children.length - 1].y + children[children.length - 1].h + spacing;
+			}
+			else {
 				child.x = children[children.length - 1].x + children[children.length - 1].w + spacing;
+				child.y = children[children.length - 1].y;
+			}
 		}
 
 		super.addChild(child);

@@ -1,6 +1,6 @@
 package wings.w2d.tiles;
 
-class Layer {
+class TileLayer {
 
 	public var tiles:Array<Int>;
 	public var w:Int;

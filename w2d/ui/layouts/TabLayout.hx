@@ -1,6 +1,7 @@
 package wings.w2d.ui.layouts;
 
 import wings.w2d.shapes.RectShape;
+import wings.w2d.ui.layouts.Layout;
 import wings.w2d.ui.layouts.ListLayout;
 
 class TabButton extends Button {
@@ -19,26 +20,29 @@ class TabButton extends Button {
 	}
 }
 
-class TabLayout extends ListLayout {
+class TabLayout extends Layout {
 
 	public var tabs:Array<Object2D>;
 	var currentTab:Int;
 
 	// TODO: add tabs dynamically
 	public function new(titles:Array<String>, w:Float, h:Float) {
-		super(5, ListType.Horizontal);
+		super();
 
 		// Object for each tab
 		tabs = new Array();
+		var tabsLayout = new ListLayout(5, ListType.Horizontal);
 
 		for (i in 0...titles.length) {
 			var tb = new TabButton(titles[i], i, onTabTap);
-			addUI(tb);
+			tabsLayout.addChild(tb);
 			
 			var tabObject = new Object2D();
 			tabObject.y = 35;
 			tabs.push(tabObject);
 		}
+
+		addChild(tabsLayout);
 
 		// Tab background
 		addChild(new RectShape(0, 35, w, h, 0xff333333));

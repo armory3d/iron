@@ -18,6 +18,7 @@ class Transform extends Rect {
 	public var g(get, set):Float;
 	public var b(get, set):Float;
 	public var a(get, set):Float;
+	public var val(get, set):Int;
 
 	public function new(parent:Object2D) {
 		super(parent);
@@ -111,5 +112,14 @@ class Transform extends Rect {
 	inline function set_a(f:Float):Float {
 		changed = true;
 		return color.A = f;
+	}
+
+	inline function get_val():Int {
+		return color.value;
+	}
+
+	inline function set_val(i:Int):Int {
+		changed = true;
+		return color.value = i;
 	}
 }

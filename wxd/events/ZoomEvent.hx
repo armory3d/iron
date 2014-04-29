@@ -45,17 +45,28 @@ class ZoomEvent extends UpdateEvent {
 				rect.y += (obj.h * oldScale - obj.h * rect.scale) / 2;
 
 
-				// TODO: handle in pan event
+				// TODO: unify with pan event
 				//if (stayOnScreen) {
-					var w = cast(parent, wings.w2d.Image2D).image.width;
-					var h = cast(parent, wings.w2d.Image2D).image.height;
+					if (reverse == -1) {
+						var w = cast(parent, wings.w2d.Image2D).image.width;
+						var h = cast(parent, wings.w2d.Image2D).image.height;
 
-					// Out of bounds
-					if (rect.x < 0) rect.x = 0;
-					else if (rect.x + rect.w * rect.scale > w) rect.x = w - rect.w * rect.scale;
+						if (rect.x < 0) rect.x = 0;
+						else if (rect.x + rect.w * rect.scale > w) rect.x = w - rect.w * rect.scale;
 
-					if (rect.y < 0) rect.y = 0;
-					else if (rect.y + rect.h * rect.scale > h) rect.y = h - rect.h * rect.scale;
+						if (rect.y < 0) rect.y = 0;
+						else if (rect.y + rect.h * rect.scale > h) rect.y = h - rect.h * rect.scale;
+					}
+					else {
+						var w = cast(parent, wings.w2d.Object2D).w;
+						var h = cast(parent, wings.w2d.Object2D).h;
+
+						if (rect.x > 0) rect.x = 0;
+						else if (rect.x + w * rect.scale < Pos.w) rect.x = Pos.w - w * rect.scale;
+
+						if (rect.y > 0) rect.y = 0;
+						else if (rect.y + h * rect.scale < Pos.h) rect.y = Pos.h - h * rect.scale;
+					}
 				//}
 			}
 		}

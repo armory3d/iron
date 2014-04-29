@@ -9,7 +9,7 @@ class Image2D extends Object2D {
 	public var image(default, set):Image;
 	public var source:Rect;
 
-	public var customShader:Bool = false;
+	public var shader:Int = 0;
 
 	public function new(image:Image, x:Float = 0, y:Float = 0) {
 		super();
@@ -29,8 +29,8 @@ class Image2D extends Object2D {
 		painter.opacity = abs.a;
 
 		if (abs.rotation.angle == 0 && source.w == 0 && scaleX == 1 && scaleY == 1) {
-			if (!customShader) painter.drawImage(image, abs.x, abs.y);
-			//else painter.drawCustom(image, abs.x, abs.y);
+			if (shader == 0) painter.drawImage(image, abs.x, abs.y);
+			else painter.drawCustom(image, abs.x, abs.y, shader);
 		}
 		else {
 			// TODO: calc center only when needed in updateTransform()
@@ -42,16 +42,16 @@ class Image2D extends Object2D {
 
 			// TODO: shader support in painter
 			// TODO: abs.x * parent.scaleX
-			if (!customShader) {
+			if (shader == 0) {
 				painter.drawImage2(image, source.x, source.y, source.w * source.scaleX, source.h * source.scaleY,
 							   abs.x, abs.y, abs.w * abs.scaleX, abs.h * abs.scaleY,
 							   abs.rotation);
 			}
-			//else {
-			//	painter.drawCustom2(image, source.x, source.y, source.w * source.scaleX, source.h * source.scaleY,
-			//				   abs.x, abs.y, abs.w * abs.scaleX, abs.h * abs.scaleY,
-			//				   abs.rotation);
-			//}
+			else {
+				painter.drawCustom2(image, source.x, source.y, source.w * source.scaleX, source.h * source.scaleY,
+							   abs.x, abs.y, abs.w * abs.scaleX, abs.h * abs.scaleY,
+							   abs.rotation, shader);
+			}
 		}
 
 		super.render(painter);

@@ -35,6 +35,7 @@ class Object2D extends EventListener {
 	public var g(get, set):Float;
 	public var b(get, set):Float;
 	public var a(get, set):Float;
+	public var val(get, set):Int;
 
 	public var visible:Bool;
 
@@ -228,6 +229,9 @@ class Object2D extends EventListener {
 
 	inline function get_a():Float { return rel.a; }
 	inline function set_a(f:Float):Float { return rel.a = f; }
+
+	inline function get_val():Int { return rel.val; }
+	inline function set_val(i:Int):Int { return rel.val = i; }
 
 	public inline function hitTest(x:Float, y:Float):Bool { return abs.hitTest(x, y); }
 }

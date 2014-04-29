@@ -28,8 +28,8 @@ class PanEvent extends UpdateEvent {
 		if (Input.touch) {
 
 			// Move pos
-			rect.x += Input.deltaX * power * reverse * rect.scale;
-			rect.y += Input.deltaY * power * reverse * rect.scale;
+			rect.x += Input.deltaX * power * reverse * (1 + (1 - rect.scale)); // * rect.scale
+			rect.y += Input.deltaY * power * reverse * (1 + (1 - rect.scale));
 
 			if (stayOnScreen) {
 

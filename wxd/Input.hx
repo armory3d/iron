@@ -59,8 +59,8 @@ class Input {
 	}
 
 	public static function reset() {
-		x = 0;
-		y = 0;
+		//x = 0;
+		//y = 0;
 
 		deltaX = 0;
 		deltaY = 0;

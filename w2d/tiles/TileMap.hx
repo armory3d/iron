@@ -6,7 +6,7 @@ import wings.wxd.Pos;
 
 class TileMap extends Object2D {
 
-	var layers:Array<Layer>;
+	var layers:Array<TileLayer>;
 
 	var tilesheet:Tilesheet;
 	var tileW:Int;
@@ -19,7 +19,7 @@ class TileMap extends Object2D {
 
 	var image:Image;
 
-	public function new(layers:Array<Layer>, tilesheet:Tilesheet) {
+	public function new(layers:Array<TileLayer>, tilesheet:Tilesheet) {
 		super();
 
 		this.layers = layers;
@@ -108,10 +108,24 @@ class TileMap extends Object2D {
 				
 				// Draw tile
 				painter.drawImage2(image, frameX, frameY, tileW, tileH, targetX, targetY,
-								   tileW * abs.scaleX, tileH * abs.scaleY);
+								   (tileW * abs.scaleX) + 1, (tileH * abs.scaleY) + 1); // TODO: Fix seams correctly
 			
 				j++;
 			}
 		}
+	}
+
+	// Tiled Map Editor
+	public static function fromTiled(json:String, tilesheet:Tilesheet):TileMap {
+
+		var data:Format = haxe.Json.parse(json);
+
+		var layers = new Array<TileLayer>();
+
+		for (i in 0...data.layers.length) {
+			layers.push(new TileLayer(data.layers[i].data, data.layers[i].width, data.layers[i].height));
+		}
+
+		return new TileMap(layers, tilesheet);
 	}
 }
