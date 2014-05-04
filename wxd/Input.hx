@@ -142,10 +142,10 @@ class Input {
 		deltaX = _x - x;
 		deltaY = _y - y;
 
-		#if cpp
-		deltaX *= -1;
-		deltaY *= -1;
-		#end
+		//#if cpp
+		//deltaX *= -1;
+		//deltaY *= -1;
+		//#end
 
 		x = _x;
 		y = _y;

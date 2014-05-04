@@ -10,15 +10,15 @@ class CrossShape extends Shape {
 
 		this.w = w;
 		this.h = h;
-		this.color = color;
+		this.color = Color.fromValue(color);
 	}
 
 	public override function render(painter:Painter) {
 
-		painter.setColor(Color.fromValue(color));
+		painter.setColor(abs.color);
 
-		painter.drawLine(_x, _y, _x + w, _y + h, 2);
-		painter.drawLine(_x + w, _y, _x, _y + h, 2);
+		painter.drawLine(abs.x, abs.y, abs.x + w, abs.y + h, 2);
+		painter.drawLine(abs.x + w, abs.y, abs.x, abs.y + h, 2);
 
 		super.render(painter);
 	}

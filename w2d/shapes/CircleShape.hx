@@ -13,17 +13,17 @@ class CircleShape extends Shape {
 		this.w = radius * 2;
 		this.h = radius * 2;
 		this.radius = radius;
-		this.color = color;
+		this.color = Color.fromValue(color);
 	}
 
 	public override function render(painter:Painter) {
 
-		painter.setColor(Color.fromValue(color));
+		painter.setColor(abs.color);
 
 		var triangles = 30;
 		var twoPi = 2.0 * 3.14159;
 
-		var x1 = _x, y1 = _y;
+		var x1 = abs.x, y1 = abs.y;
 		var x2, y2;
 		var x3, y3;
 

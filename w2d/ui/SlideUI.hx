@@ -30,7 +30,7 @@ class SlideUI extends ButtonUI {
 
 		// Slider bg
 		sliderBg = new RectShape(100, 5, 100, 25, 0xff303030);
-		sliderBg.addEvent(new TapEvent(onSliderTap, TapEvent.TYPE_START));
+		sliderBg.addEvent(new TapEvent(onSliderTap, TapType.Start));
 		addChild(sliderBg);
 
 		// Slider
@@ -52,14 +52,13 @@ class SlideUI extends ButtonUI {
 	function onSlide() {
 		if (Input.touch) {
 			// Set slider size
-			var x = Input.x - slider._x;
+			var x = Input.x - slider.abs.x;
 
 			// Cap size
 			if (x < 0) x = 0;
 			else if (x > sliderBg.w) x = sliderBg.w;
 
-			slider.w = x;
-			slider.shapeW = slider.w;
+			slider.w = slider.w;
 
 			value = slider.w / sliderBg.w;
 			stateText.text = stateToString();
