@@ -21,10 +21,12 @@ class Geometry {
 	public var aabbMax:Vec3;
 	public var size:Vec3;
 
-	public function new(data:Array<Float>, indices:Array<Int>) {
+	public function new(data:Array<Float>, indices:Array<Int>, usage:Usage = null) {
 
-		vertexBuffer = Sys.graphics.createVertexBuffer(Std.int(data.length / structure.structureLength),
-													   structure.structure, Usage.StaticUsage);
+		if (usage == null) usage = Usage.StaticUsage;
+
+		vertexBuffer = Sys.graphics.createVertexBuffer(Std.int(data.length / Geometry.structure.structureLength),
+													   Geometry.structure.structure, usage);
 		vertices = vertexBuffer.lock();
 		
 		for (i in 0...vertices.length) {

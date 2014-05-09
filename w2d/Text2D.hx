@@ -12,6 +12,7 @@ enum TextAlign {
 class Text2D extends Object2D {
 
 	public var text(default, set):String;
+	public var texts:Array<String>;
 	var font:Font;
 
 	// TODO: use origin instead
@@ -33,6 +34,8 @@ class Text2D extends Object2D {
 
 		w = font.stringWidth(text);
 		h = font.getHeight();
+
+		texts = text.split("\n");
 	}
 
 	function set_text(s:String):String {
@@ -59,6 +62,8 @@ class Text2D extends Object2D {
 		else if (textAlign == TextAlign.Center) posX = abs.x - abs.w / 2;
 		else posX = abs.x - abs.w;
 
-		painter.drawString(text, posX, abs.y, abs.scaleX, abs.scaleY);
+		for (i in 0...texts.length) {
+			painter.drawString(texts[i], posX, abs.y + i * 30, abs.scaleX, abs.scaleY);
+		}
 	}
 }

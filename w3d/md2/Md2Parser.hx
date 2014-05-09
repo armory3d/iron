@@ -46,8 +46,7 @@ typedef Md2Frame = {
     normals:Array<Vec3>,
 };
 
-class Md2Parser
-{
+class Md2Parser {
     static var NORMALS:Array<Array<Float>> = [
         [ -0.525731,  0.000000,  0.850651 ], 
         [ -0.442863,  0.238856,  0.864188 ], 
@@ -213,14 +212,20 @@ class Md2Parser
         [ -0.688191, -0.587785, -0.425325 ]
     ];
 
-    static public function run(_bytes:Bytes):Md2Model
-    {
-        var res:Md2Model = {header:null, triangles:[], uv:[], frames:[]};
+    static public function run(blob:kha.Blob):Md2Model {
+
+        #if flash
+        var _bytes = haxe.io.Bytes.ofData(blob.bytes);
+        #else
+        var _bytes = blob.toBytes();
+        #end
+
+        var res:Md2Model = { header:null, triangles:[], uv:[], frames:[] };
 
         var fin:BytesInput = new BytesInput(_bytes);
 
         if (fin.readString(4) != "IDP2" || fin.readInt32() != 8)
-            throw "What are you doing, Joe?";
+            throw "Unvalid MD2 file";
 
         res.header = {
             skinWidth:fin.readInt32(),
@@ -242,9 +247,8 @@ class Md2Parser
 
         var b:Bytes = _bytes.sub(res.header.offsetSt, res.header.numSt * 4);
         var r = new BytesInput(b);
-        for (i in 0...res.header.numSt)
-        {
-            var uv:Vec3 = Vec3.create(
+        for (i in 0...res.header.numSt) {
+            var uv:Vec3 = new Vec3(
                 r.readInt16() / res.header.skinWidth,
                 r.readInt16() / res.header.skinHeight,
                 0
@@ -255,8 +259,7 @@ class Md2Parser
         // tris
         b = _bytes.sub(res.header.offsetTris, res.header.numTris * 12);
         r = new BytesInput(b);
-        for (i in 0...res.header.numTris)
-        {
+        for (i in 0...res.header.numTris) {
             var t:Md2Tri = {
                 vertInds:[ 0, 0, 0 ],
                 uvInds:[ 0, 0, 0 ]
@@ -280,8 +283,7 @@ class Md2Parser
             res.header.numFrames * (40 + (res.header.numVerts * 4))
         );
         r = new BytesInput(b);
-        for (i in 0...res.header.numFrames)
-        {
+        for (i in 0...res.header.numFrames) {
             var frame = {
                 name:"",
                 scale:new Vec3(),
@@ -307,13 +309,13 @@ class Md2Parser
                 var iZ:Int = r.readByte();
                 var iN:Int = r.readByte();
 
-                frame.verts.push( Vec3.create(
+                frame.verts.push(new Vec3(
                     (frame.scale.y * iY) + frame.translate.y,
                     (frame.scale.z * iZ) + frame.translate.z,
                     (frame.scale.x * iX) + frame.translate.x
                 ));
 
-                frame.normals.push( Vec3.create(
+                frame.normals.push(new Vec3(
                     NORMALS[iN][1],
                     NORMALS[iN][2],
                     NORMALS[iN][0]

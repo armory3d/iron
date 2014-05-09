@@ -12,7 +12,7 @@ class ListLayout extends Layout {
 	var addLine:Bool = false;
 
 	public function new(spacing:Float = 0, type:ListType = null) {
-		if (type == null) type = Vertical;
+		if (type == null) type = ListType.Vertical;
 		super();
 
 		this.spacing = spacing;
@@ -23,20 +23,19 @@ class ListLayout extends Layout {
 		addLine = true;
 	}
 
-	// TODO: override addChild instead
 	public override function addChild(child:Object2D) {
 
 		// Adjust pos
 		if (addLine) {
 			addLine = false;
 
-			if (type == Vertical)
+			if (type == ListType.Vertical)
 				child.x = w;
 			else
 				child.y = h;
 		}
 		else if (children.length > 0) {
-			if (type == Vertical) {
+			if (type == ListType.Vertical) {
 				child.x = children[children.length - 1].x;
 				child.y = children[children.length - 1].y + children[children.length - 1].h + spacing;
 			}

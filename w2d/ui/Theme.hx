@@ -4,5 +4,7 @@ import kha.Font;
 
 class Theme {
 
-	public static var FONT:Font;
+	public static var Font18:Font;
+	public static var Font32:Font;
+	public static var Font56:Font;
 }

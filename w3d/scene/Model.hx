@@ -20,6 +20,8 @@ class Model extends Object {
 	var constantMat4s:Array<Mat4>;
 	var constantVec3s:Array<Vec3>;
 
+	var skip:Bool = false;
+
 	public function new(mesh:Mesh, parent:Object = null) {
 		super(parent);
 
@@ -34,6 +36,7 @@ class Model extends Object {
 
 	public override function render(painter:Painter) {
 		super.render(painter);
+		if (skip) return;
 
 		// TODO: prevent empty material
 		/*if (mesh.geometry == null || mesh.material == null) {
@@ -48,6 +51,12 @@ class Model extends Object {
 		
 		Sys.graphics.setTexture(mesh.material.shader.textures[0], textures[0]);
 		
+		setConstants();
+
+		Sys.graphics.drawIndexedVertices();
+	}
+
+	function setConstants() {
 		for (i in 0...constantVec3s.length) {
 			Sys.graphics.setFloat3(mesh.material.shader.constantVec3s[i], constantVec3s[i].x,
 								   constantVec3s[i].y, constantVec3s[i].z);
@@ -58,8 +67,6 @@ class Model extends Object {
 			mat.matrix = constantMat4s[i].getFloats();
 			Sys.graphics.setMatrix(mesh.material.shader.constantMat4s[i], mat);
 		}
-
-		Sys.graphics.drawIndexedVertices();
 	}
 
 	public function setTexture(tex:Texture) {

@@ -15,6 +15,8 @@ class RectShape extends Shape {
 
 	public override function render(painter:Painter) {
 
+		if (!visible) return;
+
 		painter.setColor(abs.color);
 		painter.fillRect(abs.x /* * parent.scaleX*/, abs.y /* * parent.scaleY*/,
 						 w * abs.scaleX, h * abs.scaleY);

@@ -64,6 +64,9 @@ class Object2D extends EventListener {
 
 	public function render(painter:Painter) {
 
+		// TODO: check visibility nesting
+		if (!visible) return;
+
 		// Update transform
 		if (rel.changed || abs.changed) {
 			updateTransform();
@@ -104,14 +107,14 @@ class Object2D extends EventListener {
 
 		visible = true;
 	}
-
+	
 	public function updateSize() {
 
 		// Calc abs size // TODO: switch with rel
 		var left = abs.x;
 		var top = abs.y;
-		var right = w + left;
-		var bottom = h + top;
+		var right = (w * scaleX) + left;
+		var bottom = (h * scaleY) + top;
 
 		for (i in 0...children.length) {
 
@@ -119,10 +122,10 @@ class Object2D extends EventListener {
 			var child = children[i];
 
 			if (child.abs.x < left) left = child.abs.x;
-			else if (child.abs.x + child.w > right) right = child.abs.x + child.w;
+			else if (child.abs.x + (child.w * child.scaleX) > right) right = child.abs.x + (child.w * child.scaleX);
 
 			if (child.abs.y < top) top = child.abs.y;
-			else if (child.abs.y + child.h > bottom) bottom = child.abs.y + child.h;
+			else if (child.abs.y + (child.h * child.scaleY) > bottom) bottom = child.abs.y + (child.h * child.scaleY);
 		}
 
 		w = right - left;
@@ -161,10 +164,7 @@ class Object2D extends EventListener {
 			abs.scaleX *= p.abs.scaleX;
 			abs.scaleY *= p.abs.scaleY;
 
-			// Color
-			//abs.r *= p.abs.r;
-			//abs.g *= p.abs.g;
-			//abs.b *= p.abs.b;
+			// Alpha
 			abs.a *= p.abs.a;
 		}
 
