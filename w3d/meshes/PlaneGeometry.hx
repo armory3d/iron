@@ -6,7 +6,7 @@ class PlaneGeometry extends Geometry {
 	public static inline var AXIS_Y:Int = 1;
 	public static inline var AXIS_Z:Int = 2;
 
-	public function new(w:Float, h:Float, segmentsX:Int = 2, segmentsY:Int = 2, uvsX:Int = 1, uvsY:Int = 1,
+	public function new(w:Float, h:Float, segmentsX:Int = 2, segmentsY:Int = 2, uvsX:Int = 2, uvsY:Int = 2,
 						heightData:Array<Int> = null, axis:Int = AXIS_Z) {
 
 		var vertices = new Array<Float>();

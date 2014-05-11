@@ -7,15 +7,43 @@ import wings.math.Vec3;
 import wings.w3d.meshes.Mesh;
 import wings.w3d.meshes.Md2Geometry;
 
+class Md2Animation {
+
+	public var startFrame:Int;
+	public var endFrame:Int;
+
+	public function new(startFrame:Int, endFrame:Int) {
+		this.startFrame = startFrame;
+		this.endFrame = endFrame;
+	}
+}
+
 class Md2Model extends Model {
 
 	public var interp:Vec3;
+
+	var animTime:Int = 0;
+	var curFrame = 0;
+	var nextFrame = 1;
+
+	var animations:Array<Md2Animation>;
+	var currentAnim:Int = 0;
 
 	public function new(mesh:Mesh, parent:Object = null) {
 		super(mesh, parent);
 		skip = true;
 
 		interp = new Vec3();
+
+		animations = [];
+	}
+
+	public function addAnimation(anim:Md2Animation) {
+		animations.push(anim);
+	}
+
+	public function setAnimation(pos:Int) {
+		currentAnim = pos;
 	}
 
 	public override function render(painter:Painter) {
@@ -34,10 +62,6 @@ class Md2Model extends Model {
 		Sys.graphics.drawIndexedVertices();
 	}
 
-
-	var animTime:Int = 0;
-	var curFrame = 0;
-	var nextFrame = 1;
 	function animate() {
 
 		var animFPS = 100;
@@ -45,8 +69,14 @@ class Md2Model extends Model {
         animTime += wings.wxd.Time.delta;
         if (animTime >= animFPS) {
 
-            curFrame = (curFrame + 1 >= cast(mesh.geometry, Md2Geometry).md2.header.numFrames) ? 0 : curFrame + 1;
-            nextFrame = (nextFrame + 1 >= cast(mesh.geometry, Md2Geometry).md2.header.numFrames) ? 0 : nextFrame + 1;
+            curFrame = (curFrame + 1);
+            if (curFrame >= cast(mesh.geometry, Md2Geometry).md2.header.numFrames) curFrame = 0;//animations[currentAnim].startFrame;
+            //else if (curFrame > animations[currentAnim].endFrame) curFrame = animations[currentAnim].startFrame;
+            
+            nextFrame = (nextFrame + 1);
+            if (nextFrame >= cast(mesh.geometry, Md2Geometry).md2.header.numFrames) nextFrame = 0;//animations[currentAnim].startFrame;
+            //else if (nextFrame > animations[currentAnim].endFrame) nextFrame = animations[currentAnim].startFrame;
+            
             animTime -= animFPS;
         }
 
