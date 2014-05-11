@@ -5,20 +5,17 @@
 - [Cross-platform](http://kha.ktxsoftware.com/?systems)
 - GLSL shaders
 - [Fbx](https://github.com/ncannasse/h3d/tree/master/h3d/fbx) & Obj support
-- Integrated [3D physics](https://github.com/gbpaul/cannon.hx)
+- [3D physics](https://github.com/gbpaul/cannon.hx)
 - Scene hierarchy, Camera, Skydome, Billboards, Terrain, Grass,...
-- UI
-- 2D drawing and some 2D stuff
-- 2D particle system [importer](http://onebyonedesign.com/flash/particleeditor/) & renderer
-- [Parallax effect](https://github.com/wagerfield/parallax)
+- 2D stuff
 
 In Progress
-- FBX & MD2 Animation
+- FBX & MD5 Animation
 - Frustum culling
 
-Wings is possible only thanks to the Haxe and Kha, which are the two most awesome things ever. The goal is to have a little framework for rapid prototyping of mini 3D games. It's inspired by H3D, ThreeJS and more.
+Wings is possible only thanks to the Haxe and Kha, which are the two most awesome things ever. The goal is to have a little framework for rapid prototyping of mini 3D games.
 
-If you are using Kha together with Sublime Text, check out my [Kha Sublime Bundle](https://github.com/luboslenco/kha-sublime-bundle), forked from [Haxe Sublime Bundle](https://github.com/clemos/haxe-sublime-bundle) by Clemos.
+If you are using Kha together with Sublime Text, check out my [Kha Sublime Bundle](https://github.com/luboslenco/kha-sublime-bundle).
 
 ### Demos
 - [Fbx rendering](https://googledrive.com/host/0B22ElR_OUmfdNzluUmJJZjZQZUU/index.html)
@@ -28,6 +25,7 @@ If you are using Kha together with Sublime Text, check out my [Kha Sublime Bundl
 - [2D parallax effect](https://googledrive.com/host/0B22ElR_OUmfdS1NLUjRBUEtJM1k/index.html)
 - [Basic UI](https://googledrive.com/host/0B22ElR_OUmfdOUh6Y1hlVE1xM1U/index.html)
 - [Perlin Noise Shader](https://googledrive.com/host/0B22ElR_OUmfddm1LRVpjbjFFUVE/index.html)
+- [Frame animation](https://googledrive.com/host/0B22ElR_OUmfdRF81YnFHOUR1T2M/index.html)
 
 ### Getting started
 Clone empty wings project
@@ -35,7 +33,7 @@ Clone empty wings project
 - git submodule foreach git pull origin master
 
 Clone one of the examples
-- TBD
+- [Example 1](https://github.com/luboslenco/example1)
 
 ### Usage
 Rendering a [rotating 3D cube](https://googledrive.com/host/0B22ElR_OUmfddkFKczhfQ243LWs/index.html):
