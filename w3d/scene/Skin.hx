@@ -61,8 +61,8 @@ class Skin extends wings.w3d.scene.Model {
 	public var showJoints : Bool;
 	public var syncIfHidden : Bool = true;
 	
-	public function new(s, mat:wings.w3d.materials.Material, parent) {
-		super(new wings.w3d.meshes.Mesh(null, mat), parent);
+	public function new(s, mat:wings.w3d.material.Material, parent) {
+		super(new wings.w3d.mesh.Mesh(null, mat), parent);
 		if( s != null )
 			setSkinData(s);
 	}
@@ -164,7 +164,7 @@ class Skin extends wings.w3d.scene.Model {
 	}
 	
 	override function render( painter:kha.Painter ) {
-		// TODO: assign skinmatrixes to corrent joints
+		// TODO: assign skinMatrixes to corrent joints
 		//super.render(painter);
 		if( splitPalette == null ) {
 			if( paletteChanged ) {
@@ -172,14 +172,15 @@ class Skin extends wings.w3d.scene.Model {
 		//		for( m in materials )
 		//			if( m != null )
 		//				m.skinMatrixes = currentPalette;
-				//skinMatrixes = currentPalette;
+				skinMatrixes = currentPalette;
 			}
 			super.render(painter);
 		} else {
 			for( i in 0...splitPalette.length ) {
 				//material.skinMatrixes = splitPalette[i];
 				//primitive.selectMaterial(i);
-				//skinMatrixes = splitPalette[i];
+				skinMatrixes = splitPalette[i];
+
 				super.render(painter);
 			}
 		}

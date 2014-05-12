@@ -1,8 +1,8 @@
 package wings.w2d.ui;
 
 import wings.w2d.Object2D;
-import wings.wxd.events.MouseEvent;
-import wings.wxd.events.TapEvent;
+import wings.wxd.event.MouseEvent;
+import wings.wxd.event.TapEvent;
 
 class Tapable extends Object2D {
 

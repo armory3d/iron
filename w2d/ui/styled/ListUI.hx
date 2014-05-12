@@ -1,10 +1,10 @@
 package wings.w2d.ui;
 
-import wings.w2d.shapes.PolyShape;
-import wings.wxd.events.TapEvent;
-import wings.w2d.ui.layouts.Layout;
-import wings.w2d.ui.layouts.ListLayout;
-import wings.w2d.shapes.RectShape;
+import wings.w2d.shape.PolyShape;
+import wings.wxd.event.TapEvent;
+import wings.w2d.ui.layout.Layout;
+import wings.w2d.ui.layout.ListLayout;
+import wings.w2d.shape.RectShape;
 import wings.w2d.Text2D;
 
 // TODO: support nested ListUIs

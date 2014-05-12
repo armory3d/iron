@@ -1,6 +1,6 @@
 package wings.wxd;
 
-import wings.wxd.events.Event;
+import wings.wxd.event.Event;
 
 class EventListener {
 

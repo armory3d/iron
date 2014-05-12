@@ -4,8 +4,8 @@ import kha.Sys;
 import kha.Painter;
 
 import wings.math.Vec3;
-import wings.w3d.meshes.Mesh;
-import wings.w3d.meshes.Md2Geometry;
+import wings.w3d.mesh.Mesh;
+import wings.w3d.mesh.Md2Geometry;
 
 class Md2Animation {
 

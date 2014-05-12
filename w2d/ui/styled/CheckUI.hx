@@ -1,8 +1,8 @@
 package wings.w2d.ui;
 
-import wings.w2d.shapes.RectShape;
-import wings.w2d.shapes.CrossShape;
-import wings.wxd.events.TapEvent;
+import wings.w2d.shape.RectShape;
+import wings.w2d.shape.CrossShape;
+import wings.wxd.event.TapEvent;
 import wings.w2d.Text2D;
 
 class CheckUI extends ButtonUI {

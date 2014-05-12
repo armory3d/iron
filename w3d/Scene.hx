@@ -2,7 +2,7 @@ package wings.w3d;
 
 import kha.Painter;
 import wings.w3d.Object;
-import wings.w3d.cameras.Camera;
+import wings.w3d.camera.Camera;
 
 class Scene extends Object
 {

@@ -1,8 +1,8 @@
 package wings.w2d.ui;
 
-import wings.w2d.shapes.RectShape;
-import wings.wxd.events.TapEvent;
-import wings.wxd.events.UpdateEvent;
+import wings.w2d.shape.RectShape;
+import wings.wxd.event.TapEvent;
+import wings.wxd.event.UpdateEvent;
 import wings.w2d.Text2D;
 import wings.wxd.Input;
 

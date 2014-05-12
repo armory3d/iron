@@ -2,8 +2,8 @@ package wings.w3d.scene;
 
 import kha.Painter;
 import wings.math.Vec3;
-import wings.w3d.meshes.Mesh;
-import wings.w3d.cameras.Camera;
+import wings.w3d.mesh.Mesh;
+import wings.w3d.camera.Camera;
 
 class Billboard extends Model {
 

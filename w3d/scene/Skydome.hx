@@ -1,8 +1,8 @@
 package wings.w3d.scene;
 
 import kha.Painter;
-import wings.w3d.meshes.Mesh;
-import wings.w3d.materials.Material;
+import wings.w3d.mesh.Mesh;
+import wings.w3d.material.Material;
 
 class Skydome extends Model {
 

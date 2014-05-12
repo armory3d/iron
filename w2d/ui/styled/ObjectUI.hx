@@ -1,6 +1,6 @@
 package wings.w2d.ui;
 
-import wings.w2d.shapes.RectShape;
+import wings.w2d.shape.RectShape;
 
 class ObjectUI extends RectShape {
 

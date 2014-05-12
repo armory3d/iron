@@ -3,11 +3,10 @@ package wings.w3d.scene;
 import kha.graphics.Texture;
 import kha.Painter;
 import kha.Sys;
-
-import wings.w3d.materials.TextureMaterial;
-import wings.w3d.materials.Shader;
-import wings.w3d.meshes.Mesh;
-import wings.w3d.meshes.Geometry;
+import wings.w3d.material.TextureMaterial;
+import wings.w3d.material.Shader;
+import wings.w3d.mesh.Mesh;
+import wings.w3d.mesh.Geometry;
 import wings.math.Mat4;
 import wings.math.Vec3;
 import wings.w3d.Object;

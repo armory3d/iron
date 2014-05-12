@@ -4,7 +4,7 @@ import kha.Painter;
 import kha.Sys;
 import wings.w2d.Object2D;
 import wings.w3d.Object;
-import wings.wxd.events.Event;
+import wings.wxd.event.Event;
 import wings.wxd.*;
 
 class Root  {

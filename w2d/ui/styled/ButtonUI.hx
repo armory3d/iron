@@ -1,6 +1,6 @@
 package wings.w2d.ui;
 
-import wings.wxd.events.TapEvent;
+import wings.wxd.event.TapEvent;
 import wings.w2d.Text2D;
 
 class ButtonUI extends ObjectUI {

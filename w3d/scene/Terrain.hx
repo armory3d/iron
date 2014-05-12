@@ -1,10 +1,10 @@
 package wings.w3d.scene;
 
-import wings.w3d.materials.Material;
-import wings.w3d.meshes.Mesh;
-import wings.w3d.meshes.PlaneGeometry;
-import wings.w3d.meshes.QuadGeometry;
-import wings.w3d.meshes.Geometry;
+import wings.w3d.material.Material;
+import wings.w3d.mesh.Mesh;
+import wings.w3d.mesh.PlaneGeometry;
+import wings.w3d.mesh.QuadGeometry;
+import wings.w3d.mesh.Geometry;
 import wings.wxd.Perlin;
 
 class Terrain extends Model {

@@ -1,10 +1,10 @@
 package wings.w2d.ui;
 
-import wings.w2d.shapes.RectShape;
-import wings.w2d.shapes.PolyShape;
-import wings.w2d.ui.layouts.ListLayout;
-import wings.wxd.events.UpdateEvent;
-import wings.wxd.events.TapEvent;
+import wings.w2d.shape.RectShape;
+import wings.w2d.shape.PolyShape;
+import wings.w2d.ui.layout.ListLayout;
+import wings.wxd.event.UpdateEvent;
+import wings.wxd.event.TapEvent;
 import wings.wxd.Input;
 import wings.w2d.Text2D;
 import wings.Root;

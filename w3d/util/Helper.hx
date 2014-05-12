@@ -3,7 +3,7 @@ package wings.w3d.util;
 import wings.math.Mat4;
 import wings.math.Vec3;
 import wings.wxd.Pos;
-import wings.w3d.cameras.Camera;
+import wings.w3d.camera.Camera;
 
 class Helper 
 {

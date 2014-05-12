@@ -8,8 +8,6 @@ import wings.wxd.EventListener;
 
 class Object extends EventListener {
 
-	//public var skinMatrixes:Array<Mat4>;
-
 	public var modelMatrix:Mat4;
 	public var mvpMatrix:Mat4;
 	public var rebuildMatrix:Bool;
@@ -21,6 +19,7 @@ class Object extends EventListener {
 
 	public var defaultTransform(default, set):Mat4;
 	public var currentAnimation(default, null):wings.w3d.anim.Animation;
+	public var skinMatrixes:Array<Mat4>;
 
 	public var scene:Scene;
 	public var parent:Object;

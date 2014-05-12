@@ -40,7 +40,7 @@ class Skin {
 	public var namedJoints(default,null) : Map<String,Joint>;
 	public var allJoints(default,null) : Array<Joint>;
 	public var boundJoints(default,null) : Array<Joint>;
-	public var primitive : wings.w3d.meshes.Geometry;
+	public var primitive : wings.w3d.mesh.Geometry;
 	
 	// spliting
 	public var splitJoints(default, null) : Array<Array<Joint>>;

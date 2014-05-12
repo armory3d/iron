@@ -1,7 +1,7 @@
 package wings.w2d.physics;
 
 import wings.w2d.Object2D;
-import wings.wxd.events.UpdateEvent;
+import wings.wxd.event.UpdateEvent;
 import wings.wxd.Time;
 import nape.geom.Vec2;
 
