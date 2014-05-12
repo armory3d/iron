@@ -28,6 +28,7 @@ class Image2D extends Object2D {
 		painter.setColor(abs.color);
 		painter.opacity = abs.a;
 
+		// TODO: source w is never 0
 		if (abs.rotation.angle == 0 && source.w == 0 && scaleX == 1 && scaleY == 1) {
 			if (shader == 0) painter.drawImage(image, abs.x, abs.y);
 			else painter.drawCustom(image, abs.x, abs.y, shader);
