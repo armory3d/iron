@@ -22,6 +22,8 @@ class Text2D extends Object2D {
 						align:TextAlign = null) {
 		if (align == null) align = TextAlign.Left;
 
+		texts = text.split("\n");
+
 		super();
 
 		this.font = font;
@@ -32,15 +34,13 @@ class Text2D extends Object2D {
 		this.x = x;
 		this.y = y;
 
-		w = font.stringWidth(text);
+		w = font.stringWidth(texts[0]);
 		h = font.getHeight();
-
-		texts = text.split("\n");
 	}
 
 	function set_text(s:String):String {
-		text = s;
-		w = font.stringWidth(text);
+		texts[0] = s;
+		w = font.stringWidth(texts[0]);
 		return s;
 	}
 
