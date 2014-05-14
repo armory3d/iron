@@ -142,13 +142,13 @@ class FbxGeometry extends Geometry {
 			data.push(nbuf[i * 3 + 1]);
 			data.push(nbuf[i * 3 + 2]);
 
-			data.push(sbuf[i * 3]);
+			/*data.push(sbuf[i * 3]);
 			data.push(sbuf[i * 3 + 1]);
 			data.push(sbuf[i * 3 + 2]);
 
 			data.push(sidx[i * 3][0]);
 			data.push(sidx[i * 3 + 1][0]);
-			data.push(sidx[i * 3 + 2][0]);
+			data.push(sidx[i * 3 + 2][0]);*/
 		}
 
 		super(data, idx);
