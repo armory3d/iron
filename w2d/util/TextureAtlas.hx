@@ -7,6 +7,7 @@ import haxe.Json;
 import kha.Image;
 import wings.wxd.Assets;
 import wings.w2d.Image2D;
+import wings.math.Rect;
 
 class TextureAtlas {
 
@@ -30,6 +31,12 @@ class TextureAtlas {
         img.sourceW = frame.w;
         img.sourceH = frame.h;
         return img;
+    }
+
+    public function getSource(name:String):Rect {
+        var frame = getFrameByName(name).frame;
+        
+        return new Rect(null, frame.x, frame.y, frame.w, frame.h);
     }
 
     public function getFrameByName(name:String):TPFrame {

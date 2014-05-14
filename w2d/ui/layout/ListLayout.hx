@@ -1,18 +1,14 @@
 package wings.w2d.ui.layout;
 
-enum ListType {
-	Vertical; Horizontal;
-}
-
 class ListLayout extends Layout {
 
 	var spacing:Float;
-	var type:ListType;
+	var type:LayoutType;
 
 	var addLine:Bool = false;
 
-	public function new(spacing:Float = 0, type:ListType = null) {
-		if (type == null) type = ListType.Vertical;
+	public function new(spacing:Float = 0, type:LayoutType = null) {
+		if (type == null) type = LayoutType.Vertical;
 		super();
 
 		this.spacing = spacing;
@@ -29,13 +25,13 @@ class ListLayout extends Layout {
 		if (addLine) {
 			addLine = false;
 
-			if (type == ListType.Vertical)
+			if (type == LayoutType.Vertical)
 				child.x = w;
 			else
 				child.y = h;
 		}
 		else if (children.length > 0) {
-			if (type == ListType.Vertical) {
+			if (type == LayoutType.Vertical) {
 				child.x = children[children.length - 1].x;
 				child.y = children[children.length - 1].y + children[children.length - 1].h + spacing;
 			}

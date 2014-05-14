@@ -7,7 +7,7 @@ class ScrollLayout extends ListLayout {
 
 	var size:Float;
 
-	public function new(size:Float, spacing:Float = 0, type:ListType = null) {
+	public function new(size:Float, spacing:Float = 0, type:LayoutType = null) {
 		super(spacing, type);
 
 		this.size = size;
@@ -27,7 +27,10 @@ class ScrollLayout extends ListLayout {
 			// Move elements
 			for (i in 0...children.length) {
 
-				if (type == ListType.Vertical) {
+				//if (children[0].y - Input.wheel < 0) break;
+				//else if (children[children.length - 1].y - Input.wheel > size - children[children.length - 1].h) break;
+
+				if (type == LayoutType.Vertical) {
 					children[i].y -= Input.wheel;
 
 					// Hide elements outside of view

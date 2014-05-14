@@ -8,6 +8,8 @@ import wings.wxd.Pos;
 
 class Object2D extends EventListener {
 
+	public static var positionScale:Float = 1;
+
 	public var parent:Object2D;
 	public var children:Array<Object2D>;
 
@@ -191,10 +193,10 @@ class Object2D extends EventListener {
 	}
 
 	inline function get_x():Float { return rel.x; }
-	inline function set_x(f:Float):Float { return rel.x = f;/*(f - originX * abs.w);*/ }
+	inline function set_x(f:Float):Float { return rel.x = f * positionScale;/*(f - originX * abs.w);*/ }
 
 	inline function get_y():Float { return rel.y; }
-	inline function set_y(f:Float):Float { return rel.y = f;/*(f - originY * abs.h);*/ }
+	inline function set_y(f:Float):Float { return rel.y = f * positionScale;/*(f - originY * abs.h);*/ }
 
 	inline function get_rotation():Rotation { return rel.rotation; }
 	inline function set_rotation(r:Rotation):Rotation { return rel.rotation = r; }
