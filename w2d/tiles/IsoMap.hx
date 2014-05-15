@@ -8,7 +8,10 @@ class IsoMap extends TileMap {
 	public function new(layers:Array<TileLayer>, tilesheet:Tilesheet) {
 		super(layers, tilesheet);
 
+		// Limit size to hide tile corners
 		h /= 2;
+		h -= tileH / 2;
+		w -= tileW / 2;
 	}
 
 	public override function render(painter:Painter) {
@@ -65,7 +68,12 @@ class IsoMap extends TileMap {
 				// Pos on screen
 				var targetX:Float = abs.x + (j % layers[i].w) * tileW * abs.scaleX;
 				var targetY:Float = abs.y + (Std.int(j / layers[i].w) * tileH * abs.scaleY) / 2;
-				if (Std.int(j / layers[i].w) % 2 == 0) targetX -= tileW / 2;
+
+				// Move half a tile up
+				targetY -= tileH / 2 * abs.scaleY;
+				
+				// Offset second rows
+				if (Std.int(j / layers[i].w) % 2 == 0) targetX -= (tileW / 2) * abs.scaleX;
 
 				// TODO: temporary check
 				// Tile not visible
@@ -77,7 +85,7 @@ class IsoMap extends TileMap {
 				
 				// Draw tile
 				painter.drawImage2(image, frameX, frameY, tileW, tileH, targetX, targetY,
-								   (tileW * abs.scaleX) + 1, (tileH * abs.scaleY) + 1); // TODO: Fix seams correctly
+								   (tileW * abs.scaleX) + 3, (tileH * abs.scaleY) + 3); // TODO: Fix seams correctly
 			
 				j++;
 			}

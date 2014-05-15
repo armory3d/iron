@@ -111,23 +111,6 @@ class Helper
         //return new io.schteppe.cannon.collision.Ray(v1, v2);
     }
 
-
-
-    // Computes the W component of the quaternion based on the X, Y, and Z components.
-    // This method assumes the quaternion is of unit length.
-    /*function computeQuatW(glm::quat& quat) {
-        var t:Float = 1.0 - (quat.x * quat.x) - (quat.y * quat.y) - (quat.z * quat.z);
-        
-        if (t < 0.0) {
-            quat.w = 0.0;
-        }
-        else {
-            quat.w = -sqrtf(t);
-        }
-    }*/
-
-
-
 /*
     static var out_origin:Vector3D; // Ouput : Origin of the ray. /!\ Starts at the near plane, so if you want the ray to start at the camera's position instead, ignore this.
     static var out_direction:Vector3D; // Ouput : Direction, in world space, of the ray that goes "through" the mouse.
