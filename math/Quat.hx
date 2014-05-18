@@ -275,6 +275,31 @@ class Quat {
         return target;
     }
 
+
+    public function vecmult(vec:Vec3):Vec3 {
+        var num = this.x * 2.0;
+        var num2 = this.y * 2.0;
+        var num3 = this.z * 2.0;
+        var num4 = this.x * num;
+        var num5 = this.y * num2;
+        var num6 = this.z * num3;
+        var num7 = this.x * num2;
+        var num8 = this.x * num3;
+        var num9 = this.y * num3;
+        var num10 = this.w * num;
+        var num11 = this.w * num2;
+        var num12 = this.w * num3;
+
+        var result = new Vec3();
+        result.x = (1.0 - (num5 + num6)) * vec.x + (num7 - num12) * vec.y + (num8 + num11) * vec.z;
+        result.y = (num7 + num12) * vec.x + (1.0 - (num4 + num6)) * vec.y + (num9 - num10) * vec.z;
+        result.z = (num8 - num11) * vec.x + (num9 + num10) * vec.y + (1.0 - (num4 + num5)) * vec.z;
+        return result;
+    }
+
+
+
+
     /**
      * @method copy
      * @memberof Quaternion
@@ -460,5 +485,56 @@ class Quat {
         y = y2;
         z = z2;
         w = w2;
+    }
+
+    public function slerp(qb:Quat, t:Float) {
+        var x = this.x, y = this.y, z = this.z, w = this.w;
+
+        // http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
+
+        var cosHalfTheta = w * qb.w + x * qb.x + y * qb.y + z * qb.z;
+
+        if (cosHalfTheta < 0) {
+            this.w = -qb.w;
+            this.x = -qb.x;
+            this.y = -qb.y;
+            this.z = -qb.z;
+
+            cosHalfTheta = -cosHalfTheta;
+        }
+        else {
+            this.copy(qb);
+        }
+
+        if (cosHalfTheta >= 1.0) {
+            this.w = w;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+
+            return this;
+        }
+
+        var halfTheta = Math.acos(cosHalfTheta);
+        var sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta * cosHalfTheta);
+
+        if (Math.abs(sinHalfTheta) < 0.001) {
+            this.w = 0.5 * (w + this.w);
+            this.x = 0.5 * (x + this.x);
+            this.y = 0.5 * (y + this.y);
+            this.z = 0.5 * (z + this.z);
+
+            return this;
+        }
+
+        var ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
+        var ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
+
+        this.w = (w * ratioA + this.w * ratioB);
+        this.x = (x * ratioA + this.x * ratioB);
+        this.y = (y * ratioA + this.y * ratioB);
+        this.z = (z * ratioA + this.z * ratioB);
+
+        return this;
     }
 }

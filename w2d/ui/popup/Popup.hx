@@ -13,14 +13,14 @@ class Popup extends Object2D {
 
 	var background:RectShape;
 
-	public function new(title:String, width:Int = 500, height:Int = 300) {
+	public function new(title:String, width:Int = 500, height:Int = 300, backgroundColor:Int = 0xffffffff) {
 		super();
 
 		//background = new RectShape(0, 0, Pos.w, Pos.h, 0xff000000);
 		//Root.addChild2D(background);
 
 		addChild(new RectShape(0, 0, width, 70, 0xff00aeef));
-		addChild(new RectShape(0, h, w, height - 70, 0xffffffff));
+		addChild(new RectShape(0, h, w, height - 70, backgroundColor));
 
 		addChild(new Text2D(title, Theme.Font32, width / 2, 30, 0xffffffff, TextAlign.Center));
 

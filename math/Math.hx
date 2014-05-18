@@ -221,4 +221,8 @@ class Math {
 	public inline static function degToRad(deg:Float):Float {
 	    return Math.PI / 180 * deg;
 	}
+
+	public inline static function mix(a:Float, b:Float, k:Float):Float {
+		return a * (1.0 - k) + b * k;
+	}
 }

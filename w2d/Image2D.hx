@@ -4,6 +4,7 @@ import kha.Painter;
 import kha.Image;
 import wings.math.Rect;
 
+// TODO: image gets stretched when object size gets larger than image size
 class Image2D extends Object2D {
 
 	public var image(default, set):Image;

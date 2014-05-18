@@ -1,10 +1,14 @@
 package wings.w3d.importer.md5;
 
+// Based on 3D Game Engine Porgramming article
+// http://3dgep.com/?p=1053
+
 import haxe.io.StringInput;
 import wings.math.Vec3;
 import wings.math.Vec2;
 import wings.math.Quat;
 import wings.math.Mat4;
+import wings.w3d.importer.md5.Md5Animation;
 using StringTools;
 
 class Vertex {
@@ -66,8 +70,8 @@ class Mesh {
 	public function new() { }
 }
 
-class Md5Model {
-	var md5Version:Int = -1;
+class Md5Parser {
+	var md5Version:Int = 0;
 	var numJoints:Int = 0;
 	var numMeshes:Int = 0;
 	var hasAnimation:Bool = false;
@@ -75,23 +79,13 @@ class Md5Model {
 	public var joints:Array<Joint>;
 	public var meshes:Array<Mesh>;
 
-	//Md5Animation animation;
-
-	var modelMatrix:Mat4;
+	var animation:Md5Animation;
 
 	var file:StringInput;
 	var str:Array<String>;
 
 	public function new() {
-		modelMatrix = new Mat4();
-	}
 
-	function readLine():Array<String> {
-		var line = file.readLine();
-		line = line.replace("\t", " ");
-		var str = line.split(" ");
-		if (str[0] == "") str.splice(0, 1);
-		return str;
 	}
 
 	public function loadModel(data:String) {
@@ -102,7 +96,7 @@ class Md5Model {
 
 		try {
 			while (true) {
-				str = readLine();
+				str = readLine(file);
 
 				if (str[0] == "MD5Version") {
 					md5Version = Std.parseInt(str[1]);
@@ -119,7 +113,7 @@ class Md5Model {
 				}
 				else if (str[0] == "joints") {
 					for (i in 0...numJoints) {
-						str = readLine();
+						str = readLine(file);
 
 						var joint = new Joint();
 						joint.name = str[0];
@@ -142,7 +136,7 @@ class Md5Model {
 					var numWeights:Int;
 
 					while (true) {
-						str = readLine();
+						str = readLine(file);
 
 						if (str[0] == "}") {
 							break;
@@ -156,7 +150,7 @@ class Md5Model {
 							numVerts = Std.parseInt(str[1]);
 
 							for (i in 0...numVerts) {
-								str = readLine();
+								str = readLine(file);
 
 								var vert = new Vertex();
 
@@ -173,7 +167,7 @@ class Md5Model {
 							numTris = Std.parseInt(str[1]);
 
 							for (i in 0...numTris) {
-								str = readLine();
+								str = readLine(file);
 
 								var tri = new Triangle();
 								tri.indices[0] = Std.parseInt(str[2]);
@@ -190,10 +184,9 @@ class Md5Model {
 							numWeights = Std.parseInt(str[1]);
 
 							for (i in 0...numWeights) {
-								str = readLine();
+								str = readLine(file);
 
 								var weight = new Weight();
-
 								weight.jointID = Std.parseInt(str[2]);
 								weight.bias = Std.parseFloat(str[3]);
 								weight.pos.x = Std.parseFloat(str[5]);
@@ -217,16 +210,40 @@ class Md5Model {
 		file.close();
 	}
 
-	public function loadAnim() {
+	public function loadAnimation(data:String) {
+		animation = new Md5Animation();
 
+		animation.loadAnimation(data);
+		hasAnimation = true;
 	}
 
 	public function update() {
+		if (hasAnimation) {
+	        animation.update();
 
+	        var skeleton = animation.getSkeleton();
+
+	        for (i in 0...meshes.length) {
+	        	prepareMesh2(meshes[i], skeleton);
+	        }
+	    }
 	}
 
-	public function render() {
+	public function buildData(j:Int):Array<Float> {
+		var data = new Array<Float>();
 
+		for (i in 0...Std.int(meshes[j].positionBuffer.length)) {
+			data.push(meshes[j].positionBuffer[i].x);
+			data.push(meshes[j].positionBuffer[i].y);
+			data.push(meshes[j].positionBuffer[i].z);
+			data.push(meshes[j].tex2DBuffer[i].x);
+			data.push(meshes[j].tex2DBuffer[i].y);
+			data.push(meshes[j].normalBuffer[i].x);
+			data.push(meshes[j].normalBuffer[i].y);
+			data.push(meshes[j].normalBuffer[i].z);
+		}
+
+		return data;
 	}
 
 
@@ -235,7 +252,6 @@ class Md5Model {
 		mesh.tex2DBuffer = [];
 
 		for (i in 0...mesh.verts.length) {
-			var finalPos = new Vec3();
 			var vert = mesh.verts[i];
 
 			vert.pos = new Vec3();
@@ -246,9 +262,13 @@ class Md5Model {
 				var joint = joints[weight.jointID];
 
 				var rotPos = new Vec3();
-				//rotPos = joint.orient * weight.pos;
+				rotPos = joint.orient.vmult(weight.pos, rotPos);
 
-				//vert.pos += (joint.pos + rotPos) * weight.bias;
+				var vp = joint.pos.copy(null);
+				vp = vp.vadd(rotPos, vp);
+				vp = vp.mult(weight.bias);
+				
+				vert.pos.vadd(vp, vert.pos);
 			}
 
 			mesh.positionBuffer.push(vert.pos);
@@ -256,45 +276,92 @@ class Md5Model {
 		}
 	}
 
+	function prepareMesh2(mesh:Mesh, skel:FrameSkeleton) {
+		for (i in 0...mesh.verts.length) {
+			var vert = mesh.verts[i];
+			var pos = mesh.positionBuffer[i];
+			var normal = mesh.normalBuffer[i];
+
+			pos.set(0, 0, 0);
+			normal.set(0, 0, 0);
+
+			for (j in 0...vert.weightCount) {
+				var weight = mesh.weights[vert.startWeight + j];
+				var joint = skel.joints[weight.jointID];
+
+				var rotPos = new Vec3();
+				rotPos = joint.orient.vmult(weight.pos, rotPos);
+				
+				var vp = joint.pos.copy(null);
+				vp = vp.vadd(rotPos, vp);
+				vp = vp.mult(weight.bias);
+				pos.vadd(vp, pos);
+
+				var vn = vert.normal.copy(normal);
+				vn = joint.orient.vmult(vert.normal, vn);
+				vn = vn.mult(weight.bias, vn);
+				normal = normal.vadd(vn, normal);
+			}
+		}
+	}
+
 	function prepareNormals(mesh:Mesh) {
 		mesh.normalBuffer = [];
 
 		for (i in 0...mesh.tris.length) {
-			var v0 = mesh.verts[mesh.tris[i].indices[0]].pos;
-			var v1 = mesh.verts[mesh.tris[i].indices[1]].pos;
-			var v2 = mesh.verts[mesh.tris[i].indices[2]].pos;
+			var v0 = mesh.verts[mesh.tris[i].indices[0]].pos.copy(null);
+			var v1 = mesh.verts[mesh.tris[i].indices[1]].pos.copy(null);
+			var v2 = mesh.verts[mesh.tris[i].indices[2]].pos.copy(null);
 
-			//var normal = cross(v2 - v0, v1 - v0);
+			var cv1 = v2.copy(null);
+			cv1.sub(v0);
+			var cv2 = v1.copy(null);
+			cv2.sub(v0);
+			var normal = cv1.cross(cv2);
 
-			//mesh.verts[mesh.tris[i].indices[0]].normal += normal;
-			//mesh.verts[mesh.tris[i].indices[1]].normal += normal;
-			//mesh.verts[mesh.tris[i].indices[2]].normal += normal;
+			mesh.verts[mesh.tris[i].indices[0]].normal.vadd(normal, mesh.verts[mesh.tris[i].indices[0]].normal);
+			mesh.verts[mesh.tris[i].indices[1]].normal.vadd(normal, mesh.verts[mesh.tris[i].indices[1]].normal);
+			mesh.verts[mesh.tris[i].indices[2]].normal.vadd(normal, mesh.verts[mesh.tris[i].indices[2]].normal);
 		}
 
 		// Normalize all normals
 		for (i in 0...mesh.verts.length) {
 			var vert = mesh.verts[i];
 
-			//var normal = normalize(vert.normal);
-			//mesh.normalBuffer.push(normal);
+			var normal = vert.normal.copy(null);
+			normal.normalize();
+			mesh.normalBuffer.push(normal);
 
-			//vert.normal = new Vec3();
+			vert.normal = new Vec3();
 
 			for (j in 0...vert.weightCount) {
 				var weight = mesh.weights[vert.startWeight + j];
 				var joint = joints[weight.jointID];
-				//vert.normal += (normal * joint.orient) * weight.bias;
+				
+				var vn = new Vec3();
+				vn = joint.orient.vmult(normal, null);
+				vn = vn.mult(weight.bias);
+
+				vert.normal.vadd(vn, vert.normal);
 			}
 		}
 	}
 
-	function renderMesh() {
+	function checkAnimation():Bool {
+		return true;
+	}
 
+	public static function readLine(file:StringInput):Array<String> {
+		var line = file.readLine();
+		line = line.replace("\t", " ");
+		var str = line.split(" ");
+		if (str[0] == "") str.splice(0, 1);
+		return str;
 	}
 
 	// Computes the W component of the quaternion based on the X, Y, and Z components.
     // This method assumes the quaternion is of unit length.
-    function computeQuatW(quat:Quat) {
+    public static function computeQuatW(quat:Quat) {
         var t:Float = 1.0 - (quat.x * quat.x) - (quat.y * quat.y) - (quat.z * quat.z);
         
         if (t < 0.0) {
@@ -304,9 +371,4 @@ class Md5Model {
             quat.w = -Math.sqrt(t);
         }
     }
-}
-
-
-class Md5Parser {
-    
 }

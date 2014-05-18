@@ -12,10 +12,10 @@ class Button extends Tapable {
 		super(onTap);
 
 		// Rect
-		addChild(new RectShape(0, 0, w, h, 0xffeeeeee));
+		addChild(new RectShape(0, 0, w, h, 0xff4a86e8));
 
 		// Title
-		addChild(new Text2D(title, Theme.Font18, w / 2, h / 3.5, 0xff000000, TextAlign.Center));
+		addChild(new Text2D(title, Theme.Fontb18, w / 2, h / 3.5, 0xffffffff, TextAlign.Center));
 
 		this.forcedInput = forcedInput;
 		this.x = x;

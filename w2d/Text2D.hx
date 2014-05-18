@@ -39,7 +39,7 @@ class Text2D extends Object2D {
 	}
 
 	function set_text(s:String):String {
-		texts[0] = s;
+		texts = s.split("\n");
 		w = font.stringWidth(texts[0]);
 		return s;
 	}
@@ -63,7 +63,7 @@ class Text2D extends Object2D {
 		else posX = abs.x - abs.w;
 
 		for (i in 0...texts.length) {
-			painter.drawString(texts[i], posX, abs.y + i * 30, abs.scaleX, abs.scaleY);
+			painter.drawString(texts[i], posX, abs.y + i * 15, abs.scaleX, abs.scaleY);
 		}
 	}
 }
