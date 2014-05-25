@@ -60,8 +60,6 @@ class Mesh {
 	public var tris:Array<Triangle> = [];
 	public var weights:Array<Weight> = [];
 
-	public var texID:Int;
-
 	public var positionBuffer:Array<Vec3> = [];
 	public var normalBuffer:Array<Vec3> = [];
 	public var tex2DBuffer:Array<Vec2> = [];
@@ -144,7 +142,6 @@ class Md5Parser {
 						else if (str[0] == "shader") {
 							mesh.shader = str[1];
 							mesh.shader = mesh.shader.substring(1, mesh.shader.length - 1);
-							//mesh.texID = shaderTex;
 						}
 						else if (str[0] == "numverts") {
 							numVerts = Std.parseInt(str[1]);
@@ -214,7 +211,27 @@ class Md5Parser {
 		animation = new Md5Animation();
 
 		animation.loadAnimation(data);
-		hasAnimation = true;
+
+		hasAnimation = checkAnimation(animation);
+	}
+
+	public function checkAnimation(animation:Md5Animation) {
+	    if (numJoints != animation.getNumJoints()) {
+	        return false;
+	    }
+
+	    // Check to make sure the joints match up
+	    for (i in 0...joints.length) {
+	        var meshJoint = joints[i];
+	        var animJoint = animation.getJointInfo(i);
+
+	        if (meshJoint.name != animJoint.name || 
+	            meshJoint.parentID != animJoint.parentID) {
+	            return false;
+	        }
+	    }
+
+	    return true;
 	}
 
 	public function update() {
@@ -254,8 +271,8 @@ class Md5Parser {
 		for (i in 0...mesh.verts.length) {
 			var vert = mesh.verts[i];
 
-			vert.pos = new Vec3();
-			vert.normal = new Vec3();
+			vert.pos.set(0, 0, 0);
+			vert.normal.set(0, 0, 0);
 
 			for (j in 0...vert.weightCount) {
 				var weight = mesh.weights[vert.startWeight + j];
@@ -277,6 +294,7 @@ class Md5Parser {
 	}
 
 	function prepareMesh2(mesh:Mesh, skel:FrameSkeleton) {
+
 		for (i in 0...mesh.verts.length) {
 			var vert = mesh.verts[i];
 			var pos = mesh.positionBuffer[i];
@@ -292,10 +310,11 @@ class Md5Parser {
 				var rotPos = new Vec3();
 				rotPos = joint.orient.vmult(weight.pos, rotPos);
 				
-				var vp = joint.pos.copy(null);
+				var vp = new Vec3();
+				vp = joint.pos.copy(vp);
 				vp = vp.vadd(rotPos, vp);
-				vp = vp.mult(weight.bias);
-				pos.vadd(vp, pos);
+				vp = vp.mult(weight.bias, vp);
+				pos = pos.vadd(vp, pos);
 
 				var vn = vert.normal.copy(normal);
 				vn = joint.orient.vmult(vert.normal, vn);
@@ -332,7 +351,7 @@ class Md5Parser {
 			normal.normalize();
 			mesh.normalBuffer.push(normal);
 
-			vert.normal = new Vec3();
+			vert.normal.set(0, 0, 0);// = new Vec3();
 
 			for (j in 0...vert.weightCount) {
 				var weight = mesh.weights[vert.startWeight + j];
@@ -345,10 +364,6 @@ class Md5Parser {
 				vert.normal.vadd(vn, vert.normal);
 			}
 		}
-	}
-
-	function checkAnimation():Bool {
-		return true;
 	}
 
 	public static function readLine(file:StringInput):Array<String> {

@@ -21,9 +21,9 @@ class Geometry {
 
 	var data:Array<Float>;
 	var ids:Array<Int>;
-	var usage:Usage;
+	public var usage:Usage;
 
-	var structure:VertexStructure;
+	public var structure:VertexStructure;
 
 	public function new(data:Array<Float>, indices:Array<Int>, usage:Usage = null) {
 

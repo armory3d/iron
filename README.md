@@ -25,7 +25,7 @@ If you are using Kha together with Sublime Text, check out my [Kha Sublime Bundl
 - [2D parallax effect](https://googledrive.com/host/0B22ElR_OUmfdS1NLUjRBUEtJM1k/index.html)
 - [Basic UI](https://googledrive.com/host/0B22ElR_OUmfdOUh6Y1hlVE1xM1U/index.html)
 - [Perlin Noise Shader](https://googledrive.com/host/0B22ElR_OUmfddm1LRVpjbjFFUVE/index.html)
-- [Frame animation](https://googledrive.com/host/0B22ElR_OUmfdRF81YnFHOUR1T2M/index.html)
+- [Skeletal animation](https://googledrive.com/host/0B22ElR_OUmfdZ1VIa0w2Rm1qNGM/index.html)
 
 ### Getting started
 Clone empty wings project

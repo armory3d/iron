@@ -7,6 +7,8 @@ import wings.w3d.Object;
 import wings.wxd.event.Event;
 import wings.wxd.*;
 
+// Comps, math, gpuskin, phys
+
 class Root  {
 
 	public static var root:Object;

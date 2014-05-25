@@ -19,8 +19,6 @@ class Model extends Object {
 	var constantMat4s:Array<Mat4>;
 	var constantVec3s:Array<Vec3>;
 
-	var skip:Bool = false;
-
 	public function new(mesh:Mesh, parent:Object = null) {
 		super(parent);
 
@@ -30,41 +28,44 @@ class Model extends Object {
 		constantMat4s = new Array();
 		constantVec3s = new Array();
 
-		if (mesh.material != null) mesh.material.registerModel(this);
+		for (i in 0...mesh.materials.length) {
+			if (mesh.materials[i] != null) mesh.materials[i].registerModel(this);
+		}
 	}
 
 	public override function render(painter:Painter) {
 		super.render(painter);
-		if (skip) return;
 
 		// TODO: prevent empty material
-		/*if (mesh.geometry == null || mesh.material == null) {
+		/*if (mesh.geometries[i] == null || mesh.material == null) {
 			if (mesh.material == null)
 				mesh.material = new TextureMaterial(com.luboslenco.test.R.shader, com.luboslenco.test.R.box);
 			return;
 		}*/
 		
-		Sys.graphics.setVertexBuffer(mesh.geometry.vertexBuffer);
-		Sys.graphics.setIndexBuffer(mesh.geometry.indexBuffer);
-		Sys.graphics.setProgram(mesh.material.shader.program);
+		for (i in 0...mesh.geometries.length) {
+			Sys.graphics.setVertexBuffer(mesh.geometries[i].vertexBuffer);
+			Sys.graphics.setIndexBuffer(mesh.geometries[i].indexBuffer);
+			Sys.graphics.setProgram(mesh.materials[i].shader.program);
 		
-		Sys.graphics.setTexture(mesh.material.shader.textures[0], textures[0]);
+			Sys.graphics.setTexture(mesh.materials[i].shader.textures[0], textures[i]);
 		
-		setConstants();
+			setConstants(i);
 
-		Sys.graphics.drawIndexedVertices();
+			Sys.graphics.drawIndexedVertices();
+		}
 	}
 
-	function setConstants() {
+	function setConstants(pos:Int) {
 		for (i in 0...constantVec3s.length) {
-			Sys.graphics.setFloat3(mesh.material.shader.constantVec3s[i], constantVec3s[i].x,
+			Sys.graphics.setFloat3(mesh.materials[pos].shader.constantVec3s[i], constantVec3s[i].x,
 								   constantVec3s[i].y, constantVec3s[i].z);
 		}
 		
 		for (i in 0...constantMat4s.length) {
 			var mat = kha.math.Matrix4.empty();
 			mat.matrix = constantMat4s[i].getFloats();
-			Sys.graphics.setMatrix(mesh.material.shader.constantMat4s[i], mat);
+			Sys.graphics.setMatrix(mesh.materials[pos].shader.constantMat4s[i], mat);
 		}
 	}
 
@@ -82,8 +83,8 @@ class Model extends Object {
 
 	// TODO: move to object and set size vector with geometry.size
 	public function scaleTo(x:Float, y:Float, z:Float) {
-		scale.x = x / mesh.geometry.size.x;
-		scale.y = y / mesh.geometry.size.y;
-		scale.z = z / mesh.geometry.size.z;
+		scale.x = x / mesh.geometries[0].size.x;
+		scale.y = y / mesh.geometries[0].size.y;
+		scale.z = z / mesh.geometries[0].size.z;
 	}
 }

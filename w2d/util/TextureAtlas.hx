@@ -26,10 +26,12 @@ class TextureAtlas {
         var frame = getFrameByName(name).frame;
 
         var img = new Image2D(texture, 0, 0);
-        img.sourceX = frame.x;
-        img.sourceY = frame.y;
-        img.sourceW = frame.w;
-        img.sourceH = frame.h;
+        img.source.x = frame.x;
+        img.source.y = frame.y;
+        img.source.w = frame.w;
+        img.source.h = frame.h;
+        img.w = frame.w;
+        img.h = frame.h;
         return img;
     }
 

@@ -6,13 +6,16 @@ class Mesh {
 
 	public var name:String;
 
-	public var geometry:Geometry;
-	public var material:Material;
+	public var geometries:Array<Geometry> = [];
+	public var materials:Array<Material> = [];
 
-	public function new(geometry:Geometry, material:Material) {
+	public function new(geometries:Array<Geometry>, materials:Array<Material>) {
 
-		this.geometry = geometry;
-		this.material = material;
-		geometry.build(material);
+		this.geometries = geometries;
+		this.materials = materials;
+
+		for (i in 0...geometries.length) {
+			geometries[i].build(materials[i]);
+		}
 	}
 }

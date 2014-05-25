@@ -55,7 +55,7 @@ class SkeletonJoint {
 		orient = new Quat();
 
 		if (frame != null) {
-			pos = frame.pos.copy(null);
+			frame.pos.copy(pos);
 			frame.orient.copy(orient);
 		}
 	}
@@ -235,7 +235,7 @@ class Md5Animation {
 
 	function buildFrameSkeleton(skeletons:Array<FrameSkeleton>, jointInfo:Array<JointInfo>, baseFrames:Array<BaseFrame>, frameData:FrameData) {
 		var skeleton = new FrameSkeleton();
-
+		
 		for (i in 0...jointInfos.length) {
 			var j = 0;
 
@@ -243,22 +243,22 @@ class Md5Animation {
 			var animatedJoint = new SkeletonJoint(baseFrames[i]);
 			animatedJoint.parent = jointInfo.parentID;
 
-			if (jointInfo.flags & 1 == 1) {
+			if (jointInfo.flags & 1 != 0) {
 				animatedJoint.pos.x = frameData.frameData[jointInfo.startIndex + j++];
 			}
-			if (jointInfo.flags & 2 == 2) {
+			if (jointInfo.flags & 2 != 0) {
 				animatedJoint.pos.y = frameData.frameData[jointInfo.startIndex + j++];
 			}
-			if (jointInfo.flags & 4 == 4) {
+			if (jointInfo.flags & 4 != 0) {
 				animatedJoint.pos.z = frameData.frameData[jointInfo.startIndex + j++];
 			}
-			if (jointInfo.flags & 8 == 8) {
+			if (jointInfo.flags & 8 != 0) {
 				animatedJoint.orient.x = frameData.frameData[jointInfo.startIndex + j++];
 			}
-			if (jointInfo.flags & 16 == 16) {
+			if (jointInfo.flags & 16 != 0) {
 				animatedJoint.orient.y = frameData.frameData[jointInfo.startIndex + j++];
 			}
-			if (jointInfo.flags & 32 == 32) {
+			if (jointInfo.flags & 32 != 0) {
 				animatedJoint.orient.z = frameData.frameData[jointInfo.startIndex + j++];
 			}
 
@@ -270,10 +270,16 @@ class Md5Animation {
             	var rotPos = new Vec3();
             	rotPos = parentJoint.orient.vmult(animatedJoint.pos, rotPos);
 
-				animatedJoint.pos = parentJoint.pos.copy(null);
-				animatedJoint.pos = animatedJoint.pos.vadd(rotPos, animatedJoint.pos);
-				
-				animatedJoint.orient = animatedJoint.orient.mult(parentJoint.orient, animatedJoint.orient);
+            	var v = new Vec3();
+            	v = parentJoint.pos.copy(v);
+				v = v.vadd(rotPos, v);
+				v.copy(animatedJoint.pos);
+
+				var bo = new Quat();
+				animatedJoint.orient.copy(bo);
+				parentJoint.orient.copy(animatedJoint.orient);
+				bo.multiply(parentJoint.orient, bo);
+				bo.copy(animatedJoint.orient);
 
 				animatedJoint.orient.normalize();
 			}
@@ -292,11 +298,23 @@ class Md5Animation {
 
 			finalJoint.parent = joint0.parent;
 
-			finalJoint.pos = joint0.pos.copy(null);
-			finalJoint.pos.lerp(joint1.pos, interpolate, finalJoint.pos);
+			joint0.pos.lerp(joint1.pos, interpolate, finalJoint.pos);
 			
-			joint0.orient.copy(finalJoint.orient);
-			finalJoint.orient.slerp(joint1.orient, interpolate);
+			var q = Quat.slerp(joint0.orient, joint1.orient, interpolate);
+			finalJoint.orient.x = q.x;
+			finalJoint.orient.y = q.y;
+			finalJoint.orient.z = q.z;
+			finalJoint.orient.w = q.w;
+
+			//finalJoint.pos.x = (joint1.pos.x * interpolate) + (joint0.pos.x * (1-interpolate));
+			//finalJoint.pos.y = (joint1.pos.y * interpolate) + (joint0.pos.y * (1-interpolate));
+			//finalJoint.pos.z = (joint1.pos.z * interpolate) + (joint0.pos.z * (1-interpolate));
+			//finalJoint.pos.w = (joint1.pos.w * interpolate) + (joint0.pos.w * (1-interpolate));
+
+			//finalJoint.orient.x = (joint1.orient.x * interpolate) + (joint0.orient.x * (1-interpolate));
+			//finalJoint.orient.y = (joint1.orient.y * interpolate) + (joint0.orient.y * (1-interpolate));
+			//finalJoint.orient.z = (joint1.orient.z * interpolate) + (joint0.orient.z * (1-interpolate));
+			//finalJoint.orient.w = (joint1.orient.w * interpolate) + (joint0.orient.w * (1-interpolate));
 		}
 	}
 }

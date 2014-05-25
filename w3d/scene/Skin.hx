@@ -62,7 +62,7 @@ class Skin extends wings.w3d.scene.Model {
 	public var syncIfHidden : Bool = true;
 	
 	public function new(s, mat:wings.w3d.material.Material, parent) {
-		super(new wings.w3d.mesh.Mesh(null, mat), parent);
+		super(new wings.w3d.mesh.Mesh(null, [mat]), parent);
 		if( s != null )
 			setSkinData(s);
 	}
@@ -118,7 +118,7 @@ class Skin extends wings.w3d.scene.Model {
 	public function setSkinData( s ) {
 		skinData = s;
 		jointsUpdated = true;
-		mesh.geometry = s.primitive;
+		mesh.geometries[0] = s.primitive;
 		//for( m in materials )
 		//	if( m != null )
 		//		m.hasSkin = true;

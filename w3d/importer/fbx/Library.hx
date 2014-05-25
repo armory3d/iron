@@ -684,11 +684,11 @@ class Library {
 					tmats.push(textureLoader());
 				// create object
 				if( tmats.length == 1 )
-					o = new wings.w3d.scene.Model(new wings.w3d.mesh.Mesh(prim, tmats[0]), scene);
+					o = new wings.w3d.scene.Model(new wings.w3d.mesh.Mesh([prim], [tmats[0]]), scene);
 				else {
 					//prim.multiMaterial = true;
 					//o = new wings.w3d.meshes.MultiMaterial(prim, tmats, scene);
-					o = new wings.w3d.scene.Model(new wings.w3d.mesh.Mesh(prim, tmats[0]), scene);
+					o = new wings.w3d.scene.Model(new wings.w3d.mesh.Mesh([prim], [tmats[0]]), scene);
 				}
 			case type:
 				throw "Unknown model type " + type+" for "+model.getName();
@@ -737,9 +737,9 @@ class Library {
 					var m = cast(osub.obj, wings.w3d.scene.Model);
 					
 					//if( m.primitive != skinData.primitive || m == skin )
-					if( m.mesh.geometry != skinData.primitive || m == skin )
+					if( m.mesh.geometries[0] != skinData.primitive || m == skin )
 						continue;
-					if (skin.mesh != null) skin.mesh.material = m.mesh.material;
+					if (skin.mesh != null) skin.mesh.materials[0] = m.mesh.materials[0];
 					m.remove();
 					// ignore key frames for this object
 					defaultModelMatrixes.get(osub.obj.name).wasRemoved = o.model.getId();

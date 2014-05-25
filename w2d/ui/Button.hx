@@ -7,12 +7,12 @@ import wings.w2d.Text2D;
 class Button extends Tapable {
 
 	public function new(title:String, w:Float, h:Float, onTap:Void->Void, x:Float = 0, y:Float = 0,
-						forcedInput:Bool = false) {
+						forcedInput:Bool = false, backgroundColor:Int = 0xff4a86e8) {
 
 		super(onTap);
 
 		// Rect
-		addChild(new RectShape(0, 0, w, h, 0xff4a86e8));
+		addChild(new RectShape(0, 0, w, h, backgroundColor));
 
 		// Title
 		addChild(new Text2D(title, Theme.Fontb18, w / 2, h / 3.5, 0xffffffff, TextAlign.Center));

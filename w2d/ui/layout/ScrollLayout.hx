@@ -16,25 +16,53 @@ class ScrollLayout extends ListLayout {
 
 	public override function addChild(child:Object2D) {
 		super.addChild(child);
+
+		// Hide elements outside of view
+		// TODO: merge with code in update
+		if (type == LayoutType.Vertical) {
+			var yy = child.y;
+			var h = child.h;
+			if (yy > size || yy + h < 0) {
+				child.visible = false;
+			}
+		}
+		else {
+			var xx = child.x;
+			var w = child.w;
+			if (xx > size || xx + w < 0) {
+				child.visible = false;
+			}
+		}
 	}
 
 	public override function update() {
 		super.update();
 
 		// Wheel scrolling
-		if (Input.wheel != 0 && hitTest(Input.x, Input.y)) {
+		if (Input.wheel != 0/* && hitTest(Input.x, Input.y)*/) {
+			Input.wheel *= 5;
 
-			// Move elements
+			// Scrolling bounds
+			if (type == LayoutType.Vertical) {
+				if (children[0].y + (Input.wheel * (-1)) > 0) {
+					Input.wheel = Std.int(children[0].y);
+				}
+			}
+			else {
+				if (children[0].x + (Input.wheel * (-1)) > 0) {
+					Input.wheel = Std.int(children[0].x);
+				}
+			}
+
 			for (i in 0...children.length) {
-
-				//if (children[0].y - Input.wheel < 0) break;
-				//else if (children[children.length - 1].y - Input.wheel > size - children[children.length - 1].h) break;
 
 				if (type == LayoutType.Vertical) {
 					children[i].y -= Input.wheel;
 
 					// Hide elements outside of view
-					if (children[i].y > size || children[i].y < 0) {
+					var yy = children[i].y;
+					var h = children[i].h;
+					if (yy > size || yy + h < 0) {
 						children[i].visible = false;
 					}
 					else {
@@ -42,10 +70,11 @@ class ScrollLayout extends ListLayout {
 					}
 				}
 				else {
-					// TODO: unify with vertical
 					children[i].x -= Input.wheel;
 
-					if (children[i].x > size || children[i].x < 0) {
+					var xx = children[i].x;
+					var w = children[i].w;
+					if (xx > size || xx + w < 0) {
 						children[i].visible = false;
 					}
 					else {
@@ -54,7 +83,7 @@ class ScrollLayout extends ListLayout {
 				}
 			}
 
-			// TODO: proper wheel control
+			// Prevent other scrolling activity
 			Input.wheel = 0;
 		}
 	}

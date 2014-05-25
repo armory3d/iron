@@ -16,7 +16,7 @@ class Text2D extends Object2D {
 	var font:Font;
 
 	// TODO: use origin instead
-	var textAlign:TextAlign;
+	public var textAlign:TextAlign;
 
 	public function new(text:String, font:Font, x:Float = 0, y:Float = 0, color:Int = 0xff000000,
 						align:TextAlign = null) {

@@ -487,7 +487,7 @@ class Quat {
         w = w2;
     }
 
-    public function slerp(qb:Quat, t:Float) {
+    /*public function slerp(qb:Quat, t:Float, target:Quat):Quat {
         var x = this.x, y = this.y, z = this.z, w = this.w;
 
         // http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
@@ -495,10 +495,10 @@ class Quat {
         var cosHalfTheta = w * qb.w + x * qb.x + y * qb.y + z * qb.z;
 
         if (cosHalfTheta < 0) {
-            this.w = -qb.w;
-            this.x = -qb.x;
-            this.y = -qb.y;
-            this.z = -qb.z;
+            target.w = -qb.w;
+            target.x = -qb.x;
+            target.y = -qb.y;
+            target.z = -qb.z;
 
             cosHalfTheta = -cosHalfTheta;
         }
@@ -507,10 +507,10 @@ class Quat {
         }
 
         if (cosHalfTheta >= 1.0) {
-            this.w = w;
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            target.w = w;
+            target.x = x;
+            target.y = y;
+            target.z = z;
 
             return this;
         }
@@ -519,10 +519,10 @@ class Quat {
         var sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta * cosHalfTheta);
 
         if (Math.abs(sinHalfTheta) < 0.001) {
-            this.w = 0.5 * (w + this.w);
-            this.x = 0.5 * (x + this.x);
-            this.y = 0.5 * (y + this.y);
-            this.z = 0.5 * (z + this.z);
+            target.w = 0.5 * (w + this.w);
+            target.x = 0.5 * (x + this.x);
+            target.y = 0.5 * (y + this.y);
+            target.z = 0.5 * (z + this.z);
 
             return this;
         }
@@ -530,11 +530,48 @@ class Quat {
         var ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
         var ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
 
-        this.w = (w * ratioA + this.w * ratioB);
-        this.x = (x * ratioA + this.x * ratioB);
-        this.y = (y * ratioA + this.y * ratioB);
-        this.z = (z * ratioA + this.z * ratioB);
+        target.w = (w * ratioA + this.w * ratioB);
+        target.x = (x * ratioA + this.x * ratioB);
+        target.y = (y * ratioA + this.y * ratioB);
+        target.z = (z * ratioA + this.z * ratioB);
 
-        return this;
+        return target;
+    }*/
+
+
+
+    public static function slerp(qa:Quat, qb:Quat, t:Float):Quat {
+        // quaternion to return
+        var qm = new Quat();
+        // Calculate angle between them.
+        var cosHalfTheta = qa.w * qb.w + qa.x * qb.x + qa.y * qb.y + qa.z * qb.z;
+        // if qa=qb or qa=-qb then theta = 0 and we can return qa
+        if (Math.abs(cosHalfTheta) >= 1.0){
+            qm.w = qa.w;
+            qm.x = qa.x;
+            qm.y = qa.y;
+            qm.z = qa.z;
+            return qm;
+        }
+        // Calculate temporary values.
+        var halfTheta = Math.acos(cosHalfTheta);
+        var sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta * cosHalfTheta);
+        // if theta = 180 degrees then result is not fully defined
+        // we could rotate around any axis normal to qa or qb
+        if (Math.abs(sinHalfTheta) < 0.001){ // fabs is floating point absolute
+            qm.w = (qa.w * 0.5 + qb.w * 0.5);
+            qm.x = (qa.x * 0.5 + qb.x * 0.5);
+            qm.y = (qa.y * 0.5 + qb.y * 0.5);
+            qm.z = (qa.z * 0.5 + qb.z * 0.5);
+            return qm;
+        }
+        var ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
+        var ratioB = Math.sin(t * halfTheta) / sinHalfTheta; 
+        //calculate Quaternion.
+        qm.w = (qa.w * ratioA + qb.w * ratioB);
+        qm.x = (qa.x * ratioA + qb.x * ratioB);
+        qm.y = (qa.y * ratioA + qb.y * ratioB);
+        qm.z = (qa.z * ratioA + qb.z * ratioB);
+        return qm;
     }
 }

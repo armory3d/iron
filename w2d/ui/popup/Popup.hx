@@ -22,6 +22,8 @@ class Popup extends Object2D {
 		addChild(new RectShape(0, 0, width, 70, 0xff00aeef));
 		addChild(new RectShape(0, h, w, height - 70, backgroundColor));
 
+		addChild(new Button("X", 50, 50, closePopup, 0, 0, true, 0xffff5e6e));
+
 		addChild(new Text2D(title, Theme.Font32, width / 2, 30, 0xffffffff, TextAlign.Center));
 
 
@@ -32,7 +34,7 @@ class Popup extends Object2D {
 		//background.a = 0;
 		a = 0;
 		//Act.tween(background, 0.15, {a: 0.3}).ease(motion.easing.Cubic.easeOut);
-		Act.tween(this, 0.15, {a: 1}).ease(motion.easing.Cubic.easeOut);
+		Act.tween(this, 0.2, {a: 1}).ease(motion.easing.Cubic.easeOut);
 
 		//Prevent any other input activity
 		Input.enabled = false;
@@ -65,7 +67,7 @@ class Popup extends Object2D {
 		Input.enabled = true;
 	}
 
-	function closePopup() {
+	public function closePopup() {
 		//Act.tween(background, 0.1, {a: 0}).ease(motion.easing.Cubic.easeOut);
 		Act.tween(this, 0.1, {a: 0}).ease(motion.easing.Cubic.easeOut).onComplete(onPopupComplete);
 	}
