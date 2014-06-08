@@ -10,7 +10,7 @@ enum ShapeType {
 	Rect;
 }
 
-class ShapeTrait extends Trait implements IRenderable2D {
+class ShapeRenderer extends Trait implements IRenderable2D {
 
 	public var transform:Transform;
 

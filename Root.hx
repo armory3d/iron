@@ -1,6 +1,11 @@
 package wings;
 
 import kha.Painter;
+import kha.LoadingScreen;
+import kha.Configuration;
+import kha.graphics.CompareMode;
+import kha.Painter;
+import kha.Loader;
 import composure.core.ComposeRoot;
 import composure.core.ComposeItem;
 
@@ -12,7 +17,7 @@ import wings.core.FrameUpdater;
 import wings.core.FrameRenderer;
 import wings.core.FrameRenderer2D;
 
-class Root {
+class Root extends kha.Game {
 
 	static var root:ComposeRoot;
 
@@ -23,10 +28,14 @@ class Root {
 	public static var w(default, null):Int;
 	public static var h(default, null):Int;
 
-	public function new(width:Int, height:Int) {
+	var game:Class<Dynamic>;
+	var room:String;
 
-		w = width;
-		h = height;
+	public function new(name:String, room:String, game:Class<Dynamic>) {
+		super(name);
+
+		this.game = game;
+		this.room = room;
 
 		// Init systems
 		new Input();
@@ -51,14 +60,34 @@ class Root {
 		root.addChild(item);
 	}
 
-	public static inline function update() {
+	public static inline function reset() {
+		root.removeAllItem();
+	}
+
+	override public function init() {
+        Configuration.setScreen(new LoadingScreen());
+
+        Loader.the.loadRoom(room, loadingFinished);
+    }
+
+    function loadingFinished() {
+        w = width;
+        h = height;
+
+        Configuration.setScreen(this);
+
+        Type.createInstance(game, []);
+    }
+
+	override public inline function update() {
 		frameUpdater.update();
 
 		Time.update();
 		Input.update();
 	}
 
-	public static inline function render(painter:Painter) {
+	override public inline function render(painter:Painter) {
+		kha.Sys.graphics.setDepthMode(true, CompareMode.Less);
 		kha.Sys.graphics.clear(null, 1, null);
 
 		// Render 3D objects
@@ -70,23 +99,35 @@ class Root {
 		painter.end();
 	}
 
-	public static inline function reset() {
-		root.removeAllItem();
+	override public inline function mouseDown(x:Int, y:Int) { 
+		Input.onTouchBegin(x, y);
 	}
 
-	public static inline function mouseDown(x:Int, y:Int) { Input.onTouchBegin(x, y); }
+    override public inline function mouseUp(x:Int, y:Int) { 
+    	Input.onTouchEnd(x, y);
+    }
 
-    public static inline function mouseUp(x:Int, y:Int) { Input.onTouchEnd(x, y); }
+    override public inline function rightMouseDown(x:Int, y:Int) { 
+        Input.onTouchAltBegin(x, y);
+    }
 
-    public static inline function rightMouseDown(x:Int, y:Int) { Input.onTouchAltBegin(x, y); }
+    override public inline function rightMouseUp(x:Int, y:Int) { 
+        Input.onTouchAltEnd(x, y);
+    }
 
-    public static inline function rightMouseUp(x:Int, y:Int) { Input.onTouchAltEnd(x, y); }
+    override public inline function mouseMove(x:Int, y:Int) { 
+    	Input.onMove(x, y);
+    }
 
-    public static inline function mouseMove(x:Int, y:Int) { Input.onMove(x, y); }
+    override public inline function buttonDown(button:kha.Button) { 
+    	Input.onButtonDown(button);
+    }
 
-    public static inline function buttonDown(button:kha.Button) { Input.onButtonDown(button); }
+    override public inline function buttonUp(button:kha.Button) { 
+    	Input.onButtonUp(button);
+    }
 
-	public static inline function buttonUp(button:kha.Button) { Input.onButtonUp(button); }
-
-	public static inline function mouseWheel(delta:Int) { Input.onWheel(delta); }
+    override public inline function mouseWheel(delta:Int) {
+        Input.onWheel(delta);
+    }
 }

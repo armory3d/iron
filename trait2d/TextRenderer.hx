@@ -12,7 +12,7 @@ enum TextAlign {
 	Left; Center; Right;
 }
 
-class TextTrait extends Trait implements IRenderable2D {
+class TextRenderer extends Trait implements IRenderable2D {
 
 	public var transform:Transform;
 

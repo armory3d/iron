@@ -8,7 +8,7 @@ import wings.core.Trait;
 import wings.core.IRenderable2D;
 import wings.trait.Transform;
 
-class ImageTrait extends Trait implements IRenderable2D {
+class ImageRenderer extends Trait implements IRenderable2D {
 
 	//@inject({desc:false,sibl:true})
 	public var transform:Transform;

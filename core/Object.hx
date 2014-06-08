@@ -4,6 +4,7 @@ import composure.core.ComposeGroup;
 
 import wings.trait.Transform;
 
+@:final
 class Object extends ComposeGroup {
 
 	public var transform:Transform;
