@@ -1,4 +1,4 @@
-package wings.trait.particles;
+package wings.trait2d.particles;
 
 class Particle {
     // Where the emitter was when the particle was spawned

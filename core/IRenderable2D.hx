@@ -2,7 +2,7 @@ package wings.core;
 
 import kha.Painter;
 
-interface IRenderTrait {
+interface IRenderable2D {
 
 	function render(painter:Painter):Void;
 }

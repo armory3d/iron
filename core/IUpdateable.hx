@@ -1,6 +1,6 @@
 package wings.core;
 
-interface IUpdateTrait {
+interface IUpdateable {
 
 	function update():Void;
 }

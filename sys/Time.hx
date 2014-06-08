@@ -4,7 +4,7 @@ import kha.Scheduler;
 
 class Time {
 
-	public static var delta(default, null):Float;
+	public static var delta(default, null):Float = 0;
 	
 	static var last:Float;
 

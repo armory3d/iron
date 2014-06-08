@@ -1,4 +1,4 @@
-package wings.trait.particles;
+package wings.trait2d.particles;
 
 // Flambe Emitter ported to Wings
 // https://github.com/aduros/flambe/tree/master/src/flambe/display
@@ -11,11 +11,11 @@ import kha.Image;
 import wings.sys.Time;
 import wings.sys.importer.EmitterMold;
 import wings.core.Trait;
-import wings.core.IUpdateTrait;
-import wings.core.IRenderTrait;
+import wings.core.IUpdateable;
+import wings.core.IRenderable2D;
 import wings.trait.Transform;
 
-class Emitter extends Trait implements IUpdateTrait implements IRenderTrait {
+class Emitter extends Trait implements IUpdateable implements IRenderable2D {
 
     @inject
     public var transform:Transform;

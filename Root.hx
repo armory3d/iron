@@ -7,8 +7,10 @@ import composure.core.ComposeItem;
 import wings.sys.Input;
 import wings.sys.Time;
 import wings.sys.Storage;
+import wings.sys.Factory;
 import wings.core.FrameUpdater;
 import wings.core.FrameRenderer;
+import wings.core.FrameRenderer2D;
 
 class Root {
 
@@ -16,6 +18,7 @@ class Root {
 
 	static var frameUpdater:FrameUpdater;
 	static var frameRenderer:FrameRenderer;
+	static var frameRenderer2D:FrameRenderer2D;
 
 	public static var w(default, null):Int;
 	public static var h(default, null):Int;
@@ -29,6 +32,7 @@ class Root {
 		new Input();
 		new Time();
 		//new Storage();
+		new Factory();
 
 		// Root item
 		root = new ComposeRoot();
@@ -38,6 +42,9 @@ class Root {
 
 		frameRenderer = new FrameRenderer();
 		root.addTrait(frameRenderer);
+
+		frameRenderer2D = new FrameRenderer2D();
+		root.addTrait(frameRenderer2D);
 	}
 
 	public static inline function addChild(item:ComposeItem) {
@@ -45,20 +52,21 @@ class Root {
 	}
 
 	public static inline function update() {
+		frameUpdater.update();
+
 		Time.update();
 		Input.update();
-
-		frameUpdater.update();
 	}
 
 	public static inline function render(painter:Painter) {
 		kha.Sys.graphics.clear(null, 1, null);
 
 		// Render 3D objects
+		frameRenderer.render();
 
 		// Render 2D objects
 		painter.begin();
-		frameRenderer.render(painter);
+		frameRenderer2D.render(painter);
 		painter.end();
 	}
 

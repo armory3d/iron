@@ -1,15 +1,16 @@
-package wings.trait;
+package wings.trait2d;
 
 import kha.Painter;
 
 import wings.core.Trait;
-import wings.core.IRenderTrait;
+import wings.core.IRenderable2D;
+import wings.trait.Transform;
 
 enum ShapeType {
 	Rect;
 }
 
-class ShapeTrait extends Trait implements IRenderTrait {
+class ShapeTrait extends Trait implements IRenderable2D {
 
 	public var transform:Transform;
 

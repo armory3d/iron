@@ -1,17 +1,18 @@
-package wings.trait;
+package wings.trait2d;
 
 import kha.Font;
 import kha.Painter;
 import kha.Color;
 
 import wings.core.Trait;
-import wings.core.IRenderTrait;
+import wings.core.IRenderable2D;
+import wings.trait.Transform;
 
 enum TextAlign {
 	Left; Center; Right;
 }
 
-class TextTrait extends Trait implements IRenderTrait {
+class TextTrait extends Trait implements IRenderable2D {
 
 	public var transform:Transform;
 

@@ -1,4 +1,4 @@
-package wings.trait.tiles;
+package wings.trait2d.tiles;
 
 class TileLayer {
 

@@ -1,11 +1,14 @@
-package wings.trait.ui;
+package wings.trait2d.ui;
 
 import kha.Painter;
 
 import wings.core.Trait;
-import wings.core.IRenderTrait;
+import wings.core.IUpdateable;
+import wings.core.IRenderable2D;
+import wings.sys.Input;
+import wings.trait.Transform;
 
-class Button extends Trait implements IRenderTrait {
+class Button extends Trait implements IUpdateable implements IRenderable2D {
 
 	public var transform:Transform;
 
@@ -22,6 +25,13 @@ class Button extends Trait implements IRenderTrait {
         transform = trait;
         transform.w = 100;
         transform.h = 50;
+    }
+
+    public function update() {
+    	if (Input.released && transform.hitTest(Input.x, Input.y)) {
+    		Input.released = false;
+    		onTap();
+    	}
     }
 
 	public function render(painter:Painter) {

@@ -74,6 +74,7 @@ class Input {
 	
 	public static function onTouchEnd(_x:Float, _y:Float) {
 		touch = false;
+		released = true;
 
 		x = _x;
 		y = _y;

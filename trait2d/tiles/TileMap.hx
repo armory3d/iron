@@ -1,13 +1,13 @@
-package wings.trait.tiles;
+package wings.trait2d.tiles;
 
 import kha.Painter;
 import kha.Image;
 
 import wings.Root;
 import wings.core.Trait;
-import wings.core.IRenderTrait;
+import wings.core.IRenderable2D;
 
-class TileMap extends Trait implements IRenderTrait {
+class TileMap extends Trait implements IRenderable2D {
 
 	public var transform:Transform;
 

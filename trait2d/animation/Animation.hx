@@ -1,4 +1,4 @@
-package wings.trait.animation;
+package wings.trait2d.animation;
 
 class Animation {
 

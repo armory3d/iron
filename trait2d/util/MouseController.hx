@@ -1,11 +1,11 @@
-package wings.trait.util;
+package wings.trait2d.util;
 
 import wings.sys.Input;
-import wings.core.IUpdateTrait;
+import wings.core.IUpdateable;
 import wings.core.Trait;
 import wings.trait.Transform;
 
-class MouseController extends Trait implements IUpdateTrait {
+class MouseController extends Trait implements IUpdateable {
 
 	@inject
 	public var transform:Transform;

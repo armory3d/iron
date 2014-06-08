@@ -1,14 +1,14 @@
-package wings.trait.animation;
+package wings.trait2d.animation;
 
 import kha.Painter;
 
 import wings.sys.Time;
 import wings.core.Trait;
-import wings.core.IRenderTrait;
-import wings.core.IUpdateTrait;
-import wings.trait.tiles.TileSheet;
+import wings.core.IRenderable2D;
+import wings.core.IUpdateable;
+import wings.trait2d.tiles.TileSheet;
 
-class Sprite extends Trait implements IRenderTrait implements IUpdateTrait {
+class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 
 	@inject
 	public var transform:Transform;
