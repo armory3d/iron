@@ -9,13 +9,18 @@ import kha.Loader;
 import composure.core.ComposeRoot;
 import composure.core.ComposeItem;
 
-import wings.sys.Input;
 import wings.sys.Time;
 import wings.sys.Storage;
-import wings.sys.Factory;
+import wings.sys.Assets;
 import wings.core.FrameUpdater;
 import wings.core.FrameRenderer;
 import wings.core.FrameRenderer2D;
+import wings.trait.Input;
+
+// List layout
+// Anchors instead of text align - text align for multiline
+// Input layers
+// Scaling and nested size calc
 
 class Root extends kha.Game {
 
@@ -37,11 +42,8 @@ class Root extends kha.Game {
 		this.game = game;
 		this.room = room;
 
-		// Init systems
-		new Input();
 		new Time();
 		//new Storage();
-		new Factory();
 
 		// Root item
 		root = new ComposeRoot();
@@ -107,27 +109,7 @@ class Root extends kha.Game {
     	Input.onTouchEnd(x, y);
     }
 
-    override public inline function rightMouseDown(x:Int, y:Int) { 
-        Input.onTouchAltBegin(x, y);
-    }
-
-    override public inline function rightMouseUp(x:Int, y:Int) { 
-        Input.onTouchAltEnd(x, y);
-    }
-
     override public inline function mouseMove(x:Int, y:Int) { 
     	Input.onMove(x, y);
-    }
-
-    override public inline function buttonDown(button:kha.Button) { 
-    	Input.onButtonDown(button);
-    }
-
-    override public inline function buttonUp(button:kha.Button) { 
-    	Input.onButtonUp(button);
-    }
-
-    override public inline function mouseWheel(delta:Int) {
-        Input.onWheel(delta);
     }
 }

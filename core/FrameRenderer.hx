@@ -22,7 +22,7 @@ class FrameRenderer extends AbstractTrait {
 	}
 	
 	public function render() {
-		for(trait in renderTraits){
+		for (trait in renderTraits) {
 			trait.render();
 		}
 	}

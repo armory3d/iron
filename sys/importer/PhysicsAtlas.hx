@@ -1,4 +1,4 @@
-package wings.w2d.util;
+package wings.sys.importer;
 
 // Imports data from PhysicsEditor
 

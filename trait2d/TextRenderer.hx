@@ -17,7 +17,7 @@ class TextRenderer extends Trait implements IRenderable2D {
 	public var transform:Transform;
 
 	var font:Font;
-	var text:String;
+	public var text:String;
 	var align:TextAlign;
 
 	public function new(text:String, font:Font, align:TextAlign = null) {

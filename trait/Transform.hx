@@ -149,8 +149,8 @@ class Transform extends Trait implements IUpdateable {
 	}
 
 	public function hitTest(x:Float, y:Float):Bool {
-		if (x > this.x /* * parent.scaleX*/ && x <= this.x /* * parent.scaleX */+ w * scale.x &&
-			y > this.y /* * parent.scaleY*/ && y <= this.y /* * parent.scaleY */+ h * scale.y) {
+		if (x > this.absx /* * parent.scaleX*/ && x <= this.absx /* * parent.scaleX */+ w * scale.x &&
+			y > this.absy /* * parent.scaleY*/ && y <= this.absy /* * parent.scaleY */+ h * scale.y) {
 			return true;
 		}
 
@@ -216,7 +216,7 @@ class Transform extends Trait implements IUpdateable {
 	inline function get_absd():Float { return absSize.z; }
 
 
-	inline function get_r():Float { return pos.x; }
+	inline function get_r():Float { return color.R; }
 
 	inline function set_r(f:Float):Float { modified = true; return color.R = f; }
 

@@ -13,13 +13,15 @@ import wings.sys.geometry.Geometry;
 import wings.sys.material.Material;
 import wings.sys.material.Shader;
 import wings.sys.mesh.Mesh;
+import wings.sys.importer.TextureAtlas;
 
-class Factory {
+class Assets {
 
 	static var geometries = new Map<String, Geometry>();
 	static var materials = new Map<String, Material>();
 	static var meshes = new Map<String, Mesh>();
 	static var shaders = new Map<String, Shader>();
+	static var atlases = new Map<String, TextureAtlas>();
 
 	public function new() {
 		
@@ -57,6 +59,14 @@ class Factory {
 		return shaders.get(name);
 	}
 
+
+	public static inline function addAtlas(name:String, atlas:TextureAtlas) {
+		atlases.set(name, atlas);
+	}
+
+	public static inline function getAtlas(name:String):TextureAtlas {
+		return atlases.get(name);
+	}
 
 	public static inline function getImage(name:String):Image {
 		return Loader.the.getImage(name);

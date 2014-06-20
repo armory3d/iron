@@ -16,7 +16,9 @@ class ShapeRenderer extends Trait implements IRenderable2D {
 
 	var type:ShapeType;
 
-	public function new(type:ShapeType) {
+	public function new(type:ShapeType = null) {
+		if (type == null) type = ShapeType.Rect;
+
 		super();
 
 		this.type = type;

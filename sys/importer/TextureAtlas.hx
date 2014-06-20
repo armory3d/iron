@@ -1,4 +1,4 @@
-package wings.w2d.util;
+package wings.sys.importer;
 
 // Based on spritesheet library
 // https://github.com/jgranick/spritesheet/
@@ -28,6 +28,11 @@ class TextureAtlas {
         }
 
         return null;
+    }
+
+    public inline function getRect(name:String):Rect {
+        var rect = getFrameByName(name).frame;
+        return new Rect(rect.x, rect.y, rect.w, rect.h);
     }
 }
 

@@ -2,7 +2,7 @@ package wings.sys.mesh;
 
 import wings.sys.geometry.Geometry;
 import wings.sys.material.Material;
-import wings.sys.Factory;
+import wings.sys.Assets;
 
 class Mesh {
 
@@ -11,8 +11,8 @@ class Mesh {
 
 	public function new(geometry:String, material:String) {
 
-		this.geometry = Factory.getGeometry(geometry);
-		this.material = Factory.getMaterial(material);
+		this.geometry = Assets.getGeometry(geometry);
+		this.material = Assets.getMaterial(material);
 
 		this.geometry.build(this.material);
 	}

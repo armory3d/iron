@@ -11,9 +11,11 @@ import wings.trait.Transform;
 class ImageRenderer extends Trait implements IRenderable2D {
 
 	//@inject({desc:false,sibl:true})
+	// TODO: private
 	public var transform:Transform;
 	public var source:Rect;
 
+	// TODO: get image real width and set transform size to source size
 	var image:Image;
 
 	public function new(image:Image) {
@@ -32,6 +34,9 @@ class ImageRenderer extends Trait implements IRenderable2D {
     }
 
 	public function render(painter:Painter) {
+
+		painter.setColor(transform.color);
+		painter.opacity = transform.a;
 
 		painter.drawImage2(image, source.x, source.y, source.w, source.h,
 						   transform.absx, transform.absy, transform.w, transform.h);
