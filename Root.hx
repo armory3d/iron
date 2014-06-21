@@ -18,8 +18,7 @@ import wings.core.FrameRenderer2D;
 import wings.trait.Input;
 
 // List layout
-// Anchors instead of text align - text align for multiline
-// Input layers
+// Text align for multiline
 // Scaling and nested size calc
 
 class Root extends kha.Game {

@@ -1,14 +1,17 @@
 package wings.trait2d.util;
 
-import wings.sys.Input;
 import wings.core.IUpdateable;
 import wings.core.Trait;
 import wings.trait.Transform;
+import wings.trait.Input;
 
 class MouseController extends Trait implements IUpdateable {
 
 	@inject
-	public var transform:Transform;
+	var transform:Transform;
+
+	@inject
+	var input:Input;
 
 	public function new() {
 		super();
@@ -16,7 +19,7 @@ class MouseController extends Trait implements IUpdateable {
 
 	public function update() {
 
-		transform.x = Input.x;
-		transform.y = Input.y;
+		transform.x = input.x;
+		transform.y = input.y;
 	}
 }

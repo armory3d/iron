@@ -7,6 +7,8 @@ import wings.trait.Input;
 
 class Object extends ComposeGroup {
 
+	var parent(get, never):Object;
+
 	public var transform:Transform;
 	public var input:Input;
 
@@ -24,7 +26,7 @@ class Object extends ComposeGroup {
 		parentItem.removeChild(this);
 	}
 
-	public function parent():Object {
+	inline function get_parent():Object {
 		return cast(parentItem);
 	}
 

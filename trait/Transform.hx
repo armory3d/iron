@@ -19,6 +19,7 @@ class Transform extends Trait implements IUpdateable {
 	public var matrix:Mat4;
 
 	public var pos:Vec3;
+	public var anchor:Vec3;
 	public var rot:Quat;
 	public var rotation:Rotation;
 	public var scale:Vec3;
@@ -28,7 +29,7 @@ class Transform extends Trait implements IUpdateable {
 
 	public var color:Color;
 
-	// Shortcuts
+	// Position
 	public var x(get, set):Float;
 	public var y(get, set):Float;
 	public var z(get, set):Float;
@@ -36,6 +37,11 @@ class Transform extends Trait implements IUpdateable {
 	public var absx(get, null):Float;
 	public var absy(get, null):Float;
 	public var absz(get, null):Float;
+
+	// Anchor
+	public var ax(get, set):Float;
+	public var ay(get, set):Float;
+	public var az(get, set):Float;
 
 	public var w(get, set):Float;
 	public var h(get, set):Float;
@@ -94,6 +100,7 @@ class Transform extends Trait implements IUpdateable {
 		matrix = new Mat4();
 
 		pos = new Vec3();
+		anchor = new Vec3();
 		rot = new Quat();
 		rotation = new Rotation(new kha.math.Vector2(0, 0), 0);
 		scale = new Vec3(1, 1, 1);
@@ -117,9 +124,9 @@ class Transform extends Trait implements IUpdateable {
 		matrix._31 *= scale.z;
 		matrix._32 *= scale.z;
 		matrix._33 *= scale.z;
-		matrix._41 = pos.x;
-		matrix._42 = pos.y;
-		matrix._43 = pos.z;
+		matrix._41 = pos.x - anchor.x * size.x;
+		matrix._42 = pos.y - anchor.y * size.y;
+		matrix._43 = pos.z - anchor.z * size.z;
 
 		if (Std.is(item.parentItem, Object)) {
 			matrix.multiply3x4(matrix, cast(item.parentItem, Object).transform.matrix);
@@ -194,6 +201,19 @@ class Transform extends Trait implements IUpdateable {
 	inline function get_absy():Float { return matrix._42; }
 
 	inline function get_absz():Float { return matrix._43; }
+
+
+	inline function get_ax():Float { return anchor.x; }
+
+	inline function set_ax(f:Float):Float { modified = true; return anchor.x = f; }
+
+	inline function get_ay():Float { return anchor.y; }
+
+	inline function set_ay(f:Float):Float { modified = true; return anchor.y = f; }
+
+	inline function get_az():Float { return anchor.z; }
+
+	inline function set_az(f:Float):Float { modified = true; return anchor.z = f; }
 
 
 	inline function get_w():Float { return size.x; }
