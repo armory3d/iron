@@ -1,7 +1,5 @@
 package wings.trait2d.ui;
 
-import kha.Painter;
-
 import wings.core.Trait;
 import wings.trait.Transform;
 
@@ -11,7 +9,7 @@ enum LayoutType {
 
 class Layout extends Trait {
 
-	public var transform:Transform;
+	var transforms:Array<Transform> = [];
 
 	var type:LayoutType;
 	var spacing:Float;
@@ -23,15 +21,22 @@ class Layout extends Trait {
 		this.spacing = spacing;
 	}
 
-	@injectAdd({desc:true,sibl:true})
+	@injectAdd({desc:true,sibl:false})
     public function addTransform(trait:Transform) {
 
-    	if (trait.item == item) {
-    		transform = trait;
-    	}
-    	else {
-    		trait.y = transform.absh + spacing;
-    		transform.updateSize();
-    	}
+    	// Align only direct children
+    	if (trait.item.parentItem == item) {
+
+			var last = transforms.length > 0 ? transforms[transforms.length - 1] : null;
+
+			if (type == LayoutType.Vertical) {
+				if (last != null) trait.y = last.y + last.h + spacing;
+			}
+			else if (type == LayoutType.Horizontal) {
+				if (last != null) trait.x = last.x + last.w + spacing;
+			}
+
+			transforms.push(trait);
+		}
     }
 }

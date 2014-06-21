@@ -2,7 +2,6 @@ package wings.trait2d;
 
 import kha.Font;
 import kha.Painter;
-import kha.Color;
 
 import wings.core.Trait;
 import wings.core.IRenderable2D;
@@ -17,8 +16,12 @@ class TextRenderer extends Trait implements IRenderable2D {
 	public var transform:Transform;
 
 	var font:Font;
-	public var text:String;
+
+	public var text(get, set):String;
+	var texts:Array<String>;
+	
 	var align:TextAlign;
+	var widths:Array<Float>;
 
 	public function new(text:String, font:Font, align:TextAlign = null) {
 		super();
@@ -34,26 +37,53 @@ class TextRenderer extends Trait implements IRenderable2D {
     public function addTransform(trait:Transform) {
         transform = trait;
 
-        transform.w = font.stringWidth(text);
-		transform.h = font.getHeight();
+        updateTransform();
+    }
+
+    function updateTransform() {
+    	transform.w = font.stringWidth(text);
+		transform.h = font.getHeight() * texts.length;
     }
 
 	public function render(painter:Painter) {
 		painter.setColor(transform.color);
 		painter.setFont(font);
 
-		var textX = 0.0;
+		painter.drawString(texts[0], transform.absx, transform.absy);
 
-		if (align == TextAlign.Left) {
-			textX = transform.absx;
+		// Multi-line
+		for (i in 1...texts.length) {
+
+			var textX = 0.0;
+
+			if (align == TextAlign.Left) {
+				textX = transform.absx;
+			}
+			else if (align == TextAlign.Center) {
+				textX = transform.absx + (widths[0] - widths[i]) / 2;
+			}
+			else {
+				textX = transform.absx + (widths[0] - widths[i]);
+			}
+
+			painter.drawString(texts[i], textX, transform.absy + i * font.getHeight());
 		}
-		else if (align == TextAlign.Center) {
-			textX = transform.absx - transform.w / 2;
-		}
-		else {
-			textX = transform.absx - transform.w;
+	}
+
+	function set_text(s:String):String {
+		texts = s.split("\n");
+		
+		if (transform != null) updateTransform();
+		
+		widths = [];
+		for (t in texts) {
+			widths.push(font.stringWidth(t));
 		}
 
-		painter.drawString(text, textX, transform.absy);
+		return s;
+	}
+
+	function get_text():String {
+		return texts[0];
 	}
 }
