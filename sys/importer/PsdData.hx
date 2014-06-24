@@ -5,19 +5,22 @@ import kha.Image;
 
 import wings.sys.Assets;
 
-class PsdImporter {
+class PsdData {
 
-	var texture:Image;
-	var format:TPsdFormat;
+	public var texture:Image;
+	public var format:TPsdFormat;
 
-	public function new(data:String) {
+	public function new(data:String, metaOnly:Bool = false) {
 		format = Json.parse(data);
-
-        //texture = Assets.getImage(format.name);
+        if (!metaOnly) texture = Assets.getImage(format.name + "_atlas");
 	}
 
-	public function getLayers():Array<TPsdLayer> {
+	public inline function getLayers():Array<TPsdLayer> {
 		return format.layers;
+	}
+
+	public inline function getStrings():Array<String> {
+		return format.strings;
 	}
 }
 
@@ -27,6 +30,7 @@ typedef TPsdFormat = {
 	resolution:Int,
 	name:String,
 	path:String,
+	strings:Array<String>,
 	layers:Array<TPsdLayer>,
 	atlas:TPsdAtlas,
 }

@@ -27,7 +27,7 @@ class Object extends ComposeGroup {
 	}
 
 	inline function get_parent():Object {
-		return cast(parentItem);
+		return cast(parentItem, Object);
 	}
 
 	override function onParentAdd() {
