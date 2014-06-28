@@ -16,6 +16,7 @@ class TapTrait extends Trait implements IUpdateable {
 	public var onTap:Void->Void;
 
 	var propagated:Bool = false;
+	var started:Bool = false;
 
 	public function new(onTap:Void->Void) {
 		super();
@@ -25,21 +26,25 @@ class TapTrait extends Trait implements IUpdateable {
 
 	public function update() {
 
-		var test = transform.hitTest(input.x, input.y);
+		var hitTest = transform.hitTest(input.x, input.y);
 
     	if (input.moved) {
-	    	if (test && !propagated) {
+	    	if (hitTest && !propagated) {
 	    		propagated = true;
 				transform.a = transform.a - 0.2;
 			}
-			else if (!test && propagated) {
+			else if (!hitTest && propagated) {
 				propagated = false;
 				if (transform.a <= 0.8) transform.a = transform.a + 0.2;
 			}
 		}
 
-		if (test && input.released) {
-			onTap();
+		if (hitTest && input.started) {
+			started = true;
+		}
+		else if (hitTest && input.released && started) {
+			if (onTap != null) onTap();
+			started = false;
 		}
 	}
 }

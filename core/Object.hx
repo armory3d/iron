@@ -7,6 +7,8 @@ import wings.trait.Input;
 
 class Object extends ComposeGroup {
 
+	public var name:String;
+	
 	var parent(get, never):Object;
 
 	public var transform:Transform;
@@ -37,6 +39,8 @@ class Object extends ComposeGroup {
 			input.layer = cast(parentItem, Object).input.layer;
 			Input._layer = input.layer;
 		}
+
+		transform.update();
 	}
 
 	override function onParentRemove() {

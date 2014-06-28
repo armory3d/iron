@@ -19,19 +19,27 @@ class PsdData {
 		return format.layers;
 	}
 
+	public function getLayer(name:String):TPsdLayer {
+		for (i in 0...format.layers.length) {
+			if (format.layers[i].name == name) {
+				return format.layers[i];
+			}
+		}
+
+		return null;
+	}
+
 	public inline function getStrings():Array<String> {
-		return format.strings;
+		return format.EN;
 	}
 }
 
 typedef TPsdFormat = {
 	width:Int,
 	height:Int,
-	resolution:Int,
 	name:String,
-	path:String,
-	strings:Array<String>,
 	layers:Array<TPsdLayer>,
+	EN:Array<String>,
 	atlas:TPsdAtlas,
 }
 
@@ -44,6 +52,7 @@ typedef TPsdLayer = {
 	pinX:Float,
 	pinY:Float,
 	layer_index:Int,
+	group:Int,
 	packedOrigin:TPsdPackedOrigin,
 }
 

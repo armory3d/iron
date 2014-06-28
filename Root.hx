@@ -6,12 +6,11 @@ import kha.Configuration;
 import kha.graphics.CompareMode;
 import kha.Painter;
 import kha.Loader;
-import composure.core.ComposeRoot;
-import composure.core.ComposeItem;
 
 import wings.sys.Time;
 import wings.sys.Storage;
 import wings.sys.Assets;
+import wings.core.Object;
 import wings.core.FrameUpdater;
 import wings.core.FrameRenderer;
 import wings.core.FrameRenderer2D;
@@ -22,7 +21,7 @@ import wings.trait.Input;
 
 class Root extends kha.Game {
 
-	static var root:ComposeRoot;
+	public static var root:Object;
 
 	static var frameUpdater:FrameUpdater;
 	static var frameRenderer:FrameRenderer;
@@ -43,8 +42,7 @@ class Root extends kha.Game {
 		new Time();
 		//new Storage();
 
-		// Root item
-		root = new ComposeRoot();
+		root = new Object();
 
 		frameUpdater = new FrameUpdater();
 		root.addTrait(frameUpdater);
@@ -56,7 +54,7 @@ class Root extends kha.Game {
 		root.addTrait(frameRenderer2D);
 	}
 
-	public static inline function addChild(item:ComposeItem) {
+	public static inline function addChild(item:Object) {
 		root.addChild(item);
 	}
 

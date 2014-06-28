@@ -43,6 +43,9 @@ class TextRenderer extends Trait implements IRenderable2D {
     function updateTransform() {
     	transform.w = font.stringWidth(text);
 		transform.h = font.getHeight() * texts.length;
+
+		transform.modified = true;
+		transform.update();
     }
 
 	public function render(painter:Painter) {
@@ -73,7 +76,9 @@ class TextRenderer extends Trait implements IRenderable2D {
 	function set_text(s:String):String {
 		texts = s.split("\n");
 		
-		if (transform != null) updateTransform();
+		if (transform != null) {
+			updateTransform();
+		}
 		
 		widths = [];
 		for (t in texts) {

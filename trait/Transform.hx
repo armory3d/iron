@@ -81,7 +81,10 @@ class Transform extends Trait implements IUpdateable {
 
 			// Update children
 			for (c in group.children) {
-				if (Std.is(c, Object)) cast(c, Object).transform.modified = true;
+				if (Std.is(c, Object)) {
+					cast(c, Object).transform.modified = true;
+					cast(c, Object).transform.update();
+				}
 			}
 		}
 
