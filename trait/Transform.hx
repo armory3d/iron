@@ -89,7 +89,6 @@ class Transform extends Trait implements IUpdateable {
 		}
 
 		if (resized) {
-			resized = false;
 
 			updateSize();
 
@@ -137,6 +136,8 @@ class Transform extends Trait implements IUpdateable {
 	}
 
 	public function updateSize() {
+
+		resized = false;
 
 		var left = absx;
 		var top = absy;

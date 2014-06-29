@@ -13,15 +13,17 @@ class TapTrait extends Trait implements IUpdateable {
 	@inject
 	var input:Input;
 
-	public var onTap:Void->Void;
+	public var onTap:Dynamic;
+	var args:Dynamic;
 
 	var propagated:Bool = false;
 	var started:Bool = false;
 
-	public function new(onTap:Void->Void) {
+	public function new(onTap:Dynamic, args:Dynamic = null) {
 		super();
 
 		this.onTap = onTap;
+		this.args = args;
 	}
 
 	public function update() {
@@ -43,7 +45,10 @@ class TapTrait extends Trait implements IUpdateable {
 			started = true;
 		}
 		else if (hitTest && input.released && started) {
-			if (onTap != null) onTap();
+			if (onTap != null) {
+				if (args == null) onTap();
+				else onTap(args);
+			}
 			started = false;
 		}
 	}

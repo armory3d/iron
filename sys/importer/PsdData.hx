@@ -19,14 +19,30 @@ class PsdData {
 		return format.layers;
 	}
 
-	public function getLayer(name:String):TPsdLayer {
+	public function getLayer(name:String, type:String = ""):TPsdLayer {
 		for (i in 0...format.layers.length) {
 			if (format.layers[i].name == name) {
-				return format.layers[i];
+				if (type == "" || (type == format.layers[i].type)) {
+					return format.layers[i];
+				}
 			}
 		}
 
 		return null;
+	}
+
+	public function getGroup(id:Int):Array<TPsdLayer> {
+		var group:Array<TPsdLayer> = [];
+
+		for (j in 0...format.layers.length) {
+			var i = format.layers.length - 1 - j;
+
+			if (format.layers[i].group == id) {
+				group.push(format.layers[i]);
+			}
+		}
+
+		return group;
 	}
 
 	public inline function getStrings():Array<String> {
@@ -45,6 +61,8 @@ typedef TPsdFormat = {
 
 typedef TPsdLayer = {
 	name:String,
+	type:String,
+	style:String,
 	left:Int,
 	top:Int,
 	width:Int,

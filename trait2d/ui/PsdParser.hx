@@ -58,7 +58,7 @@ class PsdParser extends Trait {
 	}
 
 
-	public inline function setTap(name:String, tap:Void->Void) {
+	public inline function setTap(name:String, tap:Dynamic) {
 		taps.get(name).onTap = tap;
 	}
 
@@ -68,10 +68,9 @@ class PsdParser extends Trait {
 
 
 	override function onItemAdd() {
+
 		for (j in 0...layers.length) {
 			var i = layers.length - 1 - j;
-
-			var captions = layers[i].name.split(":");
 
 			var object = new Object();
 
@@ -80,84 +79,45 @@ class PsdParser extends Trait {
 				groups[layers[i].group].push(object);
 			}
 
+
 			// Skip parsing this node into object
-			if (captions[0].charAt(0) == "!") {
-				//captions[0] = captions[0].substring(1, captions[0].length);
+			if (layers[i].name.charAt(0) == "!") {
+				//layers[i].name = layers[i].name.substring(1, layers[i].name.length);
 				continue;
 			}
 			// Node not exported in atlas
-			else if (captions[0].charAt(0) == "_") {
+			else if (layers[i].name.charAt(0) == "_") {
 				
 			}
 			// Images
-			else if (captions[1] == "image") {
+			else if (layers[i].type == "image") {
 
-				var renderer = new ImageRenderer(data.texture);
-				renderer.source.x = layers[i].packedOrigin.x;
-				renderer.source.y = layers[i].packedOrigin.y;
-				renderer.source.w = layers[i].width;
-				renderer.source.h = layers[i].height;
-				object.addTrait(renderer);
-
-				object.transform.w = renderer.source.w;
-				object.transform.h = renderer.source.h;
-
-				object.transform.x = layers[i].left;
-				object.transform.y = layers[i].top;
+				createImage(object, layers[i]);
 			}
 			// Texts
-			else if (captions[1] == "text") {
+			else if (layers[i].type == "text") {
 
-				var str = captions.length > 5 ? strings[Std.parseInt(captions[5])] : "";
-				var fontSize = Std.parseInt(captions[2]);
-				var renderer = new TextRenderer(str, Assets.getFont("avenir", fontSize), TextAlign.Center);
-				
-				// Expose text
-				/*if (str == "")*/ texts.set(captions[0], renderer); // TODO: add empty texts only
-				
-				object.addTrait(renderer);
+				createText(object, layers[i]);
 
-				object.transform.color = kha.Color.fromString(captions[3]);
-				object.transform.ax = Std.parseFloat(StringTools.replace(captions[4], ",", "."));
-
-				object.transform.x = layers[i].left + layers[i].width * object.transform.ax;
-				object.transform.y = layers[i].top - Std.int(fontSize / 6);
-
-			}
-			// Buttons
-			else if (captions[1] == "button") {
-
-				var renderer = new ImageRenderer(data.texture);
-				renderer.source.x = layers[i].packedOrigin.x;
-				renderer.source.y = layers[i].packedOrigin.y;
-				renderer.source.w = layers[i].width;
-				renderer.source.h = layers[i].height;
-				object.addTrait(renderer);
-
-				object.transform.w = renderer.source.w;
-				object.transform.h = renderer.source.h;
-
-				// Expose button
-				var tap = new TapTrait(null);
-				object.addTrait(tap);
-				taps.set(captions[0], tap);
-
-				object.transform.x = layers[i].left;
-				object.transform.y = layers[i].top;
-			}
-
-			// Add object
-			if (captions[1] == "text") {
 				// Display text items last
 				textObjects.push(object);
 			}
-			else {
+			// Buttons
+			else if (layers[i].type == "button") {
+
+				createButton(object, layers[i]);
+			}
+
+
+			// Add object
+			if (layers[i].type != "text") {
 				if (autoAdd) parent.addChild(object);
 				else objects.push(object);
 			}
 
+
 			// Set name
-			object.name = captions[0];
+			object.name = layers[i].name;
 		}
 
 		// Show text items on top
@@ -169,5 +129,91 @@ class PsdParser extends Trait {
 				objects.push(textObjects[i]);
 			}
 		}
+	}
+
+	public function createImage(object:Object, layer:TPsdLayer) {
+
+		var renderer = new ImageRenderer(data.texture);
+		renderer.source.x = layer.packedOrigin.x;
+		renderer.source.y = layer.packedOrigin.y;
+		renderer.source.w = layer.width;
+		renderer.source.h = layer.height;
+		object.addTrait(renderer);
+
+		object.transform.w = renderer.source.w;
+		object.transform.h = renderer.source.h;
+
+		object.transform.x = layer.left;
+		object.transform.y = layer.top;
+	}
+
+	public function createText(object:Object, layer:TPsdLayer) {
+
+		var styles = layer.style.split(":");
+
+		var str = styles.length > 3 ? strings[Std.parseInt(styles[3])] : "";
+		var fontSize = Std.parseInt(styles[0]);
+		var renderer = new TextRenderer(str, Assets.getFont("avenir", fontSize), TextAlign.Center);
+		
+		// Expose text
+		/*if (str == "")*/ texts.set(layer.name, renderer); // TODO: add empty texts only
+		
+		object.addTrait(renderer);
+
+		object.transform.color = kha.Color.fromString(styles[1]);
+		object.transform.ax = Std.parseFloat(styles[2]);
+
+		object.transform.x = layer.left + layer.width * object.transform.ax;
+		object.transform.y = layer.top - Std.int(fontSize / 6);
+	}
+
+	public function createButton(object:Object, layer:TPsdLayer, prefix:Int = 0) {
+
+		var renderer = new ImageRenderer(data.texture);
+		renderer.source.x = layer.packedOrigin.x;
+		renderer.source.y = layer.packedOrigin.y;
+		renderer.source.w = layer.width;
+		renderer.source.h = layer.height;
+		object.addTrait(renderer);
+
+		object.transform.w = renderer.source.w;
+		object.transform.h = renderer.source.h;
+
+		// Expose button
+		var tap = prefix == 0 ? new TapTrait(null) : new TapTrait(null, prefix);
+		object.addTrait(tap);
+		var name = prefix == 0 ? layer.name : prefix + layer.name;
+		taps.set(name, tap);
+
+		object.transform.x = layer.left;
+		object.transform.y = layer.top;
+	}
+
+	public function createGroup(id:Int, prefix:Int = 0):Object {
+
+		var container = new Object();
+		var elements = data.getGroup(id);
+
+		for (i in 0...elements.length) {
+			var elem = new Object();
+
+			if (elements[i].type == "image") {
+				createImage(elem, elements[i]);
+
+				// TODO: properly set size
+				container.transform.w = elements[i].width;
+				container.transform.h = elements[i].height;
+			}
+			else if (elements[i].type == "text") {
+				createText(elem, elements[i]);
+			}
+			else if (elements[i].type == "button") {
+				createButton(elem, elements[i], prefix);
+			}
+
+			container.addChild(elem);
+		}
+
+		return container;
 	}
 }
