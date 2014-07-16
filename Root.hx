@@ -60,6 +60,7 @@ class Root extends kha.Game {
 
 	public static inline function reset() {
 		root.removeAllItem();
+		Input.reset();
 	}
 
 	override public function init() {
@@ -98,14 +99,20 @@ class Root extends kha.Game {
 	}
 
 	override public inline function mouseDown(x:Int, y:Int) { 
+		//var xx = 1136 - y; //2048
+		//var yy = x;
 		Input.onTouchBegin(x, y);
 	}
 
-    override public inline function mouseUp(x:Int, y:Int) { 
+    override public inline function mouseUp(x:Int, y:Int) {
+    	//var xx = 1136 - y;
+		//var yy = x; 
     	Input.onTouchEnd(x, y);
     }
 
-    override public inline function mouseMove(x:Int, y:Int) { 
+    override public inline function mouseMove(x:Int, y:Int) {
+    	//var xx = 1136 - y;
+		//var yy = x;
     	Input.onMove(x, y);
     }
 }

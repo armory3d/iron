@@ -45,6 +45,23 @@ class PsdData {
 		return group;
 	}
 
+	public function getElements(names:Array<String>):Array<TPsdLayer> {
+		var group:Array<TPsdLayer> = [];
+
+		for (j in 0...format.layers.length) {
+			var i = format.layers.length - 1 - j;
+
+			for (j in 0...names.length) {
+				if (format.layers[i].name == names[j]) {
+					group.push(format.layers[i]);
+					//break; // Add all elements of the same name
+				}
+			}
+		}
+
+		return group;
+	}
+
 	public inline function getStrings():Array<String> {
 		return format.EN;
 	}

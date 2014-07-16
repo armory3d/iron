@@ -78,8 +78,8 @@ class Input extends Trait {
 		_touch = true;
 		_started = true;
 
-		_x = _x;
-		_y = _y;
+		_x = x;
+		_y = y;
 	}
 	
 	public static function onTouchEnd(x:Float, y:Float) {
@@ -91,7 +91,6 @@ class Input extends Trait {
 	}
 	
 	public static function onMove(x:Float, y:Float) {
-		// TODO: check first frame delta
 		_deltaX = x - _x;
 		_deltaY = y - _y;
 

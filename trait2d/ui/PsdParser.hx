@@ -66,6 +66,10 @@ class PsdParser extends Trait {
 		texts.get(name).text = text;
 	}
 
+	public inline function getText(name:String):String {
+		return texts.get(name).text;
+	}
+
 
 	override function onItemAdd() {
 
@@ -82,7 +86,7 @@ class PsdParser extends Trait {
 
 			// Skip parsing this node into object
 			if (layers[i].name.charAt(0) == "!") {
-				//layers[i].name = layers[i].name.substring(1, layers[i].name.length);
+				layers[i].name = layers[i].name.substring(1, layers[i].name.length);
 				continue;
 			}
 			// Node not exported in atlas
@@ -147,7 +151,7 @@ class PsdParser extends Trait {
 		object.transform.y = layer.top;
 	}
 
-	public function createText(object:Object, layer:TPsdLayer) {
+	public function createText(object:Object, layer:TPsdLayer, prefix:Int = 0) {
 
 		var styles = layer.style.split(":");
 
@@ -156,7 +160,8 @@ class PsdParser extends Trait {
 		var renderer = new TextRenderer(str, Assets.getFont("avenir", fontSize), TextAlign.Center);
 		
 		// Expose text
-		/*if (str == "")*/ texts.set(layer.name, renderer); // TODO: add empty texts only
+		var name = prefix == 0 ? layer.name : prefix + layer.name;
+		/*if (str == "")*/ texts.set(name, renderer); // TODO: add empty texts only
 		
 		object.addTrait(renderer);
 
@@ -180,8 +185,10 @@ class PsdParser extends Trait {
 		object.transform.h = renderer.source.h;
 
 		// Expose button
+		// onTap will pass prefix as argument
 		var tap = prefix == 0 ? new TapTrait(null) : new TapTrait(null, prefix);
 		object.addTrait(tap);
+		// Name will start with prefix value
 		var name = prefix == 0 ? layer.name : prefix + layer.name;
 		taps.set(name, tap);
 
@@ -189,26 +196,37 @@ class PsdParser extends Trait {
 		object.transform.y = layer.top;
 	}
 
+	// id of the group specified in psd layer
+	// prefix for instance we are currently creating
 	public function createGroup(id:Int, prefix:Int = 0):Object {
 
-		var container = new Object();
 		var elements = data.getGroup(id);
+		return createElements(elements, prefix);
+	}
+
+	public function createElements(elements:Array<TPsdLayer>, prefix:Int):Object {
+		
+		var container = new Object();
 
 		for (i in 0...elements.length) {
 			var elem = new Object();
 
 			if (elements[i].type == "image") {
 				createImage(elem, elements[i]);
-
-				// TODO: properly set size
-				container.transform.w = elements[i].width;
-				container.transform.h = elements[i].height;
 			}
 			else if (elements[i].type == "text") {
-				createText(elem, elements[i]);
+				createText(elem, elements[i], prefix);
 			}
 			else if (elements[i].type == "button") {
 				createButton(elem, elements[i], prefix);
+			}
+
+			// TODO: properly set size
+			if (elements[i].width > container.transform.w) {
+				container.transform.w = elements[i].width;
+			}
+			if (elements[i].height > container.transform.h) {
+				container.transform.h = elements[i].height;
 			}
 
 			container.addChild(elem);

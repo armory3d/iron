@@ -9,7 +9,7 @@ class Object extends ComposeGroup {
 
 	public var name:String;
 	
-	var parent(get, never):Object;
+	public var parent(get, never):Object;
 
 	public var transform:Transform;
 	public var input:Input;
@@ -46,6 +46,7 @@ class Object extends ComposeGroup {
 	override function onParentRemove() {
 		super.onParentRemove();
 
+		// TODO: prevent if parent input layer is > 0
 		if (input.layer > 0) Input._layer = input.layer - 1;
 	}
 }

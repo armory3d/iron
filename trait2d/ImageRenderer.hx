@@ -15,7 +15,7 @@ class ImageRenderer extends Trait implements IRenderable2D {
 	public var source:Rect;
 
 	// TODO: get image real width and set transform size to source size
-	var image:Image;
+	public var image:Image;
 
 	public function new(image:Image) {
 		super();

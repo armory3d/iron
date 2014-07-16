@@ -39,7 +39,7 @@ class Game {
         var shader = new Shader("default.frag", "default.vert", struct);
         shader.addConstantMat4("mvpMatrix");
         shader.addTexture("tex");
-        Factory.addShader("shader", shader);
+        Assets.addShader("shader", shader);
 
         // Create scene
         var scene = new Object();
@@ -52,9 +52,9 @@ class Game {
         scene.addTrait(camera);
 
         // Create mesh data
-        Factory.addGeometry("cube", new CubeGeometry(1, 1, 1));
-        Factory.addMaterial("wood", new TextureMaterial(shader, Factory.getTexture("box")));
-        Factory.addMesh("mesh", new Mesh("cube", "wood"));
+        Assets.addGeometry("cube", new CubeGeometry(1, 1, 1));
+        Assets.addMaterial("wood", new TextureMaterial(shader, Assets.getTexture("box")));
+        Assets.addMesh("mesh", new Mesh("cube", "wood"));
 
         // Add mesh
         var mesh = new Object();

@@ -7,6 +7,7 @@ import wings.core.Trait;
 import wings.core.IRenderable2D;
 import wings.core.IUpdateable;
 import wings.trait2d.tiles.TileSheet;
+import wings.trait.Transform;
 
 class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 
@@ -24,9 +25,9 @@ class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 	var reversed:Bool;
 	var flipped:Bool;
 
-	var repeat:Bool;
+	public var repeat:Bool;
 
-	public function new(tilesheet:Tilesheet) {
+	public function new(tilesheet:TileSheet) {
 		super();
 
 		animations = new Array();
@@ -96,6 +97,9 @@ class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 	}
 
 	public function render(painter:Painter) {
+
+		painter.setColor(transform.color);
+		painter.opacity = transform.a;
 
 		// Actual frame on tileset
 		var frame:Int = animations[currentAnimation].frames[currentFrame];

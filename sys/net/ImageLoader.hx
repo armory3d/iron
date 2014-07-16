@@ -3,6 +3,7 @@ package wings.sys.net;
 #if flash
 import flash.events.Event;
 import flash.net.URLRequest;
+import flash.system.LoaderContext;
 #end
 
 class ImageLoader {
@@ -13,9 +14,7 @@ class ImageLoader {
 	var loadHandler:kha.Image->Void;
 
 	public function new() {
-		#if flash
-		flash.system.Security.loadPolicyFile("https://fbcdn-profile-a.akamaihd.net/crossdomain.xml");
-		#end
+		
 	}
 
 	public function get(url:String, handler:kha.Image->Void) {
@@ -25,7 +24,9 @@ class ImageLoader {
 		var request:URLRequest = new URLRequest(url);
 
 		loader = new flash.display.Loader();
-		loader.load(request);
+        var lc:LoaderContext = new LoaderContext();
+        lc.checkPolicyFile = true;
+		loader.load(request, lc);
 
 		loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
 		#end
