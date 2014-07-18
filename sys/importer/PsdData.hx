@@ -88,6 +88,7 @@ typedef TPsdLayer = {
 	pinY:Float,
 	layer_index:Int,
 	group:Int,
+	autoAdd:Int,
 	packedOrigin:TPsdPackedOrigin,
 }
 

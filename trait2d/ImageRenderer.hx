@@ -37,7 +37,10 @@ class ImageRenderer extends Trait implements IRenderable2D {
 		painter.setColor(transform.color);
 		painter.opacity = transform.a;
 
+		// TODO: count scale into w
 		painter.drawImage2(image, source.x, source.y, source.w, source.h,
-						   transform.absx, transform.absy, transform.w, transform.h);
+						   transform.absx, transform.absy,
+						   transform.w * transform.scale.x,
+						   transform.h * transform.scale.y);
 	}
 }

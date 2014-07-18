@@ -85,8 +85,7 @@ class PsdParser extends Trait {
 
 
 			// Skip parsing this node into object
-			if (layers[i].name.charAt(0) == "!") {
-				layers[i].name = layers[i].name.substring(1, layers[i].name.length);
+			if (layers[i].autoAdd == 0) {
 				continue;
 			}
 			// Node not exported in atlas
