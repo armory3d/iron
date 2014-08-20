@@ -3,7 +3,6 @@ package wings;
 import kha.Painter;
 import kha.LoadingScreen;
 import kha.Configuration;
-import kha.graphics.CompareMode;
 import kha.Painter;
 import kha.Loader;
 
@@ -38,29 +37,27 @@ class Root extends kha.Game {
 
 		this.game = game;
 		this.room = room;
-
-		new Time();
-		//new Storage();
-
-		root = new Object();
-
-		frameUpdater = new FrameUpdater();
-		root.addTrait(frameUpdater);
-
-		frameRenderer = new FrameRenderer();
-		root.addTrait(frameRenderer);
-
-		frameRenderer2D = new FrameRenderer2D();
-		root.addTrait(frameRenderer2D);
 	}
 
 	public static inline function addChild(item:Object) {
 		root.addChild(item);
 	}
 
+	public static inline function getChild(name:String):Object {
+		return root.getChild(name);
+	}
+
 	public static inline function reset() {
 		root.removeAllItem();
 		Input.reset();
+		motion.Actuate.reset();
+	}
+
+	public static inline function setScene(scene:Class<Dynamic>, args:Array<Dynamic> = null) {
+		reset();
+
+		if (args == null) args = [];
+		Type.createInstance(scene, args);
 	}
 
 	override public function init() {
@@ -73,9 +70,30 @@ class Root extends kha.Game {
         w = width;
         h = height;
 
+        new Time();
+		//new Storage();
+
+		root = new Object();
+
+		frameUpdater = new FrameUpdater();
+		root.addTrait(frameUpdater);
+
+		frameRenderer = new FrameRenderer();
+		root.addTrait(frameRenderer);
+
+		frameRenderer2D = new FrameRenderer2D();
+		root.addTrait(frameRenderer2D);
+
         Configuration.setScreen(this);
 
         Type.createInstance(game, []);
+
+        if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
+        	kha.input.Mouse.get().notify(downListener, upListener, moveListener, null);
+        }
+        else {
+        	kha.input.Surface.get().notify(touchStartListener, touchEndListener, touchMoveListener);
+        }
     }
 
 	override public inline function update() {
@@ -86,11 +104,11 @@ class Root extends kha.Game {
 	}
 
 	override public inline function render(painter:Painter) {
-		kha.Sys.graphics.setDepthMode(true, CompareMode.Less);
-		kha.Sys.graphics.clear(null, 1, null);
 
 		// Render 3D objects
+		frameRenderer.begin();
 		frameRenderer.render();
+		frameRenderer.end();
 
 		// Render 2D objects
 		painter.begin();
@@ -98,21 +116,29 @@ class Root extends kha.Game {
 		painter.end();
 	}
 
-	override public inline function mouseDown(x:Int, y:Int) { 
-		//var xx = 1136 - y; //2048
-		//var yy = x;
+
+	function downListener(button:Int, x:Int, y:Int) {
 		Input.onTouchBegin(x, y);
 	}
 
-    override public inline function mouseUp(x:Int, y:Int) {
-    	//var xx = 1136 - y;
-		//var yy = x; 
-    	Input.onTouchEnd(x, y);
+    function upListener(button:Int, x:Int, y:Int) {
+		Input.onTouchEnd(x, y);
     }
 
-    override public inline function mouseMove(x:Int, y:Int) {
-    	//var xx = 1136 - y;
-		//var yy = x;
-    	Input.onMove(x, y);
+    function moveListener(x:Int, y:Int) {
+		Input.onMove(x, y);
+    }
+
+
+    function touchStartListener(index:Int, x:Int, y:Int) {
+		Input.onTouchBegin(1136 - y, x);
+    }
+
+    function touchEndListener(index:Int, x:Int, y:Int) {
+		Input.onTouchEnd(1136 - y, x);
+    }
+
+    function touchMoveListener(index:Int, x:Int, y:Int) {
+		Input.onMove(1136 - y, x);
     }
 }

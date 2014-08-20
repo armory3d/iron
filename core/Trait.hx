@@ -4,6 +4,7 @@ import composure.traits.AbstractTrait;
 
 class Trait extends AbstractTrait {
 
+	// TODO: Rename
 	public var parent(get, never):Object;
 
 	public function new() {

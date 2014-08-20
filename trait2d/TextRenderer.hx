@@ -52,7 +52,7 @@ class TextRenderer extends Trait implements IRenderable2D {
 		painter.setColor(transform.color);
 		painter.setFont(font);
 
-		painter.drawString(texts[0], transform.absx, transform.absy);
+		painter.drawString(texts[0], transform.absx, transform.absy, transform.scale.x, transform.scale.y);
 
 		// Multi-line
 		for (i in 1...texts.length) {
@@ -69,7 +69,7 @@ class TextRenderer extends Trait implements IRenderable2D {
 				textX = transform.absx + (widths[0] - widths[i]);
 			}
 
-			painter.drawString(texts[i], textX, transform.absy + i * font.getHeight());
+			painter.drawString(texts[i], textX, transform.absy + i * font.getHeight(), transform.scale.x, transform.scale.y);
 		}
 	}
 

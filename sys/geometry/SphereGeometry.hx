@@ -2,7 +2,7 @@ package wings.sys.geometry;
 
 class SphereGeometry extends Geometry {
 
-	public function new(radius:Float, rings:Int, sectors:Int) {
+	public function new(radius:Float, rings:Int, sectors:Int, st:Int, rt:Int) {
 
 		var R:Float = 1.0 / (rings - 1);
 		var S:Float = 1.0 / (sectors - 1);
@@ -19,8 +19,8 @@ class SphereGeometry extends Geometry {
 	            data.push(x * radius);
 	            data.push(y * radius);
 	            data.push(z * radius);
-	            data.push(s * S);
-	            data.push(r * R);
+	            data.push(s * S * st);
+	            data.push(r * R * rt);
 	            data.push(x);
 	            data.push(y);
 	            data.push(z);

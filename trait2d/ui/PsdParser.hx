@@ -11,7 +11,7 @@ import wings.trait2d.util.TapTrait;
 class PsdParser extends Trait {
 
 	// Raw data
-	var data:PsdData;
+	public var data:PsdData;
 	var layers:Array<TPsdLayer>;
 	var strings:Array<String>;
 
@@ -70,9 +70,7 @@ class PsdParser extends Trait {
 		return texts.get(name).text;
 	}
 
-
 	override function onItemAdd() {
-
 		for (j in 0...layers.length) {
 			var i = layers.length - 1 - j;
 
@@ -117,10 +115,6 @@ class PsdParser extends Trait {
 				if (autoAdd) parent.addChild(object);
 				else objects.push(object);
 			}
-
-
-			// Set name
-			object.name = layers[i].name;
 		}
 
 		// Show text items on top
@@ -148,6 +142,8 @@ class PsdParser extends Trait {
 
 		object.transform.x = layer.left;
 		object.transform.y = layer.top;
+
+		object.name = layer.name;
 	}
 
 	public function createText(object:Object, layer:TPsdLayer, prefix:Int = 0) {
@@ -156,7 +152,7 @@ class PsdParser extends Trait {
 
 		var str = styles.length > 3 ? strings[Std.parseInt(styles[3])] : "";
 		var fontSize = Std.parseInt(styles[0]);
-		var renderer = new TextRenderer(str, Assets.getFont("avenir", fontSize), TextAlign.Center);
+		var renderer = new TextRenderer(str, Assets.getFont("font", fontSize), TextAlign.Center);
 		
 		// Expose text
 		var name = prefix == 0 ? layer.name : prefix + layer.name;
@@ -169,6 +165,8 @@ class PsdParser extends Trait {
 
 		object.transform.x = layer.left + layer.width * object.transform.ax;
 		object.transform.y = layer.top - Std.int(fontSize / 6);
+
+		object.name = layer.name;
 	}
 
 	public function createButton(object:Object, layer:TPsdLayer, prefix:Int = 0) {
@@ -193,6 +191,8 @@ class PsdParser extends Trait {
 
 		object.transform.x = layer.left;
 		object.transform.y = layer.top;
+
+		object.name = layer.name;
 	}
 
 	// id of the group specified in psd layer
@@ -203,7 +203,7 @@ class PsdParser extends Trait {
 		return createElements(elements, prefix);
 	}
 
-	public function createElements(elements:Array<TPsdLayer>, prefix:Int):Object {
+	public function createElements(elements:Array<TPsdLayer>, prefix:Int = 0):Object {
 		
 		var container = new Object();
 

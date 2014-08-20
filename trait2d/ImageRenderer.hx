@@ -14,6 +14,11 @@ class ImageRenderer extends Trait implements IRenderable2D {
 	public var transform:Transform;
 	public var source:Rect;
 
+	// TODO: move to transform
+	public var angle:Float = 0;
+	public var ox:Float = 0;
+	public var oy:Float = 0;
+
 	// TODO: get image real width and set transform size to source size
 	public var image:Image;
 
@@ -41,6 +46,7 @@ class ImageRenderer extends Trait implements IRenderable2D {
 		painter.drawImage2(image, source.x, source.y, source.w, source.h,
 						   transform.absx, transform.absy,
 						   transform.w * transform.scale.x,
-						   transform.h * transform.scale.y);
+						   transform.h * transform.scale.y,
+						   angle, ox, oy);
 	}
 }

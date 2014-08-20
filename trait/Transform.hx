@@ -175,6 +175,11 @@ class Transform extends Trait implements IUpdateable {
 		modified = true;
 	}
 
+	public function setRotation(x:Float, y:Float, z:Float) {
+		rot.initRotate(x, y, z);
+		modified = true;
+	}
+
 	public inline function rotateX(f:Float) {
 		rotate(f, 0, 0);
 	}

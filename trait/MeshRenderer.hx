@@ -6,7 +6,7 @@ import wings.math.Mat4;
 import wings.math.Vec3;
 import wings.sys.material.TextureMaterial;
 import wings.sys.mesh.Mesh;
-import wings.sys.Factory;
+import wings.sys.Assets;
 
 class MeshRenderer extends Renderer {
 
@@ -20,23 +20,28 @@ class MeshRenderer extends Renderer {
 
 	var mesh:Mesh;
 
-	var textures:Array<Texture>;
+	public var textures:Array<Texture>;
 	var constantMat4s:Array<Mat4>;
 	var constantVec3s:Array<Vec3>;
+	var constantVec4s:Array<Vec3>;
 
 	public function new(mesh:String) {
 		super();
 
 		mvpMatrix = new Mat4();
 
-		this.mesh = Factory.getMesh(mesh);
+		this.mesh = Assets.getMesh(mesh);
 
 		textures = new Array();
 		constantMat4s = new Array();
 		constantVec3s = new Array();
+		constantVec4s = new Array();
 
 		if (this.mesh.material != null) this.mesh.material.registerRenderer(this);
 	}
+
+	public var prerenderCallBack:Int->Void = null;
+	public var renderPasses = 1;
 
 	public override function render() {
 		super.render();
@@ -52,17 +57,27 @@ class MeshRenderer extends Renderer {
 		Sys.graphics.setIndexBuffer(mesh.geometry.indexBuffer);
 		Sys.graphics.setProgram(mesh.material.shader.program);
 	
-		Sys.graphics.setTexture(mesh.material.shader.textures[0], textures[0]);
-	
-		setConstants();
+		for (i in 0...renderPasses) {
 
-		Sys.graphics.drawIndexedVertices();
+			if (prerenderCallBack != null) prerenderCallBack(i);
+
+			Sys.graphics.setTexture(mesh.material.shader.textures[0], textures[0]);
+
+			setConstants();
+
+			Sys.graphics.drawIndexedVertices();
+		}
 	}
 
 	function setConstants() {
 		for (i in 0...constantVec3s.length) {
 			Sys.graphics.setFloat3(mesh.material.shader.constantVec3s[i], constantVec3s[i].x,
 								   constantVec3s[i].y, constantVec3s[i].z);
+		}
+
+		for (i in 0...constantVec4s.length) {
+			Sys.graphics.setFloat4(mesh.material.shader.constantVec4s[i], constantVec4s[i].x,
+								   constantVec4s[i].y, constantVec4s[i].z, constantVec4s[i].w);
 		}
 		
 		for (i in 0...constantMat4s.length) {
@@ -78,6 +93,10 @@ class MeshRenderer extends Renderer {
 
 	public function setVec3(vec:Vec3) {
 		constantVec3s.push(vec);
+	}
+
+	public function setVec4(vec:Vec3) {
+		constantVec4s.push(vec);
 	}
 
 	public function setMat4(mat:Mat4) {

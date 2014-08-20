@@ -23,20 +23,26 @@ class Camera {
 	function new(position:Vec3 = null) {
 		if (position == null) position = new Vec3();
 
-		pos = position;
-
-		up = new Vec3(0, 1, 0);
-		look = new Vec3(0, 0, 1);
-		right = new Vec3(1, 0, 0);
+		if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
+			up = new Vec3(0, 1, 0);
+			look = new Vec3(0, 0, 1);
+			right = new Vec3(1, 0, 0);
+		}
+		else {
+			up = new Vec3(1, 0, 0);
+			look = new Vec3(0, 0, 1);
+			right = new Vec3(0, -1, 0);
+		}
 
 		_pitch = 0;
 		_yaw = 0;
 		_roll = 0;
 
+		pos = position;
 		updateMatrix();
 	}
 
-	function updateMatrix() {
+	public function updateMatrix() {
 		var yawMatrix:Mat4 = new Mat4();
 		yawMatrix.appendRotation(_yaw, up);
 
@@ -66,9 +72,16 @@ class Camera {
 						 -pos.dot(look), 1]);
 
 
-		up.set(0, 1, 0);
-		look.set(0, 0, 1);
-		right.set(1, 0, 0);
+		if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
+			up.set(0, 1, 0);
+			look.set(0, 0, 1);
+			right.set(1, 0, 0);
+		}
+		else {
+			up.set(1, 0, 0);
+			look.set(0, 0, 1);
+			right.set(0, -1, 0);
+		}
 
 
 		worldMatrix.identity();

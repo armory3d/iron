@@ -11,6 +11,7 @@ class Shader {
 	public var structure:VertexStructure;
 
 	public var constantVec3s:Array<ConstantLocation>;
+	public var constantVec4s:Array<ConstantLocation>;
 	public var constantMat4s:Array<ConstantLocation>;
 	public var textures:Array<TextureUnit>;
 
@@ -26,6 +27,7 @@ class Shader {
 		this.structure = structure;
 
 		constantVec3s = new Array();
+		constantVec4s = new Array();
 		constantMat4s = new Array();
 		textures = new Array();
 
@@ -38,6 +40,10 @@ class Shader {
 
 	public function addConstantVec3(s:String) {
 		constantVec3s.push(program.getConstantLocation(s));
+	}
+
+	public function addConstantVec4(s:String) {
+		constantVec4s.push(program.getConstantLocation(s));
 	}
 
 	public function addConstantMat4(s:String) {

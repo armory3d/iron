@@ -11,7 +11,6 @@ import wings.trait.Transform;
 
 class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 
-	@inject
 	public var transform:Transform;
 
 	var tilesheet:TileSheet;
@@ -39,9 +38,15 @@ class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 		paused = false;
 
 		this.tilesheet = tilesheet;
-		//w = tilesheet.tileW;
-		//h = tilesheet.tileH;
 	}
+
+	@injectAdd
+    public function addTransform(trait:Transform) {
+        transform = trait;
+
+        transform.w = tilesheet.tileW;
+        transform.h = tilesheet.tileH;
+    }
 
 	public function addAnimation(anim:Animation) {
 		animations.push(anim);
@@ -112,6 +117,6 @@ class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 		var frameY:Int = posY * tilesheet.tileH;
 
 		painter.drawImage2(tilesheet.image, frameX, frameY, tilesheet.tileW, tilesheet.tileH,
-						   transform.absx, transform.absy, tilesheet.tileW, tilesheet.tileH);
+						   transform.absx, transform.absy, transform.w, transform.h);
 	}
 }
