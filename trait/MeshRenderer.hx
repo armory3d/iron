@@ -1,7 +1,6 @@
 package wings.trait;
 
-import kha.graphics.Texture;
-import kha.Sys;
+import kha.Image;
 import wings.math.Mat4;
 import wings.math.Vec3;
 import wings.sys.material.TextureMaterial;
@@ -10,7 +9,6 @@ import wings.sys.Assets;
 
 class MeshRenderer extends Renderer {
 
-	@inject
 	public var transform:Transform;
 
 	@inject({asc:true,sibl:false})
@@ -18,33 +16,37 @@ class MeshRenderer extends Renderer {
 
 	public var mvpMatrix:Mat4;
 
-	var mesh:Mesh;
+	public var mesh:Mesh;
+	public var lighting:Bool = true;
+	public var texturing:Bool = true;
 
-	public var textures:Array<Texture>;
-	var constantMat4s:Array<Mat4>;
-	var constantVec3s:Array<Vec3>;
-	var constantVec4s:Array<Vec3>;
+	public var textures:Array<Image> = [];
+	var constantMat4s:Array<Mat4> = [];
+	var constantVec3s:Array<Vec3> = [];
+	var constantVec4s:Array<Vec3> = [];
+	var constantBools:Array<Bool> = [];
 
-	public function new(mesh:String) {
+	public function new(mesh:Mesh) {
 		super();
 
 		mvpMatrix = new Mat4();
 
-		this.mesh = Assets.getMesh(mesh);
-
-		textures = new Array();
-		constantMat4s = new Array();
-		constantVec3s = new Array();
-		constantVec4s = new Array();
+		this.mesh = mesh;
 
 		if (this.mesh.material != null) this.mesh.material.registerRenderer(this);
 	}
 
-	public var prerenderCallBack:Int->Void = null;
-	public var renderPasses = 1;
+	@injectAdd
+    public function addTransform(trait:Transform) {
+        transform = trait;
 
-	public override function render() {
-		super.render();
+        transform.size.x = mesh.geometry.size.x * transform.scale.x;
+		transform.size.y = mesh.geometry.size.y * transform.scale.y;
+		transform.size.z = mesh.geometry.size.z * transform.scale.z;
+    }
+
+	public override function render(g:kha.graphics4.Graphics) {
+		super.render(g);
 
 		// Update model-view-projection matrix
 		mvpMatrix.identity();
@@ -53,41 +55,42 @@ class MeshRenderer extends Renderer {
 		mvpMatrix.append(scene.camera.projectionMatrix);
 		
 		// Render mesh
-		Sys.graphics.setVertexBuffer(mesh.geometry.vertexBuffer);
-		Sys.graphics.setIndexBuffer(mesh.geometry.indexBuffer);
-		Sys.graphics.setProgram(mesh.material.shader.program);
-	
-		for (i in 0...renderPasses) {
+		g.setVertexBuffer(mesh.geometry.vertexBuffer);
+		g.setIndexBuffer(mesh.geometry.indexBuffer);
+		g.setProgram(mesh.material.shader.program);
 
-			if (prerenderCallBack != null) prerenderCallBack(i);
-
-			Sys.graphics.setTexture(mesh.material.shader.textures[0], textures[0]);
-
-			setConstants();
-
-			Sys.graphics.drawIndexedVertices();
+		if (texturing) {
+			g.setTexture(mesh.material.shader.textures[0], textures[0]);
 		}
+
+		setConstants(g);
+
+		g.drawIndexedVertices();
 	}
 
-	function setConstants() {
+	function setConstants(g:kha.graphics4.Graphics) {
 		for (i in 0...constantVec3s.length) {
-			Sys.graphics.setFloat3(mesh.material.shader.constantVec3s[i], constantVec3s[i].x,
-								   constantVec3s[i].y, constantVec3s[i].z);
+			g.setFloat3(mesh.material.shader.constantVec3s[i], constantVec3s[i].x,
+						constantVec3s[i].y, constantVec3s[i].z);
 		}
 
 		for (i in 0...constantVec4s.length) {
-			Sys.graphics.setFloat4(mesh.material.shader.constantVec4s[i], constantVec4s[i].x,
-								   constantVec4s[i].y, constantVec4s[i].z, constantVec4s[i].w);
+			g.setFloat4(mesh.material.shader.constantVec4s[i], constantVec4s[i].x,
+						constantVec4s[i].y, constantVec4s[i].z, constantVec4s[i].w);
 		}
 		
 		for (i in 0...constantMat4s.length) {
 			var mat = kha.math.Matrix4.empty();
 			mat.matrix = constantMat4s[i].getFloats();
-			Sys.graphics.setMatrix(mesh.material.shader.constantMat4s[i], mat);
+			g.setMatrix(mesh.material.shader.constantMat4s[i], mat);
+		}
+
+		for (i in 0...constantBools.length) {
+			g.setBool(mesh.material.shader.constantBools[i], constantBools[i]);
 		}
 	}
 
-	public override function setTexture(tex:Texture) {
+	public override function setTexture(tex:Image) {
 		textures.push(tex);
 	}
 
@@ -101,6 +104,10 @@ class MeshRenderer extends Renderer {
 
 	public function setMat4(mat:Mat4) {
 		constantMat4s.push(mat);
+	}
+
+	public function setBool(b:Bool) {
+		constantBools.push(b);
 	}
 
 	/*public function scaleTo(x:Float, y:Float, z:Float) {

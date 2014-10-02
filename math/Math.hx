@@ -8,6 +8,9 @@ class Math {
 	public static inline var PI = 3.14159265358979323;
 	public static inline var EPSILON = 1e-10;
 
+	static public var Rad2Deg 			= 180.0 / PI;    
+	static public var Deg2Rad 			= PI / 180.0;
+
 	public static var POSITIVE_INFINITY(get, never) : Float;
 	public static var NEGATIVE_INFINITY(get, never) : Float;
 	public static var NaN(get, never) : Float;

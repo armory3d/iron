@@ -46,8 +46,8 @@ class Input extends Trait {
 	public static var _released(default, null):Bool = false;
 	public static var _moved(default, null):Bool = false;
 
-	public static var _x(default, null):Float;
-	public static var _y(default, null):Float;
+	public static var _x(default, null):Float = 0;
+	public static var _y(default, null):Float = 0;
 
 	public static var _deltaX(default, null):Float = 0;
 	public static var _deltaY(default, null):Float = 0;

@@ -170,13 +170,15 @@ class Transform extends Trait implements IUpdateable {
 
 	public function rotate(x:Float, y:Float, z:Float) {
 		var q = new Quat();
-		q.initRotate(x, y, z);
+		q.setFromEuler(x, y, z);
+		//q.initRotate(x, y, z);
 		rot.multiply(q, rot);
 		modified = true;
 	}
 
 	public function setRotation(x:Float, y:Float, z:Float) {
-		rot.initRotate(x, y, z);
+		//rot.initRotate(x, y, z);
+		rot.setFromEuler(x, y, z);
 		modified = true;
 	}
 

@@ -1,7 +1,5 @@
 package wings.trait2d.physics;
 
-import kha.Painter;
-
 import wings.core.IUpdateable;
 import wings.core.Trait;
 

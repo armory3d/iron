@@ -1,7 +1,5 @@
 package wings.trait2d;
 
-import kha.Painter;
-
 import wings.core.Trait;
 import wings.core.IRenderable2D;
 import wings.trait.Transform;
@@ -29,9 +27,9 @@ class ShapeRenderer extends Trait implements IRenderable2D {
         transform = trait;
     }
 
-	public function render(painter:Painter) {
+	public function render(g:kha.graphics2.Graphics) {
 
-		painter.setColor(transform.color);
-		painter.fillRect(transform.absx, transform.absy, transform.w, transform.h);		
+		g.color = transform.color;
+		g.fillRect(transform.absx, transform.absy, transform.w, transform.h);		
 	}
 }

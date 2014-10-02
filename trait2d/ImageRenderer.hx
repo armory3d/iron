@@ -1,7 +1,6 @@
 package wings.trait2d;
 
 import kha.Image;
-import kha.Painter;
 
 import wings.math.Rect;
 import wings.core.Trait;
@@ -37,16 +36,16 @@ class ImageRenderer extends Trait implements IRenderable2D {
 		transform.h = image.height;
     }
 
-	public function render(painter:Painter) {
+	public function render(g:kha.graphics2.Graphics) {
 
-		painter.setColor(transform.color);
-		painter.opacity = transform.a;
+		g.color = transform.color;
+		g.opacity = transform.a;
 
 		// TODO: count scale into w
-		painter.drawImage2(image, source.x, source.y, source.w, source.h,
-						   transform.absx, transform.absy,
-						   transform.w * transform.scale.x,
-						   transform.h * transform.scale.y,
-						   angle, ox, oy);
+		//g.rotate(angle, ox, oy);
+		g.drawScaledSubImage(image, source.x, source.y, source.w, source.h,
+						     transform.absx, transform.absy,
+						     transform.w * transform.scale.x,
+						     transform.h * transform.scale.y);
 	}
 }

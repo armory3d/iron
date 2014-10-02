@@ -1,9 +1,8 @@
 package wings;
 
-import kha.Painter;
+import kha.Framebuffer;
 import kha.LoadingScreen;
 import kha.Configuration;
-import kha.Painter;
 import kha.Loader;
 
 import wings.sys.Time;
@@ -14,6 +13,8 @@ import wings.core.FrameUpdater;
 import wings.core.FrameRenderer;
 import wings.core.FrameRenderer2D;
 import wings.trait.Input;
+import wings.sys.material.VertexStructure;
+import wings.sys.material.Shader;
 
 // Scaling and nested size calc - remove abs
 // Code doc
@@ -86,34 +87,70 @@ class Root extends kha.Game {
 
         Configuration.setScreen(this);
 
-        Type.createInstance(game, []);
-
+        // Input
         if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
         	kha.input.Mouse.get().notify(downListener, upListener, moveListener, null);
         }
         else {
         	kha.input.Surface.get().notify(touchStartListener, touchEndListener, touchMoveListener);
         }
+
+        // Define shader structure
+        var struct = new VertexStructure();
+        struct.addFloat3("vertexPosition");
+        struct.addFloat2("texturePosition");
+        struct.addFloat3("normalPosition");
+        struct.addFloat4("vertexColor");
+
+        // Create default shader
+        var shader = new Shader("mesh.frag", "mesh.vert", struct);
+        shader.addConstantMat4("mvpMatrix");
+        shader.addConstantBool("texturing");
+        shader.addTexture("tex");
+        Assets.addShader("shader", shader);
+        
+
+        var struct = new VertexStructure();
+        struct.addFloat3("vertexPosition");
+        struct.addFloat2("texturePosition");
+        struct.addFloat3("normalPosition");
+        struct.addFloat4("vertexColor");
+        struct.addFloat4("bone");
+        struct.addFloat4("weight");
+
+        var skinnedshader = new Shader("skinnedmesh.frag", "skinnedmesh.vert", struct);
+        skinnedshader.addConstantMat4("mvpMatrix");
+        skinnedshader.addConstantMat4("viewMatrix");
+        skinnedshader.addConstantMat4("projectionMatrix");
+        skinnedshader.addConstantBool("texturing");
+        skinnedshader.addTexture("tex");
+        skinnedshader.addTexture("skinning");
+        Assets.addShader("skinnedshader", skinnedshader);
+
+        wings.sys.importer.Animation.init();
+
+        Type.createInstance(game, []);
     }
 
 	override public inline function update() {
 		frameUpdater.update();
 
+		wings.sys.importer.Animation.update();
 		Time.update();
 		Input.update();
 	}
 
-	override public inline function render(painter:Painter) {
+	override public inline function render(frame:Framebuffer) {
 
 		// Render 3D objects
-		frameRenderer.begin();
-		frameRenderer.render();
-		frameRenderer.end();
+		frameRenderer.begin(frame.g4);
+		frameRenderer.render(frame.g4);
+		frameRenderer.end(frame.g4);
 
 		// Render 2D objects
-		painter.begin();
-		frameRenderer2D.render(painter);
-		painter.end();
+	    frameRenderer2D.begin(frame.g2);
+	    frameRenderer2D.render(frame.g2);
+	    frameRenderer2D.end(frame.g2);
 	}
 
 
@@ -131,14 +168,14 @@ class Root extends kha.Game {
 
 
     function touchStartListener(index:Int, x:Int, y:Int) {
-		Input.onTouchBegin(1136 - y, x);
+		Input.onTouchBegin(Root.w - y, x);
     }
 
     function touchEndListener(index:Int, x:Int, y:Int) {
-		Input.onTouchEnd(1136 - y, x);
+		Input.onTouchEnd(Root.w - y, x);
     }
 
     function touchMoveListener(index:Int, x:Int, y:Int) {
-		Input.onMove(1136 - y, x);
+		Input.onMove(Root.w - y, x);
     }
 }

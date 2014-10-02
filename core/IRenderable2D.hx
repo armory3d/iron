@@ -1,8 +1,6 @@
 package wings.core;
 
-import kha.Painter;
-
 interface IRenderable2D {
 
-	function render(painter:Painter):Void;
+	function render(g:kha.graphics2.Graphics):Void;
 }

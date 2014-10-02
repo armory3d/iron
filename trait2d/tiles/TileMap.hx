@@ -1,6 +1,5 @@
 package wings.trait2d.tiles;
 
-import kha.Painter;
 import kha.Image;
 
 import wings.Root;
@@ -52,9 +51,9 @@ class TileMap extends Trait implements IRenderable2D {
 		transform.h = layers[0].h * tileH;
     }
 
-	public function render(painter:Painter) {
-		painter.setColor(transform.color);
-		painter.opacity = transform.a;
+	public function render(g:kha.graphics2.Graphics) {
+		g.color = transform.color;
+		g.opacity = transform.a;
 
 		// First visible tile
 		var firstTileX:Int = Std.int(Math.abs(transform.absx) / tileW);
@@ -114,8 +113,8 @@ class TileMap extends Trait implements IRenderable2D {
 				}
 				
 				// Draw tile
-				painter.drawImage2(image, frameX, frameY, tileW, tileH, targetX, targetY,
-								   (tileW /* * abs.scaleX*/) + 1, (tileH /* * abs.scaleY*/) + 1); // TODO: Fix seams correctly
+				g.drawScaledSubImage(image, frameX, frameY, tileW, tileH, targetX, targetY,
+								     (tileW /* * abs.scaleX*/) + 1, (tileH /* * abs.scaleY*/) + 1); // TODO: Fix seams correctly
 			
 				j++;
 			}

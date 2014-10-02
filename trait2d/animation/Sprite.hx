@@ -1,7 +1,5 @@
 package wings.trait2d.animation;
 
-import kha.Painter;
-
 import wings.sys.Time;
 import wings.core.Trait;
 import wings.core.IRenderable2D;
@@ -95,16 +93,16 @@ class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 
 			// Animation passed
 			if (currentFrame >= animations[currentAnimation].frames.length) {
-				if (!repeat) {currentFrame--; paused = true;} // TODO: stops only at end, make possible to stop it at the start
+				if (!repeat) { currentFrame--; paused = true; } // TODO: stops only at end, make possible to stop it at the start
 				else currentFrame = 0;
 			}
 		}
 	}
 
-	public function render(painter:Painter) {
+	public function render(g:kha.graphics2.Graphics) {
 
-		painter.setColor(transform.color);
-		painter.opacity = transform.a;
+		g.color = transform.color;
+		g.opacity = transform.a;
 
 		// Actual frame on tileset
 		var frame:Int = animations[currentAnimation].frames[currentFrame];
@@ -116,7 +114,7 @@ class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 		var frameX:Int = posX * tilesheet.tileW;
 		var frameY:Int = posY * tilesheet.tileH;
 
-		painter.drawImage2(tilesheet.image, frameX, frameY, tilesheet.tileW, tilesheet.tileH,
-						   transform.absx, transform.absy, transform.w, transform.h);
+		g.drawScaledSubImage(tilesheet.image, frameX, frameY, tilesheet.tileW, tilesheet.tileH,
+						     transform.absx, transform.absy, transform.w, transform.h);
 	}
 }

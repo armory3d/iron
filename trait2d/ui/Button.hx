@@ -1,7 +1,5 @@
 package wings.trait2d.ui;
 
-import kha.Painter;
-
 import wings.core.Trait;
 import wings.core.IUpdateable;
 import wings.core.IRenderable2D;
@@ -55,18 +53,18 @@ class Button extends Trait implements IUpdateable implements IRenderable2D {
 		}
     }
 
-	public function render(painter:Painter) {
-		painter.setColor(transform.color);
-		painter.opacity = transform.a;
-		painter.fillRect(transform.absx, transform.absy, transform.w, transform.h);
+	public function render(g:kha.graphics2.Graphics) {
+		g.color = transform.color;
+		g.opacity = transform.a;
+		g.fillRect(transform.absx, transform.absy, transform.w, transform.h);
 
 
 		var strW = font.stringWidth(text);
 		var strH = font.getHeight();
 
-		painter.setColor(kha.Color.White);
-		painter.setFont(font);
-		painter.drawString(text, transform.absx + transform.w / 2 - strW / 2,
-								 transform.absy + transform.h / 2 - strH / 2);
+		g.color = kha.Color.White;
+		g.font = font;
+		g.drawString(text, transform.absx + transform.w / 2 - strW / 2,
+					 transform.absy + transform.h / 2 - strH / 2);
 	}
 }

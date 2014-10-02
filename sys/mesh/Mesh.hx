@@ -9,10 +9,10 @@ class Mesh {
 	public var geometry:Geometry;
 	public var material:Material;
 
-	public function new(geometry:String, material:String) {
+	public function new(geometry:Geometry, material:Material) {
 
-		this.geometry = Assets.getGeometry(geometry);
-		this.material = Assets.getMaterial(material);
+		this.geometry = geometry;
+		this.material = material;
 
 		this.geometry.build(this.material);
 	}

@@ -3,6 +3,7 @@ package wings.math;
 // Adapted from Cannon 3D Physics
 
 using wings.math.Math;
+using kha.math.Matrix4;
 
 /**
  * @class Quaternion
@@ -425,7 +426,7 @@ class Quat {
 
 
     // Extended
-    public function toMatrix() {
+    public function toMatrix():Mat4 {
         var m = new Mat4();
         saveToMatrix(m);
         return m;
@@ -458,6 +459,35 @@ class Quat {
         m._42 = 0;
         m._43 = 0;
         m._44 = 1;
+        return m;
+    }
+
+    public function saveToMatrix2( m : Matrix4 ):Matrix4 {
+        var xx = x * x;
+        var xy = x * y;
+        var xz = x * z;
+        var xw = x * w;
+        var yy = y * y;
+        var yz = y * z;
+        var yw = y * w;
+        var zz = z * z;
+        var zw = z * w;
+        m.matrix[0] = 1 - 2 * ( yy + zz );
+        m.matrix[1] = 2 * ( xy + zw );
+        m.matrix[2] = 2 * ( xz - yw );
+        m.matrix[3] = 0;
+        m.matrix[4] = 2 * ( xy - zw );
+        m.matrix[5] = 1 - 2 * ( xx + zz );
+        m.matrix[6] = 2 * ( yz + xw );
+        m.matrix[7] = 0;
+        m.matrix[8] = 2 * ( xz + yw );
+        m.matrix[9] = 2 * ( yz - xw );
+        m.matrix[10] = 1 - 2 * ( xx + yy );
+        m.matrix[11] = 0;
+        m.matrix[12] = 0;
+        m.matrix[13] = 0;
+        m.matrix[14] = 0;
+        m.matrix[15] = 1;
         return m;
     }
 
@@ -573,5 +603,58 @@ class Quat {
         qm.y = (qa.y * ratioA + qb.y * ratioB);
         qm.z = (qa.z * ratioA + qb.z * ratioB);
         return qm;
+    }
+
+
+
+    public var euler(get_euler, null) : Vec3;
+    private function get_euler():Vec3 
+    { 
+        normalize();
+        var test : Float = x * y + z * w;
+        var a : Vec3 = new Vec3();
+        if (test > 0.499) 
+        { // singularity at north pole
+            a.x = 2.0 * wings.math.Math.atan2(x,w) * wings.math.Math.Rad2Deg;
+            a.y = (wings.math.Math.PI / 2) * wings.math.Math.Rad2Deg;
+            a.z = 0;
+            return a;
+        }
+        if (test < -0.499) 
+        { // singularity at south pole
+            a.x = -2.0 * wings.math.Math.atan2(x,w) * wings.math.Math.Rad2Deg;
+            a.y = -(wings.math.Math.PI / 2) * wings.math.Math.Rad2Deg;
+            a.z = 0;
+            return a;
+        }
+        var sqx : Float = x * x;
+        var sqy : Float = y * y;
+        var sqz : Float = z * z;        
+        a.x = wings.math.Math.atan2(2.0 * y * w - 2.0 * x * z , 1.0 - 2.0 * sqy - 2.0 * sqz) * wings.math.Math.Rad2Deg;
+        a.y = wings.math.Math.asin(2.0 * test) * wings.math.Math.Rad2Deg;
+        a.z = wings.math.Math.atan2(2.0 * x * w - 2.0 * y * z , 1.0 - 2.0 * sqx - 2.0 * sqz) * wings.math.Math.Rad2Deg;     
+        return a;
+    }
+
+    static public function fromEuler(p_euler : Vec3):Quat {
+        // Assuming the angles are in radians.
+        var q : Quat = new Quat();
+        var ax : Float = p_euler.x * wings.math.Math.Rad2Deg;
+        var ay : Float = p_euler.y * wings.math.Math.Rad2Deg;
+        var az : Float = p_euler.z * wings.math.Math.Rad2Deg;     
+        var c1 : Float = wings.math.Math.cos(ax*0.5);
+        var s1 : Float = wings.math.Math.sin(ax*0.5);
+        var c2 : Float = wings.math.Math.cos(ay*0.5);
+        var s2 : Float = wings.math.Math.sin(ay*0.5);
+        var c3 : Float = wings.math.Math.cos(az*0.5);
+        var s3 : Float = wings.math.Math.sin(az*0.5);
+        var c1c2 : Float = c1*c2;
+        var s1s2 : Float = s1*s2;
+        q.w = c1c2 * c3 - s1s2 * s3;
+        q.x = c1c2 * s3 + s1s2 * c3;
+        q.y = s1 * c2 * c3 + c1 * s2 * s3;
+        q.z = c1 * s2 * c3 - s1 * c2 * s3;
+        q.normalize();
+        return q;
     }
 }

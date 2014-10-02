@@ -2,7 +2,6 @@ package wings.sys;
 
 import kha.Loader;
 import kha.Image;
-import kha.graphics.Texture;
 import kha.Sound;
 import kha.Music;
 import kha.Font;
@@ -72,8 +71,8 @@ class Assets {
 		return Loader.the.getImage(name);
 	}
 
-	public static inline function getTexture(name:String):Texture {
-		return cast(Loader.the.getImage(name), Texture);
+	public static inline function getTexture(name:String):Image {
+		return Loader.the.getImage(name); // TODO: remove
 	}
 
 	public static inline function getSound(name:String):Sound {

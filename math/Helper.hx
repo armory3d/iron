@@ -15,6 +15,19 @@ class Helper {
                       	 0.0,     		  0.0, 		2 * zFar * zNear * t , 0.0]);
     }
 
+    public static function orthogonal(left: Float, right: Float, bottom: Float, top: Float, zn: Float, zf: Float): Mat4 {
+        var tx: Float = -(right + left) / (right - left);
+        var ty: Float = -(top + bottom) / (top - bottom);
+        var tz: Float = -(zf + zn) / (zf - zn);
+        //var tz : Float = -zn / (zf - zn);
+        return new Mat4([
+            2 / (right - left), 0,                  0,              0,
+            0,                  2 / (top - bottom), 0,              0,
+            0,                  0,                  -2 / (zf - zn), 0,
+            tx,                 ty,                 tz,             1
+        ]);
+    }
+    
     public static function lookAt(_eye:Vec3, _centre:Vec3, _up:Null<Vec3> = null):Mat4 {
         var eye = _eye;
         var centre = _centre;
@@ -82,7 +95,7 @@ class Helper {
 
         projectionMatrixInverse.getInverse(camera.projectionMatrix);
 
-        _viewProjectionMatrix.multiplyMatrices(camera.worldMatrix, projectionMatrixInverse);
+        _viewProjectionMatrix.multiplyMatrices(camera.transform.matrix, projectionMatrixInverse);
 
         return vector.applyProjection(_viewProjectionMatrix);
     }

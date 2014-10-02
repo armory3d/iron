@@ -1,6 +1,6 @@
 package wings.trait;
 
-import kha.graphics.Texture;
+import kha.Image;
 import wings.core.Trait;
 import wings.core.IRenderable;
 
@@ -10,11 +10,7 @@ class Renderer extends Trait implements IRenderable {
 		super();
 	}
 
-	public function render() {
-		
-	}
+	public function render(g:kha.graphics4.Graphics) { }
 
-	public function setTexture(tex:Texture) {
-		
-	}
+	public function setTexture(tex:Image) { }
 }

@@ -4,8 +4,6 @@ package wings.trait2d.particles;
 // https://github.com/aduros/flambe/tree/master/src/flambe/display
 
 import kha.Color;
-import kha.Rotation;
-import kha.Painter;
 import kha.Image;
 
 import wings.sys.Time;
@@ -346,7 +344,7 @@ class Emitter extends Trait implements IUpdateable implements IRenderable2D {
         return base;
     }
 
-	public function render(painter:Painter) {
+	public function render(g:kha.graphics2.Graphics) {
 
 		// Assumes that the texture is always square
         //var offset = -texture.width / 2;
@@ -359,14 +357,13 @@ class Emitter extends Trait implements IUpdateable implements IRenderable2D {
             var destX = offset + particle.x;
             var destY = offset + particle.y;
             
-            //painter.setColor(Color.fromValue(0xffff0000));
-            painter.opacity = particle.alpha;
-            painter.drawImage2(texture, 0, 0, texture.width, texture.height,
-            				   destX, destY,
-            				   texture.width * particle.scale,
-            				   texture.height * particle.scale,
-            				   new Rotation(new kha.math.Vector2(destX, destY),
-            				   				particle.rotation));
+            //g.color = Color.fromValue(0xffff0000);
+            g.opacity = particle.alpha;
+            g.rotate(particle.rotation, destX, destY);
+            g.drawScaledSubImage(texture, 0, 0, texture.width, texture.height,
+            				     destX, destY,
+            				     texture.width * particle.scale,
+            				     texture.height * particle.scale);
 
             ++ii;
         }

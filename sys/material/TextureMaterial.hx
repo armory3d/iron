@@ -1,13 +1,13 @@
 package wings.sys.material;
 
-import kha.graphics.Texture;
+import kha.Image;
 import wings.trait.Renderer;
 
 class TextureMaterial extends Material {
 
-	public var texture:Texture;
+	public var texture:Image;
 
-	public function new(shader:Shader, texture:Texture) {
+	public function new(shader:Shader, texture:Image) {
 		super(shader);
 		this.texture = texture;
 	}

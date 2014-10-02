@@ -1,9 +1,8 @@
 package wings.sys.geometry;
 
-import kha.graphics.VertexBuffer;
-import kha.graphics.IndexBuffer;
-import kha.graphics.Usage;
-import kha.Sys;
+import kha.graphics4.VertexBuffer;
+import kha.graphics4.IndexBuffer;
+import kha.graphics4.Usage;
 import wings.sys.material.Material;
 import wings.sys.material.VertexStructure;
 import wings.math.Vec3;
@@ -38,8 +37,8 @@ class Geometry {
 		
 		structure = material.shader.structure;
 
-		vertexBuffer = Sys.graphics.createVertexBuffer(Std.int(data.length / structure.structureLength),
-													   structure.structure, usage);
+		vertexBuffer = new VertexBuffer(Std.int(data.length / structure.structureLength),
+										structure.structure, usage);
 		vertices = vertexBuffer.lock();
 		
 		for (i in 0...vertices.length) {
@@ -47,7 +46,7 @@ class Geometry {
 		}
 		vertexBuffer.unlock();
 
-		indexBuffer = Sys.graphics.createIndexBuffer(ids.length, Usage.StaticUsage);
+		indexBuffer = new IndexBuffer(ids.length, Usage.StaticUsage);
 		this.indices = indexBuffer.lock();
 
 		for (i in 0...this.indices.length) {
@@ -66,6 +65,7 @@ class Geometry {
 		size = new Vec3();
 
 		var i:Int = 0;
+
 		while (i < vertices.length) {
 
 			if (vertices[i] > aabbMax.x)		aabbMax.x = vertices[i];
@@ -76,7 +76,7 @@ class Geometry {
 			if (vertices[i + 1] < aabbMin.y)	aabbMin.y = vertices[i + 1];
 			if (vertices[i + 2] < aabbMin.z)	aabbMin.z = vertices[i + 2];
 
-			i += 8;
+			i += structure.structureLength;
 		}
 
 		size.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);

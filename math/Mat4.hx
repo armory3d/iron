@@ -10,26 +10,29 @@ class Mat4 {
 	
 	static var tmp = new Mat4();
 
-	public var _11 : Float;
-	public var _12 : Float;
-	public var _13 : Float;
-	public var _14 : Float;
-	public var _21 : Float;
-	public var _22 : Float;
-	public var _23 : Float;
-	public var _24 : Float;
-	public var _31 : Float;
-	public var _32 : Float;
-	public var _33 : Float;
-	public var _34 : Float;
-	public var _41 : Float;
-	public var _42 : Float;
-	public var _43 : Float;
-	public var _44 : Float;
+	public var _11 : Float; // 0
+	public var _12 : Float; // 1
+	public var _13 : Float; // 2
+	public var _14 : Float; // 3
+	public var _21 : Float; // 4
+	public var _22 : Float; // 5
+	public var _23 : Float; // 6
+	public var _24 : Float; // 7
+	public var _31 : Float; // 8
+	public var _32 : Float; // 9
+	public var _33 : Float; // 10
+	public var _34 : Float; // 11
+	public var _41 : Float; // 12
+	public var _42 : Float; // 13
+	public var _43 : Float; // 14
+	public var _44 : Float; // 15
 
 	public function new(a : Array<Float> = null) {
 		if (a != null) load(a);
 		else identity();
+
+		m = new Array<Float>();
+		for (i in 0...16) m.push(0);
 	}
 
 	public function zero() {
@@ -774,5 +777,129 @@ class Mat4 {
 		_44 = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
 
 		return this;
+	}
+
+
+
+
+	public function toRotation():Mat4 {
+		var tmp = new Vec3();
+		tmp.set(_11, _12, _13).normalize(); _11 = tmp.x; _12 = tmp.y; _13 = tmp.z; _14 = 0.0;
+		tmp.set(_21, _22, _23).normalize(); _21 = tmp.x; _22 = tmp.y; _23 = tmp.z; _24 = 0.0;
+		tmp.set(_31, _32, _33).normalize(); _31 = tmp.x; _32 = tmp.y; _33 = tmp.z; _34 = 0.0;
+		_41 = _42 = _43 = 0.0; _44 = 1.0;
+		return this;
+	}
+
+
+
+	public function getQuat():Quat
+	{
+		var b : Array<Float> = toBuffer();
+		var m:Mat4 = toRotation();
+				
+		var q : Quat = new Quat();				
+		var diag : Float = m._11 + m._22 + m._33 + 1.0;
+		var e : Float = 0;// Mathf.Epsilon;
+		
+		if(diag > e)
+		{
+			q.w = Math.sqrt(diag) / 2.0;			
+			var w4 : Float = (4.0 * q.w);
+			q.x = (m._32 - m._23) / w4;
+			q.y = (m._13 - m._31) / w4;
+			q.z = (m._21 - m._12) / w4;						
+		}
+		else
+		{
+			var d01 : Float = m._11 - m._22;
+			var d02 : Float = m._11 - m._33;
+			var d12 : Float = m._22 - m._33;
+			
+			if ((d01>e) && (d02>e))
+			{
+				// 1st element of diag is greatest value
+				// find scale according to 1st element, and double it
+				var scale : Float = Math.sqrt(1.0 + m._11 - m._22 - m._33) * 2.0;
+
+				// TODO: speed this up
+				q.x = 0.25 * scale;
+				q.y = (m._21 + m._12) / scale;
+				q.z = (m._13 + m._31) / scale;
+				q.w = (m._23 - m._32) / scale;
+			}
+			else if (d12>e)
+			{
+				// 2nd element of diag is greatest value
+				// find scale according to 2nd element, and double it
+				var scale : Float = Math.sqrt(1.0 + m._22 - m._11 - m._33) * 2.0;
+				
+				// TODO: speed this up
+				q.x = (m._21 + m._12) / scale;
+				q.y = 0.25 * scale;
+				q.z = (m._32 + m._23) / scale;
+				q.w = (m._31 - m._13) / scale;
+			}
+			else
+			{
+				// 3rd element of diag is greatest value
+				// find scale according to 3rd element, and double it
+				var scale : Float = Math.sqrt(1.0 + m._33 - m._11 - m._22) * 2.0;
+				
+				// TODO: speed this up
+				q.x = (m._31 + m._13) / scale;
+				q.y = (m._32 + m._23) / scale;
+				q.z = 0.25 * scale;
+				q.w = (m._12 - m._21) / scale;
+			}
+		}
+
+		_11 = b[0];
+		_12 = b[1];
+		_13 = b[2];
+		_14 = b[3];
+
+		_21 = b[4];
+		_22 = b[5];
+		_23 = b[6];
+		_24 = b[7];
+
+		_31 = b[8];
+		_32 = b[9];
+		_33 = b[10];
+		_34 = b[11];
+
+		_41 = b[12];
+		_42 = b[13];
+		_43 = b[14];
+		_44 = b[15];
+		
+		q.normalize();
+		
+		return q;
+	}
+
+
+	private var m : Array<Float>;
+
+	public function toBuffer() : Array<Float>
+	{ 
+		m[ 0] = _11;
+		m[ 1] = _12;
+		m[ 2] = _13;
+		m[ 3] = _14;
+		m[ 4] = _21;
+		m[ 5] = _22;
+		m[ 6] = _23;
+		m[ 7] = _24;
+		m[ 8] = _31;
+		m[ 9] = _32;
+		m[10] = _33;
+		m[11] = _34;
+		m[12] = _41;
+		m[13] = _42;
+		m[14] = _43;
+		m[15] = _44;		
+		return m; 
 	}
 }

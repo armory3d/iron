@@ -1,6 +1,5 @@
 package wings.core;
 
-import kha.Painter;
 import composure.traits.AbstractTrait;
 
 class FrameRenderer2D extends AbstractTrait {
@@ -21,9 +20,17 @@ class FrameRenderer2D extends AbstractTrait {
 		renderTraits.remove(trait);
 	}
 	
-	public function render(painter:Painter) {
+	public function render(g:kha.graphics2.Graphics) {
 		for(trait in renderTraits){
-			trait.render(painter);
+			trait.render(g);
 		}
+	}
+
+	public function begin(g:kha.graphics2.Graphics) {
+		g.begin(false);
+	}
+
+	public function end(g:kha.graphics2.Graphics) {
+		g.end();
 	}
 }

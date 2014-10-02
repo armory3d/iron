@@ -40,8 +40,8 @@ class ObjGeometry extends Geometry {
 			else if (words[0] == "vt")
 			{
 				var vector:Array<Float> = new Array<Float>();
-				vector.push(Std.parseFloat(words[1]));
-				vector.push(Std.parseFloat(words[2]));
+				vector.push(Std.parseFloat(words[1]) * 5);
+				vector.push(Std.parseFloat(words[2]) * 5);
 				tempUVs.push(vector);
 			}
 			else if (words[0] == "vn")
