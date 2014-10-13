@@ -1,4 +1,4 @@
-package wings.sys;
+package fox.sys;
 
 import kha.Loader;
 import kha.Music;

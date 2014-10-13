@@ -1,4 +1,4 @@
-package wings.core;
+package fox.core;
 
 interface IRenderable {
 

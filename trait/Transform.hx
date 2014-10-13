@@ -1,14 +1,14 @@
-package wings.trait;
+package fox.trait;
 
 import kha.Color;
 import kha.Rotation;
 
-import wings.math.Mat4;
-import wings.math.Vec3;
-import wings.math.Quat;
-import wings.core.Object;
-import wings.core.Trait;
-import wings.core.IUpdateable;
+import fox.math.Mat4;
+import fox.math.Vec3;
+import fox.math.Quat;
+import fox.core.Object;
+import fox.core.Trait;
+import fox.core.IUpdateable;
 
 class Transform extends Trait implements IUpdateable {
 

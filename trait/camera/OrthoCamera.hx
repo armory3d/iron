@@ -1,9 +1,9 @@
-package wings.trait.camera;
+package fox.trait.camera;
 
-import wings.Root;
-import wings.math.Mat4;
-import wings.math.Vec3;
-import wings.math.Helper;
+import fox.Root;
+import fox.math.Mat4;
+import fox.math.Vec3;
+import fox.math.Helper;
 
 class OrthoCamera extends Camera {
 

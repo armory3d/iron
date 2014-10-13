@@ -1,10 +1,10 @@
-package wings.math;
+package fox.math;
 
 // Adapted from H3D Engine
 // https://github.com/ncannasse/h3d
 // TODO: merge with built in Kha matrix
 
-import wings.math.Math;
+import fox.math.Math;
 
 class Mat4 {
 	

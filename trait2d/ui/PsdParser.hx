@@ -1,12 +1,12 @@
-package wings.trait2d.ui;
+package fox.trait2d.ui;
 
-import wings.core.Object;
-import wings.core.Trait;
-import wings.sys.Assets;
-import wings.sys.importer.PsdData;
-import wings.trait2d.ImageRenderer;
-import wings.trait2d.TextRenderer;
-import wings.trait2d.util.TapTrait;
+import fox.core.Object;
+import fox.core.Trait;
+import fox.sys.Assets;
+import fox.sys.importer.PsdData;
+import fox.trait2d.ImageRenderer;
+import fox.trait2d.TextRenderer;
+import fox.trait2d.util.TapTrait;
 
 class PsdParser extends Trait {
 

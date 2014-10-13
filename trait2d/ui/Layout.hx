@@ -1,7 +1,7 @@
-package wings.trait2d.ui;
+package fox.trait2d.ui;
 
-import wings.core.Trait;
-import wings.trait.Transform;
+import fox.core.Trait;
+import fox.trait.Transform;
 
 enum LayoutType {
 	Vertical; Horizontal;

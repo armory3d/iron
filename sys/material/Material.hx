@@ -1,6 +1,6 @@
-package wings.sys.material;
+package fox.sys.material;
 
-import wings.trait.Renderer;
+import fox.trait.Renderer;
 
 class Material {
 

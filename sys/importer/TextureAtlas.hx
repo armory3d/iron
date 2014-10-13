@@ -1,4 +1,4 @@
-package wings.sys.importer;
+package fox.sys.importer;
 
 // Based on spritesheet library
 // https://github.com/jgranick/spritesheet/
@@ -6,8 +6,8 @@ package wings.sys.importer;
 import haxe.Json;
 import kha.Image;
 
-import wings.sys.Assets;
-import wings.math.Rect;
+import fox.sys.Assets;
+import fox.math.Rect;
 
 class TextureAtlas {
 

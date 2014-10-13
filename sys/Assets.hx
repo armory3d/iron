@@ -1,4 +1,4 @@
-package wings.sys;
+package fox.sys;
 
 import kha.Loader;
 import kha.Image;
@@ -8,11 +8,11 @@ import kha.Font;
 import kha.FontStyle;
 import kha.Blob;
 
-import wings.sys.geometry.Geometry;
-import wings.sys.material.Material;
-import wings.sys.material.Shader;
-import wings.sys.mesh.Mesh;
-import wings.sys.importer.TextureAtlas;
+import fox.sys.geometry.Geometry;
+import fox.sys.material.Material;
+import fox.sys.material.Shader;
+import fox.sys.mesh.Mesh;
+import fox.sys.importer.TextureAtlas;
 
 class Assets {
 

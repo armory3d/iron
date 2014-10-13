@@ -1,7 +1,7 @@
-package wings.trait2d.physics;
+package fox.trait2d.physics;
 
-import wings.core.IUpdateable;
-import wings.core.Trait;
+import fox.core.IUpdateable;
+import fox.core.Trait;
 
 class Space extends Trait implements IUpdateable {
 
@@ -14,7 +14,7 @@ class Space extends Trait implements IUpdateable {
 	}
 
 	public function update() {
-		space.step(wings.sys.Time.delta);
+		space.step(fox.sys.Time.delta);
 
 		for (i in 0...space.bodies.length) {
 		    var obj:nape.phys.Body = space.bodies.at(i);

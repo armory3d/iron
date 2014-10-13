@@ -1,4 +1,4 @@
-package wings.math;
+package fox.math;
 
 // Stores 2D triangle vertices
 class Tri2 {

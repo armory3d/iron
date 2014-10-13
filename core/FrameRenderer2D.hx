@@ -1,4 +1,4 @@
-package wings.core;
+package fox.core;
 
 import composure.traits.AbstractTrait;
 

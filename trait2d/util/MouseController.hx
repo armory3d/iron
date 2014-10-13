@@ -1,9 +1,9 @@
-package wings.trait2d.util;
+package fox.trait2d.util;
 
-import wings.core.IUpdateable;
-import wings.core.Trait;
-import wings.trait.Transform;
-import wings.trait.Input;
+import fox.core.IUpdateable;
+import fox.core.Trait;
+import fox.trait.Transform;
+import fox.trait.Input;
 
 class MouseController extends Trait implements IUpdateable {
 

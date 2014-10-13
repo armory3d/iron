@@ -1,11 +1,11 @@
-package wings.trait2d;
+package fox.trait2d;
 
 import kha.Image;
 
-import wings.math.Rect;
-import wings.core.Trait;
-import wings.core.IRenderable2D;
-import wings.trait.Transform;
+import fox.math.Rect;
+import fox.core.Trait;
+import fox.core.IRenderable2D;
+import fox.trait.Transform;
 
 class ImageRenderer extends Trait implements IRenderable2D {
 

@@ -1,7 +1,7 @@
-package wings.math;
+package fox.math;
 
-import wings.Root;
-import wings.trait.camera.Camera;
+import fox.Root;
+import fox.trait.camera.Camera;
 
 class Helper {
 

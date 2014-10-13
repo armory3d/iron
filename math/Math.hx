@@ -1,4 +1,4 @@
-package wings.math;
+package fox.math;
 
 // Adapted from H3D Engine
 // https://github.com/ncannasse/h3d

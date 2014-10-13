@@ -1,9 +1,9 @@
-package wings.trait;
+package fox.trait;
 
-import wings.core.IUpdateable;
-import wings.core.Trait;
-import wings.sys.Time;
-import wings.trait.camera.Camera;
+import fox.core.IUpdateable;
+import fox.core.Trait;
+import fox.sys.Time;
+import fox.trait.camera.Camera;
 
 import com.element.oimo.physics.dynamics.World;
 

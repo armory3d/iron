@@ -1,10 +1,10 @@
-package wings.trait;
+package fox.trait;
 
-import wings.core.IUpdateable;
-import wings.core.Trait;
-import wings.sys.Time;
-import wings.trait.SceneRenderer;
-import wings.trait.Transform;
+import fox.core.IUpdateable;
+import fox.core.Trait;
+import fox.sys.Time;
+import fox.trait.SceneRenderer;
+import fox.trait.Transform;
 
 import com.element.oimo.physics.collision.shape.BoxShape;
 import com.element.oimo.physics.collision.shape.Shape;

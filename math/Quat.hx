@@ -1,8 +1,8 @@
-package wings.math;
+package fox.math;
 
 // Adapted from Cannon 3D Physics
 
-using wings.math.Math;
+using fox.math.Math;
 using kha.math.Matrix4;
 
 /**
@@ -615,39 +615,39 @@ class Quat {
         var a : Vec3 = new Vec3();
         if (test > 0.499) 
         { // singularity at north pole
-            a.x = 2.0 * wings.math.Math.atan2(x,w) * wings.math.Math.Rad2Deg;
-            a.y = (wings.math.Math.PI / 2) * wings.math.Math.Rad2Deg;
+            a.x = 2.0 * fox.math.Math.atan2(x,w) * fox.math.Math.Rad2Deg;
+            a.y = (fox.math.Math.PI / 2) * fox.math.Math.Rad2Deg;
             a.z = 0;
             return a;
         }
         if (test < -0.499) 
         { // singularity at south pole
-            a.x = -2.0 * wings.math.Math.atan2(x,w) * wings.math.Math.Rad2Deg;
-            a.y = -(wings.math.Math.PI / 2) * wings.math.Math.Rad2Deg;
+            a.x = -2.0 * fox.math.Math.atan2(x,w) * fox.math.Math.Rad2Deg;
+            a.y = -(fox.math.Math.PI / 2) * fox.math.Math.Rad2Deg;
             a.z = 0;
             return a;
         }
         var sqx : Float = x * x;
         var sqy : Float = y * y;
         var sqz : Float = z * z;        
-        a.x = wings.math.Math.atan2(2.0 * y * w - 2.0 * x * z , 1.0 - 2.0 * sqy - 2.0 * sqz) * wings.math.Math.Rad2Deg;
-        a.y = wings.math.Math.asin(2.0 * test) * wings.math.Math.Rad2Deg;
-        a.z = wings.math.Math.atan2(2.0 * x * w - 2.0 * y * z , 1.0 - 2.0 * sqx - 2.0 * sqz) * wings.math.Math.Rad2Deg;     
+        a.x = fox.math.Math.atan2(2.0 * y * w - 2.0 * x * z , 1.0 - 2.0 * sqy - 2.0 * sqz) * fox.math.Math.Rad2Deg;
+        a.y = fox.math.Math.asin(2.0 * test) * fox.math.Math.Rad2Deg;
+        a.z = fox.math.Math.atan2(2.0 * x * w - 2.0 * y * z , 1.0 - 2.0 * sqx - 2.0 * sqz) * fox.math.Math.Rad2Deg;     
         return a;
     }
 
     static public function fromEuler(p_euler : Vec3):Quat {
         // Assuming the angles are in radians.
         var q : Quat = new Quat();
-        var ax : Float = p_euler.x * wings.math.Math.Rad2Deg;
-        var ay : Float = p_euler.y * wings.math.Math.Rad2Deg;
-        var az : Float = p_euler.z * wings.math.Math.Rad2Deg;     
-        var c1 : Float = wings.math.Math.cos(ax*0.5);
-        var s1 : Float = wings.math.Math.sin(ax*0.5);
-        var c2 : Float = wings.math.Math.cos(ay*0.5);
-        var s2 : Float = wings.math.Math.sin(ay*0.5);
-        var c3 : Float = wings.math.Math.cos(az*0.5);
-        var s3 : Float = wings.math.Math.sin(az*0.5);
+        var ax : Float = p_euler.x * fox.math.Math.Rad2Deg;
+        var ay : Float = p_euler.y * fox.math.Math.Rad2Deg;
+        var az : Float = p_euler.z * fox.math.Math.Rad2Deg;     
+        var c1 : Float = fox.math.Math.cos(ax*0.5);
+        var s1 : Float = fox.math.Math.sin(ax*0.5);
+        var c2 : Float = fox.math.Math.cos(ay*0.5);
+        var s2 : Float = fox.math.Math.sin(ay*0.5);
+        var c3 : Float = fox.math.Math.cos(az*0.5);
+        var s3 : Float = fox.math.Math.sin(az*0.5);
         var c1c2 : Float = c1*c2;
         var s1s2 : Float = s1*s2;
         q.w = c1c2 * c3 - s1s2 * s3;

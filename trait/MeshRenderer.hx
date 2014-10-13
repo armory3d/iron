@@ -1,11 +1,11 @@
-package wings.trait;
+package fox.trait;
 
 import kha.Image;
-import wings.math.Mat4;
-import wings.math.Vec3;
-import wings.sys.material.TextureMaterial;
-import wings.sys.mesh.Mesh;
-import wings.sys.Assets;
+import fox.math.Mat4;
+import fox.math.Vec3;
+import fox.sys.material.TextureMaterial;
+import fox.sys.mesh.Mesh;
+import fox.sys.Assets;
 
 class MeshRenderer extends Renderer {
 

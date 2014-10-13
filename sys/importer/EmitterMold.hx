@@ -1,6 +1,6 @@
-package wings.sys.importer;
+package fox.sys.importer;
 
-// Flambe Emitter ported to Wings
+// Flambe Emitter ported to fox
 // https://github.com/aduros/flambe/tree/master/src/flambe/display
 
 enum EmitterType {
@@ -91,7 +91,7 @@ class EmitterMold {
         for (element in xml.firstElement().elements()) {
             switch (element.nodeName.toLowerCase()) {
             case "texture":
-                texture = wings.sys.Assets.getImage(element.get("name"));
+                texture = fox.sys.Assets.getImage(element.get("name"));
             case "angle":
                 angle = getValue(element);
             case "anglevariance":

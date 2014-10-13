@@ -1,7 +1,7 @@
-package wings.sys.mesh;
+package fox.sys.mesh;
 
-import wings.sys.geometry.Geometry;
-import wings.sys.material.Material;
+import fox.sys.geometry.Geometry;
+import fox.sys.material.Material;
 
 class SkinnedMesh extends Mesh {
 

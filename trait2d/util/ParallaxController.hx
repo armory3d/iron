@@ -1,8 +1,8 @@
-package wings.trait2d.util;
+package fox.trait2d.util;
 
-import wings.Root;
-import wings.core.Trait;
-import wings.core.Object;
+import fox.Root;
+import fox.core.Trait;
+import fox.core.Object;
 
 // Based on https://github.com/wagerfield/parallax
 

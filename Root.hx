@@ -1,20 +1,20 @@
-package wings;
+package fox;
 
 import kha.Framebuffer;
 import kha.LoadingScreen;
 import kha.Configuration;
 import kha.Loader;
 
-import wings.sys.Time;
-import wings.sys.Storage;
-import wings.sys.Assets;
-import wings.core.Object;
-import wings.core.FrameUpdater;
-import wings.core.FrameRenderer;
-import wings.core.FrameRenderer2D;
-import wings.trait.Input;
-import wings.sys.material.VertexStructure;
-import wings.sys.material.Shader;
+import fox.sys.Time;
+import fox.sys.Storage;
+import fox.sys.Assets;
+import fox.core.Object;
+import fox.core.FrameUpdater;
+import fox.core.FrameRenderer;
+import fox.core.FrameRenderer2D;
+import fox.trait.Input;
+import fox.sys.material.VertexStructure;
+import fox.sys.material.Shader;
 
 // Scaling and nested size calc - remove abs
 // Code doc
@@ -127,7 +127,7 @@ class Root extends kha.Game {
         skinnedshader.addTexture("skinning");
         Assets.addShader("skinnedshader", skinnedshader);
 
-        wings.sys.importer.Animation.init();
+        fox.sys.importer.Animation.init();
 
         Type.createInstance(game, []);
     }
@@ -135,7 +135,7 @@ class Root extends kha.Game {
 	override public inline function update() {
 		frameUpdater.update();
 
-		wings.sys.importer.Animation.update();
+		fox.sys.importer.Animation.update();
 		Time.update();
 		Input.update();
 	}

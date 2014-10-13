@@ -1,11 +1,11 @@
-package wings.sys.geometry;
+package fox.sys.geometry;
 
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
-import wings.sys.material.Material;
-import wings.sys.material.VertexStructure;
-import wings.math.Vec3;
+import fox.sys.material.Material;
+import fox.sys.material.VertexStructure;
+import fox.math.Vec3;
 
 class Geometry {
 

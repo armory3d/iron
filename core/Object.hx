@@ -1,9 +1,9 @@
-package wings.core;
+package fox.core;
 
 import composure.core.ComposeGroup;
 
-import wings.trait.Transform;
-import wings.trait.Input;
+import fox.trait.Transform;
+import fox.trait.Input;
 
 class Object extends ComposeGroup {
 

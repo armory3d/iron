@@ -1,8 +1,8 @@
-package wings.trait;
+package fox.trait;
 
 import kha.Image;
-import wings.core.Trait;
-import wings.core.IRenderable;
+import fox.core.Trait;
+import fox.core.IRenderable;
 
 class Renderer extends Trait implements IRenderable {
 

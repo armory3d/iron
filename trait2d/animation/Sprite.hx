@@ -1,11 +1,11 @@
-package wings.trait2d.animation;
+package fox.trait2d.animation;
 
-import wings.sys.Time;
-import wings.core.Trait;
-import wings.core.IRenderable2D;
-import wings.core.IUpdateable;
-import wings.trait2d.tiles.TileSheet;
-import wings.trait.Transform;
+import fox.sys.Time;
+import fox.core.Trait;
+import fox.core.IRenderable2D;
+import fox.core.IUpdateable;
+import fox.trait2d.tiles.TileSheet;
+import fox.trait.Transform;
 
 class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 

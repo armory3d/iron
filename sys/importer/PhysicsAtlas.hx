@@ -1,10 +1,10 @@
-package wings.sys.importer;
+package fox.sys.importer;
 
 // Imports data from PhysicsEditor
 
 import haxe.Json;
-import wings.math.Tri2;
-import wings.math.Vec2;
+import fox.math.Tri2;
+import fox.math.Vec2;
 
 class PhysicsAtlas {
 

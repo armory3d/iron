@@ -1,10 +1,10 @@
-package wings.trait2d.tiles;
+package fox.trait2d.tiles;
 
 import kha.Image;
 
-import wings.Root;
-import wings.core.Trait;
-import wings.core.IRenderable2D;
+import fox.Root;
+import fox.core.Trait;
+import fox.core.IRenderable2D;
 
 class TileMap extends Trait implements IRenderable2D {
 

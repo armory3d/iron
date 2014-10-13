@@ -1,11 +1,11 @@
-package wings.trait2d.ui;
+package fox.trait2d.ui;
 
-import wings.core.IRenderable2D;
-import wings.core.IUpdateable;
-import wings.core.Trait;
-import wings.trait.Input;
-import wings.trait.Transform;
-import wings.sys.importer.PsdData;
+import fox.core.IRenderable2D;
+import fox.core.IUpdateable;
+import fox.core.Trait;
+import fox.trait.Input;
+import fox.trait.Transform;
+import fox.sys.importer.PsdData;
 
 class Item {
 

@@ -1,8 +1,8 @@
-package wings.trait2d;
+package fox.trait2d;
 
-import wings.core.Trait;
-import wings.core.IRenderable2D;
-import wings.trait.Transform;
+import fox.core.Trait;
+import fox.core.IRenderable2D;
+import fox.trait.Transform;
 
 enum ShapeType {
 	Rect;

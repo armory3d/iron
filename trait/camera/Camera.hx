@@ -1,9 +1,9 @@
-package wings.trait.camera;
+package fox.trait.camera;
 
-import wings.core.Trait;
-import wings.math.Mat4;
-import wings.math.Vec3;
-import wings.math.Quat;
+import fox.core.Trait;
+import fox.math.Mat4;
+import fox.math.Vec3;
+import fox.math.Quat;
 
 class Camera extends Trait {
 

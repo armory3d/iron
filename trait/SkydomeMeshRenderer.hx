@@ -1,6 +1,6 @@
-package wings.trait;
+package fox.trait;
 
-import wings.math.Mat4;
+import fox.math.Mat4;
 
 class SkydomeMeshRenderer extends MeshRenderer {
 

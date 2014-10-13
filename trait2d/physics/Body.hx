@@ -1,10 +1,10 @@
-package wings.trait2d.physics;
+package fox.trait2d.physics;
 
 import nape.phys.BodyType;
 import nape.shape.Polygon;
-import wings.trait.Transform;
+import fox.trait.Transform;
 
-class Body extends wings.core.Trait {
+class Body extends fox.core.Trait {
 
 	public var body:nape.phys.Body;
 

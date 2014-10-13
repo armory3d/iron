@@ -1,4 +1,4 @@
-package wings.math;
+package fox.math;
 
 // Adapted from Cannon 3D Physics
 // TODO: merge with Kha's built in Vec

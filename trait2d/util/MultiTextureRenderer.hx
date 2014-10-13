@@ -1,12 +1,12 @@
-package wings.trait2d.util;
+package fox.trait2d.util;
 
 import kha.Image;
 import kha.Painter;
 
-import wings.math.Rect;
-import wings.core.Trait;
-import wings.core.IRenderable2D;
-import wings.trait.Transform;
+import fox.math.Rect;
+import fox.core.Trait;
+import fox.core.IRenderable2D;
+import fox.trait.Transform;
 
 // Combines several textures and automatically adjusts sources
 class MultiTextureRenderer extends Trait implements IRenderable2D {

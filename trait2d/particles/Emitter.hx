@@ -1,17 +1,17 @@
-package wings.trait2d.particles;
+package fox.trait2d.particles;
 
-// Flambe Emitter ported to Wings
+// Flambe Emitter ported to fox
 // https://github.com/aduros/flambe/tree/master/src/flambe/display
 
 import kha.Color;
 import kha.Image;
 
-import wings.sys.Time;
-import wings.sys.importer.EmitterMold;
-import wings.core.Trait;
-import wings.core.IUpdateable;
-import wings.core.IRenderable2D;
-import wings.trait.Transform;
+import fox.sys.Time;
+import fox.sys.importer.EmitterMold;
+import fox.core.Trait;
+import fox.core.IUpdateable;
+import fox.core.IRenderable2D;
+import fox.trait.Transform;
 
 class Emitter extends Trait implements IUpdateable implements IRenderable2D {
 
@@ -254,7 +254,7 @@ class Emitter extends Trait implements IUpdateable implements IRenderable2D {
         particle.emitX = transform.absx;//emitX;
         particle.emitY = transform.absy;//emitY;
 
-        var angle = wings.math.Math.degToRad(random(angle, angleVariance));
+        var angle = fox.math.Math.degToRad(random(angle, angleVariance));
         var speed = random(speed, speedVariance);
         particle.velX = speed * Math.cos(angle);
         particle.velY = speed * Math.sin(angle);
@@ -265,7 +265,7 @@ class Emitter extends Trait implements IUpdateable implements IRenderable2D {
         particle.radialRadius = random(maxRadius, maxRadiusVariance);
         particle.velRadialRadius = -particle.radialRadius / particle.life;
         particle.radialRotation = angle;
-        particle.velRadialRotation = wings.math.Math.degToRad(random(rotatePerSecond, rotatePerSecondVariance));
+        particle.velRadialRotation = fox.math.Math.degToRad(random(rotatePerSecond, rotatePerSecondVariance));
 
         if (type == Gravity) {
             particle.x = random(transform.absx /*emitX*/, emitXVariance);

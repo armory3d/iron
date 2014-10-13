@@ -1,4 +1,4 @@
-package wings.math;
+package fox.math;
 
 class Rect {
 

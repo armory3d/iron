@@ -1,7 +1,7 @@
-package wings.sys.material;
+package fox.sys.material;
 
 import kha.Image;
-import wings.trait.Renderer;
+import fox.trait.Renderer;
 
 class TextureMaterial extends Material {
 

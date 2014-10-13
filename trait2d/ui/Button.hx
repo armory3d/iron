@@ -1,10 +1,10 @@
-package wings.trait2d.ui;
+package fox.trait2d.ui;
 
-import wings.core.Trait;
-import wings.core.IUpdateable;
-import wings.core.IRenderable2D;
-import wings.trait.Transform;
-import wings.trait.Input;
+import fox.core.Trait;
+import fox.core.IUpdateable;
+import fox.core.IRenderable2D;
+import fox.trait.Transform;
+import fox.trait.Input;
 
 class Button extends Trait implements IUpdateable implements IRenderable2D {
 

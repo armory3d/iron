@@ -1,4 +1,4 @@
-package wings.sys.geometry;
+package fox.sys.geometry;
 
 enum Axis {
 	X; Y; Z;

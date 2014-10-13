@@ -1,6 +1,6 @@
-package wings.trait;
+package fox.trait;
 
-import wings.core.Trait;
+import fox.core.Trait;
 
 class Input extends Trait {
 

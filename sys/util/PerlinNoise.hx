@@ -1,4 +1,4 @@
-package wings.sys.util;
+package fox.sys.util;
 /**
 Title:      Perlin noise
 Version:    1.3

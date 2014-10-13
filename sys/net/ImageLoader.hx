@@ -1,4 +1,4 @@
-package wings.sys.net;
+package fox.sys.net;
 
 #if flash
 import flash.events.Event;

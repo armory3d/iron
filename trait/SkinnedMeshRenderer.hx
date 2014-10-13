@@ -1,7 +1,7 @@
-package wings.trait;
+package fox.trait;
 
-import wings.sys.mesh.SkinnedMesh;
-import wings.math.Mat4;
+import fox.sys.mesh.SkinnedMesh;
+import fox.math.Mat4;
 
 class SkinnedMeshRenderer extends MeshRenderer {
 

@@ -1,9 +1,9 @@
-package wings.sys.importer;
+package fox.sys.importer;
 
 import haxe.Json;
 import kha.Image;
 
-import wings.sys.Assets;
+import fox.sys.Assets;
 
 class PsdData {
 

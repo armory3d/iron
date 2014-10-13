@@ -1,4 +1,4 @@
-package wings.sys.material;
+package fox.sys.material;
 
 import kha.graphics4.VertexData;
 import kha.graphics4.VertexStructure;
