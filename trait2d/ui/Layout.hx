@@ -13,12 +13,16 @@ class Layout extends Trait {
 
 	var type:LayoutType;
 	var spacing:Float;
+	var offsetSpacing:Float;
+	var offset:Float;
+	var lastOffset:Float;
 
-	public function new(type:LayoutType, spacing:Float = 0) {
+	public function new(type:LayoutType, spacing:Float = 0, offsetSpacing:Float = 0) {
 		super();
 
 		this.type = type;
-		this.spacing = spacing;
+		this.spacing = spacing;	// Next item
+		this.offsetSpacing = offsetSpacing; // Next row/column
 	}
 
 	@injectAdd({desc:true,sibl:false})
@@ -29,14 +33,43 @@ class Layout extends Trait {
 
 			var last = transforms.length > 0 ? transforms[transforms.length - 1] : null;
 
-			if (type == LayoutType.Vertical) {
-				if (last != null) trait.y = last.y + last.h + spacing;
-			}
-			else if (type == LayoutType.Horizontal) {
-				if (last != null) trait.x = last.x + last.w + spacing;
+			if (last != null) {
+				if (type == LayoutType.Vertical) {
+					trait.x += offset;
+
+					if (lastOffset != offset) {
+						lastOffset = offset;
+					}
+					else {
+						trait.y = last.y + last.h + spacing;
+					}
+				}
+				else if (type == LayoutType.Horizontal) {
+					trait.y += offset;
+
+					if (lastOffset != offset) {
+						lastOffset = offset;
+					}
+					else {
+						trait.x = last.x + last.w + spacing;
+					}
+				}
 			}
 
 			transforms.push(trait);
+		}
+    }
+
+    public function next() {
+    	var last = transforms.length > 0 ? transforms[transforms.length - 1] : null;
+
+		if (last != null) {
+			if (type == LayoutType.Vertical) {
+				offset += last.w + offsetSpacing;
+			}
+			else if (type == LayoutType.Horizontal) {
+				offset += last.h + offsetSpacing;
+			}
 		}
     }
 }
