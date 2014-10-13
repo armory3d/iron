@@ -8,6 +8,9 @@ import fox.trait2d.ImageRenderer;
 import fox.trait2d.TextRenderer;
 import fox.trait2d.util.TapTrait;
 
+// Create returns new object
+// prefix default is -1
+
 class PsdParser extends Trait {
 
 	// Raw data
@@ -186,7 +189,7 @@ class PsdParser extends Trait {
 		var tap = prefix == 0 ? new TapTrait(null) : new TapTrait(null, prefix);
 		object.addTrait(tap);
 		// Name will start with prefix value
-		var name = prefix == 0 ? layer.name : prefix + layer.name;
+		var name = prefix == 0 ? layer.name : (Std.string(prefix) + layer.name);
 		taps.set(name, tap);
 
 		object.transform.x = layer.left;
@@ -232,5 +235,10 @@ class PsdParser extends Trait {
 		}
 
 		return container;
+	}
+
+	public function drawLayer(g:kha.graphics2.Graphics, layer:TPsdLayer, x:Float, y:Float, scale:Float = 1) {
+		g.drawScaledSubImage(data.texture, layer.packedOrigin.x, layer.packedOrigin.y, layer.width, layer.height,
+						   	 x, y, layer.width * scale, layer.height * scale);
 	}
 }

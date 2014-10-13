@@ -96,7 +96,7 @@ class Root extends kha.Game {
         }
 
         // Define shader structure
-        var struct = new VertexStructure();
+        /*var struct = new VertexStructure();
         struct.addFloat3("vertexPosition");
         struct.addFloat2("texturePosition");
         struct.addFloat3("normalPosition");
@@ -127,7 +127,7 @@ class Root extends kha.Game {
         skinnedshader.addTexture("skinning");
         Assets.addShader("skinnedshader", skinnedshader);
 
-        fox.sys.importer.Animation.init();
+        fox.sys.importer.Animation.init();*/
 
         Type.createInstance(game, []);
     }
@@ -135,7 +135,7 @@ class Root extends kha.Game {
 	override public inline function update() {
 		frameUpdater.update();
 
-		fox.sys.importer.Animation.update();
+		//fox.sys.importer.Animation.update();
 		Time.update();
 		Input.update();
 	}
@@ -143,9 +143,9 @@ class Root extends kha.Game {
 	override public inline function render(frame:Framebuffer) {
 
 		// Render 3D objects
-		frameRenderer.begin(frame.g4);
-		frameRenderer.render(frame.g4);
-		frameRenderer.end(frame.g4);
+		//frameRenderer.begin(frame.g4);
+		//frameRenderer.render(frame.g4);
+		//frameRenderer.end(frame.g4);
 
 		// Render 2D objects
 	    frameRenderer2D.begin(frame.g2);

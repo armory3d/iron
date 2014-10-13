@@ -1,7 +1,6 @@
 package fox.trait2d;
 
 import kha.Font;
-import kha.Painter;
 
 import fox.core.Trait;
 import fox.core.IRenderable2D;
@@ -52,7 +51,7 @@ class TextRenderer extends Trait implements IRenderable2D {
 		g.color = transform.color;
 		g.font = font;
 
-		g.drawString(texts[0], transform.absx, transform.absy, transform.scale.x, transform.scale.y);
+		g.drawString(texts[0], transform.absx, transform.absy);
 
 		// Multi-line
 		for (i in 1...texts.length) {
@@ -69,7 +68,7 @@ class TextRenderer extends Trait implements IRenderable2D {
 				textX = transform.absx + (widths[0] - widths[i]);
 			}
 
-			g.drawString(texts[i], textX, transform.absy + i * font.getHeight(), transform.scale.x, transform.scale.y);
+			g.drawString(texts[i], textX, transform.absy + i * font.getHeight());
 		}
 	}
 
