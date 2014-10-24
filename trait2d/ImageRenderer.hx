@@ -42,11 +42,13 @@ class ImageRenderer extends Trait implements IRenderable2D {
 		g.opacity = transform.a;
 
 		// TODO: count scale into w
-		//g.pushRotation(angle, ox, oy);
+		if (angle != 0) g.pushRotation(angle, ox, oy);
+		
 		g.drawScaledSubImage(image, source.x, source.y, source.w, source.h,
 						     transform.absx, transform.absy,
 						     transform.w * transform.scale.x,
 						     transform.h * transform.scale.y);
-		//g.popTransform();
+		
+		if (angle != 0) g.popTransformation();
 	}
 }

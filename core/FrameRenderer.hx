@@ -28,12 +28,12 @@ class FrameRenderer extends AbstractTrait {
 	}
 
 	public function begin(g:kha.graphics4.Graphics) {
+		g.setDepthMode(true, CompareMode.Less);
 		g.clear(kha.Color.fromBytes(0, 0, 0, 0));
 		g.clear(null, 1, null);
-		g.setDepthMode(true, CompareMode.Less);
 	}
 
 	public function end(g:kha.graphics4.Graphics) {
-			
+		g.setDepthMode(false, CompareMode.Less);
 	}
 }

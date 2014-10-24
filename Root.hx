@@ -8,13 +8,14 @@ import kha.Loader;
 import fox.sys.Time;
 import fox.sys.Storage;
 import fox.sys.Assets;
+import fox.sys.material.VertexStructure;
+import fox.sys.material.Shader;
 import fox.core.Object;
 import fox.core.FrameUpdater;
 import fox.core.FrameRenderer;
 import fox.core.FrameRenderer2D;
 import fox.trait.Input;
-import fox.sys.material.VertexStructure;
-import fox.sys.material.Shader;
+import fox.trait.DaeScene;
 
 // Scaling and nested size calc - remove abs
 // Code doc
@@ -54,11 +55,11 @@ class Root extends kha.Game {
 		motion.Actuate.reset();
 	}
 
-	public static inline function setScene(scene:Class<Dynamic>, args:Array<Dynamic> = null) {
+	public static inline function setScene(name:String) {
 		reset();
-
-		if (args == null) args = [];
-		Type.createInstance(scene, args);
+		var scene = new Object();
+        addChild(scene);
+        scene.addTrait(new DaeScene(Assets.getString(name)));
 	}
 
 	override public function init() {
@@ -96,7 +97,7 @@ class Root extends kha.Game {
         }
 
         // Define shader structure
-        /*var struct = new VertexStructure();
+        var struct = new VertexStructure();
         struct.addFloat3("vertexPosition");
         struct.addFloat2("texturePosition");
         struct.addFloat3("normalPosition");
@@ -106,6 +107,7 @@ class Root extends kha.Game {
         var shader = new Shader("mesh.frag", "mesh.vert", struct);
         shader.addConstantMat4("mvpMatrix");
         shader.addConstantBool("texturing");
+        shader.addConstantBool("lighting");
         shader.addTexture("tex");
         Assets.addShader("shader", shader);
         
@@ -123,11 +125,12 @@ class Root extends kha.Game {
         skinnedshader.addConstantMat4("viewMatrix");
         skinnedshader.addConstantMat4("projectionMatrix");
         skinnedshader.addConstantBool("texturing");
+        skinnedshader.addConstantBool("lighting");
         skinnedshader.addTexture("tex");
         skinnedshader.addTexture("skinning");
         Assets.addShader("skinnedshader", skinnedshader);
 
-        fox.sys.importer.Animation.init();*/
+        fox.sys.importer.Animation.init();
 
         Type.createInstance(game, []);
     }
@@ -135,7 +138,7 @@ class Root extends kha.Game {
 	override public inline function update() {
 		frameUpdater.update();
 
-		//fox.sys.importer.Animation.update();
+		fox.sys.importer.Animation.update();
 		Time.update();
 		Input.update();
 	}
@@ -143,9 +146,9 @@ class Root extends kha.Game {
 	override public inline function render(frame:Framebuffer) {
 
 		// Render 3D objects
-		//frameRenderer.begin(frame.g4);
-		//frameRenderer.render(frame.g4);
-		//frameRenderer.end(frame.g4);
+		frameRenderer.begin(frame.g4);
+		frameRenderer.render(frame.g4);
+		frameRenderer.end(frame.g4);
 
 		// Render 2D objects
 	    frameRenderer2D.begin(frame.g2);
@@ -168,14 +171,14 @@ class Root extends kha.Game {
 
 
     function touchStartListener(index:Int, x:Int, y:Int) {
-		Input.onTouchBegin(Root.w - y, x);
+		Input.onTouchBegin(y, x);
     }
 
     function touchEndListener(index:Int, x:Int, y:Int) {
-		Input.onTouchEnd(Root.w - y, x);
+		Input.onTouchEnd(y, x);
     }
 
     function touchMoveListener(index:Int, x:Int, y:Int) {
-		Input.onMove(Root.w - y, x);
+		Input.onMove(y, x);
     }
 }

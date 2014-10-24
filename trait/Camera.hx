@@ -1,4 +1,4 @@
-package fox.trait.camera;
+package fox.trait;
 
 import fox.core.Trait;
 import fox.math.Mat4;
@@ -12,25 +12,22 @@ class Camera extends Trait {
 	public var projectionMatrix:Mat4;
 	public var viewMatrix:Mat4;
 
-	var up:Vec3;
-	var look:Vec3;
-	var right:Vec3;
+	public var up:Vec3;
+	public var look:Vec3;
+	public var right:Vec3;
 
 	function new() {
 		super();
 
 		if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
-			//up = new Vec3(0, 1, 0);
-			//look = new Vec3(0, 0, 1);
-			//right = new Vec3(1, 0, 0);
 			up = new Vec3(0, 0, 1);
 			look = new Vec3(0, 1, 0);
 			right = new Vec3(1, 0, 0);
 		}
 		else {
-			up = new Vec3(1, 0, 0);
-			look = new Vec3(0, 0, 1);
-			right = new Vec3(0, -1, 0);
+			up = new Vec3(0, 0, 1);
+			look = new Vec3(1, 0, 0);
+			right = new Vec3(0, 1, 0);
 		}
 	}
 
@@ -48,15 +45,22 @@ class Camera extends Trait {
 			q.y = parent.parent.transform.rot.y;
 			q.z = parent.parent.transform.rot.z;
 			q.w = parent.parent.transform.rot.w;
+			//q = q.inverse(q);
 		}
-		q = q.inverse(q);
 
 		q.multiply(transform.rot, q); // Camera transform
 
-	    viewMatrix = q.toMatrix().toRotation();
+		// TODO: invert
+		var v = new Vec3();
+		q.toEuler(v);
+		var qq = new Quat();
+		qq.setFromEuler(-v.x, -v.y, -v.z);
+
+	    viewMatrix = qq.toMatrix().toRotation();
 
 	    var trans = new Mat4();
-	    trans.translate(-transform.absx, -transform.absy, -transform.absz);
+	    //trans.translate(-transform.absx, -transform.absy, -transform.absz); // When parent is included
+	    trans.translate(-transform.x, -transform.y, -transform.z);
 	    viewMatrix.multiply(trans, viewMatrix);
 	}
 

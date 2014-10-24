@@ -432,4 +432,5 @@ class Vec3 {
         return this;
     }
 
+    public function getXYZ():Vec3 { return new Vec3(x, y, z); }
 }

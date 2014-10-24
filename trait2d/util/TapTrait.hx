@@ -14,7 +14,7 @@ class TapTrait extends Trait implements IUpdateable {
 	var input:Input;
 
 	public var onTap:Dynamic;
-	var args:Dynamic;
+	public var args:Dynamic;
 
 	var propagated:Bool = false;
 	var started:Bool = false;

@@ -1,6 +1,7 @@
 package fox.trait;
 
 import fox.math.Mat4;
+import fox.sys.mesh.Mesh;
 
 class SkydomeMeshRenderer extends MeshRenderer {
 
@@ -18,7 +19,7 @@ class SkydomeMeshRenderer extends MeshRenderer {
 		scene.camera.viewMatrix._42 = -20;
 		scene.camera.viewMatrix._43 = 0;
 
-		super.render();
+		super.render(g);
 
 		scene.camera.viewMatrix._41 = f12;
 		scene.camera.viewMatrix._42 = f13;

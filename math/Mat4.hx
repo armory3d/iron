@@ -679,6 +679,46 @@ class Mat4 {
 		
 	}
 
+	public function getTransform():Array<Dynamic> {
+		return [GetColumn(3).getXYZ(), getQuat(), getDiagonalLR()];
+	}
+
+	public function GetColumn(p_index:Int):Vec3
+	{
+		return new Vec3(GetRowCol(0,p_index), GetRowCol(1,p_index), GetRowCol(2,p_index), GetRowCol(3,p_index));
+	}
+
+	public function GetRowCol(p_row:Int,p_col:Int):Float
+	{
+		return GetIndex(p_col + (p_row << 2));
+	}
+
+	public function GetIndex(p_index : Int):Float
+	{
+		switch(p_index)
+		{
+			case  0: return _11;
+			case  1: return _12;
+			case  2: return _13;
+			case  3: return _14;			
+			case  4: return _21;
+			case  5: return _22;
+			case  6: return _23;
+			case  7: return _24;			
+			case  8: return _31;
+			case  9: return _32;
+			case 10: return _33;
+			case 11: return _34;			
+			case 12: return _41;
+			case 13: return _42;
+			case 14: return _43;
+			case 15: return _44;
+		}
+		return 0;
+	}
+
+	private function getDiagonalLR():Vec3 { return new Vec3(_11, _22, _33, _44); }
+
 
 	public function multiplyByVector(vec:Vec3):Vec3 {
 		var result:Vec3 = new Vec3(0, 0, 0, 0);

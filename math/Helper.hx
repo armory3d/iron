@@ -1,7 +1,7 @@
 package fox.math;
 
 import fox.Root;
-import fox.trait.camera.Camera;
+import fox.trait.Camera;
 
 class Helper {
 

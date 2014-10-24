@@ -114,7 +114,12 @@ class Sprite extends Trait implements IRenderable2D implements IUpdateable {
 		var frameX:Int = posX * tilesheet.tileW;
 		var frameY:Int = posY * tilesheet.tileH;
 
+		var offsetX = (transform.w - transform.w * transform.scale.x) / 2;
+		var offsetY = (transform.h - transform.h * transform.scale.y) / 2;
+
 		g.drawScaledSubImage(tilesheet.image, frameX, frameY, tilesheet.tileW, tilesheet.tileH,
-						     transform.absx, transform.absy, transform.w, transform.h);
+						     transform.absx + offsetX, transform.absy + offsetY,
+						     transform.w * transform.scale.x,
+						     transform.h * transform.scale.y);
 	}
 }

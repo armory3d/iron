@@ -17,8 +17,8 @@ class MeshRenderer extends Renderer {
 	public var mvpMatrix:Mat4;
 
 	public var mesh:Mesh;
-	public var lighting:Bool = true;
 	public var texturing:Bool = true;
+	public var lighting:Bool = true;
 
 	public var textures:Array<Image> = [];
 	var constantMat4s:Array<Mat4> = [];

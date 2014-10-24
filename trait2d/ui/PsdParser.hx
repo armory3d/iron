@@ -61,8 +61,9 @@ class PsdParser extends Trait {
 	}
 
 
-	public inline function setTap(name:String, tap:Dynamic) {
+	public inline function setTap(name:String, tap:Dynamic, args:Dynamic = null) {
 		taps.get(name).onTap = tap;
+		if (args != null) taps.get(name).args = args;
 	}
 
 	public inline function setText(name:String, text:String) {

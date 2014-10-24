@@ -569,6 +569,30 @@ class Quat {
     }*/
 
 
+    public static function lerp(p_a:Quat, p_b : Quat, p_ratio : Float):Quat
+    {
+        var c:Quat    = new Quat();
+        //var ca : Quat = p_a.clone;
+        var ca : Quat = new Quat();
+        p_a.copy(ca);
+        var dot : Float = p_a.dot(p_b);
+        if (dot < 0.0) 
+        {
+            ca.w = -ca.w;
+            ca.x = -ca.x;
+            ca.y = -ca.y;
+            ca.z = -ca.z;
+        }
+        
+        c.x = ca.x + (p_b.x - ca.x) * p_ratio;
+        c.y = ca.y + (p_b.y - ca.y) * p_ratio;
+        c.z = ca.z + (p_b.z - ca.z) * p_ratio;
+        c.w = ca.w + (p_b.w - ca.w) * p_ratio;
+        c.normalize();
+        return c;
+    }
+
+
 
     public static function slerp(qa:Quat, qb:Quat, t:Float):Quat {
         // quaternion to return
@@ -656,5 +680,10 @@ class Quat {
         q.z = c1 * s2 * c3 - s1 * c2 * s3;
         q.normalize();
         return q;
+    }
+
+    public function dot(p_v : Quat):Float
+    {
+        return (x * p_v.x) + (y * p_v.y) + (z * p_v.z) + (w * p_v.w);
     }
 }

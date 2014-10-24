@@ -3,19 +3,17 @@ package fox.trait;
 import fox.core.IUpdateable;
 import fox.core.Trait;
 import fox.sys.Time;
-import fox.trait.SceneRenderer;
-import fox.trait.Transform;
 
-import com.element.oimo.physics.collision.shape.BoxShape;
-import com.element.oimo.physics.collision.shape.Shape;
-import com.element.oimo.physics.collision.shape.ShapeConfig;
-import com.element.oimo.physics.collision.shape.SphereShape;
+import oimo.physics.collision.shape.BoxShape;
+import oimo.physics.collision.shape.Shape;
+import oimo.physics.collision.shape.ShapeConfig;
+import oimo.physics.collision.shape.SphereShape;
 
 class RigidBody extends Trait implements IUpdateable {
 
 	public var scene:SceneRenderer;
 
-	public var body:com.element.oimo.physics.dynamics.RigidBody;
+	public var body:oimo.physics.dynamics.RigidBody;
 
 	var transform:Transform;
 
@@ -30,21 +28,27 @@ class RigidBody extends Trait implements IUpdateable {
 	@injectAdd({asc:true,sibl:true})
 	function addSceneRenderer(trait:SceneRenderer) {
 		scene = trait;
+
+		if (transform != null) init();
 	}
 
 	@injectAdd
 	function addTransform(trait:Transform) {
 		transform = trait;
 
+		if (scene != null) init();
+	}
+
+	function init() {
 		var sc:ShapeConfig = new ShapeConfig();
-		body = new com.element.oimo.physics.dynamics.RigidBody(transform.pos.x, transform.pos.y, transform.pos.z);
+		body = new oimo.physics.dynamics.RigidBody(transform.pos.x, transform.pos.y, transform.pos.z);
 		body.addShape(new BoxShape(sc, transform.size.x, transform.size.y, transform.size.z));
 		
 		if (mass == 0) {
-			body.setupMass(com.element.oimo.physics.dynamics.RigidBody.BODY_STATIC);
+			body.setupMass(oimo.physics.dynamics.RigidBody.BODY_STATIC);
 		}
 		else {
-			body.setupMass(com.element.oimo.physics.dynamics.RigidBody.BODY_DYNAMIC);
+			body.setupMass(oimo.physics.dynamics.RigidBody.BODY_DYNAMIC);
 		}
 		
 		scene.world.addRigidBody(body);
