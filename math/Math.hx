@@ -140,6 +140,7 @@ class Math {
 	public inline static function lerp(a:Float, b:Float, k:Float) {
 		return a + k * (b - a);
 	}
+	//static inline public function Lerp(p_a:Float, p_b:Float, p_ratio : Float):Float { return p_a + (p_b - p_a) * p_ratio; }
 	
 	public inline static function bitCount(v:Int) {
 		var k = 0;
@@ -243,4 +244,65 @@ class Math {
 
 	  return ((b1 == b2) && (b2 == b3));
 	}
+
+	/**
+	 * ...
+	 * @author Eduardo Pons - eduardo@thelaborat.org
+	 */
+	static inline public function Oscilate(p_v:Float, p_v0:Float, p_v1:Float)
+    {			
+        var w:Float = -Math.Abs(Loop(p_v - 1.0, -1.0, 1.0)) + 1.0;
+        return Math.lerp(w, p_v0, p_v1);
+	}
+
+	static public function Loop(p_v:Float, p_v0:Float, p_v1:Float):Float 
+	{ 
+		var vv0 : Float = Math.min(p_v0, p_v1);
+		var vv1 : Float = Math.max(p_v0, p_v1);
+		var dv : Float = (vv1 - vv0);
+		if (dv <= 0) return vv0;
+		var n : Float  = (p_v - p_v0) / dv;			
+		var r : Float  = p_v < 0 ? 1.0 - Math.Frac(Math.Abs(n)) : Math.Frac(n);			
+		return Math.lerp(p_v0, p_v1, r); 
+	}
+
+	static inline public function Frac(p_v:Float):Float { return p_v - Math.Floor(p_v); }
+
+	static public inline function Abs(p_a:Float):Float  { return p_a < 0 ? -p_a : p_a; }
+
+	static inline public function Floor(p_v : Float):Float { return cast Std.int(p_v); }
+
+	static public function Min(p_v:Array<Float>) : Float
+    {
+        if (p_v.length <= 0) return 0;
+		if (p_v.length <= 1) return p_v[0];
+        var m:Float = p_v[0];
+		var i:Int = 0;
+		for(i in 1...p_v.length) { m = m > p_v[i] ? p_v[i] : m; }            
+        return m;
+    }
+
+    static public function Max(p_v:Array<Float>) : Float
+    {
+        if (p_v.length <= 0) return 0;
+		if (p_v.length <= 1) return p_v[0];
+        var m:Float = p_v[0];
+		var i:Int = 0;
+		for(i in 1...p_v.length) { m = m < p_v[i] ? p_v[i] : m; }
+        return m;
+    }
+
+    static public function MinInt(p_v:Array<Int>) : Int
+    {
+        if (p_v.length <= 0) return 0;
+		if (p_v.length <= 1) return p_v[0];
+        var m:Int = p_v[0];
+		var i:Int = 0;
+		for(i in 1...p_v.length) { m = m > p_v[i] ? p_v[i] : m; }            
+        return Std.int(m);
+    }
+
+    static public inline function Clamp(p_v : Float,p_min : Float, p_max : Float) : Float { return p_v <= p_min ? p_min : (p_v>=p_max ? p_max : p_v); }
+    static public inline function Clamp01(p_v:Float):Float { return Clamp(p_v,0.0,1.0); }
+    static public inline function ClampInt(p_v:Int, p_min : Int, p_max : Int)  : Int { return Std.int(p_v <= p_min ? p_min : (p_v>=p_max ? p_max : p_v)); }
 }

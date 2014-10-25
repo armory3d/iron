@@ -13,7 +13,7 @@ class RigidBody extends Trait implements IUpdateable {
 
 	public var scene:SceneRenderer;
 
-	public var body:oimo.physics.dynamics.RigidBody;
+	public var body:oimo.physics.dynamics.RigidBody = null;
 
 	var transform:Transform;
 
@@ -29,17 +29,22 @@ class RigidBody extends Trait implements IUpdateable {
 	function addSceneRenderer(trait:SceneRenderer) {
 		scene = trait;
 
-		if (transform != null) init();
+		if (transform != null) init(transform, scene);
 	}
 
 	@injectAdd
 	function addTransform(trait:Transform) {
 		transform = trait;
 
-		if (scene != null) init();
+		if (scene != null) init(transform, scene);
 	}
 
-	function init() {
+	public function init(transform:Transform, scene:SceneRenderer) {
+		if (body != null) return;
+
+		this.transform = transform;
+		this.scene = scene;
+
 		var sc:ShapeConfig = new ShapeConfig();
 		body = new oimo.physics.dynamics.RigidBody(transform.pos.x, transform.pos.y, transform.pos.z);
 		body.addShape(new BoxShape(sc, transform.size.x, transform.size.y, transform.size.z));

@@ -74,7 +74,7 @@ class Helper {
 
 
 
-    public static function getRay(touchX:Float, touchY:Float, camera:Camera) {
+    public static function getRay(touchX:Float, touchY:Float, camera:Camera):Ray {
 
         var mouse3D = new Vec3();
 
@@ -100,7 +100,7 @@ class Helper {
         return vector.applyProjection(_viewProjectionMatrix);
     }
 
-    static function pickingRay(vector:Vec3, camera:Camera) {
+    static function pickingRay(vector:Vec3, camera:Camera):Ray {
 
         // set two vectors with opposing z values
         vector.z = -1.0;
@@ -114,9 +114,9 @@ class Helper {
         end.normalize2();
 
         // TODO: use kha vec
-        //var v1 = new io.schteppe.cannon.math.Vec3(vector.x, vector.y, vector.z);
-        //var v2 = new io.schteppe.cannon.math.Vec3(end.x, end.y, end.z);
-        //return new io.schteppe.cannon.collision.Ray(v1, v2);
+        var v1 = new Vector3(vector.x, vector.y, vector.z);
+        var v2 = new Vector3(end.x, end.y, end.z);
+        return new Ray(v1, v2);
     }
 
 /*
