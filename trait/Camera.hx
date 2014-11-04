@@ -4,6 +4,7 @@ import fox.core.Trait;
 import fox.math.Mat4;
 import fox.math.Vec3;
 import fox.math.Quat;
+import fox.math.Helper;
 
 class Camera extends Trait {
 
@@ -16,10 +17,17 @@ class Camera extends Trait {
 	public var look:Vec3;
 	public var right:Vec3;
 
+	// Shadowmap
+	public var depthProjectionMatrix:Mat4;
+	public var depthViewMatrix:Mat4;
+	public var biasMat:Mat4;
+
 	function new() {
 		super();
 
-		if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
+		//if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
+		if (Main.gameData.orient == 0) {
+		//if (Main.orient == 0) {
 			up = new Vec3(0, 0, 1);
 			look = new Vec3(0, 1, 0);
 			right = new Vec3(1, 0, 0);
@@ -29,12 +37,40 @@ class Camera extends Trait {
 			look = new Vec3(1, 0, 0);
 			right = new Vec3(0, 1, 0);
 		}
+
+		// Shadowmap
+		var lightInvDir = new Vec3(0.5, 2, 2);
+ 
+		// Compute the MVP matrix from the light's point of view
+		depthProjectionMatrix = Helper.ortho(-10, 10, -10, 10, -10, 20);
+		depthViewMatrix = Helper.lookAt(lightInvDir, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+
+		biasMat = new Mat4([
+			0.5, 0.0, 0.0, 0.0,
+			0.0, 0.5, 0.0, 0.0,
+			0.0, 0.0, 0.5, 0.0,
+			0.5, 0.5, 0.5, 1.0
+		]);
 	}
 
 	@injectAdd
     public function addTransform(trait:Transform) {
         transform = trait;
+
+        // Invert
+        invertRot(transform.rot);
         updateMatrix();
+    }
+
+    function invertRot(r:Quat) {
+    	var v = new Vec3();
+		r.toEuler(v);
+		var q = new Quat();
+		q.setFromEuler(-v.x, -v.y, -v.z);
+	    r.x = q.x;
+	    r.y = q.y;
+	    r.z = q.z;
+	    r.w = q.w;
     }
 
 	public function updateMatrix() {
@@ -45,22 +81,16 @@ class Camera extends Trait {
 			q.y = parent.parent.transform.rot.y;
 			q.z = parent.parent.transform.rot.z;
 			q.w = parent.parent.transform.rot.w;
-			//q = q.inverse(q);
+			q = q.inverse(q);
 		}
 
 		q.multiply(transform.rot, q); // Camera transform
-
-		// TODO: invert
-		var v = new Vec3();
-		q.toEuler(v);
-		var qq = new Quat();
-		qq.setFromEuler(-v.x, -v.y, -v.z);
-
-	    viewMatrix = qq.toMatrix().toRotation();
+	    
+	    viewMatrix = q.toMatrix();
 
 	    var trans = new Mat4();
-	    //trans.translate(-transform.absx, -transform.absy, -transform.absz); // When parent is included
-	    trans.translate(-transform.x, -transform.y, -transform.z);
+	    trans.translate(-transform.absx, -transform.absy, -transform.absz); // When parent is included
+	    //trans.translate(-transform.x, -transform.y, -transform.z);
 	    viewMatrix.multiply(trans, viewMatrix);
 	}
 

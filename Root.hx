@@ -23,6 +23,7 @@ import fox.trait.DaeScene;
 class Root extends kha.Game {
 
 	public static var root:Object;
+    public static var daeScene:DaeScene;
 
 	static var frameUpdater:FrameUpdater;
 	static var frameRenderer:FrameRenderer;
@@ -59,7 +60,8 @@ class Root extends kha.Game {
 		reset();
 		var scene = new Object();
         addChild(scene);
-        scene.addTrait(new DaeScene(Assets.getString(name)));
+        daeScene = new DaeScene(Assets.getString(name));
+        scene.addTrait(daeScene);
 	}
 
 	override public function init() {
@@ -96,6 +98,18 @@ class Root extends kha.Game {
         	kha.input.Surface.get().notify(touchStartListener, touchEndListener, touchMoveListener);
         }
 
+        // Shadow map
+        var struct = new VertexStructure();
+        struct.addFloat3("vertexPosition");
+        struct.addFloat2("texturePosition");
+        struct.addFloat3("normalPosition");
+        struct.addFloat4("vertexColor");
+
+        var shader = new Shader("shadowmap.frag", "shadowmap.vert", struct);
+        shader.addConstantMat4("mvpMatrix");
+        Assets.addShader("shadowmapshader", shader);
+
+
         // Define shader structure
         var struct = new VertexStructure();
         struct.addFloat3("vertexPosition");
@@ -106,12 +120,17 @@ class Root extends kha.Game {
         // Create default shader
         var shader = new Shader("mesh.frag", "mesh.vert", struct);
         shader.addConstantMat4("mvpMatrix");
+        shader.addConstantMat4("dbmvpMatrix");
         shader.addConstantBool("texturing");
         shader.addConstantBool("lighting");
+        shader.addConstantBool("castShadow");
+        shader.addConstantBool("receiveShadow");
         shader.addTexture("tex");
+        shader.addTexture("shadowMap");
         Assets.addShader("shader", shader);
         
 
+        // Create skinned shader
         var struct = new VertexStructure();
         struct.addFloat3("vertexPosition");
         struct.addFloat2("texturePosition");
@@ -126,6 +145,8 @@ class Root extends kha.Game {
         skinnedshader.addConstantMat4("projectionMatrix");
         skinnedshader.addConstantBool("texturing");
         skinnedshader.addConstantBool("lighting");
+        skinnedshader.addConstantBool("castShadow");
+        skinnedshader.addConstantBool("receiveShadow");
         skinnedshader.addTexture("tex");
         skinnedshader.addTexture("skinning");
         Assets.addShader("skinnedshader", skinnedshader);

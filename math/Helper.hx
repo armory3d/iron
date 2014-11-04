@@ -15,7 +15,7 @@ class Helper {
                       	 0.0,     		  0.0, 		2 * zFar * zNear * t , 0.0]);
     }
 
-    public static function orthogonal(left: Float, right: Float, bottom: Float, top: Float, zn: Float, zf: Float): Mat4 {
+    public static function ortho(left: Float, right: Float, bottom: Float, top: Float, zn: Float, zf: Float): Mat4 {
         var tx: Float = -(right + left) / (right - left);
         var ty: Float = -(top + bottom) / (top - bottom);
         var tz: Float = -(zf + zn) / (zf - zn);

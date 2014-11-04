@@ -15,10 +15,13 @@ class MeshRenderer extends Renderer {
 	public var scene:SceneRenderer;
 
 	public var mvpMatrix:Mat4;
+	public var shadowMapMatrix:Mat4;
 
 	public var mesh:Mesh;
 	public var texturing:Bool = true;
 	public var lighting:Bool = true;
+	public var castShadow:Bool = false;
+	public var receiveShadow:Bool = false;
 
 	public var textures:Array<Image> = [];
 	var constantMat4s:Array<Mat4> = [];
@@ -30,6 +33,7 @@ class MeshRenderer extends Renderer {
 		super();
 
 		mvpMatrix = new Mat4();
+		shadowMapMatrix = new Mat4();
 
 		this.mesh = mesh;
 
@@ -43,6 +47,27 @@ class MeshRenderer extends Renderer {
         transform.size.x = mesh.geometry.size.x * transform.scale.x;
 		transform.size.y = mesh.geometry.size.y * transform.scale.y;
 		transform.size.z = mesh.geometry.size.z * transform.scale.z;
+    }
+
+    public function renderShadowMap(g:kha.graphics4.Graphics) {
+
+    	shadowMapMatrix.identity();
+    	shadowMapMatrix.append(transform.matrix);
+    	shadowMapMatrix.append(scene.camera.depthViewMatrix);
+    	shadowMapMatrix.append(scene.camera.depthProjectionMatrix);
+    	shadowMapMatrix.append(scene.camera.biasMat);
+
+    	var shader = Assets.getShader("shadowmapshader");
+		var mat = kha.math.Matrix4.empty();
+		mat.matrix = shadowMapMatrix.getFloats();
+		g.setMatrix(shader.constantMat4s[0], mat);
+
+		// Render mesh
+		g.setVertexBuffer(mesh.geometry.vertexBuffer);
+		g.setIndexBuffer(mesh.geometry.indexBuffer);
+		g.setProgram(shader.program);
+
+		g.drawIndexedVertices();
     }
 
 	public override function render(g:kha.graphics4.Graphics) {

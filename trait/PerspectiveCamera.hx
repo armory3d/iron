@@ -9,7 +9,9 @@ class PerspectiveCamera extends Camera {
 
 	public function new() {
 
-		if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
+		//if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
+		if (Main.gameData.orient == 0) {
+		//if (Main.orient == 0) {
 			projectionMatrix = Helper.perspective(45, Root.w / Root.h, 0.1, 10000);
 		}
 		else {
