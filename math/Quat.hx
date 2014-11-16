@@ -367,7 +367,7 @@ class Quat {
      * @param {Number} z
      * @param {String} order The order to apply angles: 'XYZ' or 'YXZ' or any other combination
      */
-    public function setFromEuler(x:Float, y:Float, z:Float) {
+    public function setFromEuler(x:Float, y:Float, z:Float, order = "ZXY") {
 
         var c1 = Math.cos( x / 2 );
         var c2 = Math.cos( y / 2 );
@@ -376,42 +376,42 @@ class Quat {
         var s2 = Math.sin( y / 2 );
         var s3 = Math.sin( z / 2 );
 
-        /*if ( order === 'XYZ' ) {
+        if ( order == 'XYZ' ) {
 
             this.x = s1 * c2 * c3 + c1 * s2 * s3;
             this.y = c1 * s2 * c3 - s1 * c2 * s3;
             this.z = c1 * c2 * s3 + s1 * s2 * c3;
             this.w = c1 * c2 * c3 - s1 * s2 * s3;
 
-        } else if ( order === 'YXZ' ) {
+        } else if ( order == 'YXZ' ) {
 
             this.x = s1 * c2 * c3 + c1 * s2 * s3;
             this.y = c1 * s2 * c3 - s1 * c2 * s3;
             this.z = c1 * c2 * s3 - s1 * s2 * c3;
             this.w = c1 * c2 * c3 + s1 * s2 * s3;
 
-        } else if ( order === 'ZXY' ) {
-*/
+        } else if ( order == 'ZXY' ) {
+
             this.x = s1 * c2 * c3 - c1 * s2 * s3;
             this.y = c1 * s2 * c3 + s1 * c2 * s3;
             this.z = c1 * c2 * s3 + s1 * s2 * c3;
             this.w = c1 * c2 * c3 - s1 * s2 * s3;
-/*
-        } else if ( order === 'ZYX' ) {
+
+        } else if ( order == 'ZYX' ) {
 
             this.x = s1 * c2 * c3 - c1 * s2 * s3;
             this.y = c1 * s2 * c3 + s1 * c2 * s3;
             this.z = c1 * c2 * s3 - s1 * s2 * c3;
             this.w = c1 * c2 * c3 + s1 * s2 * s3;
 
-        } else if ( order === 'YZX' ) {
+        } else if ( order == 'YZX' ) {
 
             this.x = s1 * c2 * c3 + c1 * s2 * s3;
             this.y = c1 * s2 * c3 + s1 * c2 * s3;
             this.z = c1 * c2 * s3 - s1 * s2 * c3;
             this.w = c1 * c2 * c3 - s1 * s2 * s3;
 
-        } else if ( order === 'XZY' ) {
+        } else if ( order == 'XZY' ) {
 
             this.x = s1 * c2 * c3 - c1 * s2 * s3;
             this.y = c1 * s2 * c3 - s1 * c2 * s3;
@@ -419,7 +419,7 @@ class Quat {
             this.w = c1 * c2 * c3 + s1 * s2 * s3;
 
         }
-*/
+
         return this;
 
     }

@@ -75,7 +75,7 @@ class Root extends kha.Game {
         h = height;
 
         new Time();
-		//new Storage();
+		new Storage();
 
 		root = new Object();
 
@@ -105,9 +105,10 @@ class Root extends kha.Game {
         struct.addFloat3("normalPosition");
         struct.addFloat4("vertexColor");
 
-        var shader = new Shader("shadowmap.frag", "shadowmap.vert", struct);
-        shader.addConstantMat4("mvpMatrix");
-        Assets.addShader("shadowmapshader", shader);
+        var shadowShader = new Shader("shadowmap.frag", "shadowmap.vert", struct);
+        shadowShader.addConstantMat4("mvpShadowMatrix");
+        shadowShader.addConstantMat4("modelMatrix");
+        Assets.addShader("shadowmapshader", shadowShader);
 
 
         // Define shader structure
@@ -121,6 +122,8 @@ class Root extends kha.Game {
         var shader = new Shader("mesh.frag", "mesh.vert", struct);
         shader.addConstantMat4("mvpMatrix");
         shader.addConstantMat4("dbmvpMatrix");
+        shader.addConstantMat4("modelMatrix");
+        shader.addConstantMat4("viewMatrix");
         shader.addConstantBool("texturing");
         shader.addConstantBool("lighting");
         shader.addConstantBool("castShadow");

@@ -12,7 +12,7 @@ class SkinnedMeshRenderer extends MeshRenderer {
 	var sampler0:kha.Image;
 	var sampler:kha.Image;
 
-	public var viewMatrix:Mat4;
+	//public var viewMatrix:Mat4;
 	public var projectionMatrix:Mat4;
 
 	public function new(mesh:SkinnedMesh) {

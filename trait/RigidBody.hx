@@ -52,8 +52,9 @@ class RigidBody extends Trait implements IUpdateable {
 
 		var sc:ShapeConfig = new ShapeConfig();
 		sc.density = mass > 0 ? mass : 1;
-		body = new oimo.physics.dynamics.RigidBody(transform.pos.x, transform.pos.y, transform.pos.z);
-		
+		body = new oimo.physics.dynamics.RigidBody(this, transform.pos.x, transform.pos.y, transform.pos.z);
+		body.name = parent.name;
+
 		if (shape == SHAPE_BOX) {
 			body.addShape(new BoxShape(sc, transform.size.x, transform.size.y, transform.size.z));
 		}

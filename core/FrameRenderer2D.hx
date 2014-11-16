@@ -21,9 +21,13 @@ class FrameRenderer2D extends AbstractTrait {
 	}
 	
 	public function render(g:kha.graphics2.Graphics) {
-		for(trait in renderTraits){
+		for(trait in renderTraits) {
 			trait.render(g);
 		}
+
+		//g.color = kha.Color.White;
+        //g.opacity = 1.0;
+        //g.drawImage(FrameRenderer.shadowMap, 0, 0);
 	}
 
 	public function begin(g:kha.graphics2.Graphics) {

@@ -33,6 +33,7 @@ class Mat4 {
 
 		m = new Array<Float>();
 		for (i in 0...16) m.push(0);
+		toBuffer();
 	}
 
 	public function zero() {

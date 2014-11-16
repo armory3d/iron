@@ -20,6 +20,7 @@ class Camera extends Trait {
 	// Shadowmap
 	public var depthProjectionMatrix:Mat4;
 	public var depthViewMatrix:Mat4;
+	public var depthModelMatrix:Mat4;
 	public var biasMat:Mat4;
 
 	function new() {
@@ -39,11 +40,13 @@ class Camera extends Trait {
 		}
 
 		// Shadowmap
-		var lightInvDir = new Vec3(0.5, 2, 2);
- 
 		// Compute the MVP matrix from the light's point of view
-		depthProjectionMatrix = Helper.ortho(-10, 10, -10, 10, -10, 20);
-		depthViewMatrix = Helper.lookAt(lightInvDir, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+		//var m = new fox.math.Matrix4();
+		//m.makeFrustum(-1, 1, -1, 1, 1, 4000);
+		//depthProjectionMatrix = new Mat4(m.elements);
+		//depthProjectionMatrix = Helper.ortho(-30, 30, -30, 30, -30, 60);
+		depthViewMatrix = Helper.lookAt(new Vec3(0, 5, 0), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
+		depthModelMatrix = new Mat4();
 
 		biasMat = new Mat4([
 			0.5, 0.0, 0.0, 0.0,
@@ -94,21 +97,21 @@ class Camera extends Trait {
 	    viewMatrix.multiply(trans, viewMatrix);
 	}
 
-	function getLook():Vec3 {
+	public function getLook():Vec3 {
 	    var mRot:Mat4 = transform.rot.toMatrix();
 
 	    return new Vec3(mRot._13, mRot._23, mRot._33);
 	    //return new Vec3(mRot.matrix[2], mRot.matrix[6], mRot.matrix[10]);
 	}
 
-	function getRight():Vec3 {
+	public function getRight():Vec3 {
 	    var mRot:Mat4 = transform.rot.toMatrix();
 
 	    return new Vec3(mRot._11, mRot._21, mRot._31);
 	    //return new Vec3(mRot.matrix[0], mRot.matrix[4], mRot.matrix[8]);
 	}
 
-	function getUp():Vec3 {
+	public function getUp():Vec3 {
 	    var mRot:Mat4 = transform.rot.toMatrix();
 
 	    return new Vec3(mRot._12, mRot._22, mRot._32);
@@ -169,4 +172,12 @@ class Camera extends Trait {
 		transform.modified = true;
 		updateMatrix();
 	}
+
+	public function viewMatrixForward():Vec3 {
+        return new Vec3(-viewMatrix._13, -viewMatrix._23, -viewMatrix._33);
+    }
+
+    public function viewMatrixBackward():Vec3 {
+        return new Vec3(viewMatrix._13, viewMatrix._23, viewMatrix._33);
+    }
 }

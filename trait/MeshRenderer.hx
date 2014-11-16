@@ -15,6 +15,7 @@ class MeshRenderer extends Renderer {
 	public var scene:SceneRenderer;
 
 	public var mvpMatrix:Mat4;
+	public var viewMatrix:Mat4; // Camera copy
 	public var shadowMapMatrix:Mat4;
 
 	public var mesh:Mesh;
@@ -34,6 +35,7 @@ class MeshRenderer extends Renderer {
 
 		mvpMatrix = new Mat4();
 		shadowMapMatrix = new Mat4();
+		viewMatrix = new Mat4();
 
 		this.mesh = mesh;
 
@@ -52,20 +54,23 @@ class MeshRenderer extends Renderer {
     public function renderShadowMap(g:kha.graphics4.Graphics) {
 
     	shadowMapMatrix.identity();
-    	shadowMapMatrix.append(transform.matrix);
+    	//shadowMapMatrix.append(transform.matrix);
+    	shadowMapMatrix.append(scene.camera.depthModelMatrix);
     	shadowMapMatrix.append(scene.camera.depthViewMatrix);
-    	shadowMapMatrix.append(scene.camera.depthProjectionMatrix);
-    	shadowMapMatrix.append(scene.camera.biasMat);
+    	//shadowMapMatrix.append(scene.camera.depthProjectionMatrix);
+    	shadowMapMatrix.append(scene.camera.projectionMatrix);
 
-    	var shader = Assets.getShader("shadowmapshader");
-		var mat = kha.math.Matrix4.empty();
-		mat.matrix = shadowMapMatrix.getFloats();
-		g.setMatrix(shader.constantMat4s[0], mat);
+    	var shadowShader = Assets.getShader("shadowmapshader");
 
 		// Render mesh
 		g.setVertexBuffer(mesh.geometry.vertexBuffer);
 		g.setIndexBuffer(mesh.geometry.indexBuffer);
-		g.setProgram(shader.program);
+		g.setProgram(shadowShader.program);
+
+		var mat1 = new kha.math.Matrix4(shadowMapMatrix.getFloats());
+		var mat2 = new kha.math.Matrix4(transform.matrix.getFloats());
+		g.setMatrix(shadowShader.constantMat4s[0], mat1);
+		g.setMatrix(shadowShader.constantMat4s[1], mat2);
 
 		g.drawIndexedVertices();
     }
@@ -73,11 +78,16 @@ class MeshRenderer extends Renderer {
 	public override function render(g:kha.graphics4.Graphics) {
 		super.render(g);
 
+		//shadowMapMatrix.append(scene.camera.biasMat);
+
 		// Update model-view-projection matrix
 		mvpMatrix.identity();
-		mvpMatrix.append(transform.matrix);
+		//mvpMatrix.append(transform.matrix);
 		mvpMatrix.append(scene.camera.viewMatrix);
 		mvpMatrix.append(scene.camera.projectionMatrix);
+
+		viewMatrix.identity();
+		viewMatrix.append(scene.camera.viewMatrix);
 		
 		// Render mesh
 		g.setVertexBuffer(mesh.geometry.vertexBuffer);
@@ -87,6 +97,15 @@ class MeshRenderer extends Renderer {
 		if (texturing) {
 			g.setTexture(mesh.material.shader.textures[0], textures[0]);
 		}
+
+		/*g.setTexture(mesh.material.shader.textures[0], fox.core.FrameRenderer.shadowMap);
+		g.setTextureParameters(mesh.material.shader.textures[1],
+							   kha.graphics4.TextureAddressing.Clamp,
+							   kha.graphics4.TextureAddressing.Clamp,
+							   kha.graphics4.TextureFilter.LinearFilter,
+							   kha.graphics4.TextureFilter.LinearFilter,
+							   kha.graphics4.MipMapFilter.NoMipFilter);
+		g.setTexture(mesh.material.shader.textures[1], fox.core.FrameRenderer.shadowMap);*/
 
 		setConstants(g);
 
@@ -105,8 +124,7 @@ class MeshRenderer extends Renderer {
 		}
 		
 		for (i in 0...constantMat4s.length) {
-			var mat = kha.math.Matrix4.empty();
-			mat.matrix = constantMat4s[i].getFloats();
+			var mat = new kha.math.Matrix4(constantMat4s[i].getFloats());
 			g.setMatrix(mesh.material.shader.constantMat4s[i], mat);
 		}
 

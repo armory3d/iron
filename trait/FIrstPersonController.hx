@@ -26,13 +26,131 @@ class FirstPersonController extends Trait implements IUpdateable {
     @inject
     var input:Input;
 
+    var moveForward = false;
+    var moveBackward = false;
+    var moveLeft = false;
+    var moveRight = false;
+    var jump = false;
+
     public function new() {
         super();
+
+        kha.input.Keyboard.get().notify(onDown, onUp);
     }
+
+    function onDown(key: kha.Key, char: String) {
+        if (char == "w") moveForward = true;
+        else if (char == "d") moveRight = true;
+        else if (char == "s") moveBackward = true;
+        else if (char == "a") moveLeft = true;
+        else if (char == "x") jump = true;
+    }
+
+    function onUp(key: kha.Key, char: String) {
+        if (char == "w") moveForward = false;
+        else if (char == "d") moveRight = false;
+        else if (char == "s") moveBackward = false;
+        else if (char == "a") moveLeft = false;
+        else if (char == "x") jump = false;
+    }
+
+    var locked = true;
 
     public function update() {
 
-        if (input.touch) {
+        // Unlock
+        if (locked &&
+            input.x > Root.w / 2 - 20 && input.x < Root.w / 2 + 20 &&
+            input.y > Root.h / 2 - 20 && input.y < Root.h / 2 +20) {
+            locked = false;
+        }
+
+        // Look
+        if (!locked) {
+            camera.pitch(-input.deltaY / 100);
+
+            transform.rotateZ(-input.deltaX / 100);
+            body.body.orientation.x = transform.rot.x;
+            body.body.orientation.y = transform.rot.y;
+            body.body.orientation.z = transform.rot.z;
+            body.body.orientation.s = transform.rot.w;
+        }
+
+        // Move
+        if (moveForward) {
+            var mat = Matrix4.identity();
+            transform.rot.saveToMatrix2(mat);
+
+            var forward = new Vector3(0, 1, 0);
+            forward.applyProjection(mat);
+            forward = forward.mult(fox.sys.Time.delta * 350);
+
+            var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
+            body.body.applyImpulse(body.body.position, force);
+        }
+
+        if (moveBackward) {
+            var mat = Matrix4.identity();
+            transform.rot.saveToMatrix2(mat);
+
+            var forward = new Vector3(0, -1, 0);
+            forward.applyProjection(mat);
+            forward = forward.mult(fox.sys.Time.delta * 350);
+
+            var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
+            body.body.applyImpulse(body.body.position, force);
+        }
+
+        if (moveLeft) {
+            var mat = Matrix4.identity();
+            transform.rot.saveToMatrix2(mat);
+
+            var forward = new Vector3(-1, 0, 0);
+            forward.applyProjection(mat);
+            forward = forward.mult(fox.sys.Time.delta * 350);
+
+            var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
+            body.body.applyImpulse(body.body.position, force);
+        }
+
+        if (moveRight) {
+            var mat = Matrix4.identity();
+            transform.rot.saveToMatrix2(mat);
+
+            var forward = new Vector3(1, 0, 0);
+            forward.applyProjection(mat);
+            forward = forward.mult(fox.sys.Time.delta * 350);
+
+            var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
+            body.body.applyImpulse(body.body.position, force);
+        }
+
+        if (jump) {
+            var mat = Matrix4.identity();
+            transform.rot.saveToMatrix2(mat);
+
+            var forward = new Vector3(0, 0, 1);
+            forward.applyProjection(mat);
+            forward = forward.mult(fox.sys.Time.delta * 350);
+
+            var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
+            body.body.applyImpulse(body.body.position, force);
+        }
+
+        if (!moveForward && !moveBackward && !moveLeft && !moveRight && !jump) {
+            var mat = Matrix4.identity();
+            transform.rot.saveToMatrix2(mat);
+
+            var forward = new Vector3(0, 0, -1);
+            forward.applyProjection(mat);
+            forward = forward.mult(fox.sys.Time.delta * 3000);
+
+            var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
+            body.body.applyImpulse(body.body.position, force);
+        }
+
+
+        /*if (input.touch) {
 
             // Look
             camera.pitch(-input.deltaY / 100);
@@ -53,7 +171,8 @@ class FirstPersonController extends Trait implements IUpdateable {
 
             var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
             body.body.applyImpulse(body.body.position, force);
-        }
+        }*/
+
 
         camera.updateMatrix();
     }
