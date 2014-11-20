@@ -6,8 +6,9 @@ import fox.math.Vec3;
 import fox.sys.material.TextureMaterial;
 import fox.sys.mesh.Mesh;
 import fox.sys.Assets;
+import fox.core.IRenderable;
 
-class MeshRenderer extends Renderer {
+class MeshRenderer extends Renderer implements IRenderable {
 
 	public var transform:Transform;
 
@@ -75,9 +76,7 @@ class MeshRenderer extends Renderer {
 		g.drawIndexedVertices();
     }
 
-	public override function render(g:kha.graphics4.Graphics) {
-		super.render(g);
-
+	public function render(g:kha.graphics4.Graphics) {
 		//shadowMapMatrix.append(scene.camera.biasMat);
 
 		// Update model-view-projection matrix

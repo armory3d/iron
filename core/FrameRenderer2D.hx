@@ -5,6 +5,7 @@ import composure.traits.AbstractTrait;
 class FrameRenderer2D extends AbstractTrait {
 
 	var renderTraits:Array<IRenderable2D> = [];
+	var lateRenderTraits:Array<ILateRenderable2D> = [];
 
 	public function new() {
 		super();
@@ -19,9 +20,23 @@ class FrameRenderer2D extends AbstractTrait {
 	public function removeRenderTrait(trait:IRenderable2D) {
 		renderTraits.remove(trait);
 	}
+
+	@injectAdd({desc:true,sibl:false})
+	public function addLateRenderTrait(trait:ILateRenderable2D) {
+		lateRenderTraits.push(trait);
+	}
+	
+	@injectRemove
+	public function removeLateRenderTrait(trait:ILateRenderable2D) {
+		lateRenderTraits.remove(trait);
+	}
 	
 	public function render(g:kha.graphics2.Graphics) {
 		for(trait in renderTraits) {
+			trait.render(g);
+		}
+
+		for(trait in lateRenderTraits) {
 			trait.render(g);
 		}
 

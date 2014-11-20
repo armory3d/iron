@@ -5,6 +5,7 @@ import composure.traits.AbstractTrait;
 class FrameUpdater extends AbstractTrait {
 
 	var updateTraits:Array<IUpdateable> = [];
+	var lateUpdateTraits:Array<ILateUpdateable> = [];
 
 	public function new() {
 		super();
@@ -19,9 +20,23 @@ class FrameUpdater extends AbstractTrait {
 	public function removeUpdateTrait(trait:IUpdateable) {
 		updateTraits.remove(trait);
 	}
+
+	@injectAdd({desc:true,sibl:false})
+	public function addLateUpdateTrait(trait:ILateUpdateable) {
+		lateUpdateTraits.push(trait);
+	}
+	
+	@injectRemove
+	public function removeLateUpdateTrait(trait:ILateUpdateable) {
+		lateUpdateTraits.remove(trait);
+	}
 	
 	public function update() {
 		for(trait in updateTraits){
+			trait.update();
+		}
+
+		for(trait in lateUpdateTraits){
 			trait.update();
 		}
 	}

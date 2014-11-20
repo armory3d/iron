@@ -8,6 +8,7 @@ import fox.trait.MeshRenderer;
 class FrameRenderer extends AbstractTrait {
 
 	var renderTraits:Array<IRenderable> = [];
+	var lateRenderTraits:Array<ILateRenderable> = [];
 	public static var shadowMap:kha.Image;
 
 	var clearColor:Color;
@@ -30,6 +31,16 @@ class FrameRenderer extends AbstractTrait {
 		renderTraits.remove(trait);
 	}
 
+	@injectAdd({desc:true,sibl:false})
+	public function addLateRenderTrait(trait:ILateRenderable) {
+		lateRenderTraits.push(trait);
+	}
+	
+	@injectRemove
+	public function removeLateRenderTrait(trait:ILateRenderable) {
+		lateRenderTraits.remove(trait);
+	}
+
 	public function renderShadowMap() {
 		var g = shadowMap.g4;
 		
@@ -42,6 +53,10 @@ class FrameRenderer extends AbstractTrait {
 	
 	public function render(g:kha.graphics4.Graphics) {
 		for (trait in renderTraits) {
+			trait.render(g);
+		}
+
+		for (trait in lateRenderTraits) {
 			trait.render(g);
 		}
 	}

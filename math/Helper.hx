@@ -5,17 +5,17 @@ import fox.trait.Camera;
 
 class Helper {
 
-	public static function perspective(fovY:Float, aspectRatio:Float, zNear:Float, zFar:Float):Mat4 {
+    public static function perspective(fovY:Float, aspectRatio:Float, zNear:Float, zFar:Float):Mat4 {
         var f = 1.0 / Math.tan(fovY / 2);
         var t = 1.0 / (zNear - zFar);
 
-        return new Mat4([f / aspectRatio, 0.0,      0.0,        		   0.0,
-                      	 0.0,      		  f,        0.0,        		   0.0,
-                      	 0.0,     		  0.0, 		(zFar + zNear) * t,   -1.0,
-                      	 0.0,     		  0.0, 		2 * zFar * zNear * t , 0.0]);
+        return new Mat4([f / aspectRatio, 0.0,      0.0,                   0.0,
+                         0.0,             f,        0.0,                   0.0,
+                         0.0,             0.0,      (zFar + zNear) * t,   -1.0,
+                         0.0,             0.0,      2 * zFar * zNear * t , 0.0]);
     }
 
-    public static function ortho(left: Float, right: Float, bottom: Float, top: Float, zn: Float, zf: Float): Mat4 {
+    public static function orthogonal(left: Float, right: Float, bottom: Float, top: Float, zn: Float, zf: Float): Mat4 {
         var tx: Float = -(right + left) / (right - left);
         var ty: Float = -(top + bottom) / (top - bottom);
         var tz: Float = -(zf + zn) / (zf - zn);
@@ -66,9 +66,9 @@ class Helper {
         var d2 =  e0 * f0 + e1 * f1 + e2 * f2;
 
         return new Mat4([s0, u0,-f0, 0.0,
-                		 s1, u1,-f1, 0.0,
-                		 s2, u2,-f2, 0.0,
-                		 d0, d1, d2, 1.0]);
+                         s1, u1,-f1, 0.0,
+                         s2, u2,-f2, 0.0,
+                         d0, d1, d2, 1.0]);
     }
 
 
@@ -92,10 +92,12 @@ class Helper {
 
         var _viewProjectionMatrix = new Mat4();
         var projectionMatrixInverse = new Mat4();
+        var viewMatrixInverse = new Mat4();
 
         projectionMatrixInverse.getInverse(camera.projectionMatrix);
+        viewMatrixInverse.getInverse(camera.viewMatrix);
 
-        _viewProjectionMatrix.multiplyMatrices(camera.transform.matrix, projectionMatrixInverse);
+        _viewProjectionMatrix.multiplyMatrices(viewMatrixInverse, projectionMatrixInverse);
 
         return vector.applyProjection(_viewProjectionMatrix);
     }

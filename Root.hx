@@ -110,6 +110,17 @@ class Root extends kha.Game {
         shadowShader.addConstantMat4("modelMatrix");
         Assets.addShader("shadowmapshader", shadowShader);
 
+        // Water
+        var struct = new VertexStructure();
+        struct.addFloat3("vertexPosition");
+        struct.addFloat2("texturePosition");
+        struct.addFloat3("normalPosition");
+        struct.addFloat4("vertexColor");
+
+        var waterShader = new Shader("water.frag", "water.vert", struct);
+        waterShader.addConstantMat4("mvpMatrix");
+        Assets.addShader("watershader", waterShader);
+
 
         // Define shader structure
         var struct = new VertexStructure();

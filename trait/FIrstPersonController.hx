@@ -70,10 +70,10 @@ class FirstPersonController extends Trait implements IUpdateable {
             camera.pitch(-input.deltaY / 100);
 
             transform.rotateZ(-input.deltaX / 100);
-            body.body.orientation.x = transform.rot.x;
-            body.body.orientation.y = transform.rot.y;
-            body.body.orientation.z = transform.rot.z;
-            body.body.orientation.s = transform.rot.w;
+            //body.body.orientation.x = transform.rot.x;
+            //body.body.orientation.y = transform.rot.y;
+            //body.body.orientation.z = transform.rot.z;
+            //body.body.orientation.s = transform.rot.w;
         }
 
         // Move
@@ -86,7 +86,7 @@ class FirstPersonController extends Trait implements IUpdateable {
             forward = forward.mult(fox.sys.Time.delta * 350);
 
             var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
-            body.body.applyImpulse(body.body.position, force);
+            //body.body.applyImpulse(body.body.position, force);
         }
 
         if (moveBackward) {
@@ -98,7 +98,7 @@ class FirstPersonController extends Trait implements IUpdateable {
             forward = forward.mult(fox.sys.Time.delta * 350);
 
             var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
-            body.body.applyImpulse(body.body.position, force);
+            //body.body.applyImpulse(body.body.position, force);
         }
 
         if (moveLeft) {
@@ -110,7 +110,7 @@ class FirstPersonController extends Trait implements IUpdateable {
             forward = forward.mult(fox.sys.Time.delta * 350);
 
             var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
-            body.body.applyImpulse(body.body.position, force);
+            //body.body.applyImpulse(body.body.position, force);
         }
 
         if (moveRight) {
@@ -122,7 +122,7 @@ class FirstPersonController extends Trait implements IUpdateable {
             forward = forward.mult(fox.sys.Time.delta * 350);
 
             var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
-            body.body.applyImpulse(body.body.position, force);
+            //body.body.applyImpulse(body.body.position, force);
         }
 
         if (jump) {
@@ -134,7 +134,7 @@ class FirstPersonController extends Trait implements IUpdateable {
             forward = forward.mult(fox.sys.Time.delta * 350);
 
             var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
-            body.body.applyImpulse(body.body.position, force);
+            //body.body.applyImpulse(body.body.position, force);
         }
 
         if (!moveForward && !moveBackward && !moveLeft && !moveRight && !jump) {
@@ -146,7 +146,7 @@ class FirstPersonController extends Trait implements IUpdateable {
             forward = forward.mult(fox.sys.Time.delta * 3000);
 
             var force = new oimo.math.Vec3(forward.x, forward.y, forward.z);
-            body.body.applyImpulse(body.body.position, force);
+            //body.body.applyImpulse(body.body.position, force);
         }
 
 
