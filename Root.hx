@@ -24,6 +24,7 @@ class Root extends kha.Game {
 
 	public static var root:Object;
     public static var daeScene:DaeScene;
+    public static var currentScene:Object;
 
 	static var frameUpdater:FrameUpdater;
 	static var frameRenderer:FrameRenderer;
@@ -62,6 +63,7 @@ class Root extends kha.Game {
         addChild(scene);
         daeScene = new DaeScene(Assets.getString(name));
         scene.addTrait(daeScene);
+        currentScene = scene;
 	}
 
 	override public function init() {
@@ -119,17 +121,17 @@ class Root extends kha.Game {
 
         var waterShader = new Shader("water.frag", "water.vert", struct);
         waterShader.addConstantMat4("mvpMatrix");
+        waterShader.addConstantVec3("time");
         Assets.addShader("watershader", waterShader);
 
 
-        // Define shader structure
+        // Mesh
         var struct = new VertexStructure();
         struct.addFloat3("vertexPosition");
         struct.addFloat2("texturePosition");
         struct.addFloat3("normalPosition");
         struct.addFloat4("vertexColor");
 
-        // Create default shader
         var shader = new Shader("mesh.frag", "mesh.vert", struct);
         shader.addConstantMat4("mvpMatrix");
         shader.addConstantMat4("dbmvpMatrix");
@@ -137,6 +139,7 @@ class Root extends kha.Game {
         shader.addConstantMat4("viewMatrix");
         shader.addConstantBool("texturing");
         shader.addConstantBool("lighting");
+        shader.addConstantBool("rim");
         shader.addConstantBool("castShadow");
         shader.addConstantBool("receiveShadow");
         shader.addTexture("tex");
@@ -173,7 +176,7 @@ class Root extends kha.Game {
 	override public inline function update() {
 		frameUpdater.update();
 
-		fox.sys.importer.Animation.update();
+		//fox.sys.importer.Animation.update();
 		Time.update();
 		Input.update();
 	}

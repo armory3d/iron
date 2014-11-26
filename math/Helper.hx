@@ -121,6 +121,17 @@ class Helper {
         return new Ray(v1, v2);
     }
 
+    public static function distance2d(x1:Float, y1:Float, x2:Float, y2:Float):Float {
+        return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+    }
+
+    public static function distance3d(v1:Vec3, v2:Vec3):Float {
+        var vx = v1.x - v2.x;
+        var vy = v1.y - v2.y;
+        var vz = v1.z - v2.z;
+        return Math.sqrt(vx * vx + vy * vy + vz * vz);
+    }
+
 /*
     static var out_origin:Vector3D; // Ouput : Origin of the ray. /!\ Starts at the near plane, so if you want the ray to start at the camera's position instead, ignore this.
     static var out_direction:Vector3D; // Ouput : Direction, in world space, of the ray that goes "through" the mouse.

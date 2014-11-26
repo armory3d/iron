@@ -92,8 +92,8 @@ class Camera extends Trait {
 	    viewMatrix = q.toMatrix();
 
 	    var trans = new Mat4();
-	    trans.translate(-transform.absx, -transform.absy, -transform.absz); // When parent is included
-	    //trans.translate(-transform.x, -transform.y, -transform.z);
+	    //trans.translate(-transform.absx, -transform.absy, -transform.absz); // When parent is included
+	    trans.translate(-transform.x, -transform.y, -transform.z);
 	    viewMatrix.multiply(trans, viewMatrix);
 	}
 

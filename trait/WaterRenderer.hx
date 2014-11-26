@@ -1,12 +1,9 @@
 package fox.trait;
 
 import fox.core.ILateRenderable;
-import kha.Image;
 import fox.math.Mat4;
 import fox.math.Vec3;
-import fox.sys.material.TextureMaterial;
 import fox.sys.mesh.Mesh;
-import fox.sys.Assets;
 
 class WaterRenderer extends Renderer implements ILateRenderable {
 
@@ -16,17 +13,13 @@ class WaterRenderer extends Renderer implements ILateRenderable {
 	public var scene:SceneRenderer;
 
 	public var mvpMatrix:Mat4;
-
-	public var mesh:Mesh;
+	public var time:Vec3;
 
 	public function new(mesh:Mesh) {
-		super();
+		super(mesh);
 
 		mvpMatrix = new Mat4();
-
-		this.mesh = mesh;
-
-		if (this.mesh.material != null) this.mesh.material.registerRenderer(this);
+		time = new Vec3();
 	}
 
 	@injectAdd
@@ -40,5 +33,20 @@ class WaterRenderer extends Renderer implements ILateRenderable {
 
 	public function render(g:kha.graphics4.Graphics) {
 		
+		mvpMatrix.identity();
+		mvpMatrix.append(transform.matrix);
+		mvpMatrix.append(scene.camera.viewMatrix);
+		mvpMatrix.append(scene.camera.projectionMatrix);
+
+		time.x += fox.sys.Time.delta;
+		
+		// Render mesh
+		g.setVertexBuffer(mesh.geometry.vertexBuffer);
+		g.setIndexBuffer(mesh.geometry.indexBuffer);
+		g.setProgram(mesh.material.shader.program);
+
+		setConstants(g);
+
+		g.drawIndexedVertices();
 	}
 }

@@ -24,13 +24,21 @@ class Geometry {
 
 	public var structure:VertexStructure;
 
-	public function new(data:Array<Float>, indices:Array<Int>, usage:Usage = null) {
+	public var positions:Array<kha.math.Vector3>;
+	public var normals:Array<kha.math.Vector3>;
+
+	public function new(data:Array<Float>, indices:Array<Int>,
+						positions:Array<kha.math.Vector3>, normals:Array<kha.math.Vector3>,
+						usage:Usage = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
 
 		this.data = data;
 		this.ids = indices;
 		this.usage = usage;
+
+		this.positions = positions;
+		this.normals = normals;
 	}
 
 	public function build(material:Material) {
