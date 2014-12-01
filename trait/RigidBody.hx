@@ -15,12 +15,8 @@ class RigidBody extends Trait implements IUpdateable {
 	public static inline var SHAPE_SPHERE = 1;
 	var shape:Int;
 
-
-
 	public var scene:SceneRenderer;
 	public var body:oimo.physics.dynamics.RigidBody = null;
-
-
 
 	var transform:Transform;
 	var mass:Float;

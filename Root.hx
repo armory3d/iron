@@ -113,7 +113,7 @@ class Root extends kha.Game {
         Assets.addShader("shadowmapshader", shadowShader);
 
         // Water
-        var struct = new VertexStructure();
+        /*var struct = new VertexStructure();
         struct.addFloat3("vertexPosition");
         struct.addFloat2("texturePosition");
         struct.addFloat3("normalPosition");
@@ -122,7 +122,24 @@ class Root extends kha.Game {
         var waterShader = new Shader("water.frag", "water.vert", struct);
         waterShader.addConstantMat4("mvpMatrix");
         waterShader.addConstantVec3("time");
-        Assets.addShader("watershader", waterShader);
+        Assets.addShader("watershader", waterShader);*/
+
+        // Billboard
+        var struct = new VertexStructure();
+        struct.addFloat3("vertexPosition");
+        struct.addFloat2("texturePosition");
+        struct.addFloat3("normalPosition");
+        struct.addFloat4("vertexColor");
+
+        var billboardShader = new Shader("billboard.frag", "billboard.vert", struct);
+        billboardShader.addConstantMat4("mvpMatrix");
+        billboardShader.addConstantVec3("billboardCenterWorld");
+        billboardShader.addConstantVec3("billboardSize");
+        billboardShader.addConstantVec3("camRightWorld");
+        billboardShader.addConstantVec3("camUpWorld");
+        billboardShader.addConstantBool("texturing");
+        billboardShader.addTexture("tex");
+        Assets.addShader("billboardshader", billboardShader);
 
 
         // Mesh
@@ -135,7 +152,6 @@ class Root extends kha.Game {
         var shader = new Shader("mesh.frag", "mesh.vert", struct);
         shader.addConstantMat4("mvpMatrix");
         shader.addConstantMat4("dbmvpMatrix");
-        shader.addConstantMat4("modelMatrix");
         shader.addConstantMat4("viewMatrix");
         shader.addConstantBool("texturing");
         shader.addConstantBool("lighting");
@@ -145,7 +161,6 @@ class Root extends kha.Game {
         shader.addTexture("tex");
         shader.addTexture("shadowMap");
         Assets.addShader("shader", shader);
-        
 
         // Create skinned shader
         var struct = new VertexStructure();
@@ -156,17 +171,20 @@ class Root extends kha.Game {
         struct.addFloat4("bone");
         struct.addFloat4("weight");
 
-        var skinnedshader = new Shader("skinnedmesh.frag", "skinnedmesh.vert", struct);
+        /*var skinnedshader = new Shader("skinnedmesh.frag", "skinnedmesh.vert", struct);
         skinnedshader.addConstantMat4("mvpMatrix");
+        skinnedshader.addConstantMat4("dbmvpMatrix");
         skinnedshader.addConstantMat4("viewMatrix");
         skinnedshader.addConstantMat4("projectionMatrix");
         skinnedshader.addConstantBool("texturing");
         skinnedshader.addConstantBool("lighting");
+        skinnedshader.addConstantBool("rim");
         skinnedshader.addConstantBool("castShadow");
         skinnedshader.addConstantBool("receiveShadow");
         skinnedshader.addTexture("tex");
+        skinnedshader.addTexture("shadowMap");
         skinnedshader.addTexture("skinning");
-        Assets.addShader("skinnedshader", skinnedshader);
+        Assets.addShader("skinnedshader", skinnedshader);*/
 
         fox.sys.importer.Animation.init();
 
@@ -176,7 +194,7 @@ class Root extends kha.Game {
 	override public inline function update() {
 		frameUpdater.update();
 
-		//fox.sys.importer.Animation.update();
+		fox.sys.importer.Animation.update();
 		Time.update();
 		Input.update();
 	}

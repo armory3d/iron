@@ -214,14 +214,17 @@ class Ray {
 		if (invdirx >= 0) {				
 			tmin = (box.min.x - origin.x) * invdirx;
 			tmax = (box.max.x - origin.x) * invdirx;
-		} else { 
+		}
+		else { 
 			tmin = (box.max.x - origin.x) * invdirx;
-			tmax = (box.min.x - origin.x) * invdirx;		}			
+			tmax = (box.min.x - origin.x) * invdirx;
+		}			
 
 		if (invdiry >= 0) {		
 			tymin = (box.min.y - origin.y) * invdiry;
 			tymax = (box.max.y - origin.y) * invdiry;
-		} else {
+		}
+		else {
 			tymin = (box.max.y - origin.y) * invdiry;
 			tymax = (box.min.y - origin.y) * invdiry;
 		}
@@ -236,7 +239,8 @@ class Ray {
 		if (invdirz >= 0) {		
 			tzmin = (box.min.z - origin.z) * invdirz;
 			tzmax = (box.max.z - origin.z) * invdirz;
-		} else {
+		}
+		else {
 			tzmin = (box.max.z - origin.z) * invdirz;
 			tzmax = (box.min.z - origin.z) * invdirz;
 		}

@@ -5,6 +5,7 @@ import fox.math.Mat4;
 import fox.math.Vec3;
 import fox.math.Quat;
 import fox.math.Helper;
+import fox.math.Plane;
 
 class Camera extends Trait {
 
@@ -12,6 +13,7 @@ class Camera extends Trait {
 
 	public var projectionMatrix:Mat4;
 	public var viewMatrix:Mat4;
+	public var viewProjectionMatrix:Mat4;
 
 	public var up:Vec3;
 	public var look:Vec3;
@@ -22,6 +24,8 @@ class Camera extends Trait {
 	public var depthViewMatrix:Mat4;
 	public var depthModelMatrix:Mat4;
 	public var biasMat:Mat4;
+
+	var frustumPlanes:Array<Plane> = [];
 
 	function new() {
 		super();
@@ -54,6 +58,12 @@ class Camera extends Trait {
 			0.0, 0.0, 0.5, 0.0,
 			0.5, 0.5, 0.5, 1.0
 		]);
+
+		viewProjectionMatrix = new Mat4();
+
+		for (i in 0...6) {
+			frustumPlanes.push(new Plane());
+		}
 	}
 
 	@injectAdd
@@ -95,6 +105,91 @@ class Camera extends Trait {
 	    //trans.translate(-transform.absx, -transform.absy, -transform.absz); // When parent is included
 	    trans.translate(-transform.x, -transform.y, -transform.z);
 	    viewMatrix.multiply(trans, viewMatrix);
+
+	    buildViewFrustum();
+	}
+
+	function buildViewFrustum() {
+
+		viewProjectionMatrix.identity();
+    	viewProjectionMatrix.append(viewMatrix);
+    	viewProjectionMatrix.append(projectionMatrix);
+
+	    // Left plane
+	    frustumPlanes[0].setComponents(
+	    	viewProjectionMatrix._14 + viewProjectionMatrix._11,
+	    	viewProjectionMatrix._24 + viewProjectionMatrix._21,
+	    	viewProjectionMatrix._34 + viewProjectionMatrix._31,
+	    	viewProjectionMatrix._44 + viewProjectionMatrix._41
+	    );
+	 
+	    // Right plane
+	    frustumPlanes[1].setComponents(
+	    	viewProjectionMatrix._14 - viewProjectionMatrix._11,
+	    	viewProjectionMatrix._24 - viewProjectionMatrix._21,
+	    	viewProjectionMatrix._34 - viewProjectionMatrix._31,
+	    	viewProjectionMatrix._44 - viewProjectionMatrix._41
+	    );
+	 
+	    // Top plane
+	    frustumPlanes[2].setComponents(
+	    	viewProjectionMatrix._14 - viewProjectionMatrix._12,
+	    	viewProjectionMatrix._24 - viewProjectionMatrix._22,
+	    	viewProjectionMatrix._34 - viewProjectionMatrix._32,
+	    	viewProjectionMatrix._44 - viewProjectionMatrix._42
+	    );
+	 
+	    // Bottom plane
+	    frustumPlanes[3].setComponents(
+	    	viewProjectionMatrix._14 + viewProjectionMatrix._12,
+	    	viewProjectionMatrix._24 + viewProjectionMatrix._22,
+	    	viewProjectionMatrix._34 + viewProjectionMatrix._32,
+	    	viewProjectionMatrix._44 + viewProjectionMatrix._42
+	    );
+	 
+	    // Near plane
+	    frustumPlanes[4].setComponents(
+	    	viewProjectionMatrix._13,
+	    	viewProjectionMatrix._23,
+	    	viewProjectionMatrix._33,
+	    	viewProjectionMatrix._43
+	    );
+	 
+	    // Far plane
+	    frustumPlanes[5].setComponents(
+	    	viewProjectionMatrix._14 - viewProjectionMatrix._13,
+	    	viewProjectionMatrix._24 - viewProjectionMatrix._23,
+	    	viewProjectionMatrix._34 - viewProjectionMatrix._33,
+	    	viewProjectionMatrix._44 - viewProjectionMatrix._43
+	    );
+	 
+	    // Normalize planes
+	    for (i in 0...6) {
+	    	frustumPlanes[i].normalize();
+	    }
+	}
+
+	public function sphereInFrustum(t:Transform, radius:Float):Bool {
+		
+		for (i in 0...6) {
+			
+			var vpos = new fox.math.Vector3(t.absx, t.absy, t.absz);
+			//var pos = new fox.math.Vec3(t.absx, t.absy, t.absz);
+
+			//var fn = frustumPlanes[i].normal;
+			//var vn = new fox.math.Vec3(fn.x, fn.y, fn.z);
+
+			//var dist = frustumPlanes[i].distanceToPoint(vpos);
+
+			// Outside the frustum, reject it
+			var sphere = new fox.math.Sphere(vpos, radius);
+			if (frustumPlanes[i].distanceToSphere(sphere) + radius * 2 < 0) {
+			//if (Helper.planeDotCoord(vn, pos, dist) + radius < 0) {
+				return false;
+			}
+	    }
+
+	    return true;
 	}
 
 	public function getLook():Vec3 {

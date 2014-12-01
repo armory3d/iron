@@ -17,6 +17,7 @@ class Geometry {
     public var aabbMin:Vec3;
 	public var aabbMax:Vec3;
 	public var size:Vec3;
+	public var radius:Float;
 
 	var data:Array<Float>;
 	var ids:Array<Int>;
@@ -90,6 +91,11 @@ class Geometry {
 		size.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);
 		size.y = Math.abs(aabbMin.y) + Math.abs(aabbMax.y);
 		size.z = Math.abs(aabbMin.z) + Math.abs(aabbMax.z);
+
+		// Sphere radius
+		if (size.x > size.y && size.x > size.z) radius = size.x / 2;
+		else if (size.y > size.x && size.y > size.z) radius = size.y / 2;
+		else radius = size.z / 2;
 	}
 
 	public function getVerticesCount():Int {

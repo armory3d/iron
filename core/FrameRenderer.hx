@@ -51,7 +51,9 @@ class FrameRenderer extends AbstractTrait {
 		}
 	}
 	
+	public static var numRenders = 0;
 	public function render(g:kha.graphics4.Graphics) {
+		numRenders = 0;
 		for (trait in renderTraits) {
 			trait.render(g);
 		}
@@ -59,6 +61,7 @@ class FrameRenderer extends AbstractTrait {
 		for (trait in lateRenderTraits) {
 			trait.render(g);
 		}
+		//trace(numRenders);
 	}
 
 	public function begin(g:kha.graphics4.Graphics) {

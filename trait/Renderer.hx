@@ -24,6 +24,10 @@ class Renderer extends Trait {
 		if (this.mesh.material != null) this.mesh.material.registerRenderer(this);
 	}
 
+	public function initConstants() {
+		
+	}
+
 	function setConstants(g:kha.graphics4.Graphics) {
 		for (i in 0...constantVec3s.length) {
 			g.setFloat3(mesh.material.shader.constantVec3s[i], constantVec3s[i].x,

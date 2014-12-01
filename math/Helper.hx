@@ -132,6 +132,11 @@ class Helper {
         return Math.sqrt(vx * vx + vy * vy + vz * vz);
     }
 
+    public static function planeDotCoord(planeNormal:Vec3, point:Vec3, planeDistance:Float):Float {
+        // Point is in front of plane if > 0
+        return planeNormal.dot(point) + planeDistance;
+    }
+
 /*
     static var out_origin:Vector3D; // Ouput : Origin of the ray. /!\ Starts at the near plane, so if you want the ray to start at the camera's position instead, ignore this.
     static var out_direction:Vector3D; // Ouput : Direction, in world space, of the ray that goes "through" the mouse.

@@ -1,11 +1,11 @@
 package fox.trait;
 
-import fox.core.ILateRenderable;
-import fox.math.Mat4;
 import fox.math.Vec3;
+import fox.math.Mat4;
 import fox.sys.mesh.Mesh;
+import fox.core.IRenderable;
 
-class WaterRenderer extends Renderer implements ILateRenderable {
+class BillboardRenderer extends Renderer implements IRenderable {
 
 	public var transform:Transform;
 
@@ -13,18 +13,31 @@ class WaterRenderer extends Renderer implements ILateRenderable {
 	public var scene:SceneRenderer;
 
 	public var mvpMatrix:Mat4;
-	public var time:Vec3;
+	public var transPos:Vec3;
+	public var transSize:Vec3;
+	public var camRightWorld:Vec3;
+	public var camUpWorld:Vec3;
+	public var texturing:Bool = true;
 
 	public function new(mesh:Mesh) {
 		super(mesh);
 
 		mvpMatrix = new Mat4();
-		time = new Vec3();
+
+		transPos = new Vec3();
+		transSize = new Vec3();
+
+		camRightWorld = new Vec3();
+		camUpWorld = new Vec3();
 	}
 
 	public override function initConstants() {
 		setMat4(mvpMatrix);
-		setVec3(time);
+		setVec3(transPos);
+		setVec3(transSize);
+		setVec3(camRightWorld);
+		setVec3(camUpWorld);
+		setBool(texturing);
 	}
 
 	@injectAdd
@@ -37,18 +50,27 @@ class WaterRenderer extends Renderer implements ILateRenderable {
     }
 
 	public function render(g:kha.graphics4.Graphics) {
-		
+
+		var cam:Camera = scene.camera;
+		camRightWorld.set(cam.viewMatrix._11, cam.viewMatrix._21, cam.viewMatrix._31); // TODO: fix that Y is up!
+		camUpWorld.set(cam.viewMatrix._12, cam.viewMatrix._22, cam.viewMatrix._32);
+
 		mvpMatrix.identity();
 		mvpMatrix.append(transform.matrix);
 		mvpMatrix.append(scene.camera.viewMatrix);
 		mvpMatrix.append(scene.camera.projectionMatrix);
 
-		time.x += fox.sys.Time.delta;
+		transPos.set(transform.pos.x, transform.pos.y, transform.pos.z);
+		transSize.set(transform.size.x, transform.size.y, transform.size.z);
 		
 		// Render mesh
 		g.setVertexBuffer(mesh.geometry.vertexBuffer);
 		g.setIndexBuffer(mesh.geometry.indexBuffer);
 		g.setProgram(mesh.material.shader.program);
+
+		if (texturing) {
+			g.setTexture(mesh.material.shader.textures[0], textures[0]);
+		}
 
 		setConstants(g);
 

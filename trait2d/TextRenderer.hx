@@ -90,4 +90,17 @@ class TextRenderer extends Trait implements IRenderable2D {
 	function get_text():String {
 		return texts[0];
 	}
+
+	public function setTexts(s:Array<String>) {
+		texts = s;
+		
+		if (transform != null) {
+			updateTransform();
+		}
+		
+		widths = [];
+		for (t in texts) {
+			widths.push(font.stringWidth(t));
+		}
+	}
 }
