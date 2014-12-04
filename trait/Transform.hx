@@ -2,7 +2,6 @@ package fox.trait;
 
 import kha.Color;
 import kha.Rotation;
-
 import fox.math.Mat4;
 import fox.math.Vec3;
 import fox.math.Quat;

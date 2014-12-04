@@ -11,10 +11,6 @@ package fox.math;
  * @author timknip / http://www.floorplanner.com/
  * @author bhouston / http://exocortex.com
  * @author WestLangley / http://github.com/WestLangley
- */
-
-/**
- * 
  * @haxeport Krtolica Vujadin - GameStudioHx.com
  */
 

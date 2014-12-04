@@ -7,10 +7,6 @@ package fox.math;
  * @author mikael emtinger / http://gomo.se/
  * @author egraether / http://egraether.com/
  * @author WestLangley / http://github.com/WestLangley
- */
-
-/**
- * 
  * @haxeport Krtolica Vujadin - GameStudioHx.com
  */
 
@@ -23,7 +19,6 @@ class Vector3 {
 	public var u:Float;
 	public var v:Float;
 	public var w:Float;
-
 	
 	public function new(x:Float = 0, y:Float = 0, z:Float = 0) {
 		this.x = x;

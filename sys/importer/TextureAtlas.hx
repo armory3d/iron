@@ -5,7 +5,6 @@ package fox.sys.importer;
 
 import haxe.Json;
 import kha.Image;
-
 import fox.sys.Assets;
 import fox.math.Rect;
 

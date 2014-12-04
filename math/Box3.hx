@@ -3,10 +3,6 @@ package fox.math;
 /**
  * @author bhouston / http://exocortex.com
  * @author WestLangley / http://github.com/WestLangley
- */
-
-/**
- * 
  * @haxeport Krtolica Vujadin - GameStudioHx.com
  */
  
@@ -257,6 +253,4 @@ class Box3 {
 	public function clone():Box3 {
 		return new Box3().copy(this);
 	}	
-	
 }
-

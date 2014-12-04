@@ -1,7 +1,6 @@
 package fox.trait2d.tiles;
 
 import kha.Image;
-
 import fox.Root;
 import fox.core.Trait;
 import fox.core.IRenderable2D;

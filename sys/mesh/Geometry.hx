@@ -1,4 +1,4 @@
-package fox.sys.geometry;
+package fox.sys.mesh;
 
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;

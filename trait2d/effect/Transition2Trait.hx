@@ -10,7 +10,7 @@ import fox.sys.Assets;
 class Transition2Trait extends Trait implements IRenderable2D {
 
     var target:String;
-	var op:Float = 0;
+    var op:Float = 0;
 
     public function new(target:String) {
         super();
@@ -21,11 +21,7 @@ class Transition2Trait extends Trait implements IRenderable2D {
     }
 
     function onFade() {
-    	Root.reset();
-
-    	var scene = new Object();
-        Root.addChild(scene);
-        scene.addTrait(new DaeScene(Assets.getString(target)));
+        Root.setScene(target);
 
         motion.Actuate.tween(this, 0.1, {op:0}).onComplete(onComplete).ease(motion.easing.Linear.easeNone);
 
@@ -34,13 +30,13 @@ class Transition2Trait extends Trait implements IRenderable2D {
     }
 
     function onComplete() {
-    	parent.remove();
+        parent.remove();
     }
 
     public function render(g:kha.graphics2.Graphics) {
 
-    	var col = kha.Color.fromBytes(0, 0, 0, Std.int(op * 255));
-    	g.color = col;
-		g.fillRect(0, 0, Root.w, Root.h);
+        var col = kha.Color.fromBytes(0, 0, 0, Std.int(op * 255));
+        g.color = col;
+        g.fillRect(0, 0, Root.w, Root.h);
     }
 }

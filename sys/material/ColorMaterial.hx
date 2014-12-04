@@ -8,6 +8,7 @@ class ColorMaterial extends Material {
 
 	public function new(shader:Shader, color:kha.Color) {
 		super(shader);
+		
 		this.color = color;
 	}
 

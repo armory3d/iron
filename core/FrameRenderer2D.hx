@@ -40,6 +40,7 @@ class FrameRenderer2D extends AbstractTrait {
 			trait.render(g);
 		}
 
+		// Render shadow map
 		//g.color = kha.Color.White;
         //g.opacity = 1.0;
         //g.drawImage(FrameRenderer.shadowMap, 0, 0);

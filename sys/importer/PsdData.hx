@@ -2,7 +2,6 @@ package fox.sys.importer;
 
 import haxe.Json;
 import kha.Image;
-
 import fox.sys.Assets;
 
 class PsdData {

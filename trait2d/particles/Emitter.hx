@@ -1,6 +1,6 @@
 package fox.trait2d.particles;
 
-// Flambe Emitter ported to fox
+// Ported from Flambe
 // https://github.com/aduros/flambe/tree/master/src/flambe/display
 
 import kha.Color;

@@ -1,7 +1,6 @@
 package fox.trait2d;
 
 import kha.Image;
-
 import fox.math.Rect;
 import fox.core.Trait;
 import fox.core.IRenderable2D;

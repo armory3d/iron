@@ -6,14 +6,13 @@ class Trait extends AbstractTrait {
 
 	public var name:String = "";
 
-	// TODO: Rename
-	public var parent(get, never):Object;
+	public var owner(get, never):Object;
 
 	public function new() {
 		super();
 	}
 
-	inline function get_parent():Object {
+	inline function get_owner():Object {
 		return cast(item, Object);
 	}
 }

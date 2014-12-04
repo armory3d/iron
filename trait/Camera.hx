@@ -19,7 +19,7 @@ class Camera extends Trait {
 	public var look:Vec3;
 	public var right:Vec3;
 
-	// Shadowmap
+	// Shadow map
 	public var depthProjectionMatrix:Mat4;
 	public var depthViewMatrix:Mat4;
 	public var depthModelMatrix:Mat4;
@@ -30,7 +30,6 @@ class Camera extends Trait {
 	function new() {
 		super();
 
-		//if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
 		if (Main.gameData.orient == 0) {
 		//if (Main.orient == 0) {
 			up = new Vec3(0, 0, 1);
@@ -43,7 +42,7 @@ class Camera extends Trait {
 			right = new Vec3(0, 1, 0);
 		}
 
-		// Shadowmap
+		// Shadow map
 		// Compute the MVP matrix from the light's point of view
 		//var m = new fox.math.Matrix4();
 		//m.makeFrustum(-1, 1, -1, 1, 1, 4000);
@@ -87,13 +86,12 @@ class Camera extends Trait {
     }
 
 	public function updateMatrix() {
-
 		var q = new Quat(); // Camera parent
-		if (parent != null && parent.parent != null && parent.parent.transform != null) {
-			q.x = parent.parent.transform.rot.x;
-			q.y = parent.parent.transform.rot.y;
-			q.z = parent.parent.transform.rot.z;
-			q.w = parent.parent.transform.rot.w;
+		if (owner != null && owner.parent != null && owner.parent.transform != null) {
+			q.x = owner.parent.transform.rot.x;
+			q.y = owner.parent.transform.rot.y;
+			q.z = owner.parent.transform.rot.z;
+			q.w = owner.parent.transform.rot.w;
 			q = q.inverse(q);
 		}
 

@@ -3,10 +3,6 @@ package fox.math;
 /**
  * @author bhouston / http://exocortex.com
  * @author mrdoob / http://mrdoob.com/
- */
-
-/**
- * 
  * @haxeport Krtolica Vujadin - GameStudioHx.com
  */
 
@@ -108,5 +104,4 @@ class Sphere {
 	public function clone():Sphere {
 		return new Sphere().copy(this);
 	}
-	
 }

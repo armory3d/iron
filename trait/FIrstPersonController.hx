@@ -173,7 +173,6 @@ class FirstPersonController extends Trait implements IUpdateable {
             body.body.applyImpulse(body.body.position, force);
         }*/
 
-
         camera.updateMatrix();
     }
 }

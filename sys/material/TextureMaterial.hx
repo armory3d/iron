@@ -9,6 +9,7 @@ class TextureMaterial extends Material {
 
 	public function new(shader:Shader, texture:Image) {
 		super(shader);
+		
 		this.texture = texture;
 	}
 

@@ -7,10 +7,9 @@ import kha.Music;
 import kha.Font;
 import kha.FontStyle;
 import kha.Blob;
-
-import fox.sys.geometry.Geometry;
 import fox.sys.material.Material;
 import fox.sys.material.Shader;
+import fox.sys.mesh.Geometry;
 import fox.sys.mesh.Mesh;
 import fox.sys.importer.TextureAtlas;
 

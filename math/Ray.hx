@@ -2,10 +2,6 @@ package fox.math;
 
 /**
  * @author bhouston / http://exocortex.com
- */
-
-/**
- * ...
  * @haxeport Krtolica Vujadin - GameStudioHx.com
  */
 
@@ -333,5 +329,4 @@ class Ray {
 	public function clone():Ray {
 		return new Ray().copy(this);
 	}
-	
 }

@@ -1,8 +1,6 @@
 package fox.sys.mesh;
 
-import fox.sys.geometry.Geometry;
 import fox.sys.material.Material;
-import fox.sys.Assets;
 
 class Mesh {
 

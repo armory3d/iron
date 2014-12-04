@@ -1,7 +1,6 @@
 package fox.sys.material;
 
 import kha.graphics4.VertexData;
-import kha.graphics4.VertexStructure;
 
 class VertexStructure {
 

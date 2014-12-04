@@ -4,7 +4,6 @@ import kha.Framebuffer;
 import kha.LoadingScreen;
 import kha.Configuration;
 import kha.Loader;
-
 import fox.sys.Time;
 import fox.sys.Storage;
 import fox.sys.Assets;
@@ -17,8 +16,7 @@ import fox.core.FrameRenderer2D;
 import fox.trait.Input;
 import fox.trait.DaeScene;
 
-// Scaling and nested size calc - remove abs
-// Code doc
+// TODO: Scaling and nested size calc - remove abs
 
 class Root extends kha.Game {
 

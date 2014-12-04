@@ -2,10 +2,6 @@ package fox.math;
 
 /**
  * @author bhouston / http://exocortex.com
- */
-
-/**
- * 
  * @haxeport Krtolica Vujadin - GameStudioHx.com
  */
 
@@ -92,5 +88,4 @@ class Line3 {
 	public function clone():Line3 {
 		return new Line3().copy(this);
 	}
-	
 }

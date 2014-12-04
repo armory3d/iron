@@ -1,13 +1,12 @@
 package fox.trait;
 
-import fox.core.IUpdateable;
-import fox.core.Trait;
-import fox.sys.Time;
-
 import oimo.physics.collision.shape.BoxShape;
 import oimo.physics.collision.shape.Shape;
 import oimo.physics.collision.shape.ShapeConfig;
 import oimo.physics.collision.shape.SphereShape;
+import fox.core.IUpdateable;
+import fox.core.Trait;
+import fox.sys.Time;
 
 class RigidBody extends Trait implements IUpdateable {
 
@@ -51,7 +50,7 @@ class RigidBody extends Trait implements IUpdateable {
 		var sc:ShapeConfig = new ShapeConfig();
 		sc.density = mass > 0 ? mass : 1;
 		body = new oimo.physics.dynamics.RigidBody(this, transform.pos.x, transform.pos.y, transform.pos.z);
-		body.name = parent.name;
+		body.name = owner.name;
 
 		if (shape == SHAPE_BOX) {
 			body.addShape(new BoxShape(sc, transform.size.x, transform.size.y, transform.size.z));

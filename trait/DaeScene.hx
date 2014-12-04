@@ -9,7 +9,7 @@ import fox.sys.material.Material;
 import fox.sys.material.TextureMaterial;
 import fox.sys.mesh.SkinnedMesh;
 import fox.sys.Assets;
-import fox.sys.geometry.Geometry;
+import fox.sys.mesh.Geometry;
 import fox.sys.mesh.Mesh;
 import fox.trait.Renderer;
 import fox.trait.MeshRenderer;
@@ -89,7 +89,7 @@ class DaeScene extends Trait {
 	}
 
 	public function createNode(node:DaeNode):Object {
-		var parentObject = node.parent == null ? parent : (nodeObjectMap.exists(node.parent) ? nodeObjectMap.get(node.parent) : parent);
+		var parentObject = node.parent == null ? owner : (nodeObjectMap.exists(node.parent) ? nodeObjectMap.get(node.parent) : owner);
 		var child = new Object();
 		child.name = node.name;
 		child.name = StringTools.replace(child.name, ".", "_");
@@ -151,8 +151,8 @@ class DaeScene extends Trait {
 		var scene = daeData.scene;
 
 		// Scene renderer
-		parent.addTrait(new SceneRenderer());
-		parent.name = scene.name;
+		owner.addTrait(new SceneRenderer());
+		owner.name = scene.name;
 
 		// Game data reference
 		gameData = Main.gameData;
@@ -183,17 +183,17 @@ class DaeScene extends Trait {
 			}
 		}
 
-		addAnimations(parent, jointTransforms);
+		addAnimations(owner, jointTransforms);
 
 		/*if (first) {
 			first = false;
 			var o = new Object();
 			var dae = new DaeScene(Assets.getString("animation_run"));
 	        o.addTrait(dae);
-			daeData.addAnimations(parent, jointTransforms);
+			daeData.addAnimations(owner, jointTransforms);
 		}*/
 
-		/*var anim:Animation = parent.getTrait(Animation);
+		/*var anim:Animation = owner.getTrait(Animation);
 		if (anim != null) {
 			for (i in 0...anim.clips.length) {
 				var clip = anim.clips[i];

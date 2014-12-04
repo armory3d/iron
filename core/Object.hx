@@ -1,7 +1,6 @@
 package fox.core;
 
 import composure.core.ComposeGroup;
-
 import fox.trait.Transform;
 import fox.trait.Input;
 
@@ -17,6 +16,7 @@ class Object extends ComposeGroup {
 	public function new() {
 		super();
 
+		// Default traits
 		transform = new Transform();
 		addTrait(transform);
 
@@ -54,7 +54,6 @@ class Object extends ComposeGroup {
 	}
 
 	public function getChild(name:String):Object {
-
 		if (this.name == name) {
 			return this;
 		}
@@ -66,7 +65,6 @@ class Object extends ComposeGroup {
 				}
 			}
 		}
-
 		return null;
 	}
 }

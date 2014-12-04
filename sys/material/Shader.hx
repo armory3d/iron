@@ -5,6 +5,7 @@ import kha.graphics4.ConstantLocation;
 import kha.graphics4.TextureUnit;
 import kha.graphics4.FragmentShader;
 import kha.graphics4.VertexShader;
+import kha.Loader;
 
 class Shader {
 
@@ -20,8 +21,8 @@ class Shader {
 
 	public function new(fragmentShader:String, vertexShader:String, structure:VertexStructure) {
 
-		var fragmentShader = new FragmentShader(kha.Loader.the.getShader(fragmentShader));
-		var vertexShader = new VertexShader(kha.Loader.the.getShader(vertexShader));
+		var fragmentShader = new FragmentShader(Loader.the.getShader(fragmentShader));
+		var vertexShader = new VertexShader(Loader.the.getShader(vertexShader));
 	
 		program = new Program();
 		program.setFragmentShader(fragmentShader);

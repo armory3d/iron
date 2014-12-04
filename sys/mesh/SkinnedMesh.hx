@@ -1,6 +1,5 @@
 package fox.sys.mesh;
 
-import fox.sys.geometry.Geometry;
 import fox.sys.material.Material;
 
 class SkinnedMesh extends Mesh {
