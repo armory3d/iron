@@ -32,13 +32,15 @@ class Root extends kha.Game {
 	public static var h(default, null):Int;
 
 	var game:Class<Dynamic>;
-	var room:String;
+    var room:String;
+	var initCB:Void->Void;
 
-	public function new(name:String, room:String, game:Class<Dynamic>) {
+	public function new(name:String, room:String, game:Class<Dynamic>, initCB:Void->Void = null) {
 		super(name);
 
 		this.game = game;
 		this.room = room;
+        this.initCB = initCB;
 	}
 
 	public static inline function addChild(item:Object) {
@@ -64,6 +66,10 @@ class Root extends kha.Game {
         currentScene = scene;
 	}
 
+    public static inline function addScene(name:String):Object {
+        return daeScene.addScene(Assets.getString(name));
+    }
+
 	override public function init() {
         Configuration.setScreen(new LoadingScreen());
 
@@ -73,6 +79,8 @@ class Root extends kha.Game {
     function loadingFinished() {
         w = width;
         h = height;
+
+        if (initCB != null) initCB();
 
         new Time();
 		new Storage();
@@ -169,7 +177,7 @@ class Root extends kha.Game {
         struct.addFloat4("bone");
         struct.addFloat4("weight");
 
-        /*var skinnedshader = new Shader("skinnedmesh.frag", "skinnedmesh.vert", struct);
+        var skinnedshader = new Shader("skinnedmesh.frag", "skinnedmesh.vert", struct);
         skinnedshader.addConstantMat4("mvpMatrix");
         skinnedshader.addConstantMat4("dbmvpMatrix");
         skinnedshader.addConstantMat4("viewMatrix");
@@ -182,7 +190,7 @@ class Root extends kha.Game {
         skinnedshader.addTexture("tex");
         skinnedshader.addTexture("shadowMap");
         skinnedshader.addTexture("skinning");
-        Assets.addShader("skinnedshader", skinnedshader);*/
+        Assets.addShader("skinnedshader", skinnedshader);
 
         fox.sys.importer.Animation.init();
 

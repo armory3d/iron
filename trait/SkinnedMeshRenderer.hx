@@ -12,7 +12,7 @@ class SkinnedMeshRenderer extends MeshRenderer {
 	var buffer:Array<Float> = [];
 	var sampler:kha.Image;
 
-	public var projectionMatrix:Mat4;
+	public var projectionMatrix:Mat4; // Camera copy
 
 	public function new(mesh:SkinnedMesh) {
 		super(mesh);
@@ -47,7 +47,7 @@ class SkinnedMeshRenderer extends MeshRenderer {
 				k++;
 			}
 		}
-
+		
 		var bytes = sampler.lock();
 		for (i in 0...Std.int(bytes.length / 4)) {
 

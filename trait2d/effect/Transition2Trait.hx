@@ -25,12 +25,12 @@ class Transition2Trait extends Trait implements IRenderable2D {
 
         motion.Actuate.tween(this, 0.1, {op:0}).onComplete(onComplete).ease(motion.easing.Linear.easeNone);
 
-        if (parent.parent != null) parent.remove();
-        Root.addChild(parent);
+        if (owner.parent != null) owner.remove();
+        Root.addChild(owner);
     }
 
     function onComplete() {
-        parent.remove();
+        owner.remove();
     }
 
     public function render(g:kha.graphics2.Graphics) {

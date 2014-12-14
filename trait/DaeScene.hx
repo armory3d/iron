@@ -5,6 +5,7 @@ import fox.core.Trait;
 import fox.sys.importer.DaeData;
 import fox.sys.importer.Animation;
 import fox.sys.importer.AnimationClip;
+import fox.sys.importer.AnimationClip.AnimationWrap;
 import fox.sys.material.Material;
 import fox.sys.material.TextureMaterial;
 import fox.sys.mesh.SkinnedMesh;
@@ -51,28 +52,30 @@ typedef TGameOutput = {
 	value:Dynamic,
 }
 
+class DaeParams {
+
+	public var nodeObjectMap = new Map<DaeNode, Object>();
+	public var transformControllerMap = new Map<Transform, DaeController>();
+	public var materialMap = new Map<DaeMaterial, Material>();
+	
+	public var jointTransforms:Array<Transform> = [];
+	public var jointNodes:Array<DaeNode> = [];
+	public var skinnedRenderers:Array<SkinnedMeshRenderer> = [];
+
+	public function new() { }
+}
+
 class DaeScene extends Trait {
 
 	var daeData:DaeData;
 	var gameData:TGameData;
-
-	var nodeObjectMap:Map<DaeNode, Object>;
-	var transformControllerMap:Map<Transform, DaeController>;
-	var materialMap:Map<DaeMaterial, Material>;
-	
-	var jointTransforms:Array<Transform> = [];
-	var jointNodes:Array<DaeNode> = [];
-	var skinnedRenderers:Array<SkinnedMeshRenderer> = [];
+	var daeParams:DaeParams;
 
 	public function new(data:String) {
 
 		super();
 
 		daeData = new DaeData(data);
-
-		nodeObjectMap = new Map<DaeNode, Object>();
-		transformControllerMap = new Map<Transform, DaeController>();
-		materialMap = new Map<DaeMaterial, Material>();
 	}
 
 	public function getNode(name:String):DaeNode {
@@ -88,23 +91,27 @@ class DaeScene extends Trait {
 		return node;
 	}
 
-	public function createNode(node:DaeNode):Object {
-		var parentObject = node.parent == null ? owner : (nodeObjectMap.exists(node.parent) ? nodeObjectMap.get(node.parent) : owner);
+	public inline function createNode(node:DaeNode):Object {
+		return createCustomNode(node, owner, daeData, daeParams);
+	}
+
+	public function createCustomNode(node:DaeNode, owner:Object, daeData:DaeData, daeParams:DaeParams):Object {
+		var parentObject = node.parent == null ? owner : (daeParams.nodeObjectMap.exists(node.parent) ? daeParams.nodeObjectMap.get(node.parent) : owner);
 		var child = new Object();
 		child.name = node.name;
 		child.name = StringTools.replace(child.name, ".", "_");
 
 		if (node.type == "joint") {
 			child.transform.name = child.name;
-			jointTransforms.push(child.transform);
-			jointNodes.push(node);
+			daeParams.jointTransforms.push(child.transform);
+			daeParams.jointNodes.push(node);
 		}
 
 		child.transform.pos.set(node.position.x, node.position.y, node.position.z);
 		child.transform.scale.set(node.scale.x, node.scale.y, node.scale.z);
 		child.transform.rot.set(node.rotation.x, node.rotation.y, node.rotation.z, node.rotation.w);
 
-		nodeObjectMap.set(node, child);
+		daeParams.nodeObjectMap.set(node, child);
 
 		for (i in 0...node.instances.length) {
 			var renderer:Renderer = null;
@@ -120,18 +127,17 @@ class DaeScene extends Trait {
 			else if (daeInst.type == "controller") {
 				daeContr = daeData.getControllerById(daeInst.target);						
 				if (daeContr != null) {
-					transformControllerMap.set(child.transform, daeContr);
+					daeParams.transformControllerMap.set(child.transform, daeContr);
 					daeGeomTarget = daeContr.source;
 				}	
 			}
 
 			if (daeInst.type == "geometry" || daeInst.type == "controller") {
 				var daeGeom = daeData.getGeometryById(daeGeomTarget);
-
 				for (i in 0...daeGeom.mesh.primitives.length) {
 					var daePrim = daeGeom.mesh.primitives[i];
-					renderer = createRenderer(child, daePrim, daeContr);
-					if (daeContr != null && renderer != null) skinnedRenderers.push(cast renderer);
+					renderer = createRenderer(child, daePrim, daeContr, daeData);
+					if (daeContr != null && renderer != null) daeParams.skinnedRenderers.push(cast renderer);
 				}
 
 				// Create object traits
@@ -148,63 +154,56 @@ class DaeScene extends Trait {
 
 		if (daeData.scene == null) return;
 
-		var scene = daeData.scene;
-
 		// Scene renderer
 		owner.addTrait(new SceneRenderer());
-		owner.name = scene.name;
+		owner.name = daeData.scene.name;
 
 		// Game data reference
 		gameData = Main.gameData;
 
+		// Current session params
+		daeParams = new DaeParams();
+
+		createSceneInstance(daeData, daeParams, owner);
+	}
+
+	public function addScene(data:String):Object {
+		var data = new DaeData(data);
+		var o = new Object();
+		createSceneInstance(data, new DaeParams(), o);
+		owner.addChild(o);
+		return o;
+	}
+
+	public function createSceneInstance(daeData:DaeData, daeParams:DaeParams, owner:Object) {
+
 		// Create scene nodes
-		scene.traverse(function(node:DaeNode) {
+		daeData.scene.traverse(function(node:DaeNode) {
 			if (node.name.charAt(0) == "_") { // TODO: use custom tag instead
 				return; // Skip hidden objects
 			}
 
-			createNode(node);
+			createCustomNode(node, owner, daeData, daeParams);
 		});
 
-		for (i in 0...skinnedRenderers.length) {
-			var skinnedRen:SkinnedMeshRenderer = skinnedRenderers[i];
+		for (i in 0...daeParams.skinnedRenderers.length) {
+			var skinnedRen = daeParams.skinnedRenderers[i];
 			
-			var daeContr = transformControllerMap.exists(skinnedRen.transform) ? transformControllerMap.get(skinnedRen.transform) : null;
+			var daeContr = daeParams.transformControllerMap.exists(skinnedRen.transform) ? daeParams.transformControllerMap.get(skinnedRen.transform) : null;
 			if (daeContr == null) continue;
 			
 			skinnedRen.joints = [];
-			
 			for (j in 0...daeContr.joints.length) {
-				for (k in 0...jointTransforms.length) {
-					if (jointTransforms[k].name == daeContr.joints[j]) {
-						skinnedRen.joints.push(jointTransforms[k]);		
+				for (k in 0...daeParams.jointTransforms.length) {
+					if (daeParams.jointTransforms[k].name == daeContr.joints[j]) {
+						skinnedRen.joints.push(daeParams.jointTransforms[k]);		
 					}
 				}
 			}
 		}
 
-		addAnimations(owner, jointTransforms);
-
-		/*if (first) {
-			first = false;
-			var o = new Object();
-			var dae = new DaeScene(Assets.getString("animation_run"));
-	        o.addTrait(dae);
-			daeData.addAnimations(owner, jointTransforms);
-		}*/
-
-		/*var anim:Animation = owner.getTrait(Animation);
-		if (anim != null) {
-			for (i in 0...anim.clips.length) {
-				var clip = anim.clips[i];
-				clip.wrap = AnimationClip.AnimationWrap.Loop;
-				clip.name = "clip" + i;
-			}
-
-			anim.play(anim.clips[0]);
-		}*/
+		addAnimations(owner, daeParams.jointTransforms, daeData);
 	}
-	//static var first = true;
 
 	public function createTraits(obj:Object, mats:Array<String>) { // TODO: rename
 		for (i in 0...mats.length) {
@@ -274,8 +273,8 @@ class DaeScene extends Trait {
 		return Type.createInstance(cname, args);
 	}
 
-	function createRenderer(object:Object, daePrim:DaePrimitive, daeContr:DaeController):Renderer {
-		
+	function createRenderer(object:Object, daePrim:DaePrimitive, daeContr:DaeController, daeData:DaeData):Renderer {
+
 		if (daePrim.material == "") return null;
 		var mat = daeData.getMaterialById(daePrim.material).name;
 
@@ -403,16 +402,16 @@ class DaeScene extends Trait {
 					data.push(colorInput.value[3]);
 				}
 
-				if (isSkinned) { // Weights and bones
-					data.push(wa[i].x);
-					data.push(wa[i].y);
-					data.push(wa[i].z);
-					data.push(wa[i].w);
-
+				if (isSkinned) { // Bones and weights
 					data.push(ba[i].x);
 					data.push(ba[i].y);
 					data.push(ba[i].z);
 					data.push(ba[i].w);
+
+					data.push(wa[i].x);
+					data.push(wa[i].y);
+					data.push(wa[i].z);
+					data.push(wa[i].w);
 				}
 
 				indices.push(i);
@@ -582,15 +581,15 @@ class DaeScene extends Trait {
 		}
 	}
 
-	public function addAnimations(root:Object, jointTransforms:Array<Transform>) {
+	public function addAnimations(root:Object, jointTransforms:Array<Transform>, daeData:DaeData) {
 
 		if (daeData.animations.length <= 0) return;
 
-		var anim = root.getTrait(Animation);
-		if (anim == null) {
-			anim = new Animation();
+		//var anim = root.getTrait(Animation);
+		//if (anim == null) {
+			var anim = new Animation();
 			root.addTrait(anim);
-		}
+		//}
 		
 		for (i in 0...daeData.animations.length) {
 

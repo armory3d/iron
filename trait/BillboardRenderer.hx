@@ -44,9 +44,9 @@ class BillboardRenderer extends Renderer implements IRenderable {
     public function addTransform(trait:Transform) {
         transform = trait;
 
-        transform.size.x = mesh.geometry.size.x * transform.scale.x;
-		transform.size.y = mesh.geometry.size.y * transform.scale.y;
-		transform.size.z = mesh.geometry.size.z * transform.scale.z;
+        transform.size.x = mesh.geometry.size.x * transform.scale.x / 2;
+		transform.size.y = mesh.geometry.size.y * transform.scale.y / 2;
+		transform.size.z = mesh.geometry.size.z * transform.scale.z / 2;
     }
 
 	public function render(g:kha.graphics4.Graphics) {
@@ -60,7 +60,7 @@ class BillboardRenderer extends Renderer implements IRenderable {
 		mvpMatrix.append(scene.camera.viewMatrix);
 		mvpMatrix.append(scene.camera.projectionMatrix);
 
-		transPos.set(transform.pos.x, transform.pos.y, transform.pos.z);
+		transPos.set(transform.pos.x / 30, transform.pos.y / 30, transform.pos.z / 30);
 		transSize.set(transform.size.x, transform.size.y, transform.size.z);
 		
 		// Render mesh

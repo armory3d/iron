@@ -50,7 +50,7 @@ class PsdParser extends Trait {
 
 	public function addGroup(id:Int) {
 		for (i in 0...groups[id].length) {
-			parent.addChild(groups[id][i]);
+			owner.addChild(groups[id][i]);
 		}
 	}
 
@@ -116,7 +116,7 @@ class PsdParser extends Trait {
 
 			// Add object
 			if (layers[i].type != "text") {
-				if (autoAdd) parent.addChild(object);
+				if (autoAdd) owner.addChild(object);
 				else objects.push(object);
 			}
 		}
@@ -124,7 +124,7 @@ class PsdParser extends Trait {
 		// Show text items on top
 		for (i in 0...textObjects.length) {
 			if (autoAdd) {
-				parent.addChild(textObjects[i]);
+				owner.addChild(textObjects[i]);
 			}
 			else {
 				objects.push(textObjects[i]);
