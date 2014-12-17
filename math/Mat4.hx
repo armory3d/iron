@@ -943,4 +943,14 @@ class Mat4 {
 		m[15] = _44;		
 		return m; 
 	}
+
+	public function getMaxScaleOnAxis():Float {
+		var te = this.getFloats();
+
+		var scaleXSq = te[0] * te[0] + te[1] * te[1] + te[2] * te[2];
+		var scaleYSq = te[4] * te[4] + te[5] * te[5] + te[6] * te[6];
+		var scaleZSq = te[8] * te[8] + te[9] * te[9] + te[10] * te[10];
+
+		return Math.sqrt(Math.max(scaleXSq, Math.max(scaleYSq, scaleZSq)));	
+	}	
 }

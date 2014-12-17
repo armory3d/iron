@@ -8,21 +8,21 @@ package fox.math;
 
 class Sphere {
 	
-	public var center:Vector3;
+	public var center:Vec3;
 	public var radius:Float;
 	
-	public function new(center:Vector3 = null, radius:Float = 0) {
-		this.center = center != null ? center : new Vector3();
+	public function new(center:Vec3 = null, radius:Float = 0) {
+		this.center = center != null ? center : new Vec3();
 		this.radius = radius;
 	}	
 	
-	public function set(center:Vector3, radius:Float):Sphere {
+	public function set(center:Vec3, radius:Float):Sphere {
 		this.center.copy(center);
 		this.radius = radius;
 		return this;
 	}	
 	
-	public function setFromPoints(points:Array<Vector3>, optionalCenter:Vector3 = null):Sphere {
+	public function setFromPoints(points:Array<Vec3>, optionalCenter:Vec3 = null):Sphere {
 		var box = new Box3();		
 
 		var center = this.center;
@@ -52,11 +52,11 @@ class Sphere {
 		return (radius <= 0);
 	}	
 	
-	public function containsPoint(point:Vector3):Bool {
+	public function containsPoint(point:Vec3):Bool {
 		return (point.distanceToSquared(this.center) <= (this.radius * this.radius));
 	}	
 	
-	public function distanceToPoint(point:Vector3):Float {
+	public function distanceToPoint(point:Vec3):Float {
 		return (point.distanceTo(this.center) - this.radius);
 	}	
 	
@@ -65,10 +65,10 @@ class Sphere {
 		return (sphere.center.distanceToSquared(center) <= (radiusSum * radiusSum));
 	}	
 	
-	public function clampPoint(point:Vector3, optionalTarget:Vector3 = null):Vector3 {
+	public function clampPoint(point:Vec3, optionalTarget:Vec3 = null):Vec3 {
 		var deltaLengthSq = this.center.distanceToSquared(point);
 
-		var result = optionalTarget != null ? optionalTarget : new Vector3();
+		var result = optionalTarget != null ? optionalTarget : new Vec3();
 		result.copy(point);
 
 		if (deltaLengthSq > (this.radius * this.radius)) {
@@ -86,13 +86,13 @@ class Sphere {
 		return box;
 	}	
 	
-	public function applyMatrix4(matrix:Matrix4):Sphere {
-		this.center.applyMatrix4(matrix);
+	public function applyMat4(matrix:Mat4):Sphere {
+		this.center.applyMat4(matrix);
 		this.radius = this.radius * matrix.getMaxScaleOnAxis();
 		return this;
 	}	
 	
-	public function translate(offset:Vector3):Sphere {
+	public function translate(offset:Vec3):Sphere {
 		this.center.add(offset);
 		return this;
 	}	

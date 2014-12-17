@@ -7,15 +7,15 @@ package fox.math;
 
 class Ray {
 	
-	public var origin:Vector3;
-	public var direction:Vector3;
+	public var origin:Vec3;
+	public var direction:Vec3;
 	
-	public function new(origin:Vector3 = null, direction:Vector3 = null) {
-		this.origin = origin == null ? new Vector3() : origin;		
-		this.direction = direction == null ? new Vector3() : direction;
+	public function new(origin:Vec3 = null, direction:Vec3 = null) {
+		this.origin = origin == null ? new Vec3() : origin;		
+		this.direction = direction == null ? new Vec3() : direction;
 	}	
 	
-	public function set(origin:Vector3, direction:Vector3):Ray {
+	public function set(origin:Vec3, direction:Vec3):Ray {
 		this.origin.copy(origin);
 		this.direction.copy(direction);
 		return this;
@@ -25,19 +25,19 @@ class Ray {
 		return set(ray.origin, ray.direction);
 	}	
 	
-	public function at(t:Float, optionalTarget:Vector3 = null):Vector3 {
-		var result = optionalTarget != null ? optionalTarget : new Vector3();
+	public function at(t:Float, optionalTarget:Vec3 = null):Vec3 {
+		var result = optionalTarget != null ? optionalTarget : new Vec3();
 		return result.copy(direction).multiplyScalar(t).add(origin);
 	}	
 	
 	public function recast(t:Float):Ray	{
-		var v1 = new Vector3();
+		var v1 = new Vec3();
 		this.origin.copy(this.at(t, v1));
 		return this;
 	}	
 	
-	public function closestPointToPoint(point:Vector3, optionalTarget:Vector3 = null):Vector3 {
-		var result = optionalTarget == null ? new Vector3() : optionalTarget;
+	public function closestPointToPoint(point:Vec3, optionalTarget:Vec3 = null):Vec3 {
+		var result = optionalTarget == null ? new Vec3() : optionalTarget;
 		result.subVectors(point, this.origin);
 		var directionDistance = result.dot(this.direction);
 		if (directionDistance < 0) {
@@ -47,8 +47,8 @@ class Ray {
 		return result.copy(this.direction).multiplyScalar(directionDistance).add(this.origin);
 	}	
 	
-	public function distanceToPoint(point:Vector3):Float {
-		var v1 = new Vector3();
+	public function distanceToPoint(point:Vec3):Float {
+		var v1 = new Vec3();
 		var directionDistance = v1.subVectors(point, this.origin).dot(this.direction);
 		
 		// point behind the ray
@@ -61,7 +61,7 @@ class Ray {
 		return v1.distanceTo(point);
 	}	
 	
-	public function distanceSqToSegment(v0:Vector3, v1:Vector3, optionalPointOnRay:Vector3 = null, optionalPointOnSegment:Vector3 = null) {
+	public function distanceSqToSegment(v0:Vec3, v1:Vec3, optionalPointOnRay:Vec3 = null, optionalPointOnSegment:Vec3 = null) {
 		// from http://www.geometrictools.com/LibMathematics/Distance/Wm5DistRay3Segment3.cpp
 		// It returns the min distance between the ray and the segment
 		// defined by v0 and v1
@@ -69,7 +69,7 @@ class Ray {
 		// - The closest point on the ray
 		// - The closest point on the segment
 		var segCenter = v0.clone().add(v1).multiplyScalar(0.5);
-		var segDir = v1.clone().sub(v0).normalize();
+		var segDir = v1.clone().sub(v0).normalize2();
 		var segExtent = v0.distanceTo(v1) * 0.5;
 		var diff = this.origin.clone().sub(segCenter);
 		var a01 = -this.direction.dot(segDir);
@@ -181,7 +181,7 @@ class Ray {
 		return t >= 0 ? t :  -1;
 	}	
 	
-	public function intersectPlane(plane:Plane, optionalTarget:Vector3 = null):Vector3 {
+	public function intersectPlane(plane:Plane, optionalTarget:Vec3 = null):Vec3 {
 		var t = this.distanceToPlane(plane);
 
 		//if (t == null) {
@@ -193,11 +193,11 @@ class Ray {
 	}
 	
 	public function isIntersectionBox(box:Box3):Bool {
-		var v = new Vector3();
+		var v = new Vec3();
 		return this.intersectBox(box, v) != null;
 	}
 	
-	public function intersectBox(box:Box3, optionalTarget:Vector3 = null):Vector3 {
+	public function intersectBox(box:Box3, optionalTarget:Vec3 = null):Vec3 {
 		// http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
 		var tmin,tmax,tymin,tymax,tzmin,tzmax;
 
@@ -251,12 +251,12 @@ class Ray {
 		return this.at(tmin >= 0 ? tmin : tmax, optionalTarget);
 	}
 	
-	public function intersectTriangle(a:Vector3, b:Vector3, c:Vector3, backfaceCulling:Bool, optionalTarget:Vector3 = null):Vector3 {
+	public function intersectTriangle(a:Vec3, b:Vec3, c:Vec3, backfaceCulling:Bool, optionalTarget:Vec3 = null):Vec3 {
 		// Compute the offset origin, edges, and normal.
-		var diff = new Vector3();
-		var edge1 = new Vector3();
-		var edge2 = new Vector3();
-		var normal = new Vector3();
+		var diff = new Vec3();
+		var edge1 = new Vec3();
+		var edge2 = new Vec3();
+		var normal = new Vec3();
 
 		// from http://www.geometrictools.com/LibMathematics/Intersection/Wm5IntrRay3Triangle3.cpp
 		edge1.subVectors(b, a);
@@ -289,7 +289,7 @@ class Ray {
 			return null;
 		}
 
-		var DdE1xQ = sign * this.direction.dot(edge1.cross(diff));
+		var DdE1xQ = sign * this.direction.dot(edge1.cross2(diff));
 
 		// b2 < 0, no intersection
 		if (DdE1xQ < 0) {
@@ -313,11 +313,11 @@ class Ray {
 		return this.at(QdN / DdN, optionalTarget);
 	}
 	
-	public function applyMatrix4(matrix4:Matrix4):Ray {
-		this.direction.add(this.origin).applyMatrix4(matrix4);
-		this.origin.applyMatrix4(matrix4);
+	public function applyMat4(matrix4:Mat4):Ray {
+		this.direction.add(this.origin).applyMat4(matrix4);
+		this.origin.applyMat4(matrix4);
 		this.direction.sub(this.origin);
-		this.direction.normalize();
+		this.direction.normalize2();
 
 		return this;
 	}

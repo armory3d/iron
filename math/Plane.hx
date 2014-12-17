@@ -7,15 +7,15 @@ package fox.math;
 
 class Plane {
 	
-	public var normal:Vector3;
+	public var normal:Vec3;
 	public var constant:Float;
 	
-	public function new(normal:Vector3 = null, constant:Float = 0) {
-		this.normal = (normal != null ? normal : new Vector3(1,0,0));
+	public function new(normal:Vec3 = null, constant:Float = 0) {
+		this.normal = (normal != null ? normal : new Vec3(1,0,0));
 		this.constant = constant;
 	}
 	
-	public function set (normal:Vector3, constant:Float) : Plane {
+	public function set (normal:Vec3, constant:Float) : Plane {
 		this.normal.copy(normal);
 		this.constant = constant;
 		return this;
@@ -27,16 +27,16 @@ class Plane {
 		return this;
 	}
 	
-	public function setFromNormalAndCoplanarPoint (normal:Vector3, point:Vector3) : Plane {
+	public function setFromNormalAndCoplanarPoint (normal:Vec3, point:Vec3) : Plane {
 		this.normal.copy(normal);
 		constant = -point.dot(this.normal);
 		return this;
 	}
 	
-	public function setFromCoplanarPoints (a:Vector3, b:Vector3, c:Vector3) : Plane {
-		var v1 = new Vector3();
-		var v2 = new Vector3();
-		var n = v1.subVectors(c, b).cross(v2.subVectors(a, b)).normalize();
+	public function setFromCoplanarPoints (a:Vec3, b:Vec3, c:Vec3) : Plane {
+		var v1 = new Vec3();
+		var v2 = new Vec3();
+		var n = v1.subVectors(c, b).cross2(v2.subVectors(a, b)).normalize2();
 		setFromNormalAndCoplanarPoint(n, a);
 		return this;
 	}
@@ -48,7 +48,7 @@ class Plane {
 	}
 	
 	public function normalize () : Plane {
-		var inverseNormalLength = 1.0 / normal.length();
+		var inverseNormalLength = 1.0 / normal.getLength();
 		normal.multiplyScalar(inverseNormalLength);
 		constant *= inverseNormalLength;
 		return this;
@@ -60,7 +60,7 @@ class Plane {
 		return this;
 	}
 	
-	public function distanceToPoint (point:Vector3) : Float {
+	public function distanceToPoint (point:Vec3) : Float {
 		return normal.dot(point) + constant;
 	}
 	
@@ -69,13 +69,13 @@ class Plane {
 		return distanceToPoint(sphere.center) - sphere.radius;
 	}
 	
-	public function projectPoint (point:Vector3, optTarget:Vector3 = null) : Vector3 {
-		var result = (optTarget != null ? optTarget : new Vector3());
+	public function projectPoint (point:Vec3, optTarget:Vec3 = null) : Vec3 {
+		var result = (optTarget != null ? optTarget : new Vec3());
 		return orthoPoint(point, result).sub(point).negate();
 	}
 	
-	public function orthoPoint (point:Vector3, optTarget:Vector3 = null) : Vector3 {
-		var result = (optTarget != null ? optTarget : new Vector3());
+	public function orthoPoint (point:Vec3, optTarget:Vec3 = null) : Vec3 {
+		var result = (optTarget != null ? optTarget : new Vec3());
 		var perpendicularMagnitude = distanceToPoint(point);
 		return result.copy(normal).multiplyScalar(perpendicularMagnitude);
 	}
@@ -86,9 +86,9 @@ class Plane {
 		return ( startSign < 0 && endSign > 0 ) || ( endSign < 0 && startSign > 0 );
 	}
 	
-	public function intersectLine (line:Line3, optTarget:Vector3 = null) : Vector3 {
-		var v1 = new Vector3();
-		var result = (optTarget != null ? optTarget : new Vector3());
+	public function intersectLine (line:Line3, optTarget:Vec3 = null) : Vec3 {
+		var v1 = new Vec3();
+		var result = (optTarget != null ? optTarget : new Vec3());
 		var direction = line.delta(v1);
 		var denominator = normal.dot(direction);
 		if (denominator == 0)  {
@@ -102,8 +102,8 @@ class Plane {
 		return result.copy(direction).multiplyScalar(t).add(line.start);
 	}
 	
-	public function coplanarPoint (optTarget:Vector3 = null) : Vector3 {
-		var result = (optTarget != null ? optTarget : new Vector3());
+	public function coplanarPoint (optTarget:Vec3 = null) : Vec3 {
+		var result = (optTarget != null ? optTarget : new Vec3());
 		return result.copy(normal).multiplyScalar( -constant);
 	}
 	
@@ -111,13 +111,13 @@ class Plane {
 	{
 		if (normalMatrix == null) normalMatrix = new Matrix3().getNormalMatrix(m);
 		var newNormal = normal.clone().applyMatrix3(normalMatrix);
-		var newCoplanarPoint = coplanarPoint(new Vector3());
+		var newCoplanarPoint = coplanarPoint(new Vec3());
 		newCoplanarPoint.applyMatrix4(m);
 		setFromNormalAndCoplanarPoint(newNormal, newCoplanarPoint);
 		return this;
 	}*/
 	
-	public function translate (offset:Vector3) : Plane {
+	public function translate (offset:Vec3) : Plane {
 		constant -= offset.dot(normal);
 		return this;
 	}

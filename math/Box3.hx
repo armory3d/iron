@@ -8,21 +8,21 @@ package fox.math;
  
 class Box3 {
 	
-	public var min:Vector3;
-	public var max:Vector3;	
+	public var min:Vec3;
+	public var max:Vec3;	
 
-	public function new(min:Vector3 = null, max:Vector3 = null) {
-		this.min = min != null ? min : new Vector3(Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY);
-		this.max = max != null ? max : new Vector3(Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY);
+	public function new(min:Vec3 = null, max:Vec3 = null) {
+		this.min = min != null ? min : new Vec3(Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY);
+		this.max = max != null ? max : new Vec3(Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY);
 	}
 	
-	public function set(min:Vector3, max:Vector3):Box3 {
-		this.min.copy(min);
-		this.max.copy(max);
+	public function set(min:Vec3, max:Vec3):Box3 {
+		this.min.copy2(min);
+		this.max.copy2(max);
 		return this;
 	}
 	
-	public function addPoint(point:Vector3) {
+	public function addPoint(point:Vec3) {
 		if (point.x < this.min.x) {
 			this.min.x = point.x;
 		} else if (point.x > this.max.x) {
@@ -46,8 +46,8 @@ class Box3 {
 		if (points.length > 0) {
 			var point = points[0];
 
-			this.min.copy(point);
-			this.max.copy(point);
+			this.min.copy2(point);
+			this.max.copy2(point);
 
 			for (i in 1...points.length) {
 				this.addPoint(points[i]);
@@ -59,18 +59,18 @@ class Box3 {
 		return this;
 	}	
 	
-	public function setFromCenterAndSize(center:Vector3, size:Vector3):Box3 {
-		var v1 = new Vector3();
-		var halfSize = v1.copy(size).multiplyScalar(0.5);
-		this.min.copy(center).sub(halfSize);
-		this.max.copy(center).add(halfSize);
+	public function setFromCenterAndSize(center:Vec3, size:Vec3):Box3 {
+		var v1 = new Vec3();
+		var halfSize = v1.copy2(size).multiplyScalar(0.5);
+		this.min.copy2(center).sub(halfSize);
+		this.max.copy2(center).add(halfSize);
 		return this;
 	}	
 	
 	/*public function setFromObject(object:Object3D):Box3 {
 		// Computes the world-axis-aligned bounding box of an object (including its children),
 		// accounting for both the object's, and childrens', world transforms
-		var v1 = new Vector3();
+		var v1 = new Vec3();
 
 		var scope = this;
 		object.updateMatrixWorld(true);
@@ -78,10 +78,10 @@ class Box3 {
 
 		object.traverse(function(node) {
 			if (node.geometry != null && node.geometry.vertices != null) {
-				var vertices:Array<Vector3> = node.geometry.vertices;
+				var vertices:Array<Vec3> = node.geometry.vertices;
 				for (i in 0...vertices.length) {
-					v1.copy(vertices[i]);
-					v1.applyMatrix4(node.matrixWorld);
+					v1.copy2(vertices[i]);
+					v1.applyMat4(node.matrixWorld);
 					scope.expandByPoint(v1);
 				}
 			}
@@ -90,9 +90,9 @@ class Box3 {
 		return this;
 	}*/
 	
-	public function copy(box:Box3):Box3 {
-		min.copy(box.min);
-		max.copy(box.max);
+	public function copy2(box:Box3):Box3 {
+		min.copy2(box.min);
+		max.copy2(box.max);
 		return this;
 	}
 	
@@ -107,23 +107,23 @@ class Box3 {
 		return (this.max.x < this.min.x) || (this.max.y < this.min.y) || (this.max.z < this.min.z);
 	}	
 	
-	public function center(optionalTarget:Vector3 = null):Vector3 {
-		var result = optionalTarget != null ? optionalTarget : new Vector3();
+	public function center(optionalTarget:Vec3 = null):Vec3 {
+		var result = optionalTarget != null ? optionalTarget : new Vec3();
 		return result.addVectors(this.min, this.max).multiplyScalar(0.5);
 	}	
 	
-	public function size(optionalTarget:Vector3 = null):Vector3 {
-		var result = optionalTarget != null ? optionalTarget : new Vector3();
+	public function size(optionalTarget:Vec3 = null):Vec3 {
+		var result = optionalTarget != null ? optionalTarget : new Vec3();
 		return result.subVectors(max, min);
 	}	
 	
-	public function expandByPoint(point:Vector3):Box3 {
+	public function expandByPoint(point:Vec3):Box3 {
 		this.min.min(point);
 		this.max.max(point);
 		return this;
 	}	
 	
-	public function expandByVector(vector:Vector3):Box3 {
+	public function expandByVector(vector:Vec3):Box3 {
 		this.min.sub(vector);
 		this.max.add(vector);
 		return this;
@@ -135,7 +135,7 @@ class Box3 {
 		return this;
 	}	
 	
-	public function containsPoint(point:Vector3):Bool {
+	public function containsPoint(point:Vec3):Bool {
 		if (point.x < this.min.x || point.x > this.max.x ||
 		     point.y < this.min.y || point.y > this.max.y ||
 		     point.z < this.min.z || point.z > this.max.z) {
@@ -155,10 +155,10 @@ class Box3 {
 		return false;
 	}	
 	
-	public function getParameter(point:Vector3, optionalTarget:Vector3 = null):Vector3 {
+	public function getParameter(point:Vec3, optionalTarget:Vec3 = null):Vec3 {
 		// This can potentially have a divide by zero if the box
 		// has a size dimension of 0.
-		var result = optionalTarget != null ? optionalTarget : new Vector3();
+		var result = optionalTarget != null ? optionalTarget : new Vec3();
 		return result.set(
 			(point.x - min.x) / (max.x - min.x),
 			(point.y - min.y) / (max.y - min.y),
@@ -177,23 +177,23 @@ class Box3 {
 		return true;
 	}	
 	
-	public function clampPoint(point:Vector3, optionalTarget:Vector3 = null):Vector3 {
-		var result = optionalTarget != null ? optionalTarget : new Vector3();
-		return result.copy(point).clamp(this.min, this.max);
+	public function clampPoint(point:Vec3, optionalTarget:Vec3 = null):Vec3 {
+		var result = optionalTarget != null ? optionalTarget : new Vec3();
+		return result.copy2(point).clamp(this.min, this.max);
 	}	
 	
-	public function distanceToPoint(point:Vector3):Float {
+	public function distanceToPoint(point:Vec3):Float {
 		var v1 = point.clone();
-		var clampedPoint = v1.copy(point).clamp(this.min, this.max);
-		return clampedPoint.sub(point).length();
+		var clampedPoint = v1.copy2(point).clamp(this.min, this.max);
+		return clampedPoint.sub(point).getLength();
 	}	
 	
 	public function getBoundingSphere(optionalTarget:Sphere = null):Sphere {
-		var v1 = new Vector3();
+		var v1 = new Vec3();
 		var result = optionalTarget != null ? optionalTarget : new Sphere();
 
 		result.center = this.center();
-		result.radius = this.size(v1).length() * 0.5;
+		result.radius = this.size(v1).getLength() * 0.5;
 
 		return result;
 	}	
@@ -212,27 +212,27 @@ class Box3 {
 		return this;
 	}	
 	
-	public function applyMatrix4(matrix:Matrix4):Box3 {
-		var points:Array<Vector3> = [
-			new Vector3(),
-			new Vector3(),
-			new Vector3(),
-			new Vector3(),
-			new Vector3(),
-			new Vector3(),
-			new Vector3(),
-			new Vector3()
+	public function applyMat4(matrix:Mat4):Box3 {
+		var points:Array<Vec3> = [
+			new Vec3(),
+			new Vec3(),
+			new Vec3(),
+			new Vec3(),
+			new Vec3(),
+			new Vec3(),
+			new Vec3(),
+			new Vec3()
 		];
 		
 		// NOTE: I am using a binary pattern to specify all 2^3 combinations below
-		points[0].set(this.min.x, this.min.y, this.min.z).applyMatrix4(matrix); // 000
-		points[1].set(this.min.x, this.min.y, this.max.z).applyMatrix4(matrix); // 001
-		points[2].set(this.min.x, this.max.y, this.min.z).applyMatrix4(matrix); // 010
-		points[3].set(this.min.x, this.max.y, this.max.z).applyMatrix4(matrix); // 011
-		points[4].set(this.max.x, this.min.y, this.min.z).applyMatrix4(matrix); // 100
-		points[5].set(this.max.x, this.min.y, this.max.z).applyMatrix4(matrix); // 101
-		points[6].set(this.max.x, this.max.y, this.min.z).applyMatrix4(matrix); // 110
-		points[7].set(this.max.x, this.max.y, this.max.z).applyMatrix4(matrix);  // 111
+		points[0].set(this.min.x, this.min.y, this.min.z).applyMat4(matrix); // 000
+		points[1].set(this.min.x, this.min.y, this.max.z).applyMat4(matrix); // 001
+		points[2].set(this.min.x, this.max.y, this.min.z).applyMat4(matrix); // 010
+		points[3].set(this.min.x, this.max.y, this.max.z).applyMat4(matrix); // 011
+		points[4].set(this.max.x, this.min.y, this.min.z).applyMat4(matrix); // 100
+		points[5].set(this.max.x, this.min.y, this.max.z).applyMat4(matrix); // 101
+		points[6].set(this.max.x, this.max.y, this.min.z).applyMat4(matrix); // 110
+		points[7].set(this.max.x, this.max.y, this.max.z).applyMat4(matrix);  // 111
 
 		this.makeEmpty();
 		this.setFromPoints( points );
@@ -240,7 +240,7 @@ class Box3 {
 		return this;
 	}	
 	
-	public function translate(offset:Vector3):Box3 {
+	public function translate(offset:Vec3):Box3 {
 		this.min.add(offset);
 		this.max.add(offset);
 		return this;
@@ -251,6 +251,6 @@ class Box3 {
 	}	
 	
 	public function clone():Box3 {
-		return new Box3().copy(this);
+		return new Box3().copy2(this);
 	}	
 }

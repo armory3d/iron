@@ -7,15 +7,15 @@ package fox.math;
 
 class Line3 {
 	
-	public var start:Vector3;
-	public var end:Vector3;	
+	public var start:Vec3;
+	public var end:Vec3;	
 	
-	public function new(start:Vector3 = null, end:Vector3 = null) {
-		this.start = start != null ? start : new Vector3();
-		this.end = end != null ? end : new Vector3();
+	public function new(start:Vec3 = null, end:Vec3 = null) {
+		this.start = start != null ? start : new Vec3();
+		this.end = end != null ? end : new Vec3();
 	}	
 	
-	public function set(start:Vector3, end:Vector3):Line3 {
+	public function set(start:Vec3, end:Vec3):Line3 {
 		this.start.copy(start);
 		this.end.copy(end);
 		return this;
@@ -27,13 +27,13 @@ class Line3 {
 		return this;
 	}	
 	
-	public function center(optionalTarget:Vector3 = null):Vector3 {
-		var result = optionalTarget != null ? optionalTarget : new Vector3();
+	public function center(optionalTarget:Vec3 = null):Vec3 {
+		var result = optionalTarget != null ? optionalTarget : new Vec3();
 		return result.addVectors(this.start, this.end).multiplyScalar(0.5);
 	}	
 	
-	public function delta(optionalTarget:Vector3 = null):Vector3 {
-		var result = optionalTarget != null ? optionalTarget : new Vector3();
+	public function delta(optionalTarget:Vec3 = null):Vec3 {
+		var result = optionalTarget != null ? optionalTarget : new Vec3();
 		return result.subVectors(this.end, this.start);
 	}	
 	
@@ -45,14 +45,14 @@ class Line3 {
 		return start.distanceTo(end);
 	}	
 	
-	public function at(t:Float, optionalTarget:Vector3 = null):Vector3 {
-		var result = (optionalTarget != null ? optionalTarget : new Vector3());
+	public function at(t:Float, optionalTarget:Vec3 = null):Vec3 {
+		var result = (optionalTarget != null ? optionalTarget : new Vec3());
 		return delta(result).multiplyScalar(t).add(start);
 	}	
 	
-	public function closestPointToPointParameter(point:Vector3, clampToLine:Bool):Float {
-		var startP = new Vector3();
-		var startEnd = new Vector3();
+	public function closestPointToPointParameter(point:Vec3, clampToLine:Bool):Float {
+		var startP = new Vec3();
+		var startEnd = new Vec3();
 
 		startP.subVectors(point, this.start);
 		startEnd.subVectors(this.end, this.start);
@@ -69,15 +69,15 @@ class Line3 {
 		return t;
 	}	
 	
-	public function closestPointToPoint(point:Vector3, clampToLine:Bool, optionalTarget:Vector3 = null) {
+	public function closestPointToPoint(point:Vec3, clampToLine:Bool, optionalTarget:Vec3 = null) {
 		var t = this.closestPointToPointParameter(point, clampToLine);
-		var result = optionalTarget == null ? new Vector3() : optionalTarget;
+		var result = optionalTarget == null ? new Vec3() : optionalTarget;
 		return this.delta(result).multiplyScalar(t).add(this.start);
 	}
 	
-	public function applyMatrix4(m:Matrix4):Line3 {
-		start.applyMatrix4(m);
-		end.applyMatrix4(m);
+	public function applyMatrix4(m:Mat4):Line3 {
+		start.applyMat4(m);
+		end.applyMat4(m);
 		return this;
 	}	
 	

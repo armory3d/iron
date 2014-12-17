@@ -1,6 +1,7 @@
 package fox.math;
 
 // Adapted from Cannon 3D Physics
+// Use three like style
 // TODO: merge with Kha's built in Vec
 
 /**
@@ -60,6 +61,24 @@ class Vec3 {
         return target;
     }
 
+    public function cross2(v:Vec3):Vec3 {
+        x = y * v.z - z * v.y;
+        y = z * v.x - x * v.z;
+        z = x * v.y - y * v.x;
+        return this;
+    }
+
+    public function crossVectors(a:Vec3, b:Vec3):Vec3 {
+        x = a.y * b.z - a.z * b.y;
+        y = a.z * b.x - a.x * b.z;
+        z = a.x * b.y - a.y * b.x;
+        return this;
+    }
+
+    public function equals(v:Vec3):Bool {
+        return ((x == v.x) && (y == v.y) && (z == v.z));
+    }
+
     /**
      * @method set
      * @memberof Vec3
@@ -97,6 +116,21 @@ class Vec3 {
         }
     }
 
+    public function add(v:Vec3):Vec3 {
+        x += v.x;
+        y += v.y;
+        z += v.z;
+
+        return this;
+    }
+
+    public function addVectors(a:Vec3, b:Vec3):Vec3 {
+        x = a.x + b.x;
+        y = a.y + b.y;
+        z = a.z + b.z;
+        return this;
+    }   
+
     /**
      * @method vsub
      * @memberof Vec3
@@ -117,6 +151,13 @@ class Vec3 {
                             this.z-v.z);
         }
     }
+
+    public function subVectors(a:Vec3, b:Vec3):Vec3 {
+        x = a.x - b.x;
+        y = a.y - b.y;
+        z = a.z - b.z;
+        return this;
+    }   
 
     /**
      * @method crossmat
@@ -227,6 +268,13 @@ class Vec3 {
         return target;
     }
 
+    public function multiplyScalar(scalar:Float):Vec3 {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        return this;
+    }
+
     /**
      * @method dot
      * @memberof Vec3
@@ -316,6 +364,17 @@ class Vec3 {
         return target;
     }
 
+    public function copy2(v:Vec3):Vec3 {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+        return this;
+    }   
+
+    public function clone():Vec3 {
+        return new Vec3(x, y, z);
+    }
+
 
     /**
      * @method lerp
@@ -388,6 +447,21 @@ class Vec3 {
         return this;
     }
 
+    public function applyMat4(m:Mat4):Vec3 {
+        // input: THREE.Matrix4 affine matrix
+        var x = this.x;
+        var y = this.y;
+        var z = this.z;
+
+        var e = m.getFloats();
+
+        this.x = e[0] * x + e[4] * y + e[8]  * z + e[12];
+        this.y = e[1] * x + e[5] * y + e[9]  * z + e[13];
+        this.z = e[2] * x + e[6] * y + e[10] * z + e[14];
+
+        return this;
+    }   
+
 
 
     public function normalize2():Vec3 {
@@ -423,6 +497,10 @@ class Vec3 {
         return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );
     }
 
+    public function lengthSq():Float {
+        return x * x + y * y + z * z;
+    }
+
 
     public function sub(v:Vec3):Vec3 {
         this.x -= v.x;
@@ -433,4 +511,41 @@ class Vec3 {
     }
 
     public function getXYZ():Vec3 { return new Vec3(x, y, z); }
+
+
+    public function min(v:Vec3):Vec3 {
+        if (x > v.x) x = v.x;
+        if (y > v.y) y = v.y;
+        if (z > v.z) z = v.z;
+        return this;
+    }   
+    
+    public function max(v:Vec3):Vec3 {
+        if (x < v.x) x = v.x;
+        if (y < v.y) y = v.y;
+        if (z < v.z) z = v.z;
+        return this;
+    }   
+    
+    public function clamp(vmin:Vec3, vmax:Vec3):Vec3 {
+        // This function assumes min < max, if this assumption isn't true it will not operate correctly
+        if (x < vmin.x) x = vmin.x; else if (x > vmax.x) x = vmax.x;
+        if (y < vmin.y) y = vmin.y; else if (y > vmax.y) y = vmax.y;
+        if (z < vmin.z) z = vmin.z; else if (z > vmax.z) z = vmax.z;
+        return this;
+    }
+
+    public function addScalar(s:Float):Vec3 {
+        x += s;
+        y += s;
+        z += s;
+        return this;
+    }
+
+    public function distanceToSquared(v:Vec3):Float {
+        var dx = x - v.x;
+        var dy = y - v.y;
+        var dz = z - v.z;
+        return dx * dx + dy * dy + dz * dz;
+    }   
 }

@@ -171,7 +171,7 @@ class Camera extends Trait {
 		
 		for (i in 0...6) {
 			
-			var vpos = new fox.math.Vector3(t.absx, t.absy, t.absz);
+			var vpos = new fox.math.Vec3(t.absx, t.absy, t.absz);
 			//var pos = new fox.math.Vec3(t.absx, t.absy, t.absz);
 
 			//var fn = frustumPlanes[i].normal;

@@ -117,17 +117,17 @@ class Helper {
         end.normalize2();
 
         // TODO: use kha vec
-        var v1 = new Vector3(vector.x, vector.y, vector.z);
-        var v2 = new Vector3(end.x, end.y, end.z);
+        var v1 = new Vec3(vector.x, vector.y, vector.z);
+        var v2 = new Vec3(end.x, end.y, end.z);
         return new Ray(v1, v2);
     }
 
-    public static function getIntersect(transform:Transform, inputX:Float, inputY:Float, camera:Camera):fox.math.Vector3 {
+    public static function getIntersect(transform:Transform, inputX:Float, inputY:Float, camera:Camera):Vec3 {
         var ray = getRay(inputX, inputY, camera);
 
         var t = transform;
-        var c = new fox.math.Vector3(t.absx, t.absy, t.absz);
-        var s = new fox.math.Vector3(t.size.x, t.size.y, t.size.z);
+        var c = new Vec3(t.absx, t.absy, t.absz);
+        var s = new Vec3(t.size.x, t.size.y, t.size.z);
 
         var box = new Box3();
         box.setFromCenterAndSize(c, s);
