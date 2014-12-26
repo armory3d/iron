@@ -148,6 +148,17 @@ class Root extends kha.Game {
         Assets.addShader("billboardshader", billboardShader);
 
 
+        var particlesShader = new Shader("particles.frag", "particles.vert", struct);
+        particlesShader.addConstantMat4("mvpMatrix");
+        particlesShader.addConstantVec3("billboardCenterWorld");
+        particlesShader.addConstantVec3("billboardSize");
+        particlesShader.addConstantVec3("camRightWorld");
+        particlesShader.addConstantVec3("camUpWorld");
+        particlesShader.addConstantBool("texturing");
+        particlesShader.addTexture("tex");
+        Assets.addShader("particlesshader", particlesShader);
+
+
         // Mesh
         var struct = new VertexStructure();
         struct.addFloat3("vertexPosition");

@@ -31,7 +31,7 @@ class Audio {
 	}
 
 	public static function stopMusic() {
-		currentMusic.stop();
+		if (currentMusic != null) currentMusic.stop();
 	}
 
 	public static function playSound(name:String) {

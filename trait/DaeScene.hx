@@ -33,24 +33,32 @@ typedef TGameData = {
 
 typedef TGameMaterial = {
 	name:String,
-	nodes:Array<TGameNode>,
+	traits:Array<TGameTrait>,
 }
 
-typedef TGameNode = {
-	name:String,
-	inputs:Array<TGameInput>,
-	outputs:Array<TGameOutput>,
+typedef TGameTrait = {
+	type:String,
+	color:Array<Float>,
+	texture:String,
+	lighting:Bool,
+	rim:Bool,
+	cast_shadow:Bool,
+	receive_shadow:Bool,
+	shader:String,
+	data:String,
+	camera_type:String,
+	light_type:String,
+	body_shape:String,
+	body_mass:Float,
+	scene:String,
+	class_name:String,
 }
 
-typedef TGameInput = {
-	name:String,
-	value:Dynamic,
-}
-
-typedef TGameOutput = {
-	name:String,
-	value:Dynamic,
-}
+// TODO: rework into nodes
+//typedef TGameNode = {
+//	name:String,
+//	value:Dynamic,
+//}
 
 class DaeParams {
 
@@ -205,61 +213,54 @@ class DaeScene extends Trait {
 		addAnimations(owner, daeParams.jointTransforms, daeData);
 	}
 
-	public function createTraits(obj:Object, mats:Array<String>) { // TODO: rename
+	public function createTraits(obj:Object, mats:Array<String>) {
 		for (i in 0...mats.length) {
-			createTrait(obj, mats[i]);
-		}
-	}
+			var mat = mats[i];
 
-	public function createTrait(obj:Object, mat:String) {
-
-		// Find materials data
-		var matData:TGameMaterial = null;
-		for (i in 0...gameData.materials.length) {
-			var str = StringTools.replace(mat, "_", ".");
-			if (str == gameData.materials[i].name) {
-				matData = gameData.materials[i];
-			}
-		}
-
-		// Find nodes
-		var materialDatas:Array<TGameNode> = [];
-		if (matData != null) {
-			for (i in 0...matData.nodes.length) {
-				if (matData.nodes[i].name.split(".")[0] == "Trait") {
-					materialDatas.push(matData.nodes[i]);
+			// Find materials data
+			var matData:TGameMaterial = null;
+			for (i in 0...gameData.materials.length) {
+				var str = StringTools.replace(mat, "_", ".");
+				if (str == gameData.materials[i].name) {
+					matData = gameData.materials[i];
 				}
 			}
-		}
 
-		// Find inputs
-		var stringInputs:Array<TGameInput> = [];
-		for (i in 0...materialDatas.length) {
-			for (j in 0...materialDatas[i].inputs.length) {
-				if (materialDatas[i].inputs[j].name == "Name") {
-					stringInputs.push(materialDatas[i].inputs[j]);
+			// Find traits
+			var traitDatas:Array<TGameTrait> = [];
+			if (matData != null) {
+				for (i in 0...matData.traits.length) {
+					if (matData.traits[i].type == "Trait") {
+						traitDatas.push(matData.traits[i]);
+					}
 				}
 			}
-		}
 
-		for (stringInput in stringInputs) {
-
-			var s:Array<String> = stringInput.value.split(":");
-			var traitName = s[0];
-
-			// Parse arguments
-			var args:Dynamic = [];
-			for (i in 1...s.length) {
-
-				if (s[i] == "true") args.push(true);
-				else if (s[i] == "false") args.push(false);
-				else if (s[i].charAt(0) != '"') args.push(Std.parseFloat(s[i]));
-				else {
-					args.push(StringTools.replace(s[i], '"', ""));
-				}
+			// Find inputs
+			var classNames:Array<String> = [];
+			for (i in 0...traitDatas.length) {
+				classNames.push(traitDatas[i].class_name);
 			}
-			
-			obj.addTrait(createClassInstance(traitName, args));
+
+			for (className in classNames) {
+
+				var s:Array<String> = className.split(":");
+				var traitName = s[0];
+
+				// Parse arguments
+				var args:Dynamic = [];
+				for (i in 1...s.length) {
+
+					if (s[i] == "true") args.push(true);
+					else if (s[i] == "false") args.push(false);
+					else if (s[i].charAt(0) != "'") args.push(Std.parseFloat(s[i]));
+					else {
+						args.push(StringTools.replace(s[i], "'", ""));
+					}
+				}
+				
+				obj.addTrait(createClassInstance(traitName, args));
+			}
 		}
 	}
 
@@ -287,58 +288,23 @@ class DaeScene extends Trait {
 			}
 		}
 
-		// Find nodes
-		var materialData:TGameNode = null;
+		// Find traits
+		var traitData:TGameTrait = null;
 		if (matData != null) {
-			for (i in 0...matData.nodes.length) {
+			for (i in 0...matData.traits.length) {
 
-				var matName = matData.nodes[i].name.split(".")[0];
+				var traitType = matData.traits[i].type;
 
-				if (matName == "Mesh Material" || matName == "Custom Material") {
-					materialData = matData.nodes[i];
-					materialData.name = matName;
+				if (traitType == "Mesh Renderer" || traitType == "Custom Renderer") {
+					traitData = matData.traits[i];
 					break;
 				}
 			}
 		}
 
-		// Mesh material
-		if (materialData != null && materialData.name == "Mesh Material") {
-			// Find inputs
-			var lightingInput:TGameOutput = null;
-			var rimInput:TGameOutput = null;
-			var textureInput:TGameOutput = null;
-			var colorInput:TGameOutput = null;
-			var castShadowInput:TGameOutput = null;
-			var receiveShadowInput:TGameOutput = null;
-			if (materialData != null) {
-				for (i in 0...materialData.inputs.length) {
-					if (materialData.inputs[i].name == "Lighting") {
-						lightingInput = materialData.inputs[i];
-					}
-					else if (materialData.inputs[i].name == "Rim") {
-						rimInput = materialData.inputs[i];
-					}
-					else if (materialData.inputs[i].name == "Texture") {
-						textureInput = materialData.inputs[i];
-					}
-					else if (materialData.inputs[i].name == "Color") {
-						colorInput = materialData.inputs[i];
-					}
-					else if (materialData.inputs[i].name == "Cast Shadow") {
-						castShadowInput = materialData.inputs[i];
-					}
-					else if (materialData.inputs[i].name == "Receive Shadow") {
-						receiveShadowInput = materialData.inputs[i];
-					}
-				}
-			}
-			else {
-				return null;
-			}
-
+		// Mesh renderer
+		if (traitData != null && traitData.type == "Mesh Renderer") {
 			var isSkinned = daeContr == null ? false : true;
-
 			var va:Array<kha.math.Vector3> = daePrim.getTriangulatedArray("vertex");
 			var na:Array<kha.math.Vector3> = daePrim.getTriangulatedArray("normal"); 
 			var uva:Array<kha.math.Vector2> = daePrim.getTriangulatedArray("texcoord", 0);
@@ -363,7 +329,6 @@ class DaeScene extends Trait {
 
 			var data:Array<Float> = [];
 			var indices:Array<Int> = [];
-			
 			for (i in 0...va.length) {
 				data.push(va[i].x); // Pos
 				data.push(va[i].y);
@@ -396,10 +361,10 @@ class DaeScene extends Trait {
 					data.push(ca[i].A);
 				}
 				else {
-					data.push(colorInput.value[0]);	// Material color
-					data.push(colorInput.value[1]);
-					data.push(colorInput.value[2]);
-					data.push(colorInput.value[3]);
+					data.push(traitData.color[0]);	// Material color
+					data.push(traitData.color[1]);
+					data.push(traitData.color[2]);
+					data.push(traitData.color[3]);
 				}
 
 				if (isSkinned) { // Bones and weights
@@ -419,13 +384,12 @@ class DaeScene extends Trait {
 
 			var geo = new Geometry(data, indices, va, na);
 			
-			var tb = false;
-			if (textureInput != null) tb = textureInput.value == "" ? false : true;
-			var texturing = (textureInput != null && uva.length > 0) ? tb : false;
-			var lighting = lightingInput != null ? lightingInput.value : true;
-			var rim = rimInput != null ? rimInput.value : true;
-			var castShadow = castShadowInput != null ? castShadowInput.value : false;
-			var receiveShadow = receiveShadowInput != null ? receiveShadowInput.value : false;
+			var tb = traitData.texture == "" ? false : true;
+			var texturing = uva.length > 0 ? tb : false; // Make sure UVs are present
+			var lighting = traitData.lighting;
+			var rim = traitData.rim;
+			var castShadow = traitData.cast_shadow;
+			var receiveShadow = traitData.receive_shadow;
 
 			var shaderName = "shader";
 			if (isSkinned) shaderName = "skinnedshader";
@@ -435,7 +399,7 @@ class DaeScene extends Trait {
 			}
 			else {
 				Assets.addMaterial(mat, new TextureMaterial(Assets.getShader(shaderName),
-															Assets.getTexture(textureInput.value)));
+															Assets.getTexture(traitData.texture)));
 			}
 
 			var mesh:Mesh = null;
@@ -478,32 +442,7 @@ class DaeScene extends Trait {
 			return renderer;
 		}
 		// Custom material TODO: merge
-		else {
-			// Find inputs
-			var colorInput:TGameOutput = null;
-			var textureInput:TGameOutput = null;
-			var shaderInput:TGameOutput = null;
-			var rendererInput:TGameOutput = null;
-			if (materialData != null) {
-				for (i in 0...materialData.inputs.length) {
-					if (materialData.inputs[i].name == "Color") {
-						colorInput = materialData.inputs[i];
-					}
-					else if (materialData.inputs[i].name == "Texture") {
-						textureInput = materialData.inputs[i];
-					}
-					else if (materialData.inputs[i].name == "Shader") {
-						shaderInput = materialData.inputs[i];
-					}
-					else if (materialData.inputs[i].name == "Renderer") {
-						rendererInput = materialData.inputs[i];
-					}
-				}
-			}
-			else {
-				return null;
-			}
-
+		else if (traitData != null) {
 			var va:Array<kha.math.Vector3> = daePrim.getTriangulatedArray("vertex");
 			var na:Array<kha.math.Vector3> = daePrim.getTriangulatedArray("normal"); 
 			var uva:Array<kha.math.Vector2> = daePrim.getTriangulatedArray("texcoord", 0);
@@ -544,10 +483,10 @@ class DaeScene extends Trait {
 					data.push(ca[i].A);
 				}
 				else {
-					data.push(colorInput.value[0]);	// Material color
-					data.push(colorInput.value[1]);
-					data.push(colorInput.value[2]);
-					data.push(colorInput.value[3]);
+					data.push(traitData.color[0]);	// Material color
+					data.push(traitData.color[1]);
+					data.push(traitData.color[2]);
+					data.push(traitData.color[3]);
 				}
 
 				indices.push(i);
@@ -555,30 +494,30 @@ class DaeScene extends Trait {
 
 			var geo = new Geometry(data, indices, va, na);
 			
-			var shaderNm = shaderInput != null ? shaderInput.value : "";
-			var rendererNm = rendererInput != null ? rendererInput.value : "";
-			var tb = false;
-			if (textureInput != null) tb = textureInput.value == "" ? false : true;
-			var texturing = (textureInput != null && uva.length > 0) ? tb : false;
+			var shaderName = traitData.shader;
+			var rendererName = traitData.class_name;
+			var tb = traitData.texture == "" ? false : true;
+			var texturing = uva.length > 0 ? tb : false; // Make sure UVs are present
 
-			var shaderName = shaderNm;
 			if (!texturing) {
 				Assets.addMaterial(mat, new Material(Assets.getShader(shaderName)));
 			}
 			else {
 				Assets.addMaterial(mat, new TextureMaterial(Assets.getShader(shaderName),
-															Assets.getTexture(textureInput.value)));
+															Assets.getTexture(traitData.texture)));
 			}
 
 			var mesh:Mesh = null;
 			mesh = new Mesh(geo, Assets.getMaterial(mat));
 
-			var renderer:Dynamic = createClassInstance(rendererNm, [mesh]);
+			var renderer:Dynamic = createClassInstance(rendererName, [mesh]);
 			renderer.texturing = texturing;
 			renderer.initConstants();
 			object.addTrait(renderer);
 			return renderer;
 		}
+
+		return null;
 	}
 
 	public function addAnimations(root:Object, jointTransforms:Array<Transform>, daeData:DaeData) {

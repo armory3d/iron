@@ -33,7 +33,7 @@ class SlideTrait extends Trait implements IUpdateable {
 			// Stop sliding effect
 			motion.Actuate.stop(transform);
 		}
-		else if (input.released) {
+		else if (input.released && slide) {
 			slide = false;
 
 			// Sliding effect
