@@ -26,6 +26,12 @@ class SkinnedMeshRenderer extends MeshRenderer {
 		sampler = kha.Image.create(1, 2048 * 4, TextureFormat.RGBA32, Usage.DynamicUsage);
 	}
 
+	public override function initConstants() {
+		super.initConstants();
+
+		setMat4(projectionMatrix);
+	}
+
 	override function render(g:kha.graphics4.Graphics) {
 
 		var skm:SkinnedMesh = cast mesh;

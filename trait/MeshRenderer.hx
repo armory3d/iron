@@ -33,6 +33,18 @@ class MeshRenderer extends Renderer implements IRenderable {
 		viewMatrix = new Mat4();
 	}
 
+	public override function initConstants() {
+		setMat4(mvpMatrix);
+		setMat4(shadowMapMatrix);
+		setMat4(viewMatrix);
+		setBool(texturing);
+		setBool(lighting);
+		setBool(rim);
+		setBool(castShadow);
+		setBool(receiveShadow);
+		setTexture(fox.core.FrameRenderer.shadowMap);
+	}
+
 	@injectAdd
     public function addTransform(trait:Transform) {
         transform = trait;

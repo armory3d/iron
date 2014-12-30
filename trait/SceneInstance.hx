@@ -7,20 +7,21 @@ import fox.trait.Transform;
 class SceneInstance extends Trait {
 
     var transform:Transform;
+    var sceneName:String;
 
-    public function new() {
+    public function new(sceneName:String) {
         super();
+
+        this.sceneName = sceneName;
     }
 
     @injectAdd
     function addTransform(trait:Transform) {
     	transform = trait;
     	
-    	var o = Root.addScene("Zanim");
+    	var o = Root.addScene(sceneName);
         o.transform.x = transform.x;
         o.transform.y = transform.y;
         o.transform.z = transform.z;
-
-        trace(o.transform.x, o.transform.y, o.transform.z);
     }
 }

@@ -7,6 +7,7 @@ import oimo.physics.collision.shape.SphereShape;
 import fox.core.IUpdateable;
 import fox.core.Trait;
 import fox.sys.Time;
+import fox.math.Vec3;
 
 class RigidBody extends Trait implements IUpdateable {
 
@@ -17,8 +18,12 @@ class RigidBody extends Trait implements IUpdateable {
 	public var scene:SceneRenderer;
 	public var body:oimo.physics.dynamics.RigidBody = null;
 
-	var transform:Transform;
+	public var transform:Transform;
 	var mass:Float;
+
+	var lastColliding = false;
+	public var colliding:Bool = false;
+	public var collided:Bool = false;
 
 	public function new(mass:Float = 1, shape:Int = SHAPE_BOX) {
 		super();
@@ -50,6 +55,10 @@ class RigidBody extends Trait implements IUpdateable {
 		var sc:ShapeConfig = new ShapeConfig();
 		sc.density = mass > 0 ? mass : 1;
 		body = new oimo.physics.dynamics.RigidBody(this, transform.pos.x, transform.pos.y, transform.pos.z);
+		body.orientation.x = transform.rot.x;
+		body.orientation.y = transform.rot.y;
+		body.orientation.z = transform.rot.z;
+		body.orientation.s = transform.rot.w;
 		body.name = owner.name;
 
 		if (shape == SHAPE_BOX) {
@@ -69,10 +78,9 @@ class RigidBody extends Trait implements IUpdateable {
 		scene.world.addRigidBody(body);
 		Shape.nextID++;
 
-		body.orientation.x = transform.rot.x;
-		body.orientation.y = transform.rot.y;
-		body.orientation.z = transform.rot.z;
-		body.orientation.s = transform.rot.w;
+		// Use rigid body transform
+		//transform.pos = body.position;
+		//transform.rot = body.orientation;
 	}
 
 	public function update() {
@@ -97,9 +105,50 @@ class RigidBody extends Trait implements IUpdateable {
 		transform.rot.w = body.orientation.s;
 
 		transform.modified = true;
+
+		// Extra events
+		lastColliding = colliding;
+		colliding = false;
+		var c = body.parent.contacts;
+		while (c != null) {
+			if (c.body1 == body || c.body2 == body) {
+				colliding = true;
+				break;
+			}
+			c = c.next;
+		}
+		if (colliding && !lastColliding) {
+			collided = true;
+		}
+		else {
+			collided = false;
+		}
 	}
 
 	override function onItemRemove() { // TODO: not called
 		scene.world.removeRigidBody(body);
+	}
+
+	public function applyImpulse(pos:Vec3, force:Vec3) {
+		var opos = new oimo.math.Vec3(pos.x, pos.y, pos.z);
+		var oforce = new oimo.math.Vec3(force.x, force.y, force.z);
+		body.applyImpulse(opos, oforce);
+	}
+
+	public function setImpulse(pos:Vec3, force:Vec3) {
+		var opos = new oimo.math.Vec3(pos.x, pos.y, pos.z);
+		var oforce = new oimo.math.Vec3(force.x, force.y, force.z);
+		body.setImpulse(opos, oforce);
+	}
+
+	public function syncBody() { // TODO: remove
+		body.position.x = transform.x;
+		body.position.y = transform.y;
+		body.position.z = transform.z;
+		
+		body.orientation.x = transform.rot.x;
+		body.orientation.y = transform.rot.y;
+		body.orientation.z = transform.rot.z;
+		body.orientation.s = transform.rot.w;
 	}
 }

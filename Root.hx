@@ -16,8 +16,6 @@ import fox.core.FrameRenderer2D;
 import fox.trait.Input;
 import fox.trait.DaeScene;
 
-// TODO: Scaling and nested size calc - remove abs
-
 class Root extends kha.Game {
 
 	public static var root:Object;
@@ -65,6 +63,10 @@ class Root extends kha.Game {
         scene.addTrait(daeScene);
         currentScene = scene;
 	}
+
+    public static inline function registerInit(cb:Void->Void) {
+        daeScene.registerInit(cb);
+    }
 
     public static inline function addScene(name:String):Object {
         return daeScene.addScene(Assets.getString(name));

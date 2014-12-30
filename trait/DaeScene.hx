@@ -78,12 +78,17 @@ class DaeScene extends Trait {
 	var daeData:DaeData;
 	var gameData:TGameData;
 	var daeParams:DaeParams;
+	var traitInits:Array<Void->Void> = []; // TODO: scene nesting
 
 	public function new(data:String) {
 
 		super();
 
 		daeData = new DaeData(data);
+	}
+
+	public function registerInit(cb:Void->Void) {
+		traitInits.push(cb);
 	}
 
 	public function getNode(name:String):DaeNode {
@@ -146,6 +151,10 @@ class DaeScene extends Trait {
 					var daePrim = daeGeom.mesh.primitives[i];
 					renderer = createRenderer(child, daePrim, daeContr, daeData);
 					if (daeContr != null && renderer != null) daeParams.skinnedRenderers.push(cast renderer);
+					if (renderer == null) { // Get mesh size if renderer is not present
+						var va = daePrim.getTriangulatedArray("vertex");
+						calcSize(va, child.transform);
+					}
 				}
 
 				// Create object traits
@@ -173,6 +182,12 @@ class DaeScene extends Trait {
 		daeParams = new DaeParams();
 
 		createSceneInstance(daeData, daeParams, owner);
+
+		// TODO: scene instancing
+		for (cb in traitInits) {
+			cb();
+		}
+		traitInits = [];
 	}
 
 	public function addScene(data:String):Object {
@@ -236,15 +251,9 @@ class DaeScene extends Trait {
 				}
 			}
 
-			// Find inputs
-			var classNames:Array<String> = [];
-			for (i in 0...traitDatas.length) {
-				classNames.push(traitDatas[i].class_name);
-			}
-
-			for (className in classNames) {
-
-				var s:Array<String> = className.split(":");
+			// Create classes
+			for (t in traitDatas) {
+				var s:Array<String> = t.class_name.split(":");
 				var traitName = s[0];
 
 				// Parse arguments
@@ -305,82 +314,13 @@ class DaeScene extends Trait {
 		// Mesh renderer
 		if (traitData != null && traitData.type == "Mesh Renderer") {
 			var isSkinned = daeContr == null ? false : true;
-			var va:Array<kha.math.Vector3> = daePrim.getTriangulatedArray("vertex");
-			var na:Array<kha.math.Vector3> = daePrim.getTriangulatedArray("normal"); 
-			var uva:Array<kha.math.Vector2> = daePrim.getTriangulatedArray("texcoord", 0);
-			var ca:Array<kha.Color> = daePrim.getTriangulatedArray("color");
-			var wa:Array<kha.math.Vector4> = null;
-			var ba:Array<kha.math.Vector4> = null;
-
-			if (isSkinned) {
-				if (daeContr != null) {			
-					daeContr.generateBonesAndWeights();
-					
-					wa = daeContr.getTriangulatedWeights(daePrim);
-					ba = daeContr.getTriangulatedBones(daePrim);			
-					//var bsm:kha.math.Matrix4 = daeContr.getBSM();
-					
-					//for (i in 0...va.length)  { va[i] = bsm.transform3x4(va[i].clone); }
-					//for (i in 0...na.length)  { na[i] = bsm.transform3x3(na[i].clone); }
-					//for (i in 0...mbn.length) { mbn[i] = bsm.transform3x3(mbn[i].clone); }
-					//for (i in 0...mtg.length) { mtg[i] = bsm.transform3x3(mtg[i].clone); }
-				}
-			}
-
+			
 			var data:Array<Float> = [];
 			var indices:Array<Int> = [];
-			for (i in 0...va.length) {
-				data.push(va[i].x); // Pos
-				data.push(va[i].y);
-				data.push(va[i].z);
-
-				if (uva.length > 0) {
-					data.push(uva[i].x); // TC
-					data.push(uva[i].y);
-				}
-				else {
-					data.push(0);
-					data.push(0);
-				}
-
-				if (na.length > 0) {
-					data.push(na[i].x); // Normal
-					data.push(na[i].y);
-					data.push(na[i].z);
-				}
-				else {
-					data.push(1);
-					data.push(1);
-					data.push(1);
-				}
-
-				if (ca.length > 0) { // Color
-					data.push(ca[i].R); // Vertex colors
-					data.push(ca[i].G);
-					data.push(ca[i].B);
-					data.push(ca[i].A);
-				}
-				else {
-					data.push(traitData.color[0]);	// Material color
-					data.push(traitData.color[1]);
-					data.push(traitData.color[2]);
-					data.push(traitData.color[3]);
-				}
-
-				if (isSkinned) { // Bones and weights
-					data.push(ba[i].x);
-					data.push(ba[i].y);
-					data.push(ba[i].z);
-					data.push(ba[i].w);
-
-					data.push(wa[i].x);
-					data.push(wa[i].y);
-					data.push(wa[i].z);
-					data.push(wa[i].w);
-				}
-
-				indices.push(i);
-			}
+			var va = daePrim.getTriangulatedArray("vertex");
+			var na = daePrim.getTriangulatedArray("normal"); 
+			var uva = daePrim.getTriangulatedArray("texcoord", 0);
+			buildData(traitData, data, indices, va, na, uva, daePrim, isSkinned, daeContr);
 
 			var geo = new Geometry(data, indices, va, na);
 			
@@ -425,72 +365,19 @@ class DaeScene extends Trait {
 			renderer.rim = rim;
 			renderer.castShadow = castShadow;
 			renderer.receiveShadow = receiveShadow;
-			renderer.setMat4(renderer.mvpMatrix);
-			renderer.setMat4(renderer.shadowMapMatrix);
-			renderer.setMat4(renderer.viewMatrix);
-			if (isSkinned) {
-				var skinnedRenderer:SkinnedMeshRenderer = cast renderer;
-				skinnedRenderer.setMat4(skinnedRenderer.projectionMatrix);
-			}
-			renderer.setBool(texturing);
-			renderer.setBool(lighting);
-			renderer.setBool(rim);
-			renderer.setBool(castShadow);
-			renderer.setBool(receiveShadow);
-			renderer.setTexture(fox.core.FrameRenderer.shadowMap);
+			renderer.initConstants();
 			object.addTrait(renderer);
 			return renderer;
 		}
-		// Custom material TODO: merge
+		// Custom material
 		else if (traitData != null) {
-			var va:Array<kha.math.Vector3> = daePrim.getTriangulatedArray("vertex");
-			var na:Array<kha.math.Vector3> = daePrim.getTriangulatedArray("normal"); 
-			var uva:Array<kha.math.Vector2> = daePrim.getTriangulatedArray("texcoord", 0);
-			var ca:Array<kha.Color> = daePrim.getTriangulatedArray("color");
-
+			
 			var data:Array<Float> = [];
 			var indices:Array<Int> = [];
-			
-			for (i in 0...va.length) {
-				data.push(va[i].x); // Pos
-				data.push(va[i].y);
-				data.push(va[i].z);
-
-				if (uva.length > 0) {
-					data.push(uva[i].x); // TC
-					data.push(uva[i].y);
-				}
-				else {
-					data.push(0);
-					data.push(0);
-				}
-
-				if (na.length > 0) {
-					data.push(na[i].x); // Normal
-					data.push(na[i].y);
-					data.push(na[i].z);
-				}
-				else {
-					data.push(1);
-					data.push(1);
-					data.push(1);
-				}
-
-				if (ca.length > 0) { // Color
-					data.push(ca[i].R); // Vertex colors
-					data.push(ca[i].G);
-					data.push(ca[i].B);
-					data.push(ca[i].A);
-				}
-				else {
-					data.push(traitData.color[0]);	// Material color
-					data.push(traitData.color[1]);
-					data.push(traitData.color[2]);
-					data.push(traitData.color[3]);
-				}
-
-				indices.push(i);
-			}
+			var va = daePrim.getTriangulatedArray("vertex");
+			var na = daePrim.getTriangulatedArray("normal"); 
+			var uva = daePrim.getTriangulatedArray("texcoord", 0);
+			buildData(traitData, data, indices, va, na, uva, daePrim, false, null);
 
 			var geo = new Geometry(data, indices, va, na);
 			
@@ -568,5 +455,108 @@ class DaeScene extends Trait {
 			
 			anim.add(clip);				
 		}
+	}
+
+	function buildData(traitData:TGameTrait,
+					   data:Array<Float>, indices:Array<Int>,
+					   va:Array<kha.math.Vector3>, na:Array<kha.math.Vector3>, uva:Array<kha.math.Vector2>,
+					   daePrim:DaePrimitive, isSkinned:Bool, daeContr:DaeController) {
+
+		var ca:Array<kha.Color> = daePrim.getTriangulatedArray("color");
+		var wa:Array<kha.math.Vector4> = null;
+		var ba:Array<kha.math.Vector4> = null;
+
+		if (isSkinned) {
+			if (daeContr != null) {			
+				daeContr.generateBonesAndWeights();
+				
+				wa = daeContr.getTriangulatedWeights(daePrim);
+				ba = daeContr.getTriangulatedBones(daePrim);			
+				//var bsm:kha.math.Matrix4 = daeContr.getBSM();
+				
+				//for (i in 0...va.length)  { va[i] = bsm.transform3x4(va[i].clone); }
+				//for (i in 0...na.length)  { na[i] = bsm.transform3x3(na[i].clone); }
+				//for (i in 0...mbn.length) { mbn[i] = bsm.transform3x3(mbn[i].clone); }
+				//for (i in 0...mtg.length) { mtg[i] = bsm.transform3x3(mtg[i].clone); }
+			}
+		}
+
+		for (i in 0...va.length) {
+			data.push(va[i].x); // Pos
+			data.push(va[i].y);
+			data.push(va[i].z);
+
+			if (uva.length > 0) {
+				data.push(uva[i].x); // TC
+				data.push(1 - uva[i].y);
+			}
+			else {
+				data.push(0);
+				data.push(0);
+			}
+
+			if (na.length > 0) {
+				data.push(na[i].x); // Normal
+				data.push(na[i].y);
+				data.push(na[i].z);
+			}
+			else {
+				data.push(1);
+				data.push(1);
+				data.push(1);
+			}
+
+			if (ca.length > 0) { // Color
+				data.push(ca[i].R); // Vertex colors
+				data.push(ca[i].G);
+				data.push(ca[i].B);
+				data.push(ca[i].A);
+			}
+			else {
+				data.push(traitData.color[0]);	// Material color
+				data.push(traitData.color[1]);
+				data.push(traitData.color[2]);
+				data.push(traitData.color[3]);
+			}
+
+			if (isSkinned) { // Bones and weights
+				data.push(ba[i].x);
+				data.push(ba[i].y);
+				data.push(ba[i].z);
+				data.push(ba[i].w);
+
+				data.push(wa[i].x);
+				data.push(wa[i].y);
+				data.push(wa[i].z);
+				data.push(wa[i].w);
+			}
+
+			indices.push(i);
+		}
+	}
+
+	function calcSize(va:Array<kha.math.Vector3>, transform:Transform) {
+		// Gets mesh size when mesh renderer is not present
+		var aabbMin = new fox.math.Vec3(-0.1, -0.1, -0.1);
+		var aabbMax = new fox.math.Vec3(0.1, 0.1, 0.1);
+
+		var i:Int = 0;
+		while (i < va.length) {
+
+			if (va[i].x > aabbMax.x)	aabbMax.x = va[i].x;
+			if (va[i].y > aabbMax.y)	aabbMax.y = va[i].y;
+			if (va[i].z > aabbMax.z)	aabbMax.z = va[i].z;
+
+			if (va[i].x < aabbMin.x)	aabbMin.x = va[i].x;
+			if (va[i].y < aabbMin.y)	aabbMin.y = va[i].y;
+			if (va[i].z < aabbMin.z)	aabbMin.z = va[i].z;
+
+			i++;
+		}
+
+		// TODO: dont store scale in size
+		transform.size.x = (Math.abs(aabbMin.x) + Math.abs(aabbMax.x)) * transform.scale.x;
+		transform.size.y = (Math.abs(aabbMin.y) + Math.abs(aabbMax.y)) * transform.scale.y;
+		transform.size.z = (Math.abs(aabbMin.z) + Math.abs(aabbMax.z)) * transform.scale.z;
 	}
 }

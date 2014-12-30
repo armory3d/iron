@@ -135,6 +135,10 @@ class Helper {
         return ray.intersectBox(box);
     }
 
+    public static inline function distance1d(x1:Float, x2:Float) {
+        return Math.abs(x2 - x1);
+    }
+
     public static function distance2d(x1:Float, y1:Float, x2:Float, y2:Float):Float {
         return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
     }
