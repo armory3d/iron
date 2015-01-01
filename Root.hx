@@ -14,12 +14,12 @@ import fox.core.FrameUpdater;
 import fox.core.FrameRenderer;
 import fox.core.FrameRenderer2D;
 import fox.trait.Input;
-import fox.trait.DaeScene;
+import fox.trait.GameScene;
 
 class Root extends kha.Game {
 
 	public static var root:Object;
-    public static var daeScene:DaeScene;
+    public static var gameScene:GameScene;
     public static var currentScene:Object;
 
 	static var frameUpdater:FrameUpdater;
@@ -59,17 +59,17 @@ class Root extends kha.Game {
 		reset();
 		var scene = new Object();
         addChild(scene);
-        daeScene = new DaeScene(Assets.getString(name));
-        scene.addTrait(daeScene);
+        gameScene = new GameScene(Assets.getString(name));
+        scene.addTrait(gameScene);
         currentScene = scene;
 	}
 
     public static inline function registerInit(cb:Void->Void) {
-        daeScene.registerInit(cb);
+        gameScene.registerInit(cb);
     }
 
     public static inline function addScene(name:String):Object {
-        return daeScene.addScene(Assets.getString(name));
+        return gameScene.addScene(Assets.getString(name));
     }
 
 	override public function init() {
@@ -149,7 +149,7 @@ class Root extends kha.Game {
         billboardShader.addTexture("tex");
         Assets.addShader("billboardshader", billboardShader);
 
-
+        // Particles
         var particlesShader = new Shader("particles.frag", "particles.vert", struct);
         particlesShader.addConstantMat4("mvpMatrix");
         particlesShader.addConstantVec3("billboardCenterWorld");
@@ -181,7 +181,7 @@ class Root extends kha.Game {
         shader.addTexture("shadowMap");
         Assets.addShader("shader", shader);
 
-        // Create skinned shader
+        // Skinned mesh
         var struct = new VertexStructure();
         struct.addFloat3("vertexPosition");
         struct.addFloat2("texturePosition");
@@ -205,7 +205,7 @@ class Root extends kha.Game {
         skinnedshader.addTexture("skinning");
         Assets.addShader("skinnedshader", skinnedshader);
 
-        fox.sys.importer.Animation.init();
+        //fox.sys.importer.Animation.init();
 
         Type.createInstance(game, []);
     }
@@ -213,7 +213,7 @@ class Root extends kha.Game {
 	override public inline function update() {
 		frameUpdater.update();
 
-		fox.sys.importer.Animation.update();
+		//fox.sys.importer.Animation.update();
 		Time.update();
 		Input.update();
 	}

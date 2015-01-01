@@ -135,7 +135,6 @@ class Transform extends Trait implements IUpdateable {
 	}
 
 	public function updateSize() {
-
 		resized = false;
 
 		var left = absx;

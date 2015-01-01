@@ -25,11 +25,11 @@ class Geometry {
 
 	public var structure:VertexStructure;
 
-	public var positions:Array<kha.math.Vector3>;
-	public var normals:Array<kha.math.Vector3>;
+	public var positions:Array<Float>;
+	public var normals:Array<Float>;
 
 	public function new(data:Array<Float>, indices:Array<Int>,
-						positions:Array<kha.math.Vector3>, normals:Array<kha.math.Vector3>,
+						positions:Array<Float>, normals:Array<Float>,
 						usage:Usage = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
