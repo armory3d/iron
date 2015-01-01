@@ -1,6 +1,6 @@
 package fox.trait;
 
-import kha.math.Matrix4;
+import fox.math.Matrix4;
 import fox.core.Object;
 import fox.core.Trait;
 import fox.sys.importer.OgexData;

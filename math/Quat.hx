@@ -3,7 +3,7 @@ package fox.math;
 // Adapted from Cannon 3D Physics
 
 using fox.math.Math;
-using kha.math.Matrix4;
+using fox.math.Matrix4;
 
 /**
  * @class Quaternion

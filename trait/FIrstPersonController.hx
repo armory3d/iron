@@ -1,7 +1,7 @@
 package fox.trait;
 
-import kha.math.Matrix4;
-import kha.math.Vector3;
+import fox.math.Matrix4;
+import fox.math.Vector3;
 import fox.Root;
 import fox.sys.Time;
 import fox.core.Trait;
