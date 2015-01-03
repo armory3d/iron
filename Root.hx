@@ -85,7 +85,7 @@ class Root extends kha.Game {
         if (initCB != null) initCB();
 
         new Time();
-		new Storage();
+		//new Storage();
 
 		root = new Object();
 

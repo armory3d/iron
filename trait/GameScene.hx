@@ -83,7 +83,7 @@ class GameScene extends Trait {
 	}
 
 	public inline function getNode(name:String):Node {
-		return ogexData.getGeometryNode(name);
+		return ogexData.getNode(name);
 	}
 
 	public inline function createNode(node:Node):Object {
@@ -120,7 +120,7 @@ class GameScene extends Trait {
 
 	public function createSceneInstance(ogexData:OgexData, gameParams:GameParams, owner:Object) {
 		// Create scene nodes
-		ogexData.traverseGeometryNodes(function(node:GeometryNode) {
+		ogexData.traverseNodes(function(node:Node) {
 			if (node.name.charAt(0) == "_") { // TODO: use custom tag instead
 				return; // Skip hidden objects
 			}
