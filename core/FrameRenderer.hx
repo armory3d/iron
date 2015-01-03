@@ -20,11 +20,11 @@ class FrameRenderer extends AbstractTrait {
 		super();
 
 		// Create shadow map texture
-		#if js
-		shadowMap = kha.Image.createRenderTarget(512, 512, kha.graphics4.TextureFormat.RGBA128);
-		#else
+		//#if js
+		//shadowMap = kha.Image.createRenderTarget(512, 512, kha.graphics4.TextureFormat.RGBA128);
+		//#else
 		shadowMap = kha.Image.createRenderTarget(512, 512);
-		#end
+		//#end
 
 		// Parse clear color
 		if (Main.gameData != null) {
