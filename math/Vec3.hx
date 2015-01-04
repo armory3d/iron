@@ -1,17 +1,9 @@
 package fox.math;
 
-// Adapted from Cannon 3D Physics
-// Use three like style
-// TODO: merge with Kha's built in Vec
+// https://github.com/mrdoob/three.js/
+// https://github.com/schteppe/cannon.js
+// https://github.com/ncannasse/h3d
 
-/**
- * @class Vec3
- * @brief 3-dimensional vector
- * @param float x
- * @param float y
- * @param float z
- * @author schteppe
- */
 class Vec3 {
 
     public var x:Float;
@@ -19,26 +11,13 @@ class Vec3 {
     public var z:Float;
     public var w:Float;
 
-    static var Vec3_tangents_n:Vec3 = new Vec3();
-    static var Vec3_tangents_randVec:Vec3 = new Vec3();
+    static var Vec3_tangents_n = new Vec3();
+    static var Vec3_tangents_randVec = new Vec3();
 
-    public function new(x:Float = 0.0, y:Float = 0.0, z:Float = 0.0, w:Float = 1){
-        /**
-        * @property float x
-        * @memberof Vec3
-        */
+    public function new(x:Float = 0.0, y:Float = 0.0, z:Float = 0.0, w:Float = 1) {
         this.x = x;
-        /**
-        * @property float y
-        * @memberof Vec3
-        */
         this.y = y;
-        /**
-        * @property float z
-        * @memberof Vec3
-        */
         this.z = z;
-
         this.w = w;
     }
 
@@ -50,7 +29,7 @@ class Vec3 {
      * @param Vec3 target Optional. Target to save in.
      * @return Vec3
      */
-    public function cross(v:Vec3,target:Vec3 = null):Vec3{
+    public function cross(v:Vec3, target:Vec3 = null):Vec3 {
         var vx:Float = v.x; var vy:Float = v.y; var vz:Float = v.z; var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
         if (target == null) target = new Vec3();
 
@@ -88,7 +67,7 @@ class Vec3 {
      * @param float z
      * @return Vec3
      */
-    public function set(x,y,z):Vec3{
+    public function set(x:Float, y:Float, z:Float):Vec3{
         this.x = x;
         this.y = y;
         this.z = z;
@@ -103,13 +82,14 @@ class Vec3 {
      * @param Vec3 target Optional.
      * @return Vec3
      */
-    public function vadd(v:Vec3,target:Vec3 = null):Vec3 {
-        if(target != null){
+    public function vadd(v:Vec3, target:Vec3 = null):Vec3 {
+        if(target != null) {
             target.x = v.x + this.x;
             target.y = v.y + this.y;
             target.z = v.z + this.z;
             return target;
-        } else {
+        }
+        else {
             return new Vec3(this.x + v.x,
                             this.y + v.y,
                             this.z + v.z);
@@ -139,13 +119,14 @@ class Vec3 {
      * @param Vec3 target Optional. Target to save in.
      * @return Vec3
      */
-    public function vsub(v:Vec3,target:Vec3 = null):Vec3 {
-        if(target != null){
+    public function vsub(v:Vec3, target:Vec3 = null):Vec3 {
+        if (target != null) {
             target.x = this.x - v.x;
             target.y = this.y - v.y;
             target.z = this.z - v.z;
             return target;
-        } else {
+        }
+        else {
             return new Vec3(this.x-v.x,
                             this.y-v.y,
                             this.z-v.z);
@@ -160,34 +141,21 @@ class Vec3 {
     }   
 
     /**
-     * @method crossmat
-     * @memberof Vec3
-     * @brief Get the cross product matrix a_cross from a vector, such that a x b = a_cross * b = c
-     * @see http://www8.cs.umu.se/kurser/TDBD24/VT06/lectures/Lecture6.pdf
-     * @return CANNON.Mat3
-     */
-    public function crossmat():Void {
-        // FIXME 
-        //return new CANNON.Mat3([     0,  -this.z,   this.y,
-        //                        this.z,        0,  -this.x,
-        //                       -this.y,   this.x,        0]);
-    }
-
-    /**
      * @method normalize
      * @memberof Vec3
      * @brief Normalize the vector. Note that this changes the values in the vector.
      * @return float Returns the norm of the vector
      */
-    public function normalize():Float{
+    public function normalize():Float {
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
-        var n:Float = Math.sqrt(x*x + y*y + z*z);
-        if(n>0.0){
+        var n:Float = Math.sqrt(x * x + y * y + z * z);
+        if (n > 0.0) {
             var invN:Float = 1/n;
             this.x *= invN;
             this.y *= invN;
             this.z *= invN;
-        } else {
+        }
+        else {
             // Make something up
             this.x = 0;
             this.y = 0;
@@ -203,16 +171,17 @@ class Vec3 {
      * @param Vec3 target Optional target to save in
      * @return Vec3 Returns the unit vector
      */
-    public function unit(target):Vec3{
+    public function unit(target:Vec3):Vec3 {
         if (target == null) target = new Vec3();
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
         var ninv:Float = Math.sqrt(x*x + y*y + z*z);
-        if(ninv>0.0){
-            ninv = 1.0/ninv;
+        if (ninv > 0.0) {
+            ninv = 1.0 / ninv;
             target.x = x * ninv;
             target.y = y * ninv;
             target.z = z * ninv;
-        } else {
+        }
+        else {
             target.x = 1;
             target.y = 0;
             target.z = 0;
@@ -226,9 +195,9 @@ class Vec3 {
      * @brief Get the 2-norm (length) of the vector
      * @return float
      */
-    public function norm():Float{
+    public function norm():Float {
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
-        return Math.sqrt(x*x + y*y + z*z);
+        return Math.sqrt(x * x + y * y + z * z);
     }
 
     /**
@@ -237,16 +206,16 @@ class Vec3 {
      * @brief Get the squared length of the vector
      * @return float
      */
-    public function norm2():Float{
+    public function norm2():Float {
         return this.dot(this);
     }
 
-    public function distanceTo(p):Float{
+    public function distanceTo(p:Vec3):Float {
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
         var px:Float = p.x; var py:Float = p.y; var pz:Float = p.z;
-        return Math.sqrt((px-x)*(px-x)+
-                         (py-y)*(py-y)+
-                         (pz-z)*(pz-z));
+        return Math.sqrt((px - x) * (px - x) +
+                         (py - y) * (py - y) +
+                         (pz - z) * (pz - z));
     }
 
     /**
@@ -257,7 +226,7 @@ class Vec3 {
      * @param Vec3 target
      * @return Vec3
      */
-    public function mult(scalar:Float,target:Vec3 = null):Vec3{
+    public function mult(scalar:Float, target:Vec3 = null):Vec3 {
         if (target == null) target = new Vec3();
         var x:Float = this.x;
         var y:Float = this.y;
@@ -291,8 +260,8 @@ class Vec3 {
      * @memberof Vec3
      * @return bool
      */
-    public function isZero():Bool{
-        return this.x==0 && this.y==0 && this.z==0;
+    public function isZero():Bool {
+        return this.x == 0 && this.y == 0 && this.z == 0;
     }
 
     /**
@@ -302,7 +271,7 @@ class Vec3 {
      * @param Vec3 target Optional target to save in
      * @return Vec3
      */
-    public function negate(target:Vec3 = null):Vec3{
+    public function negate(target:Vec3 = null):Vec3 {
         if (target == null) target = new Vec3();
         target.x = -this.x;
         target.y = -this.y;
@@ -317,25 +286,26 @@ class Vec3 {
      * @param Vec3 t1 Vector object to save the first tangent in
      * @param Vec3 t2 Vector object to save the second tangent in
      */
-    public function tangents(t1:Vec3,t2:Vec3){
+    public function tangents(t1 : Vec3,t2 : Vec3) {
         var norm:Float = this.norm();
-        if(norm>0.0){
+        if (norm > 0.0) {
             var n = Vec3_tangents_n;
-            var inorm:Float = 1/norm;
-            n.set(this.x*inorm,this.y*inorm,this.z*inorm);
+            var inorm:Float = 1 / norm;
+            n.set(this.x * inorm, this.y * inorm, this.z * inorm);
             var randVec = Vec3_tangents_randVec;
-            if(Math.abs(n.x) < 0.9){
-                randVec.set(1,0,0);
-                n.cross(randVec,t1);
-            } else {
-                randVec.set(0,1,0);
-                n.cross(randVec,t1);
+            if (Math.abs(n.x) < 0.9) {
+                randVec.set(1, 0, 0);
+                n.cross(randVec, t1);
             }
-            n.cross(t1,t2);
+            else {
+                randVec.set(0, 1, 0);
+                n.cross(randVec, t1);
+            }
+            n.cross(t1, t2);
         } else {
             // The normal length is zero, make something up
-            t1.set(1,0,0).normalize();
-            t2.set(0,1,0).normalize();
+            t1.set(1, 0, 0).normalize();
+            t2.set(0, 1, 0).normalize();
         }
     }
 
@@ -345,8 +315,8 @@ class Vec3 {
      * @brief Converts to a more readable format
      * @return string
      */
-    public function toString():String{
-        return this.x+","+this.y+","+this.z;
+    public function toString():String {
+        return this.x + "," + this.y + "," + this.z;
     }
 
     /**
@@ -356,7 +326,7 @@ class Vec3 {
      * @param Vec3 target
      * @return Vec3
      */
-    public function copy(target:Vec3):Vec3{
+    public function copy(target:Vec3):Vec3 {
         if (target == null) target = new Vec3();
         target.x = this.x;
         target.y = this.y;
@@ -375,7 +345,6 @@ class Vec3 {
         return new Vec3(x, y, z);
     }
 
-
     /**
      * @method lerp
      * @memberof Vec3
@@ -384,11 +353,11 @@ class Vec3 {
      * @param float t A number between 0 and 1. 0 will make this function return u, and 1 will make it return v. Numbers in between will generate a vector in between them.
      * @param Vec3 target
      */
-    public function lerp(v:Vec3,t:Float,target:Vec3):Void{
+    public function lerp(v:Vec3, t:Float, target:Vec3) {
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
-        target.x = x + (v.x-x)*t;
-        target.y = y + (v.y-y)*t;
-        target.z = z + (v.z-z)*t;
+        target.x = x + (v.x - x) * t;
+        target.y = y + (v.y - y) * t;
+        target.z = z + (v.z - z) * t;
     }
 
     /**
@@ -399,13 +368,13 @@ class Vec3 {
      * @param float precision
      * @return bool
      */
-    public function almostEquals(v:Vec3,precision:Float = -1.0):Bool{
-        if(precision < -0.99){
+    public function almostEquals(v:Vec3, precision:Float = -1.0):Bool {
+        if (precision < -0.99) {
             precision = 1e-6;
         }
-        if( Math.abs(this.x-v.x)>precision ||
+        if (Math.abs(this.x-v.x)>precision ||
             Math.abs(this.y-v.y)>precision ||
-            Math.abs(this.z-v.z)>precision){
+            Math.abs(this.z-v.z)>precision) {
             return false;
         }
         return true;
@@ -419,7 +388,7 @@ class Vec3 {
      */
     public function almostZero(v:Vec3):Bool {
         var precision:Float = 1e-6; 
-        if( Math.abs(this.x)>precision ||
+        if (Math.abs(this.x)>precision ||
             Math.abs(this.y)>precision ||
             Math.abs(this.z)>precision){
             return false;
@@ -427,22 +396,19 @@ class Vec3 {
         return true;
     }
 
-
     // Extended
-
-
     public function applyProjection(m:Mat4):Vec3 {
-
-        // input: THREE.Matrix4 projection matrix
+        // Input: THREE.Matrix4 projection matrix
 
         var x = this.x, y = this.y, z = this.z;
 
         var e = m.getFloats();
-        var d = 1 / ( e[3] * x + e[7] * y + e[11] * z + e[15] ); // perspective divide
+        // Perspective divide
+        var d = 1 / (e[3] * x + e[7] * y + e[11] * z + e[15]);
 
-        this.x = ( e[0] * x + e[4] * y + e[8]  * z + e[12] ) * d;
-        this.y = ( e[1] * x + e[5] * y + e[9]  * z + e[13] ) * d;
-        this.z = ( e[2] * x + e[6] * y + e[10] * z + e[14] ) * d;
+        this.x = (e[0] * x + e[4] * y + e[8]  * z + e[12]) * d;
+        this.y = (e[1] * x + e[5] * y + e[9]  * z + e[13]) * d;
+        this.z = (e[2] * x + e[6] * y + e[10] * z + e[14]) * d;
 
         return this;
     }
@@ -462,39 +428,30 @@ class Vec3 {
         return this;
     }   
 
-
-
     public function normalize2():Vec3 {
-
         return this.divideScalar(this.getLength());
-
     }
 
     public function divideScalar(scalar:Float):Vec3 {
-
-        if ( scalar != 0 ) {
-
+        if (scalar != 0) {
             var invScalar = 1 / scalar;
 
             this.x *= invScalar;
             this.y *= invScalar;
             this.z *= invScalar;
 
-        } else {
-
+        }
+        else {
             this.x = 0;
             this.y = 0;
             this.z = 0;
-
         }
 
         return this;
-
     }
 
     public function getLength() {
-
-        return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
     public function lengthSq():Float {
@@ -510,8 +467,9 @@ class Vec3 {
         return this;
     }
 
-    public function getXYZ():Vec3 { return new Vec3(x, y, z); }
-
+    public function getXYZ():Vec3 {
+        return new Vec3(x, y, z);
+    }
 
     public function min(v:Vec3):Vec3 {
         if (x > v.x) x = v.x;

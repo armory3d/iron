@@ -1,7 +1,7 @@
 package fox.trait;
 
-import fox.math.Matrix4;
-import fox.math.Vector3;
+import fox.math.Mat4;
+import fox.math.Vec3;
 import fox.Root;
 import fox.sys.Time;
 import fox.core.Trait;
@@ -78,10 +78,10 @@ class FirstPersonController extends Trait implements IUpdateable {
 
         // Move
         if (moveForward) {
-            var mat = Matrix4.identity();
-            transform.rot.saveToMatrix2(mat);
+            var mat = new Mat4();
+            transform.rot.saveToMatrix(mat);
 
-            var forward = new Vector3(0, 1, 0);
+            var forward = new Vec3(0, 1, 0);
             forward.applyProjection(mat);
             forward = forward.mult(fox.sys.Time.delta * 350);
 
@@ -90,10 +90,10 @@ class FirstPersonController extends Trait implements IUpdateable {
         }
 
         if (moveBackward) {
-            var mat = Matrix4.identity();
-            transform.rot.saveToMatrix2(mat);
+            var mat = new Mat4();
+            transform.rot.saveToMatrix(mat);
 
-            var forward = new Vector3(0, -1, 0);
+            var forward = new Vec3(0, -1, 0);
             forward.applyProjection(mat);
             forward = forward.mult(fox.sys.Time.delta * 350);
 
@@ -102,10 +102,10 @@ class FirstPersonController extends Trait implements IUpdateable {
         }
 
         if (moveLeft) {
-            var mat = Matrix4.identity();
-            transform.rot.saveToMatrix2(mat);
+            var mat = new Mat4();
+            transform.rot.saveToMatrix(mat);
 
-            var forward = new Vector3(-1, 0, 0);
+            var forward = new Vec3(-1, 0, 0);
             forward.applyProjection(mat);
             forward = forward.mult(fox.sys.Time.delta * 350);
 
@@ -114,10 +114,10 @@ class FirstPersonController extends Trait implements IUpdateable {
         }
 
         if (moveRight) {
-            var mat = Matrix4.identity();
-            transform.rot.saveToMatrix2(mat);
+            var mat = new Mat4();
+            transform.rot.saveToMatrix(mat);
 
-            var forward = new Vector3(1, 0, 0);
+            var forward = new Vec3(1, 0, 0);
             forward.applyProjection(mat);
             forward = forward.mult(fox.sys.Time.delta * 350);
 
@@ -126,10 +126,10 @@ class FirstPersonController extends Trait implements IUpdateable {
         }
 
         if (jump) {
-            var mat = Matrix4.identity();
-            transform.rot.saveToMatrix2(mat);
+            var mat = new Mat4();
+            transform.rot.saveToMatrix(mat);
 
-            var forward = new Vector3(0, 0, 1);
+            var forward = new Vec3(0, 0, 1);
             forward.applyProjection(mat);
             forward = forward.mult(fox.sys.Time.delta * 350);
 
@@ -138,10 +138,10 @@ class FirstPersonController extends Trait implements IUpdateable {
         }
 
         if (!moveForward && !moveBackward && !moveLeft && !moveRight && !jump) {
-            var mat = Matrix4.identity();
-            transform.rot.saveToMatrix2(mat);
+            var mat = new Mat4();
+            transform.rot.saveToMatrix(mat);
 
-            var forward = new Vector3(0, 0, -1);
+            var forward = new Vec3(0, 0, -1);
             forward.applyProjection(mat);
             forward = forward.mult(fox.sys.Time.delta * 3000);
 
@@ -162,8 +162,8 @@ class FirstPersonController extends Trait implements IUpdateable {
             body.body.orientation.s = transform.rot.w;
 
             // Move
-            var mat = Matrix4.identity();
-            transform.rot.saveToMatrix2(mat);
+            var mat = new Mat4();
+            transform.rot.saveToMatrix(mat);
 
             var forward = new Vector3(0, 1, 0);
             forward.applyProjection(mat);

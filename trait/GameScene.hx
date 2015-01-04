@@ -1,6 +1,6 @@
 package fox.trait;
 
-import fox.math.Matrix4;
+import fox.math.Mat4;
 import fox.core.Object;
 import fox.core.Trait;
 import fox.sys.importer.OgexData;
@@ -167,16 +167,16 @@ class GameScene extends Trait {
 	}
 
 	function generateTranform(node:Node, transform:Transform) {
-		var mat = new Matrix4(node.transform.values);
-		transform.pos.x = mat.matrix[3];
-		transform.pos.y = mat.matrix[7];
-		transform.pos.z = mat.matrix[11];
+		var mat = new Mat4(node.transform.values);
+		transform.pos.x = mat._14;
+		transform.pos.y = mat._24;
+		transform.pos.z = mat._34;
 		var rotation = mat.getQuat();
 		transform.rot.set(rotation.x, rotation.y, rotation.z, rotation.w);
 		var ms = mat.getScale();
-		transform.scale.x = ms.matrix[0];
-		transform.scale.y = ms.matrix[5];
-		transform.scale.z = ms.matrix[10];
+		transform.scale.x = ms._11;
+		transform.scale.y = ms._22;
+		transform.scale.z = ms._33;
 	}
 
 	public function createTraits(obj:Object, mats:Array<String>) {

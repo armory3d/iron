@@ -1,8 +1,8 @@
 package fox.math;
 
-// Adapted from H3D Engine
+// https://github.com/mrdoob/three.js/
+// https://github.com/schteppe/cannon.js
 // https://github.com/ncannasse/h3d
-// TODO: merge with built in Kha matrix
 
 import fox.math.Math;
 
@@ -27,8 +27,8 @@ class Mat4 {
 	public var _43 : Float; // 14
 	public var _44 : Float; // 15
 
-	public function new(a : Array<Float> = null) {
-		if (a != null) load(a);
+	public function new(values:Array<Float> = null) {
+		if (values != null) load(values);
 		else identity();
 
 		m = new Array<Float>();
@@ -50,73 +50,77 @@ class Mat4 {
 		_41 = 0.0; _42 = 0.0; _43 = 0.0; _44 = 1.0;
 	}
 
-	public function initRotateX( a : Float ) {
+	public function initRotateX(a:Float) {
 		var cos = Math.cos(a);
 		var sin = Math.sin(a);
-		_11 = 1.0; _12 = 0.0; _13 = 0.0; _14 = 0.0;
-		_21 = 0.0; _22 = cos; _23 = sin; _24 = 0.0;
+		_11 = 1.0; _12 =  0.0; _13 = 0.0; _14 = 0.0;
+		_21 = 0.0; _22 =  cos; _23 = sin; _24 = 0.0;
 		_31 = 0.0; _32 = -sin; _33 = cos; _34 = 0.0;
-		_41 = 0.0; _42 = 0.0; _43 = 0.0; _44 = 1.0;
+		_41 = 0.0; _42 =  0.0; _43 = 0.0; _44 = 1.0;
 	}
 
-	public function initRotateY( a : Float ) {
+	public function initRotateY(a:Float) {
 		var cos = Math.cos(a);
 		var sin = Math.sin(a);
 		_11 = cos; _12 = 0.0; _13 = -sin; _14 = 0.0;
-		_21 = 0.0; _22 = 1.0; _23 = 0.0; _24 = 0.0;
-		_31 = sin; _32 = 0.0; _33 = cos; _34 = 0.0;
-		_41 = 0.0; _42 = 0.0; _43 = 0.0; _44 = 1.0;
+		_21 = 0.0; _22 = 1.0; _23 =  0.0; _24 = 0.0;
+		_31 = sin; _32 = 0.0; _33 =  cos; _34 = 0.0;
+		_41 = 0.0; _42 = 0.0; _43 =  0.0; _44 = 1.0;
 	}
 
-	public function initRotateZ( a : Float ) {
+	public function initRotateZ(a:Float) {
 		var cos = Math.cos(a);
 		var sin = Math.sin(a);
-		_11 = cos; _12 = sin; _13 = 0.0; _14 = 0.0;
+		_11 =  cos; _12 = sin; _13 = 0.0; _14 = 0.0;
 		_21 = -sin; _22 = cos; _23 = 0.0; _24 = 0.0;
-		_31 = 0.0; _32 = 0.0; _33 = 1.0; _34 = 0.0;
-		_41 = 0.0; _42 = 0.0; _43 = 0.0; _44 = 1.0;
+		_31 =  0.0; _32 = 0.0; _33 = 1.0; _34 = 0.0;
+		_41 =  0.0; _42 = 0.0; _43 = 0.0; _44 = 1.0;
 	}
 
-	public function initTranslate( x = 0., y = 0., z = 0. ) {
+	public function initTranslate(x = 0.0, y = 0.0, z = 0.0) {
 		_11 = 1.0; _12 = 0.0; _13 = 0.0; _14 = 0.0;
 		_21 = 0.0; _22 = 1.0; _23 = 0.0; _24 = 0.0;
 		_31 = 0.0; _32 = 0.0; _33 = 1.0; _34 = 0.0;
-		_41 = x; _42 = y; _43 = z; _44 = 1.0;
+		_41 = x;   _42 = y;   _43 = z;   _44 = 1.0;
 	}
 
-	public function initScale( x = 1., y = 1., z = 1. ) {
-		_11 = x; _12 = 0.0; _13 = 0.0; _14 = 0.0;
-		_21 = 0.0; _22 = y; _23 = 0.0; _24 = 0.0;
-		_31 = 0.0; _32 = 0.0; _33 = z; _34 = 0.0;
+	public function initScale(x = 1.0, y = 1.0, z = 1.0) {
+		_11 = x;   _12 = 0.0; _13 = 0.0; _14 = 0.0;
+		_21 = 0.0; _22 = y;   _23 = 0.0; _24 = 0.0;
+		_31 = 0.0; _32 = 0.0; _33 = z;   _34 = 0.0;
 		_41 = 0.0; _42 = 0.0; _43 = 0.0; _44 = 1.0;
 	}
 
-	public function initRotateAxis( axis : Vec3, angle : Float ) {
-		var cos = Math.cos(angle), sin = Math.sin(angle);
+	public function initRotateAxis(axis:Vec3, angle:Float) {
+		var cos = Math.cos(angle);
+		var sin = Math.sin(angle);
 		var cos1 = 1 - cos;
-		var x = -axis.x, y = -axis.y, z = -axis.z;
+		var x = -axis.x;
+		var y = -axis.y;
+		var z = -axis.z;
 		var xx = x * x, yy = y * y, zz = z * z;
 		var len = Math.invSqrt(xx + yy + zz);
 		x *= len;
 		y *= len;
 		z *= len;
-		var xcos1 = x * cos1, zcos1 = z * cos1;
+		var xcos1 = x * cos1;
+		var zcos1 = z * cos1;
 		_11 = cos + x * xcos1;
 		_12 = y * xcos1 - z * sin;
 		_13 = x * zcos1 + y * sin;
-		_14 = 0.;
+		_14 = 0.0;
 		_21 = y * xcos1 + z * sin;
 		_22 = cos + y * y * cos1;
 		_23 = y * zcos1 - x * sin;
-		_24 = 0.;
+		_24 = 0.0;
 		_31 = x * zcos1 - y * sin;
 		_32 = y * zcos1 + x * sin;
 		_33 = cos + z * zcos1;
-		_34 = 0.;
-		_41 = 0.; _42 = 0.; _43 = 0.; _44 = 1.;
+		_34 = 0.0;
+		_41 = 0.0; _42 = 0.0; _43 = 0.0; _44 = 1.0;
 	}
 	
-	public function initRotate( x : Float, y : Float, z : Float ) {
+	public function initRotate(x:Float, y:Float, z:Float) {
 		var cx = Math.cos(x);
 		var sx = Math.sin(x);
 		var cy = Math.cos(y);
@@ -143,7 +147,7 @@ class Mat4 {
 		_44 = 1;
 	}
 	
-	public function translate( x = 0., y = 0., z = 0. ) {
+	public function translate(x = 0.0, y = 0.0, z = 0.0) {
 		_11 += x * _14;
 		_12 += y * _14;
 		_13 += z * _14;
@@ -158,7 +162,7 @@ class Mat4 {
 		_43 += z * _44;
 	}
 	
-	public function scale( x = 1., y = 1., z = 1. ) {
+	public function scale(x = 1.0, y = 1.0, z = 1.0) {
 		_11 *= x;
 		_21 *= x;
 		_31 *= x;
@@ -173,23 +177,21 @@ class Mat4 {
 		_43 *= z;
 	}
 
-	public function rotate( x, y, z ) {
-		var tmp = tmp;
-		tmp.initRotate(x,y,z);
+	public function rotate(x:Float, y:Float, z:Float) {
+		tmp.initRotate(x, y, z);
 		multiply(this, tmp);
 	}
 	
-	public function rotateAxis( axis, angle ) {
-		var tmp = tmp;
+	public function rotateAxis(axis:Vec3, angle:Float) {
 		tmp.initRotateAxis(axis, angle);
 		multiply(this, tmp);
 	}
 	
-	public inline function add( m : Mat4 ) {
+	public inline function add(m:Mat4) {
 		multiply(this, m);
 	}
 	
-	public function prependTranslate( x = 0., y = 0., z = 0. ) {
+	public function prependTranslate(x = 0.0, y = 0.0, z = 0.0) {
 		var vx = _11 * x + _21 * y + _31 * z + _41;
 		var vy = _12 * x + _22 * y + _32 * z + _42;
 		var vz = _13 * x + _23 * y + _33 * z + _43;
@@ -200,25 +202,22 @@ class Mat4 {
 		_44 = vw;
 	}
 
-	public function prependRotate( x, y, z ) {
-		var tmp = tmp;
-		tmp.initRotate(x,y,z);
+	public function prependRotate(x:Float, y:Float, z:Float) {
+		tmp.initRotate(x, y, z);
 		multiply(tmp, this);
 	}
 	
-	public function prependRotateAxis( axis, angle ) {
-		var tmp = tmp;
+	public function prependRotateAxis(axis:Vec3, angle:Float) {
 		tmp.initRotateAxis(axis, angle);
 		multiply(tmp, this);
 	}
 
-	public function prependScale( sx = 1., sy = 1., sz = 1. ) {
-		var tmp = tmp;
-		tmp.initScale(sx,sy,sz);
+	public function prependScale(sx = 1.0, sy = 1.0, sz = 1.0) {
+		tmp.initScale(sx, sy, sz);
 		multiply(tmp, this);
 	}
 	
-	public function multiply3x4( a : Mat4, b : Mat4 ) {
+	public function multiply3x4(a:Mat4, b:Mat4) {
 		var m11 = a._11; var m12 = a._12; var m13 = a._13;
 		var m21 = a._21; var m22 = a._22; var m23 = a._23;
 		var a31 = a._31; var a32 = a._32; var a33 = a._33;
@@ -249,7 +248,7 @@ class Mat4 {
 		_44 = 1;
 	}
 
-	public function multiply( a : Mat4, b : Mat4 ) {
+	public function multiply(a:Mat4, b:Mat4) {
 		var a11 = a._11; var a12 = a._12; var a13 = a._13; var a14 = a._14;
 		var a21 = a._21; var a22 = a._22; var a23 = a._23; var a24 = a._24;
 		var a31 = a._31; var a32 = a._32; var a33 = a._33; var a34 = a._34;
@@ -284,30 +283,30 @@ class Mat4 {
 		inverse(this);
 	}
 
-	public function inverse3x4( m : Mat4 ) {
-		var m11 = m._11, m12 = m._12, m13 = m._13;
-		var m21 = m._21, m22 = m._22, m23 = m._23;
-		var m31 = m._31, m32 = m._32, m33 = m._33;
-		var m41 = m._41, m42 = m._42, m43 = m._43;
-		_11 = m22*m33 - m23*m32;
-		_12 = m13*m32 - m12*m33;
-		_13 = m12*m23 - m13*m22;
+	public function inverse3x4(m:Mat4) {
+		var m11 = m._11; var m12 = m._12; var m13 = m._13;
+		var m21 = m._21; var m22 = m._22; var m23 = m._23;
+		var m31 = m._31; var m32 = m._32; var m33 = m._33;
+		var m41 = m._41; var m42 = m._42; var m43 = m._43;
+		_11 = m22 * m33 - m23 * m32;
+		_12 = m13 * m32 - m12 * m33;
+		_13 = m12 * m23 - m13 * m22;
 		_14 = 0;
-		_21 = m23*m31 - m21*m33;
-		_22 = m11*m33 - m13*m31;
-		_23 = m13*m21 - m11*m23;
+		_21 = m23 * m31 - m21 * m33;
+		_22 = m11 * m33 - m13 * m31;
+		_23 = m13 * m21 - m11 * m23;
 		_24 = 0;
-		_31 = m21*m32 - m22*m31;
-		_32 = m12*m31 - m11*m32;
-		_33 = m11*m22 - m12*m21;
+		_31 = m21 * m32 - m22 * m31;
+		_32 = m12 * m31 - m11 * m32;
+		_33 = m11 * m22 - m12 * m21;
 		_34 = 0;
 		_41 = -m21 * m32 * m43 + m21 * m33 * m42 + m31 * m22 * m43 - m31 * m23 * m42 - m41 * m22 * m33 + m41 * m23 * m32;
-		_42 = m11 * m32 * m43 - m11 * m33 * m42 - m31 * m12 * m43 + m31 * m13 * m42 + m41 * m12 * m33 - m41 * m13 * m32;
+		_42 =  m11 * m32 * m43 - m11 * m33 * m42 - m31 * m12 * m43 + m31 * m13 * m42 + m41 * m12 * m33 - m41 * m13 * m32;
 		_43 = -m11 * m22 * m43 + m11 * m23 * m42 + m21 * m12 * m43 - m21 * m13 * m42 - m41 * m12 * m23 + m41 * m13 * m22;
-		_44 = m11 * m22 * m33 - m11 * m23 * m32 - m21 * m12 * m33 + m21 * m13 * m32 + m31 * m12 * m23 - m31 * m13 * m22;
+		_44 =  m11 * m22 * m33 - m11 * m23 * m32 - m21 * m12 * m33 + m21 * m13 * m32 + m31 * m12 * m23 - m31 * m13 * m22;
 		_44 = 1;
 		var det = m11 * _11 + m12 * _21 + m13 * _31;
-		if(	Math.abs(det) < Math.EPSILON ) {
+		if (Math.abs(det) < Math.EPSILON) {
 			zero();
 			return;
 		}
@@ -318,31 +317,31 @@ class Mat4 {
 		_41 *= invDet; _42 *= invDet; _43 *= invDet;
 	}
 	
-	public function inverse( m : Mat4 ) {
+	public function inverse(m:Mat4) {
 		var m11 = m._11; var m12 = m._12; var m13 = m._13; var m14 = m._14;
 		var m21 = m._21; var m22 = m._22; var m23 = m._23; var m24 = m._24;
 		var m31 = m._31; var m32 = m._32; var m33 = m._33; var m34 = m._34;
 		var m41 = m._41; var m42 = m._42; var m43 = m._43; var m44 = m._44;
 
-		_11 = m22 * m33 * m44 - m22 * m34 * m43 - m32 * m23 * m44 + m32 * m24 * m43 + m42 * m23 * m34 - m42 * m24 * m33;
+		_11 =  m22 * m33 * m44 - m22 * m34 * m43 - m32 * m23 * m44 + m32 * m24 * m43 + m42 * m23 * m34 - m42 * m24 * m33;
 		_12 = -m12 * m33 * m44 + m12 * m34 * m43 + m32 * m13 * m44 - m32 * m14 * m43 - m42 * m13 * m34 + m42 * m14 * m33;
-		_13 = m12 * m23 * m44 - m12 * m24 * m43 - m22 * m13 * m44 + m22 * m14 * m43 + m42 * m13 * m24 - m42 * m14 * m23;
+		_13 =  m12 * m23 * m44 - m12 * m24 * m43 - m22 * m13 * m44 + m22 * m14 * m43 + m42 * m13 * m24 - m42 * m14 * m23;
 		_14 = -m12 * m23 * m34 + m12 * m24 * m33 + m22 * m13 * m34 - m22 * m14 * m33 - m32 * m13 * m24 + m32 * m14 * m23;
 		_21 = -m21 * m33 * m44 + m21 * m34 * m43 + m31 * m23 * m44 - m31 * m24 * m43 - m41 * m23 * m34 + m41 * m24 * m33;
-		_22 = m11 * m33 * m44 - m11 * m34 * m43 - m31 * m13 * m44 + m31 * m14 * m43 + m41 * m13 * m34 - m41 * m14 * m33;
+		_22 =  m11 * m33 * m44 - m11 * m34 * m43 - m31 * m13 * m44 + m31 * m14 * m43 + m41 * m13 * m34 - m41 * m14 * m33;
 		_23 = -m11 * m23 * m44 + m11 * m24 * m43 + m21 * m13 * m44 - m21 * m14 * m43 - m41 * m13 * m24 + m41 * m14 * m23;
 		_24 =  m11 * m23 * m34 - m11 * m24 * m33 - m21 * m13 * m34 + m21 * m14 * m33 + m31 * m13 * m24 - m31 * m14 * m23;
-		_31 = m21 * m32 * m44 - m21 * m34 * m42 - m31 * m22 * m44 + m31 * m24 * m42 + m41 * m22 * m34 - m41 * m24 * m32;
+		_31 =  m21 * m32 * m44 - m21 * m34 * m42 - m31 * m22 * m44 + m31 * m24 * m42 + m41 * m22 * m34 - m41 * m24 * m32;
 		_32 = -m11 * m32 * m44 + m11 * m34 * m42 + m31 * m12 * m44 - m31 * m14 * m42 - m41 * m12 * m34 + m41 * m14 * m32;
-		_33 = m11 * m22 * m44 - m11 * m24 * m42 - m21 * m12 * m44 + m21 * m14 * m42 + m41 * m12 * m24 - m41 * m14 * m22;
-		_34 =  -m11 * m22 * m34 + m11 * m24 * m32 + m21 * m12 * m34 - m21 * m14 * m32 - m31 * m12 * m24 + m31 * m14 * m22;
+		_33 =  m11 * m22 * m44 - m11 * m24 * m42 - m21 * m12 * m44 + m21 * m14 * m42 + m41 * m12 * m24 - m41 * m14 * m22;
+		_34 = -m11 * m22 * m34 + m11 * m24 * m32 + m21 * m12 * m34 - m21 * m14 * m32 - m31 * m12 * m24 + m31 * m14 * m22;
 		_41 = -m21 * m32 * m43 + m21 * m33 * m42 + m31 * m22 * m43 - m31 * m23 * m42 - m41 * m22 * m33 + m41 * m23 * m32;
-		_42 = m11 * m32 * m43 - m11 * m33 * m42 - m31 * m12 * m43 + m31 * m13 * m42 + m41 * m12 * m33 - m41 * m13 * m32;
+		_42 =  m11 * m32 * m43 - m11 * m33 * m42 - m31 * m12 * m43 + m31 * m13 * m42 + m41 * m12 * m33 - m41 * m13 * m32;
 		_43 = -m11 * m22 * m43 + m11 * m23 * m42 + m21 * m12 * m43 - m21 * m13 * m42 - m41 * m12 * m23 + m41 * m13 * m22;
-		_44 = m11 * m22 * m33 - m11 * m23 * m32 - m21 * m12 * m33 + m21 * m13 * m32 + m31 * m12 * m23 - m31 * m13 * m22;
+		_44 =  m11 * m22 * m33 - m11 * m23 * m32 - m21 * m12 * m33 + m21 * m13 * m32 + m31 * m12 * m23 - m31 * m13 * m22;
 
 		var det = m11 * _11 + m12 * _21 + m13 * _31 + m14 * _41;
-		if(	Math.abs(det) < Math.EPSILON ) {
+		if(Math.abs(det) < Math.EPSILON) {
 			zero();
 			return;
 		}
@@ -367,7 +366,7 @@ class Mat4 {
 	}
 
 	public function transpose() {
-		var tmp;
+		var tmp:Float;
 		tmp = _12; _12 = _21; _21 = tmp;
 		tmp = _13; _13 = _31; _31 = tmp;
 		tmp = _14; _14 = _41; _41 = tmp;
@@ -385,22 +384,25 @@ class Mat4 {
 		return m;
 	}
 
-	public function loadFrom( m : Mat4 ) {
+	public function loadFrom(m:Mat4) {
 		_11 = m._11; _12 = m._12; _13 = m._13; _14 = m._14;
 		_21 = m._21; _22 = m._22; _23 = m._23; _24 = m._24;
 		_31 = m._31; _32 = m._32; _33 = m._33; _34 = m._34;
 		_41 = m._41; _42 = m._42; _43 = m._43; _44 = m._44;
 	}
 	
-	public function load( a : Array<Float> ) {
-		_11 = a[0]; _12 = a[1]; _13 = a[2]; _14 = a[3];
-		_21 = a[4]; _22 = a[5]; _23 = a[6]; _24 = a[7];
-		_31 = a[8]; _32 = a[9]; _33 = a[10]; _34 = a[11];
+	public function load(a:Array<Float>) {
+		_11 = a[0];  _12 = a[1];  _13 = a[2];  _14 = a[3];
+		_21 = a[4];  _22 = a[5];  _23 = a[6];  _24 = a[7];
+		_31 = a[8];  _32 = a[9];  _33 = a[10]; _34 = a[11];
 		_41 = a[12]; _42 = a[13]; _43 = a[14]; _44 = a[15];
 	}
 	
-	public function getFloats() {
-		return [_11, _12, _13, _14, _21, _22, _23, _24, _31, _32, _33, _34, _41, _42, _43, _44];
+	public function getFloats():Array<Float> {
+		return [_11, _12, _13, _14,
+				_21, _22, _23, _24,
+				_31, _32, _33, _34,
+				_41, _42, _43, _44];
 	}
 	
 	public function toString() {
@@ -412,14 +414,13 @@ class Mat4 {
 		"]";
 	}
 	
-	// ---- COLOR MATRIX FUNCTIONS -------
-
+	// COLOR MATRIX FUNCTIONS
 	static inline var lumR = 0.212671;
 	static inline var lumG = 0.71516;
 	static inline var lumB = 0.072169;
 	
-	public function colorHue( hue : Float ) {
-		if( hue == 0. )
+	public function colorHue(hue:Float) {
+		if (hue == 0.0)
 			return;
 		var cv = Math.cos(hue);
 		var sv = Math.sin(hue);
@@ -439,7 +440,7 @@ class Mat4 {
 		multiply3x4(this, tmp);
 	}
 	
-	public function colorSaturation( sat : Float ) {
+	public function colorSaturation(sat:Float) {
 		var is = 1 - sat;
 		var r = is * lumR;
 		var g = is * lumG;
@@ -459,7 +460,7 @@ class Mat4 {
 		multiply3x4(this, tmp);
 	}
 	
-	public function colorContrast( contrast : Float ) {
+	public function colorContrast(contrast:Float) {
 		var v = contrast + 1;
 		tmp._11 = v;
 		tmp._12 = 0;
@@ -470,13 +471,13 @@ class Mat4 {
 		tmp._31 = 0;
 		tmp._32 = 0;
 		tmp._33 = v;
-		tmp._41 = -contrast*0.5;
-		tmp._42 = -contrast*0.5;
-		tmp._43 = -contrast*0.5;
+		tmp._41 = -contrast * 0.5;
+		tmp._42 = -contrast * 0.5;
+		tmp._43 = -contrast * 0.5;
 		multiply3x4(this, tmp);
 	}
 
-	public function colorBrightness( brightness : Float ) {
+	public function colorBrightness(brightness:Float) {
 		_41 += brightness;
 		_42 += brightness;
 		_43 += brightness;
@@ -512,13 +513,11 @@ class Mat4 {
 		return m;
 	}
 
-	//retrieves pos vector from matrix
-	public inline function pos( ? v: Vec3)
-	{
-		if( v == null )
-			return new Vec3( _41, _42 , _43 , _44  );
-		else
-		{
+	// Retrieves pos vector from matrix
+	public inline function pos(?v:Vec3) {
+		if (v == null)
+			return new Vec3(_41, _42 , _43 , _44);
+		else {
 			v.x = _41;
 			v.y = _42;
 			v.z = _43;
@@ -527,13 +526,11 @@ class Mat4 {
 		}
 	}
 	
-	//retrieves at vector from matrix
-	public inline function at( ?v:Vec3)
-	{
-		if( v == null )
-			return new Vec3( _31, _32 , _33 , _34  );
-		else
-		{
+	// Retrieves at vector from matrix
+	public inline function at(?v:Vec3) {
+		if (v == null)
+			return new Vec3(_31, _32 , _33 , _34);
+		else {
 			v.x = _31;
 			v.y = _32;
 			v.z = _33;
@@ -542,13 +539,11 @@ class Mat4 {
 		}
 	}
 	
-	//retrieves up vector from matrix
-	public inline function up(?v:Vec3)
-	{
-		if( v == null )
-			return new Vec3( _21, _22 , _23 , _24  );
-		else
-		{
+	// Retrieves up vector from matrix
+	public inline function up(?v:Vec3) {
+		if (v == null)
+			return new Vec3(_21, _22 , _23 , _24);
+		else {
 			v.x = _21;
 			v.y = _22;
 			v.z = _23;
@@ -557,13 +552,11 @@ class Mat4 {
 		}
 	}
 	
-	//retrieves right vector from matrix
-	public inline function right(?v:Vec3)
-	{
-		if( v == null )
-			return new Vec3( _11, _12 , _13 , _14  );
-		else
-		{
+	// Retrieves right vector from matrix
+	public inline function right(?v:Vec3) {
+		if (v == null)
+			return new Vec3(_11, _12 , _13 , _14);
+		else {
 			v.x = _11;
 			v.y = _12;
 			v.z = _13;
@@ -572,34 +565,27 @@ class Mat4 {
 		}
 	}
 
-
 	// Extended
-	public function appendRotation (degrees:Float, axis:Vec3, pivotPoint:Vec3 = null) {
+	public function appendRotation(degrees:Float, axis:Vec3, pivotPoint:Vec3 = null) {
 		
-		var m = getAxisRotation (axis.x, axis.y, axis.z, degrees);
+		var m = getAxisRotation(axis.x, axis.y, axis.z, degrees);
 		
 		if (pivotPoint != null) {
-			
 			var p = pivotPoint;
-			m.appendTranslation (p.x, p.y, p.z);
-			
+			m.appendTranslation(p.x, p.y, p.z);
 		}
 		
-		this.append (m);
+		this.append(m);
 	}
 
-	public function appendScale (xScale:Float, yScale:Float, zScale:Float) {
-		
-		this.append (new Mat4 ( [ xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0 ] ));
-		
+	public function appendScale(xScale:Float, yScale:Float, zScale:Float) {
+		this.append(new Mat4([xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0]));
 	}
 
-
-	static public function getAxisRotation (x:Float, y:Float, z:Float, degrees:Float):Mat4 {
-		
+	public static function getAxisRotation(x:Float, y:Float, z:Float, degrees:Float):Mat4 {
 		var m = new Mat4 ();
 		
-		var a1 = new Vec3 (x, y, z);
+		var a1 = new Vec3(x, y, z);
 		var rad = -degrees * (Math.PI / 180);
 		var c:Float = Math.cos (rad);
 		var s:Float = Math.sin (rad);
@@ -625,25 +611,22 @@ class Mat4 {
 		return m;
 	}
 
-
 	public function appendTranslation (x:Float, y:Float, z:Float) {
-		
 		_41 += x;
 		_42 += y;
 		_43 += z;
 	}
 
-
 	public function append (lhs:Mat4) {
-		
-		var m111:Float = this._11, m121:Float = this._21, m131:Float = this._31, m141:Float = this._41,
-			m112:Float = this._12, m122:Float = this._22, m132:Float = this._32, m142:Float = this._42,
-			m113:Float = this._13, m123:Float = this._23, m133:Float = this._33, m143:Float = this._43,
-			m114:Float = this._14, m124:Float = this._24, m134:Float = this._34, m144:Float = this._44,
-			m211:Float = lhs._11, m221:Float = lhs._21, m231:Float = lhs._31, m241:Float = lhs._41,
-			m212:Float = lhs._12, m222:Float = lhs._22, m232:Float = lhs._32, m242:Float = lhs._42,
-			m213:Float = lhs._13, m223:Float = lhs._23, m233:Float = lhs._33, m243:Float = lhs._43,
-			m214:Float = lhs._14, m224:Float = lhs._24, m234:Float = lhs._34, m244:Float = lhs._44;
+		var m111 = this._11, m121 = this._21, m131 = this._31, m141 = this._41,
+			m112 = this._12, m122 = this._22, m132 = this._32, m142 = this._42,
+			m113 = this._13, m123 = this._23, m133 = this._33, m143 = this._43,
+			m114 = this._14, m124 = this._24, m134 = this._34, m144 = this._44,
+			
+			m211 = lhs._11, m221 = lhs._21, m231 = lhs._31, m241 = lhs._41,
+			m212 = lhs._12, m222 = lhs._22, m232 = lhs._32, m242 = lhs._42,
+			m213 = lhs._13, m223 = lhs._23, m233 = lhs._33, m243 = lhs._43,
+			m214 = lhs._14, m224 = lhs._24, m234 = lhs._34, m244 = lhs._44;
 		
 		_11 = m111 * m211 + m112 * m221 + m113 * m231 + m114 * m241;
 		_12 = m111 * m212 + m112 * m222 + m113 * m232 + m114 * m242;
@@ -664,19 +647,19 @@ class Mat4 {
 		_42 = m141 * m212 + m142 * m222 + m143 * m232 + m144 * m242;
 		_43 = m141 * m213 + m142 * m223 + m143 * m233 + m144 * m243;
 		_44 = m141 * m214 + m142 * m224 + m143 * m234 + m144 * m244;
-		
 	}
 
-
-	public function transformVector (v:Vec3):Vec3 {
+	public function transformVector(v:Vec3):Vec3 {
+		var x:Float = v.x;
+		var y:Float = v.y;
+		var z:Float = v.z;
 		
-		var x:Float = v.x, y:Float = v.y, z:Float = v.z;
-		
-		return new Vec3 (
+		return new Vec3(
 			(x * _11 + y * _21 + z * _31 + _41),
 			(x * _12 + y * _22 + z * _32 + _42),
 			(x * _13 + y * _23 + z * _33 + _43),
-		1);
+			1
+		);
 		
 	}
 
@@ -684,20 +667,16 @@ class Mat4 {
 		return [GetColumn(3).getXYZ(), getQuat(), getDiagonalLR()];
 	}
 
-	public function GetColumn(p_index:Int):Vec3
-	{
-		return new Vec3(GetRowCol(0,p_index), GetRowCol(1,p_index), GetRowCol(2,p_index), GetRowCol(3,p_index));
+	public function GetColumn(p_index:Int):Vec3 {
+		return new Vec3(GetRowCol(0, p_index), GetRowCol(1, p_index), GetRowCol(2, p_index), GetRowCol(3, p_index));
 	}
 
-	public function GetRowCol(p_row:Int,p_col:Int):Float
-	{
+	public function GetRowCol(p_row:Int, p_col:Int):Float {
 		return GetIndex(p_col + (p_row << 2));
 	}
 
-	public function GetIndex(p_index : Int):Float
-	{
-		switch(p_index)
-		{
+	public function GetIndex(p_index : Int):Float {
+		switch(p_index) {
 			case  0: return _11;
 			case  1: return _12;
 			case  2: return _13;
@@ -720,9 +699,8 @@ class Mat4 {
 
 	private function getDiagonalLR():Vec3 { return new Vec3(_11, _22, _33, _44); }
 
-
 	public function multiplyByVector(vec:Vec3):Vec3 {
-		var result:Vec3 = new Vec3(0, 0, 0, 0);
+		var result = new Vec3(0, 0, 0, 0);
 
 		result.x = _11 * vec.x + _12 * vec.y + _13 * vec.z + _14 * vec.w;
 		result.y = _21 * vec.x + _22 * vec.y + _23 * vec.z + _24 * vec.w;
@@ -734,7 +712,6 @@ class Mat4 {
 
 
 	public function getInverse(m:Mat4) {
-
 		// based on http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
 
 		var n11 = m._11, n12 = m._21, n13 = m._31, n14 = m._41;
@@ -761,20 +738,17 @@ class Mat4 {
 
 		var det = n11 * _11 + n21 * _21 + n31 * _31 + n41 * _41;
 
-		if ( det == 0 ) {
-
+		if (det == 0) {
 			this.identity();
-
 			return this;
 		}
 
-		this.multiplyScalar( 1 / det );
+		this.multiplyScalar(1 / det);
 
 		return this;
 	}
 
 	public function multiplyScalar(s:Float):Mat4 {
-
 		_11 *= s; _21 *= s; _31 *= s; _41 *= s;
 		_12 *= s; _22 *= s; _32 *= s; _42 *= s;
 		_13 *= s; _23 *= s; _33 *= s; _43 *= s;
@@ -786,7 +760,6 @@ class Mat4 {
 
 
 	public function multiplyMatrices(a:Mat4, b:Mat4):Mat4 {
-
 		var a11 = a._11, a12 = a._21, a13 = a._31, a14 = a._41;
 		var a21 = a._12, a22 = a._22, a23 = a._32, a24 = a._42;
 		var a31 = a._13, a32 = a._23, a33 = a._33, a34 = a._43;
@@ -820,9 +793,6 @@ class Mat4 {
 		return this;
 	}
 
-
-
-
 	public function toRotation():Mat4 {
 		var tmp = new Vec3();
 		tmp.set(_11, _12, _13).normalize(); _11 = tmp.x; _12 = tmp.y; _13 = tmp.z; _14 = 0.0;
@@ -832,36 +802,30 @@ class Mat4 {
 		return this;
 	}
 
-
-
-	public function getQuat():Quat
-	{
-		var b : Array<Float> = toBuffer();
+	public function getQuat():Quat {
+		var b:Array<Float> = toBuffer();
 		var m:Mat4 = toRotation();
 				
-		var q : Quat = new Quat();				
-		var diag : Float = m._11 + m._22 + m._33 + 1.0;
-		var e : Float = 0;// Mathf.Epsilon;
+		var q:Quat = new Quat();				
+		var diag:Float = m._11 + m._22 + m._33 + 1.0;
+		var e:Float = 0;// Mathf.Epsilon;
 		
-		if(diag > e)
-		{
+		if (diag > e) {
 			q.w = Math.sqrt(diag) / 2.0;			
-			var w4 : Float = (4.0 * q.w);
+			var w4:Float = (4.0 * q.w);
 			q.x = (m._32 - m._23) / w4;
 			q.y = (m._13 - m._31) / w4;
 			q.z = (m._21 - m._12) / w4;						
 		}
-		else
-		{
-			var d01 : Float = m._11 - m._22;
-			var d02 : Float = m._11 - m._33;
-			var d12 : Float = m._22 - m._33;
+		else {
+			var d01:Float = m._11 - m._22;
+			var d02:Float = m._11 - m._33;
+			var d12:Float = m._22 - m._33;
 			
-			if ((d01>e) && (d02>e))
-			{
+			if ((d01>e) && (d02>e)) {
 				// 1st element of diag is greatest value
 				// find scale according to 1st element, and double it
-				var scale : Float = Math.sqrt(1.0 + m._11 - m._22 - m._33) * 2.0;
+				var scale:Float = Math.sqrt(1.0 + m._11 - m._22 - m._33) * 2.0;
 
 				// TODO: speed this up
 				q.x = 0.25 * scale;
@@ -869,11 +833,10 @@ class Mat4 {
 				q.z = (m._13 + m._31) / scale;
 				q.w = (m._23 - m._32) / scale;
 			}
-			else if (d12>e)
-			{
+			else if (d12>e) {
 				// 2nd element of diag is greatest value
 				// find scale according to 2nd element, and double it
-				var scale : Float = Math.sqrt(1.0 + m._22 - m._11 - m._33) * 2.0;
+				var scale:Float = Math.sqrt(1.0 + m._22 - m._11 - m._33) * 2.0;
 				
 				// TODO: speed this up
 				q.x = (m._21 + m._12) / scale;
@@ -881,11 +844,10 @@ class Mat4 {
 				q.z = (m._32 + m._23) / scale;
 				q.w = (m._31 - m._13) / scale;
 			}
-			else
-			{
+			else {
 				// 3rd element of diag is greatest value
 				// find scale according to 3rd element, and double it
-				var scale : Float = Math.sqrt(1.0 + m._33 - m._11 - m._22) * 2.0;
+				var scale:Float = Math.sqrt(1.0 + m._33 - m._11 - m._22) * 2.0;
 				
 				// TODO: speed this up
 				q.x = (m._31 + m._13) / scale;
@@ -920,21 +882,19 @@ class Mat4 {
 		return q;
 	}
 
+	var m:Array<Float>;
 
-	private var m : Array<Float>;
-
-	public function toBuffer() : Array<Float>
-	{ 
-		m[ 0] = _11;
-		m[ 1] = _12;
-		m[ 2] = _13;
-		m[ 3] = _14;
-		m[ 4] = _21;
-		m[ 5] = _22;
-		m[ 6] = _23;
-		m[ 7] = _24;
-		m[ 8] = _31;
-		m[ 9] = _32;
+	public function toBuffer():Array<Float> {
+		m[0] = _11;
+		m[1] = _12;
+		m[2] = _13;
+		m[3] = _14;
+		m[4] = _21;
+		m[5] = _22;
+		m[6] = _23;
+		m[7] = _24;
+		m[8] = _31;
+		m[9] = _32;
 		m[10] = _33;
 		m[11] = _34;
 		m[12] = _41;
@@ -952,5 +912,13 @@ class Mat4 {
 		var scaleZSq = te[8] * te[8] + te[9] * te[9] + te[10] * te[10];
 
 		return Math.sqrt(Math.max(scaleXSq, Math.max(scaleYSq, scaleZSq)));	
-	}	
+	}
+
+	public function getScale():Mat4 {
+		var d0:Float = fox.math.Math.sqrt(_11 * _11 + _21 * _21 + _31 * _31);
+		var d1:Float = fox.math.Math.sqrt(_12 * _12 + _22 * _22 + _32 * _32);
+		var d2:Float = fox.math.Math.sqrt(_13 * _13 + _23 * _23 + _33 * _33);
+		var m = new Mat4([d0, 0, 0, 0,   0, d1, 0, 0,   0, 0, d2, 0,   0, 0, 0, 1]);
+		return m;
+	}
 }
