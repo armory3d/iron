@@ -55,12 +55,10 @@ class MeshRenderer extends Renderer implements IRenderable {
     }
 
     public function renderShadowMap(g:kha.graphics4.Graphics) {
-
     	shadowMapMatrix.identity();
-    	shadowMapMatrix.append(scene.camera.depthModelMatrix);
+    	shadowMapMatrix.append(transform.matrix);
     	shadowMapMatrix.append(scene.camera.depthViewMatrix);
-    	//shadowMapMatrix.append(scene.camera.depthProjectionMatrix);
-    	shadowMapMatrix.append(scene.camera.projectionMatrix);
+    	shadowMapMatrix.append(scene.camera.depthProjectionMatrix);
 
     	var shadowShader = Assets.getShader("shadowmapshader");
 
@@ -70,9 +68,7 @@ class MeshRenderer extends Renderer implements IRenderable {
 		g.setProgram(shadowShader.program);
 
 		var mat1 = new kha.math.Matrix4(shadowMapMatrix.getFloats());
-		var mat2 = new kha.math.Matrix4(transform.matrix.getFloats());
 		g.setMatrix(shadowShader.constantMat4s[0], mat1);
-		g.setMatrix(shadowShader.constantMat4s[1], mat2);
 
 		g.drawIndexedVertices();
     }
@@ -80,7 +76,7 @@ class MeshRenderer extends Renderer implements IRenderable {
 	public function render(g:kha.graphics4.Graphics) {
 
 		// Frustum culling
-		if (scene.camera.sphereInFrustum(transform, mesh.geometry.radius)) {
+		//if (scene.camera.sphereInFrustum(transform, mesh.geometry.radius)) {
 			fox.core.FrameRenderer.numRenders++;
 			//shadowMapMatrix.append(scene.camera.biasMat);
 
@@ -102,19 +98,19 @@ class MeshRenderer extends Renderer implements IRenderable {
 				g.setTexture(mesh.material.shader.textures[0], textures[0]);
 			}
 
-			/*g.setTexture(mesh.material.shader.textures[0], fox.core.FrameRenderer.shadowMap);
-			g.setTextureParameters(mesh.material.shader.textures[1],
+			//g.setTexture(mesh.material.shader.textures[0], fox.core.FrameRenderer.shadowMap);
+			/*g.setTextureParameters(mesh.material.shader.textures[1],
 								   kha.graphics4.TextureAddressing.Clamp,
 								   kha.graphics4.TextureAddressing.Clamp,
 								   kha.graphics4.TextureFilter.LinearFilter,
 								   kha.graphics4.TextureFilter.LinearFilter,
-								   kha.graphics4.MipMapFilter.NoMipFilter);
-			g.setTexture(mesh.material.shader.textures[1], fox.core.FrameRenderer.shadowMap);*/
+								   kha.graphics4.MipMapFilter.NoMipFilter);*/
+			g.setTexture(mesh.material.shader.textures[1], fox.core.FrameRenderer.shadowMap);
 
 			setConstants(g);
 
 			g.drawIndexedVertices();
-		}
+		//}
 	}
 
 	/*public function scaleTo(x:Float, y:Float, z:Float) {

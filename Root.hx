@@ -101,6 +101,7 @@ class Root extends kha.Game {
         Configuration.setScreen(this);
 
         // Input
+        // TODO: proper detection
         if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
         	kha.input.Mouse.get().notify(downListener, upListener, moveListener, null);
         }
@@ -117,7 +118,6 @@ class Root extends kha.Game {
 
         var shadowShader = new Shader("shadowmap.frag", "shadowmap.vert", struct);
         shadowShader.addConstantMat4("mvpShadowMatrix");
-        shadowShader.addConstantMat4("modelMatrix");
         Assets.addShader("shadowmapshader", shadowShader);
 
         // Water
@@ -205,15 +205,12 @@ class Root extends kha.Game {
         skinnedshader.addTexture("skinning");
         Assets.addShader("skinnedshader", skinnedshader);
 
-        //fox.sys.importer.Animation.init();
-
         Type.createInstance(game, []);
     }
 
 	override public inline function update() {
 		frameUpdater.update();
 
-		//fox.sys.importer.Animation.update();
 		Time.update();
 		Input.update();
 	}
@@ -231,7 +228,6 @@ class Root extends kha.Game {
 	    frameRenderer2D.end(frame.g2);
 	}
 
-
 	function downListener(button:Int, x:Int, y:Int) {
 		Input.onTouchBegin(x, y);
 	}
@@ -243,7 +239,6 @@ class Root extends kha.Game {
     function moveListener(x:Int, y:Int) {
 		Input.onMove(x, y);
     }
-
 
     function touchStartListener(index:Int, x:Int, y:Int) {
 		Input.onTouchBegin(y, x);

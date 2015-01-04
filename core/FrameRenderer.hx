@@ -20,11 +20,11 @@ class FrameRenderer extends AbstractTrait {
 		super();
 
 		// Create shadow map texture
-		//#if js
-		//shadowMap = kha.Image.createRenderTarget(512, 512, kha.graphics4.TextureFormat.RGBA128);
-		//#else
+		#if js
+		shadowMap = kha.Image.createRenderTarget(512, 512, kha.graphics4.TextureFormat.RGBA128);
+		#else
 		shadowMap = kha.Image.createRenderTarget(512, 512);
-		//#end
+		#end
 
 		// Parse clear color
 		if (Main.gameData != null) {
@@ -64,6 +64,8 @@ class FrameRenderer extends AbstractTrait {
 				cast(trait, MeshRenderer).renderShadowMap(g);
 			}
 		}
+
+		// TODO: lateRenderTraits
 	}
 	
 	public function render(g:kha.graphics4.Graphics) {
@@ -79,10 +81,10 @@ class FrameRenderer extends AbstractTrait {
 	}
 
 	public function begin(g:kha.graphics4.Graphics) {
-		
 		shadowMap.g4.begin();
 		shadowMap.g4.setDepthMode(true, CompareMode.Less);
-		shadowMap.g4.clear(Color.White, 1, null);
+		shadowMap.g4.clear(Color.Black, 1, null);
+		//shadowMap.g4.clear(Color.White, 1, null);
         renderShadowMap();
         shadowMap.g4.end();
 
@@ -92,7 +94,6 @@ class FrameRenderer extends AbstractTrait {
 	}
 
 	public function end(g:kha.graphics4.Graphics) {
-		
 		g.setDepthMode(false, CompareMode.Less);
 		g.end();
 	}
