@@ -45,10 +45,10 @@ class Camera extends Trait {
 		//var m = new fox.math.Matrix4();
 		//m.makeFrustum(-1, 1, -1, 1, 1, 4000);
 		//depthProjectionMatrix = new Mat4(m.elements);
-		//depthProjectionMatrix = Helper.ortho(-30, 30, -30, 30, -30, 60);
-		depthProjectionMatrix = Helper.perspective(45, 1, 0.1, 1000);
+		//depthProjectionMatrix = Mat4.ortho(-30, 30, -30, 30, -30, 60);
+		depthProjectionMatrix = Mat4.perspective(45, 1, 0.1, 1000);
 		
-		//depthViewMatrix = Helper.lookAt(new Vec3(0, 0, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
+		//depthViewMatrix = Mat4.lookAt(new Vec3(0, 0, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
 	    depthViewMatrix = new Mat4([1,0,0,0,0,0.642787627309709,-0.766044428331382,0,0,0.766044428331382,0.642787627309709,0,0,0.053007244402691,-15.6204094130737,1]);
 
 		biasMat = new Mat4([

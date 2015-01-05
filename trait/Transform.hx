@@ -1,7 +1,6 @@
 package fox.trait;
 
 import kha.Color;
-import kha.Rotation;
 import fox.math.Mat4;
 import fox.math.Vec3;
 import fox.math.Quat;
@@ -18,15 +17,15 @@ class Transform extends Trait implements IUpdateable {
 	public var matrix:Mat4;
 
 	public var pos:Vec3;
-	public var anchor:Vec3;
 	public var rot:Quat;
-	public var rotation:Rotation;
 	public var scale:Vec3;
-
+	
 	public var size:Vec3;
 	public var absSize:Vec3;
 
 	public var color:Color;
+
+	public var anchor:Vec3;
 
 	// Position
 	public var x(get, set):Float;
@@ -37,11 +36,7 @@ class Transform extends Trait implements IUpdateable {
 	public var absy(get, null):Float;
 	public var absz(get, null):Float;
 
-	// Anchor
-	public var ax(get, set):Float;
-	public var ay(get, set):Float;
-	public var az(get, set):Float;
-
+	// Size
 	public var w(get, set):Float;
 	public var h(get, set):Float;
 	public var d(get, set):Float;
@@ -50,15 +45,24 @@ class Transform extends Trait implements IUpdateable {
 	public var absh(get, never):Float;
 	public var absd(get, never):Float;
 
+	// Color
 	public var r(get, set):Float;
 	public var g(get, set):Float;
 	public var b(get, set):Float;
 	public var a(get, set):Float;
 	public var val(get, set):Int;
 
+	// Anchor
+	public var ax(get, set):Float;
+	public var ay(get, set):Float;
+	public var az(get, set):Float;
+
+	// Rigid body
+	@inject
+	var rigidBody:RigidBody;
+
 	public function new() {
 		super();
-
 		reset();
 	}
 
@@ -69,7 +73,6 @@ class Transform extends Trait implements IUpdateable {
     public function removeTransform(trait:Transform) { resized = true; }
 
 	public function update() {
-
 		if (modified) {
 			modified = false;
 
@@ -88,7 +91,6 @@ class Transform extends Trait implements IUpdateable {
 		}
 
 		if (resized) {
-
 			updateSize();
 
 			// Update parent
@@ -97,19 +99,18 @@ class Transform extends Trait implements IUpdateable {
 	}
 
 	public function reset() {
-
 		matrix = new Mat4();
 
 		pos = new Vec3();
-		anchor = new Vec3();
 		rot = new Quat();
-		rotation = new Rotation(new kha.math.Vector2(0, 0), 0);
 		scale = new Vec3(1, 1, 1);
 
 		size = new Vec3();
 		absSize = new Vec3();
 
 		color = Color.fromValue(0xffffffff);
+
+		anchor = new Vec3();
 
 		modified = true;
 	}
@@ -137,6 +138,7 @@ class Transform extends Trait implements IUpdateable {
 	public function updateSize() {
 		resized = false;
 
+		// 2D only
 		var left = absx;
 		var top = absy;
 		var right = left + (w * scale.x);
@@ -158,6 +160,7 @@ class Transform extends Trait implements IUpdateable {
 	}
 
 	public function hitTest(x:Float, y:Float):Bool {
+		// 2D only
 		if (x > this.absx /* * parent.scaleX*/ && x <= this.absx /* * parent.scaleX */+ w * scale.x &&
 			y > this.absy /* * parent.scaleY*/ && y <= this.absy /* * parent.scaleY */+ h * scale.y) {
 			return true;
@@ -173,8 +176,20 @@ class Transform extends Trait implements IUpdateable {
 		modified = true;
 	}
 
-	public function setRotation(x:Float, y:Float, z:Float, order = "ZXY") {
-		rot.setFromEuler(x, y, z, order);
+	public inline function rotateX(f:Float) {
+		rotate(f, 0, 0);
+	}
+
+	public inline function rotateY(f:Float) {
+		rotate(0, f, 0);
+	}
+
+	public inline function rotateZ(f:Float) {
+		rotate(0, 0, f);
+	}
+
+	public function setRotation(x:Float, y:Float, z:Float) {
+		rot.setFromEuler(x, y, z, "ZXY");
 		modified = true;
 	}
 
@@ -189,18 +204,8 @@ class Transform extends Trait implements IUpdateable {
 		modified = true;
 	}
 
-	public inline function rotateX(f:Float) {
-		rotate(f, 0, 0);
-	}
 
-	public inline function rotateY(f:Float) {
-		rotate(0, f, 0);
-	}
-
-	public inline function rotateZ(f:Float) {
-		rotate(0, 0, f);
-	}
-
+	// Positions
 	inline function get_x():Float { return pos.x; }
 
 	inline function set_x(f:Float):Float { modified = true; return pos.x = f; }
@@ -221,19 +226,7 @@ class Transform extends Trait implements IUpdateable {
 	inline function get_absz():Float { return matrix._43; }
 
 
-	inline function get_ax():Float { return anchor.x; }
-
-	inline function set_ax(f:Float):Float { modified = true; return anchor.x = f; }
-
-	inline function get_ay():Float { return anchor.y; }
-
-	inline function set_ay(f:Float):Float { modified = true; return anchor.y = f; }
-
-	inline function get_az():Float { return anchor.z; }
-
-	inline function set_az(f:Float):Float { modified = true; return anchor.z = f; }
-
-
+	// Size
 	inline function get_w():Float { return size.x; }
 
 	inline function set_w(f:Float):Float { resized = true; return size.x = f; }
@@ -254,6 +247,7 @@ class Transform extends Trait implements IUpdateable {
 	inline function get_absd():Float { return absSize.z; }
 
 
+	// Color
 	inline function get_r():Float { return color.R; }
 
 	inline function set_r(f:Float):Float { modified = true; return color.R = f; }
@@ -273,4 +267,18 @@ class Transform extends Trait implements IUpdateable {
 	inline function get_val():Int { return color.value; }
 
 	inline function set_val(i:Int):Int { modified = true; return color.value = i; }
+
+
+	// Anchor
+	inline function get_ax():Float { return anchor.x; }
+
+	inline function set_ax(f:Float):Float { modified = true; return anchor.x = f; }
+
+	inline function get_ay():Float { return anchor.y; }
+
+	inline function set_ay(f:Float):Float { modified = true; return anchor.y = f; }
+
+	inline function get_az():Float { return anchor.z; }
+
+	inline function set_az(f:Float):Float { modified = true; return anchor.z = f; }
 }

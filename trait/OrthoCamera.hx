@@ -1,20 +1,18 @@
 package fox.trait;
 
-import fox.Root;
 import fox.math.Mat4;
-import fox.math.Vec3;
-import fox.math.Helper;
 
 class OrthoCamera extends Camera {
 
 	public function new() {
 
 		if (kha.Sys.screenRotation == kha.ScreenRotation.RotationNone) {
-			//projectionMatrix = Helper.ortho();
+			//projectionMatrix = Mat4.ortho();
 		}
 		else {
-			//projectionMatrix = Helper.ortho();
+			//projectionMatrix = Mat4.ortho();
 		}
+
 		viewMatrix = new Mat4();
 
 		super();

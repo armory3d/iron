@@ -51,8 +51,8 @@ class Mat4 {
 	}
 
 	public function initRotateX(a:Float) {
-		var cos = Math.cos(a);
-		var sin = Math.sin(a);
+		var cos = std.Math.cos(a);
+		var sin = std.Math.sin(a);
 		_11 = 1.0; _12 =  0.0; _13 = 0.0; _14 = 0.0;
 		_21 = 0.0; _22 =  cos; _23 = sin; _24 = 0.0;
 		_31 = 0.0; _32 = -sin; _33 = cos; _34 = 0.0;
@@ -60,8 +60,8 @@ class Mat4 {
 	}
 
 	public function initRotateY(a:Float) {
-		var cos = Math.cos(a);
-		var sin = Math.sin(a);
+		var cos = std.Math.cos(a);
+		var sin = std.Math.sin(a);
 		_11 = cos; _12 = 0.0; _13 = -sin; _14 = 0.0;
 		_21 = 0.0; _22 = 1.0; _23 =  0.0; _24 = 0.0;
 		_31 = sin; _32 = 0.0; _33 =  cos; _34 = 0.0;
@@ -69,8 +69,8 @@ class Mat4 {
 	}
 
 	public function initRotateZ(a:Float) {
-		var cos = Math.cos(a);
-		var sin = Math.sin(a);
+		var cos = std.Math.cos(a);
+		var sin = std.Math.sin(a);
 		_11 =  cos; _12 = sin; _13 = 0.0; _14 = 0.0;
 		_21 = -sin; _22 = cos; _23 = 0.0; _24 = 0.0;
 		_31 =  0.0; _32 = 0.0; _33 = 1.0; _34 = 0.0;
@@ -92,8 +92,8 @@ class Mat4 {
 	}
 
 	public function initRotateAxis(axis:Vec3, angle:Float) {
-		var cos = Math.cos(angle);
-		var sin = Math.sin(angle);
+		var cos = std.Math.cos(angle);
+		var sin = std.Math.sin(angle);
 		var cos1 = 1 - cos;
 		var x = -axis.x;
 		var y = -axis.y;
@@ -121,12 +121,12 @@ class Mat4 {
 	}
 	
 	public function initRotate(x:Float, y:Float, z:Float) {
-		var cx = Math.cos(x);
-		var sx = Math.sin(x);
-		var cy = Math.cos(y);
-		var sy = Math.sin(y);
-		var cz = Math.cos(z);
-		var sz = Math.sin(z);
+		var cx = std.Math.cos(x);
+		var sx = std.Math.sin(x);
+		var cy = std.Math.cos(y);
+		var sy = std.Math.sin(y);
+		var cz = std.Math.cos(z);
+		var sz = std.Math.sin(z);
 		var cxsy = cx * sy;
 		var sxsy = sx * sy;
 		_11 = cy * cz;
@@ -422,8 +422,8 @@ class Mat4 {
 	public function colorHue(hue:Float) {
 		if (hue == 0.0)
 			return;
-		var cv = Math.cos(hue);
-		var sv = Math.sin(hue);
+		var cv = std.Math.cos(hue);
+		var sv = std.Math.sin(hue);
 		tmp._11 = lumR + cv * (1 - lumR) - sv * lumR;
 		tmp._12 = lumR - cv * lumR + sv * 0.143;
 		tmp._13 = lumR - cv * lumR - sv * (1 - lumR);
@@ -587,8 +587,8 @@ class Mat4 {
 		
 		var a1 = new Vec3(x, y, z);
 		var rad = -degrees * (Math.PI / 180);
-		var c:Float = Math.cos (rad);
-		var s:Float = Math.sin (rad);
+		var c:Float = std.Math.cos (rad);
+		var s:Float = std.Math.sin (rad);
 		var t:Float = 1.0 - c;
 		
 		m._11 = c + a1.x * a1.x * t;
@@ -811,7 +811,7 @@ class Mat4 {
 		var e:Float = 0;// Mathf.Epsilon;
 		
 		if (diag > e) {
-			q.w = Math.sqrt(diag) / 2.0;			
+			q.w = std.Math.sqrt(diag) / 2.0;			
 			var w4:Float = (4.0 * q.w);
 			q.x = (m._32 - m._23) / w4;
 			q.y = (m._13 - m._31) / w4;
@@ -825,7 +825,7 @@ class Mat4 {
 			if ((d01>e) && (d02>e)) {
 				// 1st element of diag is greatest value
 				// find scale according to 1st element, and double it
-				var scale:Float = Math.sqrt(1.0 + m._11 - m._22 - m._33) * 2.0;
+				var scale:Float = std.Math.sqrt(1.0 + m._11 - m._22 - m._33) * 2.0;
 
 				// TODO: speed this up
 				q.x = 0.25 * scale;
@@ -836,7 +836,7 @@ class Mat4 {
 			else if (d12>e) {
 				// 2nd element of diag is greatest value
 				// find scale according to 2nd element, and double it
-				var scale:Float = Math.sqrt(1.0 + m._22 - m._11 - m._33) * 2.0;
+				var scale:Float = std.Math.sqrt(1.0 + m._22 - m._11 - m._33) * 2.0;
 				
 				// TODO: speed this up
 				q.x = (m._21 + m._12) / scale;
@@ -847,7 +847,7 @@ class Mat4 {
 			else {
 				// 3rd element of diag is greatest value
 				// find scale according to 3rd element, and double it
-				var scale:Float = Math.sqrt(1.0 + m._33 - m._11 - m._22) * 2.0;
+				var scale:Float = std.Math.sqrt(1.0 + m._33 - m._11 - m._22) * 2.0;
 				
 				// TODO: speed this up
 				q.x = (m._31 + m._13) / scale;
@@ -911,14 +911,80 @@ class Mat4 {
 		var scaleYSq = te[4] * te[4] + te[5] * te[5] + te[6] * te[6];
 		var scaleZSq = te[8] * te[8] + te[9] * te[9] + te[10] * te[10];
 
-		return Math.sqrt(Math.max(scaleXSq, Math.max(scaleYSq, scaleZSq)));	
+		return std.Math.sqrt(Math.max(scaleXSq, Math.max(scaleYSq, scaleZSq)));	
 	}
 
 	public function getScale():Mat4 {
-		var d0:Float = fox.math.Math.sqrt(_11 * _11 + _21 * _21 + _31 * _31);
-		var d1:Float = fox.math.Math.sqrt(_12 * _12 + _22 * _22 + _32 * _32);
-		var d2:Float = fox.math.Math.sqrt(_13 * _13 + _23 * _23 + _33 * _33);
+		var d0:Float = std.Math.sqrt(_11 * _11 + _21 * _21 + _31 * _31);
+		var d1:Float = std.Math.sqrt(_12 * _12 + _22 * _22 + _32 * _32);
+		var d2:Float = std.Math.sqrt(_13 * _13 + _23 * _23 + _33 * _33);
 		var m = new Mat4([d0, 0, 0, 0,   0, d1, 0, 0,   0, 0, d2, 0,   0, 0, 0, 1]);
 		return m;
 	}
+
+	public static function perspective(fovY:Float, aspectRatio:Float, zNear:Float, zFar:Float):Mat4 {
+        var f = 1.0 / std.Math.tan(fovY / 2);
+        var t = 1.0 / (zNear - zFar);
+
+        return new Mat4([f / aspectRatio, 0.0,      0.0,                   0.0,
+                         0.0,             f,        0.0,                   0.0,
+                         0.0,             0.0,      (zFar + zNear) * t,   -1.0,
+                         0.0,             0.0,      2 * zFar * zNear * t , 0.0]);
+    }
+
+    public static function orthogonal(left: Float, right: Float, bottom: Float, top: Float, zn: Float, zf: Float): Mat4 {
+        var tx: Float = -(right + left) / (right - left);
+        var ty: Float = -(top + bottom) / (top - bottom);
+        var tz: Float = -(zf + zn) / (zf - zn);
+        //var tz : Float = -zn / (zf - zn);
+        return new Mat4([
+            2 / (right - left), 0,                  0,              0,
+            0,                  2 / (top - bottom), 0,              0,
+            0,                  0,                  -2 / (zf - zn), 0,
+            tx,                 ty,                 tz,             1
+        ]);
+    }
+    
+    public static function lookAt(_eye:Vec3, _centre:Vec3, _up:Null<Vec3> = null):Mat4 {
+        var eye = _eye;
+        var centre = _centre;
+        var up = _up;
+
+        var e0 = eye.x;
+        var e1 = eye.y;
+        var e2 = eye.z;
+
+        var u0 = (up == null ? 0 : up.x);
+        var u1 = (up == null ? 1 : up.y);
+        var u2 = (up == null ? 0 : up.z);
+
+        var f0 = centre.x - e0;
+        var f1 = centre.y - e1;
+        var f2 = centre.z - e2;
+        var n = 1 / std.Math.sqrt(f0 * f0 + f1 * f1 + f2 * f2);
+        f0 *= n;
+        f1 *= n;
+        f2 *= n;
+
+        var s0 = f1 * u2 - f2 * u1;
+        var s1 = f2 * u0 - f0 * u2;
+        var s2 = f0 * u1 - f1 * u0;
+        n = 1 / std.Math.sqrt(s0 * s0 + s1 * s1 + s2 * s2);
+        s0 *= n;
+        s1 *= n;
+        s2 *= n;
+
+        u0 = s1 * f2 - s2 * f1;
+        u1 = s2 * f0 - s0 * f2;
+        u2 = s0 * f1 - s1 * f0;
+
+        var d0 = -e0 * s0 - e1 * s1 - e2 * s2;
+        var d1 = -e0 * u0 - e1 * u1 - e2 * u2;
+        var d2 =  e0 * f0 + e1 * f1 + e2 * f2;
+
+        return new Mat4([s0, u0,-f0, 0.0,
+                         s1, u1,-f1, 0.0,
+                         s2, u2,-f2, 0.0,
+                         d0, d1, d2, 1.0]);
+    }
 }

@@ -21,14 +21,7 @@ class Vec3 {
         this.w = w;
     }
 
-    /**
-     * @method cross
-     * @memberof Vec3
-     * @brief Vector cross product
-     * @param Vec3 v
-     * @param Vec3 target Optional. Target to save in.
-     * @return Vec3
-     */
+    // Vector cross product
     public function cross(v:Vec3, target:Vec3 = null):Vec3 {
         var vx:Float = v.x; var vy:Float = v.y; var vz:Float = v.z; var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
         if (target == null) target = new Vec3();
@@ -58,15 +51,7 @@ class Vec3 {
         return ((x == v.x) && (y == v.y) && (z == v.z));
     }
 
-    /**
-     * @method set
-     * @memberof Vec3
-     * @brief Set the vectors' 3 elements
-     * @param float x
-     * @param float y
-     * @param float z
-     * @return Vec3
-     */
+    // Set the vectors' 3 elements
     public function set(x:Float, y:Float, z:Float):Vec3{
         this.x = x;
         this.y = y;
@@ -74,14 +59,7 @@ class Vec3 {
         return this;
     }
 
-    /**
-     * @method vadd
-     * @memberof Vec3
-     * @brief Vector addition
-     * @param Vec3 v
-     * @param Vec3 target Optional.
-     * @return Vec3
-     */
+    // Vector addition
     public function vadd(v:Vec3, target:Vec3 = null):Vec3 {
         if(target != null) {
             target.x = v.x + this.x;
@@ -111,14 +89,7 @@ class Vec3 {
         return this;
     }   
 
-    /**
-     * @method vsub
-     * @memberof Vec3
-     * @brief Vector subtraction
-     * @param Vec3 v
-     * @param Vec3 target Optional. Target to save in.
-     * @return Vec3
-     */
+    // Vector subtraction
     public function vsub(v:Vec3, target:Vec3 = null):Vec3 {
         if (target != null) {
             target.x = this.x - v.x;
@@ -140,15 +111,11 @@ class Vec3 {
         return this;
     }   
 
-    /**
-     * @method normalize
-     * @memberof Vec3
-     * @brief Normalize the vector. Note that this changes the values in the vector.
-     * @return float Returns the norm of the vector
-     */
+    // Normalize the vector
+    // Returns the norm of the vector
     public function normalize():Float {
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
-        var n:Float = Math.sqrt(x * x + y * y + z * z);
+        var n:Float = std.Math.sqrt(x * x + y * y + z * z);
         if (n > 0.0) {
             var invN:Float = 1/n;
             this.x *= invN;
@@ -164,17 +131,12 @@ class Vec3 {
         return n;
     }
 
-    /**
-     * @method unit
-     * @memberof Vec3
-     * @brief Get the version of this vector that is of length 1.
-     * @param Vec3 target Optional target to save in
-     * @return Vec3 Returns the unit vector
-     */
+    // Get the version of this vector that is of length 1.
+    // Returns the unit vector
     public function unit(target:Vec3):Vec3 {
         if (target == null) target = new Vec3();
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
-        var ninv:Float = Math.sqrt(x*x + y*y + z*z);
+        var ninv:Float = std.Math.sqrt(x*x + y*y + z*z);
         if (ninv > 0.0) {
             ninv = 1.0 / ninv;
             target.x = x * ninv;
@@ -189,23 +151,13 @@ class Vec3 {
         return target;
     }
 
-    /**
-     * @method norm
-     * @memberof Vec3
-     * @brief Get the 2-norm (length) of the vector
-     * @return float
-     */
+    // Get the 2-norm (length) of the vector
     public function norm():Float {
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
-        return Math.sqrt(x * x + y * y + z * z);
+        return std.Math.sqrt(x * x + y * y + z * z);
     }
 
-    /**
-     * @method norm2
-     * @memberof Vec3
-     * @brief Get the squared length of the vector
-     * @return float
-     */
+    // Get the squared length of the vector
     public function norm2():Float {
         return this.dot(this);
     }
@@ -213,19 +165,12 @@ class Vec3 {
     public function distanceTo(p:Vec3):Float {
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
         var px:Float = p.x; var py:Float = p.y; var pz:Float = p.z;
-        return Math.sqrt((px - x) * (px - x) +
+        return std.Math.sqrt((px - x) * (px - x) +
                          (py - y) * (py - y) +
                          (pz - z) * (pz - z));
     }
 
-    /**
-     * @method mult
-     * @memberof Vec3
-     * @brief Multiply the vector with a scalar
-     * @param float scalar
-     * @param Vec3 target
-     * @return Vec3
-     */
+    // Multiply the vector with a scalar
     public function mult(scalar:Float, target:Vec3 = null):Vec3 {
         if (target == null) target = new Vec3();
         var x:Float = this.x;
@@ -244,33 +189,16 @@ class Vec3 {
         return this;
     }
 
-    /**
-     * @method dot
-     * @memberof Vec3
-     * @brief Calculate dot product
-     * @param Vec3 v
-     * @return float
-     */
+    // Calculate dot product
     public function dot(v:Vec3):Float {
         return this.x * v.x + this.y * v.y + this.z * v.z;
     }
 
-    /**
-     * @method isZero
-     * @memberof Vec3
-     * @return bool
-     */
     public function isZero():Bool {
         return this.x == 0 && this.y == 0 && this.z == 0;
     }
 
-    /**
-     * @method negate
-     * @memberof Vec3
-     * @brief Make the vector point in the opposite direction.
-     * @param Vec3 target Optional target to save in
-     * @return Vec3
-     */
+    // Make the vector point in the opposite direction.
     public function negate(target:Vec3 = null):Vec3 {
         if (target == null) target = new Vec3();
         target.x = -this.x;
@@ -279,21 +207,17 @@ class Vec3 {
         return target;
     }
 
-    /**
-     * @method tangents
-     * @memberof Vec3
-     * @brief Compute two artificial tangents to the vector
-     * @param Vec3 t1 Vector object to save the first tangent in
-     * @param Vec3 t2 Vector object to save the second tangent in
-     */
-    public function tangents(t1 : Vec3,t2 : Vec3) {
+    // Compute two artificial tangents to the vector
+    // t1 Vector object to save the first tangent in
+    // t2 Vector object to save the second tangent in
+    public function tangents(t1:Vec3, t2:Vec3) {
         var norm:Float = this.norm();
         if (norm > 0.0) {
             var n = Vec3_tangents_n;
             var inorm:Float = 1 / norm;
             n.set(this.x * inorm, this.y * inorm, this.z * inorm);
             var randVec = Vec3_tangents_randVec;
-            if (Math.abs(n.x) < 0.9) {
+            if (std.Math.abs(n.x) < 0.9) {
                 randVec.set(1, 0, 0);
                 n.cross(randVec, t1);
             }
@@ -309,23 +233,11 @@ class Vec3 {
         }
     }
 
-    /**
-     * @method toString
-     * @memberof Vec3
-     * @brief Converts to a more readable format
-     * @return string
-     */
     public function toString():String {
         return this.x + "," + this.y + "," + this.z;
     }
 
-    /**
-     * @method copy
-     * @memberof Vec3
-     * @brief Copy the vector.
-     * @param Vec3 target
-     * @return Vec3
-     */
+    // Copy the vector.
     public function copy(target:Vec3):Vec3 {
         if (target == null) target = new Vec3();
         target.x = this.x;
@@ -345,14 +257,8 @@ class Vec3 {
         return new Vec3(x, y, z);
     }
 
-    /**
-     * @method lerp
-     * @memberof Vec3
-     * @brief Do a linear interpolation between two vectors
-     * @param Vec3 v
-     * @param float t A number between 0 and 1. 0 will make this function return u, and 1 will make it return v. Numbers in between will generate a vector in between them.
-     * @param Vec3 target
-     */
+    // Do a linear interpolation between two vectors
+    // t A number between 0 and 1. 0 will make this function return u, and 1 will make it return v. Numbers in between will generate a vector in between them.
     public function lerp(v:Vec3, t:Float, target:Vec3) {
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
         target.x = x + (v.x - x) * t;
@@ -360,37 +266,25 @@ class Vec3 {
         target.z = z + (v.z - z) * t;
     }
 
-    /**
-     * @method almostEquals
-     * @memberof Vec3
-     * @brief Check if a vector equals is almost equal to another one.
-     * @param Vec3 v
-     * @param float precision
-     * @return bool
-     */
+    // Check if a vector equals is almost equal to another one.
     public function almostEquals(v:Vec3, precision:Float = -1.0):Bool {
         if (precision < -0.99) {
             precision = 1e-6;
         }
-        if (Math.abs(this.x-v.x)>precision ||
-            Math.abs(this.y-v.y)>precision ||
-            Math.abs(this.z-v.z)>precision) {
+        if (std.Math.abs(this.x-v.x)>precision ||
+            std.Math.abs(this.y-v.y)>precision ||
+            std.Math.abs(this.z-v.z)>precision) {
             return false;
         }
         return true;
     }
 
-    /**
-     * @method almostZero
-     * @brief Check if a vector is almost zero
-     * @param float precision
-     * @memberof Vec3
-     */
+    // Check if a vector is almost zero
     public function almostZero(v:Vec3):Bool {
         var precision:Float = 1e-6; 
-        if (Math.abs(this.x)>precision ||
-            Math.abs(this.y)>precision ||
-            Math.abs(this.z)>precision){
+        if (std.Math.abs(this.x)>precision ||
+            std.Math.abs(this.y)>precision ||
+            std.Math.abs(this.z)>precision){
             return false;
         }
         return true;
@@ -398,11 +292,9 @@ class Vec3 {
 
     // Extended
     public function applyProjection(m:Mat4):Vec3 {
-        // Input: THREE.Matrix4 projection matrix
-
         var x = this.x, y = this.y, z = this.z;
-
         var e = m.getFloats();
+
         // Perspective divide
         var d = 1 / (e[3] * x + e[7] * y + e[11] * z + e[15]);
 
@@ -414,11 +306,9 @@ class Vec3 {
     }
 
     public function applyMat4(m:Mat4):Vec3 {
-        // input: THREE.Matrix4 affine matrix
         var x = this.x;
         var y = this.y;
         var z = this.z;
-
         var e = m.getFloats();
 
         this.x = e[0] * x + e[4] * y + e[8]  * z + e[12];
@@ -451,7 +341,7 @@ class Vec3 {
     }
 
     public function getLength() {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+        return std.Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
     public function lengthSq():Float {

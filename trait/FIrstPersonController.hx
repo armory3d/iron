@@ -8,7 +8,6 @@ import fox.core.Trait;
 import fox.core.IUpdateable;
 import fox.trait.Input;
 import fox.trait.Transform;
-import fox.trait.SceneRenderer;
 import fox.trait.RigidBody;
 import fox.trait.Camera;
 

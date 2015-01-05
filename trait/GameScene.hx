@@ -10,10 +10,6 @@ import fox.sys.mesh.SkinnedMesh;
 import fox.sys.Assets;
 import fox.sys.mesh.Geometry;
 import fox.sys.mesh.Mesh;
-import fox.trait.Renderer;
-import fox.trait.MeshRenderer;
-import fox.trait.SkinnedMeshRenderer;
-import fox.trait.SceneRenderer;
 import fox.trait.Transform;
 
 typedef TGameData = {
@@ -72,6 +68,9 @@ class GameScene extends Trait {
 	var gameParams:GameParams;
 	var traitInits:Array<Void->Void> = []; // TODO: scene nesting
 
+	@inject({desc:true,sibl:true})
+	public var camera:Camera;
+
 	public function new(data:String) {
 		super();
 
@@ -92,8 +91,8 @@ class GameScene extends Trait {
 
 	override function onItemAdd() {
 
-		// Scene renderer
-		owner.addTrait(new SceneRenderer());
+		// Physics
+		owner.addTrait(new PhysicsScene());
 
 		// Game data reference
 		gameData = Main.gameData;

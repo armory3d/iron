@@ -13,7 +13,7 @@ class MeshRenderer extends Renderer implements IRenderable {
 	public var transform:Transform;
 
 	@inject({asc:true,sibl:false})
-	public var scene:SceneRenderer;
+	public var scene:GameScene;
 
 	public var mvpMatrix:Mat4;
 	public var viewMatrix:Mat4; // Camera copy

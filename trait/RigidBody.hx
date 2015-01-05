@@ -15,12 +15,13 @@ class RigidBody extends Trait implements IUpdateable {
 	public static inline var SHAPE_SPHERE = 1;
 	var shape:Int;
 
-	public var scene:SceneRenderer;
+	public var scene:PhysicsScene;
 	public var body:oimo.physics.dynamics.RigidBody = null;
 
 	public var transform:Transform;
 	var mass:Float;
 
+	// Events
 	var lastColliding = false;
 	public var colliding:Bool = false;
 	public var collided:Bool = false;
@@ -33,7 +34,7 @@ class RigidBody extends Trait implements IUpdateable {
 	}
 
 	@injectAdd({asc:true,sibl:true})
-	function addSceneRenderer(trait:SceneRenderer) {
+	function addPhysicsScene(trait:PhysicsScene) {
 		scene = trait;
 
 		if (transform != null) init(transform, scene);
@@ -46,7 +47,7 @@ class RigidBody extends Trait implements IUpdateable {
 		if (scene != null) init(transform, scene);
 	}
 
-	public function init(transform:Transform, scene:SceneRenderer) {
+	public function init(transform:Transform, scene:PhysicsScene) {
 		if (body != null) return;
 
 		this.transform = transform;
@@ -54,13 +55,12 @@ class RigidBody extends Trait implements IUpdateable {
 
 		var sc:ShapeConfig = new ShapeConfig();
 		sc.density = mass > 0 ? mass : 1;
-		body = new oimo.physics.dynamics.RigidBody(this, transform.pos.x, transform.pos.y, transform.pos.z);
-		body.orientation.x = transform.rot.x;
-		body.orientation.y = transform.rot.y;
-		body.orientation.z = transform.rot.z;
-		body.orientation.s = transform.rot.w;
+		body = new oimo.physics.dynamics.RigidBody(transform.pos.x, transform.pos.y, transform.pos.z);
+		body.prestep = prestep;
+		body.orientation.init(transform.rot.w, transform.rot.x, transform.rot.y, transform.rot.z);
 		body.name = owner.name;
 
+		// Shape
 		if (shape == SHAPE_BOX) {
 			body.addShape(new BoxShape(sc, transform.size.x, transform.size.y, transform.size.z));
 		}
@@ -68,6 +68,7 @@ class RigidBody extends Trait implements IUpdateable {
 			body.addShape(new SphereShape(sc, transform.size.x / 2));
 		}
 		
+		// Mass
 		if (mass == 0) {
 			body.setupMass(oimo.physics.dynamics.RigidBody.BODY_STATIC);
 		}
@@ -77,14 +78,9 @@ class RigidBody extends Trait implements IUpdateable {
 		
 		scene.world.addRigidBody(body);
 		Shape.nextID++;
-
-		// Use rigid body transform
-		//transform.pos = body.position;
-		//transform.rot = body.orientation;
 	}
 
 	public function update() {
-
 		// Clear small values
 		/*if (Math.abs(transform.pos.x - body.position.x) < 0.001) body.position.x = transform.pos.x;
 		if (Math.abs(transform.pos.y - body.position.y) < 0.001) body.position.y = transform.pos.y;
@@ -95,15 +91,8 @@ class RigidBody extends Trait implements IUpdateable {
 		if (Math.abs(transform.rot.z - body.orientation.z) < 0.001) body.orientation.z = transform.rot.z;
 		if (Math.abs(transform.rot.w - body.orientation.s) < 0.001) body.orientation.s = transform.rot.w;*/
 
-		transform.pos.x = body.position.x;
-		transform.pos.y = body.position.y;
-		transform.pos.z = body.position.z;
-		
-		transform.rot.x = body.orientation.x;
-		transform.rot.y = body.orientation.y;
-		transform.rot.z = body.orientation.z;
-		transform.rot.w = body.orientation.s;
-
+		transform.pos.set(body.position.x, body.position.y, body.position.z);
+		transform.rot.set(body.orientation.x, body.orientation.y, body.orientation.z, body.orientation.s);
 		transform.modified = true;
 
 		// Extra events
@@ -141,14 +130,9 @@ class RigidBody extends Trait implements IUpdateable {
 		body.setImpulse(opos, oforce);
 	}
 
-	public function syncBody() { // TODO: remove
-		body.position.x = transform.x;
-		body.position.y = transform.y;
-		body.position.z = transform.z;
-		
-		body.orientation.x = transform.rot.x;
-		body.orientation.y = transform.rot.y;
-		body.orientation.z = transform.rot.z;
-		body.orientation.s = transform.rot.w;
+	function prestep() {
+		// Sync transform
+		body.position.init(transform.x, transform.y, transform.z);
+		body.orientation.init(transform.rot.w, transform.rot.x, transform.rot.y, transform.rot.z);
 	}
 }

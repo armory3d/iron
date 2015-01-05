@@ -28,7 +28,8 @@ class Sphere {
 		var center = this.center;
 		if (optionalCenter != null) {
 			center.copy(optionalCenter);
-		} else {
+		}
+		else {
 			box.setFromPoints(points).center(center);
 		}
 
@@ -37,7 +38,7 @@ class Sphere {
 			maxRadiusSq = Math.max(maxRadiusSq, center.distanceToSquared(points[i]));
 		}
 
-		this.radius = Math.sqrt(maxRadiusSq);
+		this.radius = std.Math.sqrt(maxRadiusSq);
 
 		return this;	
 	}	

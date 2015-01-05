@@ -12,8 +12,8 @@ class Box3 {
 	public var max:Vec3;	
 
 	public function new(min:Vec3 = null, max:Vec3 = null) {
-		this.min = min != null ? min : new Vec3(Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY);
-		this.max = max != null ? max : new Vec3(Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY);
+		this.min = min != null ? min : new Vec3(std.Math.POSITIVE_INFINITY, std.Math.POSITIVE_INFINITY, std.Math.POSITIVE_INFINITY);
+		this.max = max != null ? max : new Vec3(std.Math.NEGATIVE_INFINITY, std.Math.NEGATIVE_INFINITY, std.Math.NEGATIVE_INFINITY);
 	}
 	
 	public function set(min:Vec3, max:Vec3):Box3 {
@@ -97,8 +97,8 @@ class Box3 {
 	}
 	
 	public function makeEmpty():Box3 {
-		this.min.x = this.min.y = this.min.z = Math.POSITIVE_INFINITY;
-		this.max.x = this.max.y = this.max.z = Math.NEGATIVE_INFINITY;
+		this.min.x = this.min.y = this.min.z = std.Math.POSITIVE_INFINITY;
+		this.max.x = this.max.y = this.max.z = std.Math.NEGATIVE_INFINITY;
 		return this;
 	}	
 	

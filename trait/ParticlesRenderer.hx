@@ -10,7 +10,7 @@ class ParticlesRenderer extends Renderer implements IRenderable {
 	public var transform:Transform;
 
 	@inject({asc:true,sibl:false})
-	public var scene:SceneRenderer;
+	public var scene:GameScene;
 
 	public var mvpMatrix:Mat4;
 	public var transPos:Vec3;

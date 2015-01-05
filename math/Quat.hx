@@ -4,18 +4,10 @@ package fox.math;
 // https://github.com/schteppe/cannon.js
 // https://github.com/ncannasse/h3d
 
-using fox.math.Math;
+using Math;
 
-/**
- * @class Quaternion
- * @brief A Quaternion describes a rotation in 3D space.
- * @description The Quaternion is mathematically defined as Q = x*i + y*j + z*k + w, where (i,j,k) are imaginary basis vectors. (x,y,z) can be seen as a vector related to the axis of rotation, while the real multiplier, w, is related to the amount of rotation.
- * @param float x Multiplier of the imaginary basis vector i.
- * @param float y Multiplier of the imaginary basis vector j.
- * @param float z Multiplier of the imaginary basis vector k.
- * @param float w Multiplier of the real part.
- * @see http://en.wikipedia.org/wiki/Quaternion
- */
+// A Quaternion describes a rotation in 3D space.
+// The Quaternion is mathematically defined as Q = x*i + y*j + z*k + w, where (i,j,k) are imaginary basis vectors. (x,y,z) can be seen as a vector related to the axis of rotation, while the real multiplier, w, is related to the amount of rotation.
 class Quat {
 
     public var x:Float;
@@ -34,15 +26,7 @@ class Quat {
         this.w = w;
     }
 
-    /**
-     * @method set
-     * @memberof Quaternion
-     * @brief Set the value of the quaternion.
-     * @param float x
-     * @param float y
-     * @param float z
-     * @param float w
-     */
+    // Set the value of the quaternion.
     public function set(x:Float, y:Float, z:Float, w:Float) {
         this.x = x;
         this.y = y;
@@ -50,37 +34,26 @@ class Quat {
         this.w = w;
     }
 
-    /**
-     * @method toString
-     * @memberof Quaternion
-     * @brief Convert to a readable format
-     * @return string
-     */
     public function toString():String {
         return this.x + "," + this.y + "," + this.z + "," + this.w;
     }
 
-    /**
-     * @method setFromAxisAngle
-     * @memberof Quaternion
-     * @brief Set the quaternion components given an axis and an angle.
-     * @param Vec3 axis
-     * @param float angle in radians
-     */
+    // Set the quaternion components given an axis and an angle.
+    // angle in radians
     public function setFromAxisAngle(axis:Vec3, angle:Float) {
-        var s:Float = Math.sin(angle * 0.5);
+        var s:Float = std.Math.sin(angle * 0.5);
         this.x = axis.x * s;
         this.y = axis.y * s;
         this.z = axis.z * s;
-        this.w = Math.cos(angle * 0.5);
+        this.w = std.Math.cos(angle * 0.5);
     }
 
-    // saves axis to targetAxis and returns 
+    // Saves axis to targetAxis and returns 
     public function toAxisAngle(targetAxis):Dynamic {
         if (targetAxis == null) targetAxis = new Vec3();
         this.normalize(); // if w>1 acos and sqrt will produce errors, this cant happen if quaternion is normalised
-        var angle:Float = 2 * Math.acos(this.w);
-        var s:Float = Math.sqrt(1 - this.w * this.w); // assuming quaternion normalised then w is less than 1, so term always positive.
+        var angle:Float = 2 * std.Math.acos(this.w);
+        var s:Float = std.Math.sqrt(1 - this.w * this.w); // assuming quaternion normalised then w is less than 1, so term always positive.
         if (s < 0.001) { // test to avoid divide by zero, s is always positive due to sqrt
             // if s close to zero then direction of axis not important
             targetAxis.x = this.x; // if it is important that axis is normalised then replace with x=1; y=z=0;
@@ -95,13 +68,7 @@ class Quat {
         return [targetAxis, angle];
     }
 
-    /**
-     * @method setFromVectors
-     * @memberof Quaternion
-     * @brief Set the quaternion value given two vectors. The resulting rotation will be the needed rotation to rotate u to v.
-     * @param Vec3 u
-     * @param Vec3 v
-     */
+    // Set the quaternion value given two vectors. The resulting rotation will be the needed rotation to rotate u to v.
     /*public function setFromVectors(u:Vec3, v:Vec3) {
         if (u.isAntiparallelTo(v)) {
             var t1 = new Vec3(); //sfv_t1;
@@ -115,19 +82,12 @@ class Quat {
             this.x = a.x;
             this.y = a.y;
             this.z = a.z;
-            this.w = Math.sqrt(Math.pow(u.norm(), 2) * Math.pow(v.norm(), 2)) + u.dot(v);
+            this.w = std.Math.sqrt(Math.pow(u.norm(), 2) * Math.pow(v.norm(), 2)) + u.dot(v);
             this.normalize();
         }
     }*/
 
-    /**
-     * @method mult
-     * @memberof Quaternion
-     * @brief Quaternion multiplication
-     * @param Quaternion q
-     * @param Quaternion target Optional.
-     * @return Quaternion
-     */
+    // Quaternion multiplication
     public function mult(q:Quat, target:Quat):Quat {
         if (target == null) target = new Quat();
         var w:Float = this.w;
@@ -147,13 +107,7 @@ class Quat {
         return target;
     }
 
-    /**
-     * @method inverse
-     * @memberof Quaternion
-     * @brief Get the inverse quaternion rotation.
-     * @param Quaternion target
-     * @return Quaternion
-     */
+    // Get the inverse quaternion rotation.
     public function inverse(target:Quat):Quat {
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z; var w:Float = this.w;
         if (target == null) target = new Quat();
@@ -168,13 +122,7 @@ class Quat {
         return target;
     }
 
-    /**
-     * @method conjugate
-     * @memberof Quaternion
-     * @brief Get the quaternion conjugate
-     * @param Quaternion target
-     * @return Quaternion
-     */
+    // Get the quaternion conjugate
     public function conjugate(target:Quat):Quat {
         if (target == null) target = new Quat();
 
@@ -186,13 +134,9 @@ class Quat {
         return target;
     }
 
-    /**
-     * @method normalize
-     * @memberof Quaternion
-     * @brief Normalize the quaternion. Note that this changes the values of the quaternion.
-     */
+    // Normalize the quaternion
     public function normalize() {
-        var l = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+        var l = std.Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
         if (l == 0.0) {
             this.x = 0;
             this.y = 0;
@@ -208,13 +152,7 @@ class Quat {
         }
     }
 
-    /**
-     * @method normalizeFast
-     * @memberof Quaternion
-     * @brief Approximation of quaternion normalization. Works best when quat is already almost-normalized.
-     * @see http://jsperf.com/fast-quaternion-normalization
-     * @author unphased, https://github.com/unphased
-     */
+    // Approximation of quaternion normalization. Works best when quat is already almost-normalized.
     public function normalizeFast() {
         var f = (3.0 - (this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w)) / 2.0;
         if (f == 0) {
@@ -231,15 +169,8 @@ class Quat {
         }
     }
 
-    /**
-     * @method vmult
-     * @memberof Quaternion
-     * @brief Multiply the quaternion by a vector
-     * @param Vec3 v
-     * @param Vec3 target Optional
-     * @return Vec3
-     */
-    public function vmult(v:Vec3, target:Vec3):Vec3{
+    // Multiply the quaternion by a vector
+    public function vmult(v:Vec3, target:Vec3):Vec3 {
         if (target == null) target = new Vec3();
 
         var x:Float = v.x;
@@ -286,11 +217,7 @@ class Quat {
         return result;
     }
 
-    /**
-     * @method copy
-     * @memberof Quaternion
-     * @param Quaternion target
-     */
+    // Quaternion target
     public function copy(target) {
         target.x = this.x;
         target.y = this.y;
@@ -298,39 +225,31 @@ class Quat {
         target.w = this.w;
     }
 
-    /**
-     * @method toEuler
-     * @memberof Quaternion
-     * @brief Convert the quaternion to euler angle representation. Order: YZX, as this page describes: http://www.euclideanspace.com/maths/standards/index.htm
-     * @param Vec3 target
-     * @param string order Three-character string e.g. "YZX", which also is default.
-     */
-    public function toEuler(target:Vec3, order:String = null) {
-        if (order == null) order = "YZX";
-
-        var heading:Float = Math.NaN; var attitude:Float = 0.0; var bank:Float = 0.0;
+    // Convert the quaternion to euler angle representation. Order: YZX, as this page describes: http://www.euclideanspace.com/maths/standards/index.htm
+    public function toEuler(target:Vec3, order = "YZX") {
+        var heading:Float = std.Math.NaN; var attitude:Float = 0.0; var bank:Float = 0.0;
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z; var w:Float = this.w;
 
         switch(order) {
             case "YZX":
                 var test:Float = x * y + z * w;
                 if (test > 0.499) { // singularity at north pole
-                    heading = 2 * Math.atan2(x, w);
+                    heading = 2 * std.Math.atan2(x, w);
                     attitude = Math.PI / 2;
                     bank = 0;
                 }
                 if (test < -0.499) { // singularity at south pole
-                    heading = -2 * Math.atan2(x, w);
+                    heading = -2 * std.Math.atan2(x, w);
                     attitude = -Math.PI / 2;
                     bank = 0;
                 }
-                if (Math.isNaN(heading)) {
+                if (std.Math.isNaN(heading)) {
                     var sqx:Float = x * x;
                     var sqy:Float = y * y;
                     var sqz:Float = z * z;
-                    heading = Math.atan2(2 * y * w - 2 * x * z , 1.0 - 2 * sqy - 2 * sqz); // Heading
-                    attitude = Math.asin(2 * test); // attitude
-                    bank = Math.atan2(2 * x * w - 2 * y * z , 1.0 - 2 * sqx - 2 * sqz); // bank
+                    heading = std.Math.atan2(2 * y * w - 2 * x * z , 1.0 - 2 * sqy - 2 * sqz); // Heading
+                    attitude = std.Math.asin(2 * test); // attitude
+                    bank = std.Math.atan2(2 * x * w - 2 * y * z , 1.0 - 2 * sqx - 2 * sqz); // bank
                 }
             default:
                 throw "Euler order " + order + " not supported yet.";
@@ -341,66 +260,52 @@ class Quat {
         target.x = bank;
     }
 
-    /**
-     * See http://www.mathworks.com/matlabcentral/fileexchange/20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/content/SpinCalc.m
-     * @method setFromEuler
-     * @param {Number} x
-     * @param {Number} y
-     * @param {Number} z
-     * @param {String} order The order to apply angles: 'XYZ' or 'YXZ' or any other combination
-     */
+    // See http://www.mathworks.com/matlabcentral/fileexchange/20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/content/SpinCalc.m
     public function setFromEuler(x:Float, y:Float, z:Float, order = "ZXY") {
 
-        var c1 = Math.cos(x / 2);
-        var c2 = Math.cos(y / 2);
-        var c3 = Math.cos(z / 2);
-        var s1 = Math.sin(x / 2);
-        var s2 = Math.sin(y / 2);
-        var s3 = Math.sin(z / 2);
+        var c1 = std.Math.cos(x / 2);
+        var c2 = std.Math.cos(y / 2);
+        var c3 = std.Math.cos(z / 2);
+        var s1 = std.Math.sin(x / 2);
+        var s2 = std.Math.sin(y / 2);
+        var s3 = std.Math.sin(z / 2);
 
         if (order == 'XYZ') {
-
             this.x = s1 * c2 * c3 + c1 * s2 * s3;
             this.y = c1 * s2 * c3 - s1 * c2 * s3;
             this.z = c1 * c2 * s3 + s1 * s2 * c3;
             this.w = c1 * c2 * c3 - s1 * s2 * s3;
         }
         else if (order == 'YXZ') {
-
             this.x = s1 * c2 * c3 + c1 * s2 * s3;
             this.y = c1 * s2 * c3 - s1 * c2 * s3;
             this.z = c1 * c2 * s3 - s1 * s2 * c3;
             this.w = c1 * c2 * c3 + s1 * s2 * s3;
         }
         else if (order == 'ZXY') {
-
             this.x = s1 * c2 * c3 - c1 * s2 * s3;
             this.y = c1 * s2 * c3 + s1 * c2 * s3;
             this.z = c1 * c2 * s3 + s1 * s2 * c3;
             this.w = c1 * c2 * c3 - s1 * s2 * s3;
         }
         else if (order == 'ZYX') {
-
             this.x = s1 * c2 * c3 - c1 * s2 * s3;
             this.y = c1 * s2 * c3 + s1 * c2 * s3;
             this.z = c1 * c2 * s3 - s1 * s2 * c3;
             this.w = c1 * c2 * c3 + s1 * s2 * s3;
         }
         else if (order == 'YZX') {
-
             this.x = s1 * c2 * c3 + c1 * s2 * s3;
             this.y = c1 * s2 * c3 + s1 * c2 * s3;
             this.z = c1 * c2 * s3 - s1 * s2 * c3;
             this.w = c1 * c2 * c3 - s1 * s2 * s3;
         }
         else if (order == 'XZY') {
-
             this.x = s1 * c2 * c3 - c1 * s2 * s3;
             this.y = c1 * s2 * c3 - s1 * c2 * s3;
             this.z = c1 * c2 * s3 + s1 * s2 * c3;
             this.w = c1 * c2 * c3 + s1 * s2 * s3;
         }
-
         return this;
     }
 
@@ -580,13 +485,13 @@ class Quat {
         var test:Float = x * y + z * w;
         var a = new Vec3();
         if (test > 0.499) { // singularity at north pole
-            a.x = 2.0 * fox.math.Math.atan2(x, w) * fox.math.Math.Rad2Deg;
+            a.x = 2.0 * std.Math.atan2(x, w) * fox.math.Math.Rad2Deg;
             a.y = (fox.math.Math.PI / 2) * fox.math.Math.Rad2Deg;
             a.z = 0;
             return a;
         }
         if (test < -0.499) { // singularity at south pole
-            a.x = -2.0 * fox.math.Math.atan2(x, w) * fox.math.Math.Rad2Deg;
+            a.x = -2.0 * std.Math.atan2(x, w) * fox.math.Math.Rad2Deg;
             a.y = -(fox.math.Math.PI / 2) * fox.math.Math.Rad2Deg;
             a.z = 0;
             return a;
@@ -594,9 +499,9 @@ class Quat {
         var sqx:Float = x * x;
         var sqy:Float = y * y;
         var sqz:Float = z * z;        
-        a.x = fox.math.Math.atan2(2.0 * y * w - 2.0 * x * z , 1.0 - 2.0 * sqy - 2.0 * sqz) * fox.math.Math.Rad2Deg;
-        a.y = fox.math.Math.asin(2.0 * test) * fox.math.Math.Rad2Deg;
-        a.z = fox.math.Math.atan2(2.0 * x * w - 2.0 * y * z , 1.0 - 2.0 * sqx - 2.0 * sqz) * fox.math.Math.Rad2Deg;     
+        a.x = std.Math.atan2(2.0 * y * w - 2.0 * x * z , 1.0 - 2.0 * sqy - 2.0 * sqz) * fox.math.Math.Rad2Deg;
+        a.y = std.Math.asin(2.0 * test) * fox.math.Math.Rad2Deg;
+        a.z = std.Math.atan2(2.0 * x * w - 2.0 * y * z , 1.0 - 2.0 * sqx - 2.0 * sqz) * fox.math.Math.Rad2Deg;     
         return a;
     }
 
@@ -606,12 +511,12 @@ class Quat {
         var ax:Float = p_euler.x * fox.math.Math.Rad2Deg;
         var ay:Float = p_euler.y * fox.math.Math.Rad2Deg;
         var az:Float = p_euler.z * fox.math.Math.Rad2Deg;     
-        var c1:Float = fox.math.Math.cos(ax * 0.5);
-        var s1:Float = fox.math.Math.sin(ax * 0.5);
-        var c2:Float = fox.math.Math.cos(ay * 0.5);
-        var s2:Float = fox.math.Math.sin(ay * 0.5);
-        var c3:Float = fox.math.Math.cos(az * 0.5);
-        var s3:Float = fox.math.Math.sin(az * 0.5);
+        var c1:Float = std.Math.cos(ax * 0.5);
+        var s1:Float = std.Math.sin(ax * 0.5);
+        var c2:Float = std.Math.cos(ay * 0.5);
+        var s2:Float = std.Math.sin(ay * 0.5);
+        var c3:Float = std.Math.cos(az * 0.5);
+        var s3:Float = std.Math.sin(az * 0.5);
         var c1c2:Float = c1*c2;
         var s1s2:Float = s1*s2;
         q.w = c1c2 * c3 - s1s2 * s3;

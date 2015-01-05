@@ -41,6 +41,10 @@ class Root extends kha.Game {
         this.initCB = initCB;
 	}
 
+    public static inline function registerInit(cb:Void->Void) {
+        gameScene.registerInit(cb);
+    }
+
 	public static inline function addChild(item:Object) {
 		root.addChild(item);
 	}
@@ -63,10 +67,6 @@ class Root extends kha.Game {
         scene.addTrait(gameScene);
         currentScene = scene;
 	}
-
-    public static inline function registerInit(cb:Void->Void) {
-        gameScene.registerInit(cb);
-    }
 
     public static inline function addScene(name:String):Object {
         return gameScene.addScene(Assets.getString(name));
@@ -109,36 +109,31 @@ class Root extends kha.Game {
         	kha.input.Surface.get().notify(touchStartListener, touchEndListener, touchMoveListener);
         }
 
-        // Shadow map
+        initShaders();
+
+        Type.createInstance(game, []);
+    }
+
+    function initShaders() {
         var struct = new VertexStructure();
         struct.addFloat3("vertexPosition");
         struct.addFloat2("texturePosition");
         struct.addFloat3("normalPosition");
         struct.addFloat4("vertexColor");
 
+        // Shadow map
         var shadowShader = new Shader("shadowmap.frag", "shadowmap.vert", struct);
         shadowShader.addConstantMat4("mvpShadowMatrix");
         Assets.addShader("shadowmapshader", shadowShader);
 
         // Water
-        /*var struct = new VertexStructure();
-        struct.addFloat3("vertexPosition");
-        struct.addFloat2("texturePosition");
-        struct.addFloat3("normalPosition");
-        struct.addFloat4("vertexColor");
-
+        /*
         var waterShader = new Shader("water.frag", "water.vert", struct);
         waterShader.addConstantMat4("mvpMatrix");
         waterShader.addConstantVec3("time");
         Assets.addShader("watershader", waterShader);*/
 
         // Billboard
-        var struct = new VertexStructure();
-        struct.addFloat3("vertexPosition");
-        struct.addFloat2("texturePosition");
-        struct.addFloat3("normalPosition");
-        struct.addFloat4("vertexColor");
-
         var billboardShader = new Shader("billboard.frag", "billboard.vert", struct);
         billboardShader.addConstantMat4("mvpMatrix");
         billboardShader.addConstantVec3("billboardCenterWorld");
@@ -160,14 +155,7 @@ class Root extends kha.Game {
         particlesShader.addTexture("tex");
         Assets.addShader("particlesshader", particlesShader);
 
-
         // Mesh
-        var struct = new VertexStructure();
-        struct.addFloat3("vertexPosition");
-        struct.addFloat2("texturePosition");
-        struct.addFloat3("normalPosition");
-        struct.addFloat4("vertexColor");
-
         var shader = new Shader("mesh.frag", "mesh.vert", struct);
         shader.addConstantMat4("mvpMatrix");
         shader.addConstantMat4("dbmvpMatrix");
@@ -204,8 +192,6 @@ class Root extends kha.Game {
         skinnedshader.addTexture("shadowMap");
         skinnedshader.addTexture("skinning");
         Assets.addShader("skinnedshader", skinnedshader);
-
-        Type.createInstance(game, []);
     }
 
 	override public inline function update() {
@@ -216,7 +202,6 @@ class Root extends kha.Game {
 	}
 
 	override public inline function render(frame:Framebuffer) {
-
 		// Render 3D objects
 		frameRenderer.begin(frame.g4);
 		frameRenderer.render(frame.g4);
@@ -228,6 +213,7 @@ class Root extends kha.Game {
 	    frameRenderer2D.end(frame.g2);
 	}
 
+    // Events
 	function downListener(button:Int, x:Int, y:Int) {
 		Input.onTouchBegin(x, y);
 	}
