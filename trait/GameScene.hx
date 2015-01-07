@@ -143,19 +143,20 @@ class GameScene extends Trait {
 
 		gameParams.nodeObjectMap.set(node, child);
 
+		// Find collections
+		var colls:Array<String> = [];
+		for (o in gameData.objects) {
+			if (o.name == node.name) {
+				colls = o.collections;
+				break;
+			}
+		}
+
+		// Renderer for geometry nodes
 		if (Std.is(node, GeometryNode)) {
 
 			var go = cast(node, GeometryNode);
 			var geoObj = ogexData.getGeometryObject(go.objectRefs[0]);
-			
-			// Find collections
-			var colls:Array<String> = [];
-			for (o in gameData.objects) {
-				if (o.name == node.name) {
-					colls = o.collections;
-					break;
-				}
-			}
 
 			if (geoObj != null) {
 				var renderer = createRenderer(child, geoObj, ogexData, go, colls);
@@ -166,14 +167,14 @@ class GameScene extends Trait {
 					calcSize(pa, child.transform);
 				}
 			}
-
-			// Create object traits
-			createTraits(child, colls);
-
-			//for (ref in go.materialRefs) {
-			//	mats.push(ogexData.getMaterial(ref).name);
-			//}
 		}
+
+		// Create object traits
+		createTraits(child, colls);
+
+		//for (ref in go.materialRefs) {
+		//	mats.push(ogexData.getMaterial(ref).name);
+		//}
 
 		parentObject.addChild(child);
 
