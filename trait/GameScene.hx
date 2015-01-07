@@ -13,7 +13,8 @@ import fox.sys.mesh.Mesh;
 import fox.trait.Transform;
 
 typedef TGameData = {
-	materials:Array<TGameMaterial>,
+	collections:Array<TGameCollection>,
+	objects:Array<TGameObject>,
 	scene:String,
 	orient:Int,
 	packageName:String,
@@ -25,9 +26,14 @@ typedef TGameData = {
 	shadowMapSize:Int,
 }
 
-typedef TGameMaterial = {
+typedef TGameCollection = {
 	name:String,
 	traits:Array<TGameTrait>,
+}
+
+typedef TGameObject = {
+	name:String,
+	collections:Array<String>,
 }
 
 typedef TGameTrait = {
@@ -142,22 +148,31 @@ class GameScene extends Trait {
 			var go = cast(node, GeometryNode);
 			var geoObj = ogexData.getGeometryObject(go.objectRefs[0]);
 			
-			if (geoObj != null) {
-				
-				var renderer = createRenderer(child, geoObj, ogexData, go);
+			// Find collections
+			var colls:Array<String> = [];
+			for (o in gameData.objects) {
+				if (o.name == node.name) {
+					colls = o.collections;
+					break;
+				}
+			}
 
-				if (renderer == null) { // Get mesh size if renderer is not present
+			if (geoObj != null) {
+				var renderer = createRenderer(child, geoObj, ogexData, go, colls);
+
+				// Get mesh size if renderer is not present
+				if (renderer == null) {
 					var pa = geoObj.mesh.getArray("position").values;
 					calcSize(pa, child.transform);
 				}
 			}
 
 			// Create object traits
-			var mats:Array<String> = [];
-			for (ref in go.materialRefs) {
-				mats.push(ogexData.getMaterial(ref).name);
-			}
-			createTraits(child, mats);
+			createTraits(child, colls);
+
+			//for (ref in go.materialRefs) {
+			//	mats.push(ogexData.getMaterial(ref).name);
+			//}
 		}
 
 		parentObject.addChild(child);
@@ -178,25 +193,25 @@ class GameScene extends Trait {
 		transform.scale.z = ms._33;
 	}
 
-	public function createTraits(obj:Object, mats:Array<String>) {
-		for (i in 0...mats.length) {
-			var mat = mats[i];
+	public function createTraits(obj:Object, colls:Array<String>) {
+		for (i in 0...colls.length) {
+			var coll = colls[i];
 
-			// Find materials data
-			var matData:TGameMaterial = null;
-			var str = StringTools.replace(mat, "_", ".");
-			for (i in 0...gameData.materials.length) {
-				if (str == gameData.materials[i].name) {
-					matData = gameData.materials[i];
+			// Find collection data
+			var collData:TGameCollection = null;
+			var str = StringTools.replace(coll, "_", ".");
+			for (i in 0...gameData.collections.length) {
+				if (str == gameData.collections[i].name) {
+					collData = gameData.collections[i];
 				}
 			}
 
 			// Find traits
 			var traitDatas:Array<TGameTrait> = [];
-			if (matData != null) {
-				for (i in 0...matData.traits.length) {
-					if (matData.traits[i].type == "Trait") {
-						traitDatas.push(matData.traits[i]);
+			if (collData != null) {
+				for (i in 0...collData.traits.length) {
+					if (collData.traits[i].type == "Trait") {
+						traitDatas.push(collData.traits[i]);
 					}
 				}
 			}
@@ -234,29 +249,32 @@ class GameScene extends Trait {
 	}
 
 	// TODO: call from createTraits
-	function createRenderer(object:Object, geoObj:GeometryObject, ogexData:OgexData, geoNode:GeometryNode):Renderer {
+	function createRenderer(object:Object, geoObj:GeometryObject, ogexData:OgexData, geoNode:GeometryNode, colls:Array<String>):Renderer {
 
 		if (geoNode.materialRefs.length == 0) return null;
 		var mat = ogexData.getMaterial(geoNode.materialRefs[0]).name;
 
-		// Find materials data
-		var matData:TGameMaterial = null;
-		for (i in 0...gameData.materials.length) {
-			var str = StringTools.replace(mat, "_", ".");
-			if (str == gameData.materials[i].name) {
-				matData = gameData.materials[i];
+		// TODO: check all collections
+		var coll = colls[0];
+
+		// Find collection data
+		var collData:TGameCollection = null;
+		var str = StringTools.replace(coll, "_", ".");
+		for (i in 0...gameData.collections.length) {
+			if (str == gameData.collections[i].name) {
+				collData = gameData.collections[i];
 			}
 		}
 
 		// Find traits
 		var traitData:TGameTrait = null;
-		if (matData != null) {
-			for (i in 0...matData.traits.length) {
+		if (collData != null) {
+			for (i in 0...collData.traits.length) {
 
-				var traitType = matData.traits[i].type;
+				var traitType = collData.traits[i].type;
 
 				if (traitType == "Mesh Renderer" || traitType == "Custom Renderer") {
-					traitData = matData.traits[i];
+					traitData = collData.traits[i];
 					break;
 				}
 			}

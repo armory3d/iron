@@ -1,5 +1,4 @@
-[Fox](http://foxfw.com) is a game framework that integrates Blender and Kha into one experience.
-(not yet in usable state)
+[Fox](http://foxfw.com) is a game framework that integrates [Blender](http://www.blender.org) and [Kha](https://github.com/KTXSoftware/Kha) into one experience. (not yet in usable state)
 
 ###### Base project
 - [fox_project](https://github.com/luboslenco/fox_project)
