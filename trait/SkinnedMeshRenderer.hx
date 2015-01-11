@@ -71,7 +71,7 @@ class SkinnedMeshRenderer extends MeshRenderer {
 
 		g.setTexture(mesh.material.shader.textures[2], sampler);
 
-		projectionMatrix.load(scene.camera.projectionMatrix.getFloats());
+		projectionMatrix.load(scene.camera.P.getFloats());
 		
 		super.render(g);
 	}

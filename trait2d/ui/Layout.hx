@@ -12,10 +12,10 @@ class Layout extends Trait {
 	var transforms:Array<Transform> = [];
 
 	var type:LayoutType;
-	var spacing:Float;
-	var offsetSpacing:Float;
-	var offset:Float;
-	var lastOffset:Float;
+	var spacing:Float = 0;
+	var offsetSpacing:Float = 0;
+	var offset:Float = 0;
+	var lastOffset:Float = 0;
 
 	public function new(type:LayoutType, spacing:Float = 0, offsetSpacing:Float = 0) {
 		super();

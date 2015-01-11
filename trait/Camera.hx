@@ -11,23 +11,24 @@ class Camera extends Trait {
 
 	public var transform:Transform;
 
-	public var projectionMatrix:Mat4;
-	public var viewMatrix:Mat4;
-	public var viewProjectionMatrix:Mat4;
+	public var P:Mat4; // Matrices
+	public var V:Mat4;
+	public var VP:Mat4;
 
 	public var up:Vec3;
 	public var look:Vec3;
 	public var right:Vec3;
 
-	// Shadow map
-	public var depthProjectionMatrix:Mat4;
-	public var depthViewMatrix:Mat4;
-	public var biasMat:Mat4;
+	public var dP:Mat4; // Shadow map matrices
+	public var dV:Mat4 = null;
+	//public var biasMat:Mat4;
 
 	var frustumPlanes:Array<Plane> = [];
 
 	function new() {
 		super();
+
+		V = new Mat4();
 
 		if (Main.gameData.orient == 0) {
 			up = new Vec3(0, 0, 1);
@@ -41,32 +42,31 @@ class Camera extends Trait {
 		}
 
 		// Shadow map
-		// Compute the MVP matrix from the light's point of view
-		//var m = new fox.math.Matrix4();
-		//m.makeFrustum(-1, 1, -1, 1, 1, 4000);
-		//depthProjectionMatrix = new Mat4(m.elements);
-		//depthProjectionMatrix = Mat4.ortho(-30, 30, -30, 30, -30, 60);
-		depthProjectionMatrix = Mat4.perspective(45, 1, 0.1, 1000);
-		
-		//depthViewMatrix = Mat4.lookAt(new Vec3(0, 0, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
-	    depthViewMatrix = new Mat4([1,0,0,0,0,0.642787627309709,-0.766044428331382,0,0,0.766044428331382,0.642787627309709,0,0,0.053007244402691,-15.6204094130737,1]);
+		//dP = Mat4.orthogonal(-30, 30, -30, 30, 5, 30);
+		dP = Mat4.perspective(45, 1, 5, 30);
+		dV = Mat4.lookAt(new Vec3(0, -12, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
 
-		biasMat = new Mat4([
+		/*biasMat = new Mat4([
 			0.5, 0.0, 0.0, 0.0,
 			0.0, 0.5, 0.0, 0.0,
 			0.0, 0.0, 0.5, 0.0,
 			0.5, 0.5, 0.5, 1.0
-		]);
+		]);*/
 
-		viewProjectionMatrix = new Mat4();
+		VP = new Mat4();
 
 		for (i in 0...6) {
 			frustumPlanes.push(new Plane());
 		}
 	}
 
+	public function registerLight(light:Light) {
+		var t = light.transform;
+		dV = Mat4.lookAt(new Vec3(t.pos.x, t.pos.y, t.pos.z), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
+	}
+
 	@injectAdd
-    public function addTransform(trait:Transform) {
+    function addTransform(trait:Transform) {
         transform = trait;
 
         // Invert
@@ -97,68 +97,68 @@ class Camera extends Trait {
 
 		q.multiply(transform.rot, q); // Camera transform
 	    
-	    viewMatrix = q.toMatrix();
+	    V = q.toMatrix();
 
 	    var trans = new Mat4();
 	    //trans.translate(-transform.absx, -transform.absy, -transform.absz); // When parent is included
 	    trans.translate(-transform.x, -transform.y, -transform.z);
-	    viewMatrix.multiply(trans, viewMatrix);
+	    V.multiply(trans, V);
 
 	    buildViewFrustum();
 	}
 
 	function buildViewFrustum() {
 
-		viewProjectionMatrix.identity();
-    	viewProjectionMatrix.append(viewMatrix);
-    	viewProjectionMatrix.append(projectionMatrix);
+		VP.identity();
+    	VP.append(V);
+    	VP.append(P);
 
 	    // Left plane
 	    frustumPlanes[0].setComponents(
-	    	viewProjectionMatrix._14 + viewProjectionMatrix._11,
-	    	viewProjectionMatrix._24 + viewProjectionMatrix._21,
-	    	viewProjectionMatrix._34 + viewProjectionMatrix._31,
-	    	viewProjectionMatrix._44 + viewProjectionMatrix._41
+	    	VP._14 + VP._11,
+	    	VP._24 + VP._21,
+	    	VP._34 + VP._31,
+	    	VP._44 + VP._41
 	    );
 	 
 	    // Right plane
 	    frustumPlanes[1].setComponents(
-	    	viewProjectionMatrix._14 - viewProjectionMatrix._11,
-	    	viewProjectionMatrix._24 - viewProjectionMatrix._21,
-	    	viewProjectionMatrix._34 - viewProjectionMatrix._31,
-	    	viewProjectionMatrix._44 - viewProjectionMatrix._41
+	    	VP._14 - VP._11,
+	    	VP._24 - VP._21,
+	    	VP._34 - VP._31,
+	    	VP._44 - VP._41
 	    );
 	 
 	    // Top plane
 	    frustumPlanes[2].setComponents(
-	    	viewProjectionMatrix._14 - viewProjectionMatrix._12,
-	    	viewProjectionMatrix._24 - viewProjectionMatrix._22,
-	    	viewProjectionMatrix._34 - viewProjectionMatrix._32,
-	    	viewProjectionMatrix._44 - viewProjectionMatrix._42
+	    	VP._14 - VP._12,
+	    	VP._24 - VP._22,
+	    	VP._34 - VP._32,
+	    	VP._44 - VP._42
 	    );
 	 
 	    // Bottom plane
 	    frustumPlanes[3].setComponents(
-	    	viewProjectionMatrix._14 + viewProjectionMatrix._12,
-	    	viewProjectionMatrix._24 + viewProjectionMatrix._22,
-	    	viewProjectionMatrix._34 + viewProjectionMatrix._32,
-	    	viewProjectionMatrix._44 + viewProjectionMatrix._42
+	    	VP._14 + VP._12,
+	    	VP._24 + VP._22,
+	    	VP._34 + VP._32,
+	    	VP._44 + VP._42
 	    );
 	 
 	    // Near plane
 	    frustumPlanes[4].setComponents(
-	    	viewProjectionMatrix._13,
-	    	viewProjectionMatrix._23,
-	    	viewProjectionMatrix._33,
-	    	viewProjectionMatrix._43
+	    	VP._13,
+	    	VP._23,
+	    	VP._33,
+	    	VP._43
 	    );
 	 
 	    // Far plane
 	    frustumPlanes[5].setComponents(
-	    	viewProjectionMatrix._14 - viewProjectionMatrix._13,
-	    	viewProjectionMatrix._24 - viewProjectionMatrix._23,
-	    	viewProjectionMatrix._34 - viewProjectionMatrix._33,
-	    	viewProjectionMatrix._44 - viewProjectionMatrix._43
+	    	VP._14 - VP._13,
+	    	VP._24 - VP._23,
+	    	VP._34 - VP._33,
+	    	VP._44 - VP._43
 	    );
 	 
 	    // Normalize planes
@@ -267,10 +267,10 @@ class Camera extends Trait {
 	}
 
 	public function viewMatrixForward():Vec3 {
-        return new Vec3(-viewMatrix._13, -viewMatrix._23, -viewMatrix._33);
+        return new Vec3(-V._13, -V._23, -V._33);
     }
 
     public function viewMatrixBackward():Vec3 {
-        return new Vec3(viewMatrix._13, viewMatrix._23, viewMatrix._33);
+        return new Vec3(V._13, V._23, V._33);
     }
 }

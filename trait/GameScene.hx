@@ -77,6 +77,8 @@ class GameScene extends Trait {
 	@inject({desc:true,sibl:true})
 	public var camera:Camera;
 
+	public var light:Light;
+
 	public function new(data:String) {
 		super();
 
@@ -113,6 +115,14 @@ class GameScene extends Trait {
 			cb();
 		}
 		traitInits = [];
+	}
+
+	@injectAdd({desc:true,sibl:true})
+	function addLight(trait:Light) {
+		light = trait;
+
+		// TODO: inject into camera
+		if (camera != null) camera.registerLight(light);
 	}
 
 	public function addScene(data:String):Object {
@@ -310,8 +320,8 @@ class GameScene extends Trait {
 			
 			var lighting = traitData.lighting;
 			var rim = traitData.rim;
-			var castShadow = traitData.cast_shadow;
-			var receiveShadow = traitData.receive_shadow;
+			var castShadow = gameData.shadowMapping == 1 ? traitData.cast_shadow : false;
+			var receiveShadow = gameData.shadowMapping == 1 ? traitData.receive_shadow : false;
 
 			var shaderName = "shader";
 			if (isSkinned) shaderName = "skinnedshader";

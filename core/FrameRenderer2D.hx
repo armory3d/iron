@@ -32,18 +32,18 @@ class FrameRenderer2D extends AbstractTrait {
 	}
 	
 	public function render(g:kha.graphics2.Graphics) {
-		for(trait in renderTraits) {
+		for (trait in renderTraits) {
 			trait.render(g);
 		}
 
-		for(trait in lateRenderTraits) {
+		for (trait in lateRenderTraits) {
 			trait.render(g);
 		}
 
 		// Render shadow map
 		//g.color = kha.Color.White;
         //g.opacity = 1.0;
-        //g.drawScaledImage(FrameRenderer.shadowMap, 0, 128, 128, -128);
+    	//g.drawScaledImage(FrameRenderer.shadowMap, 0, 512, 512, -512);
         //g.drawScaledImage(FrameRenderer.shadowMap, 0, 0, 128, 128);
 	}
 

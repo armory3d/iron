@@ -15,9 +15,12 @@ class MeshRenderer extends Renderer implements IRenderable {
 	@inject({asc:true,sibl:false})
 	public var scene:GameScene;
 
-	public var mvpMatrix:Mat4;
-	public var viewMatrix:Mat4; // Camera copy
-	public var shadowMapMatrix:Mat4;
+	public var M:Mat4;
+	public var V:Mat4; // Camera copy
+	public var P:Mat4; // Camera copy
+	public var dbMVP:Mat4;
+	public var light:Vec3;
+	public var eye:Vec3;
 
 	public var texturing:Bool = true;
 	public var lighting:Bool = true;
@@ -28,19 +31,24 @@ class MeshRenderer extends Renderer implements IRenderable {
 	public function new(mesh:Mesh) {
 		super(mesh);
 
-		mvpMatrix = new Mat4();
-		shadowMapMatrix = new Mat4();
-		viewMatrix = new Mat4();
+		M = new Mat4();
+		V = new Mat4();
+		P = new Mat4();
+		dbMVP = new Mat4();
+		light = new Vec3();
+		eye = new Vec3();
 	}
 
 	public override function initConstants() {
-		setMat4(mvpMatrix);
-		setMat4(shadowMapMatrix);
-		setMat4(viewMatrix);
+		setMat4(M);
+		setMat4(V);
+		setMat4(P);
+		setMat4(dbMVP);
+		setVec3(light);
+		setVec3(eye);
 		setBool(texturing);
 		setBool(lighting);
 		setBool(rim);
-		setBool(castShadow);
 		setBool(receiveShadow);
 		setTexture(fox.core.FrameRenderer.shadowMap);
 	}
@@ -55,10 +63,12 @@ class MeshRenderer extends Renderer implements IRenderable {
     }
 
     public function renderShadowMap(g:kha.graphics4.Graphics) {
-    	shadowMapMatrix.identity();
-    	shadowMapMatrix.append(transform.matrix);
-    	shadowMapMatrix.append(scene.camera.depthViewMatrix);
-    	shadowMapMatrix.append(scene.camera.depthProjectionMatrix);
+    	if (!castShadow) return;
+
+    	dbMVP.identity();
+    	dbMVP.append(transform.matrix);
+    	dbMVP.append(scene.camera.dV);
+    	dbMVP.append(scene.camera.dP);
 
     	var shadowShader = Assets.getShader("shadowmapshader");
 
@@ -67,7 +77,7 @@ class MeshRenderer extends Renderer implements IRenderable {
 		g.setIndexBuffer(mesh.geometry.indexBuffer);
 		g.setProgram(shadowShader.program);
 
-		var mat1 = new kha.math.Matrix4(shadowMapMatrix.getFloats());
+		var mat1 = new kha.math.Matrix4(dbMVP.getFloats());
 		g.setMatrix(shadowShader.constantMat4s[0], mat1);
 
 		g.drawIndexedVertices();
@@ -77,18 +87,27 @@ class MeshRenderer extends Renderer implements IRenderable {
 
 		// Frustum culling
 		//if (scene.camera.sphereInFrustum(transform, mesh.geometry.radius)) {
-			fox.core.FrameRenderer.numRenders++;
-			//shadowMapMatrix.append(scene.camera.biasMat);
-
-			// Update model-view-projection matrix
-			mvpMatrix.identity();
-			mvpMatrix.append(transform.matrix);
-			mvpMatrix.append(scene.camera.viewMatrix);
-			mvpMatrix.append(scene.camera.projectionMatrix);
-
-			viewMatrix.identity();
-			viewMatrix.append(scene.camera.viewMatrix);
 			
+			fox.core.FrameRenderer.numRenders++;
+			
+			//dbMVP.append(scene.camera.biasMat);
+
+			// Update matrices
+			M.identity();
+			M.append(transform.matrix);
+
+			V.identity();
+			V.append(scene.camera.V);
+
+			P.identity();
+			P.append(scene.camera.P);
+
+			// Eye
+			eye.set(-scene.camera.transform.x, -scene.camera.transform.y, -scene.camera.transform.z);
+			
+			// Light
+			light.set(scene.light.transform.x, scene.light.transform.y, scene.light.transform.z);
+
 			// Render mesh
 			g.setVertexBuffer(mesh.geometry.vertexBuffer);
 			g.setIndexBuffer(mesh.geometry.indexBuffer);
@@ -98,7 +117,6 @@ class MeshRenderer extends Renderer implements IRenderable {
 				g.setTexture(mesh.material.shader.textures[0], textures[0]);
 			}
 
-			//g.setTexture(mesh.material.shader.textures[0], fox.core.FrameRenderer.shadowMap);
 			/*g.setTextureParameters(mesh.material.shader.textures[1],
 								   kha.graphics4.TextureAddressing.Clamp,
 								   kha.graphics4.TextureAddressing.Clamp,

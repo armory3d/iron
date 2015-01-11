@@ -25,8 +25,8 @@ class Helper {
         var projectionMatrixInverse = new Mat4();
         var viewMatrixInverse = new Mat4();
 
-        projectionMatrixInverse.getInverse(camera.projectionMatrix);
-        viewMatrixInverse.getInverse(camera.viewMatrix);
+        projectionMatrixInverse.getInverse(camera.P);
+        viewMatrixInverse.getInverse(camera.V);
 
         _viewProjectionMatrix.multiplyMatrices(viewMatrixInverse, projectionMatrixInverse);
 

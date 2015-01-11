@@ -36,5 +36,13 @@ class CameraRotator extends Trait implements IUpdateable {
 
             camera.moveForward(input.deltaY / 50);
         }
+
+        /*if (input.touch) {
+
+            camera.moveForward(fox.sys.Time.delta * 2);
+
+            camera.roll(-input.deltaX / 200);
+            camera.pitch(-input.deltaY / 200);
+        }*/
     }
 }

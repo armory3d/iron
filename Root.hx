@@ -116,14 +116,14 @@ class Root extends kha.Game {
 
     function initShaders() {
         var struct = new VertexStructure();
-        struct.addFloat3("vertexPosition");
-        struct.addFloat2("texturePosition");
-        struct.addFloat3("normalPosition");
-        struct.addFloat4("vertexColor");
+        struct.addFloat3("pos");
+        struct.addFloat2("tex");
+        struct.addFloat3("nor");
+        struct.addFloat4("col");
 
         // Shadow map
         var shadowShader = new Shader("shadowmap.frag", "shadowmap.vert", struct);
-        shadowShader.addConstantMat4("mvpShadowMatrix");
+        shadowShader.addConstantMat4("dbMVP");
         Assets.addShader("shadowmapshader", shadowShader);
 
         // Water
@@ -157,13 +157,15 @@ class Root extends kha.Game {
 
         // Mesh
         var shader = new Shader("mesh.frag", "mesh.vert", struct);
-        shader.addConstantMat4("mvpMatrix");
-        shader.addConstantMat4("dbmvpMatrix");
-        shader.addConstantMat4("viewMatrix");
+        shader.addConstantMat4("M");
+        shader.addConstantMat4("V");
+        shader.addConstantMat4("P");
+        shader.addConstantMat4("dbMVP");
+        shader.addConstantVec3("light");
+        shader.addConstantVec3("eye");
         shader.addConstantBool("texturing");
         shader.addConstantBool("lighting");
         shader.addConstantBool("rim");
-        shader.addConstantBool("castShadow");
         shader.addConstantBool("receiveShadow");
         shader.addTexture("tex");
         shader.addTexture("shadowMap");
@@ -171,22 +173,21 @@ class Root extends kha.Game {
 
         // Skinned mesh
         var struct = new VertexStructure();
-        struct.addFloat3("vertexPosition");
-        struct.addFloat2("texturePosition");
-        struct.addFloat3("normalPosition");
-        struct.addFloat4("vertexColor");
+        struct.addFloat3("pos");
+        struct.addFloat2("tex");
+        struct.addFloat3("nor");
+        struct.addFloat4("col");
         struct.addFloat4("bone");
         struct.addFloat4("weight");
 
         var skinnedshader = new Shader("skinnedmesh.frag", "skinnedmesh.vert", struct);
-        skinnedshader.addConstantMat4("mvpMatrix");
-        skinnedshader.addConstantMat4("dbmvpMatrix");
-        skinnedshader.addConstantMat4("viewMatrix");
-        skinnedshader.addConstantMat4("projectionMatrix");
+        skinnedshader.addConstantMat4("M");
+        skinnedshader.addConstantMat4("V");
+        skinnedshader.addConstantMat4("P");
+        skinnedshader.addConstantMat4("dbMVP");
         skinnedshader.addConstantBool("texturing");
         skinnedshader.addConstantBool("lighting");
         skinnedshader.addConstantBool("rim");
-        skinnedshader.addConstantBool("castShadow");
         skinnedshader.addConstantBool("receiveShadow");
         skinnedshader.addTexture("tex");
         skinnedshader.addTexture("shadowMap");

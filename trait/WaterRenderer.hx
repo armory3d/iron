@@ -40,8 +40,8 @@ class WaterRenderer extends Renderer implements ILateRenderable {
 		
 		mvpMatrix.identity();
 		mvpMatrix.append(transform.matrix);
-		mvpMatrix.append(scene.camera.viewMatrix);
-		mvpMatrix.append(scene.camera.projectionMatrix);
+		mvpMatrix.append(scene.camera.V);
+		mvpMatrix.append(scene.camera.P);
 
 		time.x += fox.sys.Time.delta;
 		

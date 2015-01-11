@@ -52,13 +52,13 @@ class ParticlesRenderer extends Renderer implements IRenderable {
 	public function render(g:kha.graphics4.Graphics) {
 
 		var cam:Camera = scene.camera;
-		camRightWorld.set(cam.viewMatrix._11, cam.viewMatrix._21, cam.viewMatrix._31); // TODO: fix that Y is up!
-		camUpWorld.set(cam.viewMatrix._12, cam.viewMatrix._22, cam.viewMatrix._32);
+		camRightWorld.set(cam.V._11, cam.V._21, cam.V._31); // TODO: fix that Y is up!
+		camUpWorld.set(cam.V._12, cam.V._22, cam.V._32);
 
 		mvpMatrix.identity();
 		mvpMatrix.append(transform.matrix);
-		mvpMatrix.append(scene.camera.viewMatrix);
-		mvpMatrix.append(scene.camera.projectionMatrix);
+		mvpMatrix.append(scene.camera.V);
+		mvpMatrix.append(scene.camera.P);
 
 		transPos.set(transform.pos.x / 30, transform.pos.y / 30, transform.pos.z / 30);
 		transSize.set(transform.size.x, transform.size.y, transform.size.z);
