@@ -30,16 +30,20 @@ class Camera extends Trait {
 
 		V = new Mat4();
 
-		if (Main.gameData.orient == 0) {
+		//if (Main.gameData.orient == 0) {
 			up = new Vec3(0, 0, 1);
 			look = new Vec3(0, 1, 0);
 			right = new Vec3(1, 0, 0);
-		}
-		else {
-			up = new Vec3(0, 0, 1);
-			look = new Vec3(1, 0, 0);
-			right = new Vec3(0, 1, 0);
-		}
+
+			//up = new Vec3(0, 1, 0);
+			//look = new Vec3(0, 0, -1);
+			//right = new Vec3(1, 0, 0);
+		//}
+		//else {
+		//	up = new Vec3(0, 0, 1);
+		//	look = new Vec3(1, 0, 0);
+		//	right = new Vec3(0, 1, 0);
+		//}
 
 		// Shadow map
 		//dP = Mat4.orthogonal(-30, 30, -30, 30, 5, 30);
@@ -70,19 +74,9 @@ class Camera extends Trait {
         transform = trait;
 
         // Invert
-        invertRot(transform.rot);
+        transform.rot.inverse(transform.rot);
+        
         updateMatrix();
-    }
-
-    function invertRot(r:Quat) {
-    	var v = new Vec3();
-		r.toEuler(v);
-		var q = new Quat();
-		q.setFromEuler(-v.x, -v.y, -v.z);
-	    r.x = q.x;
-	    r.y = q.y;
-	    r.z = q.z;
-	    r.w = q.w;
     }
 
 	public function updateMatrix() {
