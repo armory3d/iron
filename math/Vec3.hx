@@ -114,10 +114,12 @@ class Vec3 {
     // Normalize the vector
     // Returns the norm of the vector
     public function normalize():Float {
-        var x:Float = this.x; var y:Float = this.y; var z:Float = this.z;
-        var n:Float = std.Math.sqrt(x * x + y * y + z * z);
+        var x = this.x;
+        var y = this.y;
+        var z = this.z;
+        var n = std.Math.sqrt(x * x + y * y + z * z);
         if (n > 0.0) {
-            var invN:Float = 1/n;
+            var invN:Float = 1 / n;
             this.x *= invN;
             this.y *= invN;
             this.z *= invN;
@@ -292,7 +294,9 @@ class Vec3 {
 
     // Extended
     public function applyProjection(m:Mat4):Vec3 {
-        var x = this.x, y = this.y, z = this.z;
+        var x = this.x;
+        var y = this.y;
+        var z = this.z;
         var e = m.getFloats();
 
         // Perspective divide

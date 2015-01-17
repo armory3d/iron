@@ -16,23 +16,23 @@ class Ray {
 	}	
 	
 	public function set(origin:Vec3, direction:Vec3):Ray {
-		this.origin.copy(origin);
-		this.direction.copy(direction);
+		this.origin.copy2(origin);
+		this.direction.copy2(direction);
 		return this;
 	}	
 	
-	public function copy(ray:Ray):Ray {
+	public function copy2(ray:Ray):Ray {
 		return set(ray.origin, ray.direction);
 	}	
 	
 	public function at(t:Float, optionalTarget:Vec3 = null):Vec3 {
 		var result = optionalTarget != null ? optionalTarget : new Vec3();
-		return result.copy(direction).multiplyScalar(t).add(origin);
+		return result.copy2(direction).multiplyScalar(t).add(origin);
 	}	
 	
 	public function recast(t:Float):Ray	{
 		var v1 = new Vec3();
-		this.origin.copy(this.at(t, v1));
+		this.origin.copy2(this.at(t, v1));
 		return this;
 	}	
 	
@@ -41,10 +41,10 @@ class Ray {
 		result.subVectors(point, this.origin);
 		var directionDistance = result.dot(this.direction);
 		if (directionDistance < 0) {
-			return result.copy(this.origin);
+			return result.copy2(this.origin);
 		}
 
-		return result.copy(this.direction).multiplyScalar(directionDistance).add(this.origin);
+		return result.copy2(this.direction).multiplyScalar(directionDistance).add(this.origin);
 	}	
 	
 	public function distanceToPoint(point:Vec3):Float {
@@ -56,7 +56,7 @@ class Ray {
 			return this.origin.distanceTo(point);
 		}
 
-		v1.copy(this.direction).multiplyScalar(directionDistance).add(this.origin);
+		v1.copy2(this.direction).multiplyScalar(directionDistance).add(this.origin);
 
 		return v1.distanceTo(point);
 	}	
@@ -131,11 +131,11 @@ class Ray {
 		}
 
 		if (optionalPointOnRay != null) {
-			optionalPointOnRay.copy(this.direction.clone().multiplyScalar(s0).add(this.origin));
+			optionalPointOnRay.copy2(this.direction.clone().multiplyScalar(s0).add(this.origin));
 		}
 
 		if (optionalPointOnSegment != null) {
-			optionalPointOnSegment.copy(segDir.clone().multiplyScalar(s1).add(segCenter));
+			optionalPointOnSegment.copy2(segDir.clone().multiplyScalar(s1).add(segCenter));
 		}
 
 		return sqrDist;
@@ -327,6 +327,6 @@ class Ray {
 	}
 
 	public function clone():Ray {
-		return new Ray().copy(this);
+		return new Ray().copy2(this);
 	}
 }

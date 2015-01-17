@@ -14,40 +14,39 @@ class Helper {
         // Get 3D point form the client x y
         mouse3D.x = (touchX / Root.w) * 2 - 1;
         mouse3D.y = -(touchY / Root.h) * 2 + 1;
-        mouse3D.z = 0.5;
 
         return pickingRay(mouse3D, camera);
     }
 
 
     static function unprojectVector(vector:Vec3, camera:Camera):Vec3 {
-        var _viewProjectionMatrix = new Mat4();
-        var projectionMatrixInverse = new Mat4();
-        var viewMatrixInverse = new Mat4();
+        var VPInv = new Mat4();
+        var PInv = new Mat4();
+        var VInv = new Mat4();
 
-        projectionMatrixInverse.getInverse(camera.P);
-        viewMatrixInverse.getInverse(camera.V);
+        PInv.getInverse(camera.P);
+        VInv.getInverse(camera.V);
 
-        _viewProjectionMatrix.multiplyMatrices(viewMatrixInverse, projectionMatrixInverse);
+        VPInv.multiplyMatrices(VInv, PInv);
 
-        return vector.applyProjection(_viewProjectionMatrix);
+        return vector.applyProjection(VPInv);
     }
 
 
-    static function pickingRay(vector:Vec3, camera:Camera):Ray {
+    static function pickingRay(start:Vec3, camera:Camera):Ray {
 
         // Set two vectors with opposing z values
-        vector.z = -1.0;
-        var end = new Vec3(vector.x, vector.y, 1.0);
+        start.z = -1.0;
+        var end = new Vec3(start.x, start.y, 1.0);
 
-        unprojectVector(vector, camera);
+        unprojectVector(start, camera);
         unprojectVector(end, camera);
 
         // Find direction from vector to end
-        end.sub(vector);
+        end.sub(start);
         end.normalize2();
 
-        var v1 = new Vec3(vector.x, vector.y, vector.z);
+        var v1 = new Vec3(start.x, start.y, start.z);
         var v2 = new Vec3(end.x, end.y, end.z);
         return new Ray(v1, v2);
     }
