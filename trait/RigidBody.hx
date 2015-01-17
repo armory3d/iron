@@ -9,7 +9,7 @@ import fox.core.Trait;
 import fox.sys.Time;
 import fox.math.Vec3;
 
-class RigidBody extends Trait implements ILateUpdateable // Late? {
+class RigidBody extends Trait implements ILateUpdateable { // TODO: Late?
 
 	public static inline var SHAPE_BOX = 0;
 	public static inline var SHAPE_SPHERE = 1;
