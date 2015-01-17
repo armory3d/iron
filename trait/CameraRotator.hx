@@ -26,11 +26,11 @@ class CameraRotator extends Trait implements IUpdateable {
             var dist = fox.math.Helper.distance3d(camera.transform.pos, origin);
 
             camera.moveForward(dist);
-            camera.pitch(fox.math.Math.degToRad(40));
+            camera.pitch(fox.math.Math.degToRad(30));
 
             camera.roll(-input.deltaX / 200);
 
-            camera.pitch(fox.math.Math.degToRad(-40));
+            camera.pitch(fox.math.Math.degToRad(-30));
             
             camera.moveForward(-dist);
 

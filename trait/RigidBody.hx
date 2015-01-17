@@ -4,12 +4,12 @@ import oimo.physics.collision.shape.BoxShape;
 import oimo.physics.collision.shape.Shape;
 import oimo.physics.collision.shape.ShapeConfig;
 import oimo.physics.collision.shape.SphereShape;
-import fox.core.IUpdateable;
+import fox.core.ILateUpdateable;
 import fox.core.Trait;
 import fox.sys.Time;
 import fox.math.Vec3;
 
-class RigidBody extends Trait implements IUpdateable {
+class RigidBody extends Trait implements ILateUpdateable // Late? {
 
 	public static inline var SHAPE_BOX = 0;
 	public static inline var SHAPE_SPHERE = 1;

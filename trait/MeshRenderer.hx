@@ -44,8 +44,8 @@ class MeshRenderer extends Renderer implements IRenderable {
 		setMat4(V);
 		setMat4(P);
 		setMat4(dbMVP);
-		setVec3(light);
-		setVec3(eye);
+		//setVec3(light);
+		//setVec3(eye);
 		setBool(texturing);
 		setBool(lighting);
 		setBool(rim);

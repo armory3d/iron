@@ -134,7 +134,7 @@ class Root extends kha.Game {
         Assets.addShader("watershader", waterShader);*/
 
         // Billboard
-        var billboardShader = new Shader("billboard.frag", "billboard.vert", struct);
+        /*var billboardShader = new Shader("billboard.frag", "billboard.vert", struct);
         billboardShader.addConstantMat4("mvpMatrix");
         billboardShader.addConstantVec3("billboardCenterWorld");
         billboardShader.addConstantVec3("billboardSize");
@@ -153,7 +153,7 @@ class Root extends kha.Game {
         particlesShader.addConstantVec3("camUpWorld");
         particlesShader.addConstantBool("texturing");
         particlesShader.addTexture("tex");
-        Assets.addShader("particlesshader", particlesShader);
+        Assets.addShader("particlesshader", particlesShader);*/
 
         // Mesh
         var shader = new Shader("mesh.frag", "mesh.vert", struct);
@@ -161,8 +161,8 @@ class Root extends kha.Game {
         shader.addConstantMat4("V");
         shader.addConstantMat4("P");
         shader.addConstantMat4("dbMVP");
-        shader.addConstantVec3("light");
-        shader.addConstantVec3("eye");
+        //shader.addConstantVec3("light");
+        //shader.addConstantVec3("eye");
         shader.addConstantBool("texturing");
         shader.addConstantBool("lighting");
         shader.addConstantBool("rim");
@@ -172,7 +172,7 @@ class Root extends kha.Game {
         Assets.addShader("shader", shader);
 
         // Skinned mesh
-        var struct = new VertexStructure();
+        /*var struct = new VertexStructure();
         struct.addFloat3("pos");
         struct.addFloat2("tex");
         struct.addFloat3("nor");
@@ -192,7 +192,7 @@ class Root extends kha.Game {
         skinnedshader.addTexture("tex");
         skinnedshader.addTexture("shadowMap");
         skinnedshader.addTexture("skinning");
-        Assets.addShader("skinnedshader", skinnedshader);
+        Assets.addShader("skinnedshader", skinnedshader);*/
     }
 
 	override public inline function update() {
