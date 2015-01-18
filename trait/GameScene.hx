@@ -231,7 +231,7 @@ class GameScene extends Trait {
 			var traitDatas:Array<TGameTrait> = [];
 			if (collData != null) {
 				for (i in 0...collData.traits.length) {
-					if (collData.traits[i].type == "Trait") {
+					if (collData.traits[i].type == "Script") {
 						traitDatas.push(collData.traits[i]);
 					}
 				}
