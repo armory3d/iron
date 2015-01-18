@@ -15,11 +15,13 @@ import fox.trait.Transform;
 typedef TGameData = {
 	collections:Array<TGameCollection>,
 	objects:Array<TGameObject>,
+	materials:Array<TGameMaterial>,
 	scene:String,
 	orient:Int,
 	packageName:String,
 	gravity:Array<Float>,
 	clear:Array<Float>,
+	fog:Int,
 	fogColor:Array<Float>,
 	fogDensity:Float,
 	shadowMapping:Int,
@@ -34,12 +36,18 @@ typedef TGameCollection = {
 typedef TGameObject = {
 	name:String,
 	collections:Array<String>,
+	material:String,
+}
+
+typedef TGameMaterial = {
+	name:String,
+	color:Array<Float>,
+	texture:String,
 }
 
 typedef TGameTrait = {
 	type:String,
-	color:Array<Float>,
-	texture:String,
+	material:String,
 	lighting:Bool,
 	rim:Bool,
 	cast_shadow:Bool,
@@ -155,9 +163,11 @@ class GameScene extends Trait {
 
 		// Find collections
 		var colls:Array<String> = [];
+		var objMat:String = "";
 		for (o in gameData.objects) {
 			if (o.name == node.name) {
 				colls = o.collections;
+				objMat = o.material;
 				break;
 			}
 		}
@@ -169,7 +179,7 @@ class GameScene extends Trait {
 			var geoObj = ogexData.getGeometryObject(go.objectRefs[0]);
 
 			if (geoObj != null) {
-				var renderer = createRenderer(child, geoObj, ogexData, go, colls);
+				var renderer = createRenderer(child, geoObj, colls, objMat);
 
 				// Get mesh size if renderer is not present
 				if (renderer == null) {
@@ -260,10 +270,7 @@ class GameScene extends Trait {
 	}
 
 	// TODO: call from createTraits
-	function createRenderer(object:Object, geoObj:GeometryObject, ogexData:OgexData, geoNode:GeometryNode, colls:Array<String>):Renderer {
-
-		if (geoNode.materialRefs.length == 0) return null;
-		var mat = ogexData.getMaterial(geoNode.materialRefs[0]).name;
+	function createRenderer(object:Object, geoObj:GeometryObject, colls:Array<String>, objMat:String):Renderer {
 
 		// TODO: check all collections
 		var coll = colls[0];
@@ -293,6 +300,22 @@ class GameScene extends Trait {
 
 		// No rendrer trait present
 		if (traitData == null) return null;
+
+		// No material assigned
+		if (traitData.material == "" && objMat == "") return null;
+
+		// Prefer trait material
+		var mat = traitData.material == "" ? objMat : traitData.material;
+		var materialData:TGameMaterial = null;
+		for (i in 0...gameData.materials.length) {
+			if (mat == gameData.materials[i].name) {
+				materialData = gameData.materials[i];
+				break;
+			}
+		}
+
+		// No material found
+		if (materialData == null) return null;
 	
 		// Mesh data
 		var data:Array<Float> = [];
@@ -308,11 +331,11 @@ class GameScene extends Trait {
 		var uva = uvaVA != null ? uvaVA.values : null;
 
 		var isSkinned = false;
-		buildData(traitData, data, pa, na, uva, geoObj, isSkinned);
+		buildData(materialData, data, pa, na, uva, geoObj, isSkinned);
 
 		var geo = new Geometry(data, indices, pa, na);
 
-		var tb = traitData.texture == "" ? false : true;
+		var tb = materialData.texture == "" ? false : true;
 		var texturing = uva != null ? tb : false; // Make sure UVs are present
 
 		// Mesh renderer
@@ -331,7 +354,7 @@ class GameScene extends Trait {
 			}
 			else {
 				Assets.addMaterial(mat, new TextureMaterial(Assets.getShader(shaderName),
-															Assets.getTexture(traitData.texture)));
+															Assets.getTexture(materialData.texture)));
 			}
 
 			var mesh:Mesh = null;
@@ -371,7 +394,7 @@ class GameScene extends Trait {
 			}
 			else {
 				Assets.addMaterial(mat, new TextureMaterial(Assets.getShader(shaderName),
-															Assets.getTexture(traitData.texture)));
+															Assets.getTexture(materialData.texture)));
 			}
 
 			var mesh:Mesh = null;
@@ -385,7 +408,7 @@ class GameScene extends Trait {
 		}
 	}
 
-	function buildData(traitData:TGameTrait,
+	function buildData(material:TGameMaterial,
 					   data:Array<Float>,
 					   pa:Array<Float>, na:Array<Float>, uva:Array<Float>,
 					   geoObj:GeometryObject, isSkinned:Bool) {
@@ -427,10 +450,10 @@ class GameScene extends Trait {
 				data.push(1.0);
 			}
 			else {
-				data.push(traitData.color[0]);	// Material color
-				data.push(traitData.color[1]);
-				data.push(traitData.color[2]);
-				data.push(traitData.color[3]);
+				data.push(material.color[0]);	// Material color
+				data.push(material.color[1]);
+				data.push(material.color[2]);
+				data.push(material.color[3]);
 			}
 
 			if (isSkinned) { // Bones and weights
