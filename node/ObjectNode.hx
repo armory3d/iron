@@ -3,25 +3,21 @@ package fox.node;
 class ObjectNode extends Node {
 
 	// Inputs
-	var positionNode:VectorNode;
-	var rotationNode:VectorNode;
-	var scaleNode:VectorNode;
-
-	// Outputs
+	public var positionNode:VectorNode;
+	public var rotationNode:VectorNode;
+	public var scaleNode:VectorNode;
 
 	// Variables
-	var object:fox.core.Object;
-
-	var position:Vector;
-	var rotation:Vector;
-	var scale:Vector;
+	public var object:fox.core.Object;
 
 	public function new() {
 		super();
 	}
 
 	public override function update() {
-		object.transform.pos.set(position.x, position.y, position.z);
+		object.transform.pos.set(positionNode.xNode.f,
+								 positionNode.yNode.f,
+								 positionNode.zNode.f);
 		object.transform.modified = true;
 	}
 }

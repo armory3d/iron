@@ -1,14 +1,12 @@
 package fox.node;
 
-class TimeNode extends Node {
+class TimeNode extends FloatNode {
 
-	// Inputs
-
-	// Outputs
-
-	// Variables
-
-	public function new() {
+	public function new(f:Float) {
 		super();
+	}
+
+	public override function update() {
+		f += fox.sys.Time.delta;
 	}
 }

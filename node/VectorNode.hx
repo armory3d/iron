@@ -2,22 +2,11 @@ package fox.node;
 
 class VectorNode extends Node {
 
-	// Inputs
-	var xNode:FloatNode;
-	var yNode:FloatNode;
-	var zNode:FloatNode;
+	public var xNode:FloatNode;
+	public var yNode:FloatNode;
+	public var zNode:FloatNode;
 
-	// Outputs
-	var vectorOut:VectorNode;
-
-	// Variables
-	var v:Vector;
-
-	public function new(x:Float, y:Float, z:Float) {
+	public function new() {
 		super();
-
-		v.x = x;
-		v.y = y;
-		v.z = z;
 	}
 }
