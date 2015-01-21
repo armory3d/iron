@@ -4,9 +4,10 @@ class TimeNode extends FloatNode {
 
 	public static inline var _startTime = 0; // Float
 	public static inline var _stopTime = 1; // Float
-	public static inline var _enabled = 2; // Bool
-	public static inline var _loop = 3; // Bool
-	public static inline var _reflect = 4; // Bool
+	public static inline var _scale = 2; // Float
+	public static inline var _enabled = 3; // Bool
+	public static inline var _loop = 4; // Bool
+	public static inline var _reflect = 5; // Bool
 
 	var modifier:Float = 1;
 
@@ -24,26 +25,26 @@ class TimeNode extends FloatNode {
 		super.update();
 		
 		if (inputs[_enabled].b) {
-			f += fox.sys.Time.delta * modifier;
+			f += fox.sys.Time.delta * inputs[_scale].f;
 
 			// Time out
 			if (inputs[_stopTime].f > 0) {
-				if (modifier > 0 && f >= inputs[_stopTime].f ||
-					modifier < 0 && f <= inputs[_startTime].f) {
+				if (inputs[_scale].f > 0 && f >= inputs[_stopTime].f ||
+					inputs[_scale].f < 0 && f <= inputs[_startTime].f) {
 					
 					// Loop
 					if (inputs[_loop].b) {
 
 						// Reflect
 						if (inputs[_reflect].b) {
-							if (modifier > 0) {
+							if (inputs[_scale].f > 0) {
 								f = inputs[_stopTime].f;
 							}
 							else {
 								f = inputs[_startTime].f;
 							}
 
-							modifier *= -1;
+							inputs[_scale].f *= -1;
 						}
 						// Reset
 						else {
