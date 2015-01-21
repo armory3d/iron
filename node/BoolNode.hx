@@ -4,9 +4,13 @@ class BoolNode extends Node {
 
 	public var b:Bool;
 
-	public function new(b:Bool) {
+	public function new() {
 		super();
+	}
 
-		this.b = b;
+	public static function create(_b:Bool) {
+		var n = new BoolNode();
+		n.b = _b;
+		return n;
 	}
 }

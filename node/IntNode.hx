@@ -4,9 +4,13 @@ class IntNode extends Node {
 
 	public var i:Int;
 
-	public function new(i:Int) {
+	public function new() {
 		super();
+	}
 
-		this.i = i;
+	public static function create(_i:Int) {
+		var n = new BoolNode();
+		n.i = _i;
+		return n;
 	}
 }

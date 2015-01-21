@@ -14,6 +14,7 @@ class NodeExecutor extends Trait implements IUpdateable {
 
     public function start(node:Node) {
         this.node = node;
+        node.start();
     }
 
     public function update() {

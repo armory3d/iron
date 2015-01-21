@@ -242,4 +242,12 @@ class PsdParser extends Trait {
 		g.drawScaledSubImage(data.texture, layer.packedOrigin.x, layer.packedOrigin.y, layer.width, layer.height,
 						   	 x, y, layer.width * scale, layer.height * scale);
 	}
+
+	public function setImageSource(name:String, layer:TPsdLayer) {
+		var ren = owner.getChild(name).getTrait(ImageRenderer);
+		ren.source.x = layer.packedOrigin.x;
+		ren.source.y = layer.packedOrigin.y;
+		ren.source.w = layer.width;
+		ren.source.h = layer.height;
+	}
 }
