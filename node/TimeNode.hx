@@ -9,8 +9,6 @@ class TimeNode extends FloatNode {
 	public static inline var _loop = 4; // Bool
 	public static inline var _reflect = 5; // Bool
 
-	var modifier:Float = 1;
-
 	public function new() {
 		super();
 	}

@@ -12,7 +12,9 @@ class BillboardRenderer extends Renderer implements IRenderable {
 	@inject({asc:true,sibl:false})
 	public var scene:GameScene;
 
-	public var mvpMatrix:Mat4;
+	public var M:Mat4;
+	public var V:Mat4;
+	public var P:Mat4;
 	public var transPos:Vec3;
 	public var transSize:Vec3;
 	public var camRightWorld:Vec3;
@@ -22,7 +24,9 @@ class BillboardRenderer extends Renderer implements IRenderable {
 	public function new(mesh:Mesh) {
 		super(mesh);
 
-		mvpMatrix = new Mat4();
+		M = new Mat4();
+		V = new Mat4();
+		P = new Mat4();
 
 		transPos = new Vec3();
 		transSize = new Vec3();
@@ -32,7 +36,9 @@ class BillboardRenderer extends Renderer implements IRenderable {
 	}
 
 	public override function initConstants() {
-		setMat4(mvpMatrix);
+		setMat4(M);
+		setMat4(V);
+		setMat4(P);
 		setVec3(transPos);
 		setVec3(transSize);
 		setVec3(camRightWorld);
@@ -55,10 +61,14 @@ class BillboardRenderer extends Renderer implements IRenderable {
 		camRightWorld.set(cam.V._11, cam.V._21, cam.V._31); // TODO: fix that Y is up!
 		camUpWorld.set(cam.V._12, cam.V._22, cam.V._32);
 
-		mvpMatrix.identity();
-		mvpMatrix.append(transform.matrix);
-		mvpMatrix.append(scene.camera.V);
-		mvpMatrix.append(scene.camera.P);
+		M.identity();
+		M.append(transform.matrix);
+
+		V.identity();
+		V.append(scene.camera.V);
+
+		P.identity();
+		P.append(scene.camera.P);
 
 		transPos.set(transform.pos.x / 30, transform.pos.y / 30, transform.pos.z / 30);
 		transSize.set(transform.size.x, transform.size.y, transform.size.z);

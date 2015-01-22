@@ -134,8 +134,10 @@ class Root extends kha.Game {
         Assets.addShader("watershader", waterShader);*/
 
         // Billboard
-        /*var billboardShader = new Shader("billboard.frag", "billboard.vert", struct);
-        billboardShader.addConstantMat4("mvpMatrix");
+        var billboardShader = new Shader("billboard.frag", "billboard.vert", struct);
+        billboardShader.addConstantMat4("M");
+        billboardShader.addConstantMat4("V");
+        billboardShader.addConstantMat4("P");
         billboardShader.addConstantVec3("billboardCenterWorld");
         billboardShader.addConstantVec3("billboardSize");
         billboardShader.addConstantVec3("camRightWorld");
@@ -145,7 +147,7 @@ class Root extends kha.Game {
         Assets.addShader("billboardshader", billboardShader);
 
         // Particles
-        var particlesShader = new Shader("particles.frag", "particles.vert", struct);
+        /*var particlesShader = new Shader("particles.frag", "particles.vert", struct);
         particlesShader.addConstantMat4("mvpMatrix");
         particlesShader.addConstantVec3("billboardCenterWorld");
         particlesShader.addConstantVec3("billboardSize");
