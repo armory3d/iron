@@ -154,7 +154,7 @@ class Root extends kha.Game {
         particlesShader.addConstantVec3("camRightWorld");
         particlesShader.addConstantVec3("camUpWorld");
         particlesShader.addConstantBool("texturing");
-        particlesShader.addTexture("tex");
+        particlesShader.addTexture("stex");
         Assets.addShader("particlesshader", particlesShader);*/
 
         // Mesh
@@ -191,7 +191,7 @@ class Root extends kha.Game {
         skinnedshader.addConstantBool("lighting");
         skinnedshader.addConstantBool("rim");
         skinnedshader.addConstantBool("receiveShadow");
-        skinnedshader.addTexture("tex");
+        skinnedshader.addTexture("stex");
         skinnedshader.addTexture("shadowMap");
         skinnedshader.addTexture("skinning");
         Assets.addShader("skinnedshader", skinnedshader);*/
