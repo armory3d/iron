@@ -143,7 +143,7 @@ class Root extends kha.Game {
         billboardShader.addConstantVec3("camRightWorld");
         billboardShader.addConstantVec3("camUpWorld");
         billboardShader.addConstantBool("texturing");
-        billboardShader.addTexture("tex");
+        billboardShader.addTexture("stex");
         Assets.addShader("billboardshader", billboardShader);
 
         // Particles
@@ -169,7 +169,7 @@ class Root extends kha.Game {
         shader.addConstantBool("lighting");
         shader.addConstantBool("rim");
         shader.addConstantBool("receiveShadow");
-        shader.addTexture("tex");
+        shader.addTexture("stex");
         shader.addTexture("shadowMap");
         Assets.addShader("shader", shader);
 

@@ -20,6 +20,9 @@ class OgexData extends Container {
 	public var lightObjects:Array<LightObject> = [];
 	public var cameraObjects:Array<CameraObject> = [];
 	public var materials:Array<Material> = [];
+	// clips
+	// geometryobj-morph
+	// geonode-morphweight
 
 	var file:StringInput;
 
@@ -278,10 +281,18 @@ class OgexData extends Container {
 					n.name = parseName(s);
 				case "Transform":
 					n.transform = parseTransform(s);
-				case "BoneNode":
-					n.children.push(parseBoneNode(s, n));
 				case "Animation":
 					n.animation = parseAnimation(s);
+				case "Node":
+					n.children.push(parseNode(s, n));
+				case "GeometryNode":
+					n.children.push(parseGeometryNode(s, n));
+				case "LightNode":
+					n.children.push(parseLightNode(s, n));
+				case "CameraNode":
+					n.children.push(parseCameraNode(s, n));
+				case "BoneNode":
+					n.children.push(parseBoneNode(s, n));
 				case "}":
 					break;
 			}
@@ -794,7 +805,7 @@ class Skin {
 class Skeleton {
 
 	public var boneRefArray:BoneRefArray;
-	public var transform:Transform;
+	public var transform:Transform; // array
 
 	public function new() {}
 }
