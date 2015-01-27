@@ -274,6 +274,9 @@ class GameScene extends Trait {
 
 		// TODO: check all collections
 		var coll = colls[0];
+		
+		// No collection assigned
+		if (coll == null) return null;
 
 		// Find collection data
 		var collData:TGameCollection = null;
