@@ -7,13 +7,12 @@ import lue.math.Quat;
 class Transform {
 
 	public var matrix:Mat4;
-	public var appendMatrix:Mat4 = null;
+	public var append:Mat4 = null;
 	public var dirty:Bool;
 
 	public var pos:Vec3;
 	public var rot:Quat;
 	public var scale:Vec3;
-	
 	public var size:Vec3;
 
 	var node:Node;
@@ -49,7 +48,7 @@ class Transform {
 		matrix._43 = pos.z;
 
 		// Transform node
-		if (appendMatrix != null) matrix.mult(appendMatrix);
+		if (append != null) matrix.mult(append);
 
 		if (node.parent != null) {
 			matrix.multiply3x4(matrix, node.parent.transform.matrix);

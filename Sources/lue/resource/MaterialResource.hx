@@ -6,25 +6,31 @@ import lue.node.ModelNode;
 class MaterialResource extends Resource {
 
 	public var resource:TMaterialResource;
-	public var shader:Shader;
+	public var shader:ShaderResource;
 
 	var texture:kha.Image = null;
 
-	public function new(name:String, id:String) {
+	public function new(resource:TMaterialResource) {
 		super();
 
-		var format:TSceneFormat = Resource.getSceneResource(name);
-		resource = Resource.getMaterialResourceById(format.material_resources, id);
 		if (resource == null) {
 			trace("Resource not found!");
 			return;
 		}
 
-		shader = Shader.get(resource.shader);
+		this.resource = resource;
+
+		shader = Resource.getShader(resource.shader_resource, resource.shader_id);
 
 		if (resource.texture != "") {
 			texture = kha.Loader.the.getImage(resource.texture);
 		}
+	}
+
+	public static function parse(name:String, id:String):MaterialResource {
+		var format:TSceneFormat = Resource.getSceneResource(name);
+		var resource:TMaterialResource = Resource.getMaterialResourceById(format.material_resources, id);
+		return new MaterialResource(resource);
 	}
 
 	public function registerRenderer() {

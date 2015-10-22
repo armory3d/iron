@@ -10,5 +10,7 @@ class LightNode extends Node {
 		super();
 
 		this.resource = resource;
+
+		Node.lights.push(this);
 	}
 }

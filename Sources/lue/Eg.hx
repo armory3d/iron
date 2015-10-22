@@ -5,44 +5,45 @@ import lue.node.Node;
 import lue.node.ModelNode;
 import lue.node.LightNode;
 import lue.node.CameraNode;
+import lue.resource.Resource;
 import lue.resource.ModelResource;
 import lue.resource.LightResource;
 import lue.resource.CameraResource;
 import lue.resource.MaterialResource;
+import lue.resource.ShaderResource;
 
 class Eg {
 
-	static var root:Node;
-	static var models:Array<ModelNode>;
-	static var lights:Array<LightNode>;
-	static var cameras:Array<CameraNode>;
+	public static var root:Node;
 
 	public function new() {
 		reset();
 	}
 
 	public static function reset() {
+		Node.reset();
         root = new Node();
-        models = [];
-        lights = [];
-        cameras = [];
     }
 
 	// Resources
-	public static function getModelResource(name:String, id:String = ""):ModelResource {
-		return new ModelResource(name, id);
+	public static inline function getModelResource(name:String, id:String = ""):ModelResource {
+		return Resource.getModel(name, id);
 	}
 
-	public static function getLightResource(name:String, id:String = ""):LightResource {
-		return new LightResource(name, id);
+	public static inline function getLightResource(name:String, id:String = ""):LightResource {
+		return Resource.getLight(name, id);
 	}
 
-	public static function getCameraResource(name:String, id:String = ""):CameraResource {
-		return new CameraResource(name, id);
+	public static inline function getCameraResource(name:String, id:String = ""):CameraResource {
+		return Resource.getCamera(name, id);
 	}
 
-	public static function getMaterialResource(name:String, id:String = ""):MaterialResource {
-		return new MaterialResource(name, id);
+	public static inline function getMaterialResource(name:String, id:String = ""):MaterialResource {
+		return Resource.getMaterial(name, id);
+	}
+
+	public static inline function getShaderResource(name:String, id:String = ""):ShaderResource {
+		return Resource.getShader(name, id);
 	}
 
 	// Nodes
@@ -54,28 +55,25 @@ class Eg {
 
 	public static function addModelNode(resource:ModelResource, material:MaterialResource, parent:Node = null):ModelNode {
 		var node = new ModelNode(resource, material);
-		models.push(node);
 		parent != null ? parent.addChild(node) : root.addChild(node);
 		return node;
 	}
 
 	public static function addLightNode(resource:LightResource, parent:Node = null):LightNode {
 		var node = new LightNode(resource);
-		lights.push(node);
 		parent != null ? parent.addChild(node) : root.addChild(node);
 		return node;
 	}
 
 	public static function addCameraNode(resource:CameraResource, parent:Node = null):CameraNode {
 		var node = new CameraNode(resource);
-		cameras.push(node);
 		parent != null ? parent.addChild(node) : root.addChild(node);
 		return node;
 	}
 
 	public static function removeNode(node:Node) {
 		if (node.parent == null) return;
-		Std.is(node, ModelNode) ? models.remove(cast node) : Std.is(node, LightNode) ? lights.remove(cast node) : cameras.remove(cast node);
+		Std.is(node, ModelNode) ? Node.models.remove(cast node) : Std.is(node, LightNode) ? Node.lights.remove(cast node) : Node.cameras.remove(cast node);
 		node.parent.removeChild(node);
 	}
 
@@ -90,7 +88,7 @@ class Eg {
    	// Render
     public static function render(g:kha.graphics4.Graphics, camera:CameraNode) {
 		camera.begin(g);
-		root.render(g, camera, lights[0]);
+		root.render(g, camera, Node.lights[0]);
 		camera.end(g);
     }
 }

@@ -6,14 +6,20 @@ class LightResource extends Resource {
 
 	public var resource:TLightResource;
 
-	public function new(name:String, id:String) {
+	public function new(resource:TLightResource) {
 		super();
 
-		var format:TSceneFormat = Resource.getSceneResource(name);
-		resource = Resource.getLightResourceById(format.light_resources, id);
 		if (resource == null) {
 			trace("Resource not found!");
 			return;
 		}
+
+		this.resource = resource;
+	}
+
+	public static function parse(name:String, id:String):LightResource {
+		var format:TSceneFormat = Resource.getSceneResource(name);
+		var resource:TLightResource = Resource.getLightResourceById(format.light_resources, id);
+		return new LightResource(resource);
 	}
 }

@@ -36,7 +36,7 @@ class App extends kha.Game {
         new lue.sys.Time();
         new lue.sys.Input();
 
-        lue.resource.Shader.createDefaults();
+        lue.resource.ShaderResource.createDefaults();
 
         kha.Configuration.setScreen(this);
         Type.createInstance(game, []);

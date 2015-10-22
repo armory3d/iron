@@ -57,6 +57,8 @@ class CameraNode extends Node {
 		for (i in 0...6) {
 			frustumPlanes.push(new Plane());
 		}
+
+		Node.cameras.push(this);
 	}
 
 	public function begin(g:kha.graphics4.Graphics) {

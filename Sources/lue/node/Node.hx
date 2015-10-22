@@ -5,6 +5,10 @@ import lue.trait.Trait;
 
 class Node {
 
+	public static var models:Array<ModelNode>;
+	public static var lights:Array<LightNode>;
+	public static var cameras:Array<CameraNode>;
+
 	public var name:String = "";
 	public var parent:Node;
 
@@ -15,6 +19,12 @@ class Node {
 
 	public function new() {
 		transform = new Transform(this);
+	}
+
+	public static function reset() {
+		models = [];
+		lights = [];
+		cameras = [];
 	}
 
 	public function addChild(o:Node) {

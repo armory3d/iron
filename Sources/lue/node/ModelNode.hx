@@ -38,6 +38,8 @@ class ModelNode extends Node {
 
 		initConstants();
 		setTransformSize();
+
+		Node.models.push(this);
 	}
 
 	function initConstants() {
