@@ -64,6 +64,9 @@ class Resource {
 		}
 		else return cached;
 	}
+	public static function cacheShader(id:String, res:ShaderResource) {
+		if (!cachedShaders.exists(id)) cachedShaders.set(id, res);
+	}
 
 	public static function getSceneResource(name:String):TSceneFormat {
 		var cached = cachedScenes.get(name);

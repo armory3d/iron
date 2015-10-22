@@ -125,6 +125,6 @@ class ShaderResource extends Resource {
             ]
         };
 
-        new ShaderResource(res);
+        Resource.cacheShader(res.id, new ShaderResource(res));
 	}
 }
