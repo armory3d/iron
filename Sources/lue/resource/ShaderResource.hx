@@ -19,7 +19,8 @@ class ShaderResource extends Resource {
 
 	public var program:Program;
 	public var constants:Array<ConstantLocation> = [];
-	public var textures:Array<TextureUnit> = [];
+	public var materialConstants:Array<ConstantLocation> = [];
+	public var textureUnits:Array<TextureUnit> = [];
 
 	public function new(resource:TShaderResource) {
 		super();
@@ -42,6 +43,10 @@ class ShaderResource extends Resource {
 			addConstant(c.id);
 		}
 
+		for (c in resource.material_constants) {
+			addMaterialConstant(c.id);
+		}
+
 		for (tu in resource.texture_units) {
 			addTexture(tu.id);
 		}
@@ -57,14 +62,16 @@ class ShaderResource extends Resource {
 		program.link(defaultStructure);
 	}
 
-	public function addConstant(s:String) {
+	function addConstant(s:String) {
 		constants.push(program.getConstantLocation(s));
 	}
 
-	public function addTexture(s:String):TextureUnit {
-		var tu:TextureUnit = program.getTextureUnit(s);
-		textures.push(tu);
-		return tu;
+	function addMaterialConstant(s:String) {
+		materialConstants.push(program.getConstantLocation(s));
+	}
+
+	function addTexture(s:String) {
+		textureUnits.push(program.getTextureUnit(s));
 	}
 
 	public static function createDefaults() {
@@ -75,44 +82,58 @@ class ShaderResource extends Resource {
 		defaultStructure.add("col", VertexData.Float4);
 		defaultStructureLength = 12;
 
-		// Mesh
+		// Default shaders
 		var res:TShaderResource = {
             id: "model",
             vertex_shader: "model.vert",
             fragment_shader: "model.frag",
             constants: [
                 {
-                    id: "M"
+                    id: "M",
+                    type: "mat4",
+                    value: "_modelMatrix"
                 },
                 {
-                    id: "V"
+                    id: "V",
+                    type: "mat4",
+                    value: "_viewMatrix"
                 },
                 {
-                    id: "P"
+                    id: "P",
+                    type: "mat4",
+                    value: "_projectionMatrix"
                 },
                 {
-                    id: "dbMVP"
+                    id: "light",
+                    type: "vec3",
+                    value: "_lighPosition"
                 },
                 {
-                    id: "light"
+                    id: "eye",
+                    type: "vec3",
+                    value: "_cameraPosition"
+                }
+            ],
+            material_constants: [
+                {
+                    id: "diffuseColor",
+                    type: "vec4",
                 },
                 {
-                    id: "eye"
+                    id: "roughness",
+                    type: "float"
                 },
                 {
-                    id: "diffuseColor"
+                    id: "lighting",
+                    type: "bool"
                 },
                 {
-                    id: "texturing"
+                    id: "receiveShadow",
+                    type: "bool"
                 },
                 {
-                    id: "lighting"
-                },
-                {
-                    id: "receiveShadow"
-                },
-                {
-                    id: "roughness"
+                    id: "texturing",
+                    type: "bool"
                 }
             ],
             texture_units: [
@@ -120,7 +141,8 @@ class ShaderResource extends Resource {
                     id: "stex"
                 },
                 {
-                    id: "shadowMap"
+                    id: "shadowMap",
+                    value: "_shadowMap"
                 }
             ]
         };

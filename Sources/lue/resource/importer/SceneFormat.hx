@@ -45,17 +45,24 @@ typedef TCameraResource = {
 
 typedef TMaterialResource = {
 	var id:String;
-	var diffuse:Bool;
-	@:optional var diffuse_color:Array<Float>;
-	var glossy:Bool;
-	@:optional var glossy_color:Array<Float>;
-	var roughness:Float;
-	var texture:String;
-	var lighting:Bool;
-	var cast_shadow:Bool;
-	var receive_shadow:Bool;
 	var shader_id:String;
 	@:optional var shader_resource:String;
+	var cast_shadow:Bool;
+	var params:Array<TMaterialParam>;
+	var textures:Array<TMaterialTexture>;
+}
+
+typedef TMaterialParam = {
+	var id:String;
+	@:optional var vec4:Array<Float>;
+	@:optional var vec3:Array<Float>;
+	@:optional var float:Float;
+	@:optional var bool:Bool;
+}
+
+typedef TMaterialTexture = {
+	var id:String;
+	var name:String;
 }
 
 typedef TShaderResource = {
@@ -63,13 +70,22 @@ typedef TShaderResource = {
 	var vertex_shader:String;
 	var fragment_shader:String;
 	var constants:Array<TShaderConstant>;
+	var material_constants:Array<TShaderMaterialConstant>;
 	var texture_units:Array<TTextureUnit>;
 }
 
 typedef TShaderConstant = {
 	var id:String;
+	var type:String;
+	var value:String;
+}
+
+typedef TShaderMaterialConstant = {
+	var id:String;
+	var type:String;
 }
 
 typedef TTextureUnit = {
 	var id:String;
+	@:optional var value:String;
 }

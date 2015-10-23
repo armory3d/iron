@@ -1,32 +1,19 @@
 package lue.node;
 
 import kha.graphics4.Graphics;
+import kha.graphics4.ConstantLocation;
 import lue.math.Vec3;
 import lue.math.Mat4;
 import lue.resource.ModelResource;
 import lue.resource.MaterialResource;
+import lue.resource.importer.SceneFormat;
 
 class ModelNode extends Node {
-
-	public static inline var CONST_SHADOW_MAT4_DBMVP = 0;
-	public static inline var CONST_MAT4_M = 0;
-    public static inline var CONST_MAT4_V = 1;
-    public static inline var CONST_MAT4_P = 2;
-    public static inline var CONST_MAT4_DBMVP = 3;
-    public static inline var CONST_VEC3_LIGHT = 4;
-    public static inline var CONST_VEC3_EYE = 5;
-    public static inline var CONST_VEC4_DIFFUSE_COLOR = 6;
-    public static inline var CONST_B_TEXTURING = 7;
-    public static inline var CONST_B_LIGHTING = 8;
-    public static inline var CONST_B_RECEIVE_SHADOW = 9;
-    public static inline var CONST_F_ROUGHNESS = 10;
-    public static inline var CONST_TEX_STEX = 0;
-    public static inline var CONST_TEX_SMAP = 1;
 
 	var resource:ModelResource;
 	var material:MaterialResource;
 
-	public var dbMVP:Mat4;
+	var dbMVP:Mat4;
 
 	public function new(resource:ModelResource, material:MaterialResource) {
 		super();
@@ -36,24 +23,70 @@ class ModelNode extends Node {
 
 		dbMVP = new Mat4();
 
-		initConstants();
 		setTransformSize();
 
 		Node.models.push(this);
 	}
 
-	function initConstants() {
+	function setConstants(g:Graphics, camera:CameraNode, light:LightNode) {
+		for (i in 0...material.shader.resource.constants.length) {
+			var c = material.shader.resource.constants[i];
+
+			setConstant(g, camera, light, material.shader.constants[i], c);
+		}
+    	//TODO: setMat4(g, CONST_MAT4_DBMVP, dbMVP);
 	}
 
-	function setConstants(g:Graphics, camera:CameraNode, light:LightNode) {
-		setMat4(g, CONST_MAT4_M, transform.matrix);
-    	setMat4(g, CONST_MAT4_V, camera.V);
-    	setMat4(g, CONST_MAT4_P, camera.P);
-    	setMat4(g, CONST_MAT4_DBMVP, dbMVP);
-    	setVec3(g, CONST_VEC3_LIGHT, light.transform.pos);
-    	setVec3(g, CONST_VEC3_EYE, camera.transform.pos);
-    	setBool(g, CONST_B_LIGHTING, material.resource.lighting);
-    	setBool(g, CONST_B_RECEIVE_SHADOW, material.resource.receive_shadow);
+	function setConstant(g:Graphics, camera:CameraNode, light:LightNode,
+						 location:ConstantLocation, c:TShaderConstant) {
+		if (c.type == "mat4") {
+			var m:Mat4 = null;
+			if (c.value == "_modelMatrix") m = transform.matrix;
+			else if (c.value == "_viewMatrix") m = camera.V;
+			else if (c.value == "_projectionMatrix") m = camera.P;
+			if (m == null) return;
+
+			var mat = new kha.math.Matrix4(m._11, m._21, m._31, m._41,
+									  	   m._12, m._22, m._32, m._42,
+										   m._13, m._23, m._33, m._43,
+									       m._14, m._24, m._34, m._44);
+			g.setMatrix(location, mat);
+		}
+		else if (c.type == "vec3") {
+			var v:Vec3 = null;
+			if (c.value == "_lightPosition") v = light.transform.pos;
+			else if (c.value == "_cameraPosition") v = camera.transform.pos;
+			if (v == null) return;
+			g.setFloat3(location, v.x, v.y, v.z);
+		}
+		// TODO: other types
+	}
+
+	function setMaterialConstants(g:Graphics) {
+		for (i in 0...material.resource.params.length) {
+			var p = material.resource.params[i];
+			// TODO: material params must be in the same order as shader material constants
+			var c = material.shader.resource.material_constants[i];
+
+			setMaterialConstant(g, material.shader.materialConstants[i], c, p);
+		}
+
+		for (i in 0...material.textures.length) {
+			g.setTexture(material.shader.textureUnits[i], material.textures[i]);
+		}
+	}
+
+	function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderMaterialConstant, p:TMaterialParam) {
+		if (c.type == "vec4") {
+			g.setFloat4(location, p.vec4[0], p.vec4[1], p.vec4[2], p.vec4[3]);
+		}
+		else if (c.type == "float") {
+			g.setFloat(location, p.float);
+		}
+		else if (c.type == "bool") {
+			g.setBool(location, p.bool);
+		}
+		// TODO: other types
 	}
 
 	public override function render(g:Graphics, camera:CameraNode, light:LightNode) {
@@ -62,9 +95,9 @@ class ModelNode extends Node {
 		transform.update();
 
 		// Frustum culling
-		//if (Eg.camera.sphereInFrustum(transform, mesh.geometry.radius)) {
+		//if (camera.sphereInFrustum(transform, mesh.geometry.radius)) {
 			
-			//dbMVP.mult(Eg.camera.biasMat);
+			//dbMVP.mult(camera.biasMat);
 
 			// Render mesh
 			g.setProgram(material.shader.program);
@@ -82,12 +115,12 @@ class ModelNode extends Node {
 			setConstants(g, camera, light);
 
 			for (i in 0...resource.geometry.indexBuffers.length) {
-				var indexBuffer = resource.geometry.indexBuffers[i];
-				var mat = resource.geometry.materialIndices[i];
+				
+				// TODO: only one material per model
+				//var mat = resource.geometry.materialIndices[i];
+				setMaterialConstants(g);
 
-				material.setConstants(g);
-
-				g.setIndexBuffer(indexBuffer);
+				g.setIndexBuffer(resource.geometry.indexBuffers[i]);
 
 				g.drawIndexedVertices();
 			}
@@ -99,28 +132,4 @@ class ModelNode extends Node {
 		transform.size.y = resource.geometry.size.y * transform.scale.y;
 		transform.size.z = resource.geometry.size.z * transform.scale.z;
     }
-
-	inline function setMat4(g:kha.graphics4.Graphics, index:Int, m:Mat4) {
-		var mat = new kha.math.Matrix4(m._11, m._21, m._31, m._41,
-									   m._12, m._22, m._32, m._42,
-									   m._13, m._23, m._33, m._43,
-									   m._14, m._24, m._34, m._44);
-		g.setMatrix(material.shader.constants[index], mat);
-	}
-
-	inline function setVec3(g:kha.graphics4.Graphics, index:Int, v:Vec3) {
-		g.setFloat3(material.shader.constants[index], v.x, v.y, v.z);
-	}
-
-	inline function setVec4(g:kha.graphics4.Graphics, index:Int, v:Vec3) {
-		g.setFloat4(material.shader.constants[index], v.x, v.y, v.z, v.w);
-	}
-
-	inline function setBool(g:kha.graphics4.Graphics, index:Int, b:Bool) {
-		g.setBool(material.shader.constants[index], b);
-	}
-
-	inline function setFloat(g:kha.graphics4.Graphics, index:Int, f:Float) {
-		g.setFloat(material.shader.constants[index], f);
-	}
 }

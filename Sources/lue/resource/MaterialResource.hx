@@ -8,7 +8,7 @@ class MaterialResource extends Resource {
 	public var resource:TMaterialResource;
 	public var shader:ShaderResource;
 
-	var texture:kha.Image = null;
+	public var textures:Array<kha.Image> = null;
 
 	public function new(resource:TMaterialResource) {
 		super();
@@ -22,8 +22,12 @@ class MaterialResource extends Resource {
 
 		shader = Resource.getShader(resource.shader_resource, resource.shader_id);
 
-		if (resource.texture != "") {
-			texture = kha.Loader.the.getImage(resource.texture);
+		if (resource.textures.length > 0) {
+			textures = [];
+			for (i in 0...resource.textures.length) {
+				// TODO: make sure to store in the same order as shader texture units array
+				textures.push(kha.Loader.the.getImage(resource.textures[i].name));
+			}
 		}
 	}
 
@@ -31,27 +35,5 @@ class MaterialResource extends Resource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TMaterialResource = Resource.getMaterialResourceById(format.material_resources, id);
 		return new MaterialResource(resource);
-	}
-
-	public function registerRenderer() {
-		// Register material uniforms here
-	}
-
-	public function setConstants(g:kha.graphics4.Graphics) {
-		g.setFloat4(shader.constants[ModelNode.CONST_VEC4_DIFFUSE_COLOR],
-					resource.diffuse_color[0],
-					resource.diffuse_color[1],
-					resource.diffuse_color[2],
-					resource.diffuse_color[3]);
-		
-		g.setFloat(shader.constants[ModelNode.CONST_F_ROUGHNESS], resource.roughness);
-
-		if (texture != null) {
-			g.setBool(shader.constants[ModelNode.CONST_B_TEXTURING], true);
-			g.setTexture(shader.textures[ModelNode.CONST_TEX_STEX], texture);
-		}
-		else {
-			g.setBool(shader.constants[ModelNode.CONST_B_TEXTURING], false);
-		}
 	}
 }
