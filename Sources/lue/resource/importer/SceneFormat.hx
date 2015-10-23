@@ -6,6 +6,8 @@ typedef TSceneFormat = {
 	@:optional var camera_resources:Array<TCameraResource>;
 	@:optional var material_resources:Array<TMaterialResource>;
 	@:optional var shader_resources:Array<TShaderResource>;
+
+	@:optional var nodes:Array<TNode>;
 }
 
 typedef TGeometryResource = {
@@ -17,6 +19,20 @@ typedef TMesh = {
 	var primitive:String;
 	var vertex_arrays:Array<TVertexArray>;
 	var index_arrays:Array<TIndexArray>;
+	@:optional var skin:TSkin;
+}
+
+typedef TSkin = {
+	var transform:TTransform;
+	var skeleton:TSkeleton;
+	var bone_count_array:Array<Int>;
+	var bone_index_array:Array<Int>;
+	var bone_weight_array:Array<Float>;
+}
+
+typedef TSkeleton = {
+	var bone_ref_array:Array<String>;
+	var transforms:Array<Array<Float>>; // size = 16
 }
 
 typedef TVertexArray = {
@@ -88,4 +104,41 @@ typedef TShaderMaterialConstant = {
 typedef TTextureUnit = {
 	var id:String;
 	@:optional var value:String;
+}
+
+// Skinned
+typedef TNode = {
+	var type:String;
+	var id:String;
+	var name:String;
+	var object_ref:String;
+	var material_refs:Array<String>;
+	var transform:TTransform;
+	@:optional var animation:TAnimation;
+	var nodes:Array<TNode>;
+	@:optional var parent:TNode;
+}
+
+typedef TTransform = {
+	@:optional var target:String;
+	var values:Array<Float>;
+}
+
+typedef TAnimation = {
+	//var tracks:Array<TTrack>;
+	var track:TTrack;
+}
+
+typedef TTrack = {
+	var target:String;
+	var time:TTime;
+	var value:TValue;
+}
+
+typedef TTime = {
+	var values:Array<Float>;
+}
+
+typedef TValue = {
+	var values:Array<Array<Float>>;
 }

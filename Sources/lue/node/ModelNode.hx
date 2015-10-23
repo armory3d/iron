@@ -4,6 +4,7 @@ import kha.graphics4.Graphics;
 import kha.graphics4.ConstantLocation;
 import lue.math.Vec3;
 import lue.math.Mat4;
+import lue.math.Quat;
 import lue.resource.ModelResource;
 import lue.resource.MaterialResource;
 import lue.resource.importer.SceneFormat;
@@ -14,6 +15,16 @@ class ModelNode extends Node {
 	var material:MaterialResource;
 
 	var dbMVP:Mat4;
+
+	// Skinned
+	var animation:Animation;
+	var boneMats = new Map<TNode, Mat4>();
+	var boneTimeIndices = new Map<TNode, Int>();
+
+	var m = new Mat4(); // Skinning matrix
+	var bm = new Mat4(); // Absolute bone matrix
+	var pos = new Vec3();
+	var nor = new Vec3();
 
 	public function new(resource:ModelResource, material:MaterialResource) {
 		super();
@@ -26,6 +37,16 @@ class ModelNode extends Node {
 		setTransformSize();
 
 		Node.models.push(this);
+	}
+
+	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
+		if (resource.isSkinned) {
+			animation = new Animation(startTrack, names, starts, ends);
+			for (b in resource.geometry.skeletonBones) {
+				boneMats.set(b, new Mat4(b.transform.values));
+				boneTimeIndices.set(b, 0);
+			}
+		}
 	}
 
 	function setConstants(g:Graphics, camera:CameraNode, light:LightNode) {
@@ -132,4 +153,204 @@ class ModelNode extends Node {
 		transform.size.y = resource.geometry.size.y * transform.scale.y;
 		transform.size.z = resource.geometry.size.z * transform.scale.z;
     }
+
+    public function setAnimationParams(delta:Float) {
+    	if (resource.isSkinned) {
+    		animation.animTime += delta;
+
+			updateAnim();
+			updateSkin();
+
+			animation.dirty = false;
+		}
+    }
+
+    function updateAnim() {
+    	// Animate bones
+		for (b in resource.geometry.skeletonBones) {
+			var boneAnim = b.animation;
+
+			if (boneAnim != null) {
+				var track = boneAnim.track;
+
+				// Current track has been changed
+				if (animation.dirty) {
+					animation.timeIndex = animation.current.start;
+					animation.animTime = track.time.values[animation.timeIndex];
+				}
+
+				//var timeIndex = boneTimeIndices.get(b);
+
+				// Move keyframe
+				while (animation.animTime > track.time.values[animation.timeIndex + 1]) {
+					animation.timeIndex++;
+				}
+				//boneTimeIndices.set(b, timeIndex);
+
+				// Rewind
+				if (animation.timeIndex >= track.time.values.length - 2 ||
+					animation.timeIndex >= animation.current.end) {
+					animation.timeIndex = animation.current.start;
+					animation.animTime = track.time.values[animation.timeIndex];
+					//boneTimeIndices.set(b, animation.timeIndex);
+					//continue;
+					return;
+				}
+
+				var t1 = track.time.values[animation.timeIndex];
+				var t2 = track.time.values[animation.timeIndex + 1];
+				var s = (animation.animTime - t1) / (t2 - t1);
+
+				var v1:Array<Float> = track.value.values[animation.timeIndex];
+				var v2:Array<Float> = track.value.values[animation.timeIndex + 1];
+
+				var m1 = new Mat4(v1);
+				var m2 = new Mat4(v2);
+
+				// Decompose
+				var p1 = m1.pos();
+				var p2 = m2.pos();
+				var s1 = m1.scaleV();
+				var s2 = m2.scaleV();
+				var q1 = m1.getQuat();
+				var q2 = m2.getQuat();
+
+				// Lerp
+				var fp = Vec3.lerp(p1, p2, s);
+				var fs = Vec3.lerp(s1, s2, s);
+				var fq = Quat.lerp(q1, q2, s);
+
+				// Compose
+				var m = boneMats.get(b);
+				fq.saveToMatrix(m);
+				m.scale(fs);
+				m._41 = fp.x;
+				m._42 = fp.y;
+				m._43 = fp.z;
+				boneMats.set(b, m);
+			}
+		}
+	}
+
+	function updateSkin() {
+		var v = resource.geometry.vertexBuffer.lock();
+		var l = resource.geometry.structureLength;
+
+		var index = 0;
+
+		for (i in 0...Std.int(v.length / l)) {
+
+			var boneCount = resource.geometry.skinBoneCounts[i];
+			var boneIndices = [];
+			var boneWeights = [];
+			for (j in index...(index + boneCount)) {
+				boneIndices.push(resource.geometry.skinBoneIndices[j]);
+				boneWeights.push(resource.geometry.skinBoneWeights[j]);
+			}
+			index += boneCount;
+
+			pos.set(0, 0, 0);
+			nor.set(0, 0, 0);
+			for (j in 0...boneCount) {
+				var boneIndex = boneIndices[j];
+				var boneWeight = boneWeights[j];
+				var bone = resource.geometry.skeletonBones[boneIndex];
+
+				// Position
+				m.initTranslate(resource.geometry.positions[i * 3],
+								resource.geometry.positions[i * 3 + 1],
+								resource.geometry.positions[i * 3 + 2]);
+
+				// TODO: remove skin transform
+				m.mult(resource.geometry.skinTransform);
+
+				m.mult(resource.geometry.skeletonTransformsI[boneIndex]);
+
+				bm.loadFrom(boneMats.get(bone));
+				var p = bone.parent;
+				while (p != null) {
+					var pm = boneMats.get(p);
+					if (pm == null) pm = new Mat4(p.transform.values);
+					bm.mult(pm);
+					p = p.parent;
+				}
+				m.mult(bm);
+
+				m.multiplyScalar(boneWeight);
+				
+				pos.add(m.pos());
+
+				// Normal
+				m.getInverse(bm);
+
+				m.mult(resource.geometry.skeletonTransforms[boneIndex]);
+
+				m.mult(resource.geometry.skinTransformI);
+
+				m.translate(resource.geometry.normals[i * 3],
+							resource.geometry.normals[i * 3 + 1],
+							resource.geometry.normals[i * 3 + 2]);
+
+				m.multiplyScalar(boneWeight);
+
+				nor.add(m.pos());
+			}
+
+			v.set(i * l, pos.x);
+			v.set(i * l + 1, pos.y);
+			v.set(i * l + 2, pos.z);
+			v.set(i * l + 5, nor.x);
+			v.set(i * l + 6, nor.y);
+			v.set(i * l + 7, nor.z);
+		}
+
+		resource.geometry.vertexBuffer.unlock();
+	}
+}
+
+class Animation {
+
+	public var animTime:Float = 0;
+	public var timeIndex:Int = 0; // TODO: use boneTimeIndices
+	public var dirty:Bool = false;
+
+	public var current:Track;
+	var tracks:Map<String, Track> = new Map();
+
+    public function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
+
+        for (i in 0...names.length) {
+        	addTrack(names[i], starts[i], ends[i]);
+        }
+
+        play(startTrack);
+    }
+
+    public function play(name:String) {
+ 		current = tracks.get(name);
+ 		dirty = true;
+    }
+
+    public function pause() {
+
+    }
+
+    public function stop() {
+
+    }
+
+    function addTrack(name:String, start:Int, end:Int) {
+    	var t = new Track(start, end);
+    	tracks.set(name, t);
+    }
+}
+
+class Track {
+	public var start:Int;
+	public var end:Int;
+
+	public function new(start:Int, end:Int) {
+		this.start = start;
+		this.end = end;
+	}
 }

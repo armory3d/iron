@@ -5,12 +5,15 @@ import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
 import lue.math.Vec3;
+import lue.math.Mat4;
 import lue.resource.importer.SceneFormat;
 
 class ModelResource extends Resource {
 
 	public var resource:TGeometryResource;
 	public var geometry:Geometry;
+	public var isSkinned:Bool;
+	public var bones:Array<TNode> = [];
 
 	public function new(resource:TGeometryResource) {
 		super();
@@ -46,7 +49,9 @@ class ModelResource extends Resource {
 		// Create data
 		buildData(data, pa, true, na, true, uva, true, ca, true);
 
-		var usage = kha.graphics4.Usage.StaticUsage;
+		isSkinned = resource.mesh.skin != null ? true : false;
+		var usage = isSkinned ? kha.graphics4.Usage.DynamicUsage : kha.graphics4.Usage.StaticUsage;
+		
 		geometry = new Geometry(data, indices, materialIndices, pa, na, uva, usage);
 		geometry.build(ShaderResource.defaultStructure, ShaderResource.defaultStructureLength);
 	}
@@ -54,7 +59,50 @@ class ModelResource extends Resource {
 	public static function parse(name:String, id:String):ModelResource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TGeometryResource = Resource.getGeometryResourceById(format.geometry_resources, id);
-		return new ModelResource(resource);
+
+		var res = new ModelResource(resource);
+
+		// Skinned
+		if (resource.mesh.skin != null) {
+			for (n in format.nodes) {
+				setParents(n);
+			}
+			traverseNodes(format, function(node:TNode) {
+				if (node.type == "bone_node") {
+					res.bones.push(node);
+				}
+			});
+
+			res.geometry.initSkinTransform(resource.mesh.skin.transform.values);
+			res.geometry.skinBoneCounts = resource.mesh.skin.bone_count_array;
+			res.geometry.skinBoneIndices = resource.mesh.skin.bone_index_array;
+			res.geometry.skinBoneWeights = resource.mesh.skin.bone_weight_array;
+			res.geometry.skeletonBoneRefs = resource.mesh.skin.skeleton.bone_ref_array;
+			res.geometry.initSkeletonBones(res.bones);
+			res.geometry.initSkeletonTransforms(resource.mesh.skin.skeleton.transforms);
+		}
+
+		return res;
+	}
+
+	static function setParents(node:TNode) {
+		if (node.nodes == null) return;
+		for (n in node.nodes) {
+			n.parent = node;
+			setParents(n);
+		}
+	}
+	static function traverseNodes(data:TSceneFormat, callback:TNode->Void) {
+		for (i in 0...data.nodes.length) {
+			traverseNodesStep(data.nodes[i], callback);
+		}
+	}
+	static function traverseNodesStep(node:TNode, callback:TNode->Void) {
+		callback(node);
+		if (node.nodes == null) return;
+		for (i in 0...node.nodes.length) {
+			traverseNodesStep(node.nodes[i], callback);
+		}
 	}
 
 	function getVertexArray(attrib:String):TVertexArray {
@@ -163,6 +211,18 @@ class Geometry {
 
 	//public var tangents:Array<Float>;
 	//public var bitangents:Array<Float>;
+
+	// Skinned
+	public var skinTransform:Mat4 = null;
+	public var skinTransformI:Mat4 = null;
+	public var skinBoneCounts:Array<Int> = null;
+	public var skinBoneIndices:Array<Int> = null;
+	public var skinBoneWeights:Array<Float> = null;
+
+	public var skeletonBoneRefs:Array<String> = null;
+	public var skeletonBones:Array<TNode> = null;
+	public var skeletonTransforms:Array<Mat4> = null;
+	public var skeletonTransformsI:Array<Mat4> = null;
 
 	public function new(data:Array<Float>, indices:Array<Array<Int>>, materialIndices:Array<Int>,
 						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>,
@@ -287,5 +347,39 @@ class Geometry {
 
 	public function getVerticesCount():Int {
 		return Std.int(vertices.length / structureLength);
+	}
+
+	// Skinned
+	public function initSkeletonBones(bones:Array<TNode>) {
+		skeletonBones = [];
+
+		// Set bone references
+		for (s in skeletonBoneRefs) {
+			for (b in bones) {
+				if (b.id == s) {
+					skeletonBones.push(b);
+				}
+			}
+		}
+	}
+
+	public function initSkeletonTransforms(transforms:Array<Array<Float>>) {
+		skeletonTransforms = [];
+		skeletonTransformsI = [];
+
+		for (t in transforms) {
+			var m = new Mat4(t);
+			skeletonTransforms.push(m);
+			
+			var mi = new Mat4();
+			mi.getInverse(m);
+			skeletonTransformsI.push(mi);
+		}
+	}
+
+	public function initSkinTransform(t:Array<Float>) {
+		skinTransform = new Mat4(t);
+		skinTransformI = new Mat4();
+		skinTransformI.getInverse(skinTransform);
 	}
 }

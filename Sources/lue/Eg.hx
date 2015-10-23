@@ -91,4 +91,13 @@ class Eg {
 		root.render(g, camera, Node.lights[0]);
 		camera.end(g);
     }
+
+    // Animation
+    public static function setupAnimation(node:ModelNode, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
+    	node.setupAnimation(startTrack, names, starts, ends);
+    }
+
+    public static function setAnimationParams(node:ModelNode, delta:Float) {
+    	node.setAnimationParams(delta);
+    }
 }
