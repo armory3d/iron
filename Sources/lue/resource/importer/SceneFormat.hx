@@ -6,6 +6,7 @@ typedef TSceneFormat = {
 	@:optional var camera_resources:Array<TCameraResource>;
 	@:optional var material_resources:Array<TMaterialResource>;
 	@:optional var shader_resources:Array<TShaderResource>;
+	@:optional var pipeline_resources:Array<TPipelineResource>;
 
 	@:optional var nodes:Array<TNode>;
 }
@@ -57,12 +58,12 @@ typedef TCameraResource = {
 	var clear_color:Array<Float>;
 	var near_plane:Float;
 	var far_plane:Float;
+	var pipeline:String;
 }
 
 typedef TMaterialResource = {
 	var id:String;
-	var shader_id:String;
-	@:optional var shader_resource:String;
+	var shader:String;
 	var cast_shadow:Bool;
 	var params:Array<TMaterialParam>;
 	var textures:Array<TMaterialTexture>;
@@ -104,6 +105,16 @@ typedef TShaderMaterialConstant = {
 typedef TTextureUnit = {
 	var id:String;
 	@:optional var value:String;
+}
+
+typedef TPipelineResource = {
+	var id:String;
+	var stages:Array<TPipelineStage>;
+}
+
+typedef TPipelineStage = {
+	var command:String;
+	@:optional var params:Array<String>;
 }
 
 // Skinned

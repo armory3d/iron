@@ -36,8 +36,6 @@ class App extends kha.Game {
         new lue.sys.Time();
         new lue.sys.Input();
 
-        lue.resource.ShaderResource.createDefaults();
-
         kha.Configuration.setScreen(this);
         Type.createInstance(game, []);
     }
@@ -80,6 +78,12 @@ class App extends kha.Game {
         frame.g2.begin(false);
         
         for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
+
+        // Render shadow map
+        //g.color = kha.Color.White;
+        //g.opacity = 1.0;
+        //g.drawScaledImage(Camera.shadowMap, 0, 512, 512, -512);
+        //g.drawScaledImage(Camera.shadowMap, 0, 0, 128, 128);
 
         frame.g2.end();
     }

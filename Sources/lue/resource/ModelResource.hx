@@ -53,7 +53,7 @@ class ModelResource extends Resource {
 		var usage = isSkinned ? kha.graphics4.Usage.DynamicUsage : kha.graphics4.Usage.StaticUsage;
 		
 		geometry = new Geometry(data, indices, materialIndices, pa, na, uva, usage);
-		geometry.build(ShaderResource.defaultStructure, ShaderResource.defaultStructureLength);
+		geometry.build(ShaderResource.getDefaultStructure(), ShaderResource.getDefaultStructureLength());
 	}
 
 	public static function parse(name:String, id:String):ModelResource {

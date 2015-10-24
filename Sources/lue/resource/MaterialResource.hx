@@ -20,7 +20,8 @@ class MaterialResource extends Resource {
 
 		this.resource = resource;
 
-		shader = Resource.getShader(resource.shader_resource, resource.shader_id);
+		var shaderName:Array<String> = resource.shader.split("/");
+		shader = Resource.getShader(shaderName[0], shaderName[1]);
 
 		if (resource.textures.length > 0) {
 			textures = [];

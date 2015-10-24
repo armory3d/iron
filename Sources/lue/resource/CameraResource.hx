@@ -5,6 +5,7 @@ import lue.resource.importer.SceneFormat;
 class CameraResource extends Resource {
 
 	public var resource:TCameraResource;
+	var pipeline:PipelineResource;
 
 	public function new(resource:TCameraResource) {
 		super();
@@ -15,6 +16,9 @@ class CameraResource extends Resource {
 		}
 
 		this.resource = resource;
+
+		var pipelineName:Array<String> = resource.pipeline.split("/");
+		pipeline = PipelineResource.parse(pipelineName[0], pipelineName[1]);
 	}
 
 	public static function parse(name:String, id:String):CameraResource {

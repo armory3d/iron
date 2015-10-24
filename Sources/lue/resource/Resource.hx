@@ -64,9 +64,6 @@ class Resource {
 		}
 		else return cached;
 	}
-	public static function cacheShader(id:String, res:ShaderResource) {
-		if (!cachedShaders.exists(id)) cachedShaders.set(id, res);
-	}
 
 	public static function getSceneResource(name:String):TSceneFormat {
 		var cached = cachedScenes.get(name);
@@ -99,6 +96,14 @@ class Resource {
 	}
 
 	public static function getCameraResourceById(resources:Array<TCameraResource>, id:String):TCameraResource {
+		if (id == "") return resources[0];
+		for (res in resources) {
+			if (res.id == id) return res;
+		}
+		return null;
+	}
+
+	public static function getPipelineResourceById(resources:Array<TPipelineResource>, id:String):TPipelineResource {
 		if (id == "") return resources[0];
 		for (res in resources) {
 			if (res.id == id) return res;

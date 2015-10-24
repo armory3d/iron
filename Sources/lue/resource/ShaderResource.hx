@@ -12,8 +12,7 @@ import lue.resource.importer.SceneFormat;
 
 class ShaderResource extends Resource {
 
-	public static var defaultStructure:VertexStructure;
-	public static var defaultStructureLength:Int;
+	static var defaultStructure:VertexStructure = null;
 
 	public var resource:TShaderResource;
 
@@ -59,7 +58,7 @@ class ShaderResource extends Resource {
 	}
 
 	public function link() {
-		program.link(defaultStructure);
+		program.link(getDefaultStructure());
 	}
 
 	function addConstant(s:String) {
@@ -74,79 +73,21 @@ class ShaderResource extends Resource {
 		textureUnits.push(program.getTextureUnit(s));
 	}
 
-	public static function createDefaults() {
-		defaultStructure = new VertexStructure();
-		defaultStructure.add("pos", VertexData.Float3);
-		defaultStructure.add("tex", VertexData.Float2);
-		defaultStructure.add("nor", VertexData.Float3);
-		defaultStructure.add("col", VertexData.Float4);
-		defaultStructureLength = 12;
+	static function createDefaultStructure():VertexStructure {
+		var structure = new VertexStructure();
+        structure.add("pos", VertexData.Float3);
+        structure.add("tex", VertexData.Float2);
+        structure.add("nor", VertexData.Float3);
+        structure.add("col", VertexData.Float4);
+        return structure;
+	}
 
-		// Default shaders
-		var res:TShaderResource = {
-            id: "model",
-            vertex_shader: "model.vert",
-            fragment_shader: "model.frag",
-            constants: [
-                {
-                    id: "M",
-                    type: "mat4",
-                    value: "_modelMatrix"
-                },
-                {
-                    id: "V",
-                    type: "mat4",
-                    value: "_viewMatrix"
-                },
-                {
-                    id: "P",
-                    type: "mat4",
-                    value: "_projectionMatrix"
-                },
-                {
-                    id: "light",
-                    type: "vec3",
-                    value: "_lighPosition"
-                },
-                {
-                    id: "eye",
-                    type: "vec3",
-                    value: "_cameraPosition"
-                }
-            ],
-            material_constants: [
-                {
-                    id: "diffuseColor",
-                    type: "vec4",
-                },
-                {
-                    id: "roughness",
-                    type: "float"
-                },
-                {
-                    id: "lighting",
-                    type: "bool"
-                },
-                {
-                    id: "receiveShadow",
-                    type: "bool"
-                },
-                {
-                    id: "texturing",
-                    type: "bool"
-                }
-            ],
-            texture_units: [
-                {
-                    id: "stex"
-                },
-                {
-                    id: "shadowMap",
-                    value: "_shadowMap"
-                }
-            ]
-        };
+	public static function getDefaultStructure():VertexStructure {
+		if (defaultStructure == null) defaultStructure = createDefaultStructure();
+		return defaultStructure;
+	}
 
-        Resource.cacheShader(res.id, new ShaderResource(res));
+	public static function getDefaultStructureLength():Int {
+		return 12;
 	}
 }
