@@ -83,8 +83,7 @@ class App extends kha.Game {
         // var g2 = frame.g2;
         // g2.color = kha.Color.White;
         // g2.opacity = 1.0;
-        // g2.drawScaledImage(lue.node.Node.cameras[0].resource.shadowMap, 0, 512, 512, -512);
-        // g2.drawScaledImage(lue.node.Node.cameras[0].resource.shadowMap, 0, 0, 128, 128);
+        // g2.drawScaledImage(lue.node.Node.cameras[0].resource.shadowMap, 0, 128, 128, -128);
 
         frame.g2.end();
     }

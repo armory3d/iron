@@ -15,7 +15,8 @@ class ModelNode extends Node {
 	var resource:ModelResource;
 	var material:MaterialResource;
 
-	static var dbMVP:Mat4 = null;
+	//static var dbMVP:Mat4 = null;
+	var dbMVP:Mat4 = null;
 
 	// Skinned
 	var animation:Animation;
@@ -33,7 +34,8 @@ class ModelNode extends Node {
 		this.resource = resource;
 		this.material = material;
 
-		if (dbMVP == null) dbMVP = new Mat4();
+		//if (dbMVP == null) dbMVP = new Mat4();
+		dbMVP = new Mat4();
 
 		setTransformSize();
 

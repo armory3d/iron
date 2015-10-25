@@ -43,7 +43,7 @@ class CameraNode extends Node {
 		// Shadow map
 		//dP = Mat4.orthogonal(-30, 30, -30, 30, 5, 30);
 		dP = Mat4.perspective(45, 1, 5, 30);
-		dV = Mat4.lookAt(new Vec3(0, 0, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
+		dV = Mat4.lookAt(new Vec3(0, 2, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
 
 		/*biasMat = new Mat4([
 			0.5, 0.0, 0.0, 0.0,
@@ -94,16 +94,25 @@ class CameraNode extends Node {
 		if (context == "lighting") {
 			g.setDepthMode(true, kha.graphics4.CompareMode.Less);
 			g.setCullMode(kha.graphics4.CullMode.CounterClockwise);
+
+			root.render(g, context, this, light);
 		}
 		else if (context == "shadowpass") {
-			g = resource.shadowMap.g4;
-			
-			g.setDepthMode(true, kha.graphics4.CompareMode.Less);
-			g.clear(kha.Color.White, 1, null);
-			g.setCullMode(kha.graphics4.CullMode.Clockwise);
-		}
+			g.end();
 
-		root.render(g, context, this, light);
+			var sg = resource.shadowMap.g4;
+			
+			sg.begin();
+			sg.setDepthMode(true, kha.graphics4.CompareMode.Less);
+			sg.clear(kha.Color.Black, 1, null);
+			//sg.setCullMode(kha.graphics4.CullMode.Clockwise);
+			sg.setCullMode(kha.graphics4.CullMode.CounterClockwise);
+
+			root.render(sg, context, this, light);
+
+			sg.end();
+			g.begin();
+		}
 	}
 
 	public function updateMatrix() {
