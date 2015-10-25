@@ -58,6 +58,7 @@ typedef TCameraResource = {
 	var clear_color:Array<Float>;
 	var near_plane:Float;
 	var far_plane:Float;
+	var shadowmap_size:Int;
 	var pipeline:String;
 }
 
@@ -83,6 +84,11 @@ typedef TMaterialTexture = {
 }
 
 typedef TShaderResource = {
+	var id:String;
+	var contexts:Array<TShaderContext>;
+}
+
+typedef TShaderContext = {
 	var id:String;
 	var vertex_shader:String;
 	var fragment_shader:String;
@@ -114,6 +120,7 @@ typedef TPipelineResource = {
 
 typedef TPipelineStage = {
 	var command:String;
+	@:optional var context:String;
 	@:optional var params:Array<String>;
 }
 

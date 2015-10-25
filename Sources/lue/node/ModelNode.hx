@@ -50,8 +50,8 @@ class ModelNode extends Node {
 	}
 
 	function setConstants(g:Graphics, camera:CameraNode, light:LightNode) {
-		for (i in 0...material.shader.resource.constants.length) {
-			var c = material.shader.resource.constants[i];
+		for (i in 0...material.shader.resource.contexts[0].constants.length) {
+			var c = material.shader.resource.contexts[0].constants[i];
 
 			setConstant(g, camera, light, material.shader.constants[i], c);
 		}
@@ -87,7 +87,7 @@ class ModelNode extends Node {
 		for (i in 0...material.resource.params.length) {
 			var p = material.resource.params[i];
 			// TODO: material params must be in the same order as shader material constants
-			var c = material.shader.resource.material_constants[i];
+			var c = material.shader.resource.contexts[0].material_constants[i];
 
 			setMaterialConstant(g, material.shader.materialConstants[i], c, p);
 		}

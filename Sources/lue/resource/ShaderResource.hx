@@ -30,23 +30,23 @@ class ShaderResource extends Resource {
 		}
 		this.resource = resource;
 
-		var fragmentShader = new FragmentShader(Loader.the.getShader(resource.fragment_shader));
-		var vertexShader = new VertexShader(Loader.the.getShader(resource.vertex_shader));
+		var fragmentShader = new FragmentShader(Loader.the.getShader(resource.contexts[0].fragment_shader));
+		var vertexShader = new VertexShader(Loader.the.getShader(resource.contexts[0].vertex_shader));
 	
 		program = new Program();
 		program.setFragmentShader(fragmentShader);
 		program.setVertexShader(vertexShader);
 		link();
 
-		for (c in resource.constants) {
+		for (c in resource.contexts[0].constants) {
 			addConstant(c.id);
 		}
 
-		for (c in resource.material_constants) {
+		for (c in resource.contexts[0].material_constants) {
 			addMaterialConstant(c.id);
 		}
 
-		for (tu in resource.texture_units) {
+		for (tu in resource.contexts[0].texture_units) {
 			addTexture(tu.id);
 		}
 	}
