@@ -87,9 +87,7 @@ class Eg {
 
    	// Render
     public static function render(g:kha.graphics4.Graphics, camera:CameraNode) {
-		camera.begin(g);
-		root.render(g, camera, Node.lights[0]);
-		camera.end(g);
+		camera.renderFrame(g, root, Node.lights[0]);
     }
 
     // Animation

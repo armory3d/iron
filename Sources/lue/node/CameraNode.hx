@@ -21,7 +21,7 @@ class CameraNode extends Node {
 	public var right:Vec3;
 
 	public var dP:Mat4; // Shadow map matrices
-	public var dV:Mat4 = null;
+	public var dV:Mat4;
 	//public var biasMat:Mat4;
 
 	var frustumPlanes:Array<Plane> = [];
@@ -43,7 +43,7 @@ class CameraNode extends Node {
 		// Shadow map
 		//dP = Mat4.orthogonal(-30, 30, -30, 30, 5, 30);
 		dP = Mat4.perspective(45, 1, 5, 30);
-		dV = Mat4.lookAt(new Vec3(0, -12, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
+		dV = Mat4.lookAt(new Vec3(0, 0, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
 
 		/*biasMat = new Mat4([
 			0.5, 0.0, 0.0, 0.0,
@@ -61,16 +61,49 @@ class CameraNode extends Node {
 		Node.cameras.push(this);
 	}
 
-	public function begin(g:kha.graphics4.Graphics) {
+	public function renderFrame(g:kha.graphics4.Graphics, root:Node, light:LightNode) {
 		updateMatrix();
+
+		begin(g);
+
+		for (stage in resource.pipeline.resource.stages) {
+			if (stage.command == "clear_target") {
+				clearTarget(g);
+			}
+			else if (stage.command == "draw_geometry") {
+				drawGeometry(g, stage.context, root, light);
+			}
+		}
 		
+		end(g);
+	}
+
+	function begin(g:kha.graphics4.Graphics) {
 		g.begin();
-		g.setDepthMode(true, kha.graphics4.CompareMode.Less);
+	}
+
+	function end(g:kha.graphics4.Graphics) {
+		g.end();
+	}
+
+	function clearTarget(g:kha.graphics4.Graphics) {
 		g.clear(clearColor, 1, null);
 	}
 
-	public function end(g:kha.graphics4.Graphics) {
-		g.end();
+	function drawGeometry(g:kha.graphics4.Graphics, context:String, root:Node, light:LightNode) {
+		if (context == "lighting") {
+			g.setDepthMode(true, kha.graphics4.CompareMode.Less);
+			g.setCullMode(kha.graphics4.CullMode.CounterClockwise);
+		}
+		else if (context == "shadowpass") {
+			g = resource.shadowMap.g4;
+			
+			g.setDepthMode(true, kha.graphics4.CompareMode.Less);
+			g.clear(kha.Color.White, 1, null);
+			g.setCullMode(kha.graphics4.CullMode.Clockwise);
+		}
+
+		root.render(g, context, this, light);
 	}
 
 	public function updateMatrix() {

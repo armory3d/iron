@@ -80,10 +80,11 @@ class App extends kha.Game {
         for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
 
         // Render shadow map
-        //g.color = kha.Color.White;
-        //g.opacity = 1.0;
-        //g.drawScaledImage(Camera.shadowMap, 0, 512, 512, -512);
-        //g.drawScaledImage(Camera.shadowMap, 0, 0, 128, 128);
+        // var g2 = frame.g2;
+        // g2.color = kha.Color.White;
+        // g2.opacity = 1.0;
+        // g2.drawScaledImage(lue.node.Node.cameras[0].resource.shadowMap, 0, 512, 512, -512);
+        // g2.drawScaledImage(lue.node.Node.cameras[0].resource.shadowMap, 0, 0, 128, 128);
 
         frame.g2.end();
     }

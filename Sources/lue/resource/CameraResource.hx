@@ -5,7 +5,7 @@ import lue.resource.importer.SceneFormat;
 class CameraResource extends Resource {
 
 	public var resource:TCameraResource;
-	var pipeline:PipelineResource;
+	public var pipeline:PipelineResource;
 
 	public var shadowMap:kha.Image;
 

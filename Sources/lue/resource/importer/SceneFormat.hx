@@ -59,6 +59,7 @@ typedef TCameraResource = {
 	var near_plane:Float;
 	var far_plane:Float;
 	var shadowmap_size:Int;
+	var frustum_culling:Bool;
 	var pipeline:String;
 }
 
@@ -66,11 +67,16 @@ typedef TMaterialResource = {
 	var id:String;
 	var shader:String;
 	var cast_shadow:Bool;
-	var params:Array<TMaterialParam>;
-	var textures:Array<TMaterialTexture>;
+	var contexts:Array<TMaterialContext>;
 }
 
-typedef TMaterialParam = {
+typedef TMaterialContext = {
+	var id:String;
+	var material_constants:Array<TMaterialConstant>;
+	var texture_units:Array<TMaterialTextureUnit>;
+}
+
+typedef TMaterialConstant = {
 	var id:String;
 	@:optional var vec4:Array<Float>;
 	@:optional var vec3:Array<Float>;
@@ -78,7 +84,7 @@ typedef TMaterialParam = {
 	@:optional var bool:Bool;
 }
 
-typedef TMaterialTexture = {
+typedef TMaterialTextureUnit = {
 	var id:String;
 	var name:String;
 }

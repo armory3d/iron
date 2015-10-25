@@ -12,14 +12,11 @@ import lue.resource.importer.SceneFormat;
 
 class ShaderResource extends Resource {
 
-	static var defaultStructure:VertexStructure = null;
-
 	public var resource:TShaderResource;
 
-	public var program:Program;
-	public var constants:Array<ConstantLocation> = [];
-	public var materialConstants:Array<ConstantLocation> = [];
-	public var textureUnits:Array<TextureUnit> = [];
+	static var defaultStructure:VertexStructure = null;
+
+	public var contexts:Array<ShaderContext> = [];
 
 	public function new(resource:TShaderResource) {
 		super();
@@ -30,24 +27,8 @@ class ShaderResource extends Resource {
 		}
 		this.resource = resource;
 
-		var fragmentShader = new FragmentShader(Loader.the.getShader(resource.contexts[0].fragment_shader));
-		var vertexShader = new VertexShader(Loader.the.getShader(resource.contexts[0].vertex_shader));
-	
-		program = new Program();
-		program.setFragmentShader(fragmentShader);
-		program.setVertexShader(vertexShader);
-		link();
-
-		for (c in resource.contexts[0].constants) {
-			addConstant(c.id);
-		}
-
-		for (c in resource.contexts[0].material_constants) {
-			addMaterialConstant(c.id);
-		}
-
-		for (tu in resource.contexts[0].texture_units) {
-			addTexture(tu.id);
+		for (c in resource.contexts) {
+			contexts.push(new ShaderContext(c));
 		}
 	}
 
@@ -55,22 +36,6 @@ class ShaderResource extends Resource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TShaderResource = Resource.getShaderResourceById(format.shader_resources, id);
 		return new ShaderResource(resource);
-	}
-
-	public function link() {
-		program.link(getDefaultStructure());
-	}
-
-	function addConstant(s:String) {
-		constants.push(program.getConstantLocation(s));
-	}
-
-	function addMaterialConstant(s:String) {
-		materialConstants.push(program.getConstantLocation(s));
-	}
-
-	function addTexture(s:String) {
-		textureUnits.push(program.getTextureUnit(s));
 	}
 
 	static function createDefaultStructure():VertexStructure {
@@ -89,5 +54,54 @@ class ShaderResource extends Resource {
 
 	public static function getDefaultStructureLength():Int {
 		return 12;
+	}
+}
+
+class ShaderContext {
+	public var resource:TShaderContext;
+
+	public var program:Program;
+	public var constants:Array<ConstantLocation> = [];
+	public var materialConstants:Array<ConstantLocation> = [];
+	public var textureUnits:Array<TextureUnit> = [];
+
+	public function new(resource:TShaderContext) {
+		this.resource = resource;
+
+		var fragmentShader = new FragmentShader(Loader.the.getShader(resource.fragment_shader));
+		var vertexShader = new VertexShader(Loader.the.getShader(resource.vertex_shader));
+	
+		program = new Program();
+		program.setFragmentShader(fragmentShader);
+		program.setVertexShader(vertexShader);
+		link();
+
+		for (c in resource.constants) {
+			addConstant(c.id);
+		}
+
+		for (c in resource.material_constants) {
+			addMaterialConstant(c.id);
+		}
+
+		for (tu in resource.texture_units) {
+			addTexture(tu.id);
+		}
+	}
+
+	function link() {
+		program.link(ShaderResource.getDefaultStructure());
+	}
+
+	function addConstant(s:String) {
+		constants.push(program.getConstantLocation(s));
+	}
+
+	function addMaterialConstant(s:String) {
+		materialConstants.push(program.getConstantLocation(s));
+	}
+
+	function addTexture(s:String) {
+		textureUnits.push(program.getTextureUnit(s));
 	}
 }

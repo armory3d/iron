@@ -8,7 +8,7 @@ class MaterialResource extends Resource {
 	public var resource:TMaterialResource;
 	public var shader:ShaderResource;
 
-	public var textures:Array<kha.Image> = null;
+	public var contexts:Array<MaterialContext> = [];
 
 	public function new(resource:TMaterialResource) {
 		super();
@@ -23,12 +23,8 @@ class MaterialResource extends Resource {
 		var shaderName:Array<String> = resource.shader.split("/");
 		shader = Resource.getShader(shaderName[0], shaderName[1]);
 
-		if (resource.textures.length > 0) {
-			textures = [];
-			for (i in 0...resource.textures.length) {
-				// TODO: make sure to store in the same order as shader texture units array
-				textures.push(kha.Loader.the.getImage(resource.textures[i].name));
-			}
+		for (c in resource.contexts) {
+			contexts.push(new MaterialContext(c));
 		}
 	}
 
@@ -36,5 +32,23 @@ class MaterialResource extends Resource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TMaterialResource = Resource.getMaterialResourceById(format.material_resources, id);
 		return new MaterialResource(resource);
+	}
+}
+
+class MaterialContext {
+	public var resource:TMaterialContext;
+
+	public var textures:Array<kha.Image> = null;
+
+	public function new(resource:TMaterialContext) {
+		this.resource = resource;
+
+		if (resource.texture_units.length > 0) {
+			textures = [];
+			for (i in 0...resource.texture_units.length) {
+				// TODO: make sure to store in the same order as shader texture units array
+				textures.push(kha.Loader.the.getImage(resource.texture_units[i].name));
+			}
+		}
 	}
 }

@@ -7,6 +7,7 @@ import lue.math.Mat4;
 import lue.math.Quat;
 import lue.resource.ModelResource;
 import lue.resource.MaterialResource;
+import lue.resource.ShaderResource;
 import lue.resource.importer.SceneFormat;
 
 class ModelNode extends Node {
@@ -14,7 +15,7 @@ class ModelNode extends Node {
 	var resource:ModelResource;
 	var material:MaterialResource;
 
-	var dbMVP:Mat4;
+	static var dbMVP:Mat4 = null;
 
 	// Skinned
 	var animation:Animation;
@@ -32,7 +33,7 @@ class ModelNode extends Node {
 		this.resource = resource;
 		this.material = material;
 
-		dbMVP = new Mat4();
+		if (dbMVP == null) dbMVP = new Mat4();
 
 		setTransformSize();
 
@@ -49,22 +50,37 @@ class ModelNode extends Node {
 		}
 	}
 
-	function setConstants(g:Graphics, camera:CameraNode, light:LightNode) {
-		for (i in 0...material.shader.resource.contexts[0].constants.length) {
-			var c = material.shader.resource.contexts[0].constants[i];
+	function setConstants(g:Graphics, context:ShaderContext, camera:CameraNode, light:LightNode) {
 
-			setConstant(g, camera, light, material.shader.constants[i], c);
+		for (i in 0...context.resource.constants.length) {
+			var c = context.resource.constants[i];
+
+			setConstant(g, camera, light, context.constants[i], c);
 		}
-    	//TODO: setMat4(g, CONST_MAT4_DBMVP, dbMVP);
+
+		for (i in 0...context.textureUnits.length) {
+			var tures = context.resource.texture_units[i];
+			if (tures.value == "_shadowpass") {
+				g.setTexture(context.textureUnits[i], camera.resource.shadowMap);
+			}
+		}
 	}
 
 	function setConstant(g:Graphics, camera:CameraNode, light:LightNode,
 						 location:ConstantLocation, c:TShaderConstant) {
+
 		if (c.type == "mat4") {
 			var m:Mat4 = null;
 			if (c.value == "_modelMatrix") m = transform.matrix;
 			else if (c.value == "_viewMatrix") m = camera.V;
 			else if (c.value == "_projectionMatrix") m = camera.P;
+			else if (c.value == "_dbMVP") {
+				dbMVP.identity();
+		    	dbMVP.mult(transform.matrix);
+		    	dbMVP.mult(camera.dV);
+		    	dbMVP.mult(camera.dP);
+		    	m = dbMVP;
+			}
 			if (m == null) return;
 
 			var mat = new kha.math.Matrix4(m._11, m._21, m._31, m._41,
@@ -83,35 +99,55 @@ class ModelNode extends Node {
 		// TODO: other types
 	}
 
-	function setMaterialConstants(g:Graphics) {
-		for (i in 0...material.resource.params.length) {
-			var p = material.resource.params[i];
-			// TODO: material params must be in the same order as shader material constants
-			var c = material.shader.resource.contexts[0].material_constants[i];
+	function setMaterialConstants(g:Graphics, context:ShaderContext, materialContext:MaterialContext) {
 
-			setMaterialConstant(g, material.shader.materialConstants[i], c, p);
+		for (i in 0...materialContext.resource.material_constants.length) {
+			var matc = materialContext.resource.material_constants[i];
+			// TODO: material params must be in the same order as shader material constants
+			var c = context.resource.material_constants[i];
+
+			setMaterialConstant(g, context.materialConstants[i], c, matc);
 		}
 
-		for (i in 0...material.textures.length) {
-			g.setTexture(material.shader.textureUnits[i], material.textures[i]);
+		if (materialContext.textures != null) {
+			for (i in 0...materialContext.textures.length) {
+				g.setTexture(context.textureUnits[i], materialContext.textures[i]);
+			}
 		}
 	}
 
-	function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderMaterialConstant, p:TMaterialParam) {
+	function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderMaterialConstant, matc:TMaterialConstant) {
+
 		if (c.type == "vec4") {
-			g.setFloat4(location, p.vec4[0], p.vec4[1], p.vec4[2], p.vec4[3]);
+			g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);
 		}
 		else if (c.type == "float") {
-			g.setFloat(location, p.float);
+			g.setFloat(location, matc.float);
 		}
 		else if (c.type == "bool") {
-			g.setBool(location, p.bool);
+			g.setBool(location, matc.bool);
 		}
 		// TODO: other types
 	}
 
-	public override function render(g:Graphics, camera:CameraNode, light:LightNode) {
-		super.render(g, camera, light);
+	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode) {
+		super.render(g, context, camera, light);
+
+		// Find context
+		var materialContext:MaterialContext = null;
+		var shaderContext:ShaderContext = null;
+		for (i in 0...material.resource.contexts.length) {
+			// TODO: make sure contexts are stored in the same order
+			if (material.resource.contexts[i].id == context) {
+				materialContext = material.contexts[i];
+				shaderContext = material.shader.contexts[i];
+				break;
+			}
+		}
+
+		if (context == "shadowpass") {
+			if (!material.resource.cast_shadow) return;
+		}
 
 		transform.update();
 
@@ -121,7 +157,7 @@ class ModelNode extends Node {
 			//dbMVP.mult(camera.biasMat);
 
 			// Render mesh
-			g.setProgram(material.shader.program);
+			g.setProgram(shaderContext.program);
 
 			/*g.setTextureParameters(mesh.material.shader.textures[1],
 								   kha.graphics4.TextureAddressing.Clamp,
@@ -133,13 +169,13 @@ class ModelNode extends Node {
 
 			g.setVertexBuffer(resource.geometry.vertexBuffer);
 
-			setConstants(g, camera, light);
+			setConstants(g, shaderContext, camera, light);
 
 			for (i in 0...resource.geometry.indexBuffers.length) {
 				
 				// TODO: only one material per model
 				//var mat = resource.geometry.materialIndices[i];
-				setMaterialConstants(g);
+				setMaterialConstants(g, shaderContext, materialContext);
 
 				g.setIndexBuffer(resource.geometry.indexBuffers[i]);
 
