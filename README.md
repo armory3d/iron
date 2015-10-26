@@ -8,7 +8,7 @@
 
 ##### Rendering 3D model
 
-![Hello](http://lue3d.org/docs/images/hello.png)
+![Hello](http://lue3d.org/docs/images/basic_render.png)
 
 ```haxe
 class Game {
