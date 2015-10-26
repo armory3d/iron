@@ -58,7 +58,6 @@ typedef TCameraResource = {
 	var clear_color:Array<Float>;
 	var near_plane:Float;
 	var far_plane:Float;
-	var shadowmap_size:Int;
 	var frustum_culling:Bool;
 	var pipeline:String;
 }
@@ -72,11 +71,11 @@ typedef TMaterialResource = {
 
 typedef TMaterialContext = {
 	var id:String;
-	var material_constants:Array<TMaterialConstant>;
-	var texture_units:Array<TMaterialTextureUnit>;
+	var bind_constants:Array<TBindConstant>;
+	var bind_textures:Array<TBindTexture>;
 }
 
-typedef TMaterialConstant = {
+typedef TBindConstant = {
 	var id:String;
 	@:optional var vec4:Array<Float>;
 	@:optional var vec3:Array<Float>;
@@ -84,7 +83,7 @@ typedef TMaterialConstant = {
 	@:optional var bool:Bool;
 }
 
-typedef TMaterialTextureUnit = {
+typedef TBindTexture = {
 	var id:String;
 	var name:String;
 }
@@ -116,17 +115,21 @@ typedef TShaderMaterialConstant = {
 
 typedef TTextureUnit = {
 	var id:String;
-	@:optional var value:String;
 }
 
 typedef TPipelineResource = {
 	var id:String;
+	var render_targets:Array<TPipelineRenderTarget>;
 	var stages:Array<TPipelineStage>;
+}
+
+typedef TPipelineRenderTarget = {
+	var id:String;
+	var size:Int;
 }
 
 typedef TPipelineStage = {
 	var command:String;
-	@:optional var context:String;
 	@:optional var params:Array<String>;
 }
 

@@ -43,11 +43,11 @@ class MaterialContext {
 	public function new(resource:TMaterialContext) {
 		this.resource = resource;
 
-		if (resource.texture_units.length > 0) {
+		if (resource.bind_textures.length > 0) {
 			textures = [];
-			for (i in 0...resource.texture_units.length) {
+			for (i in 0...resource.bind_textures.length) {
 				// TODO: make sure to store in the same order as shader texture units array
-				textures.push(kha.Loader.the.getImage(resource.texture_units[i].name));
+				textures.push(kha.Loader.the.getImage(resource.bind_textures[i].name));
 			}
 		}
 	}

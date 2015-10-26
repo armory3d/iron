@@ -85,7 +85,7 @@ class Node {
 		return null;
 	}
 
-	public function render(g:Graphics, context:String, camera:CameraNode, light:LightNode) {
-		for (c in children) c.render(g, context, camera, light);
+	public function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
+		for (c in children) c.render(g, context, camera, light, bindParams);
 	}
 }

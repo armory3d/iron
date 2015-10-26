@@ -52,7 +52,7 @@ class ModelNode extends Node {
 		}
 	}
 
-	function setConstants(g:Graphics, context:ShaderContext, camera:CameraNode, light:LightNode) {
+	function setConstants(g:Graphics, context:ShaderContext, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 
 		for (i in 0...context.resource.constants.length) {
 			var c = context.resource.constants[i];
@@ -60,10 +60,14 @@ class ModelNode extends Node {
 			setConstant(g, camera, light, context.constants[i], c);
 		}
 
-		for (i in 0...context.textureUnits.length) {
-			var tures = context.resource.texture_units[i];
-			if (tures.value == "_shadowpass") {
-				g.setTexture(context.textureUnits[i], camera.resource.shadowMap);
+		if (bindParams != null) {
+			for (i in 0...Std.int(bindParams.length / 2)) {
+				var pos = i * 2 + 1;
+				for (j in 0...context.resource.texture_units.length) {
+					if (bindParams[pos] == context.resource.texture_units[j].id) {
+						g.setTexture(context.textureUnits[j], camera.resource.pipeline.renderTargets.get(bindParams[pos - 1]));
+					}
+				}
 			}
 		}
 	}
@@ -103,8 +107,8 @@ class ModelNode extends Node {
 
 	function setMaterialConstants(g:Graphics, context:ShaderContext, materialContext:MaterialContext) {
 
-		for (i in 0...materialContext.resource.material_constants.length) {
-			var matc = materialContext.resource.material_constants[i];
+		for (i in 0...materialContext.resource.bind_constants.length) {
+			var matc = materialContext.resource.bind_constants[i];
 			// TODO: material params must be in the same order as shader material constants
 			var c = context.resource.material_constants[i];
 
@@ -118,7 +122,7 @@ class ModelNode extends Node {
 		}
 	}
 
-	function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderMaterialConstant, matc:TMaterialConstant) {
+	function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderMaterialConstant, matc:TBindConstant) {
 
 		if (c.type == "vec4") {
 			g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);
@@ -132,8 +136,8 @@ class ModelNode extends Node {
 		// TODO: other types
 	}
 
-	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode) {
-		super.render(g, context, camera, light);
+	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
+		super.render(g, context, camera, light, bindParams);
 
 		// Find context
 		var materialContext:MaterialContext = null;
@@ -147,9 +151,9 @@ class ModelNode extends Node {
 			}
 		}
 
-		if (context == "shadowpass") {
-			if (!material.resource.cast_shadow) return;
-		}
+		//if (context == "shadowpass") {
+		//	if (!material.resource.cast_shadow) return;
+		//}
 
 		transform.update();
 
@@ -171,7 +175,7 @@ class ModelNode extends Node {
 
 			g.setVertexBuffer(resource.geometry.vertexBuffer);
 
-			setConstants(g, shaderContext, camera, light);
+			setConstants(g, shaderContext, camera, light, bindParams);
 
 			for (i in 0...resource.geometry.indexBuffers.length) {
 				

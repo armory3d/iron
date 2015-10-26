@@ -26,6 +26,10 @@ class CameraNode extends Node {
 
 	var frustumPlanes:Array<Plane> = [];
 
+	var frameRenderTarget:kha.graphics4.Graphics;
+	var currentRenderTarget:kha.graphics4.Graphics;
+	var bindParams:Array<String>;
+
 	public function new(resource:CameraResource) {
 		super();
 
@@ -40,7 +44,7 @@ class CameraNode extends Node {
 		look = new Vec3(0, 1, 0);
 		right = new Vec3(1, 0, 0);
 
-		// Shadow map
+		// Shadow mapping
 		//dP = Mat4.orthogonal(-30, 30, -30, 30, 5, 30);
 		dP = Mat4.perspective(45, 1, 5, 30);
 		dV = Mat4.lookAt(new Vec3(0, 2, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
@@ -64,18 +68,25 @@ class CameraNode extends Node {
 	public function renderFrame(g:kha.graphics4.Graphics, root:Node, light:LightNode) {
 		updateMatrix();
 
-		begin(g);
+		frameRenderTarget = g;
+		currentRenderTarget = g;
 
 		for (stage in resource.pipeline.resource.stages) {
-			if (stage.command == "clear_target") {
-				clearTarget(g);
+			if (stage.command == "set_target") {
+				setTarget(stage.params[0]);
+				begin(currentRenderTarget);
+			}
+			else if (stage.command == "clear_target") {
+				clearTarget(currentRenderTarget);
 			}
 			else if (stage.command == "draw_geometry") {
-				drawGeometry(g, stage.context, root, light);
+				drawGeometry(currentRenderTarget, stage.params[0], root, light, bindParams);
+				end(currentRenderTarget);
+			}
+			else if (stage.command == "bind_target") {
+				bindTarget(currentRenderTarget, stage.params);
 			}
 		}
-		
-		end(g);
 	}
 
 	function begin(g:kha.graphics4.Graphics) {
@@ -86,33 +97,24 @@ class CameraNode extends Node {
 		g.end();
 	}
 
+	function setTarget(target:String) {
+		if (target == "") currentRenderTarget = frameRenderTarget;
+		else currentRenderTarget = resource.pipeline.renderTargets.get(target).g4;
+		bindParams = null;
+	}
+
 	function clearTarget(g:kha.graphics4.Graphics) {
 		g.clear(clearColor, 1, null);
 	}
 
-	function drawGeometry(g:kha.graphics4.Graphics, context:String, root:Node, light:LightNode) {
-		if (context == "lighting") {
-			g.setDepthMode(true, kha.graphics4.CompareMode.Less);
-			g.setCullMode(kha.graphics4.CullMode.CounterClockwise);
+	function drawGeometry(g:kha.graphics4.Graphics, context:String, root:Node, light:LightNode, bindParams:Array<String>) {
+		g.setDepthMode(true, kha.graphics4.CompareMode.Less);
+		g.setCullMode(kha.graphics4.CullMode.CounterClockwise);
+		root.render(g, context, this, light, bindParams);
+	}
 
-			root.render(g, context, this, light);
-		}
-		else if (context == "shadowpass") {
-			g.end();
-
-			var sg = resource.shadowMap.g4;
-			
-			sg.begin();
-			sg.setDepthMode(true, kha.graphics4.CompareMode.Less);
-			sg.clear(kha.Color.Black, 1, null);
-			//sg.setCullMode(kha.graphics4.CullMode.Clockwise);
-			sg.setCullMode(kha.graphics4.CullMode.CounterClockwise);
-
-			root.render(sg, context, this, light);
-
-			sg.end();
-			g.begin();
-		}
+	function bindTarget(g:kha.graphics4.Graphics, params:Array<String>) {
+		bindParams = params;
 	}
 
 	public function updateMatrix() {
