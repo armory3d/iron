@@ -20,10 +20,6 @@ class CameraNode extends Node {
 	public var look:Vec3;
 	public var right:Vec3;
 
-	public var dP:Mat4; // Shadow map matrices
-	public var dV:Mat4;
-	//public var biasMat:Mat4;
-
 	var frustumPlanes:Array<Plane> = [];
 
 	var frameRenderTarget:kha.graphics4.Graphics;
@@ -44,18 +40,6 @@ class CameraNode extends Node {
 		look = new Vec3(0, 1, 0);
 		right = new Vec3(1, 0, 0);
 
-		// Shadow mapping
-		//dP = Mat4.orthogonal(-30, 30, -30, 30, 5, 30);
-		dP = Mat4.perspective(45, 1, 5, 30);
-		dV = Mat4.lookAt(new Vec3(0, 2, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
-
-		/*biasMat = new Mat4([
-			0.5, 0.0, 0.0, 0.0,
-			0.0, 0.5, 0.0, 0.0,
-			0.0, 0.0, 0.5, 0.0,
-			0.5, 0.5, 0.5, 1.0
-		]);*/
-
 		VP = new Mat4();
 
 		for (i in 0...6) {
@@ -70,6 +54,8 @@ class CameraNode extends Node {
 
 		frameRenderTarget = g;
 		currentRenderTarget = g;
+
+		if (light.V == null) { light.buildMatrices(); }
 
 		for (stage in resource.pipeline.resource.stages) {
 			if (stage.command == "set_target") {

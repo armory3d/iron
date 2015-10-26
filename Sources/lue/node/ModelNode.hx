@@ -15,8 +15,7 @@ class ModelNode extends Node {
 	var resource:ModelResource;
 	var material:MaterialResource;
 
-	//static var dbMVP:Mat4 = null;
-	var dbMVP:Mat4 = null;
+	static var dbMVP:Mat4 = null;
 
 	// Skinned
 	var animation:Animation;
@@ -34,8 +33,7 @@ class ModelNode extends Node {
 		this.resource = resource;
 		this.material = material;
 
-		//if (dbMVP == null) dbMVP = new Mat4();
-		dbMVP = new Mat4();
+		if (dbMVP == null) dbMVP = new Mat4();
 
 		setTransformSize();
 
@@ -83,8 +81,8 @@ class ModelNode extends Node {
 			else if (c.value == "_dbMVP") {
 				dbMVP.identity();
 		    	dbMVP.mult(transform.matrix);
-		    	dbMVP.mult(camera.dV);
-		    	dbMVP.mult(camera.dP);
+		    	dbMVP.mult(light.V);
+		    	dbMVP.mult(light.P);
 		    	m = dbMVP;
 			}
 			if (m == null) return;
@@ -159,19 +157,9 @@ class ModelNode extends Node {
 
 		// Frustum culling
 		//if (camera.sphereInFrustum(transform, mesh.geometry.radius)) {
-			
-			//dbMVP.mult(camera.biasMat);
 
 			// Render mesh
 			g.setProgram(shaderContext.program);
-
-			/*g.setTextureParameters(mesh.material.shader.textures[1],
-								   kha.graphics4.TextureAddressing.Clamp,
-								   kha.graphics4.TextureAddressing.Clamp,
-								   kha.graphics4.TextureFilter.LinearFilter,
-								   kha.graphics4.TextureFilter.LinearFilter,
-								   kha.graphics4.MipMapFilter.NoMipFilter);*/
-			//g.setTexture(mesh.shader.textures[CONST_TEX_SMAP], lue.core.FrameRenderer.shadowMap);
 
 			g.setVertexBuffer(resource.geometry.vertexBuffer);
 
