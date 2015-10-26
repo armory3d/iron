@@ -1,0 +1,14 @@
+{
+  "name": "lue",
+  "url" : "https://github.com/luboslenco/lue/",
+  "license": "MIT",
+  "tags": ["kha", "3d"],
+  "description": "Minimal 3D rendering engine",
+  "version": "15.10.0",
+  "classPath": "Sources/",
+  "releasenote": "Initial release.",
+  "contributors": ["Lubos"],
+  "dependencies": {
+    "kha": ""
+  }
+}
