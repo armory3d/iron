@@ -15,7 +15,7 @@ class ModelNode extends Node {
 	var resource:ModelResource;
 	var material:MaterialResource;
 
-	static var dbMVP:Mat4 = null;
+	static var lightMVP:Mat4 = null;
 
 	// Skinned
 	var animation:Animation;
@@ -33,7 +33,7 @@ class ModelNode extends Node {
 		this.resource = resource;
 		this.material = material;
 
-		if (dbMVP == null) dbMVP = new Mat4();
+		if (lightMVP == null) lightMVP = new Mat4();
 
 		setTransformSize();
 
@@ -73,17 +73,19 @@ class ModelNode extends Node {
 	function setConstant(g:Graphics, camera:CameraNode, light:LightNode,
 						 location:ConstantLocation, c:TShaderConstant) {
 
+		if (c.link == null) return;
+
 		if (c.type == "mat4") {
 			var m:Mat4 = null;
-			if (c.value == "_modelMatrix") m = transform.matrix;
-			else if (c.value == "_viewMatrix") m = camera.V;
-			else if (c.value == "_projectionMatrix") m = camera.P;
-			else if (c.value == "_dbMVP") {
-				dbMVP.identity();
-		    	dbMVP.mult(transform.matrix);
-		    	dbMVP.mult(light.V);
-		    	dbMVP.mult(light.P);
-		    	m = dbMVP;
+			if (c.link == "_modelMatrix") m = transform.matrix;
+			else if (c.link == "_viewMatrix") m = camera.V;
+			else if (c.link == "_projectionMatrix") m = camera.P;
+			else if (c.link == "_lightMVP") {
+				lightMVP.identity();
+		    	lightMVP.mult(transform.matrix);
+		    	lightMVP.mult(light.V);
+		    	lightMVP.mult(light.P);
+		    	m = lightMVP;
 			}
 			if (m == null) return;
 
@@ -95,8 +97,8 @@ class ModelNode extends Node {
 		}
 		else if (c.type == "vec3") {
 			var v:Vec3 = null;
-			if (c.value == "_lightPosition") v = light.transform.pos;
-			else if (c.value == "_cameraPosition") v = camera.transform.pos;
+			if (c.link == "_lightPosition") v = light.transform.pos;
+			else if (c.link == "_cameraPosition") v = camera.transform.pos;
 			if (v == null) return;
 			g.setFloat3(location, v.x, v.y, v.z);
 		}
@@ -107,10 +109,10 @@ class ModelNode extends Node {
 
 		for (i in 0...materialContext.resource.bind_constants.length) {
 			var matc = materialContext.resource.bind_constants[i];
-			// TODO: material params must be in the same order as shader material constants
-			var c = context.resource.material_constants[i];
+			// TODO: material params must be in the same array position as shader constants
+			var c = context.resource.constants[i];
 
-			setMaterialConstant(g, context.materialConstants[i], c, matc);
+			setMaterialConstant(g, context.constants[i], c, matc);
 		}
 
 		if (materialContext.textures != null) {

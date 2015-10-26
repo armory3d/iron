@@ -98,14 +98,17 @@ typedef TShaderContext = {
 	var vertex_shader:String;
 	var fragment_shader:String;
 	var constants:Array<TShaderConstant>;
-	var material_constants:Array<TShaderMaterialConstant>;
 	var texture_units:Array<TTextureUnit>;
 }
 
 typedef TShaderConstant = {
 	var id:String;
 	var type:String;
-	var value:String;
+	@:optional var link:String;
+	@:optional var vec4:Array<Float>;
+	@:optional var vec3:Array<Float>;
+	@:optional var float:Float;
+	@:optional var bool:Bool;
 }
 
 typedef TShaderMaterialConstant = {

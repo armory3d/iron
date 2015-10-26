@@ -62,7 +62,6 @@ class ShaderContext {
 
 	public var program:Program;
 	public var constants:Array<ConstantLocation> = [];
-	public var materialConstants:Array<ConstantLocation> = [];
 	public var textureUnits:Array<TextureUnit> = [];
 
 	public function new(resource:TShaderContext) {
@@ -80,10 +79,6 @@ class ShaderContext {
 			addConstant(c.id);
 		}
 
-		for (c in resource.material_constants) {
-			addMaterialConstant(c.id);
-		}
-
 		for (tu in resource.texture_units) {
 			addTexture(tu.id);
 		}
@@ -95,10 +90,6 @@ class ShaderContext {
 
 	function addConstant(s:String) {
 		constants.push(program.getConstantLocation(s));
-	}
-
-	function addMaterialConstant(s:String) {
-		materialConstants.push(program.getConstantLocation(s));
 	}
 
 	function addTexture(s:String) {
