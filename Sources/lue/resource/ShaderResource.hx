@@ -55,6 +55,23 @@ class ShaderResource extends Resource {
 	public static function getDefaultStructureLength():Int {
 		return 12;
 	}
+
+	public static function createScreenAlignedQuadStructure():VertexStructure {
+		var structure = new VertexStructure();
+        structure.add("pos", VertexData.Float2);
+        return structure;
+	}
+
+	public static function getScreenAlignedQuadStructureLength():Int {
+		return 2;
+	}
+
+	public function getContext(id:String):ShaderContext {
+		for (c in contexts) {
+			if (c.resource.id == id) return c;
+		}
+		return null;
+	}
 }
 
 class ShaderContext {

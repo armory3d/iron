@@ -1,11 +1,16 @@
 package lue.node;
 
 import kha.Color;
+import kha.graphics4.Graphics;
+import kha.graphics4.VertexBuffer;
+import kha.graphics4.IndexBuffer;
 import lue.math.Mat4;
 import lue.math.Vec3;
 import lue.math.Quat;
 import lue.math.Plane;
+import lue.resource.Resource;
 import lue.resource.CameraResource;
+import lue.resource.ShaderResource;
 
 class CameraNode extends Node {
 
@@ -22,9 +27,12 @@ class CameraNode extends Node {
 
 	var frustumPlanes:Array<Plane> = [];
 
-	var frameRenderTarget:kha.graphics4.Graphics;
-	var currentRenderTarget:kha.graphics4.Graphics;
+	var frameRenderTarget:Graphics;
+	var currentRenderTarget:Graphics;
 	var bindParams:Array<String>;
+
+	static var screenAlignedVB:VertexBuffer = null;
+	static var screenAlignedIB:IndexBuffer = null;
 
 	public function new(resource:CameraResource) {
 		super();
@@ -47,9 +55,33 @@ class CameraNode extends Node {
 		}
 
 		Node.cameras.push(this);
+
+		if (screenAlignedVB == null) createScreenAlignedData();
 	}
 
-	public function renderFrame(g:kha.graphics4.Graphics, root:Node, light:LightNode) {
+	static function createScreenAlignedData() {
+		var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];
+		var indices = [0, 1, 2, 0, 2, 3];
+
+		screenAlignedVB = new VertexBuffer(Std.int(data.length / ShaderResource.getScreenAlignedQuadStructureLength()),
+										ShaderResource.createScreenAlignedQuadStructure(), kha.graphics4.Usage.StaticUsage);
+		var vertices = screenAlignedVB.lock();
+		
+		for (i in 0...vertices.length) {
+			vertices.set(i, data[i]);
+		}
+		screenAlignedVB.unlock();
+
+		screenAlignedIB = new IndexBuffer(indices.length, kha.graphics4.Usage.StaticUsage);
+		var id = screenAlignedIB.lock();
+
+		for (i in 0...id.length) {
+			id[i] = indices[i];
+		}
+		screenAlignedIB.unlock();
+	}
+
+	public function renderFrame(g:Graphics, root:Node, light:LightNode) {
 		updateMatrix();
 
 		frameRenderTarget = g;
@@ -72,14 +104,18 @@ class CameraNode extends Node {
 			else if (stage.command == "bind_target") {
 				bindTarget(currentRenderTarget, stage.params);
 			}
+			else if (stage.command == "draw_quad") {
+				drawQuad(currentRenderTarget, stage.params, bindParams);
+				end(currentRenderTarget);
+			}
 		}
 	}
 
-	function begin(g:kha.graphics4.Graphics) {
+	function begin(g:Graphics) {
 		g.begin();
 	}
 
-	function end(g:kha.graphics4.Graphics) {
+	function end(g:Graphics) {
 		g.end();
 	}
 
@@ -89,18 +125,37 @@ class CameraNode extends Node {
 		bindParams = null;
 	}
 
-	function clearTarget(g:kha.graphics4.Graphics) {
+	function clearTarget(g:Graphics) {
 		g.clear(clearColor, 1, null);
 	}
 
-	function drawGeometry(g:kha.graphics4.Graphics, context:String, root:Node, light:LightNode, bindParams:Array<String>) {
+	function drawGeometry(g:Graphics, context:String, root:Node, light:LightNode, bindParams:Array<String>) {
 		g.setDepthMode(true, kha.graphics4.CompareMode.Less);
 		g.setCullMode(kha.graphics4.CullMode.CounterClockwise);
 		root.render(g, context, this, light, bindParams);
 	}
 
-	function bindTarget(g:kha.graphics4.Graphics, params:Array<String>) {
+	function bindTarget(g:Graphics, params:Array<String>) {
 		bindParams = params;
+	}
+
+	function drawQuad(g:Graphics, params:Array<String>, bindParams:Array<String>) {
+		var context = Resource.getShader(params[0], params[1]).getContext(params[2]);
+		
+		g.setProgram(context.program);
+		if (bindParams != null) {
+			for (i in 0...Std.int(bindParams.length / 2)) {
+				var pos = i * 2 + 1;
+				for (j in 0...context.resource.texture_units.length) {
+					if (bindParams[pos] == context.resource.texture_units[j].id) {
+						g.setTexture(context.textureUnits[j], resource.pipeline.renderTargets.get(bindParams[pos - 1]));
+					}
+				}
+			}
+		}
+		g.setVertexBuffer(screenAlignedVB);
+		g.setIndexBuffer(screenAlignedIB);
+		g.drawIndexedVertices();
 	}
 
 	public function updateMatrix() {

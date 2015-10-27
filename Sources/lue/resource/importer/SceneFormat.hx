@@ -128,7 +128,8 @@ typedef TPipelineResource = {
 
 typedef TPipelineRenderTarget = {
 	var id:String;
-	var size:Int;
+	var width:Int;
+	var height:Int;
 }
 
 typedef TPipelineStage = {

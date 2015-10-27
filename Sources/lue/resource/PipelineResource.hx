@@ -22,9 +22,13 @@ class PipelineResource extends Resource {
 
 			for (t in resource.render_targets) {
 				var image = kha.Image.createRenderTarget(
-								t.size,
-								t.size,
+								t.width,
+								t.height,
+								#if js
+								kha.graphics4.TextureFormat.RGBA32,
+								#else
 								kha.graphics4.TextureFormat.RGBA128,
+								#end
 								true);
 				renderTargets.set(t.id, image);
 			}

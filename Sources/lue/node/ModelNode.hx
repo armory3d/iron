@@ -15,7 +15,7 @@ class ModelNode extends Node {
 	var resource:ModelResource;
 	var material:MaterialResource;
 
-	static var lightMVP:Mat4 = null;
+	static var tempMVP:Mat4 = null;
 
 	// Skinned
 	var animation:Animation;
@@ -33,7 +33,7 @@ class ModelNode extends Node {
 		this.resource = resource;
 		this.material = material;
 
-		if (lightMVP == null) lightMVP = new Mat4();
+		if (tempMVP == null) tempMVP = new Mat4();
 
 		setTransformSize();
 
@@ -80,12 +80,19 @@ class ModelNode extends Node {
 			if (c.link == "_modelMatrix") m = transform.matrix;
 			else if (c.link == "_viewMatrix") m = camera.V;
 			else if (c.link == "_projectionMatrix") m = camera.P;
+			else if (c.link == "_MVP") {
+				tempMVP.identity();
+		    	tempMVP.mult(transform.matrix);
+		    	tempMVP.mult(camera.V);
+		    	tempMVP.mult(camera.P);
+		    	m = tempMVP;
+			}
 			else if (c.link == "_lightMVP") {
-				lightMVP.identity();
-		    	lightMVP.mult(transform.matrix);
-		    	lightMVP.mult(light.V);
-		    	lightMVP.mult(light.P);
-		    	m = lightMVP;
+				tempMVP.identity();
+		    	tempMVP.mult(transform.matrix);
+		    	tempMVP.mult(light.V);
+		    	tempMVP.mult(light.P);
+		    	m = tempMVP;
 			}
 			if (m == null) return;
 
