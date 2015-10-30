@@ -5,7 +5,7 @@
   "tags": ["kha", "3d"],
   "description": "Minimal 3D rendering engine",
   "version": "15.10.0",
-  "classPath": "Sources/",
+  "classPath": "",
   "releasenote": "Initial release.",
   "contributors": ["Lubos"],
   "dependencies": {
