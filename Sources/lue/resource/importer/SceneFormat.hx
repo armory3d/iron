@@ -141,7 +141,6 @@ typedef TPipelineStage = {
 typedef TNode = {
 	var type:String;
 	var id:String;
-	var name:String;
 	var object_ref:String;
 	var material_refs:Array<String>;
 	var transform:TTransform;

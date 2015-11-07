@@ -8,6 +8,7 @@ class Resource {
 	static var cachedModels:Map<String, ModelResource> = new Map();
 	static var cachedLights:Map<String, LightResource> = new Map();
 	static var cachedCameras:Map<String, CameraResource> = new Map();
+	static var cachedPipelines:Map<String, PipelineResource> = new Map();
 	static var cachedMaterials:Map<String, MaterialResource> = new Map();
 	static var cachedShaders:Map<String, ShaderResource> = new Map();
 
@@ -45,6 +46,16 @@ class Resource {
 		else return cached;
 	}
 
+	public static function getPipeline(name:String, id:String):PipelineResource {
+		var cached = cachedPipelines.get(name + id);
+		if (cached == null) {
+			var parsed = PipelineResource.parse(name, id);
+			cachedPipelines.set(name + id, parsed);
+			return parsed;
+		}
+		else return cached;
+	}
+
 	public static function getMaterial(name:String, id:String):MaterialResource {
 		var cached = cachedMaterials.get(name + id);
 		if (cached == null) {
@@ -71,7 +82,6 @@ class Resource {
 			var data = kha.Loader.the.getBlob(name).toString();
 			var parsed:TSceneFormat = haxe.Json.parse(data);
 			cachedScenes.set(name, parsed);
-
 			return parsed;
 		}
 		else {

@@ -1,8 +1,10 @@
 package lue.node;
 
 import kha.graphics4.Graphics;
+import lue.math.Mat4;
 import lue.trait.Trait;
 import lue.resource.importer.SceneFormat;
+import lue.resource.Resource;
 
 class Node {
 
@@ -91,8 +93,42 @@ class Node {
 	}
 
 	public static function addScene(name:String, parent:Node):Node {
-		var sceneBlob = kha.Loader.the.getBlob(name).toString();
-		var resource:TSceneFormat = haxe.Json.parse(sceneBlob);
+		var resource:TSceneFormat = Resource.getSceneResource(name);
+
+		for (n in resource.nodes) {
+			var node:Node = null;
+			
+			if (n.type == "camera_node") {
+				node = Eg.addCameraNode(Resource.getCamera(name, n.object_ref));
+			}
+			else if (n.type == "light_node") {
+				node = Eg.addLightNode(Resource.getLight(name, n.object_ref));	
+			}
+			else if (n.type == "geometry_node") {
+				node = Eg.addModelNode(Resource.getModel(name, n.object_ref),
+								Resource.getMaterial(name, n.material_refs[0]));	
+			}
+
+			generateTranform(n, node.transform);
+		}
+		
 		return parent;
+	}
+
+	static function generateTranform(node:TNode, transform:Transform) {
+		var mat = new Mat4(node.transform.values);
+		transform.pos.x = mat._41;
+		transform.pos.y = mat._42;
+		transform.pos.z = mat._43;
+		var rotation = mat.getQuat();
+		transform.rot.set(rotation.x, rotation.y, rotation.z, rotation.w);
+		var vs = mat.getScale();
+		transform.scale.x = vs.x;
+		transform.scale.y = vs.y;
+		transform.scale.z = vs.z;
+
+		if (node.type == "camera_node") {
+        	transform.rot.inverse(transform.rot);
+		}
 	}
 }
