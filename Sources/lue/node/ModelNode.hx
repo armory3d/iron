@@ -13,7 +13,7 @@ import lue.resource.importer.SceneFormat;
 class ModelNode extends Node {
 
 	var resource:ModelResource;
-	var material:MaterialResource;
+	var materials:Array<MaterialResource>;
 
 	static var tempMVP:Mat4 = null;
 
@@ -27,11 +27,11 @@ class ModelNode extends Node {
 	var pos = new Vec3();
 	var nor = new Vec3();
 
-	public function new(resource:ModelResource, material:MaterialResource) {
+	public function new(resource:ModelResource, materials:Array<MaterialResource>) {
 		super();
 
 		this.resource = resource;
-		this.material = material;
+		this.materials = materials;
 
 		if (tempMVP == null) tempMVP = new Mat4();
 
@@ -146,15 +146,19 @@ class ModelNode extends Node {
 	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 		super.render(g, context, camera, light, bindParams);
 
-		// Find context
-		var materialContext:MaterialContext = null;
+		// Find contexts
+		// TODO: only one shader per model
+		// TODO: cache!
+		var materialContexts:Array<MaterialContext> = [];
 		var shaderContext:ShaderContext = null;
-		for (i in 0...material.resource.contexts.length) {
-			// TODO: make sure contexts are stored in the same order
-			if (material.resource.contexts[i].id == context) {
-				materialContext = material.contexts[i];
-				shaderContext = material.shader.contexts[i];
-				break;
+		for (mat in materials) {
+			for (i in 0...mat.resource.contexts.length) {
+				// TODO: make sure contexts are stored in the same order
+				if (mat.resource.contexts[i].id == context) {
+					materialContexts.push(mat.contexts[i]);
+					shaderContext = mat.shader.contexts[i];
+					break;
+				}
 			}
 		}
 
@@ -176,9 +180,8 @@ class ModelNode extends Node {
 
 			for (i in 0...resource.geometry.indexBuffers.length) {
 				
-				// TODO: only one material per model
-				//var mat = resource.geometry.materialIndices[i];
-				setMaterialConstants(g, shaderContext, materialContext);
+				var mi = resource.geometry.materialIndices[i];
+				setMaterialConstants(g, shaderContext, materialContexts[mi]);
 
 				g.setIndexBuffer(resource.geometry.indexBuffers[i]);
 

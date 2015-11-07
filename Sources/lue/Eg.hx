@@ -53,8 +53,8 @@ class Eg {
 		return node;
 	}
 
-	public static function addModelNode(resource:ModelResource, material:MaterialResource, parent:Node = null):ModelNode {
-		var node = new ModelNode(resource, material);
+	public static function addModelNode(resource:ModelResource, materials:Array<MaterialResource>, parent:Node = null):ModelNode {
+		var node = new ModelNode(resource, materials);
 		parent != null ? parent.addChild(node) : root.addChild(node);
 		return node;
 	}

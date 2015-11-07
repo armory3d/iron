@@ -5,6 +5,7 @@ import lue.math.Mat4;
 import lue.trait.Trait;
 import lue.resource.importer.SceneFormat;
 import lue.resource.Resource;
+import lue.resource.MaterialResource;
 
 class Node {
 
@@ -105,8 +106,12 @@ class Node {
 				node = Eg.addLightNode(Resource.getLight(name, n.object_ref));	
 			}
 			else if (n.type == "geometry_node") {
-				node = Eg.addModelNode(Resource.getModel(name, n.object_ref),
-								Resource.getMaterial(name, n.material_refs[0]));	
+				var materials:Array<MaterialResource> = [];
+				for (ref in n.material_refs) {
+					materials.push(Resource.getMaterial(name, ref));
+				}
+
+				node = Eg.addModelNode(Resource.getModel(name, n.object_ref), materials);	
 			}
 
 			generateTranform(n, node.transform);
