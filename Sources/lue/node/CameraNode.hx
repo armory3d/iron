@@ -41,7 +41,12 @@ class CameraNode extends Node {
 
 		clearColor = Color.fromFloats(resource.resource.clear_color[0], resource.resource.clear_color[1], resource.resource.clear_color[2], resource.resource.clear_color[3]);
 
-		P = Mat4.perspective(45, App.w / App.h, resource.resource.near_plane, resource.resource.far_plane);
+		if (resource.resource.type == "perspective") {
+			P = Mat4.perspective(45, App.w / App.h, resource.resource.near_plane, resource.resource.far_plane);
+		}
+		else {
+			P = Mat4.orthogonal(-10, 10, -10, 10, -resource.resource.far_plane, resource.resource.far_plane, 2);
+		}
 		V = new Mat4();
 
 		up = new Vec3(0, 0, 1);

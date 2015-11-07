@@ -60,6 +60,7 @@ typedef TCameraResource = {
 	var far_plane:Float;
 	var frustum_culling:Bool;
 	var pipeline:String;
+	var type:String;
 }
 
 typedef TMaterialResource = {
