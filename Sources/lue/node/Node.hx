@@ -2,6 +2,7 @@ package lue.node;
 
 import kha.graphics4.Graphics;
 import lue.trait.Trait;
+import lue.resource.importer.SceneFormat;
 
 class Node {
 
@@ -87,5 +88,11 @@ class Node {
 
 	public function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 		for (c in children) c.render(g, context, camera, light, bindParams);
+	}
+
+	public static function addScene(name:String, parent:Node):Node {
+		var sceneBlob = kha.Loader.the.getBlob(name).toString();
+		var resource:TSceneFormat = haxe.Json.parse(sceneBlob);
+		return parent;
 	}
 }

@@ -71,6 +71,10 @@ class Eg {
 		return node;
 	}
 
+	public static function addScene(name:String, parent:Node = null):Node {
+		return Node.addScene(name, parent == null ? addNode() : parent);
+	}
+
 	public static function removeNode(node:Node) {
 		if (node.parent == null) return;
 		Std.is(node, ModelNode) ? Node.models.remove(cast node) : Std.is(node, LightNode) ? Node.lights.remove(cast node) : Node.cameras.remove(cast node);

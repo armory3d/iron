@@ -54,7 +54,8 @@ class Input {
 		y = _y ;
 	}
 	
-	public static function moveListener(_x:Int, _y:Int, movementX:Int, movementY:Int) {
+	//public static function moveListener(_x:Int, _y:Int, movementX:Int, movementY:Int) {
+	public static function moveListener(_x:Int, _y:Int) {
 		deltaX = _x - x;
 		deltaY = _y - y;
 
