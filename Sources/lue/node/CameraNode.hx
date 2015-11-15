@@ -145,7 +145,10 @@ class CameraNode extends Node {
 	}
 
 	function drawQuad(g:Graphics, params:Array<String>, bindParams:Array<String>) {
-		var context = Resource.getShader(params[0], params[1]).getContext(params[2]);
+		//var context = Resource.getShader(params[0], params[1]).getContext(params[2]);
+		var matRes = Resource.getMaterial(params[0], params[1]);
+		var materialContext = matRes.getContext(params[2]);
+		var context = matRes.shader.getContext(params[2]);
 		
 		g.setDepthMode(false, kha.graphics4.CompareMode.Always);
 		g.setCullMode(kha.graphics4.CullMode.None);
@@ -164,6 +167,11 @@ class CameraNode extends Node {
 											   m._13, m._23, m._33, m._43,
 										       m._14, m._24, m._34, m._44);
 				g.setMatrix(context.constants[i], mat);
+			}
+		}
+		if (materialContext.textures != null) {
+			for (i in 0...materialContext.textures.length) {
+				g.setTexture(context.textureUnits[i], materialContext.textures[i]);
 			}
 		}
 		if (bindParams != null) {

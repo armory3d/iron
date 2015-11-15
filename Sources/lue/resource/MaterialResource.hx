@@ -33,6 +33,13 @@ class MaterialResource extends Resource {
 		var resource:TMaterialResource = Resource.getMaterialResourceById(format.material_resources, id);
 		return new MaterialResource(resource);
 	}
+
+	public function getContext(id:String):MaterialContext {
+		for (c in contexts) {
+			if (c.resource.id == id) return c;
+		}
+		return null;
+	}
 }
 
 class MaterialContext {
