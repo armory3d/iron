@@ -45,7 +45,7 @@ class CameraNode extends Node {
 			P = Mat4.perspective(45, App.w / App.h, resource.resource.near_plane, resource.resource.far_plane);
 		}
 		else {
-			P = Mat4.orthogonal(-10, 10, -10, 10, -resource.resource.far_plane, resource.resource.far_plane, 2);
+			P = Mat4.orthogonal(-10, 10, -6, 6, -resource.resource.far_plane, resource.resource.far_plane, 2);
 		}
 		V = new Mat4();
 
@@ -147,7 +147,25 @@ class CameraNode extends Node {
 	function drawQuad(g:Graphics, params:Array<String>, bindParams:Array<String>) {
 		var context = Resource.getShader(params[0], params[1]).getContext(params[2]);
 		
+		g.setDepthMode(false, kha.graphics4.CompareMode.Always);
+		g.setCullMode(kha.graphics4.CullMode.None);
 		g.setProgram(context.program);
+		// TODO: merge with ModelNode
+		for (i in 0...context.resource.constants.length) {
+			var c = context.resource.constants[i];
+			if (c.link == null) return;
+			if (c.type == "mat4") {
+				var m:Mat4 = null;
+				if (c.link == "_viewMatrix") m = V;
+				else if (c.link == "_projectionMatrix") m = P;
+				if (m == null) return;
+				var mat = new kha.math.Matrix4(m._11, m._21, m._31, m._41,
+										  	   m._12, m._22, m._32, m._42,
+											   m._13, m._23, m._33, m._43,
+										       m._14, m._24, m._34, m._44);
+				g.setMatrix(context.constants[i], mat);
+			}
+		}
 		if (bindParams != null) {
 			for (i in 0...Std.int(bindParams.length / 2)) {
 				var pos = i * 2 + 1;
@@ -172,7 +190,9 @@ class CameraNode extends Node {
 		}
 
 		q.multiply(transform.rot, q); // Camera transform
-	    V = q.toMatrix();
+		//V = q.toMatrix();
+		V = Mat4.lookAt(new Vec3(0, 0, 0), new Vec3(0, 1, 0), new Vec3(0, 0, 1));
+	    V.multiply(q.toMatrix(), V);
 
 	    var trans = new Mat4();
 	    trans.translate(-transform.absx(), -transform.absy(), -transform.absz());
@@ -314,21 +334,21 @@ class CameraNode extends Node {
 	}
 
 	public function moveForward(f:Float):Vec3 {
-		var v3Move = getLook();
+		var v3Move = viewMatrixLook();
         v3Move.mult(-f, v3Move);
         moveCamera(v3Move);
         return v3Move;
 	}
 
 	public function moveRight(f:Float):Vec3 {
-		var v3Move = getRight();
+		var v3Move = viewMatrixRight();
         v3Move.mult(-f, v3Move);
         moveCamera(v3Move);
         return v3Move;
 	}
 
 	public function moveUp(f:Float):Vec3 {
-		var v3Move = getUp();
+		var v3Move = viewMatrixUp();
         v3Move.mult(-f, v3Move);
         moveCamera(v3Move);
         return v3Move;
@@ -341,11 +361,15 @@ class CameraNode extends Node {
 		updateMatrix();
 	}
 
-	public function viewMatrixForward():Vec3 {
-        return new Vec3(-V._13, -V._23, -V._33);
+	public function viewMatrixRight():Vec3 {
+        return new Vec3(V._11, V._21, V._31);
     }
 
-    public function viewMatrixBackward():Vec3 {
+    public function viewMatrixLook():Vec3 {
         return new Vec3(V._13, V._23, V._33);
+    }
+
+    public function viewMatrixUp():Vec3 {
+        return new Vec3(V._12, V._22, V._32);
     }
 }

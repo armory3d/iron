@@ -22,7 +22,7 @@ class Game {
 		var lightRes = Eg.getLightResource("light_resource");
 		var camRes = Eg.getCameraResource("camera_resource");
 
-		var model = Eg.addModelNode(modelRes, materialRes);
+		var model = Eg.addModelNode(modelRes, [materialRes]);
 
 		cam = Eg.addCameraNode(camRes);
 		Eg.setNodeTransform(cam, 0, -5, 1.5, -1.3, 0, 0);

@@ -15,7 +15,7 @@ class ModelNode extends Node {
 	var resource:ModelResource;
 	var materials:Array<MaterialResource>;
 
-	static var tempMVP:Mat4 = null;
+	static var helpMat:Mat4 = null;
 
 	// Skinned
 	var animation:Animation;
@@ -33,7 +33,7 @@ class ModelNode extends Node {
 		this.resource = resource;
 		this.materials = materials;
 
-		if (tempMVP == null) tempMVP = new Mat4();
+		if (helpMat == null) helpMat = new Mat4();
 
 		setTransformSize();
 
@@ -79,20 +79,24 @@ class ModelNode extends Node {
 			var m:Mat4 = null;
 			if (c.link == "_modelMatrix") m = transform.matrix;
 			else if (c.link == "_viewMatrix") m = camera.V;
+			else if (c.link == "_inverseViewMatrix") {
+				helpMat.inverse(camera.V);
+				m = helpMat;
+			}
 			else if (c.link == "_projectionMatrix") m = camera.P;
 			else if (c.link == "_MVP") {
-				tempMVP.identity();
-		    	tempMVP.mult(transform.matrix);
-		    	tempMVP.mult(camera.V);
-		    	tempMVP.mult(camera.P);
-		    	m = tempMVP;
+				helpMat.identity();
+		    	helpMat.mult(transform.matrix);
+		    	helpMat.mult(camera.V);
+		    	helpMat.mult(camera.P);
+		    	m = helpMat;
 			}
 			else if (c.link == "_lightMVP") {
-				tempMVP.identity();
-		    	tempMVP.mult(transform.matrix);
-		    	tempMVP.mult(light.V);
-		    	tempMVP.mult(light.P);
-		    	m = tempMVP;
+				helpMat.identity();
+		    	helpMat.mult(transform.matrix);
+		    	helpMat.mult(light.V);
+		    	helpMat.mult(light.P);
+		    	m = helpMat;
 			}
 			if (m == null) return;
 
@@ -124,6 +128,7 @@ class ModelNode extends Node {
 
 		if (materialContext.textures != null) {
 			for (i in 0...materialContext.textures.length) {
+				//g.setTextureParameters(context.textureUnits[i], kha.graphics4.TextureAddressing.Clamp, kha.graphics4.TextureAddressing.Clamp, kha.graphics4.TextureFilter.AnisotropicFilter, kha.graphics4.TextureFilter.AnisotropicFilter, kha.graphics4.MipMapFilter.NoMipFilter);
 				g.setTexture(context.textureUnits[i], materialContext.textures[i]);
 			}
 		}
