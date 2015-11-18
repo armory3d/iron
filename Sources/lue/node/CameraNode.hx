@@ -168,6 +168,11 @@ class CameraNode extends Node {
 										       m._14, m._24, m._34, m._44);
 				g.setMatrix(context.constants[i], mat);
 			}
+			else if (c.type == "float") {
+				var f = 0.0;
+				if (c.link == "_time") f = lue.sys.Time.total;
+				g.setFloat(context.constants[i], f);
+			}
 		}
 		if (materialContext.textures != null) {
 			for (i in 0...materialContext.textures.length) {

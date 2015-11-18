@@ -113,6 +113,11 @@ class ModelNode extends Node {
 			if (v == null) return;
 			g.setFloat3(location, v.x, v.y, v.z);
 		}
+		else if (c.type == "float") {
+			var f = 0.0;
+			if (c.link == "_time") f = lue.sys.Time.total;
+			g.setFloat(location, f);
+		}
 		// TODO: other types
 	}
 
