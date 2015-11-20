@@ -37,10 +37,14 @@ class CameraNode extends Node {
 	static var screenAlignedVB:VertexBuffer = null;
 	static var screenAlignedIB:IndexBuffer = null;
 
+	var stageCommands:Array<Array<String>->Node->LightNode->Void>;
+	var stageParams:Array<Array<String>>;
+
 	public function new(resource:CameraResource) {
 		super();
 
 		this.resource = resource;
+		cacheStages();
 
 		clearColor = Color.fromFloats(resource.resource.clear_color[0], resource.resource.clear_color[1], resource.resource.clear_color[2], resource.resource.clear_color[3]);
 
@@ -97,61 +101,44 @@ class CameraNode extends Node {
 		var light = lights[0];
 		if (light.V == null) { light.buildMatrices(); }
 
-		for (stage in resource.pipeline.resource.stages) {
-			if (stage.command == "set_target") {
-				setTarget(stage.params[0]);
-				begin(currentRenderTarget);
-			}
-			else if (stage.command == "clear_target") {
-				clearTarget(currentRenderTarget);
-			}
-			else if (stage.command == "draw_geometry") {
-				drawGeometry(currentRenderTarget, stage.params[0], root, light, bindParams);
-				end(currentRenderTarget);
-			}
-			else if (stage.command == "bind_target") {
-				bindTarget(currentRenderTarget, stage.params);
-			}
-			else if (stage.command == "draw_quad") {
-				drawQuad(currentRenderTarget, stage.params, bindParams, light);
-				end(currentRenderTarget);
-			}
+		for (i in 0...stageCommands.length) {
+			stageCommands[i](stageParams[i], root, light);
 		}
 	}
 
-	function begin(g:Graphics) {
-		g.begin();
-	}
-
-	function end(g:Graphics) {
-		g.end();
-	}
-
-	function setTarget(target:String) {
-		if (target == "") currentRenderTarget = frameRenderTarget;
+	function setTarget(params:Array<String>, root:Node, light:LightNode) {
+    	var target = params[0];
+    	if (target == "") currentRenderTarget = frameRenderTarget;
 		else currentRenderTarget = resource.pipeline.renderTargets.get(target).g4;
 		bindParams = null;
-	}
 
-	function clearTarget(g:Graphics) {
-		g.clear(clearColor, 1, null);
-	}
+		begin(currentRenderTarget);
+    }
 
-	function drawGeometry(g:Graphics, context:String, root:Node, light:LightNode, bindParams:Array<String>) {
-		g.setDepthMode(true, CompareMode.Less);
+    function clearTarget(params:Array<String>, root:Node, light:LightNode) {
+    	currentRenderTarget.clear(clearColor, 1, null);
+    }
+
+    function drawGeometry(params:Array<String>, root:Node, light:LightNode) {
+		var context = params[0];
+		var g = currentRenderTarget;
+    	g.setDepthMode(true, CompareMode.Less);
 		g.setCullMode(CullMode.CounterClockwise);
 		root.render(g, context, this, light, bindParams);
-	}
 
-	function bindTarget(g:Graphics, params:Array<String>) {
-		bindParams = params;
-	}
+		end(g);
+    }
 
-	function drawQuad(g:Graphics, params:Array<String>, bindParams:Array<String>, light:LightNode) {
-		var materialRes = Resource.getMaterial(params[0], params[1]);
+    function bindTarget(params:Array<String>, root:Node, light:LightNode) {
+    	bindParams = params;
+    }
+
+    function drawQuad(params:Array<String>, root:Node, light:LightNode) {
+    	var materialRes = Resource.getMaterial(params[0], params[1]);
 		var materialContext = materialRes.getContext(params[2]);
 		var context = materialRes.shader.getContext(params[2]);
-		
+
+		var g = currentRenderTarget;		
 		g.setDepthMode(false, CompareMode.Always);
 		g.setCullMode(CullMode.None);
 		g.setProgram(context.program);
@@ -162,6 +149,16 @@ class CameraNode extends Node {
 		g.setVertexBuffer(screenAlignedVB);
 		g.setIndexBuffer(screenAlignedIB);
 		g.drawIndexedVertices();
+		
+		end(g);
+    }
+
+	function begin(g:Graphics) {
+		g.begin();
+	}
+
+	function end(g:Graphics) {
+		g.end();
 	}
 
 	public function updateMatrix() {
@@ -342,5 +339,30 @@ class CameraNode extends Node {
 
     public function viewMatrixUp():Vec3 {
         return new Vec3(V._12, V._22, V._32);
+    }
+
+    function cacheStages() {
+    	stageCommands = [];
+    	stageParams = [];
+    	for (stage in resource.pipeline.resource.stages) {
+    		
+    		stageParams.push(stage.params);
+			
+			if (stage.command == "set_target") {
+				stageCommands.push(setTarget);
+			}
+			else if (stage.command == "clear_target") {
+				stageCommands.push(clearTarget);
+			}
+			else if (stage.command == "draw_geometry") {
+				stageCommands.push(drawGeometry);
+			}
+			else if (stage.command == "bind_target") {
+				stageCommands.push(bindTarget);
+			}
+			else if (stage.command == "draw_quad") {
+				stageCommands.push(drawQuad);
+			}
+		}
     }
 }
