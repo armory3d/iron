@@ -4,6 +4,9 @@ import kha.Color;
 import kha.graphics4.Graphics;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
+import kha.graphics4.Usage;
+import kha.graphics4.CompareMode;
+import kha.graphics4.CullMode;
 import lue.math.Mat4;
 import lue.math.Vec3;
 import lue.math.Quat;
@@ -21,9 +24,9 @@ class CameraNode extends Node {
 	public var V:Mat4;
 	public var VP:Mat4;
 
-	public var up:Vec3;
-	public var look:Vec3;
-	public var right:Vec3;
+	var up:Vec3;
+	var look:Vec3;
+	var right:Vec3;
 
 	var frustumPlanes:Array<Plane> = [];
 
@@ -44,16 +47,15 @@ class CameraNode extends Node {
 		if (resource.resource.type == "perspective") {
 			P = Mat4.perspective(45, App.w / App.h, resource.resource.near_plane, resource.resource.far_plane);
 		}
-		else {
+		else if (resource.resource.type == "orthogonal") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -resource.resource.far_plane, resource.resource.far_plane, 2);
 		}
 		V = new Mat4();
+		VP = new Mat4();
 
 		up = new Vec3(0, 0, 1);
 		look = new Vec3(0, 1, 0);
 		right = new Vec3(1, 0, 0);
-
-		VP = new Mat4();
 
 		for (i in 0...6) {
 			frustumPlanes.push(new Plane());
@@ -69,7 +71,7 @@ class CameraNode extends Node {
 		var indices = [0, 1, 2, 0, 2, 3];
 
 		screenAlignedVB = new VertexBuffer(Std.int(data.length / ShaderResource.getScreenAlignedQuadStructureLength()),
-										ShaderResource.createScreenAlignedQuadStructure(), kha.graphics4.Usage.StaticUsage);
+										   ShaderResource.createScreenAlignedQuadStructure(), Usage.StaticUsage);
 		var vertices = screenAlignedVB.lock();
 		
 		for (i in 0...vertices.length) {
@@ -77,7 +79,7 @@ class CameraNode extends Node {
 		}
 		screenAlignedVB.unlock();
 
-		screenAlignedIB = new IndexBuffer(indices.length, kha.graphics4.Usage.StaticUsage);
+		screenAlignedIB = new IndexBuffer(indices.length, Usage.StaticUsage);
 		var id = screenAlignedIB.lock();
 
 		for (i in 0...id.length) {
@@ -86,12 +88,13 @@ class CameraNode extends Node {
 		screenAlignedIB.unlock();
 	}
 
-	public function renderFrame(g:Graphics, root:Node, light:LightNode) {
-		updateMatrix();
+	public function renderFrame(g:Graphics, root:Node, lights:Array<LightNode>) {
+		updateMatrix(); // TODO: only when dirty
 
 		frameRenderTarget = g;
 		currentRenderTarget = g;
 
+		var light = lights[0];
 		if (light.V == null) { light.buildMatrices(); }
 
 		for (stage in resource.pipeline.resource.stages) {
@@ -110,7 +113,7 @@ class CameraNode extends Node {
 				bindTarget(currentRenderTarget, stage.params);
 			}
 			else if (stage.command == "draw_quad") {
-				drawQuad(currentRenderTarget, stage.params, bindParams);
+				drawQuad(currentRenderTarget, stage.params, bindParams, light);
 				end(currentRenderTarget);
 			}
 		}
@@ -135,8 +138,8 @@ class CameraNode extends Node {
 	}
 
 	function drawGeometry(g:Graphics, context:String, root:Node, light:LightNode, bindParams:Array<String>) {
-		g.setDepthMode(true, kha.graphics4.CompareMode.Less);
-		g.setCullMode(kha.graphics4.CullMode.CounterClockwise);
+		g.setDepthMode(true, CompareMode.Less);
+		g.setCullMode(CullMode.CounterClockwise);
 		root.render(g, context, this, light, bindParams);
 	}
 
@@ -144,51 +147,18 @@ class CameraNode extends Node {
 		bindParams = params;
 	}
 
-	function drawQuad(g:Graphics, params:Array<String>, bindParams:Array<String>) {
-		//var context = Resource.getShader(params[0], params[1]).getContext(params[2]);
-		var matRes = Resource.getMaterial(params[0], params[1]);
-		var materialContext = matRes.getContext(params[2]);
-		var context = matRes.shader.getContext(params[2]);
+	function drawQuad(g:Graphics, params:Array<String>, bindParams:Array<String>, light:LightNode) {
+		var materialRes = Resource.getMaterial(params[0], params[1]);
+		var materialContext = materialRes.getContext(params[2]);
+		var context = materialRes.shader.getContext(params[2]);
 		
-		g.setDepthMode(false, kha.graphics4.CompareMode.Always);
-		g.setCullMode(kha.graphics4.CullMode.None);
+		g.setDepthMode(false, CompareMode.Always);
+		g.setCullMode(CullMode.None);
 		g.setProgram(context.program);
-		// TODO: merge with ModelNode
-		for (i in 0...context.resource.constants.length) {
-			var c = context.resource.constants[i];
-			if (c.link == null) return;
-			if (c.type == "mat4") {
-				var m:Mat4 = null;
-				if (c.link == "_viewMatrix") m = V;
-				else if (c.link == "_projectionMatrix") m = P;
-				if (m == null) return;
-				var mat = new kha.math.Matrix4(m._11, m._21, m._31, m._41,
-										  	   m._12, m._22, m._32, m._42,
-											   m._13, m._23, m._33, m._43,
-										       m._14, m._24, m._34, m._44);
-				g.setMatrix(context.constants[i], mat);
-			}
-			else if (c.type == "float") {
-				var f = 0.0;
-				if (c.link == "_time") f = lue.sys.Time.total;
-				g.setFloat(context.constants[i], f);
-			}
-		}
-		if (materialContext.textures != null) {
-			for (i in 0...materialContext.textures.length) {
-				g.setTexture(context.textureUnits[i], materialContext.textures[i]);
-			}
-		}
-		if (bindParams != null) {
-			for (i in 0...Std.int(bindParams.length / 2)) {
-				var pos = i * 2 + 1;
-				for (j in 0...context.resource.texture_units.length) {
-					if (bindParams[pos] == context.resource.texture_units[j].id) {
-						g.setTexture(context.textureUnits[j], resource.pipeline.renderTargets.get(bindParams[pos - 1]));
-					}
-				}
-			}
-		}
+
+		ModelNode.setConstants(g, context, null, this, light, bindParams);
+		ModelNode.setMaterialConstants(g, context, materialContext);
+
 		g.setVertexBuffer(screenAlignedVB);
 		g.setIndexBuffer(screenAlignedIB);
 		g.drawIndexedVertices();
@@ -212,13 +182,10 @@ class CameraNode extends Node {
 	    V.multiply(trans, V);
 
 	    buildViewFrustum();
-
-	    // TODO: do only once per frame
 		transform.buildMatrix();
 	}
 
 	function buildViewFrustum() {
-
 		VP.identity();
     	VP.mult(V);
     	VP.mult(P);
@@ -278,9 +245,7 @@ class CameraNode extends Node {
 	}
 
 	public function sphereInFrustum(t:Transform, radius:Float):Bool {
-		
-		for (i in 0...6) {
-			
+		for (i in 0...6) {	
 			var vpos = new lue.math.Vec3(t.pos.x, t.pos.y, t.pos.z);
 			//var vpos = new lue.math.Vec3(t.absx, t.absy, t.absz);
 			//var pos = new lue.math.Vec3(t.absx, t.absy, t.absz);
@@ -297,29 +262,22 @@ class CameraNode extends Node {
 				return false;
 			}
 	    }
-
 	    return true;
 	}
 
 	public function getLook():Vec3 {
 	    var mRot:Mat4 = transform.rot.toMatrix();
-
 	    return new Vec3(mRot._13, mRot._23, mRot._33);
-	    //return new Vec3(mRot.matrix[2], mRot.matrix[6], mRot.matrix[10]);
 	}
 
 	public function getRight():Vec3 {
 	    var mRot:Mat4 = transform.rot.toMatrix();
-
 	    return new Vec3(mRot._11, mRot._21, mRot._31);
-	    //return new Vec3(mRot.matrix[0], mRot.matrix[4], mRot.matrix[8]);
 	}
 
 	public function getUp():Vec3 {
 	    var mRot:Mat4 = transform.rot.toMatrix();
-
 	    return new Vec3(mRot._12, mRot._22, mRot._32);
-	    //return new Vec3(mRot.matrix[1], mRot.matrix[5], mRot.matrix[9]);
 	}
 
 	public function pitch(f:Float) {

@@ -15,7 +15,7 @@ class ModelNode extends Node {
 	var resource:ModelResource;
 	var materials:Array<MaterialResource>;
 
-	static var helpMat:Mat4 = null;
+	static var helpMat:Mat4 = new Mat4();
 
 	// Skinned
 	var animation:Animation;
@@ -33,8 +33,6 @@ class ModelNode extends Node {
 		this.resource = resource;
 		this.materials = materials;
 
-		if (helpMat == null) helpMat = new Mat4();
-
 		setTransformSize();
 
 		Node.models.push(this);
@@ -50,12 +48,11 @@ class ModelNode extends Node {
 		}
 	}
 
-	function setConstants(g:Graphics, context:ShaderContext, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
+	public static function setConstants(g:Graphics, context:ShaderContext, node:Node, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 
 		for (i in 0...context.resource.constants.length) {
 			var c = context.resource.constants[i];
-
-			setConstant(g, camera, light, context.constants[i], c);
+			setConstant(g, node, camera, light, context.constants[i], c);
 		}
 
 		if (bindParams != null) {
@@ -69,15 +66,13 @@ class ModelNode extends Node {
 			}
 		}
 	}
-
-	function setConstant(g:Graphics, camera:CameraNode, light:LightNode,
-						 location:ConstantLocation, c:TShaderConstant) {
-
+	static function setConstant(g:Graphics, node:Node, camera:CameraNode, light:LightNode,
+						 		location:ConstantLocation, c:TShaderConstant) {
 		if (c.link == null) return;
 
 		if (c.type == "mat4") {
 			var m:Mat4 = null;
-			if (c.link == "_modelMatrix") m = transform.matrix;
+			if (c.link == "_modelMatrix") m = node.transform.matrix;
 			else if (c.link == "_viewMatrix") m = camera.V;
 			else if (c.link == "_inverseViewMatrix") {
 				helpMat.inverse(camera.V);
@@ -86,14 +81,14 @@ class ModelNode extends Node {
 			else if (c.link == "_projectionMatrix") m = camera.P;
 			else if (c.link == "_MVP") {
 				helpMat.identity();
-		    	helpMat.mult(transform.matrix);
+		    	helpMat.mult(node.transform.matrix);
 		    	helpMat.mult(camera.V);
 		    	helpMat.mult(camera.P);
 		    	m = helpMat;
 			}
 			else if (c.link == "_lightMVP") {
 				helpMat.identity();
-		    	helpMat.mult(transform.matrix);
+		    	helpMat.mult(node.transform.matrix);
 		    	helpMat.mult(light.V);
 		    	helpMat.mult(light.P);
 		    	m = helpMat;
@@ -121,13 +116,11 @@ class ModelNode extends Node {
 		// TODO: other types
 	}
 
-	function setMaterialConstants(g:Graphics, context:ShaderContext, materialContext:MaterialContext) {
-
+	public static function setMaterialConstants(g:Graphics, context:ShaderContext, materialContext:MaterialContext) {
 		for (i in 0...materialContext.resource.bind_constants.length) {
 			var matc = materialContext.resource.bind_constants[i];
 			// TODO: material params must be in the same array position as shader constants
 			var c = context.resource.constants[i];
-
 			setMaterialConstant(g, context.constants[i], c, matc);
 		}
 
@@ -138,8 +131,7 @@ class ModelNode extends Node {
 			}
 		}
 	}
-
-	function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderMaterialConstant, matc:TBindConstant) {
+	static function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderMaterialConstant, matc:TBindConstant) {
 
 		if (c.type == "vec4") {
 			g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);
@@ -186,7 +178,7 @@ class ModelNode extends Node {
 
 			g.setVertexBuffer(resource.geometry.vertexBuffer);
 
-			setConstants(g, shaderContext, camera, light, bindParams);
+			setConstants(g, shaderContext, this, camera, light, bindParams);
 
 			for (i in 0...resource.geometry.indexBuffers.length) {
 				
