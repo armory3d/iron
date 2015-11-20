@@ -44,7 +44,7 @@ class CameraNode extends Node {
 		super();
 
 		this.resource = resource;
-		cacheStages();
+		cacheStageCommands();
 
 		clearColor = Color.fromFloats(resource.resource.clear_color[0], resource.resource.clear_color[1], resource.resource.clear_color[2], resource.resource.clear_color[3]);
 
@@ -341,7 +341,7 @@ class CameraNode extends Node {
         return new Vec3(V._12, V._22, V._32);
     }
 
-    function cacheStages() {
+    function cacheStageCommands() {
     	stageCommands = [];
     	stageParams = [];
     	for (stage in resource.pipeline.resource.stages) {
