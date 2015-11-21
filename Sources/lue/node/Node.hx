@@ -132,8 +132,8 @@ class Node {
 		transform.scale.y = vs.y;
 		transform.scale.z = vs.z;
 
-		if (node.type == "camera_node") {
-        	transform.rot.inverse(transform.rot);
-		}
+		//if (node.type == "camera_node") { // TODO: remove
+        //	transform.rot.inverse(transform.rot);
+		//}
 	}
 }

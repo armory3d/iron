@@ -27,6 +27,8 @@ class ModelNode extends Node {
 	var pos = new Vec3();
 	var nor = new Vec3();
 
+	var cachedContexts:Map<String, CachedModelContext> = new Map();
+
 	public function new(resource:ModelResource, materials:Array<MaterialResource>) {
 		super();
 
@@ -148,21 +150,27 @@ class ModelNode extends Node {
 	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 		super.render(g, context, camera, light, bindParams);
 
-		// Find contexts
-		// TODO: only one shader per model
-		// TODO: cache!
-		var materialContexts:Array<MaterialContext> = [];
-		var shaderContext:ShaderContext = null;
-		for (mat in materials) {
-			for (i in 0...mat.resource.contexts.length) {
-				// TODO: make sure contexts are stored in the same order
-				if (mat.resource.contexts[i].id == context) {
-					materialContexts.push(mat.contexts[i]);
-					shaderContext = mat.shader.contexts[i];
-					break;
+		// Get context
+		var cc = cachedContexts.get(context);
+		if (cc == null) {
+			cc = new CachedModelContext();
+			cc.materialContexts = [];
+
+			for (mat in materials) {
+				for (i in 0...mat.resource.contexts.length) {
+					if (mat.resource.contexts[i].id == context) {
+						cc.materialContexts.push(mat.contexts[i]);
+						break;
+					}
 				}
 			}
+			// TODO: only one shader per model
+			cc.context = materials[0].shader.getContext(context);
+			cachedContexts.set(context, cc);
 		}
+
+		var materialContexts = cc.materialContexts;
+		var shaderContext = cc.context;
 
 		//if (context == "shadowpass") {
 		//	if (!material.resource.cast_shadow) return;
@@ -397,4 +405,10 @@ class Track {
 		this.start = start;
 		this.end = end;
 	}
+}
+
+class CachedModelContext {
+	public var materialContexts:Array<MaterialContext>;
+	public var context:ShaderContext;
+	public function new() {}
 }

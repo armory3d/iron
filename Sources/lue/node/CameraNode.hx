@@ -14,6 +14,7 @@ import lue.math.Plane;
 import lue.resource.Resource;
 import lue.resource.CameraResource;
 import lue.resource.ShaderResource;
+import lue.resource.MaterialResource;
 
 class CameraNode extends Node {
 
@@ -39,6 +40,8 @@ class CameraNode extends Node {
 
 	var stageCommands:Array<Array<String>->Node->LightNode->Void>;
 	var stageParams:Array<Array<String>>;
+
+	var cachedQuadContexts:Map<String, CachedQuadContext> = new Map();
 
 	public function new(resource:CameraResource) {
 		super();
@@ -134,9 +137,18 @@ class CameraNode extends Node {
     }
 
     function drawQuad(params:Array<String>, root:Node, light:LightNode) {
-    	var materialRes = Resource.getMaterial(params[0], params[1]);
-		var materialContext = materialRes.getContext(params[2]);
-		var context = materialRes.shader.getContext(params[2]);
+    	var handle = params[0] + params[1] + params[2];
+    	var cc:CachedQuadContext = cachedQuadContexts.get(handle);
+		if (cc == null) {
+			var res = Resource.getMaterial(params[0], params[1]);
+			cc = new CachedQuadContext();
+			cc.materialContext = res.getContext(params[2]);
+			cc.context = res.shader.getContext(params[2]);
+			cachedQuadContexts.set(handle, cc);
+		}
+
+		var materialContext = cc.materialContext;
+		var context = cc.context;
 
 		var g = currentRenderTarget;		
 		g.setDepthMode(false, CompareMode.Always);
@@ -365,4 +377,10 @@ class CameraNode extends Node {
 			}
 		}
     }
+}
+
+class CachedQuadContext {
+	public var materialContext:MaterialContext;
+	public var context:ShaderContext;
+	public function new() {}
 }
