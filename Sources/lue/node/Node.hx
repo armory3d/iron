@@ -114,6 +114,7 @@ class Node {
 				node = Eg.addModelNode(Resource.getModel(name, n.object_ref), materials);	
 			}
 
+			createTraits(n, node);
 			generateTranform(n, node.transform);
 		}
 		
@@ -132,8 +133,63 @@ class Node {
 		transform.scale.y = vs.y;
 		transform.scale.z = vs.z;
 
-		//if (node.type == "camera_node") { // TODO: remove
-        //	transform.rot.inverse(transform.rot);
-		//}
+		if (node.type == "camera_node") { // TODO: remove
+        	transform.rot.inverse(transform.rot);
+		}
+	}
+
+	static function createTraits(n:TNode, node:Node) {
+		for (t in n.traits) {
+			if (t.type == "Script") {
+				var s:Array<String> = t.class_name.split(":");
+
+				// First one is trait name
+				var traitName = s[0];
+
+				// Parse arguments if any
+				var args:Dynamic = [];
+				for (i in 1...s.length) {
+					parseTraitArgument(args, s[i]);
+				}
+				
+				Eg.addNodeTrait(node, createTraitClassInstance(traitName, args));
+			}
+		}
+	}
+
+	static function parseTraitArgument(args:Dynamic, str:String) {
+		if (str == "true") { // Bool
+			args.push(true);
+		}
+		else if (str == "false") {
+			args.push(false);
+		}
+		else if (str.charAt(0) == "'") { // String
+			args.push(StringTools.replace(str, "'", ""));
+		}
+		else if (str.charAt(0) == "[") { // Array
+			// Remove [] and recursively parse into array,
+			// then append into parent
+			str = StringTools.replace(str, "[", "");
+			str = StringTools.replace(str, "]", "");
+			str = StringTools.replace(str, " ", "");
+			var childArgs:Dynamic = [];
+			var s = str.split(",");
+			for (childStr in s) {
+				parseTraitArgument(childArgs, childStr);
+			}
+			args.push(childArgs);
+		}
+		else { // Float
+			args.push(Std.parseFloat(str));
+		}
+	}
+
+	static function createTraitClassInstance(traitName:String, args:Dynamic):Dynamic {
+		var cname = Type.resolveClass("myproject." + traitName);
+		if (cname == null) cname = Type.resolveClass("lue.trait." + traitName);
+		if (cname == null) cname = Type.resolveClass("cyclesgame.trait." + traitName);
+		
+		return Type.createInstance(cname, args);
 	}
 }

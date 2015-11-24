@@ -147,7 +147,13 @@ typedef TNode = {
 	var transform:TTransform;
 	@:optional var animation:TAnimation;
 	var nodes:Array<TNode>;
+	var traits:Array<TTrait>;
 	@:optional var parent:TNode;
+}
+
+typedef TTrait = {
+	var type:String;
+	var class_name:String;
 }
 
 typedef TTransform = {

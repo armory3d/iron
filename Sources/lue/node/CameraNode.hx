@@ -182,9 +182,9 @@ class CameraNode extends Node {
 		}
 
 		q.multiply(transform.rot, q); // Camera transform
-		//V = q.toMatrix();
-		V = Mat4.lookAt(new Vec3(0, 0, 0), new Vec3(0, 1, 0), new Vec3(0, 0, 1));
-	    V.multiply(q.toMatrix(), V);
+		V = q.toMatrix();
+		//V = Mat4.lookAt(new Vec3(0, 0, 0), new Vec3(0, 1, 0), new Vec3(0, 0, 1));
+	    //V.multiply(q.toMatrix(), V);
 
 	    var trans = new Mat4();
 	    trans.translate(-transform.absx(), -transform.absy(), -transform.absz());
