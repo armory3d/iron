@@ -95,15 +95,19 @@ class Node {
 
 	public static function addScene(name:String, parent:Node):Node {
 		var resource:TSceneFormat = Resource.getSceneResource(name);
+		traverseNodes(name, parent, resource.nodes);
+		return parent;
+	}
 
-		for (n in resource.nodes) {
+	static function traverseNodes(name:String, parent:Node, nodes:Array<TNode>) {
+		for (n in nodes) {
 			var node:Node = null;
 			
 			if (n.type == "camera_node") {
-				node = Eg.addCameraNode(Resource.getCamera(name, n.object_ref));
+				node = Eg.addCameraNode(Resource.getCamera(name, n.object_ref), parent);
 			}
 			else if (n.type == "light_node") {
-				node = Eg.addLightNode(Resource.getLight(name, n.object_ref));	
+				node = Eg.addLightNode(Resource.getLight(name, n.object_ref), parent);	
 			}
 			else if (n.type == "geometry_node") {
 				var materials:Array<MaterialResource> = [];
@@ -111,14 +115,19 @@ class Node {
 					materials.push(Resource.getMaterial(name, ref));
 				}
 
-				node = Eg.addModelNode(Resource.getModel(name, n.object_ref), materials);	
+				node = Eg.addModelNode(Resource.getModel(name, n.object_ref), materials, parent);	
+			}
+			else if (n.type == "node") {
+				node = Eg.addNode(parent);
 			}
 
-			createTraits(n, node);
-			generateTranform(n, node.transform);
+			if (node != null) {
+				createTraits(n, node);
+				generateTranform(n, node.transform);
+
+				traverseNodes(name, node, n.nodes);
+			}
 		}
-		
-		return parent;
 	}
 
 	static function generateTranform(node:TNode, transform:Transform) {
@@ -188,7 +197,7 @@ class Node {
 	static function createTraitClassInstance(traitName:String, args:Dynamic):Dynamic {
 		var cname = Type.resolveClass("myproject." + traitName);
 		if (cname == null) cname = Type.resolveClass("lue.trait." + traitName);
-		if (cname == null) cname = Type.resolveClass("cyclesgame.trait." + traitName);
+		if (cname == null) cname = Type.resolveClass("cycles.trait." + traitName);
 		
 		return Type.createInstance(cname, args);
 	}

@@ -191,7 +191,9 @@ class ModelNode extends Node {
 			for (i in 0...resource.geometry.indexBuffers.length) {
 				
 				var mi = resource.geometry.materialIndices[i];
-				setMaterialConstants(g, shaderContext, materialContexts[mi]);
+				if (materialContexts.length > mi) {
+					setMaterialConstants(g, shaderContext, materialContexts[mi]);
+				}
 
 				g.setIndexBuffer(resource.geometry.indexBuffers[i]);
 

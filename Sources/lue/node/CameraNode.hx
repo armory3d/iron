@@ -126,7 +126,9 @@ class CameraNode extends Node {
 		var context = params[0];
 		var g = currentRenderTarget;
     	g.setDepthMode(true, CompareMode.Less);
-		g.setCullMode(CullMode.CounterClockwise);
+		//g.setCullMode(CullMode.CounterClockwise);
+		g.setCullMode(CullMode.None);
+		//g.setBlendingMode(kha.graphics4.BlendingOperation.SourceAlpha, kha.graphics4.BlendingOperation.InverseSourceAlpha);
 		root.render(g, context, this, light, bindParams);
 
 		end(g);

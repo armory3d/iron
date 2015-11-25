@@ -76,6 +76,9 @@ class App extends kha.Game {
 
 
         frame.g2.begin(false);
+
+        // Shadow map test
+        //frame.g2.drawImage(lue.resource.Resource.getPipeline("blender_resource", "blender_pipeline").renderTargets.get("shadowmap"), 0, 0);
         
         for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
 

@@ -21,7 +21,8 @@ class LightNode extends Node {
 	}
 
 	public function buildMatrices() {
-		P = Mat4.perspective(45, 1, 5, 30);
-		V = Mat4.lookAt(new Vec3(0, 2, 10), new Vec3(0, 0, 0), new Vec3(0, 0, 1));
+		//P = Mat4.perspective(45, 1, 5, 30);
+		P = Mat4.orthogonal(-10 * 2.4, 10 * 2.4, -10 * 2.4, 10 * 2.4, -30, 30, 2);
+		V = Mat4.lookAt(new Vec3(10, 1, 10), new Vec3(0, 0, 0), new Vec3(0, 0, -1));
 	}
 }
