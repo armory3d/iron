@@ -12,7 +12,7 @@ import lue.resource.importer.SceneFormat;
 
 class ModelNode extends Node {
 
-	var resource:ModelResource;
+	public var resource:ModelResource;
 	var materials:Array<MaterialResource>;
 
 	static var helpMat:Mat4 = new Mat4();

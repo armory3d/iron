@@ -102,11 +102,11 @@ class ExportVertex:
 		self.hash = h
 
 class Object:
-    def to_JSON(self):
-        #if bpy.data.worlds[0]['TargetMinimize'] == True:
-        #    return json.dumps(self, default=lambda o: o.__dict__, separators=(',',':'))
-        #else:
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+	def to_JSON(self):
+		#if bpy.data.worlds[0]['TargetMinimize'] == True:
+		#    return json.dumps(self, default=lambda o: o.__dict__, separators=(',',':'))
+		#else:
+		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
 
 class LueExporter(bpy.types.Operator, ExportHelper):
@@ -123,15 +123,15 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 
 	def WriteMatrix(self, matrix):
 		return [matrix[0][0], matrix[1][0], matrix[2][0], matrix[3][0],
-		 	 	matrix[0][1], matrix[1][1], matrix[2][1], matrix[3][1],
-		 	 	matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2],
-		 	 	matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3]]
+				matrix[0][1], matrix[1][1], matrix[2][1], matrix[3][1],
+				matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2],
+				matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3]]
 
 	def WriteMatrixFlat(self, matrix):
 		return [matrix[0][0], matrix[1][0], matrix[2][0], matrix[3][0],
-		 	 	matrix[0][1], matrix[1][1], matrix[2][1], matrix[3][1],
-		 	 	matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2],
-		 	 	matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3]]
+				matrix[0][1], matrix[1][1], matrix[2][1], matrix[3][1],
+				matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2],
+				matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3]]
 
 	def WriteVector2D(self, vector):
 		return [vector[0], vector[1]]
@@ -1271,18 +1271,53 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 			else:
 				parento.nodes.append(o)
 
-
-		o.traits = [] # TODO: export only for geometry nodes and nodes
 		if not hasattr(o, 'nodes'):
 			o.nodes = []
 		for subnode in node.children:
 			if (subnode.parent_type != "BONE"):
 				self.ExportNode(subnode, scene, None, o)
 
+		# Export traits
+		# TODO: export only for geometry nodes and nodes
+		o.traits = []
+		for t in node.my_traitlist:
+			if t.enabled_prop == False:
+				continue
+			x = Object()
+			if t.type_prop == 'Nodes':
+				x.type = 'Script'
+				x.class_name = t.nodes_name_prop.replace('.', '_')
+			else:
+				x.type = t.type_prop
+				x.class_name = t.class_name_prop
+			
+			o.traits.append(x)
 
-
-
-
+		# Rigid body trait
+		if node.rigid_body != None:
+			rb = node.rigid_body
+			shape = '0' # BOX
+			if rb.collision_shape == 'SPHERE':
+				shape = '1'
+			elif rb.collision_shape == 'CONVEX_HULL':
+				shape = '2'
+			elif rb.collision_shape == 'MESH':
+				shape = '3'
+			elif rb.collision_shape == 'CONE':
+				shape = '4'
+			elif rb.collision_shape == 'CYLINDER':
+				shape = '5'
+			elif rb.collision_shape == 'CAPSULE':
+				shape = '6'
+			body_mass = 0
+			if rb.enabled:
+				body_mass = rb.mass
+			x = Object()
+			x.type = 'Script'
+			x.class_name = 'RigidBody:' + str(body_mass) + \
+								 ':' + shape + \
+								 ":" + str(rb.friction)
+			o.traits.append(x)
 
 
 
@@ -1820,8 +1855,8 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 			#if (material.name != ""):
 			#	o.name = material.name
 
-			intensity = material.diffuse_intensity
-			diffuse = [material.diffuse_color[0] * intensity, material.diffuse_color[1] * intensity, material.diffuse_color[2] * intensity]
+			#intensity = material.diffuse_intensity
+			#diffuse = [material.diffuse_color[0] * intensity, material.diffuse_color[1] * intensity, material.diffuse_color[2] * intensity]
 
 			o.shader = "blender_resource/blender_shader"
 			o.cast_shadow = True
@@ -1856,6 +1891,18 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 			tex1.id = "stex"
 			tex1.name = ""
 			c.bind_textures.append(tex1)
+
+			# Texture
+			if 'Image Texture' in material.node_tree.nodes:
+				image_node = material.node_tree.nodes['Image Texture']
+				const5.bool = True
+				tex1.name = image_node.image.name
+
+			# Color
+			if 'Diffuse BSDF' in material.node_tree.nodes:
+				diffuse_node = material.node_tree.nodes['Diffuse BSDF']
+				col = diffuse_node.inputs[0].default_value
+				const1.vec4 = [col[0], col[1], col[2], col[3]]
 
 			o.contexts.append(c)
 
