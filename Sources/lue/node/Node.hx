@@ -115,7 +115,18 @@ class Node {
 					materials.push(Resource.getMaterial(name, ref));
 				}
 
-				node = Eg.addModelNode(Resource.getModel(name, n.object_ref), materials, parent);	
+				var ref = n.object_ref.split("/");
+				var object_file = "";
+				var object_ref = "";
+				if (ref.length == 2) { // File reference
+					object_file = ref[0];
+					object_ref = ref[1];
+				}
+				else {
+					object_file = name;
+					object_ref = n.object_ref;
+				}
+				node = Eg.addModelNode(Resource.getModel(object_file, object_ref), materials, parent);	
 			}
 			else if (n.type == "node") {
 				node = Eg.addNode(parent);

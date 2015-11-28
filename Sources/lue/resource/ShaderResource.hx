@@ -15,6 +15,7 @@ class ShaderResource extends Resource {
 	public var resource:TShaderResource;
 
 	static var defaultStructure:VertexStructure = null;
+	static var tangentsStructure:VertexStructure = null;
 
 	public var contexts:Array<ShaderContext> = [];
 
@@ -56,6 +57,28 @@ class ShaderResource extends Resource {
 		return 12;
 	}
 
+	// TODO: merge with default
+	static function createTangetsStructure():VertexStructure {
+		var structure = new VertexStructure();
+        structure.add("pos", VertexData.Float3);
+        structure.add("tex", VertexData.Float2);
+        structure.add("nor", VertexData.Float3);
+        structure.add("col", VertexData.Float4);
+        structure.add("tan", VertexData.Float3);
+        structure.add("bitan", VertexData.Float3);
+        return structure;
+	}
+
+	public static function getTangentsStructure():VertexStructure {
+		if (tangentsStructure == null) tangentsStructure = createTangetsStructure();
+		return tangentsStructure;
+	}
+
+	public static function getTangentsStructureLength():Int {
+		return 12 + 6;
+	}
+
+	// Full screen quad
 	public static function createScreenAlignedQuadStructure():VertexStructure {
 		var structure = new VertexStructure();
         structure.add("pos", VertexData.Float2);

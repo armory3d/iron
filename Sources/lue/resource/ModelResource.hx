@@ -46,14 +46,30 @@ class ModelResource extends Resource {
 		var caVA = getVertexArray("color");
 		var ca = caVA != null ? caVA.values : null;
 
+		var tanaVA = getVertexArray("tangent");
+		var tana = tanaVA != null ? tanaVA.values : null;
+		var tanaEnabled = false;
+		if (tana != null) tanaEnabled = true;
+
+		var bitanaVA = getVertexArray("bitangent");
+		var bitana = bitanaVA != null ? bitanaVA.values : null;
+		var bitanaEnabled = false;
+		if (bitana != null) bitanaEnabled = true;
+
 		// Create data
-		buildData(data, pa, true, na, true, uva, true, ca, true);
+		buildData(data, pa, true, na, true, uva, true, ca, true, tana, tanaEnabled, bitana, bitanaEnabled);
 
 		isSkinned = resource.mesh.skin != null ? true : false;
 		var usage = isSkinned ? kha.graphics4.Usage.DynamicUsage : kha.graphics4.Usage.StaticUsage;
 		
-		geometry = new Geometry(data, indices, materialIndices, pa, na, uva, usage);
-		geometry.build(ShaderResource.getDefaultStructure(), ShaderResource.getDefaultStructureLength());
+		if (!tanaEnabled) {
+			geometry = new Geometry(data, indices, materialIndices, pa, na, uva, null, null, usage);
+			geometry.build(ShaderResource.getDefaultStructure(), ShaderResource.getDefaultStructureLength());
+		}
+		else {
+			geometry = new Geometry(data, indices, materialIndices, pa, na, uva, tana, bitana, usage);
+			geometry.build(ShaderResource.getTangentsStructure(), ShaderResource.getTangentsStructureLength());
+		}
 	}
 
 	public static function parse(name:String, id:String):ModelResource {
@@ -120,6 +136,8 @@ class ModelResource extends Resource {
 					   na:Array<Float> = null, naEnabled = false,
 					   uva:Array<Float> = null, uvaEnabled = false,
 					   ca:Array<Float> = null, caEnabled = false,
+					   tana:Array<Float> = null, tanaEnabled = false,
+					   bitana:Array<Float> = null, bitanaEnabled = false,
 					   isSkinned = false) {
 
 		//var ba:Array<Float> = [];
@@ -172,6 +190,18 @@ class ModelResource extends Resource {
 				}
 			}
 
+			if (tanaEnabled) { // Tangents
+				data.push(tana[i * 3]);
+				data.push(tana[i * 3 + 1]);
+				data.push(tana[i * 3 + 2]);
+			}
+
+			if (bitanaEnabled) { // Bitangents
+				data.push(bitana[i * 3]);
+				data.push(bitana[i * 3 + 1]);
+				data.push(bitana[i * 3 + 2]);
+			}
+
 			/*if (isSkinned) { // Bones and weights
 				data.push(ba[i * 4]);
 				data.push(ba[i * 4 + 1]);
@@ -209,8 +239,8 @@ class Geometry {
 	public var normals:Array<Float>;
 	public var uvs:Array<Float>;
 
-	//public var tangents:Array<Float>;
-	//public var bitangents:Array<Float>;
+	public var tangents:Array<Float>;
+	public var bitangents:Array<Float>;
 
 	// Skinned
 	public var skinTransform:Mat4 = null;
@@ -226,6 +256,7 @@ class Geometry {
 
 	public function new(data:Array<Float>, indices:Array<Array<Int>>, materialIndices:Array<Int>,
 						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>,
+						tangents:Array<Float> = null, bitangents:Array<Float> = null,
 						usage:Usage = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
@@ -238,6 +269,9 @@ class Geometry {
 		this.positions = positions;
 		this.normals = normals;
 		this.uvs = uvs;
+
+		this.tangents = tangents;
+		this.bitangents = bitangents;
 	}
 
 	public function build(structure:VertexStructure, structureLength:Int) {
@@ -268,50 +302,6 @@ class Geometry {
 		}
 
 		calculateAABB();
-
-		// If normal map is present
-		//computeTangentBasis();
-	}
-
-	function computeTangentBasis() {
-		// TODO: export tangents and bitangents from blender
-
-		// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/
-		/*for (i in 0...positions.length) {
- 
-		    // Shortcuts for vertices
-		    glm::vec3 & v0 = vertices[i*3+0];
-		    glm::vec3 & v1 = vertices[i*3+1];
-		    glm::vec3 & v2 = vertices[i*3+2];
-		 
-		    // Shortcuts for UVs
-		    glm::vec2 & uv0 = uvs[i*3+0];
-		    glm::vec2 & uv1 = uvs[i*3+1];
-		    glm::vec2 & uv2 = uvs[i*3+2];
-		 
-		    // Edges of the triangle : postion delta
-		    glm::vec3 deltaPos1 = v1-v0;
-		    glm::vec3 deltaPos2 = v2-v0;
-		 
-		    // UV delta
-		    glm::vec2 deltaUV1 = uv1-uv0;
-		    glm::vec2 deltaUV2 = uv2-uv0;
-
-		    float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-			glm::vec3 tangent = (deltaPos1 * deltaUV2.y   - deltaPos2 * deltaUV1.y)*r;
-			glm::vec3 bitangent = (deltaPos2 * deltaUV1.x   - deltaPos1 * deltaUV2.x)*r;
-
-			// Set the same tangent for all three vertices of the triangle.
-		    // They will be merged later, in vboindexer.cpp
-		    tangents.push_back(tangent);
-		    tangents.push_back(tangent);
-		    tangents.push_back(tangent);
-		 
-		    // Same thing for binormals
-		    bitangents.push_back(bitangent);
-		    bitangents.push_back(bitangent);
-		    bitangents.push_back(bitangent); 
-		}*/
 	}
 
 	function calculateAABB() {
