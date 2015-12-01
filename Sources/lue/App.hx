@@ -1,11 +1,10 @@
 package lue;
 
-class App extends kha.Game {
+class App {
 
 	public static var w:Int;
     public static var h:Int;
 
-    var room:String;
     var game:Class<Dynamic>;
 
     static var traitInits:Array<Void->Void> = [];
@@ -13,21 +12,14 @@ class App extends kha.Game {
     static var traitRenders:Array<kha.graphics4.Graphics->Void> = [];
     static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
 
-	public function new(room:String, game:Class<Dynamic>) {
-		super("Game");
-
-        this.room = room;
+	public function new(game:Class<Dynamic>) {
         this.game = game;
+
+        w = kha.System.pixelWidth;
+        h = kha.System.pixelHeight;
+
+        kha.Assets.loadEverything(loadingFinished);
 	}
-
-    override public function init() {
-        kha.Configuration.setScreen(new kha.LoadingScreen());
-
-        w = width;
-        h = height;
-        
-        kha.Loader.the.loadRoom(room, loadingFinished);
-    }
 
     function loadingFinished() {
         new Eg();
@@ -36,8 +28,10 @@ class App extends kha.Game {
         new lue.sys.Time();
         new lue.sys.Input();
 
-        kha.Configuration.setScreen(this);
         Type.createInstance(game, []);
+
+        kha.System.notifyOnRender(render);
+        kha.Scheduler.addTimeTask(update, 0, 1 / 60);
     }
 
     public static function reset() {
@@ -52,7 +46,7 @@ class App extends kha.Game {
         lue.sys.Tween.reset();
     }
 
-    override function update() {
+    function update() {
         lue.sys.Time.update();
         lue.sys.Tween.update();
         
@@ -66,7 +60,7 @@ class App extends kha.Game {
         lue.sys.Input.end();
     }
 
-    override function render(frame:kha.Framebuffer) {
+    function render(frame:kha.Framebuffer) {
         if (traitInits.length > 0) { // TODO: make sure update is called before render
             for (f in traitInits) { if (traitInits.length == 0) break; f(); f = null; }
             traitInits.splice(0, traitInits.length);     

@@ -125,12 +125,7 @@ class CameraNode extends Node {
     function drawGeometry(params:Array<String>, root:Node, light:LightNode) {
 		var context = params[0];
 		var g = currentRenderTarget;
-    	g.setDepthMode(true, CompareMode.Less);
-		//g.setCullMode(CullMode.CounterClockwise);
-		g.setCullMode(CullMode.None);
-		//g.setBlendingMode(kha.graphics4.BlendingOperation.SourceAlpha, kha.graphics4.BlendingOperation.InverseSourceAlpha);
 		root.render(g, context, this, light, bindParams);
-
 		end(g);
     }
 
@@ -153,9 +148,7 @@ class CameraNode extends Node {
 		var context = cc.context;
 
 		var g = currentRenderTarget;		
-		g.setDepthMode(false, CompareMode.Always);
-		g.setCullMode(CullMode.None);
-		g.setProgram(context.program);
+		g.setPipeline(context.pipeState);
 
 		ModelNode.setConstants(g, context, null, this, light, bindParams);
 		ModelNode.setMaterialConstants(g, context, materialContext);

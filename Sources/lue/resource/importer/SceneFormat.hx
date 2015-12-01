@@ -96,6 +96,9 @@ typedef TShaderResource = {
 
 typedef TShaderContext = {
 	var id:String;
+	var depth_write:Bool;
+	var compare_mode:String;
+	var cull_mode:String;
 	var vertex_shader:String;
 	var fragment_shader:String;
 	var constants:Array<TShaderConstant>;

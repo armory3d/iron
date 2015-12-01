@@ -182,7 +182,7 @@ class ModelNode extends Node {
 		//if (camera.sphereInFrustum(transform, mesh.geometry.radius)) {
 
 			// Render mesh
-			g.setProgram(shaderContext.program);
+			g.setPipeline(shaderContext.pipeState);
 
 			g.setVertexBuffer(resource.geometry.vertexBuffer);
 

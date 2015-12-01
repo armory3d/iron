@@ -1,13 +1,14 @@
 package lue.resource;
 
-import kha.graphics4.Program;
+import kha.graphics4.PipelineState;
 import kha.graphics4.ConstantLocation;
 import kha.graphics4.TextureUnit;
 import kha.graphics4.FragmentShader;
 import kha.graphics4.VertexShader;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
-import kha.Loader;
+import kha.graphics4.CompareMode;
+import kha.graphics4.CullMode;
 import lue.resource.importer.SceneFormat;
 
 class ShaderResource extends Resource {
@@ -100,20 +101,38 @@ class ShaderResource extends Resource {
 class ShaderContext {
 	public var resource:TShaderContext;
 
-	public var program:Program;
+	public var pipeState:PipelineState;
 	public var constants:Array<ConstantLocation> = [];
 	public var textureUnits:Array<TextureUnit> = [];
 
 	public function new(resource:TShaderContext) {
 		this.resource = resource;
-
-		var fragmentShader = new FragmentShader(Loader.the.getShader(resource.fragment_shader));
-		var vertexShader = new VertexShader(Loader.the.getShader(resource.vertex_shader));
 	
-		program = new Program();
-		program.setFragmentShader(fragmentShader);
-		program.setVertexShader(vertexShader);
-		link();
+		pipeState = new PipelineState();
+		pipeState.inputLayout = [ShaderResource.getDefaultStructure()];
+		
+		pipeState.depthWrite = resource.depth_write;
+		
+		if (resource.compare_mode == "always") { // TODO: parse from CompareMode enum
+        	pipeState.depthMode = CompareMode.Always;
+        }
+        else if (resource.compare_mode == "less") {
+        	pipeState.depthMode = CompareMode.Less;
+        }
+
+        if (resource.cull_mode == "none") {
+        	pipeState.cullMode = CullMode.None;
+        }
+        else if (resource.cull_mode == "counter_clockwise") {
+        	pipeState.cullMode = CullMode.CounterClockwise;
+        }
+        else {
+        	pipeState.cullMode = CullMode.Clockwise;	
+        }
+
+		pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(resource.fragment_shader, ".", "_"));
+		pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(resource.vertex_shader, ".", "_"));
+		pipeState.compile();
 
 		for (c in resource.constants) {
 			addConstant(c.id);
@@ -124,15 +143,11 @@ class ShaderContext {
 		}
 	}
 
-	function link() {
-		program.link(ShaderResource.getDefaultStructure());
-	}
-
 	function addConstant(s:String) {
-		constants.push(program.getConstantLocation(s));
+		constants.push(pipeState.getConstantLocation(s));
 	}
 
 	function addTexture(s:String) {
-		textureUnits.push(program.getTextureUnit(s));
+		textureUnits.push(pipeState.getTextureUnit(s));
 	}
 }

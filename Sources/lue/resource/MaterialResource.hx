@@ -54,7 +54,9 @@ class MaterialContext {
 			textures = [];
 			for (i in 0...resource.bind_textures.length) {
 				// TODO: make sure to store in the same order as shader texture units array
-				textures.push(kha.Loader.the.getImage(resource.bind_textures[i].name));
+				var image = Reflect.field(kha.Assets.images, resource.bind_textures[i].name);
+				trace(image);
+				textures.push(image);
 			}
 		}
 	}

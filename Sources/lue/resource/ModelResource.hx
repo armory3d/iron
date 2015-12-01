@@ -67,6 +67,7 @@ class ModelResource extends Resource {
 			geometry.build(ShaderResource.getDefaultStructure(), ShaderResource.getDefaultStructureLength());
 		}
 		else {
+			// TODO: make sure pipelineState input layout is correctly set
 			geometry = new Geometry(data, indices, materialIndices, pa, na, uva, tana, bitana, usage);
 			geometry.build(ShaderResource.getTangentsStructure(), ShaderResource.getTangentsStructureLength());
 		}
