@@ -63,8 +63,28 @@ class ModelResource extends Resource {
 		var struct = ShaderResource.getVertexStructure(pa != null, uva != null, na != null, ca != null, tana != null, bitana != null);
 		var structLength = ShaderResource.getVertexStructureLength(pa != null, uva != null, na != null, ca != null, tana != null, bitana != null);
 
-		geometry = new Geometry(data, indices, materialIndices, pa, uva, na, tana, bitana, usage);
+		geometry = new Geometry(data, indices, materialIndices, pa, uva, na, ca, tana, bitana, usage);		
 		geometry.build(struct, structLength);
+
+		// Instanced
+		if (resource.mesh.instance_offsets != null) {
+			geometry.instanced = true;
+			geometry.instanceCount = Std.int(resource.mesh.instance_offsets.length / 3);
+
+			var structure = new VertexStructure();
+        	structure.add("off", kha.graphics4.VertexData.Float3);
+
+			var vb = new VertexBuffer(geometry.instanceCount,
+									  structure, kha.graphics4.Usage.StaticUsage,
+									  1);
+			var vertices = vb.lock();
+			for (i in 0...vertices.length) {
+				vertices.set(i, resource.mesh.instance_offsets[i]);
+			}
+			vb.unlock();
+
+			geometry.instancedVertexBuffers = [geometry.vertexBuffer, vb];
+		}
 	}
 
 	public static function parse(name:String, id:String):ModelResource {
@@ -197,6 +217,10 @@ class Geometry {
     public var materialIndices:Array<Int>;
     public var structureLength:Int;
 
+    public var instancedVertexBuffers:Array<VertexBuffer>;
+    public var instanced:Bool = false;
+	public var instanceCount:Int = 0;
+
     public var aabbMin:Vec3;
 	public var aabbMax:Vec3;
 	public var size:Vec3;
@@ -209,6 +233,7 @@ class Geometry {
 	public var positions:Array<Float>;
 	public var uvs:Array<Float>;
 	public var normals:Array<Float>;
+	public var cols:Array<Float>;
 
 	public var tangents:Array<Float>;
 	public var bitangents:Array<Float>;
@@ -226,7 +251,7 @@ class Geometry {
 	public var skeletonTransformsI:Array<Mat4> = null;
 
 	public function new(data:Array<Float>, indices:Array<Array<Int>>, materialIndices:Array<Int>,
-						positions:Array<Float>, uvs:Array<Float>, normals:Array<Float>,
+						positions:Array<Float>, uvs:Array<Float>, normals:Array<Float>, cols:Array<Float>,
 						tangents:Array<Float> = null, bitangents:Array<Float> = null,
 						usage:Usage = null) {
 
@@ -240,6 +265,7 @@ class Geometry {
 		this.positions = positions;
 		this.uvs = uvs;
 		this.normals = normals;
+		this.cols = cols;
 
 		this.tangents = tangents;
 		this.bitangents = bitangents;

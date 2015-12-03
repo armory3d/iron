@@ -106,9 +106,17 @@ class ShaderContext {
 
 	public function new(resource:TShaderContext, structure:VertexStructure) {
 		this.resource = resource;
-	
+
 		pipeState = new PipelineState();
-		pipeState.inputLayout = [structure];
+
+		if (resource.vertex_shader.indexOf("_Instancing") != -1) {
+			var instStruct = new VertexStructure();
+        	instStruct.add("off", VertexData.Float3);
+        	pipeState.inputLayout = [structure, instStruct];
+		}
+		else {
+			pipeState.inputLayout = [structure];
+		}
 		
 		pipeState.depthWrite = resource.depth_write;
 		

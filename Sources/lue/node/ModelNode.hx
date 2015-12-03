@@ -200,7 +200,12 @@ class ModelNode extends Node {
 			// Render mesh
 			g.setPipeline(shaderContext.pipeState);
 
-			g.setVertexBuffer(resource.geometry.vertexBuffer);
+			if (resource.geometry.instanced) {
+				g.setVertexBuffers(resource.geometry.instancedVertexBuffers);
+			}
+			else {
+				g.setVertexBuffer(resource.geometry.vertexBuffer);
+			}
 
 			setConstants(g, shaderContext, this, camera, light, bindParams);
 
@@ -213,7 +218,12 @@ class ModelNode extends Node {
 
 				g.setIndexBuffer(resource.geometry.indexBuffers[i]);
 
-				g.drawIndexedVertices();
+				if (resource.geometry.instanced) {
+					g.drawIndexedVerticesInstanced(resource.geometry.instanceCount);
+				}
+				else {
+					g.drawIndexedVertices();
+				}
 			}
 		//}
 	}
