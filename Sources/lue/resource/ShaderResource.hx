@@ -15,8 +15,8 @@ class ShaderResource extends Resource {
 
 	public var resource:TShaderResource;
 
-	static var defaultStructure:VertexStructure = null;
-	static var tangentsStructure:VertexStructure = null;
+	var structure:VertexStructure;
+	var structureLength:Int;
 
 	public var contexts:Array<ShaderContext> = [];
 
@@ -29,8 +29,25 @@ class ShaderResource extends Resource {
 		}
 		this.resource = resource;
 
+		parseVertexStructure();
+
 		for (c in resource.contexts) {
-			contexts.push(new ShaderContext(c));
+			contexts.push(new ShaderContext(c, structure));
+		}
+	}
+
+	function sizeToVD(size:Int):VertexData {
+		if (size == 1) return VertexData.Float1;
+		else if (size == 2) return VertexData.Float2;
+		else if (size == 3) return VertexData.Float3;
+		else if (size == 4) return VertexData.Float4;
+		return null;
+	}
+	function parseVertexStructure() {
+		structure = new VertexStructure();
+		for (data in resource.vertex_structure) {
+			structure.add(data.name, sizeToVD(data.size));
+			structureLength += data.size;
 		}
 	}
 
@@ -40,52 +57,34 @@ class ShaderResource extends Resource {
 		return new ShaderResource(resource);
 	}
 
-	static function createDefaultStructure():VertexStructure {
+	// Usable by ModelResource
+	public static function getVertexStructure(pos = false, tex = false, nor = false, col = false, tan = false, bitan = false):VertexStructure {
 		var structure = new VertexStructure();
-        structure.add("pos", VertexData.Float3);
-        structure.add("tex", VertexData.Float2);
-        structure.add("nor", VertexData.Float3);
-        structure.add("col", VertexData.Float4);
-        return structure;
+		if (pos) structure.add("pos", VertexData.Float3);
+		if (tex) structure.add("tex", VertexData.Float2);
+		if (nor) structure.add("nor", VertexData.Float3);
+		if (col) structure.add("col", VertexData.Float4);
+		if (tan) structure.add("tan", VertexData.Float3);
+		if (bitan) structure.add("bitan", VertexData.Float3);
+		return structure;
+	}
+	public static function getVertexStructureLength(pos = false, tex = false, nor = false, col = false, tan = false, bitan = false):Int {
+		var length = 0;
+		if (pos) length += 3;
+		if (tex) length += 2;
+		if (nor) length += 3;
+		if (col) length += 4;
+		if (tan) length += 3;
+		if (bitan) length += 3;
+		return length;
 	}
 
-	public static function getDefaultStructure():VertexStructure {
-		if (defaultStructure == null) defaultStructure = createDefaultStructure();
-		return defaultStructure;
-	}
-
-	public static function getDefaultStructureLength():Int {
-		return 12;
-	}
-
-	// TODO: merge with default
-	static function createTangetsStructure():VertexStructure {
-		var structure = new VertexStructure();
-        structure.add("pos", VertexData.Float3);
-        structure.add("tex", VertexData.Float2);
-        structure.add("nor", VertexData.Float3);
-        structure.add("col", VertexData.Float4);
-        structure.add("tan", VertexData.Float3);
-        structure.add("bitan", VertexData.Float3);
-        return structure;
-	}
-
-	public static function getTangentsStructure():VertexStructure {
-		if (tangentsStructure == null) tangentsStructure = createTangetsStructure();
-		return tangentsStructure;
-	}
-
-	public static function getTangentsStructureLength():Int {
-		return 12 + 6;
-	}
-
-	// Full screen quad
+	// Usable by fullscreen quad
 	public static function createScreenAlignedQuadStructure():VertexStructure {
 		var structure = new VertexStructure();
         structure.add("pos", VertexData.Float2);
         return structure;
 	}
-
 	public static function getScreenAlignedQuadStructureLength():Int {
 		return 2;
 	}
@@ -105,11 +104,11 @@ class ShaderContext {
 	public var constants:Array<ConstantLocation> = [];
 	public var textureUnits:Array<TextureUnit> = [];
 
-	public function new(resource:TShaderContext) {
+	public function new(resource:TShaderContext, structure:VertexStructure) {
 		this.resource = resource;
 	
 		pipeState = new PipelineState();
-		pipeState.inputLayout = [ShaderResource.getDefaultStructure()];
+		pipeState.inputLayout = [structure];
 		
 		pipeState.depthWrite = resource.depth_write;
 		

@@ -121,19 +121,35 @@ class ModelNode extends Node {
 	public static function setMaterialConstants(g:Graphics, context:ShaderContext, materialContext:MaterialContext) {
 		for (i in 0...materialContext.resource.bind_constants.length) {
 			var matc = materialContext.resource.bind_constants[i];
-			// TODO: material params must be in the same array position as shader constants
-			var c = context.resource.constants[i];
-			setMaterialConstant(g, context.constants[i], c, matc);
+			// TODO: cache
+			var pos = -1;
+			for (i in 0...context.resource.constants.length) {
+				if (context.resource.constants[i].id == matc.id) {
+					pos = i;
+					break;
+				}
+			}
+			var c = context.resource.constants[pos];
+			
+			setMaterialConstant(g, context.constants[pos], c, matc);
 		}
 
 		if (materialContext.textures != null) {
 			for (i in 0...materialContext.textures.length) {
-				//g.setTextureParameters(context.textureUnits[i], kha.graphics4.TextureAddressing.Clamp, kha.graphics4.TextureAddressing.Clamp, kha.graphics4.TextureFilter.AnisotropicFilter, kha.graphics4.TextureFilter.AnisotropicFilter, kha.graphics4.MipMapFilter.NoMipFilter);
-				g.setTexture(context.textureUnits[i], materialContext.textures[i]);
+				var mid = materialContext.resource.bind_textures[i].id;
+
+				// TODO: cache
+				for (j in 0...context.textureUnits.length) {
+					var sid = context.resource.texture_units[j].id;
+					if (mid == sid) {
+						g.setTexture(context.textureUnits[j], materialContext.textures[i]);
+						break;
+					}
+				}
 			}
 		}
 	}
-	static function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderMaterialConstant, matc:TBindConstant) {
+	static function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderConstant, matc:TBindConstant) {
 
 		if (c.type == "vec4") {
 			g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);

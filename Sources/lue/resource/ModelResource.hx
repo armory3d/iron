@@ -37,40 +37,34 @@ class ModelResource extends Resource {
 		var paVA = getVertexArray("position");
 		var pa = paVA != null ? paVA.values : null;
 		
-		var naVA = getVertexArray("normal");
-		var na = naVA != null ? naVA.values : null; 
-		
 		var uvaVA = getVertexArray("texcoord");
 		var uva = uvaVA != null ? uvaVA.values : null;
+
+		var naVA = getVertexArray("normal");
+		var na = naVA != null ? naVA.values : null; 
 
 		var caVA = getVertexArray("color");
 		var ca = caVA != null ? caVA.values : null;
 
 		var tanaVA = getVertexArray("tangent");
 		var tana = tanaVA != null ? tanaVA.values : null;
-		var tanaEnabled = false;
-		if (tana != null) tanaEnabled = true;
 
 		var bitanaVA = getVertexArray("bitangent");
 		var bitana = bitanaVA != null ? bitanaVA.values : null;
-		var bitanaEnabled = false;
-		if (bitana != null) bitanaEnabled = true;
 
 		// Create data
-		buildData(data, pa, true, na, true, uva, true, ca, true, tana, tanaEnabled, bitana, bitanaEnabled);
+		buildData(data, pa, uva, na, ca, tana, bitana, null, null);
 
 		isSkinned = resource.mesh.skin != null ? true : false;
 		var usage = isSkinned ? kha.graphics4.Usage.DynamicUsage : kha.graphics4.Usage.StaticUsage;
 		
-		if (!tanaEnabled) {
-			geometry = new Geometry(data, indices, materialIndices, pa, na, uva, null, null, usage);
-			geometry.build(ShaderResource.getDefaultStructure(), ShaderResource.getDefaultStructureLength());
-		}
-		else {
-			// TODO: make sure pipelineState input layout is correctly set
-			geometry = new Geometry(data, indices, materialIndices, pa, na, uva, tana, bitana, usage);
-			geometry.build(ShaderResource.getTangentsStructure(), ShaderResource.getTangentsStructureLength());
-		}
+		// TODO: Mandatory vertex data names and sizes
+		// pos=3, tex=2, nor=3, col=4, tan=3, bitan=3
+		var struct = ShaderResource.getVertexStructure(pa != null, uva != null, na != null, ca != null, tana != null, bitana != null);
+		var structLength = ShaderResource.getVertexStructureLength(pa != null, uva != null, na != null, ca != null, tana != null, bitana != null);
+
+		geometry = new Geometry(data, indices, materialIndices, pa, uva, na, tana, bitana, usage);
+		geometry.build(struct, structLength);
 	}
 
 	public static function parse(name:String, id:String):ModelResource {
@@ -131,89 +125,65 @@ class ModelResource extends Resource {
 		return null;
 	}
 
-	// TODO: pass vertex structure
 	function buildData(data:Array<Float>,
-					   pa:Array<Float> = null, paEnabled = false,
-					   na:Array<Float> = null, naEnabled = false,
-					   uva:Array<Float> = null, uvaEnabled = false,
-					   ca:Array<Float> = null, caEnabled = false,
-					   tana:Array<Float> = null, tanaEnabled = false,
-					   bitana:Array<Float> = null, bitanaEnabled = false,
-					   isSkinned = false) {
-
-		//var ba:Array<Float> = [];
-		//var wa:Array<Float> = [];
+					   pa:Array<Float> = null,
+					   uva:Array<Float> = null,
+					   na:Array<Float> = null,
+					   ca:Array<Float> = null,
+					   tana:Array<Float> = null,
+					   bitana:Array<Float> = null,
+					   ba:Array<Float> = null,
+					   wa:Array<Float> = null) {
 
 		for (i in 0...Std.int(pa.length / 3)) {
 			
-			if (paEnabled) {
-				data.push(pa[i * 3]); // Pos
-				data.push(pa[i * 3 + 1]);
-				data.push(pa[i * 3 + 2]);
+			data.push(pa[i * 3]); // Pos
+			data.push(pa[i * 3 + 1]);
+			data.push(pa[i * 3 + 2]);
+
+			if (uva != null) { // TC
+				data.push(uva[i * 2]);
+				data.push(1 - uva[i * 2 + 1]);
 			}
 
-			if (uvaEnabled) {
-				if (uva != null) {
-					data.push(uva[i * 2]); // TC
-					data.push(1 - uva[i * 2 + 1]);
-				}
-				else {
-					data.push(0);
-					data.push(0);
-				}
+			if (na != null) { // Normals
+				data.push(na[i * 3]);
+				data.push(na[i * 3 + 1]);
+				data.push(na[i * 3 + 2]);
 			}
 
-			if (naEnabled) {
-				if (na != null) {
-					data.push(na[i * 3]); // Normal
-					data.push(na[i * 3 + 1]);
-					data.push(na[i * 3 + 2]);
-				}
-				else {
-					data.push(1);
-					data.push(1);
-					data.push(1);
-				}
+			if (ca != null) { // Colors
+				data.push(ca[i * 3]);
+				data.push(ca[i * 3 + 1]);
+				data.push(ca[i * 3 + 2]);
+				data.push(1.0);
 			}
 
-			if (caEnabled) {
-				if (ca != null) { // Color
-					data.push(ca[i * 3]); // Vertex colors
-					data.push(ca[i * 3 + 1]);
-					data.push(ca[i * 3 + 2]);
-					data.push(1.0);
-				}
-				else {
-					data.push(1.0);	// Default color
-					data.push(1.0);
-					data.push(1.0);
-					data.push(1.0);
-				}
-			}
-
-			if (tanaEnabled) { // Tangents
+			if (tana != null) { // Tangents
 				data.push(tana[i * 3]);
 				data.push(tana[i * 3 + 1]);
 				data.push(tana[i * 3 + 2]);
 			}
 
-			if (bitanaEnabled) { // Bitangents
+			if (bitana != null) { // Bitangents
 				data.push(bitana[i * 3]);
 				data.push(bitana[i * 3 + 1]);
 				data.push(bitana[i * 3 + 2]);
 			}
 
-			/*if (isSkinned) { // Bones and weights
+			if (ba != null) { // Bones
 				data.push(ba[i * 4]);
 				data.push(ba[i * 4 + 1]);
 				data.push(ba[i * 4 + 2]);
 				data.push(ba[i * 4 + 3]);
+			}
 
+			if (wa != null) { // Weights
 				data.push(wa[i * 4]);
 				data.push(wa[i * 4 + 1]);
 				data.push(wa[i * 4 + 2]);
 				data.push(wa[i * 4 + 3]);
-			}*/
+			}
 		}
 	}
 }
@@ -237,8 +207,8 @@ class Geometry {
 	public var usage:Usage;
 
 	public var positions:Array<Float>;
-	public var normals:Array<Float>;
 	public var uvs:Array<Float>;
+	public var normals:Array<Float>;
 
 	public var tangents:Array<Float>;
 	public var bitangents:Array<Float>;
@@ -256,7 +226,7 @@ class Geometry {
 	public var skeletonTransformsI:Array<Mat4> = null;
 
 	public function new(data:Array<Float>, indices:Array<Array<Int>>, materialIndices:Array<Int>,
-						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>,
+						positions:Array<Float>, uvs:Array<Float>, normals:Array<Float>,
 						tangents:Array<Float> = null, bitangents:Array<Float> = null,
 						usage:Usage = null) {
 
@@ -268,8 +238,8 @@ class Geometry {
 		this.usage = usage;
 
 		this.positions = positions;
-		this.normals = normals;
 		this.uvs = uvs;
+		this.normals = normals;
 
 		this.tangents = tangents;
 		this.bitangents = bitangents;

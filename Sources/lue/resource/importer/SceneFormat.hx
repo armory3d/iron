@@ -21,6 +21,7 @@ typedef TMesh = {
 	var vertex_arrays:Array<TVertexArray>;
 	var index_arrays:Array<TIndexArray>;
 	@:optional var skin:TSkin;
+	@:optional var instance_offsets:Array<Float>;
 }
 
 typedef TSkin = {
@@ -91,7 +92,13 @@ typedef TBindTexture = {
 
 typedef TShaderResource = {
 	var id:String;
+	var vertex_structure:Array<TVertexData>;
 	var contexts:Array<TShaderContext>;
+}
+
+typedef TVertexData = {
+	var name:String;
+	var size:Int;
 }
 
 typedef TShaderContext = {
@@ -113,11 +120,6 @@ typedef TShaderConstant = {
 	@:optional var vec3:Array<Float>;
 	@:optional var float:Float;
 	@:optional var bool:Bool;
-}
-
-typedef TShaderMaterialConstant = {
-	var id:String;
-	var type:String;
 }
 
 typedef TTextureUnit = {

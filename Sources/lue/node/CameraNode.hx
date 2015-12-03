@@ -77,6 +77,8 @@ class CameraNode extends Node {
 		var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];
 		var indices = [0, 1, 2, 0, 2, 3];
 
+		// TODO: Mandatory vertex data names and sizes
+		// pos=2
 		screenAlignedVB = new VertexBuffer(Std.int(data.length / ShaderResource.getScreenAlignedQuadStructureLength()),
 										   ShaderResource.createScreenAlignedQuadStructure(), Usage.StaticUsage);
 		var vertices = screenAlignedVB.lock();
