@@ -142,6 +142,8 @@ class ModelNode extends Node {
 				for (j in 0...context.textureUnits.length) {
 					var sid = context.resource.texture_units[j].id;
 					if (mid == sid) {
+						// TODO: remove setparams
+						g.setTextureParameters(context.textureUnits[j], kha.graphics4.TextureAddressing.Repeat, kha.graphics4.TextureAddressing.Repeat, kha.graphics4.TextureFilter.LinearFilter, kha.graphics4.TextureFilter.LinearFilter, kha.graphics4.MipMapFilter.NoMipFilter);
 						g.setTexture(context.textureUnits[j], materialContext.textures[i]);
 						break;
 					}

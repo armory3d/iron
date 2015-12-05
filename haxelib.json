@@ -1,7 +1,7 @@
 {
   "name": "lue",
   "url" : "https://github.com/luboslenco/lue/",
-  "license": "MIT",
+  "license": "LGPL",
   "tags": ["kha", "3d"],
   "description": "Minimal 3D rendering engine",
   "version": "15.12.0",

@@ -25,10 +25,6 @@ class CameraNode extends Node {
 	public var V:Mat4;
 	public var VP:Mat4;
 
-	var up:Vec3;
-	var look:Vec3;
-	var right:Vec3;
-
 	var frustumPlanes:Array<Plane> = [];
 
 	var frameRenderTarget:Graphics;
@@ -59,10 +55,6 @@ class CameraNode extends Node {
 		}
 		V = new Mat4();
 		VP = new Mat4();
-
-		up = new Vec3(0, 0, 1);
-		look = new Vec3(0, 1, 0);
-		right = new Vec3(1, 0, 0);
 
 		for (i in 0...6) {
 			frustumPlanes.push(new Plane());
@@ -162,11 +154,11 @@ class CameraNode extends Node {
 		end(g);
     }
 
-	function begin(g:Graphics) {
+	inline function begin(g:Graphics) {
 		g.begin();
 	}
 
-	function end(g:Graphics) {
+	inline function end(g:Graphics) {
 		g.end();
 	}
 
@@ -180,8 +172,6 @@ class CameraNode extends Node {
 
 		q.multiply(transform.rot, q); // Camera transform
 		V = q.toMatrix();
-		//V = Mat4.lookAt(new Vec3(0, 0, 0), new Vec3(0, 1, 0), new Vec3(0, 0, 1));
-	    //V.multiply(q.toMatrix(), V);
 
 	    var trans = new Mat4();
 	    trans.translate(-transform.absx(), -transform.absy(), -transform.absz());
@@ -271,82 +261,32 @@ class CameraNode extends Node {
 	    return true;
 	}
 
-	public function getLook():Vec3 {
-	    var mRot:Mat4 = transform.rot.toMatrix();
-	    return new Vec3(mRot._13, mRot._23, mRot._33);
-	}
-
-	public function getRight():Vec3 {
-	    var mRot:Mat4 = transform.rot.toMatrix();
-	    return new Vec3(mRot._11, mRot._21, mRot._31);
-	}
-
-	public function getUp():Vec3 {
-	    var mRot:Mat4 = transform.rot.toMatrix();
-	    return new Vec3(mRot._12, mRot._22, mRot._32);
-	}
-
-	public function pitch(f:Float) {
+	public function rotate(axis:Vec3, f:Float) {
 		var q = new Quat();
-		q.setFromAxisAngle(right, -f);
-		transform.rot.multiply(q, transform.rot);
+		q.setFromAxisAngle(axis, f);
+		transform.rot.multiply(transform.rot, q);
 
 		updateMatrix();
 	}
 
-	public function yaw(f:Float) {
-		var q = new Quat();
-		q.setFromAxisAngle(up, -f);
-		transform.rot.multiply(q, transform.rot);
+	public function move(axis:Vec3, f:Float) {
+        axis.mult(-f, axis);
 
-		updateMatrix();
-	}
-
-	public function roll(f:Float) {
-		var q = new Quat();
-		q.setFromAxisAngle(look, -f);
-		transform.rot.multiply(q, transform.rot);
-
-		updateMatrix();
-	}
-
-	public function moveForward(f:Float):Vec3 {
-		var v3Move = viewMatrixLook();
-        v3Move.mult(-f, v3Move);
-        moveCamera(v3Move);
-        return v3Move;
-	}
-
-	public function moveRight(f:Float):Vec3 {
-		var v3Move = viewMatrixRight();
-        v3Move.mult(-f, v3Move);
-        moveCamera(v3Move);
-        return v3Move;
-	}
-
-	public function moveUp(f:Float):Vec3 {
-		var v3Move = viewMatrixUp();
-        v3Move.mult(-f, v3Move);
-        moveCamera(v3Move);
-        return v3Move;
-	}
-
-	public function moveCamera(vec:Vec3) {
-		transform.pos.vadd(vec, transform.pos);
+		transform.pos.vadd(axis, transform.pos);
 		transform.dirty = true;
 		transform.update();
 		updateMatrix();
 	}
 
-	public function viewMatrixRight():Vec3 {
+	public function right():Vec3 {
         return new Vec3(V._11, V._21, V._31);
     }
 
-    public function viewMatrixLook():Vec3 {
+    public function look():Vec3 {
         return new Vec3(V._13, V._23, V._33);
     }
 
-    public function viewMatrixUp():Vec3 {
+    public function up():Vec3 {
         return new Vec3(V._12, V._22, V._32);
     }
 
