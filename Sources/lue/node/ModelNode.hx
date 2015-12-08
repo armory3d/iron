@@ -18,7 +18,7 @@ class ModelNode extends Node {
 	static var helpMat:Mat4 = new Mat4();
 
 	// Skinned
-	var animation:Animation;
+	public var animation:Animation = null;
 	var boneMats = new Map<TNode, Mat4>();
 	var boneTimeIndices = new Map<TNode, Int>();
 
@@ -238,7 +238,7 @@ class ModelNode extends Node {
 
     public function setAnimationParams(delta:Float) {
     	if (resource.isSkinned) {
-    		animation.animTime += delta;
+    		animation.animTime += delta * animation.speed;
 
 			updateAnim();
 			updateSkin();
@@ -272,6 +272,10 @@ class ModelNode extends Node {
 				// Rewind
 				if (animation.timeIndex >= track.time.values.length - 2 ||
 					animation.timeIndex >= animation.current.end) {
+
+					// Give chance to change current track
+					if (animation.onTrackComplete != null) animation.onTrackComplete();
+
 					animation.timeIndex = animation.current.start;
 					animation.animTime = track.time.values[animation.timeIndex];
 					//boneTimeIndices.set(b, animation.timeIndex);
@@ -282,6 +286,10 @@ class ModelNode extends Node {
 				var t1 = track.time.values[animation.timeIndex];
 				var t2 = track.time.values[animation.timeIndex + 1];
 				var s = (animation.animTime - t1) / (t2 - t1);
+				// TODO: lerp is inverted on certain nodes
+				if (b.id == "stringPuller") {
+					s = 1.0 - s;
+				}
 
 				var v1:Array<Float> = track.value.values[animation.timeIndex];
 				var v2:Array<Float> = track.value.values[animation.timeIndex + 1];
@@ -378,12 +386,13 @@ class ModelNode extends Node {
 				nor.add(m.pos());
 			}
 
+			// TODO: use correct vertex structure
 			v.set(i * l, pos.x);
 			v.set(i * l + 1, pos.y);
 			v.set(i * l + 2, pos.z);
-			v.set(i * l + 5, nor.x);
-			v.set(i * l + 6, nor.y);
-			v.set(i * l + 7, nor.z);
+			v.set(i * l + 3, nor.x);
+			v.set(i * l + 4, nor.y);
+			v.set(i * l + 5, nor.z);
 		}
 
 		resource.geometry.vertexBuffer.unlock();
@@ -399,6 +408,9 @@ class Animation {
 	public var current:Track;
 	var tracks:Map<String, Track> = new Map();
 
+	public var speed:Float = 1.0;
+	public var onTrackComplete:Void->Void = null;
+
     public function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
 
         for (i in 0...names.length) {
@@ -408,17 +420,12 @@ class Animation {
         play(startTrack);
     }
 
-    public function play(name:String) {
+    public function play(name:String, speed:Float = 1.0, onTrackComplete:Void->Void = null) {
  		current = tracks.get(name);
  		dirty = true;
-    }
 
-    public function pause() {
-
-    }
-
-    public function stop() {
-
+ 		this.speed = speed;
+ 		this.onTrackComplete = onTrackComplete;
     }
 
     function addTrack(name:String, start:Int, end:Int) {

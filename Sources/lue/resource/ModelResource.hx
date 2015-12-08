@@ -87,7 +87,7 @@ class ModelResource extends Resource {
 		}
 	}
 
-	public static function parse(name:String, id:String):ModelResource {
+	public static function parse(name:String, id:String, remoteBoneNodes:Array<TNode> = null):ModelResource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TGeometryResource = Resource.getGeometryResourceById(format.geometry_resources, id);
 
@@ -95,10 +95,11 @@ class ModelResource extends Resource {
 
 		// Skinned
 		if (resource.mesh.skin != null) {
-			for (n in format.nodes) {
+			var nodes = remoteBoneNodes != null ? remoteBoneNodes : format.nodes;
+			for (n in nodes) {
 				setParents(n);
 			}
-			traverseNodes(format, function(node:TNode) {
+			traverseNodes(nodes, function(node:TNode) {
 				if (node.type == "bone_node") {
 					res.bones.push(node);
 				}
@@ -123,9 +124,9 @@ class ModelResource extends Resource {
 			setParents(n);
 		}
 	}
-	static function traverseNodes(data:TSceneFormat, callback:TNode->Void) {
-		for (i in 0...data.nodes.length) {
-			traverseNodesStep(data.nodes[i], callback);
+	static function traverseNodes(nodes:Array<TNode>, callback:TNode->Void) {
+		for (i in 0...nodes.length) {
+			traverseNodesStep(nodes[i], callback);
 		}
 	}
 	static function traverseNodesStep(node:TNode, callback:TNode->Void) {

@@ -13,7 +13,7 @@ class Node {
 	public static var lights:Array<LightNode>;
 	public static var cameras:Array<CameraNode>;
 
-	public var name:String = "";
+	public var id:String = "";
 	public var parent:Node;
 
 	public var children:Array<Node> = [];
@@ -47,13 +47,13 @@ class Node {
 		o.parent = null;
 	}
 
-	public function getChild(name:String):Node {
-		if (this.name == name) {
+	public function getChild(id:String):Node {
+		if (this.id == id) {
 			return this;
 		}
 		else {
 			for (c in children) {
-				var r = c.getChild(name);
+				var r = c.getChild(id);
 				if (r != null) {
 					return r;
 				}
@@ -95,11 +95,11 @@ class Node {
 
 	public static function addScene(name:String, parent:Node):Node {
 		var resource:TSceneFormat = Resource.getSceneResource(name);
-		traverseNodes(name, parent, resource.nodes);
+		traverseNodes(resource, name, parent, resource.nodes);
 		return parent;
 	}
 
-	static function traverseNodes(name:String, parent:Node, nodes:Array<TNode>) {
+	static function traverseNodes(resource:TSceneFormat, name:String, parent:Node, nodes:Array<TNode>) {
 		for (n in nodes) {
 			var node:Node = null;
 			
@@ -122,21 +122,22 @@ class Node {
 					object_file = ref[0];
 					object_ref = ref[1];
 				}
-				else {
+				else { // Local geometry resource
 					object_file = name;
 					object_ref = n.object_ref;
 				}
-				node = Eg.addModelNode(Resource.getModel(object_file, object_ref), materials, parent);	
+				node = Eg.addModelNode(Resource.getModel(object_file, object_ref, resource.nodes), materials, parent);	
 			}
 			else if (n.type == "node") {
 				node = Eg.addNode(parent);
 			}
 
 			if (node != null) {
+				node.id = n.id;
 				createTraits(n, node);
 				generateTranform(n, node.transform);
 
-				traverseNodes(name, node, n.nodes);
+				traverseNodes(resource, name, node, n.nodes);
 			}
 		}
 	}
@@ -206,7 +207,7 @@ class Node {
 	}
 
 	static function createTraitClassInstance(traitName:String, args:Dynamic):Dynamic {
-		var cname = Type.resolveClass("myproject." + traitName);
+		var cname = Type.resolveClass("game." + traitName);
 		if (cname == null) cname = Type.resolveClass("lue.trait." + traitName);
 		if (cname == null) cname = Type.resolveClass("cycles.trait." + traitName);
 		
