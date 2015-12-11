@@ -20,6 +20,7 @@ class Time {
 	public static inline function update() {
 		delta = Scheduler.time() - last;
 		last = Scheduler.time();
+		//trace(delta);
 	}
 
 	public static inline function getSeconds():Int {

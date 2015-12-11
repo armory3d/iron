@@ -238,6 +238,9 @@ class ModelNode extends Node {
 
     public function setAnimationParams(delta:Float) {
     	if (resource.isSkinned) {
+    		
+    		if (animation.paused) return;
+
     		animation.animTime += delta * animation.speed;
 
 			updateAnim();
@@ -257,27 +260,43 @@ class ModelNode extends Node {
 
 				// Current track has been changed
 				if (animation.dirty) {
-					animation.timeIndex = animation.current.start;
-					animation.animTime = track.time.values[animation.timeIndex];
+					// Single frame - set skin and pause
+					if (animation.current.frames == 0) {
+						animation.paused = true;
+						setAnimFrame(animation.current.start);
+						return;
+					}
+					// Animation - loop frames
+					else {
+						animation.timeIndex = animation.current.start;
+						animation.animTime = track.time.values[animation.timeIndex];
+					}
 				}
 
-				//var timeIndex = boneTimeIndices.get(b);
-
 				// Move keyframe
-				while (animation.animTime > track.time.values[animation.timeIndex + 1]) {
+				//var timeIndex = boneTimeIndices.get(b);
+				while (track.time.values.length > (animation.timeIndex + 1) &&
+					   animation.animTime > track.time.values[animation.timeIndex + 1]) {
 					animation.timeIndex++;
 				}
 				//boneTimeIndices.set(b, timeIndex);
 
-				// Rewind
-				if (animation.timeIndex >= track.time.values.length - 2 ||
+				// End of track
+				if (animation.timeIndex >= track.time.values.length - 1 ||
 					animation.timeIndex >= animation.current.end) {
+
+					// Rewind
+					if (animation.loop) {
+						animation.dirty = true;
+					}
+					// Pause
+					else {
+						animation.paused = true;
+					}
 
 					// Give chance to change current track
 					if (animation.onTrackComplete != null) animation.onTrackComplete();
 
-					animation.timeIndex = animation.current.start;
-					animation.animTime = track.time.values[animation.timeIndex];
 					//boneTimeIndices.set(b, animation.timeIndex);
 					//continue;
 					return;
@@ -320,6 +339,20 @@ class ModelNode extends Node {
 				boneMats.set(b, m);
 			}
 		}
+	}
+
+	function setAnimFrame(frame:Int) {
+		for (b in resource.geometry.skeletonBones) {
+			var boneAnim = b.animation;
+
+			if (boneAnim != null) {
+				var track = boneAnim.track;
+				var v1:Array<Float> = track.value.values[frame];
+				var m1 = new Mat4(v1);
+				boneMats.set(b, m1);
+			}
+		}
+		updateSkin();
 	}
 
 	function updateSkin() {
@@ -409,7 +442,10 @@ class Animation {
 	var tracks:Map<String, Track> = new Map();
 
 	public var speed:Float = 1.0;
+	public var loop:Bool;
 	public var onTrackComplete:Void->Void = null;
+
+	public var paused = false;
 
     public function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
 
@@ -420,12 +456,19 @@ class Animation {
         play(startTrack);
     }
 
-    public function play(name:String, speed:Float = 1.0, onTrackComplete:Void->Void = null) {
+    public function play(name:String, loop = true, speed = 1.0, onTrackComplete:Void->Void = null) {
  		current = tracks.get(name);
  		dirty = true;
 
  		this.speed = speed;
+ 		this.loop = loop;
  		this.onTrackComplete = onTrackComplete;
+
+ 		paused = false;
+    }
+
+    public function pause() {
+    	paused = true;
     }
 
     function addTrack(name:String, start:Int, end:Int) {
@@ -437,10 +480,12 @@ class Animation {
 class Track {
 	public var start:Int;
 	public var end:Int;
+	public var frames:Int;
 
 	public function new(start:Int, end:Int) {
 		this.start = start;
 		this.end = end;
+		frames = end - start;
 	}
 }
 

@@ -74,10 +74,10 @@ class Transform {
 		rot = matrix.getQuat();
 	}
 
-	public function rotate(x:Float, y:Float, z:Float) {
+	public function rotate(axis:Vec3, f:Float) {
 		var q = new Quat();
-		q.setFromEuler(x, y, z);
-		rot.multiply(q, rot);
+		q.setFromAxisAngle(axis, f);
+		rot.multiply(rot, q);
 		dirty = true;
 	}
 

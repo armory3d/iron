@@ -37,11 +37,11 @@ class ModelResource extends Resource {
 		var paVA = getVertexArray("position");
 		var pa = paVA != null ? paVA.values : null;
 		
-		var uvaVA = getVertexArray("texcoord");
-		var uva = uvaVA != null ? uvaVA.values : null;
-
 		var naVA = getVertexArray("normal");
 		var na = naVA != null ? naVA.values : null; 
+
+		var uvaVA = getVertexArray("texcoord");
+		var uva = uvaVA != null ? uvaVA.values : null;
 
 		var caVA = getVertexArray("color");
 		var ca = caVA != null ? caVA.values : null;
@@ -53,17 +53,17 @@ class ModelResource extends Resource {
 		var bitana = bitanaVA != null ? bitanaVA.values : null;
 
 		// Create data
-		buildData(data, pa, uva, na, ca, tana, bitana, null, null);
+		buildData(data, pa, na, uva, ca, tana, bitana, null, null);
 
 		isSkinned = resource.mesh.skin != null ? true : false;
 		var usage = isSkinned ? kha.graphics4.Usage.DynamicUsage : kha.graphics4.Usage.StaticUsage;
 		
 		// TODO: Mandatory vertex data names and sizes
 		// pos=3, tex=2, nor=3, col=4, tan=3, bitan=3
-		var struct = ShaderResource.getVertexStructure(pa != null, uva != null, na != null, ca != null, tana != null, bitana != null);
-		var structLength = ShaderResource.getVertexStructureLength(pa != null, uva != null, na != null, ca != null, tana != null, bitana != null);
+		var struct = ShaderResource.getVertexStructure(pa != null, na != null, uva != null, ca != null, tana != null, bitana != null);
+		var structLength = ShaderResource.getVertexStructureLength(pa != null, na != null, uva != null, ca != null, tana != null, bitana != null);
 
-		geometry = new Geometry(data, indices, materialIndices, pa, uva, na, ca, tana, bitana, usage);		
+		geometry = new Geometry(data, indices, materialIndices, pa, na, uva, ca, tana, bitana, usage);		
 		geometry.build(struct, structLength);
 
 		// Instanced
@@ -148,8 +148,8 @@ class ModelResource extends Resource {
 
 	function buildData(data:Array<Float>,
 					   pa:Array<Float> = null,
-					   uva:Array<Float> = null,
 					   na:Array<Float> = null,
+					   uva:Array<Float> = null,
 					   ca:Array<Float> = null,
 					   tana:Array<Float> = null,
 					   bitana:Array<Float> = null,
@@ -162,15 +162,15 @@ class ModelResource extends Resource {
 			data.push(pa[i * 3 + 1]);
 			data.push(pa[i * 3 + 2]);
 
-			if (uva != null) { // TC
-				data.push(uva[i * 2]);
-				data.push(1 - uva[i * 2 + 1]);
-			}
-
 			if (na != null) { // Normals
 				data.push(na[i * 3]);
 				data.push(na[i * 3 + 1]);
 				data.push(na[i * 3 + 2]);
+			}
+
+			if (uva != null) { // TC
+				data.push(uva[i * 2]);
+				data.push(1 - uva[i * 2 + 1]);
 			}
 
 			if (ca != null) { // Colors
@@ -232,8 +232,8 @@ class Geometry {
 	public var usage:Usage;
 
 	public var positions:Array<Float>;
-	public var uvs:Array<Float>;
 	public var normals:Array<Float>;
+	public var uvs:Array<Float>;
 	public var cols:Array<Float>;
 
 	public var tangents:Array<Float>;
@@ -252,7 +252,7 @@ class Geometry {
 	public var skeletonTransformsI:Array<Mat4> = null;
 
 	public function new(data:Array<Float>, indices:Array<Array<Int>>, materialIndices:Array<Int>,
-						positions:Array<Float>, uvs:Array<Float>, normals:Array<Float>, cols:Array<Float>,
+						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>, cols:Array<Float>,
 						tangents:Array<Float> = null, bitangents:Array<Float> = null,
 						usage:Usage = null) {
 
