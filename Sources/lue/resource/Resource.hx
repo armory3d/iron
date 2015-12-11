@@ -10,6 +10,7 @@ class Resource {
 	static var cachedCameras:Map<String, CameraResource> = new Map();
 	static var cachedPipelines:Map<String, PipelineResource> = new Map();
 	static var cachedMaterials:Map<String, MaterialResource> = new Map();
+	static var cachedParticles:Map<String, ParticleResource> = new Map();
 	static var cachedShaders:Map<String, ShaderResource> = new Map();
 
 	public function new() {
@@ -63,6 +64,16 @@ class Resource {
 		if (cached == null) {
 			var parsed = MaterialResource.parse(name, id);
 			cachedMaterials.set(name + id, parsed);
+			return parsed;
+		}
+		else return cached;
+	}
+
+	public static function getParticle(name:String, id:String):ParticleResource {
+		var cached = cachedParticles.get(name + id);
+		if (cached == null) {
+			var parsed = ParticleResource.parse(name, id);
+			cachedParticles.set(name + id, parsed);
 			return parsed;
 		}
 		else return cached;
@@ -124,6 +135,14 @@ class Resource {
 	}
 
 	public static function getMaterialResourceById(resources:Array<TMaterialResource>, id:String):TMaterialResource {
+		if (id == "") return resources[0];
+		for (res in resources) {
+			if (res.id == id) return res;
+		}
+		return null;
+	}
+
+	public static function getParticleResourceById(resources:Array<TParticleResource>, id:String):TParticleResource {
 		if (id == "") return resources[0];
 		for (res in resources) {
 			if (res.id == id) return res;

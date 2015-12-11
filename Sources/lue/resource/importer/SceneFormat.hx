@@ -5,6 +5,7 @@ typedef TSceneFormat = {
 	@:optional var light_resources:Array<TLightResource>;
 	@:optional var camera_resources:Array<TCameraResource>;
 	@:optional var material_resources:Array<TMaterialResource>;
+	@:optional var particle_resources:Array<TParticleResource>;
 	@:optional var shader_resources:Array<TShaderResource>;
 	@:optional var pipeline_resources:Array<TPipelineResource>;
 
@@ -143,17 +144,30 @@ typedef TPipelineStage = {
 	@:optional var params:Array<String>;
 }
 
+typedef TParticleResource = {
+	var id:String;
+	var count:Int;
+	var lifetime:Float;
+}
+
 // Skinned
 typedef TNode = {
 	var type:String;
 	var id:String;
 	var object_ref:String;
 	var material_refs:Array<String>;
+	var particle_refs:Array<TParticleReference>;
 	var transform:TTransform;
 	@:optional var animation:TAnimation;
 	var nodes:Array<TNode>;
 	var traits:Array<TTrait>;
 	@:optional var parent:TNode;
+}
+
+typedef TParticleReference = {
+	var id:String;
+	var particle:String;
+	var seed:Int;
 }
 
 typedef TTrait = {

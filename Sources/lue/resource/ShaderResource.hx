@@ -109,11 +109,13 @@ class ShaderContext {
 
 		pipeState = new PipelineState();
 
+		// Instancing
 		if (resource.vertex_shader.indexOf("_Instancing") != -1) {
 			var instStruct = new VertexStructure();
         	instStruct.add("off", VertexData.Float3);
         	pipeState.inputLayout = [structure, instStruct];
 		}
+		// Regular
 		else {
 			pipeState.inputLayout = [structure];
 		}

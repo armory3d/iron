@@ -68,23 +68,27 @@ class ModelResource extends Resource {
 
 		// Instanced
 		if (resource.mesh.instance_offsets != null) {
-			geometry.instanced = true;
-			geometry.instanceCount = Std.int(resource.mesh.instance_offsets.length / 3);
-
-			var structure = new VertexStructure();
-        	structure.add("off", kha.graphics4.VertexData.Float3);
-
-			var vb = new VertexBuffer(geometry.instanceCount,
-									  structure, kha.graphics4.Usage.StaticUsage,
-									  1);
-			var vertices = vb.lock();
-			for (i in 0...vertices.length) {
-				vertices.set(i, resource.mesh.instance_offsets[i]);
-			}
-			vb.unlock();
-
-			geometry.instancedVertexBuffers = [geometry.vertexBuffer, vb];
+			setupInstancedGeometry(resource.mesh.instance_offsets);
 		}
+	}
+
+	public function setupInstancedGeometry(offsets:Array<Float>) {
+		geometry.instanced = true;
+		geometry.instanceCount = Std.int(offsets.length / 3);
+
+		var structure = new VertexStructure();
+    	structure.add("off", kha.graphics4.VertexData.Float3);
+
+		var vb = new VertexBuffer(geometry.instanceCount,
+								  structure, kha.graphics4.Usage.StaticUsage,
+								  1);
+		var vertices = vb.lock();
+		for (i in 0...vertices.length) {
+			vertices.set(i, offsets[i]);
+		}
+		vb.unlock();
+
+		geometry.instancedVertexBuffers = [geometry.vertexBuffer, vb];
 	}
 
 	public static function parse(name:String, id:String, remoteBoneNodes:Array<TNode> = null):ModelResource {
@@ -304,23 +308,22 @@ class Geometry {
 
 	function calculateAABB() {
 
-		aabbMin = new Vec3(-0.1, -0.1, -0.1);
-		aabbMax = new Vec3(0.1, 0.1, 0.1);
+		aabbMin = new Vec3(-0.01, -0.01, -0.01);
+		aabbMax = new Vec3(0.01, 0.01, 0.01);
 		size = new Vec3();
 
-		var i:Int = 0;
+		var i = 0;
+		while (i < positions.length) {
 
-		while (i < vertices.length) {
+			if (positions[i] > aabbMax.x)		aabbMax.x = positions[i];
+			if (positions[i + 1] > aabbMax.y)	aabbMax.y = positions[i + 1];
+			if (positions[i + 2] > aabbMax.z)	aabbMax.z = positions[i + 2];
 
-			if (vertices.get(i) > aabbMax.x)		aabbMax.x = vertices.get(i);
-			if (vertices.get(i + 1) > aabbMax.y)	aabbMax.y = vertices.get(i + 1);
-			if (vertices.get(i + 2) > aabbMax.z)	aabbMax.z = vertices.get(i + 2);
+			if (positions[i] < aabbMin.x)		aabbMin.x = positions[i];
+			if (positions[i + 1] < aabbMin.y)	aabbMin.y = positions[i + 1];
+			if (positions[i + 2] < aabbMin.z)	aabbMin.z = positions[i + 2];
 
-			if (vertices.get(i) < aabbMin.x)		aabbMin.x = vertices.get(i);
-			if (vertices.get(i + 1) < aabbMin.y)	aabbMin.y = vertices.get(i + 1);
-			if (vertices.get(i + 2) < aabbMin.z)	aabbMin.z = vertices.get(i + 2);
-
-			i += structureLength;
+			i += 3;
 		}
 
 		size.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);
@@ -328,8 +331,8 @@ class Geometry {
 		size.z = Math.abs(aabbMin.z) + Math.abs(aabbMax.z);
 
 		// Sphere radius
-		if (size.x > size.y && size.x > size.z) radius = size.x / 2;
-		else if (size.y > size.x && size.y > size.z) radius = size.y / 2;
+		if (size.x >= size.y && size.x >= size.z) radius = size.x / 2;
+		else if (size.y >= size.x && size.y >= size.z) radius = size.y / 2;
 		else radius = size.z / 2;
 	}
 

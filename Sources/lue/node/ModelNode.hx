@@ -15,6 +15,8 @@ class ModelNode extends Node {
 	public var resource:ModelResource;
 	var materials:Array<MaterialResource>;
 
+	public var particleSystem:ParticleSystem = null;
+
 	static var helpMat:Mat4 = new Mat4();
 
 	// Skinned
@@ -48,6 +50,10 @@ class ModelNode extends Node {
 				boneTimeIndices.set(b, 0);
 			}
 		}
+	}
+
+	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {
+		particleSystem = new ParticleSystem(this, sceneName, pref);
 	}
 
 	public static function setConstants(g:Graphics, context:ShaderContext, node:Node, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
@@ -168,6 +174,14 @@ class ModelNode extends Node {
 	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 		super.render(g, context, camera, light, bindParams);
 
+		// Frustum culling
+		if (camera.resource.resource.frustum_culling &&
+			!camera.sphereInFrustum(transform, resource.geometry.radius)) {
+			return;
+		}
+
+		if (particleSystem != null) particleSystem.update();
+
 		// Get context
 		var cc = cachedContexts.get(context);
 		if (cc == null) {
@@ -196,38 +210,34 @@ class ModelNode extends Node {
 
 		transform.update();
 
-		// Frustum culling
-		//if (camera.sphereInFrustum(transform, mesh.geometry.radius)) {
+		// Render mesh
+		g.setPipeline(shaderContext.pipeState);
 
-			// Render mesh
-			g.setPipeline(shaderContext.pipeState);
+		if (resource.geometry.instanced) {
+			g.setVertexBuffers(resource.geometry.instancedVertexBuffers);
+		}
+		else {
+			g.setVertexBuffer(resource.geometry.vertexBuffer);
+		}
+
+		setConstants(g, shaderContext, this, camera, light, bindParams);
+
+		for (i in 0...resource.geometry.indexBuffers.length) {
+			
+			var mi = resource.geometry.materialIndices[i];
+			if (materialContexts.length > mi) {
+				setMaterialConstants(g, shaderContext, materialContexts[mi]);
+			}
+
+			g.setIndexBuffer(resource.geometry.indexBuffers[i]);
 
 			if (resource.geometry.instanced) {
-				g.setVertexBuffers(resource.geometry.instancedVertexBuffers);
+				g.drawIndexedVerticesInstanced(resource.geometry.instanceCount);
 			}
 			else {
-				g.setVertexBuffer(resource.geometry.vertexBuffer);
+				g.drawIndexedVertices();
 			}
-
-			setConstants(g, shaderContext, this, camera, light, bindParams);
-
-			for (i in 0...resource.geometry.indexBuffers.length) {
-				
-				var mi = resource.geometry.materialIndices[i];
-				if (materialContexts.length > mi) {
-					setMaterialConstants(g, shaderContext, materialContexts[mi]);
-				}
-
-				g.setIndexBuffer(resource.geometry.indexBuffers[i]);
-
-				if (resource.geometry.instanced) {
-					g.drawIndexedVerticesInstanced(resource.geometry.instanceCount);
-				}
-				else {
-					g.drawIndexedVertices();
-				}
-			}
-		//}
+		}
 	}
 
 	function setTransformSize() {

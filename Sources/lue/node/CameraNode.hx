@@ -25,7 +25,7 @@ class CameraNode extends Node {
 	public var V:Mat4;
 	public var VP:Mat4;
 
-	var frustumPlanes:Array<Plane> = [];
+	var frustumPlanes:Array<Plane> = null;
 
 	var frameRenderTarget:Graphics;
 	var currentRenderTarget:Graphics;
@@ -56,8 +56,11 @@ class CameraNode extends Node {
 		V = new Mat4();
 		VP = new Mat4();
 
-		for (i in 0...6) {
-			frustumPlanes.push(new Plane());
+		if (resource.resource.frustum_culling) {
+			frustumPlanes = [];
+			for (i in 0...6) {
+				frustumPlanes.push(new Plane());
+			}
 		}
 
 		Node.cameras.push(this);
@@ -177,8 +180,11 @@ class CameraNode extends Node {
 	    trans.translate(-transform.absx(), -transform.absy(), -transform.absz());
 	    V.multiply(trans, V);
 
-	    buildViewFrustum();
 		transform.buildMatrix();
+
+		if (resource.resource.frustum_culling) {
+			buildViewFrustum();
+		}
 	}
 
 	function buildViewFrustum() {
@@ -235,26 +241,19 @@ class CameraNode extends Node {
 	    );
 	 
 	    // Normalize planes
-	    for (i in 0...6) {
-	    	frustumPlanes[i].normalize();
+	    for (plane in frustumPlanes) {
+	    	plane.normalize();
 	    }
 	}
 
+	static var sphere = new lue.math.Sphere();
 	public function sphereInFrustum(t:Transform, radius:Float):Bool {
-		for (i in 0...6) {	
-			var vpos = new lue.math.Vec3(t.pos.x, t.pos.y, t.pos.z);
-			//var vpos = new lue.math.Vec3(t.absx, t.absy, t.absz);
-			//var pos = new lue.math.Vec3(t.absx, t.absy, t.absz);
-
-			//var fn = frustumPlanes[i].normal;
-			//var vn = new lue.math.Vec3(fn.x, fn.y, fn.z);
-
-			//var dist = frustumPlanes[i].distanceToPoint(vpos);
-
-			// Outside the frustum, reject it
-			var sphere = new lue.math.Sphere(vpos, radius);
-			if (frustumPlanes[i].distanceToSphere(sphere) + radius * 2 < 0) {
-			//if (lue.math.Math.planeDotCoord(vn, pos, dist) + radius < 0) {
+		for (plane in frustumPlanes) {	
+			sphere.set(t.pos, radius);
+			// Outside the frustum
+			// TODO: *3 to be safe
+			if (plane.distanceToSphere(sphere) + radius * 3 < 0) {
+			//if (plane.distanceToSphere(sphere) + radius * 2 < 0) {
 				return false;
 			}
 	    }

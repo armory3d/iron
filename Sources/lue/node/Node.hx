@@ -126,7 +126,12 @@ class Node {
 					object_file = name;
 					object_ref = n.object_ref;
 				}
-				node = Eg.addModelNode(Resource.getModel(object_file, object_ref, resource.nodes), materials, parent);	
+				node = Eg.addModelNode(Resource.getModel(object_file, object_ref, resource.nodes), materials, parent);
+				
+				// Attach particle system
+				if (n.particle_refs != null && n.particle_refs.length > 0) {
+					cast(node, ModelNode).setupParticleSystem(name, n.particle_refs[0]);
+				}
 			}
 			else if (n.type == "node") {
 				node = Eg.addNode(parent);

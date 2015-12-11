@@ -17,7 +17,7 @@ class Sphere {
 	}	
 	
 	public function set(center:Vec3, radius:Float):Sphere {
-		this.center.copy(center);
+		this.center.copy2(center);
 		this.radius = radius;
 		return this;
 	}	
