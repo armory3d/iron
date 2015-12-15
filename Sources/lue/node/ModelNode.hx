@@ -20,6 +20,8 @@ class ModelNode extends Node {
 	static var helpMat:Mat4 = new Mat4();
 
 	// Skinned
+	var skinBuffer:Array<Float>;
+	public var skinTexture:kha.Image;
 	public var animation:Animation = null;
 	var boneMats = new Map<TNode, Mat4>();
 	var boneTimeIndices = new Map<TNode, Int>();
@@ -45,6 +47,14 @@ class ModelNode extends Node {
 	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
 		if (resource.isSkinned) {
 			animation = new Animation(startTrack, names, starts, ends);
+
+			if (!ModelResource.ForceCpuSkinning) {
+				//skinBuffer = new kha.arrays.Float32Array(8192);
+				skinBuffer = [];
+				for (i in 0...8192) skinBuffer.push(0);
+				skinTexture = kha.Image.create(1, 2048, kha.graphics4.TextureFormat.RGBA128, kha.graphics4.Usage.DynamicUsage);
+			}
+
 			for (b in resource.geometry.skeletonBones) {
 				boneMats.set(b, new Mat4(b.transform.values));
 				boneTimeIndices.set(b, 0);
@@ -71,6 +81,11 @@ class ModelNode extends Node {
 						g.setTexture(context.textureUnits[j], camera.resource.pipeline.renderTargets.get(bindParams[pos - 1]));
 					}
 				}
+			}
+		}
+		for (j in 0...context.resource.texture_units.length) { // TODO: properly pass skin texture!
+			if (context.resource.texture_units[j].id == "skinTex") {
+				g.setTexture(context.textureUnits[j], cast(node, ModelNode).skinTexture);
 			}
 		}
 	}
@@ -255,8 +270,6 @@ class ModelNode extends Node {
 
 			updateAnim();
 			updateSkin();
-
-			animation.dirty = false;
 		}
     }
 
@@ -270,6 +283,7 @@ class ModelNode extends Node {
 
 				// Current track has been changed
 				if (animation.dirty) {
+					animation.dirty = false;
 					// Single frame - set skin and pause
 					if (animation.current.frames == 0) {
 						animation.paused = true;

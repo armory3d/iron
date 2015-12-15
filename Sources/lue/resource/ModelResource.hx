@@ -12,6 +12,8 @@ class ModelResource extends Resource {
 
 	public var resource:TGeometryResource;
 	public var geometry:Geometry;
+
+	public static inline var ForceCpuSkinning = false;
 	public var isSkinned:Bool;
 	public var bones:Array<TNode> = [];
 
@@ -46,24 +48,48 @@ class ModelResource extends Resource {
 		var caVA = getVertexArray("color");
 		var ca = caVA != null ? caVA.values : null;
 
+		// Normal mapping
 		var tanaVA = getVertexArray("tangent");
 		var tana = tanaVA != null ? tanaVA.values : null;
 
 		var bitanaVA = getVertexArray("bitangent");
 		var bitana = bitanaVA != null ? bitanaVA.values : null;
 
-		// Create data
-		buildData(data, pa, na, uva, ca, tana, bitana, null, null);
-
+		// Skinning
 		isSkinned = resource.mesh.skin != null ? true : false;
-		var usage = isSkinned ? Usage.DynamicUsage : Usage.StaticUsage;
+		var usage = (isSkinned && ForceCpuSkinning) ? Usage.DynamicUsage : Usage.StaticUsage;
+
+		var bonea:Array<Float> = null; // Store bone indices and weights per vertex
+		var weighta:Array<Float> = null;
+		if (isSkinned && !ForceCpuSkinning) {
+			bonea = [];
+			weighta = [];
+
+			var index = 0;
+			for (i in 0...Std.int(pa.length / 3)) {
+				var boneCount = resource.mesh.skin.bone_count_array[i];
+				for (j in index...(index + boneCount)) {
+					bonea.push(resource.mesh.skin.bone_index_array[j]);
+					weighta.push(resource.mesh.skin.bone_weight_array[j]);
+				}
+				// Fill unused weights
+				for (j in boneCount...4) {
+					bonea.push(0);
+					weighta.push(0);
+				}
+				index += boneCount;
+			}
+		}
+
+		// Create data
+		buildData(data, pa, na, uva, ca, tana, bitana, bonea, weighta);
 		
 		// TODO: Mandatory vertex data names and sizes
-		// pos=3, tex=2, nor=3, col=4, tan=3, bitan=3
-		var struct = ShaderResource.getVertexStructure(pa != null, na != null, uva != null, ca != null, tana != null, bitana != null);
-		var structLength = ShaderResource.getVertexStructureLength(pa != null, na != null, uva != null, ca != null, tana != null, bitana != null);
+		// pos=3, tex=2, nor=3, col=4, tan=3, bitan=3, bone=4, weight=4
+		var struct = ShaderResource.getVertexStructure(pa != null, na != null, uva != null, ca != null, tana != null, bitana != null, bonea != null, weighta != null);
+		var structLength = ShaderResource.getVertexStructureLength(pa != null, na != null, uva != null, ca != null, tana != null, bitana != null, bonea != null, weighta != null);
 
-		geometry = new Geometry(data, indices, materialIndices, pa, na, uva, ca, tana, bitana, usage);		
+		geometry = new Geometry(data, indices, materialIndices, pa, na, uva, ca, tana, bitana, bonea, weighta, usage);		
 		geometry.build(struct, structLength);
 
 		// Instanced
@@ -99,6 +125,7 @@ class ModelResource extends Resource {
 
 		// Skinned
 		if (resource.mesh.skin != null) {
+			// TODO: check !ForceCpuSkinning
 			var nodes = remoteBoneNodes != null ? remoteBoneNodes : format.nodes;
 			for (n in nodes) {
 				setParents(n);
@@ -157,8 +184,8 @@ class ModelResource extends Resource {
 					   ca:Array<Float> = null,
 					   tana:Array<Float> = null,
 					   bitana:Array<Float> = null,
-					   ba:Array<Float> = null,
-					   wa:Array<Float> = null) {
+					   bonea:Array<Float> = null,
+					   weighta:Array<Float> = null) {
 
 		for (i in 0...Std.int(pa.length / 3)) {
 			
@@ -184,6 +211,7 @@ class ModelResource extends Resource {
 				data.push(1.0);
 			}
 
+			// Normal mapping
 			if (tana != null) { // Tangents
 				data.push(tana[i * 3]);
 				data.push(tana[i * 3 + 1]);
@@ -196,18 +224,19 @@ class ModelResource extends Resource {
 				data.push(bitana[i * 3 + 2]);
 			}
 
-			if (ba != null) { // Bones
-				data.push(ba[i * 4]);
-				data.push(ba[i * 4 + 1]);
-				data.push(ba[i * 4 + 2]);
-				data.push(ba[i * 4 + 3]);
+			// GPU skinning
+			if (bonea != null) { // Bone indices
+				data.push(bonea[i * 4]);
+				data.push(bonea[i * 4 + 1]);
+				data.push(bonea[i * 4 + 2]);
+				data.push(bonea[i * 4 + 3]);
 			}
 
-			if (wa != null) { // Weights
-				data.push(wa[i * 4]);
-				data.push(wa[i * 4 + 1]);
-				data.push(wa[i * 4 + 2]);
-				data.push(wa[i * 4 + 3]);
+			if (weighta != null) { // Weights
+				data.push(weighta[i * 4]);
+				data.push(weighta[i * 4 + 1]);
+				data.push(weighta[i * 4 + 2]);
+				data.push(weighta[i * 4 + 3]);
 			}
 		}
 	}
@@ -235,13 +264,16 @@ class Geometry {
 	var ids:Array<Array<Int>>;
 	public var usage:Usage;
 
-	public var positions:Array<Float>;
+	public var positions:Array<Float>; // TODO: no need to store these references
 	public var normals:Array<Float>;
 	public var uvs:Array<Float>;
 	public var cols:Array<Float>;
 
 	public var tangents:Array<Float>;
 	public var bitangents:Array<Float>;
+
+	public var bones:Array<Float>;
+	public var weights:Array<Float>;
 
 	// Skinned
 	public var skinTransform:Mat4 = null;
@@ -258,6 +290,7 @@ class Geometry {
 	public function new(data:Array<Float>, indices:Array<Array<Int>>, materialIndices:Array<Int>,
 						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>, cols:Array<Float>,
 						tangents:Array<Float> = null, bitangents:Array<Float> = null,
+						bones:Array<Float> = null, weights:Array<Float> = null,
 						usage:Usage = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
@@ -274,6 +307,9 @@ class Geometry {
 
 		this.tangents = tangents;
 		this.bitangents = bitangents;
+
+		this.bones = bones;
+		this.weights = weights;
 	}
 
 	public function build(structure:VertexStructure, structureLength:Int) {
@@ -341,6 +377,7 @@ class Geometry {
 	}
 
 	// Skinned
+	// TODO: check !ForceCpuSkinning
 	public function initSkeletonBones(bones:Array<TNode>) {
 		skeletonBones = [];
 
