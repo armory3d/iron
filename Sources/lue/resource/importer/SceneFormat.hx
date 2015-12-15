@@ -107,6 +107,8 @@ typedef TShaderContext = {
 	var depth_write:Bool;
 	var compare_mode:String;
 	var cull_mode:String;
+	var blend_source:String;
+	var blend_destination:String;
 	var vertex_shader:String;
 	var fragment_shader:String;
 	var constants:Array<TShaderConstant>;
@@ -148,6 +150,9 @@ typedef TParticleResource = {
 	var id:String;
 	var count:Int;
 	var lifetime:Float;
+	var normal_factor:Float;
+	var object_align_factor:Array<Float>;
+	var factor_random:Float;
 }
 
 // Skinned

@@ -9,6 +9,7 @@ import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
 import kha.graphics4.CompareMode;
 import kha.graphics4.CullMode;
+import kha.graphics4.BlendingOperation;
 import lue.resource.importer.SceneFormat;
 
 class ShaderResource extends Resource {
@@ -120,6 +121,7 @@ class ShaderContext {
 			pipeState.inputLayout = [structure];
 		}
 		
+		// Depth
 		pipeState.depthWrite = resource.depth_write;
 		
 		if (resource.compare_mode == "always") { // TODO: parse from CompareMode enum
@@ -129,6 +131,7 @@ class ShaderContext {
         	pipeState.depthMode = CompareMode.Less;
         }
 
+		// Cull
         if (resource.cull_mode == "none") {
         	pipeState.cullMode = CullMode.None;
         }
@@ -138,6 +141,10 @@ class ShaderContext {
         else {
         	pipeState.cullMode = CullMode.Clockwise;	
         }
+		
+		// Blending
+		pipeState.blendSource = getBlendingOperation(resource.blend_source);
+		pipeState.blendDestination = getBlendingOperation(resource.blend_destination);
 
 		pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(resource.fragment_shader, ".", "_"));
 		pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(resource.vertex_shader, ".", "_"));
@@ -150,6 +157,19 @@ class ShaderContext {
 		for (tu in resource.texture_units) {
 			addTexture(tu.id);
 		}
+	}
+
+	function getBlendingOperation(s:String):BlendingOperation {
+		if (s == "blend_one")
+			return BlendingOperation.BlendOne;
+		else if (s == "blend_zero")
+			return BlendingOperation.BlendZero;
+		else if (s == "source_alpha")
+			return BlendingOperation.SourceAlpha;
+		else if (s == "inverse_source_alpha")
+			return BlendingOperation.InverseSourceAlpha;
+		else
+			return BlendingOperation.Undefined;
 	}
 
 	function addConstant(s:String) {

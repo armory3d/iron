@@ -56,7 +56,7 @@ class ModelResource extends Resource {
 		buildData(data, pa, na, uva, ca, tana, bitana, null, null);
 
 		isSkinned = resource.mesh.skin != null ? true : false;
-		var usage = isSkinned ? kha.graphics4.Usage.DynamicUsage : kha.graphics4.Usage.StaticUsage;
+		var usage = isSkinned ? Usage.DynamicUsage : Usage.StaticUsage;
 		
 		// TODO: Mandatory vertex data names and sizes
 		// pos=3, tex=2, nor=3, col=4, tan=3, bitan=3
