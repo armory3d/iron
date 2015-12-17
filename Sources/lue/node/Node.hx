@@ -95,11 +95,11 @@ class Node {
 
 	public static function addScene(name:String, parent:Node):Node {
 		var resource:TSceneFormat = Resource.getSceneResource(name);
-		traverseNodes(resource, name, parent, resource.nodes);
+		traverseNodes(name, parent, resource.nodes, null);
 		return parent;
 	}
 
-	static function traverseNodes(resource:TSceneFormat, name:String, parent:Node, nodes:Array<TNode>) {
+	static function traverseNodes(name:String, parent:Node, nodes:Array<TNode>, parentNode:TNode) {
 		for (n in nodes) {
 			if (n.visible != null && n.visible == false) continue;
 			
@@ -112,11 +112,13 @@ class Node {
 				node = Eg.addLightNode(Resource.getLight(name, n.object_ref), parent);	
 			}
 			else if (n.type == "geometry_node") {
+				// Materials
 				var materials:Array<MaterialResource> = [];
 				for (ref in n.material_refs) {
 					materials.push(Resource.getMaterial(name, ref));
 				}
 
+				// Geometry reference
 				var ref = n.object_ref.split("/");
 				var object_file = "";
 				var object_ref = "";
@@ -128,7 +130,14 @@ class Node {
 					object_file = name;
 					object_ref = n.object_ref;
 				}
-				node = Eg.addModelNode(Resource.getModel(object_file, object_ref, resource.nodes), materials, parent);
+
+				// Bone nodes are stored in armature parent
+				var boneNodes:Array<TNode> = null;
+				if (parentNode != null && parentNode.bones_ref != null) {
+					boneNodes = Resource.getSceneResource(parentNode.bones_ref).nodes;
+				}
+
+				node = Eg.addModelNode(Resource.getModel(object_file, object_ref, boneNodes), materials, parent);
 				
 				// Attach particle system
 				if (n.particle_refs != null && n.particle_refs.length > 0) {
@@ -144,7 +153,7 @@ class Node {
 				createTraits(n, node);
 				generateTranform(n, node.transform);
 
-				traverseNodes(resource, name, node, n.nodes);
+				traverseNodes(name, node, n.nodes, n);
 			}
 		}
 	}

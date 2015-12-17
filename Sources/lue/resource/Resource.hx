@@ -17,12 +17,12 @@ class Resource {
 
 	}
 
-	public static function getModel(name:String, id:String, remoteBoneNodes:Array<TNode> = null):ModelResource {
-		// remoteBoneNodes - used when geometry is parsed from separate file
+	public static function getModel(name:String, id:String, boneNodes:Array<TNode> = null):ModelResource {
+		// boneNodes - used when geometry is parsed from separate file
 		// TODO: preparse bone nodes
 		var cached = cachedModels.get(name + id);
 		if (cached == null) {
-			var parsed = ModelResource.parse(name, id, remoteBoneNodes);
+			var parsed = ModelResource.parse(name, id, boneNodes);
 			cachedModels.set(name + id, parsed);
 			return parsed;
 		}

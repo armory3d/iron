@@ -8,7 +8,6 @@ typedef TSceneFormat = {
 	@:optional var particle_resources:Array<TParticleResource>;
 	@:optional var shader_resources:Array<TShaderResource>;
 	@:optional var pipeline_resources:Array<TPipelineResource>;
-
 	@:optional var nodes:Array<TNode>;
 }
 
@@ -155,7 +154,6 @@ typedef TParticleResource = {
 	var factor_random:Float;
 }
 
-// Skinned
 typedef TNode = {
 	var type:String;
 	var id:String;
@@ -163,9 +161,10 @@ typedef TNode = {
 	var material_refs:Array<String>;
 	var particle_refs:Array<TParticleReference>;
 	var transform:TTransform;
-	@:optional var animation:TAnimation;
 	var nodes:Array<TNode>;
 	var traits:Array<TTrait>;
+	@:optional var animation:TAnimation;
+	@:optional var bones_ref:String;
 	@:optional var parent:TNode;
 	@:optional var visible:Bool;
 }

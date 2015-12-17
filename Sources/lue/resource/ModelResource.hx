@@ -114,7 +114,7 @@ class ModelResource extends Resource {
 		geometry.instancedVertexBuffers = [geometry.vertexBuffer, vb];
 	}
 
-	public static function parse(name:String, id:String, remoteBoneNodes:Array<TNode> = null):ModelResource {
+	public static function parse(name:String, id:String, boneNodes:Array<TNode> = null):ModelResource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TGeometryResource = Resource.getGeometryResourceById(format.geometry_resources, id);
 
@@ -123,7 +123,7 @@ class ModelResource extends Resource {
 		// Skinned
 		if (resource.mesh.skin != null) {
 			// TODO: check !ForceCpuSkinning
-			var nodes = remoteBoneNodes != null ? remoteBoneNodes : format.nodes;
+			var nodes = boneNodes != null ? boneNodes : format.nodes;
 			for (n in nodes) {
 				setParents(n);
 			}
