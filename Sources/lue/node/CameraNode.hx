@@ -50,7 +50,7 @@ class CameraNode extends Node {
 		if (resource.resource.type == "perspective") {
 			P = Mat4.perspective(45, App.w / App.h, resource.resource.near_plane, resource.resource.far_plane);
 		}
-		else if (resource.resource.type == "orthogonal") {
+		else if (resource.resource.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -resource.resource.far_plane, resource.resource.far_plane, 2);
 		}
 		V = new Mat4();
