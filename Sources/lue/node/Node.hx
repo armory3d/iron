@@ -101,6 +101,8 @@ class Node {
 
 	static function traverseNodes(resource:TSceneFormat, name:String, parent:Node, nodes:Array<TNode>) {
 		for (n in nodes) {
+			if (n.visible != null && n.visible == false) continue;
+			
 			var node:Node = null;
 			
 			if (n.type == "camera_node") {

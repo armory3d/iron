@@ -167,6 +167,7 @@ typedef TNode = {
 	var nodes:Array<TNode>;
 	var traits:Array<TTrait>;
 	@:optional var parent:TNode;
+	@:optional var visible:Bool;
 }
 
 typedef TParticleReference = {

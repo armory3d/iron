@@ -412,4 +412,16 @@ class Vec3 {
 
         return this.applyProjection(VPInv);
     }
+
+    public static function xAxis():Vec3 {
+        return new Vec3(1, 0, 0);
+    }
+
+    public static function yAxis():Vec3 {
+        return new Vec3(0, 1, 0);
+    }
+
+    public static function zAxis():Vec3 {
+        return new Vec3(0, 0, 1);
+    }
 }
