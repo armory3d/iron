@@ -21,7 +21,6 @@ class ModelNode extends Node {
 
 	// Skinned
 	var skinBuffer:Array<Float>;
-	public var skinTexture:kha.Image;
 	public var animation:Animation = null;
 	var boneMats = new Map<TNode, Mat4>();
 	var boneTimeIndices = new Map<TNode, Int>();
@@ -49,10 +48,8 @@ class ModelNode extends Node {
 			animation = new Animation(startTrack, names, starts, ends);
 
 			if (!ModelResource.ForceCpuSkinning) {
-				//skinBuffer = new kha.arrays.Float32Array(8192);
 				skinBuffer = [];
-				for (i in 0...8192) skinBuffer.push(0);
-				skinTexture = kha.Image.create(1, 2048, kha.graphics4.TextureFormat.RGBA128, kha.graphics4.Usage.DynamicUsage);
+				for (i in 0...(50 * 12)) skinBuffer.push(0);
 			}
 
 			for (b in resource.geometry.skeletonBones) {
@@ -83,11 +80,11 @@ class ModelNode extends Node {
 				}
 			}
 		}
-		for (j in 0...context.resource.texture_units.length) { // TODO: properly pass skin texture!
-			if (context.resource.texture_units[j].id == "skinTex") {
-				g.setTexture(context.textureUnits[j], cast(node, ModelNode).skinTexture);
-			}
-		}
+		// for (j in 0...context.resource.texture_units.length) { // TODO: properly pass skin texture!
+		// 	if (context.resource.texture_units[j].id == "skinTex") {
+		// 		g.setTexture(context.textureUnits[j], cast(node, ModelNode).skinTexture);
+		// 	}
+		// }
 	}
 	static function setConstant(g:Graphics, node:Node, camera:CameraNode, light:LightNode,
 						 		location:ConstantLocation, c:TShaderConstant) {
@@ -95,13 +92,27 @@ class ModelNode extends Node {
 
 		if (c.type == "mat4") {
 			var m:Mat4 = null;
-			if (c.link == "_modelMatrix") m = node.transform.matrix;
-			else if (c.link == "_viewMatrix") m = camera.V;
+			if (c.link == "_modelMatrix") {
+				m = node.transform.matrix;
+			}
+			else if (c.link == "_normalMatrix") {
+				helpMat.identity();
+				helpMat.mult(node.transform.matrix);
+				helpMat.mult(camera.V);
+				helpMat.inverse(helpMat);
+				helpMat.transpose();
+				m = helpMat;
+			}
+			else if (c.link == "_viewMatrix") {
+				m = camera.V;
+			}
 			else if (c.link == "_inverseViewMatrix") {
 				helpMat.inverse(camera.V);
 				m = helpMat;
 			}
-			else if (c.link == "_projectionMatrix") m = camera.P;
+			else if (c.link == "_projectionMatrix") {
+				m = camera.P;
+			}
 			else if (c.link == "_MVP") {
 				helpMat.identity();
 		    	helpMat.mult(node.transform.matrix);
@@ -126,17 +137,29 @@ class ModelNode extends Node {
 		}
 		else if (c.type == "vec3") {
 			var v:Vec3 = null;
-			if (c.link == "_lightPosition") v = light.transform.pos;
-			else if (c.link == "_cameraPosition") v = camera.transform.pos;
+			if (c.link == "_lightPosition") {
+				v = light.transform.pos;
+			}
+			else if (c.link == "_cameraPosition") {
+				v = camera.transform.pos;
+			}
 			if (v == null) return;
 			g.setFloat3(location, v.x, v.y, v.z);
 		}
 		else if (c.type == "float") {
 			var f = 0.0;
-			if (c.link == "_time") f = lue.sys.Time.total;
+			if (c.link == "_time") {
+				f = lue.sys.Time.total;
+			}
 			g.setFloat(location, f);
 		}
-		// TODO: other types
+		else if (c.type == "floats") {
+			var fa:Array<Float> = null;
+			if (c.link == "_skinBones") {
+				fa = cast(node, ModelNode).skinBuffer;
+			}
+			g.setFloats(location, fa);
+		}
 	}
 
 	public static function setMaterialConstants(g:Graphics, context:ShaderContext, materialContext:MaterialContext) {
@@ -380,6 +403,44 @@ class ModelNode extends Node {
 	}
 
 	function updateSkin() {
+		if (ModelResource.ForceCpuSkinning) updateSkinCpu();
+		else updateSkinGpu();
+	}
+
+	function updateSkinGpu() {
+		var bones = resource.geometry.skeletonBones;
+		for (i in 0...bones.length) {
+			
+			bm.loadFrom(resource.geometry.skinTransform);
+			bm.mult(resource.geometry.skeletonTransformsI[i]);
+			var m = new Mat4();
+			m.loadFrom(boneMats.get(bones[i]));
+			var p = bones[i].parent;
+			while (p != null) { // TODO: store absolute transforms per bone
+				var pm = boneMats.get(p);
+				if (pm == null) pm = new Mat4(p.transform.values);
+				m.mult(pm);
+				p = p.parent;
+			}
+			bm.mult(m);
+			bm.transpose();
+
+		 	skinBuffer[i * 12] = bm._11;
+		 	skinBuffer[i * 12 + 1] = bm._12;
+		 	skinBuffer[i * 12 + 2] = bm._13;
+		 	skinBuffer[i * 12 + 3] = bm._14;
+		 	skinBuffer[i * 12 + 4] = bm._21;
+		 	skinBuffer[i * 12 + 5] = bm._22;
+		 	skinBuffer[i * 12 + 6] = bm._23;
+		 	skinBuffer[i * 12 + 7] = bm._24;
+		 	skinBuffer[i * 12 + 8] = bm._31;
+		 	skinBuffer[i * 12 + 9] = bm._32;
+		 	skinBuffer[i * 12 + 10] = bm._33;
+		 	skinBuffer[i * 12 + 11] = bm._34;
+		}
+	}
+
+	function updateSkinCpu() {
 		var v = resource.geometry.vertexBuffer.lock();
 		var l = resource.geometry.structureLength;
 
@@ -408,14 +469,13 @@ class ModelNode extends Node {
 								resource.geometry.positions[i * 3 + 1],
 								resource.geometry.positions[i * 3 + 2]);
 
-				// TODO: remove skin transform
 				m.mult(resource.geometry.skinTransform);
 
 				m.mult(resource.geometry.skeletonTransformsI[boneIndex]);
 
 				bm.loadFrom(boneMats.get(bone));
 				var p = bone.parent;
-				while (p != null) {
+				while (p != null) { // TODO: store absolute transforms per bone
 					var pm = boneMats.get(p);
 					if (pm == null) pm = new Mat4(p.transform.values);
 					bm.mult(pm);
@@ -453,63 +513,6 @@ class ModelNode extends Node {
 		}
 
 		resource.geometry.vertexBuffer.unlock();
-	}
-}
-
-class Animation {
-
-	public var animTime:Float = 0;
-	public var timeIndex:Int = 0; // TODO: use boneTimeIndices
-	public var dirty:Bool = false;
-
-	public var current:Track;
-	var tracks:Map<String, Track> = new Map();
-
-	public var speed:Float = 1.0;
-	public var loop:Bool;
-	public var onTrackComplete:Void->Void = null;
-
-	public var paused = false;
-
-    public function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
-
-        for (i in 0...names.length) {
-        	addTrack(names[i], starts[i], ends[i]);
-        }
-
-        play(startTrack);
-    }
-
-    public function play(name:String, loop = true, speed = 1.0, onTrackComplete:Void->Void = null) {
- 		current = tracks.get(name);
- 		dirty = true;
-
- 		this.speed = speed;
- 		this.loop = loop;
- 		this.onTrackComplete = onTrackComplete;
-
- 		paused = false;
-    }
-
-    public function pause() {
-    	paused = true;
-    }
-
-    function addTrack(name:String, start:Int, end:Int) {
-    	var t = new Track(start, end);
-    	tracks.set(name, t);
-    }
-}
-
-class Track {
-	public var start:Int;
-	public var end:Int;
-	public var frames:Int;
-
-	public function new(start:Int, end:Int) {
-		this.start = start;
-		this.end = end;
-		frames = end - start;
 	}
 }
 

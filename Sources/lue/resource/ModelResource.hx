@@ -52,9 +52,6 @@ class ModelResource extends Resource {
 		var tanaVA = getVertexArray("tangent");
 		var tana = tanaVA != null ? tanaVA.values : null;
 
-		var bitanaVA = getVertexArray("bitangent");
-		var bitana = bitanaVA != null ? bitanaVA.values : null;
-
 		// Skinning
 		isSkinned = resource.mesh.skin != null ? true : false;
 		var usage = (isSkinned && ForceCpuSkinning) ? Usage.DynamicUsage : Usage.StaticUsage;
@@ -82,14 +79,14 @@ class ModelResource extends Resource {
 		}
 
 		// Create data
-		buildData(data, pa, na, uva, ca, tana, bitana, bonea, weighta);
+		buildData(data, pa, na, uva, ca, tana, bonea, weighta);
 		
 		// TODO: Mandatory vertex data names and sizes
-		// pos=3, tex=2, nor=3, col=4, tan=3, bitan=3, bone=4, weight=4
-		var struct = ShaderResource.getVertexStructure(pa != null, na != null, uva != null, ca != null, tana != null, bitana != null, bonea != null, weighta != null);
-		var structLength = ShaderResource.getVertexStructureLength(pa != null, na != null, uva != null, ca != null, tana != null, bitana != null, bonea != null, weighta != null);
+		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
+		var struct = ShaderResource.getVertexStructure(pa != null, na != null, uva != null, ca != null, tana != null, bonea != null, weighta != null);
+		var structLength = ShaderResource.getVertexStructureLength(pa != null, na != null, uva != null, ca != null, tana != null, bonea != null, weighta != null);
 
-		geometry = new Geometry(data, indices, materialIndices, pa, na, uva, ca, tana, bitana, bonea, weighta, usage);		
+		geometry = new Geometry(data, indices, materialIndices, pa, na, uva, ca, tana, bonea, weighta, usage);		
 		geometry.build(struct, structLength);
 
 		// Instanced
@@ -183,7 +180,6 @@ class ModelResource extends Resource {
 					   uva:Array<Float> = null,
 					   ca:Array<Float> = null,
 					   tana:Array<Float> = null,
-					   bitana:Array<Float> = null,
 					   bonea:Array<Float> = null,
 					   weighta:Array<Float> = null) {
 
@@ -216,12 +212,6 @@ class ModelResource extends Resource {
 				data.push(tana[i * 3]);
 				data.push(tana[i * 3 + 1]);
 				data.push(tana[i * 3 + 2]);
-			}
-
-			if (bitana != null) { // Bitangents
-				data.push(bitana[i * 3]);
-				data.push(bitana[i * 3 + 1]);
-				data.push(bitana[i * 3 + 2]);
 			}
 
 			// GPU skinning
@@ -270,7 +260,6 @@ class Geometry {
 	public var cols:Array<Float>;
 
 	public var tangents:Array<Float>;
-	public var bitangents:Array<Float>;
 
 	public var bones:Array<Float>;
 	public var weights:Array<Float>;
@@ -289,7 +278,7 @@ class Geometry {
 
 	public function new(data:Array<Float>, indices:Array<Array<Int>>, materialIndices:Array<Int>,
 						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>, cols:Array<Float>,
-						tangents:Array<Float> = null, bitangents:Array<Float> = null,
+						tangents:Array<Float> = null,
 						bones:Array<Float> = null, weights:Array<Float> = null,
 						usage:Usage = null) {
 
@@ -306,7 +295,6 @@ class Geometry {
 		this.cols = cols;
 
 		this.tangents = tangents;
-		this.bitangents = bitangents;
 
 		this.bones = bones;
 		this.weights = weights;

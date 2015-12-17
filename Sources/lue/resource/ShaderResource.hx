@@ -59,26 +59,24 @@ class ShaderResource extends Resource {
 	}
 
 	// Used by ModelResource
-	public static function getVertexStructure(pos = false, nor = false, tex = false, col = false, tan = false, bitan = false, bone = false, weight = false):VertexStructure {
+	public static function getVertexStructure(pos = false, nor = false, tex = false, col = false, tan = false, bone = false, weight = false):VertexStructure {
 		var structure = new VertexStructure();
 		if (pos) structure.add("pos", VertexData.Float3);
 		if (nor) structure.add("nor", VertexData.Float3);
 		if (tex) structure.add("tex", VertexData.Float2);
 		if (col) structure.add("col", VertexData.Float4);
 		if (tan) structure.add("tan", VertexData.Float3);
-		if (bitan) structure.add("bitan", VertexData.Float3);
 		if (bone) structure.add("bone", VertexData.Float4);
 		if (weight) structure.add("weight", VertexData.Float4);
 		return structure;
 	}
-	public static function getVertexStructureLength(pos = false, nor = false, tex = false, col = false, tan = false, bitan = false, bone = false, weight = false):Int {
+	public static function getVertexStructureLength(pos = false, nor = false, tex = false, col = false, tan = false, bone = false, weight = false):Int {
 		var length = 0;
 		if (pos) length += 3;
 		if (nor) length += 3;
 		if (tex) length += 2;
 		if (col) length += 4;
 		if (tan) length += 3;
-		if (bitan) length += 3;
 		if (bone) length += 4;
 		if (weight) length += 4;
 		return length;
