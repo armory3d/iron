@@ -20,7 +20,7 @@ class ModelNode extends Node {
 	static var helpMat:Mat4 = new Mat4();
 
 	// Skinned
-	var skinBuffer:Array<Float>;
+	var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
 	public var animation:Animation = null;
 	var boneMats = new Map<TNode, Mat4>();
 	var boneTimeIndices = new Map<TNode, Int>();
@@ -48,8 +48,8 @@ class ModelNode extends Node {
 			animation = new Animation(startTrack, names, starts, ends);
 
 			if (!ModelResource.ForceCpuSkinning) {
-				skinBuffer = [];
-				for (i in 0...(50 * 12)) skinBuffer.push(0);
+				skinBuffer = new haxe.ds.Vector(50 * 12);
+				for (i in 0...skinBuffer.length) skinBuffer[i] = 0;
 			}
 
 			for (b in resource.geometry.skeletonBones) {
@@ -129,10 +129,10 @@ class ModelNode extends Node {
 			}
 			if (m == null) return;
 
-			var mat = new kha.math.Matrix4(m._11, m._21, m._31, m._41,
-									  	   m._12, m._22, m._32, m._42,
-										   m._13, m._23, m._33, m._43,
-									       m._14, m._24, m._34, m._44);
+			var mat = new kha.math.FastMatrix4(m._11, m._21, m._31, m._41,
+									  	   	   m._12, m._22, m._32, m._42,
+										   	   m._13, m._23, m._33, m._43,
+									       	   m._14, m._24, m._34, m._44);
 			g.setMatrix(location, mat);
 		}
 		else if (c.type == "vec3") {
@@ -154,7 +154,7 @@ class ModelNode extends Node {
 			g.setFloat(location, f);
 		}
 		else if (c.type == "floats") {
-			var fa:Array<Float> = null;
+			var fa:haxe.ds.Vector<kha.FastFloat> = null;
 			if (c.link == "_skinBones") {
 				fa = cast(node, ModelNode).skinBuffer;
 			}

@@ -8,6 +8,7 @@ typedef TSceneFormat = {
 	@:optional var particle_resources:Array<TParticleResource>;
 	@:optional var shader_resources:Array<TShaderResource>;
 	@:optional var pipeline_resources:Array<TPipelineResource>;
+	@:optional var speaker_resources:Array<TSpeakerResource>;
 	@:optional var nodes:Array<TNode>;
 }
 
@@ -143,6 +144,11 @@ typedef TPipelineRenderTarget = {
 typedef TPipelineStage = {
 	var command:String;
 	@:optional var params:Array<String>;
+}
+
+typedef TSpeakerResource = {
+	var id:String;
+	var sound:String;
 }
 
 typedef TParticleResource = {

@@ -144,6 +144,9 @@ class Node {
 					cast(node, ModelNode).setupParticleSystem(name, n.particle_refs[0]);
 				}
 			}
+			else if (n.type == "speaker_node") {
+				// TODO: add speaker trait
+			}
 			else if (n.type == "node") {
 				node = Eg.addNode(parent);
 			}
