@@ -70,17 +70,35 @@ class ModelNode extends Node {
 			setConstant(g, node, camera, light, context.constants[i], c);
 		}
 
-		if (bindParams != null) {
+		if (bindParams != null) { // Bind targets
 			for (i in 0...Std.int(bindParams.length / 2)) {
-				var pos = i * 2 + 1;
-				for (j in 0...context.resource.texture_units.length) {
-					if (bindParams[pos] == context.resource.texture_units[j].id) {
-						g.setTexture(context.textureUnits[j], camera.resource.pipeline.renderTargets.get(bindParams[pos - 1]));
+				var pos = i * 2; // bind params = [texture, samplerID]
+				var rtID = bindParams[pos];
+				var samplerID = bindParams[pos + 1];
+				var rt = camera.resource.pipeline.renderTargets.get(rtID);
+				var tus = context.resource.texture_units;
+
+				var postfix = "";
+				if (rt.additionalImages != null) postfix = "0"; // MRT - postfix main image id with 0
+
+				for (j in 0...tus.length) {
+					if (samplerID + postfix == tus[j].id) {
+						g.setTexture(context.textureUnits[j], rt.image);
+					}
+				}
+
+				if (rt.additionalImages != null) { // Set MRT
+					for (k in 0...rt.additionalImages.length) {
+						for (j in 0...tus.length) {
+							if ((samplerID + (k + 1)) == tus[j].id) {
+								g.setTexture(context.textureUnits[j], rt.image);
+							}
+						}
 					}
 				}
 			}
 		}
-		// for (j in 0...context.resource.texture_units.length) { // TODO: properly pass skin texture!
+		// for (j in 0...context.resource.texture_units.length) { // Passing texture constants
 		// 	if (context.resource.texture_units[j].id == "skinTex") {
 		// 		g.setTexture(context.textureUnits[j], cast(node, ModelNode).skinTexture);
 		// 	}
@@ -98,9 +116,9 @@ class ModelNode extends Node {
 			else if (c.link == "_normalMatrix") {
 				helpMat.identity();
 				helpMat.mult(node.transform.matrix);
-				helpMat.mult(camera.V);
-				helpMat.inverse(helpMat);
-				helpMat.transpose();
+				//helpMat.mult(camera.V);
+				//helpMat.inverse(helpMat);
+				//helpMat.transpose();
 				m = helpMat;
 			}
 			else if (c.link == "_viewMatrix") {

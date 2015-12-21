@@ -139,6 +139,9 @@ typedef TPipelineRenderTarget = {
 	var id:String;
 	var width:Int;
 	var height:Int;
+	@:optional var format:String;
+	@:optional var depth_buffer:Bool;
+	@:optional var color_buffers:Int;
 }
 
 typedef TPipelineStage = {

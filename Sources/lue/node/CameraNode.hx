@@ -108,11 +108,16 @@ class CameraNode extends Node {
 
 	function setTarget(params:Array<String>, root:Node, light:LightNode) {
     	var target = params[0];
-    	if (target == "") currentRenderTarget = frameRenderTarget;
-		else currentRenderTarget = resource.pipeline.renderTargets.get(target).g4;
+    	if (target == "") {
+    		currentRenderTarget = frameRenderTarget;
+    		begin(currentRenderTarget);
+    	}
+		else {
+			var rt = resource.pipeline.renderTargets.get(target);
+			currentRenderTarget = rt.image.g4;
+			begin(currentRenderTarget, rt.additionalImages);
+		}
 		bindParams = null;
-
-		begin(currentRenderTarget);
     }
 
     function clearTarget(params:Array<String>, root:Node, light:LightNode) {
@@ -157,8 +162,8 @@ class CameraNode extends Node {
 		end(g);
     }
 
-	inline function begin(g:Graphics) {
-		g.begin();
+	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null) {
+		g.begin(additionalRenderTargets);
 	}
 
 	inline function end(g:Graphics) {
