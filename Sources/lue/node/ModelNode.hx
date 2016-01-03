@@ -91,7 +91,7 @@ class ModelNode extends Node {
 					for (k in 0...rt.additionalImages.length) {
 						for (j in 0...tus.length) {
 							if ((samplerID + (k + 1)) == tus[j].id) {
-								g.setTexture(context.textureUnits[j], rt.image);
+								g.setTexture(context.textureUnits[j], cast(rt.additionalImages[k], kha.Image));
 							}
 						}
 					}
@@ -191,6 +191,7 @@ class ModelNode extends Node {
 					break;
 				}
 			}
+			if (pos == -1) continue;
 			var c = context.resource.constants[pos];
 			
 			setMaterialConstant(g, context.constants[pos], c, matc);
@@ -204,8 +205,8 @@ class ModelNode extends Node {
 				for (j in 0...context.textureUnits.length) {
 					var sid = context.resource.texture_units[j].id;
 					if (mid == sid) {
-						// TODO: remove setparams
-						g.setTextureParameters(context.textureUnits[j], kha.graphics4.TextureAddressing.Repeat, kha.graphics4.TextureAddressing.Repeat, kha.graphics4.TextureFilter.LinearFilter, kha.graphics4.TextureFilter.LinearFilter, kha.graphics4.MipMapFilter.NoMipFilter);
+						// TODO: set params using json when creating texture unit
+						//g.setTextureParameters(context.textureUnits[j], kha.graphics4.TextureAddressing.Repeat, kha.graphics4.TextureAddressing.Repeat, kha.graphics4.TextureFilter.LinearFilter, kha.graphics4.TextureFilter.LinearFilter, kha.graphics4.MipMapFilter.NoMipFilter);
 						g.setTexture(context.textureUnits[j], materialContext.textures[i]);
 						break;
 					}
@@ -265,10 +266,10 @@ class ModelNode extends Node {
 		//}
 
 		transform.update();
-
+		
 		// Render mesh
 		g.setPipeline(shaderContext.pipeState);
-
+		
 		if (resource.geometry.instanced) {
 			g.setVertexBuffers(resource.geometry.instancedVertexBuffers);
 		}

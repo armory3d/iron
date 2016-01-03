@@ -148,7 +148,7 @@ class CameraNode extends Node {
 
 		var materialContext = cc.materialContext;
 		var context = cc.context;
-
+		
 		var g = currentRenderTarget;		
 		g.setPipeline(context.pipeState);
 
@@ -163,11 +163,15 @@ class CameraNode extends Node {
     }
 
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null) {
+		#if !python
 		g.begin(additionalRenderTargets);
+		#end
 	}
 
 	inline function end(g:Graphics) {
+		#if !python
 		g.end();
+		#end
 	}
 
 	public function updateMatrix() {

@@ -17,7 +17,7 @@ class ShaderResource extends Resource {
 	public var resource:TShaderResource;
 
 	var structure:VertexStructure;
-	var structureLength:Int;
+	var structureLength:Int = 0;
 
 	public var contexts:Array<ShaderContext> = [];
 
