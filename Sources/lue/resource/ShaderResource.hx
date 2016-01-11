@@ -10,6 +10,9 @@ import kha.graphics4.VertexData;
 import kha.graphics4.CompareMode;
 import kha.graphics4.CullMode;
 import kha.graphics4.BlendingOperation;
+import kha.graphics4.TextureAddressing;
+import kha.graphics4.TextureFilter;
+import kha.graphics4.MipMapFilter;
 import lue.resource.importer.SceneFormat;
 
 class ShaderResource extends Resource {
@@ -153,11 +156,11 @@ class ShaderContext {
 		pipeState.compile();
 
 		for (c in resource.constants) {
-			addConstant(c.id);
+			addConstant(c);
 		}
 
 		for (tu in resource.texture_units) {
-			addTexture(tu.id);
+			addTexture(tu);
 		}
 	}
 
@@ -174,11 +177,49 @@ class ShaderContext {
 			return BlendingOperation.Undefined;
 	}
 
-	function addConstant(s:String) {
-		constants.push(pipeState.getConstantLocation(s));
+	function getTextureAddresing(s:String):TextureAddressing {
+		if (s == "repeat")
+			return TextureAddressing.Repeat;
+		else if (s == "mirror")
+			return TextureAddressing.Mirror;
+		else
+			return TextureAddressing.Clamp;
 	}
 
-	function addTexture(s:String) {
-		textureUnits.push(pipeState.getTextureUnit(s));
+	function getTextureFilter(s:String):TextureFilter {
+		if (s == "point")
+			return TextureFilter.PointFilter;
+		else if (s == "linear")
+			return TextureFilter.LinearFilter;
+		else
+			return TextureFilter.AnisotropicFilter;
+	}
+
+	function getMipMapFilter(s:String):MipMapFilter {
+		if (s == "no")
+			return MipMapFilter.NoMipFilter;
+		else if (s == "point")
+			return MipMapFilter.PointMipFilter;
+		else
+			return MipMapFilter.LinearMipFilter;
+	}
+
+	function addConstant(c:TShaderConstant) {
+		constants.push(pipeState.getConstantLocation(c.id));
+	}
+
+	function addTexture(tu:TTextureUnit) {
+		var unit = pipeState.getTextureUnit(tu.id);
+		textureUnits.push(unit);
+
+		// TODO: set when graphics object is available
+		/*
+		graphics.setTextureParameters(unit,
+			tu.u_addressing == null ? TextureAddressing.Repeat : getTextureAddresing(tu.u_addressing),
+			tu.v_addressing == null ? TextureAddressing.Repeat : getTextureAddresing(tu.v_addressing),
+			tu.min_filter == null ? TextureFilter.PointFilter : getTextureFilter(tu.min_filter),
+			tu.mag_filter == null ? TextureFilter.PointFilter : getTextureFilter(tu.mag_filter),
+			tu.mipmap == null ? MipMapFilter.NoMipFilter : getMipMapFilter(tu.mipmap));
+		*/
 	}
 }

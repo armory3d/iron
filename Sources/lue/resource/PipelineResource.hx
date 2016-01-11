@@ -40,8 +40,8 @@ class PipelineResource extends Resource {
 
 	function createImage(t:TPipelineRenderTarget):Image {
 		return Image.createRenderTarget(
-			t.width,
-			t.height,
+			t.width == 0 ? kha.System.pixelWidth : t.width,
+			t.height == 0 ? kha.System.pixelHeight : t.height,
 			t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
 			t.depth_buffer != null ? t.depth_buffer : true);
 	}

@@ -127,6 +127,11 @@ typedef TShaderConstant = {
 
 typedef TTextureUnit = {
 	var id:String;
+	@:optional var u_addressing:String;
+	@:optional var v_addressing:String;
+	@:optional var min_filter:String;
+	@:optional var mag_filter:String;
+	@:optional var mipmap:String;
 }
 
 typedef TPipelineResource = {

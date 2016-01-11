@@ -4,8 +4,8 @@
   "license": "LGPL",
   "tags": ["kha", "3d"],
   "description": "Minimal 3D rendering engine",
-  "version": "15.12.0",
-  "classPath": "",
+  "version": "16.1.0",
+  "classPath": "Sources",
   "releasenote": "Initial release.",
   "contributors": ["Lubos"],
   "dependencies": {

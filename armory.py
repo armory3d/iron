@@ -1,39 +1,37 @@
 # =============================================================
-# 
+#  Armory Scene Exporter
+#  http://lue3d.org/
+#  by Lubos Lenco
+#
+#  Based on
 #  Open Game Engine Exchange
 #  http://opengex.org/
 # 
 #  Export plugin for Blender
 #  by Eric Lengyel
-#
 #  Version 1.1.2.2
-# 
 #  Copyright 2015, Terathon Software LLC
 # 
 #  This software is licensed under the Creative Commons
 #  Attribution-ShareAlike 3.0 Unported License:
-# 
 #  http://creativecommons.org/licenses/by-sa/3.0/deed.en_US
-# 
-#  Adapted to Lue Rendering Engine
-#  http://lue3d.org/
-#  by Lubos Lenco
 #
 # =============================================================
 
 
 bl_info = {
-	"name": "Lue format (.json)",
-	"description": "Lue Exporter",
-	"author": "Eric Lengyel, adapted by Lubos Lenco",
+	"name": "Armory format (.json)",
+	"description": "Armory Exporter",
+	"author": "Eric Lengyel, Armory by Lubos Lenco",
 	"version": (1, 0, 0, 0),
 	"location": "File > Import-Export",
 	"wiki_url": "http://lue3d.org/",
 	"category": "Import-Export"}
 
-
+import os
 import bpy
 import math
+from mathutils import *
 import json
 from bpy_extras.io_utils import ExportHelper
 
@@ -43,6 +41,7 @@ kNodeTypeBone = 1
 kNodeTypeGeometry = 2
 kNodeTypeLight = 3
 kNodeTypeCamera = 4
+kNodeTypeSpeaker = 5
 
 kAnimationSampled = 0
 kAnimationLinear = 1
@@ -51,7 +50,7 @@ kAnimationBezier = 2
 kExportEpsilon = 1.0e-6
 
 
-structIdentifier = ["node", "bone_node", "geometry_node", "light_node", "camera_node"]
+structIdentifier = ["node", "bone_node", "geometry_node", "light_node", "camera_node", "speaker_node"]
 
 
 subtranslationName = ["xpos", "ypos", "zpos"]
@@ -109,14 +108,15 @@ class Object:
 		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
 
-class LueExporter(bpy.types.Operator, ExportHelper):
-	"""Export to Lue format"""
-	bl_idname = "export_scene.lue"
-	bl_label = "Export Lue"
+class ArmoryExporter(bpy.types.Operator, ExportHelper):
+	"""Export to Armory format"""
+	bl_idname = "export_scene.armory"
+	bl_label = "Export Armory"
 	filename_ext = ".json"
 
 	option_export_selection = bpy.props.BoolProperty(name = "Export Selection Only", description = "Export only selected objects", default = False)
 	option_sample_animation = bpy.props.BoolProperty(name = "Force Sampled Animation", description = "Always export animation as per-frame samples", default = False)
+	option_no_cycles = bpy.props.BoolProperty(name = "Export Pure Armory", description = "Export pure armory data", default = False)
 
 	def WriteColor(self, color):
 		return [color[0], color[1], color[2]]
@@ -239,6 +239,8 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 				return (kNodeTypeLight)
 		elif (node.type == "CAMERA"):
 			return (kNodeTypeCamera)
+		elif (node.type == "SPEAKER"):
+			return (kNodeTypeSpeaker)
 
 		return (kNodeTypeNode)
 
@@ -336,9 +338,9 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 	@staticmethod
 	def AnimationPresent(fcurve, kind):
 		if (kind != kAnimationBezier):
-			return (LueExporter.AnimationKeysDifferent(fcurve))
+			return (ArmoryExporter.AnimationKeysDifferent(fcurve))
 
-		return ((LueExporter.AnimationKeysDifferent(fcurve)) or (LueExporter.AnimationTangentsNonzero(fcurve)))
+		return ((ArmoryExporter.AnimationKeysDifferent(fcurve)) or (ArmoryExporter.AnimationTangentsNonzero(fcurve)))
 
 
 	@staticmethod
@@ -529,7 +531,7 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 		for i in range(len(exportVertexArray)):
 			ev = exportVertexArray[i]
 			bucket = ev.hash & (bucketCount - 1)
-			index = LueExporter.FindExportVertex(hashTable[bucket], exportVertexArray, ev)
+			index = ArmoryExporter.FindExportVertex(hashTable[bucket], exportVertexArray, ev)
 			if (index < 0):
 				indexTable.append(len(unifiedVertexArray))
 				unifiedVertexArray.append(ev)
@@ -591,7 +593,7 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 		for i in range(self.beginFrame, self.endFrame):
 			scene.frame_set(i)
 			m2 = node.matrix_local
-			if (LueExporter.MatricesDifferent(m1, m2)):
+			if (ArmoryExporter.MatricesDifferent(m1, m2)):
 				animationFlag = True
 				break
 
@@ -637,7 +639,7 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 		for i in range(self.beginFrame, self.endFrame):
 			scene.frame_set(i)
 			m2 = poseBone.matrix
-			if (LueExporter.MatricesDifferent(m1, m2)):
+			if (ArmoryExporter.MatricesDifferent(m1, m2)):
 				animationFlag = True
 				break
 
@@ -713,49 +715,49 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 			action = node.animation_data.action
 			if (action):
 				for fcurve in action.fcurves:
-					kind = LueExporter.ClassifyAnimationCurve(fcurve)
+					kind = ArmoryExporter.ClassifyAnimationCurve(fcurve)
 					if (kind != kAnimationSampled):
 						if (fcurve.data_path == "location"):
 							for i in range(3):
 								if ((fcurve.array_index == i) and (not posAnimCurve[i])):
 									posAnimCurve[i] = fcurve
 									posAnimKind[i] = kind
-									if (LueExporter.AnimationPresent(fcurve, kind)):
+									if (ArmoryExporter.AnimationPresent(fcurve, kind)):
 										posAnimated[i] = True
 						elif (fcurve.data_path == "delta_location"):
 							for i in range(3):
 								if ((fcurve.array_index == i) and (not deltaPosAnimCurve[i])):
 									deltaPosAnimCurve[i] = fcurve
 									deltaPosAnimKind[i] = kind
-									if (LueExporter.AnimationPresent(fcurve, kind)):
+									if (ArmoryExporter.AnimationPresent(fcurve, kind)):
 										deltaPosAnimated[i] = True
 						elif (fcurve.data_path == "rotation_euler"):
 							for i in range(3):
 								if ((fcurve.array_index == i) and (not rotAnimCurve[i])):
 									rotAnimCurve[i] = fcurve
 									rotAnimKind[i] = kind
-									if (LueExporter.AnimationPresent(fcurve, kind)):
+									if (ArmoryExporter.AnimationPresent(fcurve, kind)):
 										rotAnimated[i] = True
 						elif (fcurve.data_path == "delta_rotation_euler"):
 							for i in range(3):
 								if ((fcurve.array_index == i) and (not deltaRotAnimCurve[i])):
 									deltaRotAnimCurve[i] = fcurve
 									deltaRotAnimKind[i] = kind
-									if (LueExporter.AnimationPresent(fcurve, kind)):
+									if (ArmoryExporter.AnimationPresent(fcurve, kind)):
 										deltaRotAnimated[i] = True
 						elif (fcurve.data_path == "scale"):
 							for i in range(3):
 								if ((fcurve.array_index == i) and (not sclAnimCurve[i])):
 									sclAnimCurve[i] = fcurve
 									sclAnimKind[i] = kind
-									if (LueExporter.AnimationPresent(fcurve, kind)):
+									if (ArmoryExporter.AnimationPresent(fcurve, kind)):
 										sclAnimated[i] = True
 						elif (fcurve.data_path == "delta_scale"):
 							for i in range(3):
 								if ((fcurve.array_index == i) and (not deltaSclAnimCurve[i])):
 									deltaSclAnimCurve[i] = fcurve
 									deltaSclAnimKind[i] = kind
-									if (LueExporter.AnimationPresent(fcurve, kind)):
+									if (ArmoryExporter.AnimationPresent(fcurve, kind)):
 										deltaSclAnimated[i] = True
 						elif ((fcurve.data_path == "rotation_axis_angle") or (fcurve.data_path == "rotation_quaternion") or (fcurve.data_path == "delta_rotation_quaternion")):
 							sampledAnimation = True
@@ -1094,7 +1096,6 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 
 	def ProcessBone(self, bone):
 		if ((self.exportAllFlag) or (bone.select)):
-			#self.nodeArray[bone] = {"nodeType" : kNodeTypeBone, "structName" : "node" + str(len(self.nodeArray) + 1)}
 			self.nodeArray[bone] = {"nodeType" : kNodeTypeBone, "structName" : bone.name}
 
 		for subnode in bone.children:
@@ -1103,8 +1104,7 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 
 	def ProcessNode(self, node):
 		if ((self.exportAllFlag) or (node.select)):
-			type = LueExporter.GetNodeType(node)
-			#self.nodeArray[node] = {"nodeType" : type, "structName" : "node" + str(len(self.nodeArray) + 1)}
+			type = ArmoryExporter.GetNodeType(node)
 			self.nodeArray[node] = {"nodeType" : type, "structName" : node.name}
 
 			if (node.parent_type == "BONE"):
@@ -1121,8 +1121,9 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 						if (not bone.parent):
 							self.ProcessBone(bone)
 
-		for subnode in node.children:
-			self.ProcessNode(subnode)
+		if node.type != 'MESH' or (hasattr(node, 'instanced_children') and node.instanced_children == False):
+			for subnode in node.children:
+				self.ProcessNode(subnode)
 
 
 	def ProcessSkinnedMeshes(self):
@@ -1176,6 +1177,15 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 
 		o.material_refs.append(self.materialArray[material]["structName"])
 
+	def ExportParticleSystemRef(self, psys, index, o):
+		if (not psys.settings in self.particleSystemArray):
+			self.particleSystemArray[psys.settings] = {"structName" : psys.settings.name}
+
+		pref = Object()
+		pref.id = psys.name
+		pref.seed = psys.seed
+		pref.particle = self.particleSystemArray[psys.settings]["structName"]
+		o.particle_refs.append(pref)
 
 
 	def ExportNode(self, node, scene, poseBone = None, parento = None):
@@ -1195,15 +1205,9 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 			o.type = structIdentifier[type]
 			o.id = nodeRef["structName"]
 
-			if (type == kNodeTypeGeometry):
+			if (type == kNodeTypeGeometry): # TODO: hide lights too
 				if (node.hide_render):
 					o.visible = False
-
-			# Export the node's name if it has one.
-
-			##name = node.name
-			##if (name != ""):
-			##	o.name = name
 
 			# Export the object reference and material references.
 
@@ -1211,74 +1215,86 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 
 			if (type == kNodeTypeGeometry):
 				if (not object in self.geometryArray):
-					#self.geometryArray[object] = {"structName" : "geometry" + str(len(self.geometryArray) + 1), "nodeTable" : [node]}
 					self.geometryArray[object] = {"structName" : object.name, "nodeTable" : [node]}
 				else:
 					self.geometryArray[object]["nodeTable"].append(node)
 
-				o.object_ref = self.geometryArray[object]["structName"]
+				oid = self.geometryArray[object]["structName"].replace(".", "_")
+				o.object_ref = 'geom_' + oid + '/' + oid
+				
 				o.material_refs = []
-
 				for i in range(len(node.material_slots)):
 					self.ExportMaterialRef(node.material_slots[i].material, i, o)
 
-				shapeKeys = LueExporter.GetShapeKeys(object)
+				o.particle_refs = []
+				for i in range(len(node.particle_systems)):
+					self.ExportParticleSystemRef(node.particle_systems[i], i, o)
+
+				#shapeKeys = ArmoryExporter.GetShapeKeys(object)
 				#if (shapeKeys):
 				#	self.ExportMorphWeights(node, shapeKeys, scene, o)
 				# TODO
 
 			elif (type == kNodeTypeLight):
 				if (not object in self.lightArray):
-					#self.lightArray[object] = {"structName" : "light" + str(len(self.lightArray) + 1), "nodeTable" : [node]}
 					self.lightArray[object] = {"structName" : object.name, "nodeTable" : [node]}
 				else:
 					self.lightArray[object]["nodeTable"].append(node)
-
 				o.object_ref = self.lightArray[object]["structName"]
 
 			elif (type == kNodeTypeCamera):
 				if (not object in self.cameraArray):
-					#self.cameraArray[object] = {"structName" : "camera" + str(len(self.cameraArray) + 1), "nodeTable" : [node]}
 					self.cameraArray[object] = {"structName" : object.name, "nodeTable" : [node]}
 				else:
 					self.cameraArray[object]["nodeTable"].append(node)
-
 				o.object_ref = self.cameraArray[object]["structName"]
 
+			elif (type == kNodeTypeSpeaker):
+				if (not object in self.speakerArray):
+					self.speakerArray[object] = {"structName" : object.name, "nodeTable" : [node]}
+				else:
+					self.speakerArray[object]["nodeTable"].append(node)
+				o.object_ref = self.speakerArray[object]["structName"]
+
 			if (poseBone):
-
 				# If the node is parented to a bone and is not relative, then undo the bone's transform.
-
 				o.transform = Object()
 				o.transform.values = self.WriteMatrix(poseBone.matrix.inverted())
 
 			# Export the transform. If the node is animated, then animation tracks are exported here.
-
 			self.ExportNodeTransform(node, scene, o)
 
 			if (node.type == "ARMATURE"):
 				skeleton = node.data
 				if (skeleton):
 					o.nodes = []
-					for bone in skeleton.bones:
-						if (not bone.parent):
-							co = Object() # TODO
-							self.ExportBone(node, bone, scene, co)
-							o.nodes.append(co)
+					o.bones_ref = 'bones_' + o.id
+					index = self.filepath.rfind('/') # TODO: duplicated in geoms
+					geom_fp = self.filepath[:(index+1)] + 'geoms/'
+					if not os.path.exists(geom_fp):
+						os.makedirs(geom_fp)
+					fp = geom_fp + o.bones_ref + '.json'
+					if node.geometry_cached == False or not os.path.exists(fp):
+						bones = []
+						for bone in skeleton.bones:
+							if (not bone.parent):
+								boneo = Object()
+								self.ExportBone(node, bone, scene, boneo)
+								#o.nodes.append(boneo)
+								bones.append(boneo)
+						# Save bones separately
+						bones_obj = Object()
+						bones_obj.nodes = bones
+						with open(fp, 'w') as f:
+							f.write(bones_obj.to_JSON())
+						node.geometry_cached = True
 
 			if (parento == None):
 				self.output.nodes.append(o)
 			else:
 				parento.nodes.append(o)
 
-		if not hasattr(o, 'nodes'):
-			o.nodes = []
-		for subnode in node.children:
-			if (subnode.parent_type != "BONE"):
-				self.ExportNode(subnode, scene, None, o)
-
 		# Export traits
-		# TODO: export only for geometry nodes and nodes
 		o.traits = []
 		for t in node.my_traitlist:
 			if t.enabled_prop == False:
@@ -1318,6 +1334,13 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 								 ':' + shape + \
 								 ":" + str(rb.friction)
 			o.traits.append(x)
+
+		if not hasattr(o, 'nodes'):
+			o.nodes = []
+		if node.type != 'MESH' or node.instanced_children == False:
+			for subnode in node.children:
+				if (subnode.parent_type != "BONE"):
+					self.ExportNode(subnode, scene, None, o)
 
 
 
@@ -1420,25 +1443,43 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 
 
 
-
-
-
-
-
-
 	def ExportGeometry(self, objectRef, scene):
 
 		# This function exports a single geometry object.
 
-		o = Object()
-
-		o.id = objectRef[1]["structName"]
-		#self.WriteNodeTable(objectRef) #//
-		# TODO
-
 		node = objectRef[1]["nodeTable"][0]
-		mesh = objectRef[0]
+		oid = objectRef[1]["structName"].replace(".", "_")
 
+		index = self.filepath.rfind('/')
+		geom_fp = self.filepath[:(index+1)] + 'geoms/'
+		if not os.path.exists(geom_fp):
+			os.makedirs(geom_fp)
+		fp = geom_fp + 'geom_' + oid + '.json'
+
+		# Check if geometry is using instanced rendering
+		is_instanced = False
+		for n in objectRef[1]["nodeTable"]:
+			if n.instanced_children == True:
+				is_instanced = True
+				# TODO: cache instanced geometry
+				node.geometry_cached = False
+				# Save offset data
+				instance_offsets = [0, 0, 0] # Include parent
+				for sn in n.children:
+					instance_offsets.append(sn.location.x)
+					instance_offsets.append(sn.location.y)
+					instance_offsets.append(sn.location.z)
+				break
+		
+		# No export necessary
+		if node.geometry_cached == True and os.path.exists(fp):
+			return
+
+		o = Object()
+		o.id = oid
+		#self.WriteNodeTable(objectRef) #// # TODO
+
+		mesh = objectRef[0]
 		structFlag = False;
 
 		# Save the morph state if necessary.
@@ -1447,7 +1488,7 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 		showOnlyShapeKey = node.show_only_shape_key
 		currentMorphValue = []
 
-		shapeKeys = LueExporter.GetShapeKeys(mesh)
+		shapeKeys = ArmoryExporter.GetShapeKeys(mesh)
 		if (shapeKeys):
 			node.active_shape_key_index = 0
 			node.show_only_shape_key = True
@@ -1508,11 +1549,11 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 		# Triangulate mesh and remap vertices to eliminate duplicates.
 
 		materialTable = []
-		exportVertexArray = LueExporter.DeindexMesh(exportMesh, materialTable)
+		exportVertexArray = ArmoryExporter.DeindexMesh(exportMesh, materialTable)
 		triangleCount = len(materialTable)
 
 		indexTable = []
-		unifiedVertexArray = LueExporter.UnifyVertices(exportVertexArray, indexTable)
+		unifiedVertexArray = ArmoryExporter.UnifyVertices(exportVertexArray, indexTable)
 		vertexCount = len(unifiedVertexArray)
 
 		# Write the position array.
@@ -1652,6 +1693,55 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 					ia.material = self.WriteInt(m)
 					om.index_arrays.append(ia)
 		
+		# Export tangents
+		# TODO: check for texture coords
+		export_tangents = False
+		for m in exportMesh.materials:
+			if m.export_tangents == True:
+				export_tangents = True
+				break
+		if (export_tangents and len(exportMesh.uv_textures) > 0):
+		#	exportMesh.calc_tangents()	# TODO: use to export tangents
+			ia = om.index_arrays[0].values
+			posa = pa.values
+			uva = ta.values
+			tangents = []
+			#bitangents = []
+			#print(node.name)
+			for i in range(0, int(len(ia) / 3)):
+				i0 = ia[i * 3 + 0]
+				i1 = ia[i * 3 + 1]
+				i2 = ia[i * 3 + 2]
+				v0 = Vector((posa[i0 * 3 + 0], posa[i0 * 3 + 1], posa[i0 * 3 + 2]))
+				v1 = Vector((posa[i1 * 3 + 0], posa[i1 * 3 + 1], posa[i1 * 3 + 2]))
+				v2 = Vector((posa[i2 * 3 + 0], posa[i2 * 3 + 1], posa[i2 * 3 + 2]))
+				uv0 = Vector((uva[i0 * 2 + 0], uva[i0 * 2 + 1]))
+				uv1 = Vector((uva[i1 * 2 + 0], uva[i1 * 2 + 1]))
+				uv2 = Vector((uva[i2 * 2 + 0], uva[i2 * 2 + 1]))
+				deltaPos1 = v1 - v0
+				deltaPos2 = v2 - v0
+				deltaUV1 = uv1 - uv0
+				deltaUV2 = uv2 - uv0
+				r = 1.0 / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+				tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
+				#bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
+				tangents.append(tangent.x)
+				tangents.append(tangent.y)
+				tangents.append(tangent.z)
+				#bitangents.append(bitangent.x)
+				#bitangents.append(bitangent.y)
+				#bitangents.append(bitangent.z)
+			tana = Object()
+			tana.attrib = "tangent"
+			tana.size = 3
+			tana.values = tangents
+			om.vertex_arrays.append(tana)
+			# btana = Object()
+			# btana.attrib = "bitangent"
+			# btana.size = 3
+			# btana.values = bitangents
+			# om.vertex_arrays.append(btana)
+
 		# If the mesh is skinned, export the skinning data here.
 
 		if (armature):
@@ -1668,12 +1758,23 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 
 			mesh.update()
 
+		# Save offset data for instanced rendering
+
+		if is_instanced == True:
+			om.instance_offsets = instance_offsets
+
 		# Delete the new mesh that we made earlier.
 
 		bpy.data.meshes.remove(exportMesh)
-
 		o.mesh = om
-		self.output.geometry_resources.append(o)
+
+		# One geometry data per file
+		geom_obj = Object()
+		geom_obj.geometry_resources = [o]
+		with open(fp, 'w') as f:
+			f.write(geom_obj.to_JSON())
+		node.geometry_cached = True
+		#self.output.geometry_resources.append(o)
 
 
 	def ExportLight(self, objectRef):
@@ -1831,12 +1932,33 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 		o.near_plane = object.clip_start
 		o.far_plane = object.clip_end
 		o.frustum_culling = False
-		o.pipeline = "blender_resource/blender_pipeline"
-		o.clear_color = [0.0, 0.0, 0.0, 1.0]
-		o.type = "perspective"
+		o.pipeline = "pipeline_resource/blender_pipeline"
+		
+		if 'Background' in bpy.data.worlds[0].node_tree.nodes: # TODO: parse node tree
+			col = bpy.data.worlds[0].node_tree.nodes['Background'].inputs[0].default_value
+			o.clear_color = [col[0], col[1], col[2], col[3]]
+		else:
+			o.clear_color = [0.0, 0.0, 0.0, 1.0]
+		
+		if object.type == 'PERSP':
+			o.type = 'perspective'
+		else:
+			o.type = 'orthographic'
 		
 		self.output.camera_resources.append(o)
 
+	def ExportSpeaker(self, objectRef):
+		# This function exports a single speaker object
+		o = Object()
+		o.id = objectRef[1]["structName"]
+		object = objectRef[0]
+		o.sound = object.sound.name.split('.')[0]
+		self.output.speaker_resources.append(o)
+
+	def findNodeByLink(self, node_group, to_node, inp):
+	    for link in node_group.links:
+	        if link.to_node == to_node and link.to_socket == inp:
+	            return link.from_node
 
 	def ExportMaterials(self):
 
@@ -1852,18 +1974,15 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 
 			o.id = materialRef[1]["structName"]
 
-			#if (material.name != ""):
-			#	o.name = material.name
-
 			#intensity = material.diffuse_intensity
 			#diffuse = [material.diffuse_color[0] * intensity, material.diffuse_color[1] * intensity, material.diffuse_color[2] * intensity]
 
-			o.shader = "blender_resource/blender_shader"
+			defs = []
 			o.cast_shadow = True
 			o.contexts = []
 			
 			c = Object()
-			c.id = "lighting"
+			c.id = "blender"
 			c.bind_constants = []
 			const1 = Object()
 			const1.id = "diffuseColor"
@@ -1875,36 +1994,100 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 			c.bind_constants.append(const2)
 			const3 = Object()
 			const3.id = "lighting"
-			const3.bool = True
+			const3.bool = False
 			c.bind_constants.append(const3)
 			const4 = Object()
 			const4.id = "receiveShadow"
-			const4.bool = True
+			const4.bool = material.receive_shadow
 			c.bind_constants.append(const4)
-			const5 = Object()
-			const5.id = "texturing"
-			const5.bool = False
-			c.bind_constants.append(const5)
 
 			c.bind_textures = []
-			tex1 = Object()
-			tex1.id = "stex"
-			tex1.name = ""
-			c.bind_textures.append(tex1)
 
-			# Texture
-			if 'Image Texture' in material.node_tree.nodes:
-				image_node = material.node_tree.nodes['Image Texture']
-				const5.bool = True
-				tex1.name = image_node.image.name
+			# Parse nodes
+			out_node = None
+			for n in material.node_tree.nodes:
+				if n.type == 'OUTPUT_MATERIAL':
+					out_node = n
+					break
 
-			# Color
-			if 'Diffuse BSDF' in material.node_tree.nodes:
-				diffuse_node = material.node_tree.nodes['Diffuse BSDF']
-				col = diffuse_node.inputs[0].default_value
-				const1.vec4 = [col[0], col[1], col[2], col[3]]
+			normalMapping = False
+
+			if out_node != None and out_node.inputs[0].is_linked:
+				tree = material.node_tree
+				surface_node = self.findNodeByLink(tree, out_node, out_node.inputs[0])
+				if surface_node.type == 'BSDF_DIFFUSE':
+					const3.bool = True # Enable lighting
+					# Color
+					if surface_node.inputs[0].is_linked:
+						color_node = self.findNodeByLink(tree, surface_node, surface_node.inputs[0])
+						if color_node.type == 'TEX_IMAGE': # Bind texture
+							tex = Object()
+							tex.id = "stex"
+							tex.name = color_node.image.name.split('.', 1)[0] # Remove extension
+							c.bind_textures.append(tex)
+					else:
+						col = surface_node.inputs[0].default_value
+						const1.vec4 = [col[0], col[1], col[2], col[3]]
+					# Roughness
+					const2.float = surface_node.inputs[1].default_value
+					# Normal
+					if surface_node.inputs[2].is_linked:
+						normal_node = self.findNodeByLink(tree, surface_node, surface_node.inputs[2])
+						if normal_node.inputs[1].is_linked:
+							color_node = self.findNodeByLink(tree, normal_node, normal_node.inputs[1])
+							if color_node.type == 'TEX_IMAGE':
+								normalMapping = True
+								defs.append('_NormalMapping')
+								tex = Object()
+								tex.id = "normalMap"
+								tex.name = color_node.image.name.split('.', 1)[0]
+								c.bind_textures.append(tex)
 
 			o.contexts.append(c)
+
+			if material.alpha_test == True:
+				defs.append('_AlphaTest')
+
+			# Material users
+			mat_users = []
+			for ob in bpy.data.objects:
+				if type(ob.data) == bpy.types.Mesh:
+					for m in ob.data.materials:
+						if m.name == material.name:
+							mat_users.append(ob)
+							break;
+
+			for ob in mat_users:
+				# Instancing used by material user
+				if ob.instanced_children or len(ob.particle_systems) > 0:
+					defs.append('_Instancing')
+				# VCols used by material user
+				if ob.data.vertex_colors:
+					defs.append('_VCols');
+				# Texcoords
+				if ob.data.uv_textures:
+					defs.append('_Texturing')
+				# GPU Skinning
+				if ob.find_armature():
+					defs.append('_Skinning')
+
+			# Whether objects should export tangent data
+			if material.export_tangents != normalMapping:
+				material.export_tangents = normalMapping
+				# Delete geometry caches
+				for ob in mat_users:
+					ob.geometry_cached = False
+					break
+
+			if material.custom_shader == False:
+				# Merge duplicates and sort
+				defs = sorted(list(set(defs)))
+				# Select correct shader variant
+				o.shader = "blender_resource/blender"
+				for d in defs:
+					o.shader += d
+			else:
+				o.shader = material.custom_shader_name
 
 			#intensity = material.specular_intensity
 			#specular = [material.specular_color[0] * intensity, material.specular_color[1] * intensity, material.specular_color[2] * intensity]
@@ -1957,6 +2140,22 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 			'''
 			self.output.material_resources.append(o)
 
+	def ExportParticleSystems(self):
+		for particleRef in self.particleSystemArray.items():
+			o = Object()
+			psettings = particleRef[0]
+
+			if psettings == None:
+				continue
+
+			o.id = particleRef[1]["structName"]
+			o.count = psettings.count
+			o.lifetime = psettings.lifetime
+			o.normal_factor = psettings.normal_factor;
+			o.object_align_factor = [psettings.object_align_factor[0], psettings.object_align_factor[1], psettings.object_align_factor[2]]
+			o.factor_random = psettings.factor_random
+
+			self.output.particle_resources.append(o)
 
 	def ExportObjects(self, scene):
 		for objectRef in self.geometryArray.items():
@@ -1965,6 +2164,8 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 			self.ExportLight(objectRef)
 		for objectRef in self.cameraArray.items():
 			self.ExportCamera(objectRef)
+		for objectRef in self.speakerArray.items():
+			self.ExportSpeaker(objectRef)
 
 
 	def execute(self, context):
@@ -1984,12 +2185,14 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 		self.geometryArray = {}
 		self.lightArray = {}
 		self.cameraArray = {}
+		self.speakerArray = {}
 		self.materialArray = {}
+		self.particleSystemArray = {}
 		self.boneParentArray = {}
 
 		self.exportAllFlag = not self.option_export_selection
-		self.sampleAnimationFlag = self.option_sample_animation
-
+		self.sampleAnimationFlag = True#self.option_sample_animation
+		self.noCycles = self.option_no_cycles
 
 		for object in scene.objects:
 			if (not object.parent):
@@ -1997,19 +2200,22 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 
 		self.ProcessSkinnedMeshes()
 
-
 		self.output.nodes = []
 		for object in scene.objects:
 			if (not object.parent):
 				self.ExportNode(object, scene)
 
+		self.output.material_resources = []
+		self.ExportMaterials()
+
+		self.output.particle_resources = []
+		self.ExportParticleSystems()
+
 		self.output.geometry_resources = [];
 		self.output.light_resources = [];
 		self.output.camera_resources = [];
+		self.output.speaker_resources = [];
 		self.ExportObjects(scene)
-
-		self.output.material_resources = []
-		self.ExportMaterials()
 
 
 		if (self.restoreFrame):
@@ -2024,15 +2230,15 @@ class LueExporter(bpy.types.Operator, ExportHelper):
 
 
 def menu_func(self, context):
-	self.layout.operator(LueExporter.bl_idname, text = "Lue (.json)")
+	self.layout.operator(ArmoryExporter.bl_idname, text = "Armory (.json)")
 
 def register():
-	bpy.utils.register_class(LueExporter)
+	bpy.utils.register_class(ArmoryExporter)
 	bpy.types.INFO_MT_file_export.append(menu_func)
 
 def unregister():
 	bpy.types.INFO_MT_file_export.remove(menu_func)
-	bpy.utils.unregister_class(LueExporter)
+	bpy.utils.unregister_class(ArmoryExporter)
 
 if __name__ == "__main__":
 	register()
