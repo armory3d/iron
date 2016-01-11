@@ -21,6 +21,7 @@ typedef TMesh = {
 	var primitive:String;
 	var vertex_arrays:Array<TVertexArray>;
 	var index_arrays:Array<TIndexArray>;
+	@:optional var static_usage:Bool;
 	@:optional var skin:TSkin;
 	@:optional var instance_offsets:Array<Float>;
 }

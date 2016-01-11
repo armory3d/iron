@@ -1,5 +1,6 @@
 package lue.node;
 
+import kha.graphics4.Usage;
 import lue.resource.Resource;
 import lue.resource.ParticleResource;
 import lue.resource.importer.SceneFormat;
@@ -40,7 +41,7 @@ class ParticleSystem {
 			instancedData.push(p.offset.y);
 			instancedData.push(p.offset.z);
 		}
-		node.resource.setupInstancedGeometry(instancedData);
+		node.resource.setupInstancedGeometry(instancedData, Usage.DynamicUsage);
 	}
 
 	public function update() {

@@ -4,8 +4,6 @@ import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
-import lue.math.Vec3;
-import lue.math.Mat4;
 import lue.resource.importer.SceneFormat;
 
 class ModelResource extends Resource {
@@ -28,7 +26,6 @@ class ModelResource extends Resource {
 		this.resource = resource;
 
 		// Mesh data
-		var data:Array<Float> = [];
 		var indices:Array<Array<Int>> = [];
 		var materialIndices:Array<Int> = [];
 		for (ind in resource.mesh.index_arrays) {
@@ -54,7 +51,10 @@ class ModelResource extends Resource {
 
 		// Skinning
 		isSkinned = resource.mesh.skin != null ? true : false;
-		var usage = (isSkinned && ForceCpuSkinning) ? Usage.DynamicUsage : Usage.StaticUsage;
+		// Usage, also used for instanced data
+		var parsedUsage = Usage.StaticUsage;
+		if (resource.mesh.static_usage != null && resource.mesh.static_usage == false) parsedUsage = Usage.DynamicUsage;
+		var usage = (isSkinned && ForceCpuSkinning) ? Usage.DynamicUsage : parsedUsage;
 
 		var bonea:Array<Float> = null; // Store bone indices and weights per vertex
 		var weighta:Array<Float> = null;
@@ -79,7 +79,7 @@ class ModelResource extends Resource {
 		}
 
 		// Create data
-		buildData(data, pa, na, uva, ca, tana, bonea, weighta);
+		var data = buildData(pa, na, uva, ca, tana, bonea, weighta);
 		
 		// TODO: Mandatory vertex data names and sizes
 		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
@@ -91,11 +91,11 @@ class ModelResource extends Resource {
 
 		// Instanced
 		if (resource.mesh.instance_offsets != null) {
-			setupInstancedGeometry(resource.mesh.instance_offsets);
+			setupInstancedGeometry(resource.mesh.instance_offsets, usage);
 		}
 	}
 
-	public function setupInstancedGeometry(offsets:Array<Float>) {
+	public function setupInstancedGeometry(offsets:Array<Float>, usage:Usage) {
 		geometry.instanced = true;
 		geometry.instanceCount = Std.int(offsets.length / 3);
 
@@ -103,7 +103,7 @@ class ModelResource extends Resource {
     	structure.add("off", kha.graphics4.VertexData.Float3);
 
 		var vb = new VertexBuffer(geometry.instanceCount,
-								  structure, kha.graphics4.Usage.StaticUsage,
+								  structure, usage,
 								  1);
 		var vertices = vb.lock();
 		for (i in 0...vertices.length) {
@@ -174,15 +174,15 @@ class ModelResource extends Resource {
 		return null;
 	}
 
-	function buildData(data:Array<Float>,
-					   pa:Array<Float> = null,
+	function buildData(pa:Array<Float> = null,
 					   na:Array<Float> = null,
 					   uva:Array<Float> = null,
 					   ca:Array<Float> = null,
 					   tana:Array<Float> = null,
 					   bonea:Array<Float> = null,
-					   weighta:Array<Float> = null) {
+					   weighta:Array<Float> = null):Array<Float> {
 
+		var data:Array<Float> = [];
 		for (i in 0...Std.int(pa.length / 3)) {
 			
 			data.push(pa[i * 3]); // Pos
@@ -229,173 +229,7 @@ class ModelResource extends Resource {
 				data.push(weighta[i * 4 + 3]);
 			}
 		}
-	}
-}
 
-class Geometry {
-
-	public var vertexBuffer:VertexBuffer;
-	public var indexBuffers:Array<IndexBuffer>;
-    public var vertices:kha.arrays.Float32Array;
-    public var indices:Array<Array<Int>>;
-    public var materialIndices:Array<Int>;
-    public var structureLength:Int;
-
-    public var instancedVertexBuffers:Array<VertexBuffer>;
-    public var instanced:Bool = false;
-	public var instanceCount:Int = 0;
-
-    public var aabbMin:Vec3;
-	public var aabbMax:Vec3;
-	public var size:Vec3;
-	public var radius:Float;
-
-	var data:Array<Float>;
-	var ids:Array<Array<Int>>;
-	public var usage:Usage;
-
-	public var positions:Array<Float>; // TODO: no need to store these references
-	public var normals:Array<Float>;
-	public var uvs:Array<Float>;
-	public var cols:Array<Float>;
-
-	public var tangents:Array<Float>;
-
-	public var bones:Array<Float>;
-	public var weights:Array<Float>;
-
-	// Skinned
-	public var skinTransform:Mat4 = null;
-	public var skinTransformI:Mat4 = null;
-	public var skinBoneCounts:Array<Int> = null;
-	public var skinBoneIndices:Array<Int> = null;
-	public var skinBoneWeights:Array<Float> = null;
-
-	public var skeletonBoneRefs:Array<String> = null;
-	public var skeletonBones:Array<TNode> = null;
-	public var skeletonTransforms:Array<Mat4> = null;
-	public var skeletonTransformsI:Array<Mat4> = null;
-
-	public function new(data:Array<Float>, indices:Array<Array<Int>>, materialIndices:Array<Int>,
-						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>, cols:Array<Float>,
-						tangents:Array<Float> = null,
-						bones:Array<Float> = null, weights:Array<Float> = null,
-						usage:Usage = null) {
-
-		if (usage == null) usage = Usage.StaticUsage;
-
-		this.data = data;
-		this.ids = indices;
-		this.materialIndices = materialIndices;
-		this.usage = usage;
-
-		this.positions = positions;
-		this.uvs = uvs;
-		this.normals = normals;
-		this.cols = cols;
-
-		this.tangents = tangents;
-
-		this.bones = bones;
-		this.weights = weights;
-	}
-
-	public function build(structure:VertexStructure, structureLength:Int) {
-		this.structureLength = structureLength;
-
-		vertexBuffer = new VertexBuffer(Std.int(data.length / structureLength),
-										structure, usage);
-		vertices = vertexBuffer.lock();
-		
-		for (i in 0...vertices.length) {
-			vertices.set(i, data[i]);
-		}
-		vertexBuffer.unlock();
-
-		indexBuffers = [];
-		indices = [];
-		for (id in ids) {
-			var indexBuffer = new IndexBuffer(id.length, usage);
-			var indicesA = indexBuffer.lock();
-
-			for (i in 0...indicesA.length) {
-				indicesA[i] = id[i];
-			}
-			indexBuffer.unlock();
-
-			indexBuffers.push(indexBuffer);
-			indices.push(indicesA);
-		}
-
-		calculateAABB();
-	}
-
-	function calculateAABB() {
-
-		aabbMin = new Vec3(-0.01, -0.01, -0.01);
-		aabbMax = new Vec3(0.01, 0.01, 0.01);
-		size = new Vec3();
-
-		var i = 0;
-		while (i < positions.length) {
-
-			if (positions[i] > aabbMax.x)		aabbMax.x = positions[i];
-			if (positions[i + 1] > aabbMax.y)	aabbMax.y = positions[i + 1];
-			if (positions[i + 2] > aabbMax.z)	aabbMax.z = positions[i + 2];
-
-			if (positions[i] < aabbMin.x)		aabbMin.x = positions[i];
-			if (positions[i + 1] < aabbMin.y)	aabbMin.y = positions[i + 1];
-			if (positions[i + 2] < aabbMin.z)	aabbMin.z = positions[i + 2];
-
-			i += 3;
-		}
-
-		size.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);
-		size.y = Math.abs(aabbMin.y) + Math.abs(aabbMax.y);
-		size.z = Math.abs(aabbMin.z) + Math.abs(aabbMax.z);
-
-		// Sphere radius
-		if (size.x >= size.y && size.x >= size.z) radius = size.x / 2;
-		else if (size.y >= size.x && size.y >= size.z) radius = size.y / 2;
-		else radius = size.z / 2;
-	}
-
-	public function getVerticesCount():Int {
-		return Std.int(vertices.length / structureLength);
-	}
-
-	// Skinned
-	// TODO: check !ForceCpuSkinning
-	public function initSkeletonBones(bones:Array<TNode>) {
-		skeletonBones = [];
-
-		// Set bone references
-		for (s in skeletonBoneRefs) {
-			for (b in bones) {
-				if (b.id == s) {
-					skeletonBones.push(b);
-				}
-			}
-		}
-	}
-
-	public function initSkeletonTransforms(transforms:Array<Array<Float>>) {
-		skeletonTransforms = [];
-		skeletonTransformsI = [];
-
-		for (t in transforms) {
-			var m = new Mat4(t);
-			skeletonTransforms.push(m);
-			
-			var mi = new Mat4();
-			mi.getInverse(m);
-			skeletonTransformsI.push(mi);
-		}
-	}
-
-	public function initSkinTransform(t:Array<Float>) {
-		skinTransform = new Mat4(t);
-		skinTransformI = new Mat4();
-		skinTransformI.getInverse(skinTransform);
+		return data;
 	}
 }

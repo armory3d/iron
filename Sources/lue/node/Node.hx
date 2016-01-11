@@ -226,7 +226,7 @@ class Node {
 	}
 
 	static function createTraitClassInstance(traitName:String, args:Dynamic):Dynamic {
-		var cname = Type.resolveClass("game." + traitName);
+		var cname = Type.resolveClass(Main.projectPackage + "." + traitName);
 		if (cname == null) cname = Type.resolveClass("lue.trait." + traitName);
 		if (cname == null) cname = Type.resolveClass("cycles.trait." + traitName);
 		

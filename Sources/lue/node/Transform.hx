@@ -7,6 +7,7 @@ import lue.math.Quat;
 class Transform {
 
 	public var matrix:Mat4;
+	public var temp:Mat4;
 	public var append:Mat4 = null;
 	public var dirty:Bool;
 
@@ -24,6 +25,7 @@ class Transform {
 
 	public function reset() {
 		matrix = new Mat4();
+		temp = new Mat4();
 
 		pos = new Vec3();
 		rot = new Quat();
@@ -41,8 +43,11 @@ class Transform {
 	}
 
 	public function buildMatrix() {
-		rot.saveToMatrix(matrix);
+		matrix.identity();
 		matrix.scale(scale);
+		rot.saveToMatrix(temp);
+		matrix.mult(temp);
+		//matrix.translate(pos.x, pos.y, pos.z);
 		matrix._41 = pos.x;
 		matrix._42 = pos.y;
 		matrix._43 = pos.z;
