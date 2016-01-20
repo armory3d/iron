@@ -3,7 +3,7 @@
   "url" : "https://github.com/luboslenco/lue/",
   "license": "LGPL",
   "tags": ["kha", "3d"],
-  "description": "Minimal 3D rendering engine",
+  "description": "3D rendering engine core",
   "version": "16.1.0",
   "classPath": "Sources",
   "releasenote": "Initial release.",
