@@ -7,15 +7,15 @@ package lue.math;
 
 class Ray {
 	
-	public var origin:Vec3;
-	public var direction:Vec3;
+	public var origin:Vec4;
+	public var direction:Vec4;
 	
-	public function new(origin:Vec3 = null, direction:Vec3 = null) {
-		this.origin = origin == null ? new Vec3() : origin;		
-		this.direction = direction == null ? new Vec3() : direction;
+	public function new(origin:Vec4 = null, direction:Vec4 = null) {
+		this.origin = origin == null ? new Vec4() : origin;		
+		this.direction = direction == null ? new Vec4() : direction;
 	}	
 	
-	public function set(origin:Vec3, direction:Vec3):Ray {
+	public function set(origin:Vec4, direction:Vec4):Ray {
 		this.origin.copy2(origin);
 		this.direction.copy2(direction);
 		return this;
@@ -25,19 +25,19 @@ class Ray {
 		return set(ray.origin, ray.direction);
 	}	
 	
-	public function at(t:Float, optionalTarget:Vec3 = null):Vec3 {
-		var result = optionalTarget != null ? optionalTarget : new Vec3();
+	public function at(t:Float, optionalTarget:Vec4 = null):Vec4 {
+		var result = optionalTarget != null ? optionalTarget : new Vec4();
 		return result.copy2(direction).multiplyScalar(t).add(origin);
 	}	
 	
 	public function recast(t:Float):Ray	{
-		var v1 = new Vec3();
+		var v1 = new Vec4();
 		this.origin.copy2(this.at(t, v1));
 		return this;
 	}	
 	
-	public function closestPointToPoint(point:Vec3, optionalTarget:Vec3 = null):Vec3 {
-		var result = optionalTarget == null ? new Vec3() : optionalTarget;
+	public function closestPointToPoint(point:Vec4, optionalTarget:Vec4 = null):Vec4 {
+		var result = optionalTarget == null ? new Vec4() : optionalTarget;
 		result.subVectors(point, this.origin);
 		var directionDistance = result.dot(this.direction);
 		if (directionDistance < 0) {
@@ -47,8 +47,8 @@ class Ray {
 		return result.copy2(this.direction).multiplyScalar(directionDistance).add(this.origin);
 	}	
 	
-	public function distanceToPoint(point:Vec3):Float {
-		var v1 = new Vec3();
+	public function distanceToPoint(point:Vec4):Float {
+		var v1 = new Vec4();
 		var directionDistance = v1.subVectors(point, this.origin).dot(this.direction);
 		
 		// point behind the ray
@@ -61,7 +61,7 @@ class Ray {
 		return v1.distanceTo(point);
 	}	
 	
-	public function distanceSqToSegment(v0:Vec3, v1:Vec3, optionalPointOnRay:Vec3 = null, optionalPointOnSegment:Vec3 = null) {
+	public function distanceSqToSegment(v0:Vec4, v1:Vec4, optionalPointOnRay:Vec4 = null, optionalPointOnSegment:Vec4 = null) {
 		// from http://www.geometrictools.com/LibMathematics/Distance/Wm5DistRay3Segment3.cpp
 		// It returns the min distance between the ray and the segment
 		// defined by v0 and v1
@@ -181,7 +181,7 @@ class Ray {
 		return t >= 0 ? t :  -1;
 	}	
 	
-	public function intersectPlane(plane:Plane, optionalTarget:Vec3 = null):Vec3 {
+	public function intersectPlane(plane:Plane, optionalTarget:Vec4 = null):Vec4 {
 		var t = this.distanceToPlane(plane);
 
 		//if (t == null) {
@@ -193,11 +193,11 @@ class Ray {
 	}
 	
 	public function isIntersectionBox(box:Box3):Bool {
-		var v = new Vec3();
+		var v = new Vec4();
 		return this.intersectBox(box, v) != null;
 	}
 	
-	public function intersectBox(box:Box3, optionalTarget:Vec3 = null):Vec3 {
+	public function intersectBox(box:Box3, optionalTarget:Vec4 = null):Vec4 {
 		// http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
 		var tmin,tmax,tymin,tymax,tzmin,tzmax;
 
@@ -251,12 +251,12 @@ class Ray {
 		return this.at(tmin >= 0 ? tmin : tmax, optionalTarget);
 	}
 	
-	public function intersectTriangle(a:Vec3, b:Vec3, c:Vec3, backfaceCulling:Bool, optionalTarget:Vec3 = null):Vec3 {
+	public function intersectTriangle(a:Vec4, b:Vec4, c:Vec4, backfaceCulling:Bool, optionalTarget:Vec4 = null):Vec4 {
 		// Compute the offset origin, edges, and normal.
-		var diff = new Vec3();
-		var edge1 = new Vec3();
-		var edge2 = new Vec3();
-		var normal = new Vec3();
+		var diff = new Vec4();
+		var edge1 = new Vec4();
+		var edge2 = new Vec4();
+		var normal = new Vec4();
 
 		// from http://www.geometrictools.com/LibMathematics/Intersection/Wm5IntrRay3Triangle3.cpp
 		edge1.subVectors(b, a);

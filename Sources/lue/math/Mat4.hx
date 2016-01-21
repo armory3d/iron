@@ -1,23 +1,25 @@
 package lue.math;
 
+import kha.FastFloat;
 import lue.math.Math;
 
-class Mat4 {
+class Mat4 extends kha.math.FastMatrix4 {
 
-	public var _00:Float; public var _10:Float; public var _20:Float; public var _30:Float;
-	public var _01:Float; public var _11:Float; public var _21:Float; public var _31:Float;
-	public var _02:Float; public var _12:Float; public var _22:Float; public var _32:Float;
-	public var _03:Float; public var _13:Float; public var _23:Float; public var _33:Float;
+	// public var _00:Float; public var _10:Float; public var _20:Float; public var _30:Float;
+	// public var _01:Float; public var _11:Float; public var _21:Float; public var _31:Float;
+	// public var _02:Float; public var _12:Float; public var _22:Float; public var _32:Float;
+	// public var _03:Float; public var _13:Float; public var _23:Float; public var _33:Float;
 
-	public function new(_00:Float, _10:Float, _20:Float, _30:Float,
-						_01:Float, _11:Float, _21:Float, _31:Float,
-						_02:Float, _12:Float, _22:Float, _32:Float,
-						_03:Float, _13:Float, _23:Float, _33:Float) {
+	public function new(_00:FastFloat, _10:FastFloat, _20:FastFloat, _30:FastFloat,
+						_01:FastFloat, _11:FastFloat, _21:FastFloat, _31:FastFloat,
+						_02:FastFloat, _12:FastFloat, _22:FastFloat, _32:FastFloat,
+						_03:FastFloat, _13:FastFloat, _23:FastFloat, _33:FastFloat) {
 		
-		this._00 = _00; this._10 = _10; this._20 = _20; this._30 = _30;
-		this._01 = _01; this._11 = _11; this._21 = _21; this._31 = _31;
-		this._02 = _02; this._12 = _12; this._22 = _22; this._32 = _32;
-		this._03 = _03; this._13 = _13; this._23 = _23; this._33 = _33;
+		super(_00, _10, _20, _30, _01, _11, _21, _31, _02, _12, _22, _32, _03, _13, _23, _33);
+		// this._00 = _00; this._10 = _10; this._20 = _20; this._30 = _30;
+		// this._01 = _01; this._11 = _11; this._21 = _21; this._31 = _31;
+		// this._02 = _02; this._12 = _12; this._22 = _22; this._32 = _32;
+		// this._03 = _03; this._13 = _13; this._23 = _23; this._33 = _33;
 	}
 
 	public static function identity():Mat4 {
@@ -67,7 +69,7 @@ class Mat4 {
 		_32 += z * _33;
 	}
 	
-	public function scale(v:Vec3) {
+	public function scale(v:Vec4) {
 		_00 *= v.x;
 		_01 *= v.x;
 		_02 *= v.x;
@@ -115,7 +117,7 @@ class Mat4 {
 		_33 = 1;
 	}
 
-	public function mult(b:Mat4) {
+	public function mult2(b:Mat4) {
 		multiply(this, b);
 	}
 
@@ -151,7 +153,8 @@ class Mat4 {
 	}
 	
 	
-	public function inverse(m:Mat4) {
+
+	public function inverse2(m:Mat4) {
 		var m11 = m._00; var m12 = m._01; var m13 = m._02; var m14 = m._03;
 		var m21 = m._10; var m22 = m._11; var m23 = m._12; var m24 = m._13;
 		var m31 = m._20; var m32 = m._21; var m33 = m._22; var m34 = m._23;
@@ -199,7 +202,7 @@ class Mat4 {
 		_33 *= det;
 	}
 
-	public function transpose() {
+	public function transpose2() {
 		var tmp:Float;
 		tmp = _01; _01 = _10; _10 = tmp;
 		tmp = _02; _02 = _20; _20 = tmp;
@@ -240,9 +243,9 @@ class Mat4 {
 	}
 
 	// Retrieves pos vector from matrix
-	public inline function pos(v:Vec3 = null):Vec3 {
+	public inline function pos(v:Vec4 = null):Vec4 {
 		if (v == null)
-			return new Vec3(_30, _31 , _32 , _33);
+			return new Vec4(_30, _31 , _32 , _33);
 		else {
 			v.x = _30;
 			v.y = _31;
@@ -252,17 +255,17 @@ class Mat4 {
 		}
 	}
 
-	public function scaleV():Vec3 {
-		return new Vec3(
+	public function scaleV():Vec4 {
+		return new Vec4(
 			std.Math.sqrt(_00*_00 + _10*_10 + _20*_20),
 			std.Math.sqrt(_01*_01 + _11*_11 + _21*_21),
 			std.Math.sqrt(_02*_02 + _12*_12 + _22*_22)
 		);
 	}
 	
-	public inline function up(?v:Vec3) {
+	public inline function up(?v:Vec4) {
 		if (v == null)
-			return new Vec3(_20, _21 , _22 , _23);
+			return new Vec4(_20, _21 , _22 , _23);
 		else {
 			v.x = _20;
 			v.y = _21;
@@ -271,9 +274,9 @@ class Mat4 {
 			return v;
 		}
 	}
-	public inline function at(v:Vec3 = null):Vec3 {
+	public inline function at(v:Vec4 = null):Vec4 {
 		if (v == null)
-			return new Vec3(_10, _11 , _12 , _13);
+			return new Vec4(_10, _11 , _12 , _13);
 		else {
 			v.x = _10;
 			v.y = _11;
@@ -282,9 +285,9 @@ class Mat4 {
 			return v;
 		}
 	}
-	public inline function right(?v:Vec3) {
+	public inline function right(?v:Vec4) {
 		if (v == null)
-			return new Vec3(_00, _01 , _02 , _03);
+			return new Vec4(_00, _01 , _02 , _03);
 		else {
 			v.x = _00;
 			v.y = _01;
@@ -376,7 +379,7 @@ class Mat4 {
 	}
 
 	public function toRotation():Mat4 {
-		var v1 = new Vec3();
+		var v1 = new Vec4();
 		var scaleX = 1 / v1.set(_00, _01, _02).length();
 		var scaleY = 1 / v1.set(_10, _11, _12).length();
 		var scaleZ = 1 / v1.set(_20, _21, _22).length();
@@ -475,11 +478,11 @@ class Mat4 {
 		return std.Math.sqrt(Math.max(scaleXSq, Math.max(scaleYSq, scaleZSq)));	
 	}
 
-	public function getScale():Vec3 {
+	public function getScale():Vec4 {
 		var sx:Float = std.Math.sqrt(_00 * _00 + _01 * _01 + _02 * _02);
 		var sy:Float = std.Math.sqrt(_10 * _10 + _11 * _11 + _12 * _12);
 		var sz:Float = std.Math.sqrt(_20 * _20 + _21 * _21 + _22 * _22);
-		return new Vec3(sx, sy, sz);
+		return new Vec4(sx, sy, sz);
 	}
 
 	public static function perspective(fovY:Float, aspectRatio:Float, zNear:Float, zFar:Float):Mat4 {
@@ -513,7 +516,7 @@ class Mat4 {
 		);
 	}
 	
-	public static function lookAt(_eye:Vec3, _centre:Vec3, _up:Null<Vec3> = null):Mat4 {
+	public static function lookAt(_eye:Vec4, _centre:Vec4, _up:Null<Vec4> = null):Mat4 {
 		var eye = _eye;
 		var centre = _centre;
 		var up = _up;

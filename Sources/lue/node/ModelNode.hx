@@ -2,7 +2,7 @@ package lue.node;
 
 import kha.graphics4.Graphics;
 import kha.graphics4.ConstantLocation;
-import lue.math.Vec3;
+import lue.math.Vec4;
 import lue.math.Mat4;
 import lue.math.Quat;
 import lue.resource.ModelResource;
@@ -27,8 +27,8 @@ class ModelNode extends Node {
 
 	var m = Mat4.identity(); // Skinning matrix
 	var bm = Mat4.identity(); // Absolute bone matrix
-	var pos = new Vec3();
-	var nor = new Vec3();
+	var pos = new Vec4();
+	var nor = new Vec4();
 
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
 
@@ -115,17 +115,17 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_normalMatrix") {
 				helpMat.setIdentity();
-				helpMat.mult(node.transform.matrix);
-				//helpMat.mult(camera.V);
+				helpMat.mult2(node.transform.matrix);
+				//helpMat.mult2(camera.V);
 				//helpMat.inverse(helpMat);
-				//helpMat.transpose();
+				//helpMat.transpose2();
 				m = helpMat;
 			}
 			else if (c.link == "_viewMatrix") {
 				m = camera.V;
 			}
 			else if (c.link == "_inverseViewMatrix") {
-				helpMat.inverse(camera.V);
+				helpMat.inverse2(camera.V);
 				m = helpMat;
 			}
 			else if (c.link == "_projectionMatrix") {
@@ -133,28 +133,28 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_MVP") {
 				helpMat.setIdentity();
-		    	helpMat.mult(node.transform.matrix);
-		    	helpMat.mult(camera.V);
-		    	helpMat.mult(camera.P);
+		    	helpMat.mult2(node.transform.matrix);
+		    	helpMat.mult2(camera.V);
+		    	helpMat.mult2(camera.P);
 		    	m = helpMat;
 			}
 			else if (c.link == "_lightMVP") {
 				helpMat.setIdentity();
-		    	helpMat.mult(node.transform.matrix);
-		    	helpMat.mult(light.V);
-		    	helpMat.mult(light.P);
+		    	helpMat.mult2(node.transform.matrix);
+		    	helpMat.mult2(light.V);
+		    	helpMat.mult2(light.P);
 		    	m = helpMat;
 			}
 			if (m == null) return;
 
-			var mat = new kha.math.FastMatrix4(m._00, m._10, m._20, m._30,
-									  	   	   m._01, m._11, m._21, m._31,
-										   	   m._02, m._12, m._22, m._32,
-									       	   m._03, m._13, m._23, m._33);
-			g.setMatrix(location, mat);
+			// var mat = new kha.math.FastMatrix4(m._00, m._10, m._20, m._30,
+			// 						  	   	   m._01, m._11, m._21, m._31,
+			// 							   	   m._02, m._12, m._22, m._32,
+			// 						       	   m._03, m._13, m._23, m._33);
+			g.setMatrix(location, m);
 		}
 		else if (c.type == "vec3") {
-			var v:Vec3 = null;
+			var v:Vec4 = null;
 			if (c.link == "_lightPosition") {
 				v = light.transform.pos;
 			}
@@ -391,8 +391,8 @@ class ModelNode extends Node {
 				var q2 = m2.getQuat();
 
 				// Lerp
-				var fp = Vec3.lerp(p1, p2, s);
-				var fs = Vec3.lerp(s1, s2, s);
+				var fp = Vec4.lerp(p1, p2, s);
+				var fs = Vec4.lerp(s1, s2, s);
 				var fq = Quat.lerp(q1, q2, s);
 
 				// Compose
@@ -431,18 +431,18 @@ class ModelNode extends Node {
 		for (i in 0...bones.length) {
 			
 			bm.loadFrom(resource.geometry.skinTransform);
-			bm.mult(resource.geometry.skeletonTransformsI[i]);
+			bm.mult2(resource.geometry.skeletonTransformsI[i]);
 			var m = Mat4.identity();
 			m.loadFrom(boneMats.get(bones[i]));
 			var p = bones[i].parent;
 			while (p != null) { // TODO: store absolute transforms per bone
 				var pm = boneMats.get(p);
 				if (pm == null) pm = Mat4.fromArray(p.transform.values);
-				m.mult(pm);
+				m.mult2(pm);
 				p = p.parent;
 			}
-			bm.mult(m);
-			bm.transpose();
+			bm.mult2(m);
+			bm.transpose2();
 
 		 	skinBuffer[i * 12] = bm._00;
 		 	skinBuffer[i * 12 + 1] = bm._01;
@@ -488,19 +488,19 @@ class ModelNode extends Node {
 								resource.geometry.positions[i * 3 + 1],
 								resource.geometry.positions[i * 3 + 2]);
 
-				m.mult(resource.geometry.skinTransform);
+				m.mult2(resource.geometry.skinTransform);
 
-				m.mult(resource.geometry.skeletonTransformsI[boneIndex]);
+				m.mult2(resource.geometry.skeletonTransformsI[boneIndex]);
 
 				bm.loadFrom(boneMats.get(bone));
 				var p = bone.parent;
 				while (p != null) { // TODO: store absolute transforms per bone
 					var pm = boneMats.get(p);
 					if (pm == null) pm = Mat4.fromArray(p.transform.values);
-					bm.mult(pm);
+					bm.mult2(pm);
 					p = p.parent;
 				}
-				m.mult(bm);
+				m.mult2(bm);
 
 				m.multiplyScalar(boneWeight);
 				
@@ -509,9 +509,9 @@ class ModelNode extends Node {
 				// Normal
 				m.getInverse(bm);
 
-				m.mult(resource.geometry.skeletonTransforms[boneIndex]);
+				m.mult2(resource.geometry.skeletonTransforms[boneIndex]);
 
-				m.mult(resource.geometry.skinTransformI);
+				m.mult2(resource.geometry.skinTransformI);
 
 				m.translate(resource.geometry.normals[i * 3],
 							resource.geometry.normals[i * 3 + 1],

@@ -5,7 +5,7 @@ import lue.resource.Resource;
 import lue.resource.ParticleResource;
 import lue.resource.importer.SceneFormat;
 import lue.sys.Time;
-import lue.math.Vec3;
+import lue.math.Vec4;
 
 class ParticleSystem {
 
@@ -28,8 +28,8 @@ class ParticleSystem {
 		for (i in 0...r.count) {
 			var p = new Particle();
 			particles.push(p);
-			p.offset = new Vec3(0.0, 0.0, 0.0);
-			p.velocity = new Vec3(0.0, 0.0, 0.0);
+			p.offset = new Vec4(0.0, 0.0, 0.0);
+			p.velocity = new Vec4(0.0, 0.0, 0.0);
 			setVelocity(p.velocity);
 			p.lifetime = Std.random(Std.int(r.lifetime * 1000)) / 1000;
 		}
@@ -72,7 +72,7 @@ class ParticleSystem {
 		vb.unlock();
 	}
 
-	function setVelocity(v:Vec3) {
+	function setVelocity(v:Vec4) {
 		var r = resource.resource;
 		v.set(r.object_align_factor[0],
 			  r.object_align_factor[1],
@@ -101,8 +101,8 @@ class ParticleSystem {
 }
 
 class Particle {
-	public var offset:Vec3;
-	public var velocity:Vec3;
+	public var offset:Vec4;
+	public var velocity:Vec4;
 	public var lifetime:Float;
 	public var cameraDistance:Float;
 	public function new() {}

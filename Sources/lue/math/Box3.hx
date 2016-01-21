@@ -8,21 +8,21 @@ package lue.math;
  
 class Box3 {
 	
-	public var min:Vec3;
-	public var max:Vec3;	
+	public var min:Vec4;
+	public var max:Vec4;	
 
-	public function new(min:Vec3 = null, max:Vec3 = null) {
-		this.min = min != null ? min : new Vec3(std.Math.POSITIVE_INFINITY, std.Math.POSITIVE_INFINITY, std.Math.POSITIVE_INFINITY);
-		this.max = max != null ? max : new Vec3(std.Math.NEGATIVE_INFINITY, std.Math.NEGATIVE_INFINITY, std.Math.NEGATIVE_INFINITY);
+	public function new(min:Vec4 = null, max:Vec4 = null) {
+		this.min = min != null ? min : new Vec4(std.Math.POSITIVE_INFINITY, std.Math.POSITIVE_INFINITY, std.Math.POSITIVE_INFINITY);
+		this.max = max != null ? max : new Vec4(std.Math.NEGATIVE_INFINITY, std.Math.NEGATIVE_INFINITY, std.Math.NEGATIVE_INFINITY);
 	}
 	
-	public function set(min:Vec3, max:Vec3):Box3 {
+	public function set(min:Vec4, max:Vec4):Box3 {
 		this.min.copy2(min);
 		this.max.copy2(max);
 		return this;
 	}
 	
-	public function addPoint(point:Vec3) {
+	public function addPoint(point:Vec4) {
 		if (point.x < this.min.x) {
 			this.min.x = point.x;
 		} else if (point.x > this.max.x) {
@@ -59,8 +59,8 @@ class Box3 {
 		return this;
 	}	
 	
-	public function setFromCenterAndSize(center:Vec3, size:Vec3):Box3 {
-		var v1 = new Vec3();
+	public function setFromCenterAndSize(center:Vec4, size:Vec4):Box3 {
+		var v1 = new Vec4();
 		var halfSize = v1.copy2(size).multiplyScalar(0.5);
 		this.min.copy2(center).sub(halfSize);
 		this.max.copy2(center).add(halfSize);
@@ -70,7 +70,7 @@ class Box3 {
 	/*public function setFromObject(object:Object3D):Box3 {
 		// Computes the world-axis-aligned bounding box of an object (including its children),
 		// accounting for both the object's, and childrens', world transforms
-		var v1 = new Vec3();
+		var v1 = new Vec4();
 
 		var scope = this;
 		object.updateMatrixWorld(true);
@@ -78,7 +78,7 @@ class Box3 {
 
 		object.traverse(function(node) {
 			if (node.geometry != null && node.geometry.vertices != null) {
-				var vertices:Array<Vec3> = node.geometry.vertices;
+				var vertices:Array<Vec4> = node.geometry.vertices;
 				for (i in 0...vertices.length) {
 					v1.copy2(vertices[i]);
 					v1.applyMat4(node.matrixWorld);
@@ -107,23 +107,23 @@ class Box3 {
 		return (this.max.x < this.min.x) || (this.max.y < this.min.y) || (this.max.z < this.min.z);
 	}	
 	
-	public function center(optionalTarget:Vec3 = null):Vec3 {
-		var result = optionalTarget != null ? optionalTarget : new Vec3();
+	public function center(optionalTarget:Vec4 = null):Vec4 {
+		var result = optionalTarget != null ? optionalTarget : new Vec4();
 		return result.addVectors(this.min, this.max).multiplyScalar(0.5);
 	}	
 	
-	public function size(optionalTarget:Vec3 = null):Vec3 {
-		var result = optionalTarget != null ? optionalTarget : new Vec3();
+	public function size(optionalTarget:Vec4 = null):Vec4 {
+		var result = optionalTarget != null ? optionalTarget : new Vec4();
 		return result.subVectors(max, min);
 	}	
 	
-	public function expandByPoint(point:Vec3):Box3 {
+	public function expandByPoint(point:Vec4):Box3 {
 		this.min.min(point);
 		this.max.max(point);
 		return this;
 	}	
 	
-	public function expandByVector(vector:Vec3):Box3 {
+	public function expandByVector(vector:Vec4):Box3 {
 		this.min.sub(vector);
 		this.max.add(vector);
 		return this;
@@ -135,7 +135,7 @@ class Box3 {
 		return this;
 	}	
 	
-	public function containsPoint(point:Vec3):Bool {
+	public function containsPoint(point:Vec4):Bool {
 		if (point.x < this.min.x || point.x > this.max.x ||
 		     point.y < this.min.y || point.y > this.max.y ||
 		     point.z < this.min.z || point.z > this.max.z) {
@@ -155,10 +155,10 @@ class Box3 {
 		return false;
 	}	
 	
-	public function getParameter(point:Vec3, optionalTarget:Vec3 = null):Vec3 {
+	public function getParameter(point:Vec4, optionalTarget:Vec4 = null):Vec4 {
 		// This can potentially have a divide by zero if the box
 		// has a size dimension of 0.
-		var result = optionalTarget != null ? optionalTarget : new Vec3();
+		var result = optionalTarget != null ? optionalTarget : new Vec4();
 		return result.set(
 			(point.x - min.x) / (max.x - min.x),
 			(point.y - min.y) / (max.y - min.y),
@@ -177,19 +177,19 @@ class Box3 {
 		return true;
 	}	
 	
-	public function clampPoint(point:Vec3, optionalTarget:Vec3 = null):Vec3 {
-		var result = optionalTarget != null ? optionalTarget : new Vec3();
+	public function clampPoint(point:Vec4, optionalTarget:Vec4 = null):Vec4 {
+		var result = optionalTarget != null ? optionalTarget : new Vec4();
 		return result.copy2(point).clamp(this.min, this.max);
 	}	
 	
-	public function distanceToPoint(point:Vec3):Float {
+	public function distanceToPoint(point:Vec4):Float {
 		var v1 = point.clone();
 		var clampedPoint = v1.copy2(point).clamp(this.min, this.max);
 		return clampedPoint.sub(point).length();
 	}	
 	
 	public function getBoundingSphere(optionalTarget:Sphere = null):Sphere {
-		var v1 = new Vec3();
+		var v1 = new Vec4();
 		var result = optionalTarget != null ? optionalTarget : new Sphere();
 
 		result.center = this.center();
@@ -213,15 +213,15 @@ class Box3 {
 	}	
 	
 	public function applyMat4(matrix:Mat4):Box3 {
-		var points:Array<Vec3> = [
-			new Vec3(),
-			new Vec3(),
-			new Vec3(),
-			new Vec3(),
-			new Vec3(),
-			new Vec3(),
-			new Vec3(),
-			new Vec3()
+		var points:Array<Vec4> = [
+			new Vec4(),
+			new Vec4(),
+			new Vec4(),
+			new Vec4(),
+			new Vec4(),
+			new Vec4(),
+			new Vec4(),
+			new Vec4()
 		];
 		
 		// NOTE: I am using a binary pattern to specify all 2^3 combinations below
@@ -240,7 +240,7 @@ class Box3 {
 		return this;
 	}	
 	
-	public function translate(offset:Vec3):Box3 {
+	public function translate(offset:Vec4):Box3 {
 		this.min.add(offset);
 		this.max.add(offset);
 		return this;

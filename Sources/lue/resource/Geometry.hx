@@ -4,7 +4,7 @@ import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
-import lue.math.Vec3;
+import lue.math.Vec4;
 import lue.math.Mat4;
 import lue.resource.importer.SceneFormat;
 
@@ -21,9 +21,9 @@ class Geometry {
     public var instanced:Bool = false;
 	public var instanceCount:Int = 0;
 
-    public var aabbMin:Vec3;
-	public var aabbMax:Vec3;
-	public var size:Vec3;
+    public var aabbMin:Vec4;
+	public var aabbMax:Vec4;
+	public var size:Vec4;
 	public var radius:Float;
 
 	var data:Array<Float>;
@@ -108,9 +108,9 @@ class Geometry {
 
 	function calculateAABB() {
 
-		aabbMin = new Vec3(-0.01, -0.01, -0.01);
-		aabbMax = new Vec3(0.01, 0.01, 0.01);
-		size = new Vec3();
+		aabbMin = new Vec4(-0.01, -0.01, -0.01);
+		aabbMax = new Vec4(0.01, 0.01, 0.01);
+		size = new Vec4();
 
 		var i = 0;
 		while (i < positions.length) {

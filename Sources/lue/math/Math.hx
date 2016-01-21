@@ -149,14 +149,14 @@ class Math {
         return std.Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
     }
 
-    public static function distance3d(v1:Vec3, v2:Vec3):Float {
+    public static function distance3d(v1:Vec4, v2:Vec4):Float {
         var vx = v1.x - v2.x;
         var vy = v1.y - v2.y;
         var vz = v1.z - v2.z;
         return std.Math.sqrt(vx * vx + vy * vy + vz * vz);
     }
 
-    public static function planeDotCoord(planeNormal:Vec3, point:Vec3, planeDistance:Float):Float {
+    public static function planeDotCoord(planeNormal:Vec4, point:Vec4, planeDistance:Float):Float {
         // Point is in front of plane if > 0
         return planeNormal.dot(point) + planeDistance;
     }

@@ -8,8 +8,8 @@ class RayCaster {
 
     public static function getRay(inputX:Float, inputY:Float, camera:CameraNode):Ray {
 
-        var start = new Vec3();
-        var end = new Vec3();
+        var start = new Vec4();
+        var end = new Vec4();
 
         getDirection(start, end, inputX, inputY, camera);
 
@@ -17,7 +17,7 @@ class RayCaster {
     }
 
 
-    public static function getDirection(start:Vec3, end:Vec3, inputX:Float, inputY:Float, camera:CameraNode) {
+    public static function getDirection(start:Vec4, end:Vec4, inputX:Float, inputY:Float, camera:CameraNode) {
         // TODO: return end only
         // TODO: speed up using http://halogenica.net/ray-casting-and-picking-using-bullet-physics/
 
@@ -44,12 +44,12 @@ class RayCaster {
     }
 
 
-    public static function getIntersect(transform:Transform, inputX:Float, inputY:Float, camera:CameraNode):Vec3 {
+    public static function getIntersect(transform:Transform, inputX:Float, inputY:Float, camera:CameraNode):Vec4 {
         var ray = getRay(inputX, inputY, camera);
 
         var t = transform;
-        var c = new Vec3(t.absx(), t.absy(), t.absz());
-        var s = new Vec3(t.size.x, t.size.y, t.size.z);
+        var c = new Vec4(t.absx(), t.absy(), t.absz());
+        var s = new Vec4(t.size.x, t.size.y, t.size.z);
 
         var box = new Box3();
         box.setFromCenterAndSize(c, s);
@@ -83,7 +83,7 @@ class RayCaster {
         return closest;
     }
 
-    public static function getIntersectPlane(normal:Vec3, a:Vec3, inputX:Float, inputY:Float, camera:CameraNode):Vec3 {
+    public static function getIntersectPlane(normal:Vec4, a:Vec4, inputX:Float, inputY:Float, camera:CameraNode):Vec4 {
         var ray = getRay(inputX, inputY, camera);
 
         var plane = new Plane();

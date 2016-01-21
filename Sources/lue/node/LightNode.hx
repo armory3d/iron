@@ -1,7 +1,7 @@
 package lue.node;
 
 import lue.math.Mat4;
-import lue.math.Vec3;
+import lue.math.Vec4;
 import lue.resource.LightResource;
 
 class LightNode extends Node {
@@ -23,6 +23,6 @@ class LightNode extends Node {
 	public function buildMatrices() {
 		//P = Mat4.perspective(45, 1, 5, 30);
 		P = Mat4.orthogonal(-10 * 2.4, 10 * 2.4, -10 * 2.4, 10 * 2.4, -30, 30, 2);
-		V = Mat4.lookAt(new Vec3(10, 1, 10), new Vec3(0, 0, 0), new Vec3(0, 0, -1));
+		V = Mat4.lookAt(new Vec4(10, 1, 10), new Vec4(0, 0, 0), new Vec4(0, 0, -1));
 	}
 }

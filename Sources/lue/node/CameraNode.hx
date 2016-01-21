@@ -8,7 +8,7 @@ import kha.graphics4.Usage;
 import kha.graphics4.CompareMode;
 import kha.graphics4.CullMode;
 import lue.math.Mat4;
-import lue.math.Vec3;
+import lue.math.Vec4;
 import lue.math.Quat;
 import lue.math.Plane;
 import lue.resource.Resource;
@@ -198,8 +198,8 @@ class CameraNode extends Node {
 
 	function buildViewFrustum() {
 		VP.setIdentity();
-    	VP.mult(V);
-    	VP.mult(P);
+    	VP.mult2(V);
+    	VP.mult2(P);
 
 	    // Left plane
 	    frustumPlanes[0].setComponents(
@@ -269,7 +269,7 @@ class CameraNode extends Node {
 	    return true;
 	}
 
-	public function rotate(axis:Vec3, f:Float) {
+	public function rotate(axis:Vec4, f:Float) {
 		var q = new Quat();
 		q.setFromAxisAngle(axis, f);
 		transform.rot.multiply(transform.rot, q);
@@ -277,7 +277,7 @@ class CameraNode extends Node {
 		updateMatrix();
 	}
 
-	public function move(axis:Vec3, f:Float) {
+	public function move(axis:Vec4, f:Float) {
         axis.mult(-f, axis);
 
 		transform.pos.vadd(axis, transform.pos);
@@ -286,16 +286,16 @@ class CameraNode extends Node {
 		updateMatrix();
 	}
 
-	public function right():Vec3 {
-        return new Vec3(V._00, V._10, V._20);
+	public function right():Vec4 {
+        return new Vec4(V._00, V._10, V._20);
     }
 
-    public function look():Vec3 {
-        return new Vec3(V._02, V._12, V._22);
+    public function look():Vec4 {
+        return new Vec4(V._02, V._12, V._22);
     }
 
-    public function up():Vec3 {
-        return new Vec3(V._01, V._11, V._21);
+    public function up():Vec4 {
+        return new Vec4(V._01, V._11, V._21);
     }
 
     function cacheStageCommands() {

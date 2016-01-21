@@ -1,7 +1,7 @@
 package lue.node;
 
 import lue.math.Mat4;
-import lue.math.Vec3;
+import lue.math.Vec4;
 import lue.math.Quat;
 
 class Transform {
@@ -12,10 +12,10 @@ class Transform {
 
 	static var temp = Mat4.identity();
 
-	public var pos:Vec3;
+	public var pos:Vec4;
 	public var rot:Quat;
-	public var scale:Vec3;
-	public var size:Vec3;
+	public var scale:Vec4;
+	public var size:Vec4;
 
 	var node:Node;
 
@@ -27,10 +27,10 @@ class Transform {
 	public function reset() {
 		matrix = Mat4.identity();
 
-		pos = new Vec3();
+		pos = new Vec4();
 		rot = new Quat();
-		scale = new Vec3(1, 1, 1);
-		size = new Vec3();
+		scale = new Vec4(1, 1, 1);
+		size = new Vec4();
 
 		dirty = true;
 	}
@@ -46,14 +46,14 @@ class Transform {
 		matrix.setIdentity();
 		matrix.scale(scale);
 		rot.saveToMatrix(temp);
-		matrix.mult(temp);
+		matrix.mult2(temp);
 		//matrix.translate(pos.x, pos.y, pos.z);
 		matrix._30 = pos.x;
 		matrix._31 = pos.y;
 		matrix._32 = pos.z;
 
 		// Transform node
-		if (append != null) matrix.mult(append);
+		if (append != null) matrix.mult2(append);
 
 		if (node.parent != null) {
 			matrix.multiply3x4(matrix, node.parent.transform.matrix);
@@ -79,7 +79,7 @@ class Transform {
 		rot = matrix.getQuat();
 	}
 
-	public function rotate(axis:Vec3, f:Float) {
+	public function rotate(axis:Vec4, f:Float) {
 		var q = new Quat();
 		q.setFromAxisAngle(axis, f);
 		rot.multiply(rot, q);
@@ -91,66 +91,66 @@ class Transform {
 		dirty = true;
 	}
 
-	public function getEuler():Vec3 {
-		var v = new Vec3();
+	public function getEuler():Vec4 {
+		var v = new Vec4();
 		rot.toEuler(v);
 		return v;
 	}
 
-	public function setEuler(v:Vec3) {
+	public function setEuler(v:Vec4) {
 		rot.setFromEuler(v.x, v.y, v.z, "YZX");
 		dirty = true;
 	}
 
-	public function getForward():Vec3 {
+	public function getForward():Vec4 {
         var mat = Mat4.identity();
         rot.saveToMatrix(mat);
-        var f = new Vec3(0, 1, 0);
+        var f = new Vec4(0, 1, 0);
         f.applyProjection(mat);
         f = f.mult(lue.sys.Time.delta * 200); // TODO: remove delta
         return f;
     }
 
-    public function getBackward():Vec3 {
+    public function getBackward():Vec4 {
         var mat = Mat4.identity();
         rot.saveToMatrix(mat);
-        var f = new Vec3(0, -1, 0);
+        var f = new Vec4(0, -1, 0);
         f.applyProjection(mat);
         f = f.mult(lue.sys.Time.delta * 200);
         return f;
     }
 
-    public function getRight():Vec3 {
+    public function getRight():Vec4 {
         var mat = Mat4.identity();
         rot.saveToMatrix(mat);
-        var f = new Vec3(1, 0, 0);
+        var f = new Vec4(1, 0, 0);
         f.applyProjection(mat);
         f = f.mult(lue.sys.Time.delta * 200);
         return f;
     }
 
-    public function getLeft():Vec3 {
+    public function getLeft():Vec4 {
         var mat = Mat4.identity();
         rot.saveToMatrix(mat);
-        var f = new Vec3(-1, 0, 0);
+        var f = new Vec4(-1, 0, 0);
         f.applyProjection(mat);
         f = f.mult(lue.sys.Time.delta * 200);
         return f;
     }
 
-    public function getUp():Vec3 {
+    public function getUp():Vec4 {
         var mat = Mat4.identity();
         rot.saveToMatrix(mat);
-        var f = new Vec3(0, 0, 1);
+        var f = new Vec4(0, 0, 1);
         f.applyProjection(mat);
         f = f.mult(lue.sys.Time.delta * 200);
         return f;
     }
 
-    public function getDown():Vec3 {
+    public function getDown():Vec4 {
         var mat = Mat4.identity();
         rot.saveToMatrix(mat);
-        var f = new Vec3(0, 0, -1);
+        var f = new Vec4(0, 0, -1);
         f.applyProjection(mat);
         f = f.mult(lue.sys.Time.delta * 200);
         return f;

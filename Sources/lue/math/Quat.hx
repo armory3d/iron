@@ -13,9 +13,9 @@ class Quat {
     public var z:Float;
     public var w:Float;
 
-    static var Quaternion_mult_va = new Vec3();
-    static var Quaternion_mult_vb = new Vec3();
-    static var Quaternion_mult_vaxvb = new Vec3();
+    static var Quaternion_mult_va = new Vec4();
+    static var Quaternion_mult_vb = new Vec4();
+    static var Quaternion_mult_vaxvb = new Vec4();
 
     public function new(x = 0.0, y = 0.0, z = 0.0, w = 1.0) {
         this.x = x;
@@ -38,7 +38,7 @@ class Quat {
 
     // Set the quaternion components given an axis and an angle.
     // angle in radians
-    public function setFromAxisAngle(axis:Vec3, angle:Float) {
+    public function setFromAxisAngle(axis:Vec4, angle:Float) {
         var s:Float = std.Math.sin(angle * 0.5);
         this.x = axis.x * s;
         this.y = axis.y * s;
@@ -48,7 +48,7 @@ class Quat {
 
     // Saves axis to targetAxis and returns 
     public function toAxisAngle(targetAxis):Dynamic {
-        if (targetAxis == null) targetAxis = new Vec3();
+        if (targetAxis == null) targetAxis = new Vec4();
         this.normalize(); // if w>1 acos and sqrt will produce errors, this cant happen if quaternion is normalised
         var angle:Float = 2 * std.Math.acos(this.w);
         var s:Float = std.Math.sqrt(1 - this.w * this.w); // assuming quaternion normalised then w is less than 1, so term always positive.
@@ -149,8 +149,8 @@ class Quat {
     }
 
     // Multiply the quaternion by a vector
-    public function vmult(v:Vec3, target:Vec3):Vec3 {
-        if (target == null) target = new Vec3();
+    public function vmult(v:Vec4, target:Vec4):Vec4 {
+        if (target == null) target = new Vec4();
 
         var x:Float = v.x;
         var y:Float = v.y;
@@ -175,7 +175,7 @@ class Quat {
     }
 
 
-    public function vecmult(vec:Vec3):Vec3 {
+    public function vecmult(vec:Vec4):Vec4 {
         var num = this.x * 2.0;
         var num2 = this.y * 2.0;
         var num3 = this.z * 2.0;
@@ -189,7 +189,7 @@ class Quat {
         var num11 = this.w * num2;
         var num12 = this.w * num3;
 
-        var result = new Vec3();
+        var result = new Vec4();
         result.x = (1.0 - (num5 + num6)) * vec.x + (num7 - num12) * vec.y + (num8 + num11) * vec.z;
         result.y = (num7 + num12) * vec.x + (1.0 - (num4 + num6)) * vec.y + (num9 - num10) * vec.z;
         result.z = (num8 - num11) * vec.x + (num9 + num10) * vec.y + (1.0 - (num4 + num5)) * vec.z;
@@ -205,7 +205,7 @@ class Quat {
     }
 
     // Convert the quaternion to euler angle representation. Order: YZX, as this page describes: http://www.euclideanspace.com/maths/standards/index.htm
-    public function toEuler(target:Vec3, order = "YZX") {
+    public function toEuler(target:Vec4, order = "YZX") {
         var heading:Float = std.Math.NaN; var attitude:Float = 0.0; var bank:Float = 0.0;
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z; var w:Float = this.w;
 
@@ -244,7 +244,7 @@ class Quat {
         var pitch = Math.atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z);
         var yaw   = Math.asin(2*x*y + 2*z*w);
 
-        return new Vec3(pitch, roll, yaw);
+        return new Vec4(pitch, roll, yaw);
     }
 
     // See http://www.mathworks.com/matlabcentral/fileexchange/20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/content/SpinCalc.m
@@ -418,11 +418,11 @@ class Quat {
         return qm;
     }
 
-    public var euler(get_euler, null):Vec3;
-    private function get_euler():Vec3 { 
+    public var euler(get_euler, null):Vec4;
+    private function get_euler():Vec4 { 
         normalize();
         var test:Float = x * y + z * w;
-        var a = new Vec3();
+        var a = new Vec4();
         if (test > 0.499) { // singularity at north pole
             a.x = 2.0 * std.Math.atan2(x, w) * lue.math.Math.Rad2Deg;
             a.y = (lue.math.Math.PI / 2) * lue.math.Math.Rad2Deg;
@@ -444,7 +444,7 @@ class Quat {
         return a;
     }
 
-    static public function fromEuler(p_euler:Vec3):Quat {
+    static public function fromEuler(p_euler:Vec4):Quat {
         // Assuming the angles are in radians.
         var q = new Quat();
         var ax:Float = p_euler.x * lue.math.Math.Rad2Deg;

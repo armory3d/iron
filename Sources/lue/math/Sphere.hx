@@ -8,21 +8,21 @@ package lue.math;
 
 class Sphere {
 	
-	public var center:Vec3;
+	public var center:Vec4;
 	public var radius:Float;
 	
-	public function new(center:Vec3 = null, radius:Float = 0) {
-		this.center = center != null ? center : new Vec3();
+	public function new(center:Vec4 = null, radius:Float = 0) {
+		this.center = center != null ? center : new Vec4();
 		this.radius = radius;
 	}	
 	
-	public function set(center:Vec3, radius:Float):Sphere {
+	public function set(center:Vec4, radius:Float):Sphere {
 		this.center.copy2(center);
 		this.radius = radius;
 		return this;
 	}	
 	
-	public function setFromPoints(points:Array<Vec3>, optionalCenter:Vec3 = null):Sphere {
+	public function setFromPoints(points:Array<Vec4>, optionalCenter:Vec4 = null):Sphere {
 		var box = new Box3();		
 
 		var center = this.center;
@@ -53,11 +53,11 @@ class Sphere {
 		return (radius <= 0);
 	}	
 	
-	public function containsPoint(point:Vec3):Bool {
+	public function containsPoint(point:Vec4):Bool {
 		return (point.distanceToSquared(this.center) <= (this.radius * this.radius));
 	}	
 	
-	public function distanceToPoint(point:Vec3):Float {
+	public function distanceToPoint(point:Vec4):Float {
 		return (point.distanceTo(this.center) - this.radius);
 	}	
 	
@@ -66,10 +66,10 @@ class Sphere {
 		return (sphere.center.distanceToSquared(center) <= (radiusSum * radiusSum));
 	}	
 	
-	public function clampPoint(point:Vec3, optionalTarget:Vec3 = null):Vec3 {
+	public function clampPoint(point:Vec4, optionalTarget:Vec4 = null):Vec4 {
 		var deltaLengthSq = this.center.distanceToSquared(point);
 
-		var result = optionalTarget != null ? optionalTarget : new Vec3();
+		var result = optionalTarget != null ? optionalTarget : new Vec4();
 		result.copy(point);
 
 		if (deltaLengthSq > (this.radius * this.radius)) {
@@ -93,7 +93,7 @@ class Sphere {
 		return this;
 	}	
 	
-	public function translate(offset:Vec3):Sphere {
+	public function translate(offset:Vec4):Sphere {
 		this.center.add(offset);
 		return this;
 	}	
