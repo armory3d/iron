@@ -4,32 +4,20 @@ import lue.math.Math;
 
 class Mat4 {
 
-	public var _00:Float; // 0
-	public var _01:Float; // 1
-	public var _02:Float; // 2
-	public var _03:Float; // 3
-	public var _10:Float; // 4
-	public var _11:Float; // 5
-	public var _12:Float; // 6
-	public var _13:Float; // 7
-	public var _20:Float; // 8
-	public var _21:Float; // 9
-	public var _22:Float; // 10
-	public var _23:Float; // 11
-	public var _30:Float; // 12
-	public var _31:Float; // 13
-	public var _32:Float; // 14
-	public var _33:Float; // 15
+	public var _00:Float; public var _10:Float; public var _20:Float; public var _30:Float;
+	public var _01:Float; public var _11:Float; public var _21:Float; public var _31:Float;
+	public var _02:Float; public var _12:Float; public var _22:Float; public var _32:Float;
+	public var _03:Float; public var _13:Float; public var _23:Float; public var _33:Float;
 
-	public function new(_00: Float, _01: Float, _02: Float, _03: Float,
-						_10: Float, _11: Float, _12: Float, _13: Float,
-						_20: Float, _21: Float, _22: Float, _23: Float,
-						_30: Float, _31: Float, _32: Float, _33: Float) {
+	public function new(_00:Float, _10:Float, _20:Float, _30:Float,
+						_01:Float, _11:Float, _21:Float, _31:Float,
+						_02:Float, _12:Float, _22:Float, _32:Float,
+						_03:Float, _13:Float, _23:Float, _33:Float) {
 		
-		this._00 = _00; this._01 = _01; this._02 = _02; this._03 = _03;
-		this._10 = _10; this._11 = _11; this._12 = _12; this._13 = _13;
-		this._20 = _20; this._21 = _21; this._22 = _22; this._23 = _23;
-		this._30 = _30; this._31 = _31; this._32 = _32; this._33 = _33;
+		this._00 = _00; this._10 = _10; this._20 = _20; this._30 = _30;
+		this._01 = _01; this._11 = _11; this._21 = _21; this._31 = _31;
+		this._02 = _02; this._12 = _12; this._22 = _22; this._32 = _32;
+		this._03 = _03; this._13 = _13; this._23 = _23; this._33 = _33;
 	}
 
 	public static function identity():Mat4 {
@@ -231,10 +219,10 @@ class Mat4 {
 	}
 
 	public function load(a:Array<Float>) {
-		_00 = a[0];  _01 = a[1];  _02 = a[2];  _03 = a[3];
-		_10 = a[4];  _11 = a[5];  _12 = a[6];  _13 = a[7];
-		_20 = a[8];  _21 = a[9];  _22 = a[10]; _23 = a[11];
-		_30 = a[12]; _31 = a[13]; _32 = a[14]; _33 = a[15];
+		_00 = a[0];  _10 = a[1];  _20 = a[2];  _30 = a[3];
+		_01 = a[4];  _11 = a[5];  _21 = a[6];  _31 = a[7];
+		_02 = a[8];  _12 = a[9];  _22 = a[10]; _32 = a[11];
+		_03 = a[12]; _13 = a[13]; _23 = a[14]; _33 = a[15];
 	}
 
 	public function loadFrom(m:Mat4) {		
@@ -245,10 +233,10 @@ class Mat4 {
 	}
 	
 	public function getFloats():Array<Float> {
-		return [_00, _01, _02, _03,
-				_10, _11, _12, _13,
-				_20, _21, _22, _23,
-				_30, _31, _32, _33];
+		return [_00, _10, _20, _30,
+				_01, _11, _21, _31,
+				_02, _12, _22, _32,
+				_03, _13, _23, _33];
 	}
 
 	// Retrieves pos vector from matrix
@@ -502,8 +490,8 @@ class Mat4 {
 		return new Mat4(
 			f / aspectRatio, 0.0,      0.0,                   0.0,
 			0.0,             f,        0.0,                   0.0,
-			0.0,             0.0,      (zFar + zNear) * t,   -1.0,
-			0.0,             0.0,      2 * zFar * zNear * t , 0.0
+			0.0,             0.0,      (zFar + zNear) * t,    2 * zFar * zNear * t,
+			0.0,             0.0,      -1.0 , 0.0
 		);
 	}
 
