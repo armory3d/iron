@@ -162,10 +162,10 @@ class Node {
 	}
 
 	static function generateTranform(node:TNode, transform:Transform) {
-		var mat = new Mat4(node.transform.values);
-		transform.pos.x = mat._41;
-		transform.pos.y = mat._42;
-		transform.pos.z = mat._43;
+		var mat = Mat4.fromArray(node.transform.values);
+		transform.pos.x = mat._30;
+		transform.pos.y = mat._31;
+		transform.pos.z = mat._32;
 		var rotation = mat.getQuat();
 		transform.rot.set(rotation.x, rotation.y, rotation.z, rotation.w);
 		var vs = mat.getScale();

@@ -401,9 +401,9 @@ class Vec3 {
     }
 
     public function unproject(P:Mat4, V:Mat4):Vec3 {
-        var VPInv = new Mat4();
-        var PInv = new Mat4();
-        var VInv = new Mat4();
+        var VPInv = Mat4.identity();
+        var PInv = Mat4.identity();
+        var VInv = Mat4.identity();
 
         PInv.getInverse(P);
         VInv.getInverse(V);

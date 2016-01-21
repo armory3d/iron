@@ -17,7 +17,7 @@ class ModelNode extends Node {
 
 	public var particleSystem:ParticleSystem = null;
 
-	static var helpMat:Mat4 = new Mat4();
+	static var helpMat = Mat4.identity();
 
 	// Skinned
 	var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
@@ -25,8 +25,8 @@ class ModelNode extends Node {
 	var boneMats = new Map<TNode, Mat4>();
 	var boneTimeIndices = new Map<TNode, Int>();
 
-	var m = new Mat4(); // Skinning matrix
-	var bm = new Mat4(); // Absolute bone matrix
+	var m = Mat4.identity(); // Skinning matrix
+	var bm = Mat4.identity(); // Absolute bone matrix
 	var pos = new Vec3();
 	var nor = new Vec3();
 
@@ -53,7 +53,7 @@ class ModelNode extends Node {
 			}
 
 			for (b in resource.geometry.skeletonBones) {
-				boneMats.set(b, new Mat4(b.transform.values));
+				boneMats.set(b, Mat4.fromArray(b.transform.values));
 				boneTimeIndices.set(b, 0);
 			}
 		}
@@ -114,7 +114,7 @@ class ModelNode extends Node {
 				m = node.transform.matrix;
 			}
 			else if (c.link == "_normalMatrix") {
-				helpMat.identity();
+				helpMat.setIdentity();
 				helpMat.mult(node.transform.matrix);
 				//helpMat.mult(camera.V);
 				//helpMat.inverse(helpMat);
@@ -132,14 +132,14 @@ class ModelNode extends Node {
 				m = camera.P;
 			}
 			else if (c.link == "_MVP") {
-				helpMat.identity();
+				helpMat.setIdentity();
 		    	helpMat.mult(node.transform.matrix);
 		    	helpMat.mult(camera.V);
 		    	helpMat.mult(camera.P);
 		    	m = helpMat;
 			}
 			else if (c.link == "_lightMVP") {
-				helpMat.identity();
+				helpMat.setIdentity();
 		    	helpMat.mult(node.transform.matrix);
 		    	helpMat.mult(light.V);
 		    	helpMat.mult(light.P);
@@ -147,10 +147,10 @@ class ModelNode extends Node {
 			}
 			if (m == null) return;
 
-			var mat = new kha.math.FastMatrix4(m._11, m._21, m._31, m._41,
-									  	   	   m._12, m._22, m._32, m._42,
-										   	   m._13, m._23, m._33, m._43,
-									       	   m._14, m._24, m._34, m._44);
+			var mat = new kha.math.FastMatrix4(m._00, m._10, m._20, m._30,
+									  	   	   m._01, m._11, m._21, m._31,
+										   	   m._02, m._12, m._22, m._32,
+									       	   m._03, m._13, m._23, m._33);
 			g.setMatrix(location, mat);
 		}
 		else if (c.type == "vec3") {
@@ -379,8 +379,8 @@ class ModelNode extends Node {
 				var v1:Array<Float> = track.value.values[animation.timeIndex];
 				var v2:Array<Float> = track.value.values[animation.timeIndex + 1];
 
-				var m1 = new Mat4(v1);
-				var m2 = new Mat4(v2);
+				var m1 = Mat4.fromArray(v1);
+				var m2 = Mat4.fromArray(v2);
 
 				// Decompose
 				var p1 = m1.pos();
@@ -399,9 +399,9 @@ class ModelNode extends Node {
 				var m = boneMats.get(b);
 				fq.saveToMatrix(m);
 				m.scale(fs);
-				m._41 = fp.x;
-				m._42 = fp.y;
-				m._43 = fp.z;
+				m._30 = fp.x;
+				m._31 = fp.y;
+				m._32 = fp.z;
 				boneMats.set(b, m);
 			}
 		}
@@ -414,7 +414,7 @@ class ModelNode extends Node {
 			if (boneAnim != null) {
 				var track = boneAnim.track;
 				var v1:Array<Float> = track.value.values[frame];
-				var m1 = new Mat4(v1);
+				var m1 = Mat4.fromArray(v1);
 				boneMats.set(b, m1);
 			}
 		}
@@ -432,30 +432,30 @@ class ModelNode extends Node {
 			
 			bm.loadFrom(resource.geometry.skinTransform);
 			bm.mult(resource.geometry.skeletonTransformsI[i]);
-			var m = new Mat4();
+			var m = Mat4.identity();
 			m.loadFrom(boneMats.get(bones[i]));
 			var p = bones[i].parent;
 			while (p != null) { // TODO: store absolute transforms per bone
 				var pm = boneMats.get(p);
-				if (pm == null) pm = new Mat4(p.transform.values);
+				if (pm == null) pm = Mat4.fromArray(p.transform.values);
 				m.mult(pm);
 				p = p.parent;
 			}
 			bm.mult(m);
 			bm.transpose();
 
-		 	skinBuffer[i * 12] = bm._11;
-		 	skinBuffer[i * 12 + 1] = bm._12;
-		 	skinBuffer[i * 12 + 2] = bm._13;
-		 	skinBuffer[i * 12 + 3] = bm._14;
-		 	skinBuffer[i * 12 + 4] = bm._21;
-		 	skinBuffer[i * 12 + 5] = bm._22;
-		 	skinBuffer[i * 12 + 6] = bm._23;
-		 	skinBuffer[i * 12 + 7] = bm._24;
-		 	skinBuffer[i * 12 + 8] = bm._31;
-		 	skinBuffer[i * 12 + 9] = bm._32;
-		 	skinBuffer[i * 12 + 10] = bm._33;
-		 	skinBuffer[i * 12 + 11] = bm._34;
+		 	skinBuffer[i * 12] = bm._00;
+		 	skinBuffer[i * 12 + 1] = bm._01;
+		 	skinBuffer[i * 12 + 2] = bm._02;
+		 	skinBuffer[i * 12 + 3] = bm._03;
+		 	skinBuffer[i * 12 + 4] = bm._10;
+		 	skinBuffer[i * 12 + 5] = bm._11;
+		 	skinBuffer[i * 12 + 6] = bm._12;
+		 	skinBuffer[i * 12 + 7] = bm._13;
+		 	skinBuffer[i * 12 + 8] = bm._20;
+		 	skinBuffer[i * 12 + 9] = bm._21;
+		 	skinBuffer[i * 12 + 10] = bm._22;
+		 	skinBuffer[i * 12 + 11] = bm._23;
 		}
 	}
 
@@ -496,7 +496,7 @@ class ModelNode extends Node {
 				var p = bone.parent;
 				while (p != null) { // TODO: store absolute transforms per bone
 					var pm = boneMats.get(p);
-					if (pm == null) pm = new Mat4(p.transform.values);
+					if (pm == null) pm = Mat4.fromArray(p.transform.values);
 					bm.mult(pm);
 					p = p.parent;
 				}

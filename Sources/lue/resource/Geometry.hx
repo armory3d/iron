@@ -160,18 +160,18 @@ class Geometry {
 		skeletonTransformsI = [];
 
 		for (t in transforms) {
-			var m = new Mat4(t);
+			var m = Mat4.fromArray(t);
 			skeletonTransforms.push(m);
 			
-			var mi = new Mat4();
+			var mi = Mat4.identity();
 			mi.getInverse(m);
 			skeletonTransformsI.push(mi);
 		}
 	}
 
 	public function initSkinTransform(t:Array<Float>) {
-		skinTransform = new Mat4(t);
-		skinTransformI = new Mat4();
+		skinTransform = Mat4.fromArray(t);
+		skinTransformI = Mat4.identity();
 		skinTransformI.getInverse(skinTransform);
 	}
 }

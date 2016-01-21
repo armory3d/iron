@@ -53,8 +53,8 @@ class CameraNode extends Node {
 		else if (resource.resource.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -resource.resource.far_plane, resource.resource.far_plane, 2);
 		}
-		V = new Mat4();
-		VP = new Mat4();
+		V = Mat4.identity();
+		VP = Mat4.identity();
 
 		if (resource.resource.frustum_culling) {
 			frustumPlanes = [];
@@ -185,7 +185,7 @@ class CameraNode extends Node {
 		q.multiply(transform.rot, q); // Camera transform
 		V = q.toMatrix();
 
-	    var trans = new Mat4();
+	    var trans = Mat4.identity();
 	    trans.translate(-transform.absx(), -transform.absy(), -transform.absz());
 	    V.multiply(trans, V);
 
@@ -197,56 +197,56 @@ class CameraNode extends Node {
 	}
 
 	function buildViewFrustum() {
-		VP.identity();
+		VP.setIdentity();
     	VP.mult(V);
     	VP.mult(P);
 
 	    // Left plane
 	    frustumPlanes[0].setComponents(
-	    	VP._14 + VP._11,
-	    	VP._24 + VP._21,
-	    	VP._34 + VP._31,
-	    	VP._44 + VP._41
+	    	VP._03 + VP._00,
+	    	VP._13 + VP._10,
+	    	VP._23 + VP._20,
+	    	VP._33 + VP._30
 	    );
 	 
 	    // Right plane
 	    frustumPlanes[1].setComponents(
-	    	VP._14 - VP._11,
-	    	VP._24 - VP._21,
-	    	VP._34 - VP._31,
-	    	VP._44 - VP._41
+	    	VP._03 - VP._00,
+	    	VP._13 - VP._10,
+	    	VP._23 - VP._20,
+	    	VP._33 - VP._30
 	    );
 	 
 	    // Top plane
 	    frustumPlanes[2].setComponents(
-	    	VP._14 - VP._12,
-	    	VP._24 - VP._22,
-	    	VP._34 - VP._32,
-	    	VP._44 - VP._42
+	    	VP._03 - VP._01,
+	    	VP._13 - VP._11,
+	    	VP._23 - VP._21,
+	    	VP._33 - VP._31
 	    );
 	 
 	    // Bottom plane
 	    frustumPlanes[3].setComponents(
-	    	VP._14 + VP._12,
-	    	VP._24 + VP._22,
-	    	VP._34 + VP._32,
-	    	VP._44 + VP._42
+	    	VP._03 + VP._01,
+	    	VP._13 + VP._11,
+	    	VP._23 + VP._21,
+	    	VP._33 + VP._31
 	    );
 	 
 	    // Near plane
 	    frustumPlanes[4].setComponents(
-	    	VP._13,
-	    	VP._23,
-	    	VP._33,
-	    	VP._43
+	    	VP._02,
+	    	VP._12,
+	    	VP._22,
+	    	VP._32
 	    );
 	 
 	    // Far plane
 	    frustumPlanes[5].setComponents(
-	    	VP._14 - VP._13,
-	    	VP._24 - VP._23,
-	    	VP._34 - VP._33,
-	    	VP._44 - VP._43
+	    	VP._03 - VP._02,
+	    	VP._13 - VP._12,
+	    	VP._23 - VP._22,
+	    	VP._33 - VP._32
 	    );
 	 
 	    // Normalize planes
@@ -287,15 +287,15 @@ class CameraNode extends Node {
 	}
 
 	public function right():Vec3 {
-        return new Vec3(V._11, V._21, V._31);
+        return new Vec3(V._00, V._10, V._20);
     }
 
     public function look():Vec3 {
-        return new Vec3(V._13, V._23, V._33);
+        return new Vec3(V._02, V._12, V._22);
     }
 
     public function up():Vec3 {
-        return new Vec3(V._12, V._22, V._32);
+        return new Vec3(V._01, V._11, V._21);
     }
 
     function cacheStageCommands() {

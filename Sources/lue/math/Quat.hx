@@ -298,7 +298,7 @@ class Quat {
 
     // Extended
     public function toMatrix():Mat4 {
-        var m = new Mat4();
+        var m = Mat4.identity();
         saveToMatrix(m);
         return m;
     }
@@ -310,28 +310,28 @@ class Quat {
         var yy = y * y2, yz = y * z2, zz = z * z2;
         var wx = w * x2, wy = w * y2, wz = w * z2;
 
-        m._11 = 1 - ( yy + zz );
-        m._21 = xy - wz;
-        m._31 = xz + wy;
+        m._00 = 1 - ( yy + zz );
+        m._10 = xy - wz;
+        m._20 = xz + wy;
 
-        m._12 = xy + wz;
-        m._22 = 1 - ( xx + zz );
-        m._32 = yz - wx;
+        m._01 = xy + wz;
+        m._11 = 1 - ( xx + zz );
+        m._21 = yz - wx;
 
-        m._13 = xz - wy;
-        m._23 = yz + wx;
-        m._33 = 1 - ( xx + yy );
+        m._02 = xz - wy;
+        m._12 = yz + wx;
+        m._22 = 1 - ( xx + yy );
 
         // last column
-        m._14 = 0;
-        m._24 = 0;
-        m._34 = 0;
+        m._03 = 0;
+        m._13 = 0;
+        m._23 = 0;
 
         // bottom row
-        m._41 = 0;
-        m._42 = 0;
-        m._43 = 0;
-        m._44 = 1;
+        m._30 = 0;
+        m._31 = 0;
+        m._32 = 0;
+        m._33 = 1;
 
         return m;
     }

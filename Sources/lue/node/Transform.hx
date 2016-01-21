@@ -7,9 +7,10 @@ import lue.math.Quat;
 class Transform {
 
 	public var matrix:Mat4;
-	public var temp:Mat4;
 	public var append:Mat4 = null;
 	public var dirty:Bool;
+
+	static var temp = Mat4.identity();
 
 	public var pos:Vec3;
 	public var rot:Quat;
@@ -24,8 +25,7 @@ class Transform {
 	}
 
 	public function reset() {
-		matrix = new Mat4();
-		temp = new Mat4();
+		matrix = Mat4.identity();
 
 		pos = new Vec3();
 		rot = new Quat();
@@ -43,14 +43,14 @@ class Transform {
 	}
 
 	public function buildMatrix() {
-		matrix.identity();
+		matrix.setIdentity();
 		matrix.scale(scale);
 		rot.saveToMatrix(temp);
 		matrix.mult(temp);
 		//matrix.translate(pos.x, pos.y, pos.z);
-		matrix._41 = pos.x;
-		matrix._42 = pos.y;
-		matrix._43 = pos.z;
+		matrix._30 = pos.x;
+		matrix._31 = pos.y;
+		matrix._32 = pos.z;
 
 		// Transform node
 		if (append != null) matrix.mult(append);
@@ -103,7 +103,7 @@ class Transform {
 	}
 
 	public function getForward():Vec3 {
-        var mat = new Mat4();
+        var mat = Mat4.identity();
         rot.saveToMatrix(mat);
         var f = new Vec3(0, 1, 0);
         f.applyProjection(mat);
@@ -112,7 +112,7 @@ class Transform {
     }
 
     public function getBackward():Vec3 {
-        var mat = new Mat4();
+        var mat = Mat4.identity();
         rot.saveToMatrix(mat);
         var f = new Vec3(0, -1, 0);
         f.applyProjection(mat);
@@ -121,7 +121,7 @@ class Transform {
     }
 
     public function getRight():Vec3 {
-        var mat = new Mat4();
+        var mat = Mat4.identity();
         rot.saveToMatrix(mat);
         var f = new Vec3(1, 0, 0);
         f.applyProjection(mat);
@@ -130,7 +130,7 @@ class Transform {
     }
 
     public function getLeft():Vec3 {
-        var mat = new Mat4();
+        var mat = Mat4.identity();
         rot.saveToMatrix(mat);
         var f = new Vec3(-1, 0, 0);
         f.applyProjection(mat);
@@ -139,7 +139,7 @@ class Transform {
     }
 
     public function getUp():Vec3 {
-        var mat = new Mat4();
+        var mat = Mat4.identity();
         rot.saveToMatrix(mat);
         var f = new Vec3(0, 0, 1);
         f.applyProjection(mat);
@@ -148,7 +148,7 @@ class Transform {
     }
 
     public function getDown():Vec3 {
-        var mat = new Mat4();
+        var mat = Mat4.identity();
         rot.saveToMatrix(mat);
         var f = new Vec3(0, 0, -1);
         f.applyProjection(mat);
@@ -156,9 +156,9 @@ class Transform {
         return f;
     }
 
- 	public inline function absx():Float { return matrix._41; }
+ 	public inline function absx():Float { return matrix._30; }
 
-	public inline function absy():Float { return matrix._42; }
+	public inline function absy():Float { return matrix._31; }
 
-	public inline function absz():Float { return matrix._43; }
+	public inline function absz():Float { return matrix._32; }
 }
