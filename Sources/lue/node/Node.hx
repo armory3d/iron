@@ -113,6 +113,7 @@ class Node {
 			}
 			else if (n.type == "geometry_node") {
 				// Materials
+				if (n.material_refs.length == 0) continue;
 				var materials:Array<MaterialResource> = [];
 				for (ref in n.material_refs) {
 					materials.push(Resource.getMaterial(name, ref));
@@ -155,6 +156,7 @@ class Node {
 				node.id = n.id;
 				createTraits(n, node);
 				generateTranform(n, node.transform);
+				node.transform.buildMatrix(); // Prevents first frame flicker
 
 				traverseNodes(name, node, n.nodes, n);
 			}
