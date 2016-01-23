@@ -165,15 +165,7 @@ class Node {
 
 	static function generateTranform(node:TNode, transform:Transform) {
 		var mat = Mat4.fromArray(node.transform.values);
-		transform.pos.x = mat._30;
-		transform.pos.y = mat._31;
-		transform.pos.z = mat._32;
-		var rotation = mat.getQuat();
-		transform.rot.set(rotation.x, rotation.y, rotation.z, rotation.w);
-		var vs = mat.getScale();
-		transform.scale.x = vs.x;
-		transform.scale.y = vs.y;
-		transform.scale.z = vs.z;
+		mat.decompose(transform.pos, transform.rot, transform.scale);
 
 		if (node.type == "camera_node") { // TODO: remove
         	transform.rot.inverse(transform.rot);

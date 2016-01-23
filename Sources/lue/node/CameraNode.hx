@@ -100,6 +100,8 @@ class CameraNode extends Node {
 
 		var light = lights[0];
 		if (light.V == null) { light.buildMatrices(); }
+		
+		
 
 		for (i in 0...stageCommands.length) {
 			stageCommands[i](stageParams[i], root, light);

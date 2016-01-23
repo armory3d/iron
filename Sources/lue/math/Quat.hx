@@ -46,6 +46,52 @@ class Quat {
         this.w = std.Math.cos(angle * 0.5);
     }
 
+    public function setFromRotationMatrix(m:Mat4) {
+        // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+        // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+        var m11 = m._00, m12 = m._10, m13 = m._20;
+        var m21 = m._01, m22 = m._11, m23 = m._21;
+        var m31 = m._02, m32 = m._12, m33 = m._22;
+
+        var tr = m11 + m22 + m33;
+        var s = 0.0;
+
+        if (tr > 0) {
+            s = 0.5 / Math.sqrt( tr + 1.0 );
+
+            this.w = 0.25 / s;
+            this.x = ( m32 - m23 ) * s;
+            this.y = ( m13 - m31 ) * s;
+            this.z = ( m21 - m12 ) * s;
+        }
+        else if (m11 > m22 && m11 > m33) {
+            s = 2.0 * Math.sqrt(1.0 + m11 - m22 - m33);
+
+            this.w = ( m32 - m23 ) / s;
+            this.x = 0.25 * s;
+            this.y = ( m12 + m21 ) / s;
+            this.z = ( m13 + m31 ) / s;
+        }
+        else if ( m22 > m33 ) {
+            s = 2.0 * Math.sqrt( 1.0 + m22 - m11 - m33 );
+
+            this.w = ( m13 - m31 ) / s;
+            this.x = ( m12 + m21 ) / s;
+            this.y = 0.25 * s;
+            this.z = ( m23 + m32 ) / s;
+        }
+        else {
+            s = 2.0 * Math.sqrt( 1.0 + m33 - m11 - m22 );
+
+            this.w = ( m21 - m12 ) / s;
+            this.x = ( m13 + m31 ) / s;
+            this.y = ( m23 + m32 ) / s;
+            this.z = 0.25 * s;
+        }
+
+        return this;
+    }
+
     // Saves axis to targetAxis and returns 
     public function toAxisAngle(targetAxis):Dynamic {
         if (targetAxis == null) targetAxis = new Vec4();

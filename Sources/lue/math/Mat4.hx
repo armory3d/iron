@@ -22,6 +22,156 @@ class Mat4 extends kha.math.FastMatrix4 {
 		// this._03 = _03; this._13 = _13; this._23 = _23; this._33 = _33;
 	}
 
+	public function compose(position:Vec4, quaternion:Quat, sc:Vec4):Mat4 {
+		makeRotationFromQuaternion(quaternion);
+		scale(sc);
+		setPosition(position);
+		return this;
+	}
+
+	/*public function determinant() {
+		// var n11 = te[ 0 ], n12 = te[ 4 ], n13 = te[ 8 ], n14 = te[ 12 ];
+		// var n21 = te[ 1 ], n22 = te[ 5 ], n23 = te[ 9 ], n24 = te[ 13 ];
+		// var n31 = te[ 2 ], n32 = te[ 6 ], n33 = te[ 10 ], n34 = te[ 14 ];
+		// var n41 = te[ 3 ], n42 = te[ 7 ], n43 = te[ 11 ], n44 = te[ 15 ];
+
+		var n11 = _00, n12 = _10, n13 = _20, n14 = _30;
+		var n21 = _01, n22 = _11, n23 = _21, n24 = _31;
+		var n31 = _02, n32 = _12, n33 = _22, n34 = _32;
+		var n41 = _03, n42 = _13, n43 = _23, n44 = _33;
+
+		return (
+			n41 * (
+				+ n14 * n23 * n32
+				 - n13 * n24 * n32
+				 - n14 * n22 * n33
+				 + n12 * n24 * n33
+				 + n13 * n22 * n34
+				 - n12 * n23 * n34
+			) +
+			n42 * (
+				+ n11 * n23 * n34
+				 - n11 * n24 * n33
+				 + n14 * n21 * n33
+				 - n13 * n21 * n34
+				 + n13 * n24 * n31
+				 - n14 * n23 * n31
+			) +
+			n43 * (
+				+ n11 * n24 * n32
+				 - n11 * n22 * n34
+				 - n14 * n21 * n32
+				 + n12 * n21 * n34
+				 + n14 * n22 * n31
+				 - n12 * n24 * n31
+			) +
+			n44 * (
+				- n13 * n22 * n31
+				 - n11 * n23 * n32
+				 + n11 * n22 * n33
+				 + n13 * n21 * n32
+				 - n12 * n21 * n33
+				 + n12 * n23 * n31
+			)
+		);
+	}*/
+
+	public function decompose(position:Vec4, quaternion:Quat, scale:Vec4) {
+		var vector = new Vec4(0, 0, 0, 0);
+		var matrix = Mat4.identity();
+
+		var sx = vector.set( _00, _01, _02 ).length();
+		var sy = vector.set( _10, _11, _12 ).length();
+		var sz = vector.set( _20, _21, _22 ).length();
+		var det = this.determinant();
+		if (det < 0) sx = -sx;
+		position.x = _30;
+		position.y = _31;
+		position.z = _32;
+		// scale the rotation part
+		matrix._00 = _00;
+		matrix._10 = _10;
+		matrix._20 = _20;
+		matrix._30 = _30;
+		matrix._01 = _01;
+		matrix._11 = _11;
+		matrix._21 = _21;
+		matrix._31 = _31;
+		matrix._02 = _02;
+		matrix._12 = _12;
+		matrix._22 = _22;
+		matrix._32 = _32;
+		matrix._03 = _03;
+		matrix._13 = _13;
+		matrix._23 = _23;
+		matrix._33 = _33;
+		var invSX = 1 / sx;
+		var invSY = 1 / sy;
+		var invSZ = 1 / sz;
+		matrix._00 *= invSX;
+		matrix._01 *= invSX;
+		matrix._02 *= invSX;
+		matrix._03 = 0;
+		matrix._10 *= invSY;
+		matrix._11 *= invSY;
+		matrix._12 *= invSY;
+		matrix._13 = 0;
+		matrix._20 *= invSZ;
+		matrix._21 *= invSZ;
+		matrix._22 *= invSZ;
+		matrix._23 = 0;
+		matrix._30 = 0;
+		matrix._31 = 0;
+		matrix._32 = 0;
+		matrix._33 = 0;
+		quaternion.setFromRotationMatrix(matrix);
+		scale.x = sx;
+		scale.y = sy;
+		scale.z = sz;
+		return this;
+	}
+
+	public function setPosition(v:Vec4) {
+		_30 = v.x;
+		_31 = v.y;
+		_32 = v.z;
+		return this;
+	}
+
+	public function makeRotationFromQuaternion(q:Quat) {
+		var x = q.x, y = q.y, z = q.z, w = q.w;
+		var x2 = x + x, y2 = y + y, z2 = z + z;
+		var xx = x * x2, xy = x * y2, xz = x * z2;
+		var yy = y * y2, yz = y * z2, zz = z * z2;
+		var wx = w * x2, wy = w * y2, wz = w * z2;
+
+		_00 = 1 - ( yy + zz );
+		_10 = xy - wz;
+		_20 = xz + wy;
+
+		_01 = xy + wz;
+		_11 = 1 - ( xx + zz );
+		_21 = yz - wx;
+
+		_02 = xz - wy;
+		_12 = yz + wx;
+		_22 = 1 - ( xx + yy );
+
+		// last column
+		_03 = 0;
+		_13 = 0;
+		_23 = 0;
+
+		// bottom row
+		_30 = 0;
+		_31 = 0;
+		_32 = 0;
+		_33 = 1;
+
+		return this;
+
+	}
+
 	public static function identity():Mat4 {
 		return new Mat4(
 			1, 0, 0, 0,
@@ -402,7 +552,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 		_30 = 0;
 		_31 = 0;
 		_32 = 0;
-		_33 = 0;
+		_33 = 1;
 
 		return this;
 	}

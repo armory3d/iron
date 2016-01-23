@@ -43,14 +43,7 @@ class Transform {
 	}
 
 	public function buildMatrix() {
-		matrix.setIdentity();
-		matrix.scale(scale);
-		rot.saveToMatrix(temp);
-		matrix.mult2(temp);
-		//matrix.translate(pos.x, pos.y, pos.z);
-		matrix._30 = pos.x;
-		matrix._31 = pos.y;
-		matrix._32 = pos.z;
+		matrix.compose(pos, rot, scale);
 
 		// Transform node
 		if (append != null) matrix.mult2(append);
