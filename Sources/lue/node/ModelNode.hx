@@ -16,19 +16,9 @@ class ModelNode extends Node {
 	var materials:Array<MaterialResource>;
 
 	public var particleSystem:ParticleSystem = null;
+	public var skinning:Skinning = null;
 
 	static var helpMat = Mat4.identity();
-
-	// Skinned
-	var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
-	public var animation:Animation = null;
-	var boneMats = new Map<TNode, Mat4>();
-	var boneTimeIndices = new Map<TNode, Int>();
-
-	var m = Mat4.identity(); // Skinning matrix
-	var bm = Mat4.identity(); // Absolute bone matrix
-	var pos = new Vec4();
-	var nor = new Vec4();
 
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
 
@@ -45,22 +35,17 @@ class ModelNode extends Node {
 
 	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
 		if (resource.isSkinned) {
-			animation = new Animation(startTrack, names, starts, ends);
-
-			if (!ModelResource.ForceCpuSkinning) {
-				skinBuffer = new haxe.ds.Vector(50 * 12);
-				for (i in 0...skinBuffer.length) skinBuffer[i] = 0;
-			}
-
-			for (b in resource.geometry.skeletonBones) {
-				boneMats.set(b, Mat4.fromArray(b.transform.values));
-				boneTimeIndices.set(b, 0);
-			}
+			skinning = new Skinning(resource);
+			skinning.setupAnimation(startTrack, names, starts, ends);
 		}
 	}
 
 	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {
 		particleSystem = new ParticleSystem(this, sceneName, pref);
+	}
+
+	public inline function setAnimationParams(delta:Float) {
+		skinning.setAnimationParams(delta);
 	}
 
 	public static function setConstants(g:Graphics, context:ShaderContext, node:Node, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
@@ -174,7 +159,7 @@ class ModelNode extends Node {
 		else if (c.type == "floats") {
 			var fa:haxe.ds.Vector<kha.FastFloat> = null;
 			if (c.link == "_skinBones") {
-				fa = cast(node, ModelNode).skinBuffer;
+				fa = cast(node, ModelNode).skinning.skinBuffer;
 			}
 			g.setFloats(location, fa);
 		}
@@ -302,237 +287,6 @@ class ModelNode extends Node {
 		transform.size.y = resource.geometry.size.y * transform.scale.y;
 		transform.size.z = resource.geometry.size.z * transform.scale.z;
     }
-
-    public function setAnimationParams(delta:Float) {
-    	if (resource.isSkinned) {
-    		
-    		if (animation.paused) return;
-
-    		animation.animTime += delta * animation.speed;
-
-			updateAnim();
-			updateSkin();
-		}
-    }
-
-    function updateAnim() {
-    	// Animate bones
-		for (b in resource.geometry.skeletonBones) {
-			var boneAnim = b.animation;
-
-			if (boneAnim != null) {
-				var track = boneAnim.track;
-
-				// Current track has been changed
-				if (animation.dirty) {
-					animation.dirty = false;
-					// Single frame - set skin and pause
-					if (animation.current.frames == 0) {
-						animation.paused = true;
-						setAnimFrame(animation.current.start);
-						return;
-					}
-					// Animation - loop frames
-					else {
-						animation.timeIndex = animation.current.start;
-						animation.animTime = track.time.values[animation.timeIndex];
-					}
-				}
-
-				// Move keyframe
-				//var timeIndex = boneTimeIndices.get(b);
-				while (track.time.values.length > (animation.timeIndex + 1) &&
-					   animation.animTime > track.time.values[animation.timeIndex + 1]) {
-					animation.timeIndex++;
-				}
-				//boneTimeIndices.set(b, timeIndex);
-
-				// End of track
-				if (animation.timeIndex >= track.time.values.length - 1 ||
-					animation.timeIndex >= animation.current.end) {
-
-					// Rewind
-					if (animation.loop) {
-						animation.dirty = true;
-					}
-					// Pause
-					else {
-						animation.paused = true;
-					}
-
-					// Give chance to change current track
-					if (animation.onTrackComplete != null) animation.onTrackComplete();
-
-					//boneTimeIndices.set(b, animation.timeIndex);
-					//continue;
-					return;
-				}
-
-				var t1 = track.time.values[animation.timeIndex];
-				var t2 = track.time.values[animation.timeIndex + 1];
-				var s = (animation.animTime - t1) / (t2 - t1);
-				// TODO: lerp is inverted on certain nodes
-				if (b.id == "stringPuller") {
-					s = 1.0 - s;
-				}
-
-				var v1:Array<Float> = track.value.values[animation.timeIndex];
-				var v2:Array<Float> = track.value.values[animation.timeIndex + 1];
-
-				var m1 = Mat4.fromArray(v1);
-				var m2 = Mat4.fromArray(v2);
-
-				// Decompose
-				var p1 = m1.pos();
-				var p2 = m2.pos();
-				var s1 = m1.scaleV();
-				var s2 = m2.scaleV();
-				var q1 = m1.getQuat();
-				var q2 = m2.getQuat();
-
-				// Lerp
-				var fp = Vec4.lerp(p1, p2, s);
-				var fs = Vec4.lerp(s1, s2, s);
-				var fq = Quat.lerp(q1, q2, s);
-
-				// Compose
-				var m = boneMats.get(b);
-				fq.saveToMatrix(m);
-				m.scale(fs);
-				m._30 = fp.x;
-				m._31 = fp.y;
-				m._32 = fp.z;
-				boneMats.set(b, m);
-			}
-		}
-	}
-
-	function setAnimFrame(frame:Int) {
-		for (b in resource.geometry.skeletonBones) {
-			var boneAnim = b.animation;
-
-			if (boneAnim != null) {
-				var track = boneAnim.track;
-				var v1:Array<Float> = track.value.values[frame];
-				var m1 = Mat4.fromArray(v1);
-				boneMats.set(b, m1);
-			}
-		}
-		updateSkin();
-	}
-
-	function updateSkin() {
-		if (ModelResource.ForceCpuSkinning) updateSkinCpu();
-		else updateSkinGpu();
-	}
-
-	function updateSkinGpu() {
-		var bones = resource.geometry.skeletonBones;
-		for (i in 0...bones.length) {
-			
-			bm.loadFrom(resource.geometry.skinTransform);
-			bm.mult2(resource.geometry.skeletonTransformsI[i]);
-			var m = Mat4.identity();
-			m.loadFrom(boneMats.get(bones[i]));
-			var p = bones[i].parent;
-			while (p != null) { // TODO: store absolute transforms per bone
-				var pm = boneMats.get(p);
-				if (pm == null) pm = Mat4.fromArray(p.transform.values);
-				m.mult2(pm);
-				p = p.parent;
-			}
-			bm.mult2(m);
-			bm.transpose2();
-
-		 	skinBuffer[i * 12] = bm._00;
-		 	skinBuffer[i * 12 + 1] = bm._01;
-		 	skinBuffer[i * 12 + 2] = bm._02;
-		 	skinBuffer[i * 12 + 3] = bm._03;
-		 	skinBuffer[i * 12 + 4] = bm._10;
-		 	skinBuffer[i * 12 + 5] = bm._11;
-		 	skinBuffer[i * 12 + 6] = bm._12;
-		 	skinBuffer[i * 12 + 7] = bm._13;
-		 	skinBuffer[i * 12 + 8] = bm._20;
-		 	skinBuffer[i * 12 + 9] = bm._21;
-		 	skinBuffer[i * 12 + 10] = bm._22;
-		 	skinBuffer[i * 12 + 11] = bm._23;
-		}
-	}
-
-	function updateSkinCpu() {
-		var v = resource.geometry.vertexBuffer.lock();
-		var l = resource.geometry.structureLength;
-
-		var index = 0;
-
-		for (i in 0...Std.int(v.length / l)) {
-
-			var boneCount = resource.geometry.skinBoneCounts[i];
-			var boneIndices = [];
-			var boneWeights = [];
-			for (j in index...(index + boneCount)) {
-				boneIndices.push(resource.geometry.skinBoneIndices[j]);
-				boneWeights.push(resource.geometry.skinBoneWeights[j]);
-			}
-			index += boneCount;
-
-			pos.set(0, 0, 0);
-			nor.set(0, 0, 0);
-			for (j in 0...boneCount) {
-				var boneIndex = boneIndices[j];
-				var boneWeight = boneWeights[j];
-				var bone = resource.geometry.skeletonBones[boneIndex];
-
-				// Position
-				m.initTranslate(resource.geometry.positions[i * 3],
-								resource.geometry.positions[i * 3 + 1],
-								resource.geometry.positions[i * 3 + 2]);
-
-				m.mult2(resource.geometry.skinTransform);
-
-				m.mult2(resource.geometry.skeletonTransformsI[boneIndex]);
-
-				bm.loadFrom(boneMats.get(bone));
-				var p = bone.parent;
-				while (p != null) { // TODO: store absolute transforms per bone
-					var pm = boneMats.get(p);
-					if (pm == null) pm = Mat4.fromArray(p.transform.values);
-					bm.mult2(pm);
-					p = p.parent;
-				}
-				m.mult2(bm);
-
-				m.multiplyScalar(boneWeight);
-				
-				pos.add(m.pos());
-
-				// Normal
-				m.getInverse(bm);
-
-				m.mult2(resource.geometry.skeletonTransforms[boneIndex]);
-
-				m.mult2(resource.geometry.skinTransformI);
-
-				m.translate(resource.geometry.normals[i * 3],
-							resource.geometry.normals[i * 3 + 1],
-							resource.geometry.normals[i * 3 + 2]);
-
-				m.multiplyScalar(boneWeight);
-
-				nor.add(m.pos());
-			}
-
-			// TODO: use correct vertex structure
-			v.set(i * l, pos.x);
-			v.set(i * l + 1, pos.y);
-			v.set(i * l + 2, pos.z);
-			v.set(i * l + 3, nor.x);
-			v.set(i * l + 4, nor.y);
-			v.set(i * l + 5, nor.z);
-		}
-
-		resource.geometry.vertexBuffer.unlock();
-	}
 }
 
 class CachedModelContext {
