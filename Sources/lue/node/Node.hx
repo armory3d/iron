@@ -12,6 +12,7 @@ class Node {
 	public static var models:Array<ModelNode>;
 	public static var lights:Array<LightNode>;
 	public static var cameras:Array<CameraNode>;
+	public static var speakers:Array<SpeakerNode>;
 
 	public var id:String = "";
 	public var parent:Node;
@@ -29,6 +30,7 @@ class Node {
 		models = [];
 		lights = [];
 		cameras = [];
+		speakers = [];
 	}
 
 	public function addChild(o:Node) {
@@ -95,11 +97,11 @@ class Node {
 
 	public static function addScene(name:String, parent:Node):Node {
 		var resource:TSceneFormat = Resource.getSceneResource(name);
-		traverseNodes(name, parent, resource.nodes, null);
+		traverseNodes(resource, name, parent, resource.nodes, null);
 		return parent;
 	}
 
-	static function traverseNodes(name:String, parent:Node, nodes:Array<TNode>, parentNode:TNode) {
+	static function traverseNodes(resource:TSceneFormat, name:String, parent:Node, nodes:Array<TNode>, parentNode:TNode) {
 		for (n in nodes) {
 			if (n.visible != null && n.visible == false) continue;
 			
@@ -146,7 +148,7 @@ class Node {
 				}
 			}
 			else if (n.type == "speaker_node") {
-				// TODO: add speaker trait
+				node = Eg.addSpeakerNode(Resource.getSpeakerResourceById(resource.speaker_resources, n.object_ref), parent);	
 			}
 			else if (n.type == "node") {
 				node = Eg.addNode(parent);
@@ -158,7 +160,7 @@ class Node {
 				generateTranform(n, node.transform);
 				node.transform.buildMatrix(); // Prevents first frame flicker
 
-				traverseNodes(name, node, n.nodes, n);
+				traverseNodes(resource, name, node, n.nodes, n);
 			}
 		}
 	}

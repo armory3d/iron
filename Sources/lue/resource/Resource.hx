@@ -157,4 +157,12 @@ class Resource {
 		}
 		return null;
 	}
+
+	public static function getSpeakerResourceById(resources:Array<TSpeakerResource>, id:String):TSpeakerResource {
+		if (id == "") return resources[0];
+		for (res in resources) {
+			if (res.id == id) return res;
+		}
+		return null;
+	}
 }

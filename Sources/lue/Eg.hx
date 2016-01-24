@@ -5,12 +5,14 @@ import lue.node.Node;
 import lue.node.ModelNode;
 import lue.node.LightNode;
 import lue.node.CameraNode;
+import lue.node.SpeakerNode;
 import lue.resource.Resource;
 import lue.resource.ModelResource;
 import lue.resource.LightResource;
 import lue.resource.CameraResource;
 import lue.resource.MaterialResource;
 import lue.resource.ShaderResource;
+import lue.resource.importer.SceneFormat;
 
 class Eg {
 
@@ -67,6 +69,12 @@ class Eg {
 
 	public static function addCameraNode(resource:CameraResource, parent:Node = null):CameraNode {
 		var node = new CameraNode(resource);
+		parent != null ? parent.addChild(node) : root.addChild(node);
+		return node;
+	}
+
+	public static function addSpeakerNode(resource:TSpeakerResource, parent:Node = null):SpeakerNode {
+		var node = new SpeakerNode(resource);
 		parent != null ? parent.addChild(node) : root.addChild(node);
 		return node;
 	}
