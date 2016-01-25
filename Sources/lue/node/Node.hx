@@ -105,64 +105,85 @@ class Node {
 		for (n in nodes) {
 			if (n.visible != null && n.visible == false) continue;
 			
-			var node:Node = null;
-			
-			if (n.type == "camera_node") {
-				node = Eg.addCameraNode(Resource.getCamera(name, n.object_ref), parent);
-			}
-			else if (n.type == "light_node") {
-				node = Eg.addLightNode(Resource.getLight(name, n.object_ref), parent);	
-			}
-			else if (n.type == "geometry_node") {
-				// Materials
-				if (n.material_refs.length == 0) continue;
-				var materials:Array<MaterialResource> = [];
-				for (ref in n.material_refs) {
-					materials.push(Resource.getMaterial(name, ref));
-				}
-
-				// Geometry reference
-				var ref = n.object_ref.split("/");
-				var object_file = "";
-				var object_ref = "";
-				if (ref.length == 2) { // File reference
-					object_file = ref[0];
-					object_ref = ref[1];
-				}
-				else { // Local geometry resource
-					object_file = name;
-					object_ref = n.object_ref;
-				}
-
-				// Bone nodes are stored in armature parent
-				var boneNodes:Array<TNode> = null;
-				if (parentNode != null && parentNode.bones_ref != null) {
-					boneNodes = Resource.getSceneResource(parentNode.bones_ref).nodes;
-				}
-
-				node = Eg.addModelNode(Resource.getModel(object_file, object_ref, boneNodes), materials, parent);
-				
-				// Attach particle system
-				if (n.particle_refs != null && n.particle_refs.length > 0) {
-					cast(node, ModelNode).setupParticleSystem(name, n.particle_refs[0]);
-				}
-			}
-			else if (n.type == "speaker_node") {
-				node = Eg.addSpeakerNode(Resource.getSpeakerResourceById(resource.speaker_resources, n.object_ref), parent);	
-			}
-			else if (n.type == "node") {
-				node = Eg.addNode(parent);
-			}
-
+			var node = createNode(n, resource, name, parent, parentNode);
 			if (node != null) {
-				node.id = n.id;
-				createTraits(n, node);
-				generateTranform(n, node.transform);
-				node.transform.buildMatrix(); // Prevents first frame flicker
-
 				traverseNodes(resource, name, node, n.nodes, n);
 			}
 		}
+	}
+	
+	public static function parseNode(sceneName:String, nodeName:String, parent:Node = null):Node {
+		var resource:TSceneFormat = Resource.getSceneResource(sceneName);
+		// TODO: traverse to find deeper nodes
+		var n:TNode = null;
+		for (node in resource.nodes) {
+			if (node.id == nodeName) {
+				n = node;
+				break;
+			}
+		}
+		if (n == null) return null;
+		return Node.createNode(n, resource, sceneName, parent, null);
+	}
+	
+	public static function createNode(n:TNode, resource:TSceneFormat, name:String, parent:Node, parentNode:TNode):Node {
+		var node:Node = null;
+			
+		if (n.type == "camera_node") {
+			node = Eg.addCameraNode(Resource.getCamera(name, n.object_ref), parent);
+		}
+		else if (n.type == "light_node") {
+			node = Eg.addLightNode(Resource.getLight(name, n.object_ref), parent);	
+		}
+		else if (n.type == "geometry_node") {
+			// Materials
+			if (n.material_refs.length == 0) return null;
+			var materials:Array<MaterialResource> = [];
+			for (ref in n.material_refs) {
+				materials.push(Resource.getMaterial(name, ref));
+			}
+
+			// Geometry reference
+			var ref = n.object_ref.split("/");
+			var object_file = "";
+			var object_ref = "";
+			if (ref.length == 2) { // File reference
+				object_file = ref[0];
+				object_ref = ref[1];
+			}
+			else { // Local geometry resource
+				object_file = name;
+				object_ref = n.object_ref;
+			}
+
+			// Bone nodes are stored in armature parent
+			var boneNodes:Array<TNode> = null;
+			if (parentNode != null && parentNode.bones_ref != null) {
+				boneNodes = Resource.getSceneResource(parentNode.bones_ref).nodes;
+			}
+
+			node = Eg.addModelNode(Resource.getModel(object_file, object_ref, boneNodes), materials, parent);
+			
+			// Attach particle system
+			if (n.particle_refs != null && n.particle_refs.length > 0) {
+				cast(node, ModelNode).setupParticleSystem(name, n.particle_refs[0]);
+			}
+		}
+		else if (n.type == "speaker_node") {
+			node = Eg.addSpeakerNode(Resource.getSpeakerResourceById(resource.speaker_resources, n.object_ref), parent);	
+		}
+		else if (n.type == "node") {
+			node = Eg.addNode(parent);
+		}
+
+		if (node != null) {
+			node.id = n.id;
+			createTraits(n, node);
+			generateTranform(n, node.transform);
+			node.transform.buildMatrix(); // Prevents first frame flicker
+		}
+		
+		return node;
 	}
 
 	static function generateTranform(node:TNode, transform:Transform) {

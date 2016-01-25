@@ -101,9 +101,11 @@ class ModelNode extends Node {
 			else if (c.link == "_normalMatrix") {
 				helpMat.setIdentity();
 				helpMat.mult2(node.transform.matrix);
-				//helpMat.mult2(camera.V);
-				//helpMat.inverse(helpMat);
-				//helpMat.transpose2();
+				// Non uniform anisotropic scaling, calculate normal matrix
+				if (!(node.transform.scale.x == node.transform.scale.y && node.transform.scale.x == node.transform.scale.z)) {
+					helpMat.inverse2(helpMat);
+					helpMat.transpose2();
+				}
 				m = helpMat;
 			}
 			else if (c.link == "_viewMatrix") {

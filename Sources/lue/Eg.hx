@@ -82,6 +82,10 @@ class Eg {
 	public static function addScene(name:String, parent:Node = null):Node {
 		return Node.addScene(name, parent == null ? addNode() : parent);
 	}
+	
+	public static function parseNode(sceneName:String, nodeName:String, parent:Node = null):Node {
+		return Node.parseNode(sceneName, nodeName, parent);
+	}
 
 	public static function removeNode(node:Node) {
 		if (node.parent == null) return;
