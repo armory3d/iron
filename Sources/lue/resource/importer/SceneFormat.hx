@@ -61,7 +61,8 @@ typedef TCameraResource = {
 	var clear_color:Array<Float>;
 	var near_plane:Float;
 	var far_plane:Float;
-	var frustum_culling:Bool;
+	@:optional var frustum_culling:Bool;
+	@:optional var draw_calls_sort:String;
 	var pipeline:String;
 	var type:String;
 }
@@ -193,6 +194,7 @@ typedef TParticleReference = {
 typedef TTrait = {
 	var type:String;
 	var class_name:String;
+	@:optional var parameters:Array<Dynamic>;
 }
 
 typedef TTransform = {

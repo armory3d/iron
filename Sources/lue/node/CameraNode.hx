@@ -10,14 +10,12 @@ import lue.resource.CameraResource;
 class CameraNode extends Node {
 
 	public var resource:CameraResource;
+	var renderPipeline:RenderPipeline;
 
 	public var P:Mat4; // Matrices
 	public var V:Mat4;
 	public var VP:Mat4;
-
 	var frustumPlanes:Array<Plane> = null;
-
-	var renderPipeline:RenderPipeline;
 
 	public function new(resource:CameraResource) {
 		super();

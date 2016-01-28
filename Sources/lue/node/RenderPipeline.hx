@@ -98,6 +98,7 @@ class RenderPipeline {
     function drawGeometry(params:Array<String>, root:Node, light:LightNode) {
 		var context = params[0];
 		var g = currentRenderTarget;
+		// TODO: resource.resource.draw_calls_sort
 		root.render(g, context, camera, light, bindParams);
 		end(g);
     }
@@ -107,13 +108,14 @@ class RenderPipeline {
     }
 
     function drawQuad(params:Array<String>, root:Node, light:LightNode) {
-    	var handle = params[0] + params[1] + params[2];
+    	var handle = params[0];
     	var cc:CachedQuadContext = cachedQuadContexts.get(handle);
 		if (cc == null) {
-			var res = Resource.getMaterial(params[0], params[1]);
+			var matPath = handle.split("/");
+			var res = Resource.getMaterial(matPath[0], matPath[1]);
 			cc = new CachedQuadContext();
-			cc.materialContext = res.getContext(params[2]);
-			cc.context = res.shader.getContext(params[2]);
+			cc.materialContext = res.getContext(matPath[2]);
+			cc.context = res.shader.getContext(matPath[2]);
 			cachedQuadContexts.set(handle, cc);
 		}
 
