@@ -14,6 +14,9 @@ class LightNode extends Node {
 
 	public function new(resource:LightResource) {
 		super();
+		
+		// P = Mat4.perspective(45, 1, 1, 20);
+		P = Mat4.orthogonal(-10, 10, -10, 10, -30, 30, 2);
 
 		this.resource = resource;
 
@@ -21,8 +24,12 @@ class LightNode extends Node {
 	}
 
 	public function buildMatrices() {
-		//P = Mat4.perspective(45, 1, 5, 30);
-		P = Mat4.orthogonal(-10 * 2.4, 10 * 2.4, -10 * 2.4, 10 * 2.4, -30, 30, 2);
-		V = Mat4.lookAt(new Vec4(10, 1, 10), new Vec4(0, 0, 0), new Vec4(0, 0, -1));
+		transform.buildMatrix();
+		V = Mat4.lookAt(new Vec4(transform.absx(), transform.absy(), transform.absz()), new Vec4(0, 0, 0), new Vec4(0, 0, -1));
+		
+		// V = transform.rot.toMatrix();
+	    // var trans = Mat4.identity();
+	    // trans.translate(transform.absx(), transform.absy(), transform.absz());
+	    // V.multiply(trans, V);
 	}
 }

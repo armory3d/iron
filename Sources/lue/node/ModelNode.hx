@@ -103,6 +103,7 @@ class ModelNode extends Node {
 				helpMat.mult2(node.transform.matrix);
 				// Non uniform anisotropic scaling, calculate normal matrix
 				if (!(node.transform.scale.x == node.transform.scale.y && node.transform.scale.x == node.transform.scale.z)) {
+				//	helpMat.mult2(camera.V); // For view space
 					helpMat.inverse2(helpMat);
 					helpMat.transpose2();
 				}
@@ -118,14 +119,14 @@ class ModelNode extends Node {
 			else if (c.link == "_projectionMatrix") {
 				m = camera.P;
 			}
-			else if (c.link == "_MVP") {
+			else if (c.link == "_modelViewProjectionMatrix") {
 				helpMat.setIdentity();
 		    	helpMat.mult2(node.transform.matrix);
 		    	helpMat.mult2(camera.V);
 		    	helpMat.mult2(camera.P);
 		    	m = helpMat;
 			}
-			else if (c.link == "_lightMVP") {
+			else if (c.link == "_lightModelViewProjectionMatrix") {
 				helpMat.setIdentity();
 		    	helpMat.mult2(node.transform.matrix);
 		    	helpMat.mult2(light.V);
@@ -133,11 +134,6 @@ class ModelNode extends Node {
 		    	m = helpMat;
 			}
 			if (m == null) return;
-
-			// var mat = new kha.math.FastMatrix4(m._00, m._10, m._20, m._30,
-			// 						  	   	   m._01, m._11, m._21, m._31,
-			// 							   	   m._02, m._12, m._22, m._32,
-			// 						       	   m._03, m._13, m._23, m._33);
 			g.setMatrix(location, m);
 		}
 		else if (c.type == "vec3") {

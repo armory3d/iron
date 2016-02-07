@@ -702,10 +702,10 @@ class Mat4 extends kha.math.FastMatrix4 {
 		var d0 = -e0 * s0 - e1 * s1 - e2 * s2;
 		var d1 = -e0 * u0 - e1 * u1 - e2 * u2;
 		var d2 =  e0 * f0 + e1 * f1 + e2 * f2;
-
-		return new Mat4(s0, u0,-f0, 0.0,
-						 s1, u1,-f1, 0.0,
-						 s2, u2,-f2, 0.0,
-						 d0, d1, d2, 1.0);
+						
+		return new Mat4( s0,  s1,  s2, d0,
+						 u0,  u1,  u2, d1,
+						-f0, -f1, -f2, d2,
+						0.0, 0.0, 0.0, 1.0);
 	}
 }

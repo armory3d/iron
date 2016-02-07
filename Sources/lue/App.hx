@@ -72,8 +72,8 @@ class App {
         frame.g2.begin(false);
 
         // Shadow map test
-        //var map = lue.resource.Resource.getPipeline("pipeline_resource", "blender_pipeline").renderTargets.get("shadowmap");
-        //frame.g2.drawImage(map, 0, 0);
+        // var rt = lue.resource.Resource.getPipeline("forward_pipeline", "forward_pipeline").renderTargets.get("shadowMap");
+        // frame.g2.drawScaledImage(rt.image, 0, 0, 256, 256);
         
         for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
 
