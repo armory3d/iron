@@ -36,6 +36,12 @@ class ShaderResource extends Resource {
 		parseVertexStructure();
 
 		for (c in resource.contexts) {
+			// Render pipeline might not use all shaders contexts, skip context if shader is not found
+			var fragName = StringTools.replace(c.fragment_shader, ".", "_");
+			if (Reflect.field(kha.Shaders, fragName) == null) {
+				continue;
+			}
+			
 			contexts.push(new ShaderContext(c, structure));
 		}
 	}
@@ -211,15 +217,17 @@ class ShaderContext {
 	function addTexture(tu:TTextureUnit) {
 		var unit = pipeState.getTextureUnit(tu.id);
 		textureUnits.push(unit);
-
-		// TODO: set when graphics object is available
-		/*
-		graphics.setTextureParameters(unit,
+	}
+	
+	public function setTextureParameters(g:kha.graphics4.Graphics, i:Int) {
+		// This function is called for samplers set using material context		
+		var unit = textureUnits[i];
+		var tu = resource.texture_units[i];
+		g.setTextureParameters(unit,
 			tu.u_addressing == null ? TextureAddressing.Repeat : getTextureAddresing(tu.u_addressing),
 			tu.v_addressing == null ? TextureAddressing.Repeat : getTextureAddresing(tu.v_addressing),
-			tu.min_filter == null ? TextureFilter.PointFilter : getTextureFilter(tu.min_filter),
-			tu.mag_filter == null ? TextureFilter.PointFilter : getTextureFilter(tu.mag_filter),
+			tu.min_filter == null ? TextureFilter.LinearFilter : getTextureFilter(tu.min_filter),
+			tu.mag_filter == null ? TextureFilter.LinearFilter : getTextureFilter(tu.mag_filter),
 			tu.mipmap == null ? MipMapFilter.NoMipFilter : getMipMapFilter(tu.mipmap));
-		*/
 	}
 }

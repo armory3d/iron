@@ -43,11 +43,15 @@ class PipelineResource extends Resource {
 			t.width == 0 ? kha.System.pixelWidth : t.width,
 			t.height == 0 ? kha.System.pixelHeight : t.height,
 			t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
-			t.depth_buffer != null ? t.depth_buffer : true);
+			t.depth_buffer != null ? getDepthStencilFormat(t.depth_buffer) : kha.DepthStencilFormat.NoDepthAndStencil);
 	}
 
 	inline function getTextureFormat(s:String):TextureFormat {
 		return s == "RGBA32" ? TextureFormat.RGBA32 : TextureFormat.RGBA128;
+	}
+	
+	inline function getDepthStencilFormat(b:Bool):kha.DepthStencilFormat {
+		return b ? kha.DepthStencilFormat.DepthOnly : kha.DepthStencilFormat.NoDepthAndStencil;
 	}
 
 	public static function parse(name:String, id:String):PipelineResource {

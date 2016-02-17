@@ -102,11 +102,11 @@ class ModelNode extends Node {
 				helpMat.setIdentity();
 				helpMat.mult2(node.transform.matrix);
 				// Non uniform anisotropic scaling, calculate normal matrix
-				if (!(node.transform.scale.x == node.transform.scale.y && node.transform.scale.x == node.transform.scale.z)) {
+				//if (!(node.transform.scale.x == node.transform.scale.y && node.transform.scale.x == node.transform.scale.z)) {
 				//	helpMat.mult2(camera.V); // For view space
 					helpMat.inverse2(helpMat);
 					helpMat.transpose2();
-				}
+				//}
 				m = helpMat;
 			}
 			else if (c.link == "_viewMatrix") {
@@ -188,9 +188,10 @@ class ModelNode extends Node {
 				for (j in 0...context.textureUnits.length) {
 					var sid = context.resource.texture_units[j].id;
 					if (mid == sid) {
-						// TODO: set params using json when creating texture unit
-						//g.setTextureParameters(context.textureUnits[j], kha.graphics4.TextureAddressing.Repeat, kha.graphics4.TextureAddressing.Repeat, kha.graphics4.TextureFilter.LinearFilter, kha.graphics4.TextureFilter.LinearFilter, kha.graphics4.MipMapFilter.NoMipFilter);
 						g.setTexture(context.textureUnits[j], materialContext.textures[i]);
+						// After texture sampler have been assigned, set texture parameters
+						// TODO: call only once! 
+						context.setTextureParameters(g, j);
 						break;
 					}
 				}
