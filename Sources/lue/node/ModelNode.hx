@@ -190,8 +190,7 @@ class ModelNode extends Node {
 					if (mid == sid) {
 						g.setTexture(context.textureUnits[j], materialContext.textures[i]);
 						// After texture sampler have been assigned, set texture parameters
-						// TODO: call only once! 
-						context.setTextureParameters(g, j);
+						materialContext.setTextureParameters(g, i, context, j);
 						break;
 					}
 				}

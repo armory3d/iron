@@ -91,6 +91,14 @@ typedef TBindConstant = {
 typedef TBindTexture = {
 	var id:String;
 	var name:String;
+	@:optional var generate_mipmaps:Bool;
+	@:optional var mipmaps:Array<String>; // Reference image names
+	@:optional var u_addressing:String;
+	@:optional var v_addressing:String;
+	@:optional var min_filter:String;
+	@:optional var mag_filter:String;
+	@:optional var mipmap_filter:String;
+	@:optional var params_set:Bool; // Prevents setting texture params
 }
 
 typedef TShaderResource = {
@@ -129,11 +137,6 @@ typedef TShaderConstant = {
 
 typedef TTextureUnit = {
 	var id:String;
-	@:optional var u_addressing:String;
-	@:optional var v_addressing:String;
-	@:optional var min_filter:String;
-	@:optional var mag_filter:String;
-	@:optional var mipmap:String;
 }
 
 typedef TPipelineResource = {
@@ -220,3 +223,29 @@ typedef TTime = {
 typedef TValue = {
 	var values:Array<Array<Float>>;
 }
+
+// Raw shader resource
+/*
+typedef TRawShader = {
+	var contexts:Array<TRawContext>;
+}
+
+typedef TRawContext = {
+	var id:String;
+	var params:Array<TRawParam>;
+	var links:Array<TRawLink>;
+	var vertex_shader:String;
+	var fragment_shader:String;
+}
+
+typedef TRawParam = {
+	var id:String;
+	var value:String;
+}
+
+typedef TRawLink = {
+	var id:String;
+	var link:String;
+	@:optional var ifdef:String;
+}
+*/

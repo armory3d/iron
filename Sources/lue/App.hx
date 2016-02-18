@@ -22,9 +22,7 @@ class App {
 	}
 
     function loadingFinished() {
-		// TODO: set radiance mipmaps
-		kha.Assets.images.envmap_radiance.setMipmaps([kha.Assets.images.envmap_radiance_0, kha.Assets.images.envmap_radiance_1, kha.Assets.images.envmap_radiance_2, kha.Assets.images.envmap_radiance_3, kha.Assets.images.envmap_radiance_4, kha.Assets.images.envmap_radiance_5, kha.Assets.images.envmap_radiance_6, kha.Assets.images.envmap_radiance_7, kha.Assets.images.envmap_radiance_8, kha.Assets.images.envmap_radiance_9, kha.Assets.images.envmap_radiance_10]);
-		
+
         new Eg();
         new Ut();
         new lue.sys.Storage();

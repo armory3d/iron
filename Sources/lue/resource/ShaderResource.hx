@@ -219,15 +219,14 @@ class ShaderContext {
 		textureUnits.push(unit);
 	}
 	
-	public function setTextureParameters(g:kha.graphics4.Graphics, i:Int) {
+	public function setTextureParameters(g:kha.graphics4.Graphics, unitIndex:Int, tex:TBindTexture) {
 		// This function is called for samplers set using material context		
-		var unit = textureUnits[i];
-		var tu = resource.texture_units[i];
+		var unit = textureUnits[unitIndex];
 		g.setTextureParameters(unit,
-			tu.u_addressing == null ? TextureAddressing.Repeat : getTextureAddresing(tu.u_addressing),
-			tu.v_addressing == null ? TextureAddressing.Repeat : getTextureAddresing(tu.v_addressing),
-			tu.min_filter == null ? TextureFilter.LinearFilter : getTextureFilter(tu.min_filter),
-			tu.mag_filter == null ? TextureFilter.LinearFilter : getTextureFilter(tu.mag_filter),
-			tu.mipmap == null ? MipMapFilter.NoMipFilter : getMipMapFilter(tu.mipmap));
+			tex.u_addressing == null ? TextureAddressing.Repeat : getTextureAddresing(tex.u_addressing),
+			tex.v_addressing == null ? TextureAddressing.Repeat : getTextureAddresing(tex.v_addressing),
+			tex.min_filter == null ? TextureFilter.LinearFilter : getTextureFilter(tex.min_filter),
+			tex.mag_filter == null ? TextureFilter.LinearFilter : getTextureFilter(tex.mag_filter),
+			tex.mipmap_filter == null ? MipMapFilter.NoMipFilter : getMipMapFilter(tex.mipmap_filter));
 	}
 }
