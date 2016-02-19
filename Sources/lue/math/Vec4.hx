@@ -294,14 +294,13 @@ class Vec4 {
         var x = this.x;
         var y = this.y;
         var z = this.z;
-        var e = m.getFloats();
 
         // Perspective divide
-        var d = 1 / (e[3] * x + e[7] * y + e[11] * z + e[15]);
+        var d = 1 / (m._03 * x + m._13 * y + m._23 * z + m._33);
 
-        this.x = (e[0] * x + e[4] * y + e[8]  * z + e[12]) * d;
-        this.y = (e[1] * x + e[5] * y + e[9]  * z + e[13]) * d;
-        this.z = (e[2] * x + e[6] * y + e[10] * z + e[14]) * d;
+        this.x = (m._00 * x + m._10 * y + m._20 * z + m._30) * d;
+        this.y = (m._01 * x + m._11 * y + m._21 * z + m._31) * d;
+        this.z = (m._02 * x + m._12 * y + m._22 * z + m._32) * d;
 
         return this;
     }
@@ -310,11 +309,10 @@ class Vec4 {
         var x = this.x;
         var y = this.y;
         var z = this.z;
-        var e = m.getFloats();
 
-        this.x = e[0] * x + e[4] * y + e[8]  * z + e[12];
-        this.y = e[1] * x + e[5] * y + e[9]  * z + e[13];
-        this.z = e[2] * x + e[6] * y + e[10] * z + e[14];
+        this.x = (m._00 * x + m._10 * y + m._20 * z + m._30);
+        this.y = (m._01 * x + m._11 * y + m._21 * z + m._31);
+        this.z = (m._02 * x + m._12 * y + m._22 * z + m._32);
 
         return this;
     }   

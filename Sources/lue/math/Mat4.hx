@@ -385,12 +385,12 @@ class Mat4 extends kha.math.FastMatrix4 {
 		_30 = m._30; _31 = m._31; _32 = m._32; _33 = m._33;		
 	}
 	
-	public function getFloats():Array<Float> {
-		return [_00, _10, _20, _30,
-				_01, _11, _21, _31,
-				_02, _12, _22, _32,
-				_03, _13, _23, _33];
-	}
+	// public function getFloats():Array<Float> {
+	// 	return [_00, _10, _20, _30,
+	// 			_01, _11, _21, _31,
+	// 			_02, _12, _22, _32,
+	// 			_03, _13, _23, _33];
+	// }
 
 	// Retrieves pos vector from matrix
 	public inline function pos(v:Vec4 = null):Vec4 {
@@ -619,11 +619,11 @@ class Mat4 extends kha.math.FastMatrix4 {
 	}
 
 	public function getMaxScaleOnAxis():Float { //-
-		var te = this.getFloats();
+		var m = this;
 
-		var scaleXSq = te[0] * te[0] + te[1] * te[1] + te[2] * te[2];
-		var scaleYSq = te[4] * te[4] + te[5] * te[5] + te[6] * te[6];
-		var scaleZSq = te[8] * te[8] + te[9] * te[9] + te[10] * te[10];
+		var scaleXSq = m._00 * m._00 + m._01 * m._01 + m._02 * m._02;
+		var scaleYSq = m._10 * m._10 + m._11 * m._11 + m._12 * m._12;
+		var scaleZSq = m._20 * m._20 + m._21 * m._21 + m._22 * m._22;
 
 		return std.Math.sqrt(Math.max(scaleXSq, Math.max(scaleYSq, scaleZSq)));	
 	}
