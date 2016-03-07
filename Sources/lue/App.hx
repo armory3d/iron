@@ -15,8 +15,8 @@ class App {
 	public function new(game:Class<Dynamic>) {
         this.game = game;
 
-        w = kha.System.pixelWidth;
-        h = kha.System.pixelHeight;
+        w = kha.System.windowWidth(); // TODO: do not cache
+        h = kha.System.windowHeight();
 
         kha.Assets.loadEverything(loadingFinished);
 	}
