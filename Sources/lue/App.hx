@@ -70,15 +70,15 @@ class App {
         for (f in traitRenders) { if (traitRenders.length == 0) break; f(frame.g4); }
 
 
-        frame.g2.begin(false);
+        // frame.g2.begin(false);
 
-        // Shadow map test
+        // // Shadow map test
         // var rt = lue.resource.Resource.getPipeline("forward_pipeline", "forward_pipeline").renderTargets.get("shadowMap");
         // frame.g2.drawScaledImage(rt.image, 0, 0, 256, 256);
         
-        for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
+        // for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
 
-        frame.g2.end();
+        // frame.g2.end();
     }
 
     // Hooks

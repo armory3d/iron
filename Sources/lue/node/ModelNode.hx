@@ -243,7 +243,7 @@ class ModelNode extends Node {
 
 		var materialContexts = cc.materialContexts;
 		var shaderContext = cc.context;
-
+		
 		//if (context == "shadowpass") {
 		//	if (!material.resource.cast_shadow) return;
 		//}
