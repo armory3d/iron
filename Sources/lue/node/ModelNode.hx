@@ -19,6 +19,7 @@ class ModelNode extends Node {
 	public var skinning:Skinning = null;
 
 	static var helpMat = Mat4.identity();
+	static var helpVec = new Vec4();
 
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
 
@@ -103,7 +104,6 @@ class ModelNode extends Node {
 				helpMat.mult2(node.transform.matrix);
 				// Non uniform anisotropic scaling, calculate normal matrix
 				//if (!(node.transform.scale.x == node.transform.scale.y && node.transform.scale.x == node.transform.scale.z)) {
-				//	helpMat.mult2(camera.V); // For view space
 					helpMat.inverse2(helpMat);
 					helpMat.transpose2();
 				//}
@@ -139,10 +139,12 @@ class ModelNode extends Node {
 		else if (c.type == "vec3") {
 			var v:Vec4 = null;
 			if (c.link == "_lightPosition") {
-				v = light.transform.pos;
+				helpVec.set(light.transform.absx(), light.transform.absy(), light.transform.absz());
+				v = helpVec;
 			}
 			else if (c.link == "_cameraPosition") {
-				v = camera.transform.pos;
+				helpVec.set(camera.transform.absx(), camera.transform.absy(), camera.transform.absz());
+				v = helpVec;
 			}
 			if (v == null) return;
 			g.setFloat3(location, v.x, v.y, v.z);
