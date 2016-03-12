@@ -86,7 +86,7 @@ class ParticleSystem {
 	}
 
 	function sort() {
-		var camera = Node.cameras[0]; // TODO: pass camera manually
+		var camera = RootNode.cameras[0]; // TODO: pass camera manually
 
 		for (p in particles) { // TODO: check particle systems located at non-origin position
 			p.cameraDistance = lue.math.Math.distance3d(p.offset, camera.transform.pos);

@@ -21,7 +21,7 @@ class LightNode extends Node {
 
 		this.resource = resource;
 
-		Node.lights.push(this);
+		RootNode.lights.push(this);
 	}
 
 	public function buildMatrices() {

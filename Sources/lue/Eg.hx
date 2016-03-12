@@ -2,6 +2,7 @@ package lue;
 
 import lue.trait.Trait;
 import lue.node.Node;
+import lue.node.RootNode;
 import lue.node.ModelNode;
 import lue.node.LightNode;
 import lue.node.CameraNode;
@@ -16,15 +17,15 @@ import lue.resource.importer.SceneFormat;
 
 class Eg {
 
-	public static var root:Node;
+	public static var root:RootNode;
 
 	public function new() {
 		reset();
 	}
 
 	public static function reset() {
-		Node.reset();
-        root = new Node();
+		RootNode.reset();
+        root = new RootNode();
     }
 
 	// Resources
@@ -80,16 +81,16 @@ class Eg {
 	}
 
 	public static function addScene(name:String, parent:Node = null):Node {
-		return Node.addScene(name, parent == null ? addNode() : parent);
+		return RootNode.addScene(name, parent == null ? addNode() : parent);
 	}
 	
 	public static function parseNode(sceneName:String, nodeName:String, parent:Node = null):Node {
-		return Node.parseNode(sceneName, nodeName, parent);
+		return RootNode.parseNode(sceneName, nodeName, parent);
 	}
 
 	public static function removeNode(node:Node) {
 		if (node.parent == null) return;
-		Std.is(node, ModelNode) ? Node.models.remove(cast node) : Std.is(node, LightNode) ? Node.lights.remove(cast node) : Node.cameras.remove(cast node);
+		Std.is(node, ModelNode) ? RootNode.models.remove(cast node) : Std.is(node, LightNode) ? RootNode.lights.remove(cast node) : RootNode.cameras.remove(cast node);
 		node.parent.removeChild(node);
 	}
 
@@ -103,7 +104,7 @@ class Eg {
 
    	// Render
     public static function render(g:kha.graphics4.Graphics, camera:CameraNode) {
-		camera.renderFrame(g, root, Node.lights);
+		camera.renderFrame(g, root, RootNode.lights);
     }
 
     // Animation

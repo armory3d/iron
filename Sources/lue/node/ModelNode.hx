@@ -30,7 +30,7 @@ class ModelNode extends Node {
 
 		setTransformSize();
 
-		Node.models.push(this);
+		RootNode.models.push(this);
 	}
 
 	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {

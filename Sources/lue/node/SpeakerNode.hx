@@ -11,7 +11,7 @@ class SpeakerNode extends Node {
 
 		this.resource = resource;
 
-		Node.speakers.push(this);
+		RootNode.speakers.push(this);
 
 		lue.sys.Audio.playSound(Reflect.field(kha.Assets.sounds, resource.sound));
 	}

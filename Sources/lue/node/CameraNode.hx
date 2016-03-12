@@ -40,7 +40,7 @@ class CameraNode extends Node {
 			}
 		}
 
-		Node.cameras.push(this);
+		RootNode.cameras.push(this);
 	}
 
 	public function renderFrame(g:Graphics, root:Node, lights:Array<LightNode>) {
