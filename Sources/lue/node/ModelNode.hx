@@ -22,6 +22,13 @@ class ModelNode extends Node {
 	static var helpVec = new Vec4();
 
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
+	
+	// public static var _u1:Float = 0.8;
+	// public static var _u2:Float = 1.0;
+	// public static var _u3:Float = 0.2;
+	// public static var _u4:Float = 0.0075;
+	// public static var _u5:Float = 0.000001;
+	// public static var _u6:Float = 0.0002;
 
 	public function new(resource:ModelResource, materials:Array<MaterialResource>) {
 		super();
@@ -154,6 +161,24 @@ class ModelNode extends Node {
 			if (c.link == "_time") {
 				f = lue.sys.Time.total;
 			}
+			// else if (c.link == "_u1") {
+			// 	f = ModelNode._u1;
+			// }
+			// else if (c.link == "_u2") {
+			// 	f = ModelNode._u2;
+			// }
+			// else if (c.link == "_u3") {
+			// 	f = ModelNode._u3;
+			// }
+			// else if (c.link == "_u4") {
+			// 	f = ModelNode._u4;
+			// }
+			// else if (c.link == "_u5") {
+			// 	f = ModelNode._u5;
+			// }
+			// else if (c.link == "_u6") {
+			// 	f = ModelNode._u6;
+			// }
 			g.setFloat(location, f);
 		}
 		else if (c.type == "floats") {
@@ -204,13 +229,18 @@ class ModelNode extends Node {
 		if (c.type == "vec4") {
 			g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);
 		}
+		else if (c.type == "vec3") {
+			g.setFloat3(location, matc.vec3[0], matc.vec3[1], matc.vec3[2]);
+		}
+		else if (c.type == "vec2") {
+			g.setFloat2(location, matc.vec2[0], matc.vec2[1]);
+		}
 		else if (c.type == "float") {
 			g.setFloat(location, matc.float);
 		}
 		else if (c.type == "bool") {
 			g.setBool(location, matc.bool);
 		}
-		// TODO: other types
 	}
 
 	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {

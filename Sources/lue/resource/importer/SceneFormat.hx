@@ -84,6 +84,7 @@ typedef TBindConstant = {
 	var id:String;
 	@:optional var vec4:Array<Float>;
 	@:optional var vec3:Array<Float>;
+	@:optional var vec2:Array<Float>;
 	@:optional var float:Float;
 	@:optional var bool:Bool;
 }
