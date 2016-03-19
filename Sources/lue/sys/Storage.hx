@@ -9,10 +9,12 @@ class Storage {
 	
 	public function new() {
 		file = kha.Storage.defaultFile();
-		data = file.readObject();
+		if (file != null) {
+			data = file.readObject();
 
-		if (data == null) data = [];
-		save();
+			if (data == null) data = [];
+			save();
+		}
 	}
 	
 	public static function save() {
