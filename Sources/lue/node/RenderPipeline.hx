@@ -1,6 +1,7 @@
 package lue.node;
 
 import kha.Color;
+import kha.Scheduler;
 import kha.graphics4.Graphics;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
@@ -29,6 +30,9 @@ class RenderPipeline {
 	var stageParams:Array<Array<String>>;
 
 	var cachedQuadContexts:Map<String, CachedQuadContext> = new Map();
+	
+	var lastTime = 0.0;
+	var frameTime = 0.0;
 
 	public function new(camera:CameraNode) {
 		this.camera = camera;
@@ -75,6 +79,12 @@ class RenderPipeline {
 		for (i in 0...stageCommands.length) {
 			stageCommands[i](stageParams[i], root, light);
 		}
+		
+		// Timing
+		#if WITH_PROFILE
+		frameTime = Scheduler.realTime() - lastTime;
+		lastTime = Scheduler.realTime();
+		#end
 	}
 
 	function setTarget(params:Array<String>, root:Node, light:LightNode) {
