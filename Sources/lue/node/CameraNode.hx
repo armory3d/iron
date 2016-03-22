@@ -14,6 +14,7 @@ class CameraNode extends Node {
 
 	public var P:Mat4; // Matrices
 	public var V:Mat4;
+	public var prevV:Mat4;
 	public var VP:Mat4;
 	var frustumPlanes:Array<Plane> = null;
 
@@ -31,6 +32,7 @@ class CameraNode extends Node {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -resource.resource.far_plane, resource.resource.far_plane, 2);
 		}
 		V = Mat4.identity();
+		prevV = V;
 		VP = Mat4.identity();
 
 		if (resource.resource.frustum_culling) {
@@ -58,6 +60,7 @@ class CameraNode extends Node {
 		}
 
 		q.multiply(transform.rot, q); // Camera transform
+		prevV = V;
 		V = q.toMatrix();
 
 	    var trans = Mat4.identity();

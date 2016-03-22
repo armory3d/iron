@@ -137,9 +137,15 @@ class ModelNode extends Node {
 		    	helpMat.mult2(camera.P);
 		    	m = helpMat;
 			}
+			else if (c.link == "_prevViewProjectionMatrix") {
+				helpMat.setIdentity();
+		    	helpMat.mult2(camera.prevV);
+		    	helpMat.mult2(camera.P);
+		    	m = helpMat;
+			}
 			else if (c.link == "_lightModelViewProjectionMatrix") {
 				helpMat.setIdentity();
-		    	helpMat.mult2(node.transform.matrix);
+		    	if (node != null) helpMat.mult2(node.transform.matrix); // node is null for DrawQuad
 		    	helpMat.mult2(light.V);
 		    	helpMat.mult2(light.P);
 		    	m = helpMat;
