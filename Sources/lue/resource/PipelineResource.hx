@@ -50,6 +50,7 @@ class PipelineResource extends Resource {
 		if (s == "RGBA32") return TextureFormat.RGBA32;
 		else if (s == "RGBA128") return TextureFormat.RGBA128;
 		else if (s == "DEPTH16") return TextureFormat.DEPTH16;
+		else if (s == "RGBA64") return TextureFormat.RGBA64;
 		else return TextureFormat.RGBA32;
 	}
 	
