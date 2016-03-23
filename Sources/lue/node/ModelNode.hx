@@ -19,6 +19,7 @@ class ModelNode extends Node {
 	public var skinning:Skinning = null;
 
 	static var helpMat = Mat4.identity();
+	static var helpMat2 = Mat4.identity();
 	static var helpVec = new Vec4();
 
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
@@ -128,6 +129,13 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_inverseProjectionMatrix") {
 				helpMat.inverse2(camera.P);
+				m = helpMat;
+			}
+			else if (c.link == "_inverseViewProjectionMatrix") {
+				helpMat.setIdentity();
+				helpMat.mult2(camera.V);
+				helpMat.mult2(camera.P);
+				helpMat.inverse2(helpMat);
 				m = helpMat;
 			}
 			else if (c.link == "_modelViewProjectionMatrix") {

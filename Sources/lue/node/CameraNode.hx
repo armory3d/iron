@@ -49,6 +49,8 @@ class CameraNode extends Node {
 		updateMatrix(); // TODO: only when dirty
 
 		renderPipeline.renderFrame(g, root, lights);
+		
+		prevV = V.clone();
 	}
 
 	public function updateMatrix() {
@@ -60,14 +62,13 @@ class CameraNode extends Node {
 		}
 
 		q.multiply(transform.rot, q); // Camera transform
-		prevV = V;
 		V = q.toMatrix();
 
 	    var trans = Mat4.identity();
 	    trans.translate(-transform.absx(), -transform.absy(), -transform.absz());
 	    V.multiply(trans, V);
 
-		transform.buildMatrix();
+		//transform.buildMatrix();
 
 		if (resource.resource.frustum_culling) {
 			buildViewFrustum();
