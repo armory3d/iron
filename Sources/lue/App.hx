@@ -9,6 +9,7 @@ class App {
 
     static var traitInits:Array<Void->Void> = [];
     static var traitUpdates:Array<Void->Void> = [];
+    static var traitLateUpdates:Array<Void->Void> = [];
     static var traitRenders:Array<kha.graphics4.Graphics->Void> = [];
     static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
 
@@ -38,6 +39,7 @@ class App {
     public static function reset() {
         traitInits = [];
         traitUpdates = [];
+        traitLateUpdates = [];
         traitRenders = [];
         traitRenders2D = [];
 
@@ -57,6 +59,7 @@ class App {
         }
 
         for (f in traitUpdates) { if (traitUpdates.length == 0) break; f(); }
+        for (f in traitLateUpdates) { if (traitLateUpdates.length == 0) break; f(); }
 
         lue.sys.Input.end();
     }
@@ -96,6 +99,14 @@ class App {
 
     public static function removeUpdate(f:Void->Void) {
         traitUpdates.remove(f);
+    }
+	
+	public static function requestLateUpdate(f:Void->Void) {
+        traitLateUpdates.push(f);
+    }
+
+    public static function removeLateUpdate(f:Void->Void) {
+        traitLateUpdates.remove(f);
     }
 
     public static function requestRender(f:kha.graphics4.Graphics->Void) {

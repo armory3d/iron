@@ -66,38 +66,44 @@ class RootNode extends Node {
 			node = Eg.addLightNode(Resource.getLight(name, n.object_ref), parent);	
 		}
 		else if (n.type == "geometry_node") {
-			// Materials
-			if (n.material_refs.length == 0) return null;
-			var materials:Array<MaterialResource> = [];
-			for (ref in n.material_refs) {
-				materials.push(Resource.getMaterial(name, ref));
+			if (n.material_refs.length == 0) {
+				// No material, create empty node
+				node = Eg.addNode(parent);
 			}
+			else {
+				// Materials
+				var materials:Array<MaterialResource> = [];
+				for (ref in n.material_refs) {
+					materials.push(Resource.getMaterial(name, ref));
+				}
 
-			// Geometry reference
-			var ref = n.object_ref.split("/");
-			var object_file = "";
-			var object_ref = "";
-			if (ref.length == 2) { // File reference
-				object_file = ref[0];
-				object_ref = ref[1];
-			}
-			else { // Local geometry resource
-				object_file = name;
-				object_ref = n.object_ref;
-			}
+				// Geometry reference
+				var ref = n.object_ref.split("/");
+				var object_file = "";
+				var object_ref = "";
+				if (ref.length == 2) { // File reference
+					object_file = ref[0];
+					object_ref = ref[1];
+				}
+				else { // Local geometry resource
+					object_file = name;
+					object_ref = n.object_ref;
+				}
 
-			// Bone nodes are stored in armature parent
-			var boneNodes:Array<TNode> = null;
-			if (parentNode != null && parentNode.bones_ref != null) {
-				boneNodes = Resource.getSceneResource(parentNode.bones_ref).nodes;
-			}
+				// Bone nodes are stored in armature parent
+				var boneNodes:Array<TNode> = null;
+				if (parentNode != null && parentNode.bones_ref != null) {
+					boneNodes = Resource.getSceneResource(parentNode.bones_ref).nodes;
+				}
 
-			node = Eg.addModelNode(Resource.getModel(object_file, object_ref, boneNodes), materials, parent);
-			
-			// Attach particle system
-			if (n.particle_refs != null && n.particle_refs.length > 0) {
-				cast(node, ModelNode).setupParticleSystem(name, n.particle_refs[0]);
+				node = Eg.addModelNode(Resource.getModel(object_file, object_ref, boneNodes), materials, parent);
+				
+				// Attach particle system
+				if (n.particle_refs != null && n.particle_refs.length > 0) {
+					cast(node, ModelNode).setupParticleSystem(name, n.particle_refs[0]);
+				}
 			}
+			node.transform.size.set(n.dimensions[0], n.dimensions[1], n.dimensions[2]);
 		}
 		else if (n.type == "speaker_node") {
 			node = Eg.addSpeakerNode(Resource.getSpeakerResourceById(resource.speaker_resources, n.object_ref), parent);	

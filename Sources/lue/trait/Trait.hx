@@ -11,6 +11,7 @@ class Trait {
 	public var _init:Void->Void = null;
 	public var _remove:Void->Void = null;
 	public var _update:Void->Void = null;
+	public var _lateUpdate:Void->Void = null;
 	public var _render:kha.graphics4.Graphics->Void = null;
 	public var _render2D:kha.graphics2.Graphics->Void = null;
 
@@ -38,6 +39,11 @@ class Trait {
 	function requestUpdate(f:Void->Void) {
 		App.requestUpdate(f);
 		_update = f;
+	}
+	
+	function requestLateUpdate(f:Void->Void) {
+		App.requestLateUpdate(f);
+		_lateUpdate = f;
 	}
 
 	function requestRender(f:kha.graphics4.Graphics->Void) {

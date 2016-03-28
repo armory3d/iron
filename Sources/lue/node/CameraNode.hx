@@ -169,11 +169,11 @@ class CameraNode extends Node {
         return new Vec4(V._00, V._10, V._20);
     }
 
-    public function look():Vec4 {
-        return new Vec4(V._02, V._12, V._22);
+	public function up():Vec4 {
+        return new Vec4(V._01, V._11, V._21);
     }
 
-    public function up():Vec4 {
-        return new Vec4(V._01, V._11, V._21);
+    public function look():Vec4 {
+        return new Vec4(V._02, V._12, V._22);
     }
 }

@@ -24,10 +24,10 @@ class ModelNode extends Node {
 
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
 	
-	// public static var _u1:Float = 8;
-	// public static var _u2:Float = 3.5;
-	// public static var _u3:Float = 3.5;
-	// public static var _u4:Float = 0.75;
+	// public static var _u1:Float = 0.43;
+	// public static var _u2:Float = 0.55;
+	// public static var _u3:Float = 0.0025;
+	// public static var _u4:Float = 0.5;
 	// public static var _u5:Float = 0.1;
 	// public static var _u6:Float = 0.34;
 
@@ -37,7 +37,7 @@ class ModelNode extends Node {
 		this.resource = resource;
 		this.materials = materials;
 
-		setTransformSize();
+		// setTransformSize(); // TODO: remove
 
 		RootNode.models.push(this);
 	}
@@ -318,11 +318,11 @@ class ModelNode extends Node {
 		}
 	}
 
-	function setTransformSize() {
-    	transform.size.x = resource.geometry.size.x * transform.scale.x;
-		transform.size.y = resource.geometry.size.y * transform.scale.y;
-		transform.size.z = resource.geometry.size.z * transform.scale.z;
-    }
+	// function setTransformSize() {
+    // 	transform.size.x = resource.geometry.size.x * transform.scale.x;
+	// 	transform.size.y = resource.geometry.size.y * transform.scale.y;
+	// 	transform.size.z = resource.geometry.size.z * transform.scale.z;
+    // }
 }
 
 class CachedModelContext {

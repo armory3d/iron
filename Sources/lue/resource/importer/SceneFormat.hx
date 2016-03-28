@@ -183,6 +183,7 @@ typedef TNode = {
 	var transform:TTransform;
 	var nodes:Array<TNode>;
 	var traits:Array<TTrait>;
+	@:optional var dimensions:Array<Float>; // Geometry nodes
 	@:optional var animation:TAnimation;
 	@:optional var bones_ref:String;
 	@:optional var parent:TNode;
