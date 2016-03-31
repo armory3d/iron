@@ -24,11 +24,11 @@ class ModelNode extends Node {
 
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
 	
-	// public static var _u1:Float = 0.43;
-	// public static var _u2:Float = 0.55;
-	// public static var _u3:Float = 0.0025;
-	// public static var _u4:Float = 0.5;
-	// public static var _u5:Float = 0.1;
+	// public static var _u1:Float = 0.25;
+	// public static var _u2:Float = 0.1;
+	// public static var _u3:Float = 5;
+	// public static var _u4:Float = 1.0;
+	// public static var _u5:Float = 0.0;
 	// public static var _u6:Float = 0.34;
 
 	public function new(resource:ModelResource, materials:Array<MaterialResource>) {
@@ -113,12 +113,27 @@ class ModelNode extends Node {
 				// Non uniform anisotropic scaling, calculate normal matrix
 				//if (!(node.transform.scale.x == node.transform.scale.y && node.transform.scale.x == node.transform.scale.z)) {
 					helpMat.inverse2(helpMat);
-					helpMat.transpose2();
+					helpMat.transpose23x3();
 				//}
+				m = helpMat;
+			}
+			else if (c.link == "_viewNormalMatrix") {
+				helpMat.setIdentity();
+				helpMat.mult2(node.transform.matrix);
+				helpMat.mult2(camera.V); // View space
+				helpMat.inverse2(helpMat);
+				helpMat.transpose23x3();
 				m = helpMat;
 			}
 			else if (c.link == "_viewMatrix") {
 				m = camera.V;
+			}
+			else if (c.link == "_transposeInverseViewMatrix") {
+				helpMat.setIdentity();
+				helpMat.mult2(camera.V);
+				helpMat.inverse2(helpMat);
+				helpMat.transpose2();
+				m = helpMat;
 			}
 			else if (c.link == "_inverseViewMatrix") {
 				helpMat.inverse2(camera.V);

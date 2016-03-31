@@ -361,6 +361,13 @@ class Mat4 extends kha.math.FastMatrix4 {
 		tmp = _13; _13 = _31; _31 = tmp;
 		tmp = _23; _23 = _32; _32 = tmp;
 	}
+	
+	public function transpose23x3() {
+		var tmp:Float;
+		tmp = _01; _01 = _10; _10 = tmp;
+		tmp = _02; _02 = _20; _20 = tmp;
+		tmp = _12; _12 = _21; _21 = tmp;
+	}
 
 	public function clone() {
 		var m = Mat4.identity();
