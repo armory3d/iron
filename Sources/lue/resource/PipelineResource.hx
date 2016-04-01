@@ -2,6 +2,7 @@ package lue.resource;
 
 import kha.Image;
 import kha.graphics4.TextureFormat;
+import kha.DepthStencilFormat;
 import lue.resource.importer.SceneFormat;
 
 class PipelineResource extends Resource {
@@ -43,7 +44,7 @@ class PipelineResource extends Resource {
 			t.width == 0 ? kha.System.windowWidth() : t.width,
 			t.height == 0 ? kha.System.windowHeight() : t.height,
 			t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
-			t.depth_buffer != null ? getDepthStencilFormat(t.depth_buffer) : kha.DepthStencilFormat.NoDepthAndStencil);
+			t.depth_buffer != null ? getDepthStencilFormat(t.depth_buffer, t.stencil_buffer) : kha.DepthStencilFormat.NoDepthAndStencil);
 	}
 
 	inline function getTextureFormat(s:String):TextureFormat {
@@ -54,8 +55,10 @@ class PipelineResource extends Resource {
 		else return TextureFormat.RGBA32;
 	}
 	
-	inline function getDepthStencilFormat(b:Bool):kha.DepthStencilFormat {
-		return b ? kha.DepthStencilFormat.DepthOnly : kha.DepthStencilFormat.NoDepthAndStencil;
+	inline function getDepthStencilFormat(depth:Bool, stencil:Bool):kha.DepthStencilFormat {
+		if (depth && stencil) return DepthStencilFormat.Depth24Stencil8;
+		else if (depth) return DepthStencilFormat.DepthOnly;
+		else return DepthStencilFormat.NoDepthAndStencil; 
 	}
 
 	public static function parse(name:String, id:String):PipelineResource {

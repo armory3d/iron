@@ -7,6 +7,7 @@ import kha.graphics4.FragmentShader;
 import kha.graphics4.VertexShader;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
+import kha.graphics4.StencilAction;
 import kha.graphics4.CompareMode;
 import kha.graphics4.CullMode;
 import kha.graphics4.BlendingOperation;
@@ -141,6 +142,16 @@ class ShaderContext {
         else if (resource.compare_mode == "less") {
         	pipeState.depthMode = CompareMode.Less;
         }
+		
+		// Stencil
+		if (resource.stencil_pass == "replace") {
+			pipeState.stencilBothPass = StencilAction.Replace;
+		}
+		// if (resource.stencil_fail == "keep") {
+			// pipeState.stencilDepthFail = StencilAction.Keep;
+			// pipeState.stencilFail = StencilAction.Keep;	
+		// }
+		pipeState.stencilReferenceValue = resource.stencil_reference_value;	
 
 		// Cull
         if (resource.cull_mode == "none") {

@@ -117,6 +117,9 @@ typedef TShaderContext = {
 	var id:String;
 	var depth_write:Bool;
 	var compare_mode:String;
+	var stencil_pass:String;
+	var stencil_fail:String;
+	var stencil_reference_value:Int;
 	var cull_mode:String;
 	var blend_source:String;
 	var blend_destination:String;
@@ -152,6 +155,7 @@ typedef TPipelineRenderTarget = {
 	var height:Int;
 	@:optional var format:String;
 	@:optional var depth_buffer:Bool;
+	@:optional var stencil_buffer:Bool;
 	@:optional var color_buffers:Int;
 }
 

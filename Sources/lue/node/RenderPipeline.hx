@@ -102,7 +102,8 @@ class RenderPipeline {
     }
 
     function clearTarget(params:Array<String>, root:Node, light:LightNode) {
-    	currentRenderTarget.clear(clearColor, 1, null);
+		// TODO: use params
+    	currentRenderTarget.clear(clearColor, 1, 0);
     }
 
     function drawGeometry(params:Array<String>, root:Node, light:LightNode) {
