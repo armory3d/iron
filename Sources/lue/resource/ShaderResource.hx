@@ -164,8 +164,8 @@ class ShaderContext {
 			pipeState.stencilFail = StencilAction.Keep;
 		}
 		pipeState.stencilReferenceValue = resource.stencil_reference_value;	
-		pipeState.stencilReadMask = resource.stencil_read_mask;
-		pipeState.stencilWriteMask = resource.stencil_write_mask;
+		// pipeState.stencilReadMask = resource.stencil_read_mask;
+		// pipeState.stencilWriteMask = resource.stencil_write_mask;
 
 		// Cull
         if (resource.cull_mode == "none") {
