@@ -144,14 +144,28 @@ class ShaderContext {
         }
 		
 		// Stencil
+		if (resource.stencil_mode == "always") {
+			pipeState.stencilMode = CompareMode.Always;
+		}
+		else if (resource.stencil_mode == "equal") {
+			pipeState.stencilMode = CompareMode.Equal;
+		}
+		else if (resource.stencil_mode == "not_equal") {
+			pipeState.stencilMode = CompareMode.NotEqual;
+		}
 		if (resource.stencil_pass == "replace") {
 			pipeState.stencilBothPass = StencilAction.Replace;
 		}
-		// if (resource.stencil_fail == "keep") {
-			// pipeState.stencilDepthFail = StencilAction.Keep;
-			// pipeState.stencilFail = StencilAction.Keep;	
-		// }
+		else if (resource.stencil_pass == "keep") {
+			pipeState.stencilBothPass = StencilAction.Keep;
+		}
+		if (resource.stencil_fail == "keep") {
+			pipeState.stencilDepthFail = StencilAction.Keep;
+			pipeState.stencilFail = StencilAction.Keep;
+		}
 		pipeState.stencilReferenceValue = resource.stencil_reference_value;	
+		pipeState.stencilReadMask = resource.stencil_read_mask;
+		pipeState.stencilWriteMask = resource.stencil_write_mask;
 
 		// Cull
         if (resource.cull_mode == "none") {

@@ -117,9 +117,12 @@ typedef TShaderContext = {
 	var id:String;
 	var depth_write:Bool;
 	var compare_mode:String;
+	var stencil_mode:String;
 	var stencil_pass:String;
 	var stencil_fail:String;
 	var stencil_reference_value:Int;
+	var stencil_read_mask:Int;
+	var stencil_write_mask:Int;
 	var cull_mode:String;
 	var blend_source:String;
 	var blend_destination:String;
