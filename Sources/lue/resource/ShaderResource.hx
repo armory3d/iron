@@ -11,6 +11,7 @@ import kha.graphics4.StencilAction;
 import kha.graphics4.CompareMode;
 import kha.graphics4.CullMode;
 import kha.graphics4.BlendingOperation;
+import kha.graphics4.BlendingFactor;
 import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
@@ -144,26 +145,27 @@ class ShaderContext {
         }
 		
 		// Stencil
-		if (resource.stencil_mode == "always") {
-			pipeState.stencilMode = CompareMode.Always;
+		if (resource.stencil_mode != null) {
+			if (resource.stencil_mode == "always")
+				pipeState.stencilMode = CompareMode.Always;
+			else if (resource.stencil_mode == "equal")
+				pipeState.stencilMode = CompareMode.Equal;
+			else if (resource.stencil_mode == "not_equal")
+				pipeState.stencilMode = CompareMode.NotEqual;
 		}
-		else if (resource.stencil_mode == "equal") {
-			pipeState.stencilMode = CompareMode.Equal;
+		if (resource.stencil_pass != null) {
+			if (resource.stencil_pass == "replace")
+				pipeState.stencilBothPass = StencilAction.Replace;
+			else if (resource.stencil_pass == "keep")
+				pipeState.stencilBothPass = StencilAction.Keep;
 		}
-		else if (resource.stencil_mode == "not_equal") {
-			pipeState.stencilMode = CompareMode.NotEqual;
-		}
-		if (resource.stencil_pass == "replace") {
-			pipeState.stencilBothPass = StencilAction.Replace;
-		}
-		else if (resource.stencil_pass == "keep") {
-			pipeState.stencilBothPass = StencilAction.Keep;
-		}
-		if (resource.stencil_fail == "keep") {
+		if (resource.stencil_fail != null && resource.stencil_fail == "keep") {
 			pipeState.stencilDepthFail = StencilAction.Keep;
 			pipeState.stencilFail = StencilAction.Keep;
 		}
-		pipeState.stencilReferenceValue = resource.stencil_reference_value;	
+		if (resource.stencil_reference_value != null) {
+			pipeState.stencilReferenceValue = resource.stencil_reference_value;
+		}	
 		// pipeState.stencilReadMask = resource.stencil_read_mask;
 		// pipeState.stencilWriteMask = resource.stencil_write_mask;
 
@@ -179,8 +181,12 @@ class ShaderContext {
         }
 		
 		// Blending
-		pipeState.blendSource = getBlendingOperation(resource.blend_source);
-		pipeState.blendDestination = getBlendingOperation(resource.blend_destination);
+		if (resource.blend_source != null) pipeState.blendSource = getBlendingFactor(resource.blend_source);
+		if (resource.blend_destination != null) pipeState.blendDestination = getBlendingFactor(resource.blend_destination);
+		if (resource.blend_operation != null) pipeState.blendOperation = getBlendingOperation(resource.blend_operation);
+		if (resource.alpha_blend_source != null) pipeState.alphaBlendSource = getBlendingFactor(resource.alpha_blend_source);
+		if (resource.alpha_blend_destination != null) pipeState.alphaBlendDestination = getBlendingFactor(resource.alpha_blend_destination);
+		if (resource.alpha_blend_operation != null) pipeState.alphaBlendOperation = getBlendingOperation(resource.alpha_blend_operation);
 
 		pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(resource.fragment_shader, ".", "_"));
 		pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(resource.vertex_shader, ".", "_"));
@@ -196,16 +202,23 @@ class ShaderContext {
 	}
 
 	function getBlendingOperation(s:String):BlendingOperation {
-		if (s == "blend_one")
-			return BlendingOperation.BlendOne;
-		else if (s == "blend_zero")
-			return BlendingOperation.BlendZero;
-		else if (s == "source_alpha")
-			return BlendingOperation.SourceAlpha;
-		else if (s == "inverse_source_alpha")
-			return BlendingOperation.InverseSourceAlpha;
+		if (s == "add")
+			return BlendingOperation.Add;
 		else
-			return BlendingOperation.Undefined;
+			return BlendingOperation.Add;
+	}
+	
+	function getBlendingFactor(s:String):BlendingFactor {
+		if (s == "blend_one")
+			return BlendingFactor.BlendOne;
+		else if (s == "blend_zero")
+			return BlendingFactor.BlendZero;
+		else if (s == "source_alpha")
+			return BlendingFactor.SourceAlpha;
+		else if (s == "inverse_source_alpha")
+			return BlendingFactor.InverseSourceAlpha;
+		else
+			return BlendingFactor.Undefined;
 	}
 
 	function getTextureAddresing(s:String):TextureAddressing {

@@ -139,6 +139,12 @@ class ModelNode extends Node {
 				helpMat.inverse2(camera.V);
 				m = helpMat;
 			}
+			else if (c.link == "_transposeViewMatrix") {
+				helpMat.setIdentity();
+				helpMat.mult2(camera.V);
+				helpMat.transpose23x3();
+				m = helpMat;
+			}
 			else if (c.link == "_projectionMatrix") {
 				m = camera.P;
 			}
@@ -156,6 +162,12 @@ class ModelNode extends Node {
 			else if (c.link == "_modelViewProjectionMatrix") {
 				helpMat.setIdentity();
 		    	helpMat.mult2(node.transform.matrix);
+		    	helpMat.mult2(camera.V);
+		    	helpMat.mult2(camera.P);
+		    	m = helpMat;
+			}
+			else if (c.link == "_viewProjectionMatrix") {
+				helpMat.setIdentity();
 		    	helpMat.mult2(camera.V);
 		    	helpMat.mult2(camera.P);
 		    	m = helpMat;
