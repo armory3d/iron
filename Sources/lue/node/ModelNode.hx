@@ -2,6 +2,10 @@ package lue.node;
 
 import kha.graphics4.Graphics;
 import kha.graphics4.ConstantLocation;
+import kha.graphics4.TextureAddressing;
+import kha.graphics4.TextureFilter;
+import kha.graphics4.MipMapFilter;
+import lue.Env;
 import lue.math.Vec4;
 import lue.math.Mat4;
 import lue.math.Quat;
@@ -92,11 +96,22 @@ class ModelNode extends Node {
 				}
 			}
 		}
-		// for (j in 0...context.resource.texture_units.length) { // Passing texture constants
-		// 	if (context.resource.texture_units[j].id == "skinTex") {
-		// 		g.setTexture(context.textureUnits[j], cast(node, ModelNode).skinTexture);
-		// 	}
-		// }
+		
+		// Texture links
+		for (j in 0...context.resource.texture_units.length) {
+			var tuid = context.resource.texture_units[j].id;
+			var tulink = context.resource.texture_units[j].link;
+			if (tulink == "_envmapIrradiance") {
+				g.setTexture(context.textureUnits[j], Env.irradiance);
+			}
+			else if (tulink == "_envmapRadiance") {
+				g.setTexture(context.textureUnits[j], Env.radiance);
+				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+			}
+			else if (tulink == "_envmapBrdf") {
+				g.setTexture(context.textureUnits[j], Env.brdf);
+			}
+		}
 	}
 	static function setConstant(g:Graphics, node:Node, camera:CameraNode, light:LightNode,
 						 		location:ConstantLocation, c:TShaderConstant) {

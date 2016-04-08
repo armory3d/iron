@@ -148,6 +148,7 @@ typedef TShaderConstant = {
 
 typedef TTextureUnit = {
 	var id:String;
+	@:optional var link:String;
 }
 
 typedef TPipelineResource = {

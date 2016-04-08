@@ -239,7 +239,7 @@ class ShaderContext {
 			return TextureFilter.AnisotropicFilter;
 	}
 
-	function getMipMapFilter(s:String):MipMapFilter {
+	function getMipmapFilter(s:String):MipMapFilter {
 		if (s == "no")
 			return MipMapFilter.NoMipFilter;
 		else if (s == "point")
@@ -265,6 +265,6 @@ class ShaderContext {
 			tex.v_addressing == null ? TextureAddressing.Repeat : getTextureAddresing(tex.v_addressing),
 			tex.min_filter == null ? TextureFilter.LinearFilter : getTextureFilter(tex.min_filter),
 			tex.mag_filter == null ? TextureFilter.LinearFilter : getTextureFilter(tex.mag_filter),
-			tex.mipmap_filter == null ? MipMapFilter.NoMipFilter : getMipMapFilter(tex.mipmap_filter));
+			tex.mipmap_filter == null ? MipMapFilter.NoMipFilter : getMipmapFilter(tex.mipmap_filter));
 	}
 }
