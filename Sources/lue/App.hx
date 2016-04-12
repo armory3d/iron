@@ -5,7 +5,7 @@ class App {
 	public static var w:Int;
     public static var h:Int;
 
-    var game:Class<Dynamic>;
+    var gameClass:Class<Dynamic>;
 
     static var traitInits:Array<Void->Void> = [];
     static var traitUpdates:Array<Void->Void> = [];
@@ -13,8 +13,8 @@ class App {
     static var traitRenders:Array<kha.graphics4.Graphics->Void> = [];
     static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
 
-	public function new(game:Class<Dynamic>) {
-        this.game = game;
+	public function new(gameClass:Class<Dynamic>) {
+        this.gameClass = gameClass;
 
         w = kha.System.windowWidth(); // TODO: do not cache
         h = kha.System.windowHeight();
@@ -31,7 +31,7 @@ class App {
         new lue.sys.Time();
         new lue.sys.Input();
 
-        Type.createInstance(game, []);
+        Type.createInstance(gameClass, []);
 
         kha.System.notifyOnRender(render);
         kha.Scheduler.addTimeTask(update, 0, 1 / 60);
@@ -73,16 +73,15 @@ class App {
 
         for (f in traitRenders) { if (traitRenders.length == 0) break; f(frame.g4); }
 
+        frame.g2.begin(false);
 
-        // frame.g2.begin(false);
+		for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
 
-        // // Shadow map test
-        // var rt = lue.resource.Resource.getPipeline("forward_pipeline", "forward_pipeline").renderTargets.get("shadowMap");
+        // Shadow map test
+        // var rt = lue.resource.Resource.getPipeline("deferred_pipeline", "deferred_pipeline").renderTargets.get("display");
         // frame.g2.drawScaledImage(rt.image, 0, 0, 256, 256);
-        
-        // for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
 
-        // frame.g2.end();
+        frame.g2.end();
     }
 
     // Hooks

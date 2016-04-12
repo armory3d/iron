@@ -7,8 +7,4 @@ import lue.math.Vec4;
 class Ut {
 
 	public function new() { }
-
-	public static function getNodeIntersection(node:Node, camera:CameraNode, x:Int, y:Int):Vec4 {
-		return lue.math.RayCaster.getIntersect(node.transform, x, y, camera);
-	}
 }

@@ -30,9 +30,12 @@ class Vec4 {
     }
 
     public function cross2(v:Vec4):Vec4 {
-        x = y * v.z - z * v.y;
-        y = z * v.x - x * v.z;
-        z = x * v.y - y * v.x;
+        var _x = y * v.z - z * v.y;
+        var _y = z * v.x - x * v.z;
+        var _z = x * v.y - y * v.x;
+		x = _x;
+		y = _y;
+		z = _z;
         return this;
     }
 

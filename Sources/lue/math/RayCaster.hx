@@ -44,7 +44,7 @@ class RayCaster {
     }
 
 
-    public static function getIntersect(transform:Transform, inputX:Float, inputY:Float, camera:CameraNode):Vec4 {
+    public static function boxIntersect(transform:Transform, inputX:Float, inputY:Float, camera:CameraNode):Vec4 {
         var ray = getRay(inputX, inputY, camera);
 
         var t = transform;
@@ -57,12 +57,12 @@ class RayCaster {
         return ray.intersectBox(box);
     }
 
-    public static function getClosestIntersect(transforms:Array<Transform>, inputX:Float, inputY:Float, camera:CameraNode):Transform {
+    public static function getClosestBoxIntersect(transforms:Array<Transform>, inputX:Float, inputY:Float, camera:CameraNode):Transform {
         var intersects:Array<Transform> = [];
 
         // Get intersects
         for (t in transforms) {
-            var intersect = getIntersect(t, inputX, inputY, camera);
+            var intersect = boxIntersect(t, inputX, inputY, camera);
             if (intersect != null) intersects.push(t);
         }
 
@@ -83,7 +83,7 @@ class RayCaster {
         return closest;
     }
 
-    public static function getIntersectPlane(normal:Vec4, a:Vec4, inputX:Float, inputY:Float, camera:CameraNode):Vec4 {
+    public static function planeIntersect(normal:Vec4, a:Vec4, inputX:Float, inputY:Float, camera:CameraNode):Vec4 {
         var ray = getRay(inputX, inputY, camera);
 
         var plane = new Plane();

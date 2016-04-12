@@ -17,7 +17,7 @@ import lue.resource.importer.SceneFormat;
 class ModelNode extends Node {
 
 	public var resource:ModelResource;
-	var materials:Array<MaterialResource>;
+	public var materials:Array<MaterialResource>;
 
 	public var particleSystem:ParticleSystem = null;
 	public var skinning:Skinning = null;
@@ -31,7 +31,7 @@ class ModelNode extends Node {
 	// public static var _u1:Float = 0.25;
 	// public static var _u2:Float = 0.1;
 	// public static var _u3:Float = 5;
-	// public static var _u4:Float = 1.0;
+	// public static var _u4:Float = 3.0;
 	// public static var _u5:Float = 0.0;
 	// public static var _u6:Float = 0.34;
 
