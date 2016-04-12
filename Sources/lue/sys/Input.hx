@@ -4,10 +4,11 @@ class Input {
 
 	public static var x(default, null):Float = 0;
 	public static var y(default, null):Float = 0;
-	public static var touch(default, null):Bool = false;
-	public static var started(default, null):Bool = false;
-	public static var released(default, null):Bool = false;
-	public static var moved(default, null):Bool = false;
+	public static var touch(default, null) = false;
+	public static var started(default, null) = false;
+	public static var released(default, null) = false;
+	public static var moved(default, null) = false;
+	public static var occupied = false;
 
 	public static var deltaX(default, null):Float = 0;
 	public static var deltaY(default, null):Float = 0;
@@ -26,16 +27,13 @@ class Input {
 	}
 
 	public static function reset() {
-		//x = 0;
-		//y = 0;
-
-		deltaX = 0;
-		deltaY = 0;
-
 		started = false;
 		touch = false;
 		released = false;
 		moved = false;
+		occupied = false;
+		deltaX = 0;
+		deltaY = 0;
 	}
 	
 	public static function downListener(_index:Int, _x:Float, _y:Float) {
@@ -55,7 +53,6 @@ class Input {
 	}
 	
 	public static function moveListener(_x:Int, _y:Int, movementX:Int, movementY:Int) {
-	//public static function moveListener(_x:Int, _y:Int) {
 		deltaX = _x - x;
 		deltaY = _y - y;
 
