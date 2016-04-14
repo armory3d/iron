@@ -111,6 +111,9 @@ class ModelNode extends Node {
 			else if (tulink == "_envmapBrdf") {
 				g.setTexture(context.textureUnits[j], Env.brdf);
 			}
+			else if (tulink == "_noise8") {
+				g.setTexture(context.textureUnits[j], kha.Assets.images.noise8);
+			}
 		}
 	}
 	static function setConstant(g:Graphics, node:Node, camera:CameraNode, light:LightNode,
@@ -215,6 +218,17 @@ class ModelNode extends Node {
 			}
 			if (v == null) return;
 			g.setFloat3(location, v.x, v.y, v.z);
+		}
+		else if (c.type == "vec2") {
+			var vx:Float = 0;
+			var vy:Float = 0;
+			if (c.link == "_vec2x") {
+				vx = 1.0;
+			}
+			else if (c.link == "_vec2y") {
+				vy = 1.0;
+			}
+			g.setFloat2(location, vx, vy);
 		}
 		else if (c.type == "float") {
 			var f = 0.0;

@@ -117,9 +117,23 @@ class RenderPipeline {
     function bindTarget(params:Array<String>, root:Node, light:LightNode) {
     	bindParams = params;
     }
-
-    function drawQuad(params:Array<String>, root:Node, light:LightNode) {
-    	var handle = params[0];
+	
+	function drawShaderQuad(params:Array<String>, root:Node, light:LightNode) {
+		var handle = params[0];
+    	var cc:CachedQuadContext = cachedQuadContexts.get(handle);
+		if (cc == null) {
+			var shaderPath = handle.split("/");
+			var res = Resource.getShader(shaderPath[0], shaderPath[1]);
+			cc = new CachedQuadContext();
+			cc.materialContext = null;
+			cc.context = res.getContext(shaderPath[2]);
+			cachedQuadContexts.set(handle, cc);
+		}
+		drawQuad(cc, params, root, light);
+	}
+	
+	function drawMaterialQuad(params:Array<String>, root:Node, light:LightNode) {
+		var handle = params[0];
     	var cc:CachedQuadContext = cachedQuadContexts.get(handle);
 		if (cc == null) {
 			var matPath = handle.split("/");
@@ -129,15 +143,17 @@ class RenderPipeline {
 			cc.context = res.shader.getContext(matPath[2]);
 			cachedQuadContexts.set(handle, cc);
 		}
+		drawQuad(cc, params, root, light);
+	}
 
-		var materialContext = cc.materialContext;
-		var context = cc.context;
-		
+    function drawQuad(cc:CachedQuadContext, params:Array<String>, root:Node, light:LightNode) {
 		var g = currentRenderTarget;		
-		g.setPipeline(context.pipeState);
+		g.setPipeline(cc.context.pipeState);
 
-		ModelNode.setConstants(g, context, null, camera, light, bindParams);
-		ModelNode.setMaterialConstants(g, context, materialContext);
+		ModelNode.setConstants(g, cc.context, null, camera, light, bindParams);
+		if (cc.materialContext != null) {
+			ModelNode.setMaterialConstants(g, cc.context, cc.materialContext);
+		}
 
 		g.setVertexBuffer(screenAlignedVB);
 		g.setIndexBuffer(screenAlignedIB);
@@ -177,8 +193,11 @@ class RenderPipeline {
 			else if (stage.command == "bind_target") {
 				stageCommands.push(bindTarget);
 			}
-			else if (stage.command == "draw_quad") {
-				stageCommands.push(drawQuad);
+			else if (stage.command == "draw_shader_quad") {
+				stageCommands.push(drawShaderQuad);
+			}
+			else if (stage.command == "draw_material_quad") {
+				stageCommands.push(drawMaterialQuad);
 			}
 		}
     }
