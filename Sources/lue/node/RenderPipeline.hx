@@ -94,9 +94,17 @@ class RenderPipeline {
     		begin(currentRenderTarget);
     	}
 		else {
+			var colorBufIndex = -1; // Attach specific color buffer from MRT if number is appended
+			var char = target.charAt(target.length - 1);
+			if (char == "0") colorBufIndex = 0;
+			else if (char == "1") colorBufIndex = 1;
+			else if (char == "2") colorBufIndex = 2;
+			else if (char == "3") colorBufIndex = 3;
+			if (colorBufIndex >= 0) target = target.substr(0, target.length - 1);
+			
 			var rt = resource.pipeline.renderTargets.get(target);
-			currentRenderTarget = rt.image.g4;
-			begin(currentRenderTarget, rt.additionalImages);
+			currentRenderTarget = colorBufIndex <= 0 ? rt.image.g4 : rt.additionalImages[colorBufIndex - 1].g4;
+			begin(currentRenderTarget, colorBufIndex < 0 ? rt.additionalImages : null);
 		}
 		bindParams = null;
     }

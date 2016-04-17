@@ -72,16 +72,26 @@ class ModelNode extends Node {
 			for (i in 0...Std.int(bindParams.length / 2)) {
 				var pos = i * 2; // bind params = [texture, samplerID]
 				var rtID = bindParams[pos];
+				
+				var colorBufIndex = -1; // Attach specific color buffer if number is appended
+				var char = rtID.charAt(rtID.length - 1);
+				if (char == "0") colorBufIndex = 0;
+				else if (char == "1") colorBufIndex = 1;
+				else if (char == "2") colorBufIndex = 2;
+				else if (char == "3") colorBufIndex = 3;
+				if (colorBufIndex >= 0) rtID = rtID.substr(0, rtID.length - 1);
+				
 				var samplerID = bindParams[pos + 1];
 				var rt = camera.resource.pipeline.renderTargets.get(rtID);
 				var tus = context.resource.texture_units;
 
 				var postfix = "";
-				if (rt.additionalImages != null) postfix = "0"; // MRT - postfix main image id with 0
+				if (rt.additionalImages != null && colorBufIndex == -1) postfix = "0"; // MRT - postfix main image id with 0
 
-				for (j in 0...tus.length) {
+				for (j in 0...tus.length) { // Set texture
 					if (samplerID + postfix == tus[j].id) {
-						g.setTexture(context.textureUnits[j], rt.image);
+						var image = colorBufIndex <= 0 ? rt.image : cast(rt.additionalImages[colorBufIndex - 1], kha.Image);
+						g.setTexture(context.textureUnits[j], image);
 					}
 				}
 
