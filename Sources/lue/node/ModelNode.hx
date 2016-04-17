@@ -184,6 +184,12 @@ class ModelNode extends Node {
 		    	helpMat.mult2(camera.P);
 		    	m = helpMat;
 			}
+			else if (c.link == "_modelViewMatrix") {
+				helpMat.setIdentity();
+		    	helpMat.mult2(node.transform.matrix);
+		    	helpMat.mult2(camera.V);
+		    	m = helpMat;
+			}
 			else if (c.link == "_viewProjectionMatrix") {
 				helpMat.setIdentity();
 		    	helpMat.mult2(camera.V);
