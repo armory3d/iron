@@ -643,7 +643,6 @@ class Mat4 extends kha.math.FastMatrix4 {
 	}
 
 	public static function perspective(fovY:Float, aspectRatio:Float, zNear:Float, zFar:Float):Mat4 {
-		
 		var f = 1.0 / std.Math.tan(fovY / 2);
 		var t = 1.0 / (zNear - zFar);
 
@@ -651,7 +650,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 			f / aspectRatio, 0.0,      0.0,                   0.0,
 			0.0,             f,        0.0,                   0.0,
 			0.0,             0.0,      (zFar + zNear) * t,    2 * zFar * zNear * t,
-			0.0,             0.0,      -1.0 , 0.0
+			0.0,             0.0,      -1.0 , 				 0.0
 		);
 	}
 

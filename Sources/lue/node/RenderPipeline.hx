@@ -31,8 +31,13 @@ class RenderPipeline {
 
 	var cachedQuadContexts:Map<String, CachedQuadContext> = new Map();
 	
+#if WITH_PROFILE
 	var lastTime = 0.0;
 	var frameTime = 0.0;
+	var totalTime = 0.0;
+	public static var frameTimeAvg = 0.0;
+	var frames = 0;
+#end
 
 	public function new(camera:CameraNode) {
 		this.camera = camera;
@@ -81,10 +86,17 @@ class RenderPipeline {
 		}
 		
 		// Timing
-		#if WITH_PROFILE
+#if WITH_PROFILE
+		totalTime += frameTime;
+		frames++;
+		if (totalTime > 1.0) {
+			frameTimeAvg = totalTime / frames;
+			totalTime = 0;
+			frames = 0;
+		}
 		frameTime = Scheduler.realTime() - lastTime;
 		lastTime = Scheduler.realTime();
-		#end
+#end
 	}
 
 	function setTarget(params:Array<String>, root:Node, light:LightNode) {

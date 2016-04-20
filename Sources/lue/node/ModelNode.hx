@@ -123,6 +123,7 @@ class ModelNode extends Node {
 			}
 			else if (tulink == "_noise8") {
 				g.setTexture(context.textureUnits[j], kha.Assets.images.noise8);
+				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 			}
 		}
 	}
@@ -230,6 +231,11 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_cameraPosition") {
 				helpVec.set(camera.transform.absx(), camera.transform.absy(), camera.transform.absz());
+				v = helpVec;
+			}
+			else if (c.link == "_cameraLook") {
+				var look = camera.look();
+				helpVec.set(-look.x, -look.y, -look.z);
 				v = helpVec;
 			}
 			if (v == null) return;
