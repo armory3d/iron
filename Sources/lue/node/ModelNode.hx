@@ -220,6 +220,12 @@ class ModelNode extends Node {
 		    	helpMat.mult2(light.P);
 		    	m = helpMat;
 			}
+			else if (c.link == "_lightViewMatrix") {
+		    	m = light.V;
+			}
+			else if (c.link == "_lightProjectionMatrix") {
+		    	m = light.P;
+			}
 			if (m == null) return;
 			g.setMatrix(location, m);
 		}

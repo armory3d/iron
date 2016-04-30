@@ -260,6 +260,6 @@ typedef TRawParam = {
 typedef TRawLink = {
 	var id:String;
 	var link:String;
-	@:optional var ifdef:String;
+	@:optional var ifdef:Array<String>;
 }
 */
