@@ -125,6 +125,19 @@ class ModelNode extends Node {
 				g.setTexture(context.textureUnits[j], kha.Assets.images.noise8);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 			}
+			// TODO: temp
+			else if (tulink == "_hmap") {
+				g.setTexture(context.textureUnits[j], kha.Assets.images.hmap);
+				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+			}
+			else if (tulink == "_fmap") {
+				g.setTexture(context.textureUnits[j], kha.Assets.images.fmap);
+				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+			}
+			else if (tulink == "_nmap") {
+				g.setTexture(context.textureUnits[j], kha.Assets.images.nmap);
+				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+			}
 		}
 	}
 	static function setConstant(g:Graphics, node:Node, camera:CameraNode, light:LightNode,
@@ -262,6 +275,9 @@ class ModelNode extends Node {
 			var f = 0.0;
 			if (c.link == "_time") {
 				f = lue.sys.Time.total;
+			}
+			else if (c.link == "_deltaTime") {
+				f = lue.sys.Time.delta;
 			}
 			// else if (c.link == "_u1") { f = ModelNode._u1; }
 			// else if (c.link == "_u2") { f = ModelNode._u2; }
