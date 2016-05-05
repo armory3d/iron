@@ -24,19 +24,25 @@ class PipelineResource extends Resource {
 			renderTargets = new Map();
 
 			for (t in resource.render_targets) {
-				var rt = new RenderTarget();
-				rt.image = createImage(t);
-				// MRT
-				if (t.color_buffers != null && t.color_buffers > 1) {
-					rt.additionalImages = [];
-					for (i in 0...t.color_buffers - 1) {
-						// TODO: disable depth for additional
-						rt.additionalImages.push(createImage(t));
-					}
-				}
+				var rt = makeRenderTarget(t);
+				if (t.ping_pong != null && t.ping_pong) rt.pong = makeRenderTarget(t);
 				renderTargets.set(t.id, rt);
 			}
 		}
+	}
+	
+	function makeRenderTarget(t:TPipelineRenderTarget) {
+		var rt = new RenderTarget();
+		rt.image = createImage(t);
+		// MRT
+		if (t.color_buffers != null && t.color_buffers > 1) {
+			rt.additionalImages = [];
+			for (i in 0...t.color_buffers - 1) {
+				// TODO: disable depth for additional
+				rt.additionalImages.push(createImage(t));
+			}
+		}
+		return rt;
 	}
 
 	function createImage(t:TPipelineRenderTarget):Image {
@@ -69,6 +75,13 @@ class PipelineResource extends Resource {
 }
 
 class RenderTarget {
+	// TODO: separate for each render target
+	public static var is_pong = false;
+	public static var is_last_target_pong = false;
+	public static var is_last_two_targets_pong = false;
+	public static var last_pong_target_pong = false;
+	public var pong:RenderTarget = null;
+	
 	public var image:Image;
 	public var additionalImages:Array<kha.Canvas> = null;
 	public function new() {}

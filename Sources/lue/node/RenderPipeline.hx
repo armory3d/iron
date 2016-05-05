@@ -9,9 +9,11 @@ import kha.graphics4.Usage;
 import kha.graphics4.CompareMode;
 import kha.graphics4.CullMode;
 import lue.resource.Resource;
+import lue.resource.PipelineResource.RenderTarget; // Ping-pong
 import lue.resource.CameraResource;
 import lue.resource.ShaderResource;
 import lue.resource.MaterialResource;
+import lue.resource.importer.SceneFormat;
 
 class RenderPipeline {
 
@@ -28,6 +30,7 @@ class RenderPipeline {
 
 	var stageCommands:Array<Array<String>->Node->LightNode->Void>;
 	var stageParams:Array<Array<String>>;
+	var currentStageIndex = 0;
 
 	var cachedQuadContexts:Map<String, CachedQuadContext> = new Map();
 	
@@ -82,6 +85,7 @@ class RenderPipeline {
 		/*if (light.V == null)*/ { light.buildMatrices(); }	
 
 		for (i in 0...stageCommands.length) {
+			currentStageIndex = i;
 			stageCommands[i](stageParams[i], root, light);
 		}
 		
@@ -102,10 +106,16 @@ class RenderPipeline {
 	function setTarget(params:Array<String>, root:Node, light:LightNode) {
     	var target = params[0];
     	if (target == "") {
+			// Ping-pong
+			if (RenderTarget.is_last_two_targets_pong == true) {
+				RenderTarget.is_pong = !RenderTarget.is_pong;
+				RenderTarget.is_last_two_targets_pong = false;
+			}
+			
     		currentRenderTarget = frameRenderTarget;
     		begin(currentRenderTarget);
     	}
-		else {
+		else {			
 			var colorBufIndex = -1; // Attach specific color buffer from MRT if number is appended
 			var char = target.charAt(target.length - 1);
 			if (char == "0") colorBufIndex = 0;
@@ -113,8 +123,27 @@ class RenderPipeline {
 			else if (char == "2") colorBufIndex = 2;
 			else if (char == "3") colorBufIndex = 3;
 			if (colorBufIndex >= 0) target = target.substr(0, target.length - 1);
-			
 			var rt = resource.pipeline.renderTargets.get(target);
+			
+			// Ping-pong
+			if (rt.pong != null) {
+				if (RenderTarget.is_last_target_pong) {
+					RenderTarget.is_last_two_targets_pong = true;
+					RenderTarget.is_pong = !RenderTarget.is_pong;
+				}
+				else RenderTarget.is_last_two_targets_pong = false;
+				
+				RenderTarget.last_pong_target_pong = RenderTarget.is_pong;
+				if (RenderTarget.is_pong) rt = rt.pong;
+				RenderTarget.is_last_target_pong = true;
+			}		
+			else {
+				if (RenderTarget.is_last_two_targets_pong)
+					RenderTarget.is_pong = !RenderTarget.is_pong;
+				RenderTarget.is_last_target_pong = false;
+				RenderTarget.is_last_two_targets_pong = false;
+			}
+			
 			currentRenderTarget = colorBufIndex <= 0 ? rt.image.g4 : rt.additionalImages[colorBufIndex - 1].g4;
 			begin(currentRenderTarget, colorBufIndex < 0 ? rt.additionalImages : null);
 		}
@@ -149,7 +178,7 @@ class RenderPipeline {
 			cc.context = res.getContext(shaderPath[2]);
 			cachedQuadContexts.set(handle, cc);
 		}
-		drawQuad(cc, params, root, light);
+		drawQuad(cc, root, light);
 	}
 	
 	function drawMaterialQuad(params:Array<String>, root:Node, light:LightNode) {
@@ -163,10 +192,10 @@ class RenderPipeline {
 			cc.context = res.shader.getContext(matPath[2]);
 			cachedQuadContexts.set(handle, cc);
 		}
-		drawQuad(cc, params, root, light);
+		drawQuad(cc, root, light);
 	}
 
-    function drawQuad(cc:CachedQuadContext, params:Array<String>, root:Node, light:LightNode) {
+    function drawQuad(cc:CachedQuadContext, root:Node, light:LightNode) {
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
 
@@ -181,6 +210,33 @@ class RenderPipeline {
 		
 		end(g);
     }
+	
+	function callFunction(params:Array<String>, root:Node, light:LightNode) {
+		// TODO: cache
+		var path = params[0];
+		var dotIndex = path.lastIndexOf(".");
+		var classPath = path.substr(0, dotIndex);
+		var classType = Type.resolveClass(classPath);
+		var funName = path.substr(dotIndex + 1);
+		var stageData = resource.pipeline.resource.stages[currentStageIndex];
+		// Call function
+		if (stageData.returns_true == null && stageData.returns_false == null) {
+			Reflect.callMethod(classType, Reflect.field(classType, funName), []);
+		}
+		// Branch function
+		else {
+			var result:Bool = Reflect.callMethod(classType, Reflect.field(classType, funName), []);
+			// Nested commands
+			var stages:Array<TPipelineStage> = null;
+			if (result) stages = stageData.returns_true;
+			else stages = stageData.returns_false;
+			for (stage in stages) {
+				// TODO: cache commands
+				var commandFun = commandToFunction(stage.command);			
+				commandFun(stage.params, root, light);
+			}
+		}
+	}
 
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null) {
 		#if !python
@@ -198,29 +254,35 @@ class RenderPipeline {
     	stageCommands = [];
     	stageParams = [];
     	for (stage in resource.pipeline.resource.stages) {
-    		
     		stageParams.push(stage.params);
-			
-			if (stage.command == "set_target") {
-				stageCommands.push(setTarget);
-			}
-			else if (stage.command == "clear_target") {
-				stageCommands.push(clearTarget);
-			}
-			else if (stage.command == "draw_geometry") {
-				stageCommands.push(drawGeometry);
-			}
-			else if (stage.command == "bind_target") {
-				stageCommands.push(bindTarget);
-			}
-			else if (stage.command == "draw_shader_quad") {
-				stageCommands.push(drawShaderQuad);
-			}
-			else if (stage.command == "draw_material_quad") {
-				stageCommands.push(drawMaterialQuad);
-			}
+			stageCommands.push(commandToFunction(stage.command));
 		}
     }
+	
+	function commandToFunction(command:String):Array<String>->Node->LightNode->Void {
+		if (command == "set_target") {
+			return setTarget;
+		}
+		else if (command == "clear_target") {
+			return clearTarget;
+		}
+		else if (command == "draw_geometry") {
+			return drawGeometry;
+		}
+		else if (command == "bind_target") {
+			return bindTarget;
+		}
+		else if (command == "draw_shader_quad") {
+			return drawShaderQuad;
+		}
+		else if (command == "draw_material_quad") {
+			return drawMaterialQuad;
+		}
+		else if (command == "call_function") {
+			return callFunction;
+		}
+		return null;
+	}
 }
 
 class CachedQuadContext {

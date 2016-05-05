@@ -165,11 +165,14 @@ typedef TPipelineRenderTarget = {
 	@:optional var depth_buffer:Bool;
 	@:optional var stencil_buffer:Bool;
 	@:optional var color_buffers:Int;
+	@:optional var ping_pong:Bool;
 }
 
 typedef TPipelineStage = {
 	var command:String;
 	@:optional var params:Array<String>;
+	@:optional var returns_true:Array<TPipelineStage>; // Nested commands
+	@:optional var returns_false:Array<TPipelineStage>;
 }
 
 typedef TSpeakerResource = {

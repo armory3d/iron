@@ -12,6 +12,7 @@ import lue.math.Quat;
 import lue.resource.ModelResource;
 import lue.resource.MaterialResource;
 import lue.resource.ShaderResource;
+import lue.resource.PipelineResource.RenderTarget; // Ping-pong
 import lue.resource.importer.SceneFormat;
 
 class ModelNode extends Node {
@@ -85,6 +86,15 @@ class ModelNode extends Node {
 				var rt = camera.resource.pipeline.renderTargets.get(rtID);
 				var tus = context.resource.texture_units;
 
+				// Ping-pong
+				if (rt.pong != null) {			
+					if (!RenderTarget.is_last_target_pong) {
+						if (RenderTarget.last_pong_target_pong)
+							rt = rt.pong;
+					}
+					else if (!RenderTarget.is_pong) rt = rt.pong;
+				}
+
 				var postfix = "";
 				if (rt.additionalImages != null && colorBufIndex == -1) postfix = "0"; // MRT - postfix main image id with 0
 
@@ -125,19 +135,10 @@ class ModelNode extends Node {
 				g.setTexture(context.textureUnits[j], kha.Assets.images.noise8);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 			}
-			// TODO: temp
-			else if (tulink == "_hmap") {
-				g.setTexture(context.textureUnits[j], kha.Assets.images.hmap);
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-			}
-			else if (tulink == "_fmap") {
-				g.setTexture(context.textureUnits[j], kha.Assets.images.fmap);
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-			}
-			else if (tulink == "_nmap") {
-				g.setTexture(context.textureUnits[j], kha.Assets.images.nmap);
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-			}
+			// else if (tulink == "_checker") {
+				// g.setTexture(context.textureUnits[j], kha.Assets.images.checker);
+				// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+			// }
 		}
 	}
 	static function setConstant(g:Graphics, node:Node, camera:CameraNode, light:LightNode,
