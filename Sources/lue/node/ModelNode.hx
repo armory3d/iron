@@ -135,6 +135,14 @@ class ModelNode extends Node {
 				g.setTexture(context.textureUnits[j], kha.Assets.images.noise8);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 			}
+			else if (tulink == "_noise64") {
+				g.setTexture(context.textureUnits[j], kha.Assets.images.noise64);
+				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+			}
+			else if (tulink == "_noise256") {
+				g.setTexture(context.textureUnits[j], kha.Assets.images.noise256);
+				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+			}
 			// else if (tulink == "_checker") {
 				// g.setTexture(context.textureUnits[j], kha.Assets.images.checker);
 				// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
