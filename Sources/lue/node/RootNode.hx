@@ -2,8 +2,8 @@ package lue.node;
 
 import kha.graphics4.Graphics;
 import lue.math.Mat4;
-import lue.trait.Trait;
-import lue.resource.importer.SceneFormat;
+import lue.Trait;
+import lue.resource.SceneFormat;
 import lue.resource.Resource;
 import lue.resource.MaterialResource;
 

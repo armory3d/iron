@@ -1,6 +1,6 @@
 package lue.resource;
 
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 
 class CameraResource extends Resource {
 

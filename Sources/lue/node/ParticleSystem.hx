@@ -3,7 +3,7 @@ package lue.node;
 import kha.graphics4.Usage;
 import lue.resource.Resource;
 import lue.resource.ParticleResource;
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 import lue.sys.Time;
 import lue.math.Vec4;
 

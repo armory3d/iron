@@ -13,7 +13,7 @@ import lue.resource.ModelResource;
 import lue.resource.MaterialResource;
 import lue.resource.ShaderResource;
 import lue.resource.PipelineResource.RenderTarget; // Ping-pong
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 
 class ModelNode extends Node {
 
@@ -390,10 +390,6 @@ class ModelNode extends Node {
 
 		var materialContexts = cc.materialContexts;
 		var shaderContext = cc.context;
-		
-		//if (context == "shadowpass") {
-		//	if (!material.resource.cast_shadow) return;
-		//}
 
 		transform.update();
 		

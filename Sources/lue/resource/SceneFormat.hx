@@ -1,4 +1,4 @@
-package lue.resource.importer;
+package lue.resource;
 
 typedef TSceneFormat = {
 	@:optional var geometry_resources:Array<TGeometryResource>;

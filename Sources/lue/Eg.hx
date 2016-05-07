@@ -1,6 +1,6 @@
 package lue;
 
-import lue.trait.Trait;
+import lue.Trait;
 import lue.node.Node;
 import lue.node.RootNode;
 import lue.node.ModelNode;
@@ -13,7 +13,7 @@ import lue.resource.LightResource;
 import lue.resource.CameraResource;
 import lue.resource.MaterialResource;
 import lue.resource.ShaderResource;
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 
 class Eg {
 

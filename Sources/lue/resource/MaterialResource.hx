@@ -1,6 +1,6 @@
 package lue.resource;
 
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 import lue.resource.ShaderResource;
 import lue.node.ModelNode;
 

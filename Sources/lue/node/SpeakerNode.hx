@@ -1,6 +1,6 @@
 package lue.node;
 
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 
 class SpeakerNode extends Node {
 

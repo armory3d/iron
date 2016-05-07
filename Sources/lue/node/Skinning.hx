@@ -4,7 +4,7 @@ import lue.math.Vec4;
 import lue.math.Mat4;
 import lue.math.Quat;
 import lue.resource.ModelResource;
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 
 class Skinning {
 

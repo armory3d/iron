@@ -1,4 +1,4 @@
-package lue.trait;
+package lue;
 
 import lue.node.Node;
 

@@ -1,4 +1,4 @@
-package lue.sys.util;
+package lue.sys;
 
 class Accelerometer {
 

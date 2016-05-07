@@ -3,7 +3,7 @@ package lue.resource;
 import kha.Image;
 import kha.graphics4.TextureFormat;
 import kha.graphics4.DepthStencilFormat;
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 
 class PipelineResource extends Resource {
 

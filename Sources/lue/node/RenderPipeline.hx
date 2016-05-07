@@ -13,7 +13,7 @@ import lue.resource.PipelineResource.RenderTarget; // Ping-pong
 import lue.resource.CameraResource;
 import lue.resource.ShaderResource;
 import lue.resource.MaterialResource;
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 
 class RenderPipeline {
 

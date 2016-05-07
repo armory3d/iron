@@ -1,7 +1,7 @@
-package lue.resource.importer;
+package lue.resource;
 
 import haxe.Json;
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 
 class SceneData {
 

@@ -15,7 +15,7 @@ import kha.graphics4.BlendingFactor;
 import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
-import lue.resource.importer.SceneFormat;
+import lue.resource.SceneFormat;
 
 class ShaderResource extends Resource {
 
