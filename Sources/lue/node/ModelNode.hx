@@ -131,6 +131,14 @@ class ModelNode extends Node {
 			else if (tulink == "_envmapBrdf") {
 				g.setTexture(context.textureUnits[j], Env.brdf);
 			}
+			else if (tulink == "_ltcMat") {
+				if (lue.resource.ConstData.ltcMatTex == null) lue.resource.ConstData.initLTC();
+				g.setTexture(context.textureUnits[j], lue.resource.ConstData.ltcMatTex);
+			}
+			else if (tulink == "_ltcMag") {
+				if (lue.resource.ConstData.ltcMagTex == null) lue.resource.ConstData.initLTC();
+				g.setTexture(context.textureUnits[j], lue.resource.ConstData.ltcMagTex);
+			}
 			else if (tulink == "_noise8") {
 				g.setTexture(context.textureUnits[j], kha.Assets.images.noise8);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
@@ -360,6 +368,8 @@ class ModelNode extends Node {
 
 	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 		super.render(g, context, camera, light, bindParams);
+
+		if (context == "shadowmap" && id == "Wall") return;
 
 		// Frustum culling
 		if (camera.resource.resource.frustum_culling &&
