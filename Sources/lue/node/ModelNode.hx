@@ -74,9 +74,11 @@ class ModelNode extends Node {
 				var pos = i * 2; // bind params = [texture, samplerID]
 				var rtID = bindParams[pos];
 				
+				var attachDepth = false; // Attach texture depth if 'D' is appended
 				var colorBufIndex = -1; // Attach specific color buffer if number is appended
 				var char = rtID.charAt(rtID.length - 1);
-				if (char == "0") colorBufIndex = 0;
+				if (char == "D") attachDepth = true;
+				else if (char == "0") colorBufIndex = 0;
 				else if (char == "1") colorBufIndex = 1;
 				else if (char == "2") colorBufIndex = 2;
 				else if (char == "3") colorBufIndex = 3;
@@ -101,22 +103,28 @@ class ModelNode extends Node {
 				for (j in 0...tus.length) { // Set texture
 					if (samplerID + postfix == tus[j].id) {
 						var image = colorBufIndex <= 0 ? rt.image : cast(rt.additionalImages[colorBufIndex - 1], kha.Image);
-						g.setTexture(context.textureUnits[j], image);
+						if (attachDepth) g.setTextureDepth(context.textureUnits[j], image);
+						else g.setTexture(context.textureUnits[j], image);
 					}
 				}
 
-				if (rt.additionalImages != null) { // Set MRT
-					for (k in 0...rt.additionalImages.length) {
-						for (j in 0...tus.length) {
+				if (colorBufIndex == -1 && rt.additionalImages != null) { // Set MRT
+					for (j in 0...tus.length) {
+						for (k in 0...rt.additionalImages.length) {
 							if ((samplerID + (k + 1)) == tus[j].id) {
 								g.setTexture(context.textureUnits[j], cast(rt.additionalImages[k], kha.Image));
+								break;
 							}
+						}
+						// For gbuffer bind depth if present
+						if (rt.hasDepth && samplerID + "D" == tus[j].id) {
+							g.setTextureDepth(context.textureUnits[j], rt.image);
 						}
 					}
 				}
 			}
 		}
-		
+		if (lue.resource.ConstData.ltcMatTex == null) lue.resource.ConstData.initLTC();
 		// Texture links
 		for (j in 0...context.resource.texture_units.length) {
 			var tuid = context.resource.texture_units[j].id;

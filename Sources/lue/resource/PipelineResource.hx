@@ -33,24 +33,25 @@ class PipelineResource extends Resource {
 	
 	function makeRenderTarget(t:TPipelineRenderTarget) {
 		var rt = new RenderTarget();
-		rt.image = createImage(t);
+		var depthStencil = t.depth_buffer != null ? getDepthStencilFormat(t.depth_buffer, t.stencil_buffer) : DepthStencilFormat.NoDepthAndStencil;
+		rt.image = createImage(t, depthStencil);
+		rt.hasDepth = depthStencil == DepthStencilFormat.NoDepthAndStencil ? false : true;
 		// MRT
 		if (t.color_buffers != null && t.color_buffers > 1) {
 			rt.additionalImages = [];
 			for (i in 0...t.color_buffers - 1) {
-				// TODO: disable depth for additional
-				rt.additionalImages.push(createImage(t));
+				rt.additionalImages.push(createImage(t, DepthStencilFormat.NoDepthAndStencil));
 			}
 		}
 		return rt;
 	}
 
-	function createImage(t:TPipelineRenderTarget):Image {
+	function createImage(t:TPipelineRenderTarget, depthStencil:DepthStencilFormat):Image {
 		return Image.createRenderTarget(
 			t.width == 0 ? kha.System.windowWidth() : t.width,
 			t.height == 0 ? kha.System.windowHeight() : t.height,
 			t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
-			t.depth_buffer != null ? getDepthStencilFormat(t.depth_buffer, t.stencil_buffer) : DepthStencilFormat.NoDepthAndStencil);
+			depthStencil);
 	}
 
 	inline function getTextureFormat(s:String):TextureFormat {
@@ -83,6 +84,7 @@ class RenderTarget {
 	public var pong:RenderTarget = null;
 	
 	public var image:Image;
+	public var hasDepth:Bool;
 	public var additionalImages:Array<kha.Canvas> = null;
 	public function new() {}
 }
