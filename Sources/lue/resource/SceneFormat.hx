@@ -100,6 +100,7 @@ typedef TBindTexture = {
 	@:optional var mag_filter:String;
 	@:optional var mipmap_filter:String;
 	@:optional var params_set:Bool; // Prevents setting texture params
+	@:optional var source:String; // file, movie 
 }
 
 typedef TShaderResource = {

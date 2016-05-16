@@ -41,6 +41,8 @@ class ModelNode extends Node {
 
 		this.resource = resource;
 		this.materials = materials;
+		
+		// processMaterials();
 
 		// setTransformSize(); // TODO: remove
 
@@ -124,7 +126,7 @@ class ModelNode extends Node {
 				}
 			}
 		}
-		if (lue.resource.ConstData.ltcMatTex == null) lue.resource.ConstData.initLTC();
+		
 		// Texture links
 		for (j in 0...context.resource.texture_units.length) {
 			var tuid = context.resource.texture_units[j].id;
@@ -376,8 +378,6 @@ class ModelNode extends Node {
 
 	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 		super.render(g, context, camera, light, bindParams);
-
-		if (context == "shadowmap" && id == "Wall") return;
 
 		// Frustum culling
 		if (camera.resource.resource.frustum_culling &&

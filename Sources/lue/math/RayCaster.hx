@@ -2,6 +2,7 @@ package lue.math;
 
 import lue.App;
 import lue.node.CameraNode;
+import lue.node.ModelNode;
 import lue.node.Transform;
 
 class RayCaster {
@@ -91,4 +92,52 @@ class RayCaster {
 
         return ray.intersectPlane(plane);
     }
+	
+	// Project screen-space point onto 3D plane
+	public static function getPlaneUV(n:ModelNode, screenX:Float, screenY:Float, camera:CameraNode):kha.math.FastVector2 {
+		// Get normal from data
+		var normals = n.resource.geometry.normals;
+		var nor = new Vec4(normals[0], normals[1], normals[2]);
+		
+		// Rotate by world rotation matrix
+		var m = Mat4.identity();
+		m.mult2(n.transform.matrix);
+		m.inverse2(m);
+		m.transpose23x3();
+		m._30 = m._31 = m._32 = 0;
+		nor.applyMat4(m);
+		nor.normalize();
+	
+		// Plane intersection
+		var pos = n.transform.pos;
+		var hit = RayCaster.planeIntersect(nor, pos, screenX, screenY, camera);
+		
+		// Convert to uv
+		if (hit != null) {
+			var a = nor.x;
+			var b = nor.y;
+			var c = nor.z;
+			var e = 0.0001;
+			var u = a >= e && b >= e ? new Vec4(b, -a, 0) : new Vec4(c, -a, 0);
+			u.normalize();
+			var v = nor.clone();
+			v.cross2(u);
+			
+			hit.sub(pos); // Center
+			var uCoord = u.dot(hit);
+			var vCoord = v.dot(hit);
+			
+			var size = n.transform.size;
+			var hx = size.x / 2;
+			// TODO: depends on plane facing normal, do not use size of lenght 0
+			var hy = size.z > size.y ? size.z / 2 : size.y / 2;
+			
+			// Screen spance
+			var ix = uCoord / hx * (-1) * 0.5 + 0.5;
+			var iy = vCoord / hy * 0.5 + 0.5;
+			
+			return new kha.math.FastVector2(ix, iy);
+		}
+		return null;
+	}
 }
