@@ -54,6 +54,7 @@ typedef TIndexArray = {
 typedef TLightResource = {
 	var id:String;
 	var color:Array<Float>;
+	var strength:Float;
 }
 
 typedef TCameraResource = {

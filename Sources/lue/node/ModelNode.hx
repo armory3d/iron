@@ -275,6 +275,10 @@ class ModelNode extends Node {
 				helpVec.set(light.transform.absx(), light.transform.absy(), light.transform.absz());
 				v = helpVec;
 			}
+			if (c.link == "_lightColor") {
+				helpVec.set(light.resource.resource.color[0], light.resource.resource.color[1], light.resource.resource.color[2]);
+				v = helpVec;
+			}
 			else if (c.link == "_cameraPosition") {
 				helpVec.set(camera.transform.absx(), camera.transform.absy(), camera.transform.absz());
 				v = helpVec;
@@ -305,6 +309,9 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_deltaTime") {
 				f = lue.sys.Time.delta;
+			}
+			else if (c.link == "_lightStrength") {
+				f = light.resource.resource.strength;
 			}
 			// else if (c.link == "_u1") { f = ModelNode._u1; }
 			// else if (c.link == "_u2") { f = ModelNode._u2; }

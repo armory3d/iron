@@ -6,7 +6,7 @@ import lue.resource.LightResource;
 
 class LightNode extends Node {
 
-	var resource:LightResource;
+	public var resource:LightResource;
 
 	// Shadow map matrices
 	public var P:Mat4 = null;
