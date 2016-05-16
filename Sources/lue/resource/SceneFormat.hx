@@ -71,7 +71,7 @@ typedef TCameraResource = {
 typedef TMaterialResource = {
 	var id:String;
 	var shader:String;
-	@:optional var cast_shadow:Bool;
+	@:optional var skip_context:String;
 	var contexts:Array<TMaterialContext>;
 }
 

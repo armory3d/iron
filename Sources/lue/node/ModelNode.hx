@@ -392,26 +392,37 @@ class ModelNode extends Node {
 			return;
 		}
 
-		if (particleSystem != null) particleSystem.update();
-
 		// Get context
 		var cc = cachedContexts.get(context);
 		if (cc == null) {
 			cc = new CachedModelContext();
-			cc.materialContexts = [];
-
+			// Check context skip
 			for (mat in materials) {
-				for (i in 0...mat.resource.contexts.length) {
-					if (mat.resource.contexts[i].id == context) {
-						cc.materialContexts.push(mat.contexts[i]);
-						break;
-					}
+				if (mat.resource.skip_context != null &&
+					mat.resource.skip_context == context) {
+					cc.enabled = false;
+					break;
 				}
 			}
-			// TODO: only one shader per model
-			cc.context = materials[0].shader.getContext(context);
-			cachedContexts.set(context, cc);
+			if (cc.enabled) {
+				cc.materialContexts = [];
+				for (mat in materials) {
+					for (i in 0...mat.resource.contexts.length) {
+						if (mat.resource.contexts[i].id == context) {
+							cc.materialContexts.push(mat.contexts[i]);
+							break;
+						}
+					}
+				}
+				// TODO: only one shader per model
+				cc.context = materials[0].shader.getContext(context);
+				cachedContexts.set(context, cc);
+			}
 		}
+		if (!cc.enabled) return;
+		
+		// TODO: move to update
+		if (particleSystem != null) particleSystem.update();
 
 		var materialContexts = cc.materialContexts;
 		var shaderContext = cc.context;
@@ -458,5 +469,6 @@ class ModelNode extends Node {
 class CachedModelContext {
 	public var materialContexts:Array<MaterialContext>;
 	public var context:ShaderContext;
+	public var enabled = true;
 	public function new() {}
 }
