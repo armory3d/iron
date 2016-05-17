@@ -25,7 +25,8 @@ class DecalNode extends Node {
 	}
 	
 	// Called before rendering decal in render pipeline
-	public function renderDecal(g:Graphics, context:String, materialContextId:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
+	public function renderDecal(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
+
 		if (cachedContext == null) {
 			cachedContext = new CachedModelContext();
 			// Check context skip
@@ -36,7 +37,7 @@ class DecalNode extends Node {
 			if (cachedContext.enabled) {
 				cachedContext.materialContexts = [];
 				for (i in 0...material.resource.contexts.length) {
-					if (material.resource.contexts[i].id == materialContextId) {
+					if (material.resource.contexts[i].id == context) {
 						cachedContext.materialContexts.push(material.contexts[i]);
 						break;
 					}

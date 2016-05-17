@@ -200,11 +200,11 @@ class RenderPipeline {
     }
 	
 	function drawDecals(params:Array<String>, root:Node, light:LightNode) {		
+		return;
 		var context = params[0];
-		var materialContextId = params[1];
 		var g = currentRenderTarget;
 		for (decal in RootNode.decals) {
-			decal.renderDecal(g, context, materialContextId, camera, light, bindParams);
+			decal.renderDecal(g, context, camera, light, bindParams);
 			g.setVertexBuffer(decalVB);
 			g.setIndexBuffer(decalIB);
 			g.drawIndexedVertices();
