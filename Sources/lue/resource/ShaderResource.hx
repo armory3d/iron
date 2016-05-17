@@ -102,6 +102,16 @@ class ShaderResource extends Resource {
 	public static function getScreenAlignedQuadStructureLength():Int {
 		return 2;
 	}
+	
+	// Usable by decal
+	public static function createDecalStructure():VertexStructure {
+		var structure = new VertexStructure();
+        structure.add("pos", VertexData.Float3);
+        return structure;
+	}
+	public static function getDecalStructureLength():Int {
+		return 3;
+	}
 
 	public function getContext(id:String):ShaderContext {
 		for (c in contexts) {

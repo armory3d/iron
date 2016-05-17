@@ -7,6 +7,7 @@ import lue.node.ModelNode;
 import lue.node.LightNode;
 import lue.node.CameraNode;
 import lue.node.SpeakerNode;
+import lue.node.DecalNode;
 import lue.resource.Resource;
 import lue.resource.ModelResource;
 import lue.resource.LightResource;
@@ -76,6 +77,12 @@ class Eg {
 
 	public static function addSpeakerNode(resource:TSpeakerResource, parent:Node = null):SpeakerNode {
 		var node = new SpeakerNode(resource);
+		parent != null ? parent.addChild(node) : root.addChild(node);
+		return node;
+	}
+	
+	public static function addDecalNode(material:MaterialResource, parent:Node = null):DecalNode {
+		var node = new DecalNode(material);
 		parent != null ? parent.addChild(node) : root.addChild(node);
 		return node;
 	}

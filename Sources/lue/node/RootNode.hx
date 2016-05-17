@@ -13,6 +13,7 @@ class RootNode extends Node {
 	public static var lights:Array<LightNode>;
 	public static var cameras:Array<CameraNode>;
 	public static var speakers:Array<SpeakerNode>;
+	public static var decals:Array<DecalNode>;
 
 	public function new() {
 		super();
@@ -23,6 +24,7 @@ class RootNode extends Node {
 		lights = [];
 		cameras = [];
 		speakers = [];
+		decals = [];
 	}
 
 	public static function addScene(name:String, parent:Node):Node {
@@ -107,6 +109,13 @@ class RootNode extends Node {
 		}
 		else if (n.type == "speaker_node") {
 			node = Eg.addSpeakerNode(Resource.getSpeakerResourceById(resource.speaker_resources, n.object_ref), parent);	
+		}
+		else if (n.type == "decal_node") {
+			var material:MaterialResource = null;
+			if (n.material_refs != null && n.material_refs.length > 0) {
+				material = Resource.getMaterial(name, n.material_refs[0]);
+			}
+			node = Eg.addDecalNode(material, parent);	
 		}
 		else if (n.type == "node") {
 			node = Eg.addNode(parent);

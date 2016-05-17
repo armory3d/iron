@@ -84,7 +84,8 @@ class ModelNode extends Node {
 				else if (char == "1") colorBufIndex = 1;
 				else if (char == "2") colorBufIndex = 2;
 				else if (char == "3") colorBufIndex = 3;
-				if (colorBufIndex >= 0) rtID = rtID.substr(0, rtID.length - 1);
+				// Remove extension to get correct ID
+				if (colorBufIndex >= 0 || attachDepth) rtID = rtID.substr(0, rtID.length - 1);
 				
 				var samplerID = bindParams[pos + 1];
 				var rt = camera.resource.pipeline.renderTargets.get(rtID);
