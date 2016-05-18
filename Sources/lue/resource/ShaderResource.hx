@@ -220,6 +220,14 @@ class ShaderContext {
 	function getBlendingOperation(s:String):BlendingOperation {
 		if (s == "add")
 			return BlendingOperation.Add;
+		else if (s == "substract")
+			return BlendingOperation.Subtract;
+		else if (s == "reverse_substract")
+			return BlendingOperation.ReverseSubtract;
+		else if (s == "min")
+			return BlendingOperation.Min;
+		else if (s == "max")
+			return BlendingOperation.Max;
 		else
 			return BlendingOperation.Add;
 	}
@@ -231,8 +239,12 @@ class ShaderContext {
 			return BlendingFactor.BlendZero;
 		else if (s == "source_alpha")
 			return BlendingFactor.SourceAlpha;
+		else if (s == "destination_alpha")
+			return BlendingFactor.DestinationAlpha;
 		else if (s == "inverse_source_alpha")
 			return BlendingFactor.InverseSourceAlpha;
+		else if (s == "inverse_destination_alpha")
+			return BlendingFactor.InverseDestinationAlpha;
 		else
 			return BlendingFactor.Undefined;
 	}

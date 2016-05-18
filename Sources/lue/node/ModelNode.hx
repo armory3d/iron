@@ -101,12 +101,14 @@ class ModelNode extends Node {
 				}
 
 				var postfix = "";
-				if (rt.additionalImages != null && colorBufIndex == -1) postfix = "0"; // MRT - postfix main image id with 0
+				if (rt.additionalImages != null && colorBufIndex == -1 && !attachDepth) postfix = "0"; // MRT - postfix main image id with 0
 
 				for (j in 0...tus.length) { // Set texture
 					if (samplerID + postfix == tus[j].id) {
 						var image = colorBufIndex <= 0 ? rt.image : cast(rt.additionalImages[colorBufIndex - 1], kha.Image);
-						if (attachDepth) g.setTextureDepth(context.textureUnits[j], image);
+						if (attachDepth) {
+							g.setTextureDepth(context.textureUnits[j], image);
+						}
 						else g.setTexture(context.textureUnits[j], image);
 					}
 				}

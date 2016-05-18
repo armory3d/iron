@@ -26,7 +26,7 @@ class DecalNode extends Node {
 	
 	// Called before rendering decal in render pipeline
 	public function renderDecal(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
-
+		
 		if (cachedContext == null) {
 			cachedContext = new CachedModelContext();
 			// Check context skip
@@ -51,6 +51,7 @@ class DecalNode extends Node {
 		var shaderContext = cachedContext.context;
 		
 		g.setPipeline(shaderContext.pipeState);
+		
 		ModelNode.setConstants(g, shaderContext, this, camera, light, bindParams);			
 		ModelNode.setMaterialConstants(g, shaderContext, materialContext);
 	}
