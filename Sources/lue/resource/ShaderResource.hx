@@ -198,6 +198,12 @@ class ShaderContext {
 		if (resource.alpha_blend_destination != null) pipeState.alphaBlendDestination = getBlendingFactor(resource.alpha_blend_destination);
 		if (resource.alpha_blend_operation != null) pipeState.alphaBlendOperation = getBlendingOperation(resource.alpha_blend_operation);
 
+		// Color write mask
+		if (resource.color_write_red != null) pipeState.colorWriteMaskRed = resource.color_write_red;
+		if (resource.color_write_green != null) pipeState.colorWriteMaskGreen = resource.color_write_green;
+		if (resource.color_write_blue != null) pipeState.colorWriteMaskBlue = resource.color_write_blue;
+		if (resource.color_write_alpha != null) pipeState.colorWriteMaskAlpha = resource.color_write_alpha;
+
 		pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(resource.fragment_shader, ".", "_"));
 		pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(resource.vertex_shader, ".", "_"));
 		pipeState.compile();

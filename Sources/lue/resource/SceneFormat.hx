@@ -132,6 +132,10 @@ typedef TShaderContext = {
 	@:optional var stencil_reference_value:Int;
 	@:optional var stencil_read_mask:Int;
 	@:optional var stencil_write_mask:Int;
+	@:optional var color_write_red:Bool;
+	@:optional var color_write_green:Bool;
+	@:optional var color_write_blue:Bool;
+	@:optional var color_write_alpha:Bool;
 	var vertex_shader:String;
 	var fragment_shader:String;
 	var constants:Array<TShaderConstant>;

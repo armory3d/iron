@@ -177,6 +177,10 @@ class ModelNode extends Node {
 			if (c.link == "_modelMatrix") {
 				m = node.transform.matrix;
 			}
+			else if (c.link == "_inverseModelMatrix") {
+				helpMat.inverse2(node.transform.matrix);
+				m = helpMat;
+			}
 			else if (c.link == "_normalMatrix") {
 				helpMat.setIdentity();
 				helpMat.mult2(node.transform.matrix);

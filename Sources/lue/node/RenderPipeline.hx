@@ -200,7 +200,6 @@ class RenderPipeline {
     }
 	
 	function drawDecals(params:Array<String>, root:Node, light:LightNode) {		
-		return;
 		var context = params[0];
 		var g = currentRenderTarget;
 		for (decal in RootNode.decals) {
