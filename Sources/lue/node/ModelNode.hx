@@ -335,6 +335,13 @@ class ModelNode extends Node {
 			}
 			g.setFloats(location, fa);
 		}
+		else if (c.type == "int") {
+			var i = 0;
+			if (c.link == "_uid") {
+				i = node.uid;
+			}
+			g.setInt(location, i);
+		}
 	}
 
 	public static function setMaterialConstants(g:Graphics, context:ShaderContext, materialContext:MaterialContext) {

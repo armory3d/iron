@@ -8,7 +8,9 @@ import lue.resource.Resource;
 import lue.resource.MaterialResource;
 
 class Node {
-
+	static var uidCounter = 0;
+	public var uid:Int;
+	
 	public var id:String = "";
 	public var parent:Node;
 
@@ -18,6 +20,7 @@ class Node {
 	public var transform:Transform;
 
 	public function new() {
+		uid = uidCounter++;
 		transform = new Transform(this);
 	}
 	
