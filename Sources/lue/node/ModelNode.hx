@@ -5,7 +5,6 @@ import kha.graphics4.ConstantLocation;
 import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
-import lue.Env;
 import lue.math.Vec4;
 import lue.math.Mat4;
 import lue.math.Quat;
@@ -77,15 +76,9 @@ class ModelNode extends Node {
 				var rtID = bindParams[pos];
 				
 				var attachDepth = false; // Attach texture depth if 'D' is appended
-				var colorBufIndex = -1; // Attach specific color buffer if number is appended
 				var char = rtID.charAt(rtID.length - 1);
 				if (char == "D") attachDepth = true;
-				else if (char == "0") colorBufIndex = 0;
-				else if (char == "1") colorBufIndex = 1;
-				else if (char == "2") colorBufIndex = 2;
-				else if (char == "3") colorBufIndex = 3;
-				// Remove extension to get correct ID
-				if (colorBufIndex >= 0 || attachDepth) rtID = rtID.substr(0, rtID.length - 1);
+				if (attachDepth) rtID = rtID.substr(0, rtID.length - 1);
 				
 				var samplerID = bindParams[pos + 1];
 				var rt = camera.resource.pipeline.renderTargets.get(rtID);
@@ -100,31 +93,10 @@ class ModelNode extends Node {
 					else if (!RenderTarget.is_pong) rt = rt.pong;
 				}
 
-				var postfix = "";
-				if (rt.additionalImages != null && colorBufIndex == -1 && !attachDepth) postfix = "0"; // MRT - postfix main image id with 0
-
 				for (j in 0...tus.length) { // Set texture
-					if (samplerID + postfix == tus[j].id) {
-						var image = colorBufIndex <= 0 ? rt.image : cast(rt.additionalImages[colorBufIndex - 1], kha.Image);
-						if (attachDepth) {
-							g.setTextureDepth(context.textureUnits[j], image);
-						}
-						else g.setTexture(context.textureUnits[j], image);
-					}
-				}
-
-				if (colorBufIndex == -1 && rt.additionalImages != null) { // Set MRT
-					for (j in 0...tus.length) {
-						for (k in 0...rt.additionalImages.length) {
-							if ((samplerID + (k + 1)) == tus[j].id) {
-								g.setTexture(context.textureUnits[j], cast(rt.additionalImages[k], kha.Image));
-								break;
-							}
-						}
-						// For gbuffer bind depth if present
-						if (rt.hasDepth && samplerID + "D" == tus[j].id) {
-							g.setTextureDepth(context.textureUnits[j], rt.image);
-						}
+					if (samplerID == tus[j].id) {
+						if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image);
+						else g.setTexture(context.textureUnits[j], rt.image);
 					}
 				}
 			}
@@ -135,14 +107,14 @@ class ModelNode extends Node {
 			var tuid = context.resource.texture_units[j].id;
 			var tulink = context.resource.texture_units[j].link;
 			if (tulink == "_envmapIrradiance") {
-				g.setTexture(context.textureUnits[j], Env.irradiance);
+				g.setTexture(context.textureUnits[j], camera.world.irradiance);
 			}
 			else if (tulink == "_envmapRadiance") {
-				g.setTexture(context.textureUnits[j], Env.radiance);
+				g.setTexture(context.textureUnits[j], camera.world.radiance);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 			}
 			else if (tulink == "_envmapBrdf") {
-				g.setTexture(context.textureUnits[j], Env.brdf);
+				g.setTexture(context.textureUnits[j], camera.world.brdf);
 			}
 			else if (tulink == "_ltcMat") {
 				if (lue.resource.ConstData.ltcMatTex == null) lue.resource.ConstData.initLTC();
@@ -319,6 +291,9 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_lightStrength") {
 				f = light.resource.resource.strength;
+			}
+			else if (c.link == "_envmapStrength") {
+				f = camera.world.strength;
 			}
 			// else if (c.link == "_u1") { f = ModelNode._u1; }
 			// else if (c.link == "_u2") { f = ModelNode._u2; }

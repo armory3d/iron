@@ -11,6 +11,7 @@ class Resource {
 	static var cachedPipelines:Map<String, PipelineResource> = new Map();
 	static var cachedMaterials:Map<String, MaterialResource> = new Map();
 	static var cachedParticles:Map<String, ParticleResource> = new Map();
+	static var cachedWorlds:Map<String, WorldResource> = new Map();
 	static var cachedShaders:Map<String, ShaderResource> = new Map();
 
 	public function new() {
@@ -74,6 +75,16 @@ class Resource {
 		if (cached == null) {
 			var parsed = ParticleResource.parse(name, id);
 			cachedParticles.set(name + id, parsed);
+			return parsed;
+		}
+		else return cached;
+	}
+
+	public static function getWorld(name:String, id:String):WorldResource {
+		var cached = cachedWorlds.get(name + id);
+		if (cached == null) {
+			var parsed = WorldResource.parse(name, id);
+			cachedWorlds.set(name + id, parsed);
 			return parsed;
 		}
 		else return cached;
@@ -143,6 +154,14 @@ class Resource {
 	}
 
 	public static function getParticleResourceById(resources:Array<TParticleResource>, id:String):TParticleResource {
+		if (id == "") return resources[0];
+		for (res in resources) {
+			if (res.id == id) return res;
+		}
+		return null;
+	}
+
+	public static function getWorldResourceById(resources:Array<TWorldResource>, id:String):TWorldResource {
 		if (id == "") return resources[0];
 		for (res in resources) {
 			if (res.id == id) return res;

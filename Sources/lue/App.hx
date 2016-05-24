@@ -26,7 +26,6 @@ class App {
 
         new Eg();
         new Ut();
-        new Env();
         new lue.sys.Storage();
         new lue.sys.Time();
         new lue.sys.Input();

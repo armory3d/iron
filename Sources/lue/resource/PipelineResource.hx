@@ -36,13 +36,6 @@ class PipelineResource extends Resource {
 		var depthStencil = t.depth_buffer != null ? getDepthStencilFormat(t.depth_buffer, t.stencil_buffer) : DepthStencilFormat.NoDepthAndStencil;
 		rt.image = createImage(t, depthStencil);
 		rt.hasDepth = depthStencil == DepthStencilFormat.NoDepthAndStencil ? false : true;
-		// MRT
-		if (t.color_buffers != null && t.color_buffers > 1) {
-			rt.additionalImages = [];
-			for (i in 0...t.color_buffers - 1) {
-				rt.additionalImages.push(createImage(t, DepthStencilFormat.NoDepthAndStencil));
-			}
-		}
 		return rt;
 	}
 
@@ -85,6 +78,5 @@ class RenderTarget {
 	
 	public var image:Image;
 	public var hasDepth:Bool;
-	public var additionalImages:Array<kha.Canvas> = null;
 	public function new() {}
 }

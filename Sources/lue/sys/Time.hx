@@ -6,6 +6,7 @@ class Time {
 
 	public static var total(get, null):Float;
 	public static var delta(default, null):Float = 0;
+	public static var deltaModifier = 1.0;
 	
 	static var last:Float;
 
@@ -18,7 +19,7 @@ class Time {
 	}
 	
 	public static inline function update() {
-		delta = Scheduler.time() - last;
+		delta = (Scheduler.time() - last) * deltaModifier;
 		last = Scheduler.time();
 	}
 

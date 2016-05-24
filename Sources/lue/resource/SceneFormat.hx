@@ -9,6 +9,8 @@ typedef TSceneFormat = {
 	@:optional var shader_resources:Array<TShaderResource>;
 	@:optional var pipeline_resources:Array<TPipelineResource>;
 	@:optional var speaker_resources:Array<TSpeakerResource>;
+	@:optional var world_resources:Array<TWorldResource>;
+	@:optional var world_ref:String;
 	@:optional var nodes:Array<TNode>;
 }
 
@@ -170,7 +172,6 @@ typedef TPipelineRenderTarget = {
 	@:optional var format:String;
 	@:optional var depth_buffer:Bool;
 	@:optional var stencil_buffer:Bool;
-	@:optional var color_buffers:Int;
 	@:optional var ping_pong:Bool;
 }
 
@@ -184,6 +185,18 @@ typedef TPipelineStage = {
 typedef TSpeakerResource = {
 	var id:String;
 	var sound:String;
+}
+
+typedef TWorldResource = {
+	var id:String;
+	// var material_ref:String;
+	// var bind_constants:Array<TBindConstant>;
+	// var bind_textures:Array<TBindTexture>;
+	var radiance:String;
+	var radiance_mipmaps:Int;
+	var irradiance:String;
+	var brdf:String;
+	var strength:Float;
 }
 
 typedef TParticleResource = {

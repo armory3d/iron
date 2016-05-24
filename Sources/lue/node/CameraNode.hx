@@ -6,11 +6,14 @@ import lue.math.Vec4;
 import lue.math.Quat;
 import lue.math.Plane;
 import lue.resource.CameraResource;
+import lue.resource.WorldResource;
 
 class CameraNode extends Node {
 
 	public var resource:CameraResource;
 	var renderPipeline:RenderPipeline;
+	
+	public var world:WorldResource;
 
 	public var P:Mat4; // Matrices
 	public var V:Mat4;

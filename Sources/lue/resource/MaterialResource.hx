@@ -67,7 +67,7 @@ class MaterialContext {
 					}
 					image.setMipmaps(mipmaps);
 				}
-				else if (tex.generate_mipmaps == true) {
+				else if (tex.generate_mipmaps == true && image != null) {
 					image.generateMipmaps(1000);
 				}
 				// Prevent creating mipmaps again

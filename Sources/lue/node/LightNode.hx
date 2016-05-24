@@ -15,9 +15,9 @@ class LightNode extends Node {
 	public function new(resource:LightResource) {
 		super();
 		
-		// P = Mat4.perspective(45, 1, 1, 20);
-		// P = Mat4.orthogonal(-10, 10, -10, 10, -30, 30, 2);
-		P = Mat4.orthogonal(-75 / 3.5, 75 / 3.5, -75 / 3.5, 75 / 3.5, -120 / 3.5, 120 / 3.5, 2);
+		// P = Mat4.perspective(45, 1, 0.1, 10);
+		P = Mat4.orthogonal(-10, 10, -10, 10, -13, 13, 2);
+		// P = Mat4.orthogonal(-75 / 3.5, 75 / 3.5, -75 / 3.5, 75 / 3.5, -120 / 3.5, 120 / 3.5, 2);
 
 		this.resource = resource;
 
