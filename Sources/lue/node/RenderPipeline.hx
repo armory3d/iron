@@ -188,8 +188,29 @@ class RenderPipeline {
     }
 
     function clearTarget(params:Array<String>, root:Node, light:LightNode) {
-		// TODO: use params
-    	currentRenderTarget.clear(clearColor, 1, 0);
+		var colorFlag = clearColor;
+		var depthFlag:Null<Float> = null;
+		
+		// TODO: Cache parsed clear flags
+		for (i in 0...Std.int(params.length / 2)) {
+			var pos = i * 2;
+			var val = pos + 1;
+			if (params[pos] == "color") {
+				if (currentRenderTarget != frameRenderTarget) {
+					if (params[val] != "#ff000000") {
+						// colorFlag = 0xffffffff;
+						colorFlag = 0x00ff0000;
+					}
+				}
+			}
+			else if (params[pos] == "depth") {
+				if (params[val] == "1.0") depthFlag = 1.0;
+				else depthFlag = 0.0;
+			}
+			// else if (params[pos] == "stencil") {}
+		}
+		
+		currentRenderTarget.clear(colorFlag, depthFlag, null);
     }
 
     function drawGeometry(params:Array<String>, root:Node, light:LightNode) {

@@ -79,8 +79,8 @@ typedef TMaterialResource = {
 
 typedef TMaterialContext = {
 	var id:String;
-	var bind_constants:Array<TBindConstant>;
-	var bind_textures:Array<TBindTexture>;
+	@:optional var bind_constants:Array<TBindConstant>;
+	@:optional var bind_textures:Array<TBindTexture>;
 }
 
 typedef TBindConstant = {

@@ -320,20 +320,22 @@ class ModelNode extends Node {
 	}
 
 	public static function setMaterialConstants(g:Graphics, context:ShaderContext, materialContext:MaterialContext) {
-		for (i in 0...materialContext.resource.bind_constants.length) {
-			var matc = materialContext.resource.bind_constants[i];
-			// TODO: cache
-			var pos = -1;
-			for (i in 0...context.resource.constants.length) {
-				if (context.resource.constants[i].id == matc.id) {
-					pos = i;
-					break;
+		if (materialContext.resource.bind_constants != null) {
+			for (i in 0...materialContext.resource.bind_constants.length) {
+				var matc = materialContext.resource.bind_constants[i];
+				// TODO: cache
+				var pos = -1;
+				for (i in 0...context.resource.constants.length) {
+					if (context.resource.constants[i].id == matc.id) {
+						pos = i;
+						break;
+					}
 				}
+				if (pos == -1) continue;
+				var c = context.resource.constants[pos];
+				
+				setMaterialConstant(g, context.constants[pos], c, matc);
 			}
-			if (pos == -1) continue;
-			var c = context.resource.constants[pos];
-			
-			setMaterialConstant(g, context.constants[pos], c, matc);
 		}
 
 		if (materialContext.textures != null) {
@@ -374,6 +376,9 @@ class ModelNode extends Node {
 
 	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 		super.render(g, context, camera, light, bindParams);
+
+		// Skip render if material does not contain current context
+		if (materials[0].getContext(context) == null) return;
 
 		// Frustum culling
 		if (camera.resource.resource.frustum_culling &&

@@ -29,6 +29,8 @@ class PipelineResource extends Resource {
 				renderTargets.set(t.id, rt);
 			}
 		}
+		
+		renderTargets.get("accum").image.setDepthStencilFrom(renderTargets.get("gbuffer0").image);
 	}
 	
 	function makeRenderTarget(t:TPipelineRenderTarget) {
@@ -52,6 +54,9 @@ class PipelineResource extends Resource {
 		else if (s == "RGBA128") return TextureFormat.RGBA128;
 		else if (s == "DEPTH16") return TextureFormat.DEPTH16;
 		else if (s == "RGBA64") return TextureFormat.RGBA64;
+		else if (s == "A32") return TextureFormat.A32;
+		else if (s == "A16") return TextureFormat.A16;
+		else if (s == "A8") return TextureFormat.L8;
 		else return TextureFormat.RGBA32;
 	}
 	

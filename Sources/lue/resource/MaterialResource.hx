@@ -51,7 +51,8 @@ class MaterialContext {
 	public function new(resource:TMaterialContext) {
 		this.resource = resource;
 
-		if (resource.bind_textures.length > 0) {
+		if (resource.bind_textures != null &&
+			resource.bind_textures.length > 0) {
 			textures = [];
 			for (i in 0...resource.bind_textures.length) {
 				// TODO: make sure to store in the same order as shader texture units array
