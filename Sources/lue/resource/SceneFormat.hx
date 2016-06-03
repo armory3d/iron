@@ -162,6 +162,7 @@ typedef TTextureUnit = {
 typedef TPipelineResource = {
 	var id:String;
 	var render_targets:Array<TPipelineRenderTarget>;
+	@:optional var depth_buffers:Array<TPipelineDepthBuffer>;
 	var stages:Array<TPipelineStage>;
 }
 
@@ -170,9 +171,13 @@ typedef TPipelineRenderTarget = {
 	var width:Int;
 	var height:Int;
 	@:optional var format:String;
-	@:optional var depth_buffer:Bool;
-	@:optional var stencil_buffer:Bool;
+	@:optional var depth_buffer:String;
 	@:optional var ping_pong:Bool;
+}
+
+typedef TPipelineDepthBuffer = {
+	var id:String;
+	@:optional var stencil_buffer:Bool;
 }
 
 typedef TPipelineStage = {

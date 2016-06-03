@@ -8,6 +8,7 @@ class WorldResource extends Resource {
 	public var resource:TWorldResource;
 	
 	public var radiance:Image;
+	public var numMipmaps:Int;
 	public var irradiance:Image;
 	public var brdf:Image;
 	public var strength:Float;
@@ -23,10 +24,12 @@ class WorldResource extends Resource {
 		this.resource = resource;
 		
 		if (resource.radiance != "") {
+			numMipmaps = resource.radiance_mipmaps;
+			
 			irradiance = Reflect.field(kha.Assets.images, resource.irradiance);
 			radiance = Reflect.field(kha.Assets.images, resource.radiance);
 			var radianceMipmaps:Array<kha.Image> = [];
-			for (i in 0...resource.radiance_mipmaps) {
+			for (i in 0...numMipmaps) {
 				radianceMipmaps.push(Reflect.field(kha.Assets.images,resource.radiance + '_' + i));
 			}
 			radiance.setMipmaps(radianceMipmaps);

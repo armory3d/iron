@@ -75,13 +75,14 @@ class ModelNode extends Node {
 				var pos = i * 2; // bind params = [texture, samplerID]
 				var rtID = bindParams[pos];
 				
-				var attachDepth = false; // Attach texture depth if 'D' is appended
-				var char = rtID.charAt(rtID.length - 1);
-				if (char == "D") attachDepth = true;
-				if (attachDepth) rtID = rtID.substr(0, rtID.length - 1);
+				var attachDepth = false; // Attach texture depth if '_' is prepended
+				var char = rtID.charAt(0);
+				if (char == "_") attachDepth = true;
+				if (attachDepth) rtID = rtID.substr(1);
 				
 				var samplerID = bindParams[pos + 1];
-				var rt = camera.resource.pipeline.renderTargets.get(rtID);
+				var pipe = camera.resource.pipeline;
+				var rt = attachDepth ? pipe.depthToRenderTarget.get(rtID) : pipe.renderTargets.get(rtID);
 				var tus = context.resource.texture_units;
 
 				// Ping-pong
@@ -267,6 +268,107 @@ class ModelNode extends Node {
 				helpVec.set(-look.x, -look.y, -look.z);
 				v = helpVec;
 			}
+			
+			else if (c.link == "_hosekA") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.data.A.x;
+				v.y = cycles.renderpipeline.HosekWilkie.data.A.y;
+				v.z = cycles.renderpipeline.HosekWilkie.data.A.z;
+			}
+			else if (c.link == "_hosekB") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.data.B.x;
+				v.y = cycles.renderpipeline.HosekWilkie.data.B.y;
+				v.z = cycles.renderpipeline.HosekWilkie.data.B.z;
+			}
+			else if (c.link == "_hosekC") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.data.C.x;
+				v.y = cycles.renderpipeline.HosekWilkie.data.C.y;
+				v.z = cycles.renderpipeline.HosekWilkie.data.C.z;
+			}
+			else if (c.link == "_hosekD") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.data.D.x;
+				v.y = cycles.renderpipeline.HosekWilkie.data.D.y;
+				v.z = cycles.renderpipeline.HosekWilkie.data.D.z;
+			}
+			else if (c.link == "_hosekE") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.data.E.x;
+				v.y = cycles.renderpipeline.HosekWilkie.data.E.y;
+				v.z = cycles.renderpipeline.HosekWilkie.data.E.z;
+			}
+			else if (c.link == "_hosekF") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.data.F.x;
+				v.y = cycles.renderpipeline.HosekWilkie.data.F.y;
+				v.z = cycles.renderpipeline.HosekWilkie.data.F.z;
+			}
+			else if (c.link == "_hosekG") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.data.G.x;
+				v.y = cycles.renderpipeline.HosekWilkie.data.G.y;
+				v.z = cycles.renderpipeline.HosekWilkie.data.G.z;
+			}
+			else if (c.link == "_hosekH") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.data.H.x;
+				v.y = cycles.renderpipeline.HosekWilkie.data.H.y;
+				v.z = cycles.renderpipeline.HosekWilkie.data.H.z;
+			}
+			else if (c.link == "_hosekI") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.data.I.x;
+				v.y = cycles.renderpipeline.HosekWilkie.data.I.y;
+				v.z = cycles.renderpipeline.HosekWilkie.data.I.z;
+			}
+			else if (c.link == "_hosekZ") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.data.Z.x;
+				v.y = cycles.renderpipeline.HosekWilkie.data.Z.y;
+				v.z = cycles.renderpipeline.HosekWilkie.data.Z.z;
+			}
+			else if (c.link == "_hosekSunDirection") {
+				if (cycles.renderpipeline.HosekWilkie.data == null) {
+					cycles.renderpipeline.HosekWilkie.init();
+				}
+				v = helpVec;
+				v.x = cycles.renderpipeline.HosekWilkie.sunDirection.x;
+				v.y = cycles.renderpipeline.HosekWilkie.sunDirection.y;
+				v.z = cycles.renderpipeline.HosekWilkie.sunDirection.z;
+			}
+			
 			if (v == null) return;
 			g.setFloat3(location, v.x, v.y, v.z);
 		}
@@ -314,6 +416,9 @@ class ModelNode extends Node {
 			var i = 0;
 			if (c.link == "_uid") {
 				i = node.uid;
+			}
+			else if (c.link == "_envmapNumMipmaps") {
+				i = camera.world.numMipmaps + 1; // Include basecolor
 			}
 			g.setInt(location, i);
 		}

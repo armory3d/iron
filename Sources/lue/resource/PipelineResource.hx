@@ -9,6 +9,7 @@ class PipelineResource extends Resource {
 
 	public var resource:TPipelineResource;
 	public var renderTargets:Map<String, RenderTarget> = null;
+	public var depthToRenderTarget:Map<String, RenderTarget> = null;
 
 	public function new(resource:TPipelineResource) {
 		super();
@@ -22,6 +23,10 @@ class PipelineResource extends Resource {
 
 		if (resource.render_targets.length > 0) {
 			renderTargets = new Map();
+			
+			if (resource.depth_buffers != null && resource.depth_buffers.length > 0) {
+				depthToRenderTarget = new Map();
+			}
 
 			for (t in resource.render_targets) {
 				var rt = makeRenderTarget(t);
@@ -29,15 +34,38 @@ class PipelineResource extends Resource {
 				renderTargets.set(t.id, rt);
 			}
 		}
-		
-		renderTargets.get("accum").image.setDepthStencilFrom(renderTargets.get("gbuffer0").image);
 	}
 	
 	function makeRenderTarget(t:TPipelineRenderTarget) {
 		var rt = new RenderTarget();
-		var depthStencil = t.depth_buffer != null ? getDepthStencilFormat(t.depth_buffer, t.stencil_buffer) : DepthStencilFormat.NoDepthAndStencil;
-		rt.image = createImage(t, depthStencil);
-		rt.hasDepth = depthStencil == DepthStencilFormat.NoDepthAndStencil ? false : true;
+		
+		// With depth buffer
+		if (t.depth_buffer != null) {
+			rt.hasDepth = true;
+			var depthTarget = depthToRenderTarget.get(t.depth_buffer);
+			
+			// Create new one
+			if (depthTarget == null) {
+				for (db in resource.depth_buffers) {
+					if (db.id == t.depth_buffer) {
+						depthToRenderTarget.set(db.id, rt);
+						rt.image = createImage(t, getDepthStencilFormat(true, db.stencil_buffer));
+						break;
+					}
+				}
+			}
+			// Reuse
+			else {
+				rt.image = createImage(t, DepthStencilFormat.NoDepthAndStencil);
+				rt.image.setDepthStencilFrom(depthTarget.image);
+			}
+		}
+		// No depth buffer
+		else {
+			rt.hasDepth = false;
+			rt.image = createImage(t, DepthStencilFormat.NoDepthAndStencil);
+		}
+		
 		return rt;
 	}
 
