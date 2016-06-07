@@ -234,7 +234,8 @@ class RenderPipeline {
     }
 
     function bindTarget(params:Array<String>, root:Node, light:LightNode) {
-    	bindParams = params;
+    	if (bindParams != null) for (p in params) bindParams.push(p); // Multiple binds, append params
+		else bindParams = params;
     }
 	
 	function drawShaderQuad(params:Array<String>, root:Node, light:LightNode) {

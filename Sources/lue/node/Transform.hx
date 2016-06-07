@@ -17,7 +17,7 @@ class Transform {
 	public var scale:Vec4;
 	public var size:Vec4;
 
-	var node:Node;
+	public var node:Node;
 
 	public function new(node:Node) {
 		this.node = node;

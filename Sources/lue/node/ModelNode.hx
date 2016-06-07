@@ -7,11 +7,12 @@ import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
 import lue.math.Vec4;
 import lue.math.Mat4;
-import lue.math.Quat;
 import lue.resource.ModelResource;
 import lue.resource.MaterialResource;
 import lue.resource.ShaderResource;
 import lue.resource.PipelineResource.RenderTarget; // Ping-pong
+import lue.resource.WorldResource;
+import lue.resource.WorldResource.Probe;
 import lue.resource.SceneFormat;
 
 class ModelNode extends Node {
@@ -108,14 +109,58 @@ class ModelNode extends Node {
 			var tuid = context.resource.texture_units[j].id;
 			var tulink = context.resource.texture_units[j].link;
 			if (tulink == "_envmapIrradiance") {
-				g.setTexture(context.textureUnits[j], camera.world.irradiance);
+				g.setTexture(context.textureUnits[j], camera.world.getGlobalProbe().irradiance);
 			}
 			else if (tulink == "_envmapRadiance") {
-				g.setTexture(context.textureUnits[j], camera.world.radiance);
+				g.setTexture(context.textureUnits[j], camera.world.getGlobalProbe().radiance);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 			}
 			else if (tulink == "_envmapBrdf") {
 				g.setTexture(context.textureUnits[j], camera.world.brdf);
+			}
+			else if (tulink == "_envmapIrradiance_1") { // Local probes
+				var probe = camera.world.getLocalProbe(1);
+				if (probe != null) g.setTexture(context.textureUnits[j], probe.irradiance);
+			}
+			else if (tulink == "_envmapRadiance_1") {
+				var probe = camera.world.getLocalProbe(1);
+				if (probe != null) {
+					g.setTexture(context.textureUnits[j], probe.radiance);
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+				}
+			}
+			else if (tulink == "_envmapIrradiance_2") {
+				var probe = camera.world.getLocalProbe(2);
+				if (probe != null) g.setTexture(context.textureUnits[j], probe.irradiance);
+			}
+			else if (tulink == "_envmapRadiance_2") {
+				var probe = camera.world.getLocalProbe(2);
+				if (probe != null) {
+					g.setTexture(context.textureUnits[j], probe.radiance);
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+				}
+			}
+			else if (tulink == "_envmapIrradiance_3") {
+				var probe = camera.world.getLocalProbe(3);
+				if (probe != null) g.setTexture(context.textureUnits[j], probe.irradiance);
+			}
+			else if (tulink == "_envmapRadiance_3") {
+				var probe = camera.world.getLocalProbe(3);
+				if (probe != null) {
+					g.setTexture(context.textureUnits[j], probe.radiance);
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+				}
+			}
+			else if (tulink == "_envmapIrradiance_4") {
+				var probe = camera.world.getLocalProbe(4);
+				if (probe != null) g.setTexture(context.textureUnits[j], probe.irradiance);
+			}
+			else if (tulink == "_envmapRadiance_4") {
+				var probe = camera.world.getLocalProbe(4);
+				if (probe != null) {
+					g.setTexture(context.textureUnits[j], probe.radiance);
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+				}
 			}
 			else if (tulink == "_ltcMat") {
 				if (lue.resource.ConstData.ltcMatTex == null) lue.resource.ConstData.initLTC();
@@ -268,6 +313,12 @@ class ModelNode extends Node {
 				helpVec.set(-look.x, -look.y, -look.z);
 				v = helpVec;
 			}
+			else if (c.link == "_probeVolumeCenter") { // Local probes
+				v = camera.world.getProbeVolumeCenter(node.transform);
+			}
+			else if (c.link == "_probeVolumeSize") {
+				v = camera.world.getProbeVolumeSize(node.transform);
+			}
 			
 			else if (c.link == "_hosekA") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
@@ -395,7 +446,7 @@ class ModelNode extends Node {
 				f = light.resource.resource.strength;
 			}
 			else if (c.link == "_envmapStrength") {
-				f = camera.world.strength;
+				f = camera.world.getGlobalProbe().strength;
 			}
 			// else if (c.link == "_u1") { f = ModelNode._u1; }
 			// else if (c.link == "_u2") { f = ModelNode._u2; }
@@ -418,7 +469,10 @@ class ModelNode extends Node {
 				i = node.uid;
 			}
 			else if (c.link == "_envmapNumMipmaps") {
-				i = camera.world.numMipmaps + 1; // Include basecolor
+				i = camera.world.getGlobalProbe().numMipmaps + 1; // Include basecolor
+			}
+			else if (c.link == "_probeID") { // Local probes
+				i = camera.world.getProbeID(node.transform);
 			}
 			g.setInt(location, i);
 		}

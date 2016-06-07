@@ -197,11 +197,18 @@ typedef TWorldResource = {
 	// var material_ref:String;
 	// var bind_constants:Array<TBindConstant>;
 	// var bind_textures:Array<TBindTexture>;
+	var brdf:String;
+	var probes:Array<TProbe>;
+}
+
+typedef TProbe = {
 	var radiance:String;
 	var radiance_mipmaps:Int;
 	var irradiance:String;
-	var brdf:String;
 	var strength:Float;
+	var blending:Float;
+	var volume:Array<Float>;
+	var volume_center:Array<Float>;
 }
 
 typedef TParticleResource = {
