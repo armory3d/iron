@@ -153,6 +153,9 @@ class ShaderContext {
         else if (resource.compare_mode == "less") {
         	pipeState.depthMode = CompareMode.Less;
         }
+		else if (resource.compare_mode == "less_equal") {
+        	pipeState.depthMode = CompareMode.LessEqual;
+        }
 		
 		// Stencil
 		if (resource.stencil_mode != null) {

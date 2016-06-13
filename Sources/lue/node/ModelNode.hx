@@ -11,8 +11,6 @@ import lue.resource.ModelResource;
 import lue.resource.MaterialResource;
 import lue.resource.ShaderResource;
 import lue.resource.PipelineResource.RenderTarget; // Ping-pong
-import lue.resource.WorldResource;
-import lue.resource.WorldResource.Probe;
 import lue.resource.SceneFormat;
 
 class ModelNode extends Node {
@@ -108,59 +106,12 @@ class ModelNode extends Node {
 		for (j in 0...context.resource.texture_units.length) {
 			var tuid = context.resource.texture_units[j].id;
 			var tulink = context.resource.texture_units[j].link;
-			if (tulink == "_envmapIrradiance") {
-				g.setTexture(context.textureUnits[j], camera.world.getGlobalProbe().irradiance);
-			}
-			else if (tulink == "_envmapRadiance") {
+			if (tulink == "_envmapRadiance") {
 				g.setTexture(context.textureUnits[j], camera.world.getGlobalProbe().radiance);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 			}
 			else if (tulink == "_envmapBrdf") {
 				g.setTexture(context.textureUnits[j], camera.world.brdf);
-			}
-			else if (tulink == "_envmapIrradiance_1") { // Local probes
-				var probe = camera.world.getLocalProbe(1);
-				if (probe != null) g.setTexture(context.textureUnits[j], probe.irradiance);
-			}
-			else if (tulink == "_envmapRadiance_1") {
-				var probe = camera.world.getLocalProbe(1);
-				if (probe != null) {
-					g.setTexture(context.textureUnits[j], probe.radiance);
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
-				}
-			}
-			else if (tulink == "_envmapIrradiance_2") {
-				var probe = camera.world.getLocalProbe(2);
-				if (probe != null) g.setTexture(context.textureUnits[j], probe.irradiance);
-			}
-			else if (tulink == "_envmapRadiance_2") {
-				var probe = camera.world.getLocalProbe(2);
-				if (probe != null) {
-					g.setTexture(context.textureUnits[j], probe.radiance);
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
-				}
-			}
-			else if (tulink == "_envmapIrradiance_3") {
-				var probe = camera.world.getLocalProbe(3);
-				if (probe != null) g.setTexture(context.textureUnits[j], probe.irradiance);
-			}
-			else if (tulink == "_envmapRadiance_3") {
-				var probe = camera.world.getLocalProbe(3);
-				if (probe != null) {
-					g.setTexture(context.textureUnits[j], probe.radiance);
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
-				}
-			}
-			else if (tulink == "_envmapIrradiance_4") {
-				var probe = camera.world.getLocalProbe(4);
-				if (probe != null) g.setTexture(context.textureUnits[j], probe.irradiance);
-			}
-			else if (tulink == "_envmapRadiance_4") {
-				var probe = camera.world.getLocalProbe(4);
-				if (probe != null) {
-					g.setTexture(context.textureUnits[j], probe.radiance);
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
-				}
 			}
 			else if (tulink == "_ltcMat") {
 				if (lue.resource.ConstData.ltcMatTex == null) lue.resource.ConstData.initLTC();
@@ -460,6 +411,10 @@ class ModelNode extends Node {
 			var fa:haxe.ds.Vector<kha.FastFloat> = null;
 			if (c.link == "_skinBones") {
 				fa = cast(node, ModelNode).skinning.skinBuffer;
+			}
+			else if (c.link == "_envmapIrradiance") {
+				// fa = camera.world.getGlobalProbe().irradiance;
+				fa = camera.world.getSHIrradiance();
 			}
 			g.setFloats(location, fa);
 		}

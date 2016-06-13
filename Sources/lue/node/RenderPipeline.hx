@@ -6,8 +6,6 @@ import kha.graphics4.Graphics;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
-import kha.graphics4.CompareMode;
-import kha.graphics4.CullMode;
 import lue.resource.Resource;
 import lue.resource.PipelineResource.RenderTarget; // Ping-pong
 import lue.resource.CameraResource;
@@ -318,6 +316,7 @@ class RenderPipeline {
 	inline function end(g:Graphics) {
 		#if !python
 		g.end();
+		bindParams = null;
 		#end
 	}
 

@@ -46,20 +46,36 @@ class WorldResource extends Resource {
 		return i < probes.length ? probes[i] : null;
 	}
 	
+	var shirr:haxe.ds.Vector<kha.FastFloat> = null;
+	public function getSHIrradiance():haxe.ds.Vector<kha.FastFloat> {
+		// Fetch spherical harmonics from all probes
+		if (shirr == null) {
+			shirr = new haxe.ds.Vector(27 * 20);
+			for (i in 0...probes.length) {
+				var p = probes[i];
+				for (j in 0...p.irradiance.length) {
+					shirr[j + i * 27] = p.irradiance[j];
+				}
+			}
+		}
+		return shirr;
+	}
+	
 	var vec = new Vec4();
 	public function getProbeID(t:Transform):Int {
 		vec.x = t.absx();
 		vec.y = t.absy();
 		vec.z = t.absz();
 		var size = t.size;
-		// Transform intersects volume
 		for (i in 1...probes.length) {
 			var p = probes[i];
+			// Transform not in volume
 			if (vec.x + size.x / 2 < p.volumeMin.x || vec.x - size.x / 2 > p.volumeMax.x ||
 				vec.y + size.y / 2 < p.volumeMin.y || vec.y - size.y / 2 > p.volumeMax.y ||
 				vec.z + size.z / 2 < p.volumeMin.z || vec.z - size.z / 2 > p.volumeMax.z) {
 				continue;
 			}
+			// Transform intersects volume
 			return i;
 		}
 		return 0;
@@ -80,7 +96,7 @@ class Probe {
 	
 	public var radiance:Image;
 	public var numMipmaps:Int;
-	public var irradiance:Image;
+	public var irradiance:haxe.ds.Vector<kha.FastFloat>;
 	public var strength:Float;
 	public var blending:Float;
 	public var volume:Vec4;
@@ -89,17 +105,19 @@ class Probe {
 	public var volumeMin:Vec4;
 	public var volumeMax:Vec4;
 	
-	//public static inline var VolumeBox = 0;
-	//public static inline var VolumeSphere = 1;
-	//var volumeType:Int;
-	
 	public function new(resource:TProbe) {
 		this.resource = resource;
+		
+		// Parse probe data
+		var irradianceData = Reflect.field(kha.Assets.blobs, resource.irradiance + "_json").toString();
+		var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData);
+		// irradiance = new haxe.ds.Vector(27);
+		// for (i in 0...27) irradiance[i] = 0.0;
+		irradiance = haxe.ds.Vector.fromData(irradianceParsed.irradiance);
 		
 		if (resource.radiance != "") {
 			numMipmaps = resource.radiance_mipmaps;
 			
-			irradiance = Reflect.field(kha.Assets.images, resource.irradiance);
 			radiance = Reflect.field(kha.Assets.images, resource.radiance);
 			var radianceMipmaps:Array<kha.Image> = [];
 			for (i in 0...numMipmaps) {
@@ -111,7 +129,7 @@ class Probe {
 		strength = resource.strength;
 		blending = resource.blending;
 		
-		volume = new Vec4(resource.volume[0], resource.volume[1], resource.volume[2]);
+		volume = new Vec4(resource.volume[0] / 4, resource.volume[1] / 4, resource.volume[2] / 4);
 		volumeCenter = new Vec4(resource.volume_center[0], resource.volume_center[1], resource.volume_center[2]);
 	
 		volumeMin = new Vec4(volumeCenter.x - volume.x, volumeCenter.y - volume.y, volumeCenter.z - volume.z);

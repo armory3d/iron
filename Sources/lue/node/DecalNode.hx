@@ -1,11 +1,8 @@
 package lue.node;
 
 import kha.graphics4.Graphics;
-import lue.math.Mat4;
-import lue.math.Vec4;
 // import lue.resource.DecalResource;
 import lue.resource.MaterialResource;
-import lue.resource.ShaderResource;
 import lue.node.ModelNode;
 // import lue.resource.SceneFormat;
 

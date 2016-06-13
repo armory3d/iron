@@ -204,11 +204,15 @@ typedef TWorldResource = {
 typedef TProbe = {
 	var radiance:String;
 	var radiance_mipmaps:Int;
-	var irradiance:String;
+	var irradiance:String; // Reference to TIrradiance blob
 	var strength:Float;
 	var blending:Float;
 	var volume:Array<Float>;
 	var volume_center:Array<Float>;
+}
+
+typedef TIrradiance = { // Blob with spherical harmonics, bands 0,1,2
+	var irradiance:Array<Float>;
 }
 
 typedef TParticleResource = {
