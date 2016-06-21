@@ -13,6 +13,8 @@ import lue.resource.ShaderResource;
 import lue.resource.MaterialResource;
 import lue.resource.SceneFormat;
 
+typedef TStageCommand = Array<String>->Node->LightNode->Void;
+
 class RenderPipeline {
 
 	var camera:CameraNode;
@@ -28,7 +30,7 @@ class RenderPipeline {
 	static var decalVB:VertexBuffer = null;
 	static var decalIB:IndexBuffer = null;
 
-	var stageCommands:Array<Array<String>->Node->LightNode->Void>;
+	var stageCommands:Array<TStageCommand>;
 	var stageParams:Array<Array<String>>;
 	var currentStageIndex = 0;
 
@@ -136,16 +138,17 @@ class RenderPipeline {
 		lastTime = Scheduler.realTime();
 #end
 	}
-
+	
+	public static var lastPongRT:RenderTarget;
 	function setTarget(params:Array<String>, root:Node, light:LightNode) {
+		// Ping-pong
+		if (lastPongRT != null) { // Drawing to pong texture has been done, switch state
+			lastPongRT.pongState = !lastPongRT.pongState;
+			lastPongRT = null;
+		}
+		
     	var target = params[0];
     	if (target == "") {
-			// Ping-pong
-			if (RenderTarget.is_last_two_targets_pong == true) {
-				RenderTarget.is_pong = !RenderTarget.is_pong;
-				RenderTarget.is_last_two_targets_pong = false;
-			}
-			
     		currentRenderTarget = frameRenderTarget;
     		begin(currentRenderTarget);
     	}
@@ -162,21 +165,8 @@ class RenderPipeline {
 			
 			// Ping-pong
 			if (rt.pong != null) {
-				if (RenderTarget.is_last_target_pong) {
-					RenderTarget.is_last_two_targets_pong = true;
-					RenderTarget.is_pong = !RenderTarget.is_pong;
-				}
-				else RenderTarget.is_last_two_targets_pong = false;
-				
-				RenderTarget.last_pong_target_pong = RenderTarget.is_pong;
-				if (RenderTarget.is_pong) rt = rt.pong;
-				RenderTarget.is_last_target_pong = true;
-			}
-			else {
-				if (RenderTarget.is_last_two_targets_pong)
-					RenderTarget.is_pong = !RenderTarget.is_pong;
-				RenderTarget.is_last_target_pong = false;
-				RenderTarget.is_last_two_targets_pong = false;
+				lastPongRT = rt;
+				if (rt.pongState) rt = rt.pong;
 			}
 			
 			currentRenderTarget = rt.image.g4;
@@ -195,9 +185,11 @@ class RenderPipeline {
 			var val = pos + 1;
 			if (params[pos] == "color") {
 				if (currentRenderTarget != frameRenderTarget) {
-					if (params[val] != "#ff000000") {
-						// colorFlag = 0xffffffff;
-						colorFlag = 0x00ff0000;
+					if (params[val] == "#ffffffff") {
+						colorFlag = 0xffffffff;
+					}
+					else if (params[val] == "#00000000") {
+						colorFlag = 0x00000000;
 					}
 				}
 			}
@@ -316,7 +308,7 @@ class RenderPipeline {
 	inline function end(g:Graphics) {
 		#if !python
 		g.end();
-		bindParams = null;
+		bindParams = null; // Remove, cleared at begin
 		#end
 	}
 
@@ -329,7 +321,7 @@ class RenderPipeline {
 		}
     }
 	
-	function commandToFunction(command:String):Array<String>->Node->LightNode->Void {
+	function commandToFunction(command:String):TStageCommand {
 		if (command == "set_target") {
 			return setTarget;
 		}

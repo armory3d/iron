@@ -102,14 +102,9 @@ class PipelineResource extends Resource {
 }
 
 class RenderTarget {
-	// TODO: separate for each render target
-	public static var is_pong = false;
-	public static var is_last_target_pong = false;
-	public static var is_last_two_targets_pong = false;
-	public static var last_pong_target_pong = false;
-	public var pong:RenderTarget = null;
-	
 	public var image:Image;
 	public var hasDepth:Bool;
+	public var pongState = false;
+	public var pong:RenderTarget = null;
 	public function new() {}
 }

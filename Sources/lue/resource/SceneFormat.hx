@@ -1,279 +1,314 @@
 package lue.resource;
 
-typedef TSceneFormat = {
-	@:optional var geometry_resources:Array<TGeometryResource>;
-	@:optional var light_resources:Array<TLightResource>;
-	@:optional var camera_resources:Array<TCameraResource>;
-	@:optional var material_resources:Array<TMaterialResource>;
-	@:optional var particle_resources:Array<TParticleResource>;
-	@:optional var shader_resources:Array<TShaderResource>;
-	@:optional var pipeline_resources:Array<TPipelineResource>;
-	@:optional var speaker_resources:Array<TSpeakerResource>;
-	@:optional var world_resources:Array<TWorldResource>;
-	@:optional var world_ref:String;
-	@:optional var nodes:Array<TNode>;
+// typedef TSceneFormat = {
+@:structInit class TSceneFormat {
+	@:optional public var geometry_resources:Array<TGeometryResource>;
+	@:optional public var light_resources:Array<TLightResource>;
+	@:optional public var camera_resources:Array<TCameraResource>;
+	@:optional public var material_resources:Array<TMaterialResource>;
+	@:optional public var particle_resources:Array<TParticleResource>;
+	@:optional public var shader_resources:Array<TShaderResource>;
+	@:optional public var pipeline_resources:Array<TPipelineResource>;
+	@:optional public var speaker_resources:Array<TSpeakerResource>;
+	@:optional public var world_resources:Array<TWorldResource>;
+	@:optional public var world_ref:String;
+	@:optional public var nodes:Array<TNode>;
 }
 
-typedef TGeometryResource = {
-	var id:String;
-	var mesh:TMesh;
+//typedef TGeometryResource = {
+@:structInit class TGeometryResource {
+	public var id:String;
+	public var mesh:TMesh;
 }
 
-typedef TMesh = {
-	var primitive:String;
-	var vertex_arrays:Array<TVertexArray>;
-	var index_arrays:Array<TIndexArray>;
-	@:optional var static_usage:Bool;
-	@:optional var skin:TSkin;
-	@:optional var instance_offsets:Array<Float>;
+// typedef TMesh = {
+@:structInit class TMesh {
+	public var primitive:String;
+	public var vertex_arrays:Array<TVertexArray>;
+	public var index_arrays:Array<TIndexArray>;
+	@:optional public var static_usage:Bool;
+	@:optional public var skin:TSkin;
+	@:optional public var instance_offsets:Array<Float>;
 }
 
-typedef TSkin = {
-	var transform:TTransform;
-	var skeleton:TSkeleton;
-	var bone_count_array:Array<Int>;
-	var bone_index_array:Array<Int>;
-	var bone_weight_array:Array<Float>;
+// typedef TSkin = {
+@:structInit class TSkin {
+	public var transform:TTransform;
+	public var skeleton:TSkeleton;
+	public var bone_count_array:Array<Int>;
+	public var bone_index_array:Array<Int>;
+	public var bone_weight_array:Array<Float>;
 }
 
-typedef TSkeleton = {
-	var bone_ref_array:Array<String>;
-	var transforms:Array<Array<Float>>; // size = 16
+// typedef TSkeleton = {
+@:structInit class TSkeleton {
+	public var bone_ref_array:Array<String>;
+	public var transforms:Array<Array<Float>>; // size = 16
 }
 
-typedef TVertexArray = {
-	var attrib:String;
-	var size:Int;
-	var values:Array<Float>;
+// typedef TVertexArray = {
+@:structInit class TVertexArray {
+	public var attrib:String;
+	public var size:Int;
+	public var values:Array<Float>;
 }
 
-typedef TIndexArray = {
-	var size:Int;
-	var values:Array<Int>;
-	var material:Int;
+// typedef TIndexArray = {
+@:structInit class TIndexArray {
+	public var size:Int;
+	public var values:Array<Int>;
+	public var material:Int;
 }
 
-typedef TLightResource = {
-	var id:String;
-	var color:Array<Float>;
-	var strength:Float;
+// typedef TLightResource = {
+@:structInit class TLightResource {
+	public var id:String;
+	public var color:Array<Float>;
+	public var strength:Float;
 }
 
-typedef TCameraResource = {
-	var id:String;
-	var clear_color:Array<Float>;
-	var near_plane:Float;
-	var far_plane:Float;
-	@:optional var frustum_culling:Bool;
-	@:optional var draw_calls_sort:String;
-	var pipeline:String;
-	var type:String;
+// typedef TCameraResource = {
+@:structInit class TCameraResource {
+	public var id:String;
+	public var clear_color:Array<Float>;
+	public var near_plane:Float;
+	public var far_plane:Float;
+	@:optional public var frustum_culling:Bool;
+	@:optional public var draw_calls_sort:String;
+	public var pipeline:String;
+	public var type:String;
 }
 
-typedef TMaterialResource = {
-	var id:String;
-	var shader:String;
-	@:optional var skip_context:String;
-	var contexts:Array<TMaterialContext>;
+// typedef TMaterialResource = {
+@:structInit class TMaterialResource {
+	public var id:String;
+	public var shader:String;
+	@:optional public var skip_context:String;
+	public var contexts:Array<TMaterialContext>;
 }
 
-typedef TMaterialContext = {
-	var id:String;
-	@:optional var bind_constants:Array<TBindConstant>;
-	@:optional var bind_textures:Array<TBindTexture>;
+// typedef TMaterialContext = {
+@:structInit class TMaterialContext {
+	public var id:String;
+	@:optional public var bind_constants:Array<TBindConstant>;
+	@:optional public var bind_textures:Array<TBindTexture>;
 }
 
-typedef TBindConstant = {
-	var id:String;
-	@:optional var vec4:Array<Float>;
-	@:optional var vec3:Array<Float>;
-	@:optional var vec2:Array<Float>;
-	@:optional var float:Float;
-	@:optional var bool:Bool;
+// typedef TBindConstant = {
+@:structInit class TBindConstant {
+	public var id:String;
+	@:optional public var vec4:Array<Float>;
+	@:optional public var vec3:Array<Float>;
+	@:optional public var vec2:Array<Float>;
+	@:optional public var float:Float;
+	@:optional public var bool:Bool;
 }
 
-typedef TBindTexture = {
-	var id:String;
-	var name:String;
-	@:optional var generate_mipmaps:Bool;
-	@:optional var mipmaps:Array<String>; // Reference image names
-	@:optional var u_addressing:String;
-	@:optional var v_addressing:String;
-	@:optional var min_filter:String;
-	@:optional var mag_filter:String;
-	@:optional var mipmap_filter:String;
-	@:optional var params_set:Bool; // Prevents setting texture params
-	@:optional var source:String; // file, movie 
+// typedef TBindTexture = {
+@:structInit class TBindTexture {
+	public var id:String;
+	public var name:String;
+	@:optional public var generate_mipmaps:Bool;
+	@:optional public var mipmaps:Array<String>; // Reference image names
+	@:optional public var u_addressing:String;
+	@:optional public var v_addressing:String;
+	@:optional public var min_filter:String;
+	@:optional public var mag_filter:String;
+	@:optional public var mipmap_filter:String;
+	@:optional public var params_set:Bool; // Prevents setting texture params
+	@:optional public var source:String; // file, movie 
 }
 
-typedef TShaderResource = {
-	var id:String;
-	var vertex_structure:Array<TVertexData>;
-	var contexts:Array<TShaderContext>;
+// typedef TShaderResource = {
+@:structInit class TShaderResource {
+	public var id:String;
+	public var vertex_structure:Array<TVertexData>;
+	public var contexts:Array<TShaderContext>;
 }
 
-typedef TVertexData = {
-	var name:String;
-	var size:Int;
+// typedef TVertexData = {
+@:structInit class TVertexData {
+	public var name:String;
+	public var size:Int;
 }
 
-typedef TShaderContext = {
-	var id:String;
-	var depth_write:Bool;
-	var compare_mode:String;
-	var cull_mode:String;
-	@:optional var blend_source:String;
-	@:optional var blend_destination:String;
-	@:optional var blend_operation:String;
-	@:optional var alpha_blend_source:String;
-	@:optional var alpha_blend_destination:String;
-	@:optional var alpha_blend_operation:String;
-	@:optional var stencil_mode:String;
-	@:optional var stencil_pass:String;
-	@:optional var stencil_fail:String;
-	@:optional var stencil_reference_value:Int;
-	@:optional var stencil_read_mask:Int;
-	@:optional var stencil_write_mask:Int;
-	@:optional var color_write_red:Bool;
-	@:optional var color_write_green:Bool;
-	@:optional var color_write_blue:Bool;
-	@:optional var color_write_alpha:Bool;
-	var vertex_shader:String;
-	var fragment_shader:String;
-	var constants:Array<TShaderConstant>;
-	var texture_units:Array<TTextureUnit>;
+// typedef TShaderContext = {
+@:structInit class TShaderContext {
+	public var id:String;
+	public var depth_write:Bool;
+	public var compare_mode:String;
+	public var cull_mode:String;
+	@:optional public var blend_source:String;
+	@:optional public var blend_destination:String;
+	@:optional public var blend_operation:String;
+	@:optional public var alpha_blend_source:String;
+	@:optional public var alpha_blend_destination:String;
+	@:optional public var alpha_blend_operation:String;
+	@:optional public var stencil_mode:String;
+	@:optional public var stencil_pass:String;
+	@:optional public var stencil_fail:String;
+	@:optional public var stencil_reference_value:Int;
+	@:optional public var stencil_read_mask:Int;
+	@:optional public var stencil_write_mask:Int;
+	@:optional public var color_write_red:Bool;
+	@:optional public var color_write_green:Bool;
+	@:optional public var color_write_blue:Bool;
+	@:optional public var color_write_alpha:Bool;
+	public var vertex_shader:String;
+	public var fragment_shader:String;
+	public var constants:Array<TShaderConstant>;
+	public var texture_units:Array<TTextureUnit>;
 }
 
-typedef TShaderConstant = {
-	var id:String;
-	var type:String;
-	@:optional var link:String;
-	@:optional var vec4:Array<Float>;
-	@:optional var vec3:Array<Float>;
-	@:optional var float:Float;
-	@:optional var bool:Bool;
+// typedef TShaderConstant = {
+@:structInit class TShaderConstant {
+	public var id:String;
+	public var type:String;
+	@:optional public var link:String;
+	@:optional public var vec4:Array<Float>;
+	@:optional public var vec3:Array<Float>;
+	@:optional public var float:Float;
+	@:optional public var bool:Bool;
 }
 
-typedef TTextureUnit = {
-	var id:String;
-	@:optional var link:String;
+// typedef TTextureUnit = {
+@:structInit class TTextureUnit {
+	public var id:String;
+	@:optional public var link:String;
 }
 
-typedef TPipelineResource = {
-	var id:String;
-	var render_targets:Array<TPipelineRenderTarget>;
-	@:optional var depth_buffers:Array<TPipelineDepthBuffer>;
-	var stages:Array<TPipelineStage>;
+// typedef TPipelineResource = {
+@:structInit class TPipelineResource {
+	public var id:String;
+	public var render_targets:Array<TPipelineRenderTarget>;
+	@:optional public var depth_buffers:Array<TPipelineDepthBuffer>;
+	public var stages:Array<TPipelineStage>;
 }
 
-typedef TPipelineRenderTarget = {
-	var id:String;
-	var width:Int;
-	var height:Int;
-	@:optional var format:String;
-	@:optional var depth_buffer:String;
-	@:optional var ping_pong:Bool;
+// typedef TPipelineRenderTarget = {
+@:structInit class TPipelineRenderTarget {
+	public var id:String;
+	public var width:Int;
+	public var height:Int;
+	@:optional public var format:String;
+	@:optional public var depth_buffer:String;
+	@:optional public var ping_pong:Bool;
 }
 
-typedef TPipelineDepthBuffer = {
-	var id:String;
-	@:optional var stencil_buffer:Bool;
+// typedef TPipelineDepthBuffer = {
+@:structInit class TPipelineDepthBuffer {
+	public var id:String;
+	@:optional public var stencil_buffer:Bool;
 }
 
-typedef TPipelineStage = {
-	var command:String;
-	@:optional var params:Array<String>;
-	@:optional var returns_true:Array<TPipelineStage>; // Nested commands
-	@:optional var returns_false:Array<TPipelineStage>;
+// typedef TPipelineStage = {
+@:structInit class TPipelineStage {
+	public var command:String;
+	@:optional public var params:Array<String>;
+	@:optional public var returns_true:Array<TPipelineStage>; // Nested commands
+	@:optional public var returns_false:Array<TPipelineStage>;
 }
 
-typedef TSpeakerResource = {
-	var id:String;
-	var sound:String;
+// typedef TSpeakerResource = {
+@:structInit class TSpeakerResource {
+	public var id:String;
+	public var sound:String;
 }
 
-typedef TWorldResource = {
-	var id:String;
-	// var material_ref:String;
-	// var bind_constants:Array<TBindConstant>;
-	// var bind_textures:Array<TBindTexture>;
-	var brdf:String;
-	var probes:Array<TProbe>;
+// typedef TWorldResource = {
+@:structInit class TWorldResource {
+	public var id:String;
+	// public var material_ref:String;
+	// public var bind_constants:Array<TBindConstant>;
+	// public var bind_textures:Array<TBindTexture>;
+	public var brdf:String;
+	public var probes:Array<TProbe>;
 }
 
-typedef TProbe = {
-	var radiance:String;
-	var radiance_mipmaps:Int;
-	var irradiance:String; // Reference to TIrradiance blob
-	var strength:Float;
-	var blending:Float;
-	var volume:Array<Float>;
-	var volume_center:Array<Float>;
+// typedef TProbe = {
+@:structInit class TProbe {
+	public var radiance:String;
+	public var radiance_mipmaps:Int;
+	public var irradiance:String; // Reference to TIrradiance blob
+	public var strength:Float;
+	public var blending:Float;
+	public var volume:Array<Float>;
+	public var volume_center:Array<Float>;
 }
 
-typedef TIrradiance = { // Blob with spherical harmonics, bands 0,1,2
-	var irradiance:Array<Float>;
+// typedef TIrradiance = { // Blob with spherical harmonics, bands 0,1,2
+@:structInit class TIrradiance {
+	public var irradiance:Array<Float>;
 }
 
-typedef TParticleResource = {
-	var id:String;
-	var count:Int;
-	var lifetime:Float;
-	var normal_factor:Float;
-	var object_align_factor:Array<Float>;
-	var factor_random:Float;
+// typedef TParticleResource = {
+@:structInit class TParticleResource {
+	public var id:String;
+	public var count:Int;
+	public var lifetime:Float;
+	public var normal_factor:Float;
+	public var object_align_factor:Array<Float>;
+	public var factor_random:Float;
 }
 
-typedef TNode = {
-	var type:String;
-	var id:String;
-	var object_ref:String;
-	var material_refs:Array<String>;
-	var particle_refs:Array<TParticleReference>;
-	var transform:TTransform;
-	var nodes:Array<TNode>;
-	var traits:Array<TTrait>;
-	@:optional var dimensions:Array<Float>; // Geometry nodes
-	@:optional var animation:TAnimation;
-	@:optional var bones_ref:String;
-	@:optional var parent:TNode;
-	@:optional var visible:Bool;
+// typedef TNode = {
+@:structInit class TNode {
+	public var type:String;
+	public var id:String;
+	public var object_ref:String;
+	public var material_refs:Array<String>;
+	public var particle_refs:Array<TParticleReference>;
+	public var transform:TTransform;
+	public var nodes:Array<TNode>;
+	public var traits:Array<TTrait>;
+	@:optional public var dimensions:Array<Float>; // Geometry nodes
+	@:optional public var animation:TAnimation;
+	@:optional public var bones_ref:String;
+	@:optional public var parent:TNode;
+	@:optional public var visible:Bool;
 }
 
-typedef TParticleReference = {
-	var id:String;
-	var particle:String;
-	var seed:Int;
+// typedef TParticleReference = {
+@:structInit class TParticleReference {
+	public var id:String;
+	public var particle:String;
+	public var seed:Int;
 }
 
-typedef TTrait = {
-	var type:String;
-	var class_name:String;
-	@:optional var parameters:Array<Dynamic>;
+// typedef TTrait = {
+@:structInit class TTrait {
+	public var type:String;
+	public var class_name:String;
+	@:optional public var parameters:Array<Dynamic>;
 }
 
-typedef TTransform = {
-	@:optional var target:String;
-	var values:Array<Float>;
+// typedef TTransform = {
+@:structInit class TTransform {
+	@:optional public var target:String;
+	public var values:Array<Float>;
 }
 
-typedef TAnimation = {
-	//var tracks:Array<TTrack>;
-	var track:TTrack;
+// typedef TAnimation = {
+@:structInit class TAnimation {
+	//public var tracks:Array<TTrack>;
+	public var track:TTrack;
 }
 
-typedef TTrack = {
-	var target:String;
-	var time:TTime;
-	var value:TValue;
+// typedef TTrack = {
+@:structInit class TTrack {
+	public var target:String;
+	public var time:TTime;
+	public var value:TValue;
 }
 
-typedef TTime = {
-	var values:Array<Float>;
+// typedef TTime = {
+@:structInit class TTime {
+	public var values:Array<Float>;
 }
 
-typedef TValue = {
-	var values:Array<Array<Float>>;
+// typedef TValue = {
+@:structInit class TValue {
+	public var values:Array<Array<Float>>;
 }
 
 // Raw shader resource

@@ -1,7 +1,6 @@
 package lue.resource;
 
 import kha.graphics4.VertexBuffer;
-import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
 import lue.resource.SceneFormat;

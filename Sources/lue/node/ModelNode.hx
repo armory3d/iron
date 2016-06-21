@@ -10,7 +10,6 @@ import lue.math.Mat4;
 import lue.resource.ModelResource;
 import lue.resource.MaterialResource;
 import lue.resource.ShaderResource;
-import lue.resource.PipelineResource.RenderTarget; // Ping-pong
 import lue.resource.SceneFormat;
 
 class ModelNode extends Node {
@@ -85,13 +84,7 @@ class ModelNode extends Node {
 				var tus = context.resource.texture_units;
 
 				// Ping-pong
-				if (rt.pong != null) {			
-					if (!RenderTarget.is_last_target_pong) {
-						if (RenderTarget.last_pong_target_pong)
-							rt = rt.pong;
-					}
-					else if (!RenderTarget.is_pong) rt = rt.pong;
-				}
+				if (rt.pong != null && !rt.pongState) rt = rt.pong;
 
 				for (j in 0...tus.length) { // Set texture
 					if (samplerID == tus[j].id) {
@@ -113,6 +106,13 @@ class ModelNode extends Node {
 			else if (tulink == "_envmapBrdf") {
 				g.setTexture(context.textureUnits[j], camera.world.brdf);
 			}
+			// Migrate to arm
+			else if (tulink == "_smaaSearch") {
+				g.setTexture(context.textureUnits[j], kha.Assets.images.SMAASearch);
+			}
+			else if (tulink == "_smaaArea") {
+				g.setTexture(context.textureUnits[j], kha.Assets.images.SMAAArea);
+			}
 			else if (tulink == "_ltcMat") {
 				if (lue.resource.ConstData.ltcMatTex == null) lue.resource.ConstData.initLTC();
 				g.setTexture(context.textureUnits[j], lue.resource.ConstData.ltcMatTex);
@@ -121,6 +121,7 @@ class ModelNode extends Node {
 				if (lue.resource.ConstData.ltcMagTex == null) lue.resource.ConstData.initLTC();
 				g.setTexture(context.textureUnits[j], lue.resource.ConstData.ltcMagTex);
 			}
+			//
 			else if (tulink == "_noise8") {
 				g.setTexture(context.textureUnits[j], kha.Assets.images.noise8);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
@@ -377,11 +378,23 @@ class ModelNode extends Node {
 		else if (c.type == "vec2") {
 			var vx:Float = 0;
 			var vy:Float = 0;
-			if (c.link == "_vec2x") {
-				vx = 1.0;
+			if (c.link == "_vec2x") vx = 1.0;
+			else if (c.link == "_vec2x2") vx = 2.0;
+			else if (c.link == "_vec2y") vy = 1.0;
+			else if (c.link == "_vec2y2") vy = 2.0;
+			else if (c.link == "_screenSize") {
+				vx = App.w;
+				vy = App.h;
 			}
-			else if (c.link == "_vec2y") {
-				vy = 1.0;
+			else if (c.link == "_screenSizeInv") {
+				vx = 1 / App.w;
+				vy = 1 / App.h;
+			}
+			else if (c.link == "_aspectRatio") {
+				vx = App.h / App.w;
+				vy = App.w / App.h;
+				vx = vx > 1 ? 1 : vx;
+				vy = vy > 1 ? 1 : vy;
 			}
 			g.setFloat2(location, vx, vy);
 		}

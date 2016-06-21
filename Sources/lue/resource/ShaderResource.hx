@@ -3,8 +3,6 @@ package lue.resource;
 import kha.graphics4.PipelineState;
 import kha.graphics4.ConstantLocation;
 import kha.graphics4.TextureUnit;
-import kha.graphics4.FragmentShader;
-import kha.graphics4.VertexShader;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
 import kha.graphics4.StencilAction;
