@@ -13,7 +13,7 @@ import lue.resource.ShaderResource;
 import lue.resource.MaterialResource;
 import lue.resource.SceneFormat;
 
-typedef TStageCommand = Array<String>->Node->LightNode->Void;
+typedef TStageCommand = Array<String>->Node->Void;
 
 class RenderPipeline {
 
@@ -33,6 +33,9 @@ class RenderPipeline {
 	var stageCommands:Array<TStageCommand>;
 	var stageParams:Array<Array<String>>;
 	var currentStageIndex = 0;
+	
+	var lights:Array<LightNode>;
+	public var currentLightIndex = 0;
 
 	// Quad and decals contexts
 	var cachedShaderContexts:Map<String, CachedShaderContext> = new Map();
@@ -117,12 +120,16 @@ class RenderPipeline {
 		frameRenderTarget = g;
 		currentRenderTarget = g;
 
-		var light = lights[0];
-		/*if (light.V == null)*/ { light.buildMatrices(); }	
+		this.lights = lights;
+		currentLightIndex = 0;
+		
+		for (l in lights) {
+			/*if (l.V == null)*/ { l.buildMatrices(); }
+		}
 
 		for (i in 0...stageCommands.length) {
 			currentStageIndex = i;
-			stageCommands[i](stageParams[i], root, light);
+			stageCommands[i](stageParams[i], root);
 		}
 		
 		// Timing
@@ -131,6 +138,7 @@ class RenderPipeline {
 		frames++;
 		if (totalTime > 1.0) {
 			frameTimeAvg = totalTime / frames;
+			// trace(frameTimeAvg);
 			totalTime = 0;
 			frames = 0;
 		}
@@ -140,12 +148,15 @@ class RenderPipeline {
 	}
 	
 	public static var lastPongRT:RenderTarget;
-	function setTarget(params:Array<String>, root:Node, light:LightNode) {
+	var loopFinished = true;
+	var drawPerformed = false;
+	function setTarget(params:Array<String>, root:Node) {
 		// Ping-pong
-		if (lastPongRT != null) { // Drawing to pong texture has been done, switch state
+		if (lastPongRT != null && drawPerformed && loopFinished) { // Drawing to pong texture has been done, switch state
 			lastPongRT.pongState = !lastPongRT.pongState;
 			lastPongRT = null;
 		}
+		drawPerformed = false;
 		
     	var target = params[0];
     	if (target == "") {
@@ -175,7 +186,7 @@ class RenderPipeline {
 		bindParams = null;
     }
 
-    function clearTarget(params:Array<String>, root:Node, light:LightNode) {
+    function clearTarget(params:Array<String>, root:Node) {
 		var colorFlag = clearColor;
 		var depthFlag:Null<Float> = null;
 		
@@ -185,12 +196,7 @@ class RenderPipeline {
 			var val = pos + 1;
 			if (params[pos] == "color") {
 				if (currentRenderTarget != frameRenderTarget) {
-					if (params[val] == "#ffffffff") {
-						colorFlag = 0xffffffff;
-					}
-					else if (params[val] == "#00000000") {
-						colorFlag = 0x00000000;
-					}
+					colorFlag = Color.fromString(params[val]);
 				}
 			}
 			else if (params[pos] == "depth") {
@@ -203,17 +209,18 @@ class RenderPipeline {
 		currentRenderTarget.clear(colorFlag, depthFlag, null);
     }
 
-    function drawGeometry(params:Array<String>, root:Node, light:LightNode) {
+    function drawGeometry(params:Array<String>, root:Node) {
 		var context = params[0];
 		var g = currentRenderTarget;
-		// TODO: resource.resource.draw_calls_sort
+		var light = lights[currentLightIndex];
 		root.render(g, context, camera, light, bindParams);
 		end(g);
     }
 	
-	function drawDecals(params:Array<String>, root:Node, light:LightNode) {		
+	function drawDecals(params:Array<String>, root:Node) {		
 		var context = params[0];
 		var g = currentRenderTarget;
+		var light = lights[currentLightIndex];
 		for (decal in RootNode.decals) {
 			decal.renderDecal(g, context, camera, light, bindParams);
 			g.setVertexBuffer(decalVB);
@@ -223,12 +230,12 @@ class RenderPipeline {
 		end(g);
     }
 
-    function bindTarget(params:Array<String>, root:Node, light:LightNode) {
+    function bindTarget(params:Array<String>, root:Node) {
     	if (bindParams != null) for (p in params) bindParams.push(p); // Multiple binds, append params
 		else bindParams = params;
     }
 	
-	function drawShaderQuad(params:Array<String>, root:Node, light:LightNode) {
+	function drawShaderQuad(params:Array<String>, root:Node) {
 		var handle = params[0];
     	var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
@@ -239,10 +246,10 @@ class RenderPipeline {
 			cc.context = res.getContext(shaderPath[2]);
 			cachedShaderContexts.set(handle, cc);
 		}
-		drawQuad(cc, root, light);
+		drawQuad(cc, root);
 	}
 	
-	function drawMaterialQuad(params:Array<String>, root:Node, light:LightNode) {
+	function drawMaterialQuad(params:Array<String>, root:Node) {
 		var handle = params[0];
     	var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
@@ -253,12 +260,13 @@ class RenderPipeline {
 			cc.context = res.shader.getContext(matPath[2]);
 			cachedShaderContexts.set(handle, cc);
 		}
-		drawQuad(cc, root, light);
+		drawQuad(cc, root);
 	}
 
-    function drawQuad(cc:CachedShaderContext, root:Node, light:LightNode) {
+    function drawQuad(cc:CachedShaderContext, root:Node) {
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
+		var light = lights[currentLightIndex];
 
 		ModelNode.setConstants(g, cc.context, null, camera, light, bindParams);
 		if (cc.materialContext != null) {
@@ -272,7 +280,7 @@ class RenderPipeline {
 		end(g);
     }
 	
-	function callFunction(params:Array<String>, root:Node, light:LightNode) {
+	function callFunction(params:Array<String>, root:Node) {
 		// TODO: cache
 		var path = params[0];
 		var dotIndex = path.lastIndexOf(".");
@@ -294,9 +302,25 @@ class RenderPipeline {
 			for (stage in stages) {
 				// TODO: cache commands
 				var commandFun = commandToFunction(stage.command);			
-				commandFun(stage.params, root, light);
+				commandFun(stage.params, root);
 			}
 		}
+	}
+	
+	function loopLights(params:Array<String>, root:Node) {
+		var stageData = resource.pipeline.resource.stages[currentStageIndex];
+		
+		currentLightIndex = 0;
+		loopFinished = false;
+		for (l in lights) {
+			for (stage in stageData.returns_true) {
+				// TODO: cache commands
+				var commandFun = commandToFunction(stage.command);			
+				commandFun(stage.params, root);
+			}
+			currentLightIndex++;
+		}
+		loopFinished = true;
 	}
 
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null) {
@@ -310,6 +334,7 @@ class RenderPipeline {
 		g.end();
 		bindParams = null; // Remove, cleared at begin
 		#end
+		drawPerformed = true;
 	}
 
     function cacheStageCommands() {
@@ -345,6 +370,9 @@ class RenderPipeline {
 		}
 		else if (command == "call_function") {
 			return callFunction;
+		}
+		else if (command == "loop_lights") {
+			return loopLights;
 		}
 		return null;
 	}

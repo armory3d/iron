@@ -11,7 +11,7 @@ import lue.resource.WorldResource;
 class CameraNode extends Node {
 
 	public var resource:CameraResource;
-	var renderPipeline:RenderPipeline;
+	public var renderPipeline:RenderPipeline;
 	
 	public var world:WorldResource;
 

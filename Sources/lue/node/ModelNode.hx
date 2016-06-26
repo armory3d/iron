@@ -234,14 +234,14 @@ class ModelNode extends Node {
 				helpMat.setIdentity();
 		    	if (node != null) helpMat.mult2(node.transform.matrix); // node is null for DrawQuad
 		    	helpMat.mult2(light.V);
-		    	helpMat.mult2(light.P);
+		    	helpMat.mult2(light.resource.P);
 		    	m = helpMat;
 			}
 			else if (c.link == "_lightViewMatrix") {
 		    	m = light.V;
 			}
 			else if (c.link == "_lightProjectionMatrix") {
-		    	m = light.P;
+		    	m = light.resource.P;
 			}
 			if (m == null) return;
 			g.setMatrix(location, m);
@@ -252,7 +252,11 @@ class ModelNode extends Node {
 				helpVec.set(light.transform.absx(), light.transform.absy(), light.transform.absz());
 				v = helpVec;
 			}
-			if (c.link == "_lightColor") {
+			else if (c.link == "_lightDirection") {
+				helpVec.set(light.transform.matrix._20, light.transform.matrix._21, light.transform.matrix._22);
+				v = helpVec;
+			}
+			else if (c.link == "_lightColor") {
 				helpVec.set(light.resource.resource.color[0], light.resource.resource.color[1], light.resource.resource.color[2]);
 				v = helpVec;
 			}
@@ -409,6 +413,12 @@ class ModelNode extends Node {
 			else if (c.link == "_lightStrength") {
 				f = light.resource.resource.strength;
 			}
+			else if (c.link == "_spotlightCutoff") {
+				f = light.resource.resource.spot_size;
+			}
+			else if (c.link == "_spotlightExponent") {
+				f = light.resource.resource.spot_blend;
+			}
 			else if (c.link == "_envmapStrength") {
 				f = camera.world.getGlobalProbe().strength;
 			}
@@ -435,6 +445,12 @@ class ModelNode extends Node {
 			var i = 0;
 			if (c.link == "_uid") {
 				i = node.uid;
+			}
+			if (c.link == "_lightType") {
+				i = light.resource.lightType;
+			}
+			else if (c.link == "_lightIndex") {
+				i = camera.renderPipeline.currentLightIndex;
 			}
 			else if (c.link == "_envmapNumMipmaps") {
 				i = camera.world.getGlobalProbe().numMipmaps + 1; // Include basecolor

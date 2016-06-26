@@ -1,10 +1,16 @@
 package lue.resource;
 
+import lue.math.Mat4;
 import lue.resource.SceneFormat;
 
 class LightResource extends Resource {
 
 	public var resource:TLightResource;
+
+	// Shadow map matrices
+	public var P:Mat4 = null;
+		
+	public var lightType = 0;
 
 	public function new(resource:TLightResource) {
 		super();
@@ -15,6 +21,22 @@ class LightResource extends Resource {
 		}
 
 		this.resource = resource;
+		
+		var type = resource.type;
+		
+		if (type == "sun") {
+			lightType = 0;
+			P = Mat4.orthogonal(-10, 10, -10, 10, -30, 30, 2);
+			// P = Mat4.orthogonal(-75 / 3.5, 75 / 3.5, -75 / 3.5, 75 / 3.5, -120 / 3.5, 120 / 3.5, 2);
+		}
+		else if (type == "point") {
+			lightType = 1;
+			P = Mat4.perspective(45, 1, 0.1, 50);
+		}
+		else if (type == "spot") {
+			lightType = 2;
+			P = Mat4.perspective(45, 1, 0.1, 50);
+		}
 	}
 
 	public static function parse(name:String, id:String):LightResource {
