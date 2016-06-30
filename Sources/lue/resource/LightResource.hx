@@ -31,11 +31,11 @@ class LightResource extends Resource {
 		}
 		else if (type == "point") {
 			lightType = 1;
-			P = Mat4.perspective(45, 1, 0.1, 50);
+			P = Mat4.perspective(45, 1, 0.1, 100);
 		}
 		else if (type == "spot") {
 			lightType = 2;
-			P = Mat4.perspective(45, 1, 0.1, 50);
+			P = Mat4.perspective(45, 1, 0.1, 100);
 		}
 	}
 

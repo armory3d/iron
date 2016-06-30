@@ -253,7 +253,7 @@ class ModelNode extends Node {
 				v = helpVec;
 			}
 			else if (c.link == "_lightDirection") {
-				helpVec.set(light.transform.matrix._20, light.transform.matrix._21, light.transform.matrix._22);
+				helpVec = light.look();
 				v = helpVec;
 			}
 			else if (c.link == "_lightColor") {
@@ -265,8 +265,7 @@ class ModelNode extends Node {
 				v = helpVec;
 			}
 			else if (c.link == "_cameraLook") {
-				var look = camera.look();
-				helpVec.set(-look.x, -look.y, -look.z);
+				helpVec = camera.look();
 				v = helpVec;
 			}
 			else if (c.link == "_probeVolumeCenter") { // Local probes
@@ -278,7 +277,7 @@ class ModelNode extends Node {
 			
 			else if (c.link == "_hosekA") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
+					cycles.renderpipeline.HosekWilkie.init(camera.world);
 				}
 				v = helpVec;
 				v.x = cycles.renderpipeline.HosekWilkie.data.A.x;
@@ -287,7 +286,7 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_hosekB") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
+					cycles.renderpipeline.HosekWilkie.init(camera.world);
 				}
 				v = helpVec;
 				v.x = cycles.renderpipeline.HosekWilkie.data.B.x;
@@ -296,7 +295,7 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_hosekC") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
+					cycles.renderpipeline.HosekWilkie.init(camera.world);
 				}
 				v = helpVec;
 				v.x = cycles.renderpipeline.HosekWilkie.data.C.x;
@@ -305,7 +304,7 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_hosekD") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
+					cycles.renderpipeline.HosekWilkie.init(camera.world);
 				}
 				v = helpVec;
 				v.x = cycles.renderpipeline.HosekWilkie.data.D.x;
@@ -314,7 +313,7 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_hosekE") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
+					cycles.renderpipeline.HosekWilkie.init(camera.world);
 				}
 				v = helpVec;
 				v.x = cycles.renderpipeline.HosekWilkie.data.E.x;
@@ -323,7 +322,7 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_hosekF") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
+					cycles.renderpipeline.HosekWilkie.init(camera.world);
 				}
 				v = helpVec;
 				v.x = cycles.renderpipeline.HosekWilkie.data.F.x;
@@ -332,7 +331,7 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_hosekG") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
+					cycles.renderpipeline.HosekWilkie.init(camera.world);
 				}
 				v = helpVec;
 				v.x = cycles.renderpipeline.HosekWilkie.data.G.x;
@@ -341,7 +340,7 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_hosekH") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
+					cycles.renderpipeline.HosekWilkie.init(camera.world);
 				}
 				v = helpVec;
 				v.x = cycles.renderpipeline.HosekWilkie.data.H.x;
@@ -350,7 +349,7 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_hosekI") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
+					cycles.renderpipeline.HosekWilkie.init(camera.world);
 				}
 				v = helpVec;
 				v.x = cycles.renderpipeline.HosekWilkie.data.I.x;
@@ -359,21 +358,12 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_hosekZ") {
 				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
+					cycles.renderpipeline.HosekWilkie.init(camera.world);
 				}
 				v = helpVec;
 				v.x = cycles.renderpipeline.HosekWilkie.data.Z.x;
 				v.y = cycles.renderpipeline.HosekWilkie.data.Z.y;
 				v.z = cycles.renderpipeline.HosekWilkie.data.Z.z;
-			}
-			else if (c.link == "_hosekSunDirection") {
-				if (cycles.renderpipeline.HosekWilkie.data == null) {
-					cycles.renderpipeline.HosekWilkie.init();
-				}
-				v = helpVec;
-				v.x = cycles.renderpipeline.HosekWilkie.sunDirection.x;
-				v.y = cycles.renderpipeline.HosekWilkie.sunDirection.y;
-				v.z = cycles.renderpipeline.HosekWilkie.sunDirection.z;
 			}
 			
 			if (v == null) return;

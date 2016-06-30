@@ -70,9 +70,14 @@ class PipelineResource extends Resource {
 	}
 
 	function createImage(t:TPipelineRenderTarget, depthStencil:DepthStencilFormat):Image {
+		var width = t.width == 0 ? kha.System.windowWidth() : t.width;
+		var height = t.height == 0 ? kha.System.windowHeight() : t.height;
+		if (t.scale != null) {
+			width = Std.int(width * t.scale);
+			height = Std.int(height * t.scale);
+		}
 		return Image.createRenderTarget(
-			t.width == 0 ? kha.System.windowWidth() : t.width,
-			t.height == 0 ? kha.System.windowHeight() : t.height,
+			width, height,
 			t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
 			depthStencil);
 	}

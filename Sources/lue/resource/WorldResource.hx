@@ -111,11 +111,9 @@ class Probe {
 		// Parse probe data
 		var irradianceData = Reflect.field(kha.Assets.blobs, resource.irradiance + "_json").toString();
 		var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData);
-		// irradiance = new haxe.ds.Vector(27);
-		// for (i in 0...27) irradiance[i] = 0.0;
 		irradiance = haxe.ds.Vector.fromData(irradianceParsed.irradiance);
 		
-		if (resource.radiance != "") {
+		if (resource.radiance != null) {
 			numMipmaps = resource.radiance_mipmaps;
 			
 			radiance = Reflect.field(kha.Assets.images, resource.radiance);

@@ -197,6 +197,7 @@ typedef TPipelineRenderTarget = {
 	@:optional public var format:String;
 	@:optional public var depth_buffer:String;
 	@:optional public var ping_pong:Null<Bool>;
+	@:optional public var scale:Null<Float>;
 }
 
 typedef TPipelineDepthBuffer = {
@@ -231,13 +232,16 @@ typedef TWorldResource = {
 
 typedef TProbe = {
 // @:structInit class TProbe {
-	public var radiance:String;
-	public var radiance_mipmaps:Int;
 	public var irradiance:String; // Reference to TIrradiance blob
 	public var strength:Float;
 	public var blending:Float;
 	public var volume:Array<Float>;
 	public var volume_center:Array<Float>;
+	@:optional public var radiance:String;
+	@:optional public var radiance_mipmaps:Int;
+	@:optional public var sun_direction:Array<Float>; // Sky data
+	@:optional public var turbidity:Float;
+	@:optional public var ground_albedo:Float;
 }
 
 typedef TIrradiance = { // Blob with spherical harmonics, bands 0,1,2

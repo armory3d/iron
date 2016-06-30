@@ -80,9 +80,9 @@ class Mat4 extends kha.math.FastMatrix4 {
 		var vector = new Vec4(0, 0, 0, 0);
 		var matrix = Mat4.identity();
 
-		var sx = vector.set( _00, _01, _02 ).length();
-		var sy = vector.set( _10, _11, _12 ).length();
-		var sz = vector.set( _20, _21, _22 ).length();
+		var sx = vector.set(_00, _01, _02).length();
+		var sy = vector.set(_10, _11, _12).length();
+		var sz = vector.set(_20, _21, _22).length();
 		var det = this.determinant();
 		if (det < 0) sx = -sx;
 		position.x = _30;
@@ -431,29 +431,6 @@ class Mat4 extends kha.math.FastMatrix4 {
 			return v;
 		}
 	}
-	public inline function at(v:Vec4 = null):Vec4 {
-		if (v == null)
-			return new Vec4(_10, _11 , _12 , _13);
-		else {
-			v.x = _10;
-			v.y = _11;
-			v.z = _12;
-			v.w = _13;
-			return v;
-		}
-	}
-	public inline function right(?v:Vec4) {
-		if (v == null)
-			return new Vec4(_00, _01 , _02 , _03);
-		else {
-			v.x = _00;
-			v.y = _01;
-			v.z = _02;
-			v.w = _03;
-			return v;
-		}
-	}
-
 
 	public function getInverse(m:Mat4) { //-
 		// based on http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
@@ -737,4 +714,8 @@ class Mat4 extends kha.math.FastMatrix4 {
 		}
 		return false;
 	}
+	
+	public inline function right2():Vec4 { return new Vec4(_00, _10, _20); }
+	public inline function up2():Vec4 { return new Vec4(_01, _11, _21); }
+	public inline function look2():Vec4 { return new Vec4(_02, _12, _22); }
 }

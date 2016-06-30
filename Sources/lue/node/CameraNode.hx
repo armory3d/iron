@@ -57,21 +57,22 @@ class CameraNode extends Node {
 	}
 
 	public function updateMatrix() {
-		var q = new Quat(); // Camera parent
-		if (parent != null) {
-			var rot = parent.transform.rot;
-			q.set(rot.x, rot.y, rot.z, rot.w);
-			q = q.inverse(q);
-		}
+		// var q = new Quat(); // Camera parent
+		// if (parent != null) {
+		// 	var rot = parent.transform.rot;
+		// 	q.set(rot.x, rot.y, rot.z, rot.w);
+		// 	q = q.inverse(q);
+		// }
 
-		q.multiply(transform.rot, q); // Camera transform
-		V = q.toMatrix();
+		// q.multiply(transform.rot, q); // Camera transform
+		// V = q.toMatrix();
 
-	    var trans = Mat4.identity();
-	    trans.translate(-transform.absx(), -transform.absy(), -transform.absz());
-	    V.multiply(trans, V);
+	    // var trans = Mat4.identity();
+	    // trans.translate(transform.absx(), transform.absy(), transform.absz());
+	    // V.multiply(trans, V);
 
-		//transform.buildMatrix();
+		transform.buildMatrix();
+		V.inverse2(transform.matrix);
 
 		if (resource.resource.frustum_culling) {
 			buildViewFrustum();
@@ -154,13 +155,13 @@ class CameraNode extends Node {
 	public function rotate(axis:Vec4, f:Float) {
 		var q = new Quat();
 		q.setFromAxisAngle(axis, f);
-		transform.rot.multiply(transform.rot, q);
+		transform.rot.multiply(q, transform.rot);
 
 		updateMatrix();
 	}
 
 	public function move(axis:Vec4, f:Float) {
-        axis.mult(-f, axis);
+        axis.mult(f, axis);
 
 		transform.pos.vadd(axis, transform.pos);
 		transform.dirty = true;
@@ -168,15 +169,7 @@ class CameraNode extends Node {
 		updateMatrix();
 	}
 
-	public function right():Vec4 {
-        return new Vec4(V._00, V._10, V._20);
-    }
-
-	public function up():Vec4 {
-        return new Vec4(V._01, V._11, V._21);
-    }
-
-    public function look():Vec4 {
-        return new Vec4(V._02, V._12, V._22);
-    }
+	public inline function right():Vec4 { return new Vec4(V._00, V._10, V._20); }
+	public inline function up():Vec4 { return new Vec4(V._01, V._11, V._21); }
+    public inline function look():Vec4 { return new Vec4(-V._02, -V._12, -V._22); }
 }

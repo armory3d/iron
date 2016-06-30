@@ -123,19 +123,14 @@ class RootNode extends Node {
 			node.id = n.id;
 			createTraits(n, node);
 			generateTranform(n, node.transform);
-			node.transform.buildMatrix();
 		}
 		
 		return node;
 	}
 
 	static function generateTranform(node:TNode, transform:Transform) {
-		var mat = Mat4.fromArray(node.transform.values);
-		mat.decompose(transform.pos, transform.rot, transform.scale);
-
-		if (node.type == "camera_node") { // TODO: remove
-        	transform.rot.inverse(transform.rot);
-		}
+		transform.matrix = Mat4.fromArray(node.transform.values);
+		transform.matrix.decompose(transform.pos, transform.rot, transform.scale);
 	}
 
 	static function createTraits(n:TNode, node:Node) {

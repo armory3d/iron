@@ -1,6 +1,7 @@
 package lue.node;
 
 import lue.math.Mat4;
+import lue.math.Vec4;
 import lue.resource.LightResource;
 
 class LightNode extends Node {
@@ -26,4 +27,6 @@ class LightNode extends Node {
 		V = Mat4.identity();
 		V.inverse2(transform.matrix);
 	}
+	
+	public inline function look():Vec4 { return new Vec4(V._02, V._12, V._22); }
 }
