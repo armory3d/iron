@@ -65,8 +65,9 @@ class RenderPath {
 
 		// TODO: Mandatory vertex data names and sizes
 		// pos=2
-		screenAlignedVB = new VertexBuffer(Std.int(data.length / ShaderResource.getScreenAlignedQuadStructureLength()),
-										   ShaderResource.createScreenAlignedQuadStructure(), Usage.StaticUsage);
+		var struct = ShaderResource.createScreenAlignedQuadStructure();
+		screenAlignedVB = new VertexBuffer(Std.int(data.length / Std.int(struct.byteSize() / 4)),
+										   struct, Usage.StaticUsage);
 		var vertices = screenAlignedVB.lock();
 		
 		for (i in 0...vertices.length) {
@@ -97,8 +98,9 @@ class RenderPath {
 		];
 
 		// pos=3
-		decalVB = new VertexBuffer(Std.int(data.length / ShaderResource.getDecalStructureLength()),
-										   ShaderResource.createDecalStructure(), Usage.StaticUsage);
+		var struct = ShaderResource.createDecalStructure();
+		decalVB = new VertexBuffer(Std.int(data.length / Std.int(struct.byteSize() / 4)),
+										   struct, Usage.StaticUsage);
 		var vertices = decalVB.lock();
 		
 		for (i in 0...vertices.length) {
@@ -323,6 +325,7 @@ class RenderPath {
 			}
 			currentLightIndex++;
 		}
+		currentLightIndex = 0;
 		loopFinished = true;
 	}
 

@@ -18,7 +18,7 @@ class ModelNode extends Node {
 	public var materials:Array<MaterialResource>;
 
 	public var particleSystem:ParticleSystem = null;
-	public var skinning:Skinning = null;
+	public var animation:Animation = null;
 
 	static var helpMat = Mat4.identity();
 	static var helpMat2 = Mat4.identity();
@@ -37,19 +37,18 @@ class ModelNode extends Node {
 		super();
 
 		this.resource = resource;
-		this.materials = materials;
-		
+		this.materials = materials;		
 		// processMaterials();
-
-		// setTransformSize(); // TODO: remove
-
 		RootNode.models.push(this);
 	}
 
 	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
+		animation = new Animation(resource);
 		if (resource.isSkinned) {
-			skinning = new Skinning(resource);
-			skinning.setupAnimation(startTrack, names, starts, ends);
+			animation.setupBoneAnimation(startTrack, names, starts, ends);
+		}
+		else {
+			animation.setupNodeAnimation(this, startTrack, names, starts, ends);
 		}
 	}
 
@@ -58,7 +57,7 @@ class ModelNode extends Node {
 	}
 
 	public inline function setAnimationParams(delta:Float) {
-		skinning.setAnimationParams(delta);
+		animation.setAnimationParams(delta);
 	}
 
 	public static function setConstants(g:Graphics, context:ShaderContext, node:Node, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
@@ -124,15 +123,15 @@ class ModelNode extends Node {
 			//
 			else if (tulink == "_noise8") {
 				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "noise8"));
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 			}
 			else if (tulink == "_noise64") {
 				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "noise64"));
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 			}
 			else if (tulink == "_noise256") {
 				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "noise256"));
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 			}
 			// else if (tulink == "_checker") {
 				// g.setTexture(context.textureUnits[j], kha.Assets.images.checker);
@@ -435,7 +434,7 @@ class ModelNode extends Node {
 		else if (c.type == "floats") {
 			var fa:haxe.ds.Vector<kha.FastFloat> = null;
 			if (c.link == "_skinBones") {
-				fa = cast(node, ModelNode).skinning.skinBuffer;
+				fa = cast(node, ModelNode).animation.skinBuffer;
 			}
 			else if (c.link == "_envmapIrradiance") {
 				// fa = camera.world.getGlobalProbe().irradiance;
@@ -597,12 +596,6 @@ class ModelNode extends Node {
 			}
 		}
 	}
-
-	// function setTransformSize() {
-    // 	transform.size.x = resource.geometry.size.x * transform.scale.x;
-	// 	transform.size.y = resource.geometry.size.y * transform.scale.y;
-	// 	transform.size.z = resource.geometry.size.z * transform.scale.z;
-    // }
 }
 
 class CachedModelContext {

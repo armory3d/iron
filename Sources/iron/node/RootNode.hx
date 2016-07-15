@@ -120,6 +120,7 @@ class RootNode extends Node {
 		}
 
 		if (node != null) {
+			node.raw = n;
 			node.id = n.id;
 			createTraits(n, node);
 			generateTranform(n, node.transform);

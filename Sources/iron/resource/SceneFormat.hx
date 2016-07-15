@@ -271,6 +271,7 @@ typedef TNode = {
 	public var traits:Array<TTrait>;
 	@:optional public var dimensions:Array<Float>; // Geometry nodes
 	@:optional public var animation:TAnimation;
+	@:optional public var animation_transforms:Array<TAnimationTransform>;
 	@:optional public var bones_ref:String;
 	@:optional public var parent:TNode;
 	@:optional public var visible:Null<Bool>;
@@ -296,10 +297,17 @@ typedef TTransform = {
 	public var values:Array<Float>;
 }
 
+typedef TAnimationTransform = {
+// @:structInit class TAnimationTransform {
+	public var type:String; // translation, translation_x, ...
+	@:optional public var name:String;
+	@:optional public var values:Array<Float>; // translation
+	@:optional public var value:Float; // translation_x
+}
+
 typedef TAnimation = {
 // @:structInit class TAnimation {
-	//public var tracks:Array<TTrack>;
-	public var track:TTrack;
+	public var tracks:Array<TTrack>;
 }
 
 typedef TTrack = {
@@ -307,6 +315,11 @@ typedef TTrack = {
 	public var target:String;
 	public var time:TTime;
 	public var value:TValue;
+	@:optional public var curve:String; // bezier
+	@:optional public var time_control_plus:TTime;
+	@:optional public var time_control_minus:TTime;
+	@:optional public var value_control_plus:TValue;
+	@:optional public var value_control_minus:TValue;
 }
 
 typedef TTime = {
@@ -316,7 +329,8 @@ typedef TTime = {
 
 typedef TValue = {
 // @:structInit class TValue {
-	public var values:Array<Array<Float>>;
+	public var values:Array<Array<Float>>; // Array of transforms
+	// public var values:Array<Float>;
 }
 
 // Raw shader resource

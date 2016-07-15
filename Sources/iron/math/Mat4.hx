@@ -619,20 +619,18 @@ class Mat4 extends kha.math.FastMatrix4 {
 		return new Vec4(sx, sy, sz);
 	}
 
-	public static function perspective(fovY:Float, aspectRatio:Float, zNear:Float, zFar:Float):Mat4 {
-		var f = 1.0 / std.Math.tan(fovY / 2);
-		var t = 1.0 / (zNear - zFar);
-
+	public static function perspective(fovY:Float, aspect:Float, zn:Float, zf:Float):Mat4 {
+		var uh = 1.0 / std.Math.tan(fovY / 2);
+		var uw = uh / aspect;
 		return new Mat4(
-			f / aspectRatio, 0.0,      0.0,                   0.0,
-			0.0,             f,        0.0,                   0.0,
-			0.0,             0.0,      (zFar + zNear) * t,    2 * zFar * zNear * t,
-			0.0,             0.0,      -1.0 , 				 0.0
+			uw, 0, 0, 0,
+			0, uh, 0, 0,
+			0, 0, (zf + zn) / (zn - zf), 2 * zf * zn / (zn - zf),
+			0, 0, -1, 0
 		);
 	}
 
 	public static function orthogonal(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float, orthoScale:Float = 7.314):Mat4 {
-
 		var w = right - left;
 		var h = top - bottom;
 		var p = far - near;

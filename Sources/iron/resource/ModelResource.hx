@@ -83,10 +83,9 @@ class ModelResource extends Resource {
 		// TODO: Mandatory vertex data names and sizes
 		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
 		var struct = ShaderResource.getVertexStructure(pa != null, na != null, uva != null, ca != null, tana != null, bonea != null, weighta != null);
-		var structLength = ShaderResource.getVertexStructureLength(pa != null, na != null, uva != null, ca != null, tana != null, bonea != null, weighta != null);
-
+		
 		geometry = new Geometry(data, indices, materialIndices, pa, na, uva, ca, tana, bonea, weighta, usage);		
-		geometry.build(struct, structLength);
+		geometry.build(struct);
 
 		// Instanced
 		if (resource.mesh.instance_offsets != null) {

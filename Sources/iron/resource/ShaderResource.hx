@@ -79,17 +79,6 @@ class ShaderResource extends Resource {
 		if (weight) structure.add("weight", VertexData.Float4);
 		return structure;
 	}
-	public static function getVertexStructureLength(pos = false, nor = false, tex = false, col = false, tan = false, bone = false, weight = false):Int {
-		var length = 0;
-		if (pos) length += 3;
-		if (nor) length += 3;
-		if (tex) length += 2;
-		if (col) length += 4;
-		if (tan) length += 3;
-		if (bone) length += 4;
-		if (weight) length += 4;
-		return length;
-	}
 
 	// Usable by fullscreen quad
 	public static function createScreenAlignedQuadStructure():VertexStructure {
@@ -97,18 +86,12 @@ class ShaderResource extends Resource {
         structure.add("pos", VertexData.Float2);
         return structure;
 	}
-	public static function getScreenAlignedQuadStructureLength():Int {
-		return 2;
-	}
 	
 	// Usable by decal
 	public static function createDecalStructure():VertexStructure {
 		var structure = new VertexStructure();
         structure.add("pos", VertexData.Float3);
         return structure;
-	}
-	public static function getDecalStructureLength():Int {
-		return 3;
 	}
 
 	public function getContext(id:String):ShaderContext {

@@ -76,8 +76,8 @@ class Geometry {
 		this.weights = weights;
 	}
 
-	public function build(structure:VertexStructure, structureLength:Int) {
-		this.structureLength = structureLength;
+	public function build(structure:VertexStructure) {
+		structureLength = Std.int(structure.byteSize() / 4);
 
 		vertexBuffer = new VertexBuffer(Std.int(data.length / structureLength),
 										structure, usage);

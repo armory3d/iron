@@ -10,7 +10,8 @@ import iron.resource.MaterialResource;
 class Node {
 	static var uidCounter = 0;
 	public var uid:Int;
-	
+	public var raw:TNode = null;
+
 	public var id:String = "";
 	public var parent:Node;
 

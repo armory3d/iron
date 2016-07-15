@@ -26,7 +26,7 @@ class LightResource extends Resource {
 		
 		if (type == "sun") {
 			lightType = 0;
-			P = Mat4.orthogonal(-10, 10, -10, 10, -30, 30, 2);
+			P = Mat4.orthogonal(-10, 10, -10, 10, -100, 100, 2);
 			// P = Mat4.orthogonal(-75 / 3.5, 75 / 3.5, -75 / 3.5, 75 / 3.5, -120 / 3.5, 120 / 3.5, 2);
 		}
 		else if (type == "point") {

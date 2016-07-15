@@ -6,13 +6,16 @@ import iron.math.Quat;
 import iron.resource.ModelResource;
 import iron.resource.SceneFormat;
 
-class Skinning {
+class Animation {
 
 	public var resource:ModelResource;
 	public var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
-	public var animation:Animation = null;
+	public var player:Player = null;
+	// Skinning
 	var boneMats = new Map<TNode, Mat4>();
 	var boneTimeIndices = new Map<TNode, Int>();
+	// Node based
+	var node:ModelNode;
 
 	var m = Mat4.identity(); // Skinning matrix
 	var bm = Mat4.identity(); // Absolute bone matrix
@@ -23,136 +26,156 @@ class Skinning {
 		this.resource = resource;
 	}
 
-	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
-		animation = new Animation(startTrack, names, starts, ends);
+	public function setupBoneAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
+		player = new Player(startTrack, names, starts, ends);
 
-		if (!ModelResource.ForceCpuSkinning) {
-			skinBuffer = new haxe.ds.Vector(50 * 12);
-			for (i in 0...skinBuffer.length) skinBuffer[i] = 0;
-		}
+		if (resource.isSkinned) {
+			if (!ModelResource.ForceCpuSkinning) {
+				skinBuffer = new haxe.ds.Vector(50 * 12);
+				for (i in 0...skinBuffer.length) skinBuffer[i] = 0;
+			}
 
-		for (b in resource.geometry.skeletonBones) {
-			boneMats.set(b, Mat4.fromArray(b.transform.values));
-			boneTimeIndices.set(b, 0);
-		}
-	}
-
-	public function setAnimationParams(delta:Float) {
-    	if (resource.isSkinned) {
-    		
-    		if (animation.paused) return;
-
-    		animation.animTime += delta * animation.speed;
-
-			updateAnim();
-			updateSkin();
-		}
-    }
-
-    function updateAnim() {
-    	// Animate bones
-		for (b in resource.geometry.skeletonBones) {
-			var boneAnim = b.animation;
-
-			if (boneAnim != null) {
-				var track = boneAnim.track;
-
-				// Current track has been changed
-				if (animation.dirty) {
-					animation.dirty = false;
-					// Single frame - set skin and pause
-					if (animation.current.frames == 0) {
-						animation.paused = true;
-						setAnimFrame(animation.current.start);
-						return;
-					}
-					// Animation - loop frames
-					else {
-						animation.timeIndex = animation.current.start;
-						animation.animTime = track.time.values[animation.timeIndex];
-					}
-				}
-
-				// Move keyframe
-				//var timeIndex = boneTimeIndices.get(b);
-				while (track.time.values.length > (animation.timeIndex + 1) &&
-					   animation.animTime > track.time.values[animation.timeIndex + 1]) {
-					animation.timeIndex++;
-				}
-				//boneTimeIndices.set(b, timeIndex);
-
-				// End of track
-				if (animation.timeIndex >= track.time.values.length - 1 ||
-					animation.timeIndex >= animation.current.end) {
-
-					// Rewind
-					if (animation.loop) {
-						animation.dirty = true;
-					}
-					// Pause
-					else {
-						animation.paused = true;
-					}
-
-					// Give chance to change current track
-					if (animation.onTrackComplete != null) animation.onTrackComplete();
-
-					//boneTimeIndices.set(b, animation.timeIndex);
-					//continue;
-					return;
-				}
-
-				var t1 = track.time.values[animation.timeIndex];
-				var t2 = track.time.values[animation.timeIndex + 1];
-				var s = (animation.animTime - t1) / (t2 - t1);
-				// TODO: lerp is inverted on certain nodes
-				//if (b.id == "stringPuller") {
-				//	s = 1.0 - s;
-				//}
-
-				var v1:Array<Float> = track.value.values[animation.timeIndex];
-				var v2:Array<Float> = track.value.values[animation.timeIndex + 1];
-
-				var m1 = Mat4.fromArray(v1);
-				var m2 = Mat4.fromArray(v2);
-
-				// Decompose
-				var p1 = m1.pos();
-				var p2 = m2.pos();
-				var s1 = m1.scaleV();
-				var s2 = m2.scaleV();
-				var q1 = m1.getQuat();
-				var q2 = m2.getQuat();
-
-				// Lerp
-				var fp = Vec4.lerp(p1, p2, s);
-				var fs = Vec4.lerp(s1, s2, s);
-				var fq = Quat.lerp(q1, q2, s);
-
-				// Compose
-				var m = boneMats.get(b);
-				fq.saveToMatrix(m);
-				m.scale(fs);
-				m._30 = fp.x;
-				m._31 = fp.y;
-				m._32 = fp.z;
-				boneMats.set(b, m);
+			for (b in resource.geometry.skeletonBones) {
+				boneMats.set(b, Mat4.fromArray(b.transform.values));
+				boneTimeIndices.set(b, 0);
 			}
 		}
 	}
 
-	function setAnimFrame(frame:Int) {
+	public function setupNodeAnimation(node:ModelNode, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
+		player = new Player(startTrack, names, starts, ends);
+		this.node = node;
+	}
+
+	public function setAnimationParams(delta:Float) {
+		if (player.paused) return;
+    	player.animTime += delta * player.speed;
+		
+		if (resource.isSkinned) {
+			updateBoneAnim();
+			updateSkin();
+		}
+		else {
+			updateNodeAnim();
+		}
+    }
+
+    function updateNodeAnim() {
+		updateAnim(node.raw.animation, node.transform.matrix);
+    }
+
+    function updateBoneAnim() {
+		for (b in resource.geometry.skeletonBones) {
+			updateAnim(b.animation, boneMats.get(b));
+		}
+	}
+
+    function updateAnim(anim:TAnimation, targetMatrix:Mat4) {
+    	if (anim != null) {
+			var track = anim.tracks[0];
+
+			// Current track has been changed
+			if (player.dirty) {
+				player.dirty = false;
+				// Single frame - set skin and pause
+				if (player.current.frames == 0) {
+					player.paused = true;
+					if (resource.isSkinned) setBoneAnimFrame(player.current.start);
+					else setNodeAnimFrame(player.current.start);
+					return;
+				}
+				// Animation - loop frames
+				else {
+					player.timeIndex = player.current.start;
+					player.animTime = track.time.values[player.timeIndex];
+				}
+			}
+
+			// Move keyframe
+			//var timeIndex = boneTimeIndices.get(b);
+			while (track.time.values.length > (player.timeIndex + 1) &&
+				   player.animTime > track.time.values[player.timeIndex + 1]) {
+				player.timeIndex++;
+			}
+			//boneTimeIndices.set(b, timeIndex);
+
+			// End of track
+			if (player.timeIndex >= track.time.values.length - 1 ||
+				player.timeIndex >= player.current.end) {
+
+				// Rewind
+				if (player.loop) {
+					player.dirty = true;
+				}
+				// Pause
+				else {
+					player.paused = true;
+				}
+
+				// Give chance to change current track
+				if (player.onTrackComplete != null) player.onTrackComplete();
+
+				//boneTimeIndices.set(b, player.timeIndex);
+				//continue;
+				return;
+			}
+
+			var t1 = track.time.values[player.timeIndex];
+			var t2 = track.time.values[player.timeIndex + 1];
+			var s = (player.animTime - t1) / (t2 - t1);
+
+			var v1:Array<Float> = track.value.values[player.timeIndex];
+			var v2:Array<Float> = track.value.values[player.timeIndex + 1];
+
+			var m1 = Mat4.fromArray(v1);
+			var m2 = Mat4.fromArray(v2);
+
+			// Decompose
+			var p1 = m1.pos();
+			var p2 = m2.pos();
+			var s1 = m1.scaleV();
+			var s2 = m2.scaleV();
+			var q1 = m1.getQuat();
+			var q2 = m2.getQuat();
+
+			// Lerp
+			var fp = Vec4.lerp(p1, p2, 1.0 - s);
+			// var fp = Vec4.lerp(p1, p2, s);
+			var fs = Vec4.lerp(s1, s2, s);
+			var fq = Quat.lerp(q1, q2, s);
+
+			// Compose
+			var m = targetMatrix;
+			fq.saveToMatrix(m);
+			m.scale(fs);
+			m._30 = fp.x;
+			m._31 = fp.y;
+			m._32 = fp.z;
+			// boneMats.set(b, m);
+		}
+    }
+
+	function setBoneAnimFrame(frame:Int) {
 		for (b in resource.geometry.skeletonBones) {
 			var boneAnim = b.animation;
-
 			if (boneAnim != null) {
-				var track = boneAnim.track;
+				var track = boneAnim.tracks[0];
 				var v1:Array<Float> = track.value.values[frame];
 				var m1 = Mat4.fromArray(v1);
 				boneMats.set(b, m1);
 			}
 		}
 		updateSkin();
+	}
+
+	function setNodeAnimFrame(frame:Int) {
+		var nodeAnim = node.raw.animation;
+		if (nodeAnim != null) {
+			var track = nodeAnim.tracks[0];
+			var v1:Array<Float> = track.value.values[frame];
+			var m1 = Mat4.fromArray(v1);
+			node.transform.matrix = m1;
+		}
 	}
 
 	function updateSkin() {
@@ -269,7 +292,7 @@ class Skinning {
 	}
 }
 
-class Animation {
+class Player {
 
 	public var animTime:Float = 0;
 	public var timeIndex:Int = 0; // TODO: use boneTimeIndices
