@@ -67,6 +67,8 @@ typedef TLightResource = {
 	public var color:Array<Float>;
 	public var strength:Float;
 	public var cast_shadow:Bool;
+	public var near_plane:Float;
+	public var far_plane:Float;
 	@:optional public var spot_size:Null<Float>;
 	@:optional public var spot_blend:Null<Float>;
 }

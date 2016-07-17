@@ -26,16 +26,15 @@ class LightResource extends Resource {
 		
 		if (type == "sun") {
 			lightType = 0;
-			P = Mat4.orthogonal(-10, 10, -10, 10, -100, 100, 2);
-			// P = Mat4.orthogonal(-75 / 3.5, 75 / 3.5, -75 / 3.5, 75 / 3.5, -120 / 3.5, 120 / 3.5, 2);
+			P = Mat4.orthogonal(-10, 10, -10, 10, -resource.far_plane, resource.far_plane, 2);
 		}
 		else if (type == "point") {
 			lightType = 1;
-			P = Mat4.perspective(45, 1, 0.1, 100);
+			P = Mat4.perspective(45, 1, resource.near_plane, resource.far_plane);
 		}
 		else if (type == "spot") {
 			lightType = 2;
-			P = Mat4.perspective(45, 1, 0.1, 100);
+			P = Mat4.perspective(45, 1, resource.near_plane, resource.far_plane);
 		}
 	}
 
