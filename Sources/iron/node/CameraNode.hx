@@ -57,20 +57,6 @@ class CameraNode extends Node {
 	}
 
 	public function updateMatrix() {
-		// var q = new Quat(); // Camera parent
-		// if (parent != null) {
-		// 	var rot = parent.transform.rot;
-		// 	q.set(rot.x, rot.y, rot.z, rot.w);
-		// 	q = q.inverse(q);
-		// }
-
-		// q.multiply(transform.rot, q); // Camera transform
-		// V = q.toMatrix();
-
-	    // var trans = Mat4.identity();
-	    // trans.translate(transform.absx(), transform.absy(), transform.absz());
-	    // V.multiply(trans, V);
-
 		transform.buildMatrix();
 		V.inverse2(transform.matrix);
 
@@ -169,7 +155,10 @@ class CameraNode extends Node {
 		updateMatrix();
 	}
 
-	public inline function right():Vec4 { return new Vec4(V._00, V._10, V._20); }
-	public inline function up():Vec4 { return new Vec4(V._01, V._11, V._21); }
-    public inline function look():Vec4 { return new Vec4(-V._02, -V._12, -V._22); }
+	// public inline function right():Vec4 { return new Vec4(V._00, V._10, V._20); }
+	// public inline function up():Vec4 { return new Vec4(V._01, V._11, V._21); }
+	// public inline function look():Vec4 { return new Vec4(-V._02, -V._12, -V._22); }
+	public inline function right():Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }
+	public inline function up():Vec4 { return new Vec4(transform.local._10, transform.local._11, transform.local._12); }
+    public inline function look():Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
 }

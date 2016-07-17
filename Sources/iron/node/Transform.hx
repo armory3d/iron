@@ -7,6 +7,7 @@ import iron.math.Quat;
 class Transform {
 
 	public var matrix:Mat4;
+	public var local:Mat4;
 	public var append:Mat4 = null;
 	public var dirty:Bool;
 
@@ -26,6 +27,7 @@ class Transform {
 
 	public function reset() {
 		matrix = Mat4.identity();
+		local = Mat4.identity();
 
 		pos = new Vec4();
 		rot = new Quat();
@@ -43,13 +45,11 @@ class Transform {
 	}
 
 	public function buildMatrix() {
-		matrix.compose(pos, rot, scale);
-
-		// Transform node
-		if (append != null) matrix.mult2(append);
+		local.compose(pos, rot, scale);
+		if (append != null) local.mult2(append);
 
 		if (node.parent != null) {
-			matrix.multiply3x4(matrix, node.parent.transform.matrix);
+			matrix.multiply3x4(local, node.parent.transform.matrix);
 		}
 
 		// Update children
