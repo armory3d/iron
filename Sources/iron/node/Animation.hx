@@ -221,10 +221,11 @@ class Animation {
 		// Assume position=0, normal=1 storage
 		var v = resource.geometry.vertexBuffers[0].lock();
 		var vnor = resource.geometry.vertexBuffers[1].lock();
+		var l = 3;
 #else
 		var v = resource.geometry.vertexBuffer.lock();
-#end
 		var l = resource.geometry.structLength;
+#end
 
 		var index = 0;
 
