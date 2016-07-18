@@ -13,6 +13,7 @@ typedef TSceneFormat = {
 	@:optional public var world_resources:Array<TWorldResource>;
 	@:optional public var world_ref:String;
 	@:optional public var nodes:Array<TNode>;
+	@:optional public var gravity:Array<Float>;
 }
 
 typedef TGeometryResource = {
