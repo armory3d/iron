@@ -20,6 +20,11 @@ class DecalNode extends Node {
 
 		RootNode.decals.push(this);
 	}
+
+	public override function removeChild(o:Node) {
+		RootNode.decals.remove(cast o);
+		super.removeChild(o);
+	}
 	
 	// Called before rendering decal in render pipeline
 	public function renderDecal(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {

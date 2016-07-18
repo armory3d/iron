@@ -15,4 +15,9 @@ class SpeakerNode extends Node {
 
 		iron.sys.Audio.playSound(Reflect.field(kha.Assets.sounds, resource.sound));
 	}
+
+	public override function removeChild(o:Node) {
+		RootNode.speakers.remove(cast o);
+		super.removeChild(o);
+	}
 }

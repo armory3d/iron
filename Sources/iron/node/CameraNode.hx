@@ -48,6 +48,11 @@ class CameraNode extends Node {
 		RootNode.cameras.push(this);
 	}
 
+	public override function removeChild(o:Node) {
+		RootNode.cameras.remove(cast o);
+		super.removeChild(o);
+	}
+
 	public function renderFrame(g:Graphics, root:Node, lights:Array<LightNode>) {
 		updateMatrix(); // TODO: only when dirty
 
@@ -66,9 +71,7 @@ class CameraNode extends Node {
 	}
 
 	function buildViewFrustum() {
-		VP.setIdentity();
-    	VP.mult2(V);
-    	VP.mult2(P);
+		VP.multiply(V, P);
 
 	    // Left plane
 	    frustumPlanes[0].setComponents(
@@ -109,6 +112,12 @@ class CameraNode extends Node {
 	    	VP._22,
 	    	VP._32
 	    );
+	    // frustumPlanes[4].setComponents(
+	    // 	VP._03 + VP._02,
+	    // 	VP._13 + VP._12,
+	    // 	VP._23 + VP._22,
+	    // 	VP._33 + VP._32
+	    // );
 	 
 	    // Far plane
 	    frustumPlanes[5].setComponents(
@@ -119,19 +128,15 @@ class CameraNode extends Node {
 	    );
 	 
 	    // Normalize planes
-	    for (plane in frustumPlanes) {
-	    	plane.normalize();
-	    }
+	    for (plane in frustumPlanes) plane.normalize();
 	}
 
 	static var sphere = new iron.math.Sphere();
-	public function sphereInFrustum(t:Transform, radius:Float):Bool {
+	public function sphereInFrustum(t:Transform):Bool {
 		for (plane in frustumPlanes) {	
-			sphere.set(t.pos, radius);
+			sphere.set(t.pos, t.radius);
 			// Outside the frustum
-			// TODO: *3 to be safe
-			if (plane.distanceToSphere(sphere) + radius * 3 < 0) {
-			//if (plane.distanceToSphere(sphere) + radius * 2 < 0) {
+			if (plane.distanceToSphere(sphere) + t.radius * 2 < 0) {
 				return false;
 			}
 	    }

@@ -13,12 +13,11 @@ class Node {
 	public var raw:TNode = null;
 
 	public var id:String = "";
-	public var parent:Node;
-
-	public var children:Array<Node> = [];
+	public var transform:Transform;
 	public var traits:Array<Trait> = [];
 
-	public var transform:Transform;
+	public var parent:Node;
+	public var children:Array<Node> = [];
 
 	public function new() {
 		uid = uidCounter++;
@@ -54,10 +53,6 @@ class Node {
 			}
 		}
 		return null;
-	}
-
-	public function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
-		for (c in children) c.render(g, context, camera, light, bindParams);
 	}
 
 	public function addTrait(t:Trait) {

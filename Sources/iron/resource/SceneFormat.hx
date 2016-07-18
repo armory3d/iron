@@ -81,7 +81,6 @@ typedef TCameraResource = {
 	public var near_plane:Float;
 	public var far_plane:Float;
 	@:optional public var frustum_culling:Bool;
-	@:optional public var draw_calls_sort:String;
 	public var pipeline:String;
 	public var type:String;
 }
@@ -278,6 +277,7 @@ typedef TNode = {
 	@:optional public var bones_ref:String;
 	@:optional public var parent:TNode;
 	@:optional public var visible:Null<Bool>;
+	@:optional public var local_transform_only:Null<Bool>; // No parent matrix applied
 }
 
 typedef TParticleReference = {

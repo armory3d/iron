@@ -26,6 +26,8 @@ class ModelNode extends Node {
 
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
 	
+	public var cameraDistance:Float;
+
 	// public static var _u1:Float = 0.25;
 	// public static var _u2:Float = 0.1;
 	// public static var _u3:Float = 5;
@@ -40,6 +42,11 @@ class ModelNode extends Node {
 		this.materials = materials;		
 		// processMaterials();
 		RootNode.models.push(this);
+	}
+
+	public override function removeChild(o:Node) {
+		RootNode.models.remove(cast o);
+		super.removeChild(o);
 	}
 
 	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
@@ -518,17 +525,12 @@ class ModelNode extends Node {
 		}
 	}
 
-	public override function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
-		super.render(g, context, camera, light, bindParams);
-
+	public function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 		// Skip render if material does not contain current context
 		if (materials[0].getContext(context) == null) return;
 
 		// Frustum culling
-		if (camera.resource.resource.frustum_culling &&
-			!camera.sphereInFrustum(transform, resource.geometry.radius)) {
-			return;
-		}
+		if (camera.resource.resource.frustum_culling && !camera.sphereInFrustum(transform)) return;
 
 		// Get context
 		var cc = cachedContexts.get(context);
@@ -595,6 +597,14 @@ class ModelNode extends Node {
 				g.drawIndexedVertices();
 			}
 		}
+
+#if WITH_PROFILE
+		RenderPath.drawCalls++;
+#end
+	}
+
+	public inline function computeCameraDistance(camX:Float, camY:Float, camZ:Float) {
+		cameraDistance = iron.math.Math.distance3dRaw(camX, camY, camZ, transform.absx(), transform.absy(), transform.absz());
 	}
 }
 

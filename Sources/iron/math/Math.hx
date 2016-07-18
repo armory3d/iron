@@ -149,10 +149,14 @@ class Math {
         return std.Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
     }
 
-    public static function distance3d(v1:Vec4, v2:Vec4):Float {
-        var vx = v1.x - v2.x;
-        var vy = v1.y - v2.y;
-        var vz = v1.z - v2.z;
+    public static inline function distance3d(v1:Vec4, v2:Vec4):Float {
+        return distance3dRaw(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+    }
+
+    public static inline function distance3dRaw(v1x:Float, v1y:Float, v1z:Float, v2x:Float, v2y:Float, v2z:Float):Float {
+        var vx = v1x - v2x;
+        var vy = v1y - v2y;
+        var vz = v1z - v2z;
         return std.Math.sqrt(vx * vx + vy * vy + vz * vz);
     }
 

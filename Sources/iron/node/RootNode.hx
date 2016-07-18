@@ -104,6 +104,7 @@ class RootNode extends Node {
 				}
 			}
 			node.transform.size.set(n.dimensions[0], n.dimensions[1], n.dimensions[2]);
+			node.transform.computeRadius();
 		}
 		else if (n.type == "speaker_node") {
 			node = Eg.addSpeakerNode(Resource.getSpeakerResourceById(resource.speaker_resources, n.object_ref), parent);	
@@ -132,6 +133,8 @@ class RootNode extends Node {
 	static function generateTranform(node:TNode, transform:Transform) {
 		transform.matrix = Mat4.fromArray(node.transform.values);
 		transform.matrix.decompose(transform.pos, transform.rot, transform.scale);
+		// Whether to apply parent matrix
+		if (node.local_transform_only != null) transform.localOnly = node.local_transform_only;
 	}
 
 	static function createTraits(n:TNode, node:Node) {

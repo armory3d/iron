@@ -34,6 +34,7 @@ class RenderPath {
 	var stageCommands:Array<TStageCommand>;
 	var stageParams:Array<Array<String>>;
 	var currentStageIndex = 0;
+	var sorted:Bool;
 	
 	var lights:Array<LightNode>;
 	public var currentLightIndex = 0;
@@ -45,8 +46,9 @@ class RenderPath {
 	var lastTime = 0.0;
 	var frameTime = 0.0;
 	var totalTime = 0.0;
-	public static var frameTimeAvg = 0.0;
 	var frames = 0;
+	public static var frameTimeAvg = 0.0;
+	public static var drawCalls = 0;
 #end
 
 	public function new(camera:CameraNode) {
@@ -122,13 +124,12 @@ class RenderPath {
 		currentRenderTarget = g;
 		currentRenderTargetW = iron.App.w;
 		currentRenderTargetH = iron.App.h;
+		sorted = false;
 
 		this.lights = lights;
 		currentLightIndex = 0;
 		
-		for (l in lights) {
-			/*if (l.V == null)*/ { l.buildMatrices(); }
-		}
+		for (l in lights) l.buildMatrices();
 
 		for (i in 0...stageCommands.length) {
 			currentStageIndex = i;
@@ -141,12 +142,13 @@ class RenderPath {
 		frames++;
 		if (totalTime > 1.0) {
 			frameTimeAvg = totalTime / frames;
-			// trace(frameTimeAvg);
+			trace("time: " + Math.round(frameTimeAvg * 10000) / 10 + "ms, draw calls: " + drawCalls);
 			totalTime = 0;
 			frames = 0;
 		}
 		frameTime = Scheduler.realTime() - lastTime;
 		lastTime = Scheduler.realTime();
+		drawCalls = 0;
 #end
 	}
 	
@@ -216,9 +218,23 @@ class RenderPath {
 
     function drawGeometry(params:Array<String>, root:Node) {
 		var context = params[0];
+		if (!sorted && params[1] == "front_to_back") { // Order max one per frame
+			var camX = camera.transform.absx();
+			var camY = camera.transform.absy();
+			var camZ = camera.transform.absz();
+			for (model in RootNode.models) {
+				model.computeCameraDistance(camX, camY, camZ);
+			}
+			RootNode.models.sort(function(a, b):Int {
+				return a.cameraDistance > b.cameraDistance ? 1 : -1;
+			});
+			sorted = true;
+		}
 		var g = currentRenderTarget;
 		var light = lights[currentLightIndex];
-		root.render(g, context, camera, light, bindParams);
+		for (model in RootNode.models) {
+			model.render(g, context, camera, light, bindParams);
+		}
 		end(g);
     }
 	

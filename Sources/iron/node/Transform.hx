@@ -5,20 +5,22 @@ import iron.math.Vec4;
 import iron.math.Quat;
 
 class Transform {
-
 	public var matrix:Mat4;
 	public var local:Mat4;
+	public var localOnly:Bool = false;
 	public var append:Mat4 = null;
 	public var dirty:Bool;
 
-	static var temp = Mat4.identity();
-
+	// Decomposed local matrix
 	public var pos:Vec4;
 	public var rot:Quat;
 	public var scale:Vec4;
 	public var size:Vec4;
+	public var radius:Float;
 
 	public var node:Node;
+
+	static var temp = Mat4.identity();
 
 	public function new(node:Node) {
 		this.node = node;
@@ -48,14 +50,17 @@ class Transform {
 		local.compose(pos, rot, scale);
 		if (append != null) local.mult2(append);
 
-		if (node.parent != null) {
+		if (!localOnly && node.parent != null) {
 			matrix.multiply3x4(local, node.parent.transform.matrix);
+		}
+		else {
+			matrix = local;
 		}
 
 		// Update children
-		for (n in node.children) {
-			n.transform.buildMatrix();
-		}
+		//for (n in node.children) {
+		//	n.transform.buildMatrix();
+		//}
 	}
 
 	public function set(x:Float = 0, y:Float = 0, z:Float = 0, rX:Float = 0, rY:Float = 0, rZ:Float = 0, sX:Float = 1, sY:Float = 1, sZ:Float = 1) {
@@ -149,9 +154,11 @@ class Transform {
         return f;
     }
 
+    public function computeRadius() {
+    	radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z) / 2;
+    }
+
  	public inline function absx():Float { return matrix._30; }
-
 	public inline function absy():Float { return matrix._31; }
-
 	public inline function absz():Float { return matrix._32; }
 }

@@ -21,10 +21,10 @@ class Geometry {
     public var instanced:Bool = false;
 	public var instanceCount:Int = 0;
 
-    public var aabbMin:Vec4;
-	public var aabbMax:Vec4;
-	public var size:Vec4;
-	public var radius:Float;
+    // public var aabbMin:Vec4;
+	// public var aabbMax:Vec4;
+	// public var size:Vec4;
+	// public var radius:Float;
 
 	var data:Array<Float>;
 	var ids:Array<Array<Int>>;
@@ -103,38 +103,37 @@ class Geometry {
 			indices.push(indicesA);
 		}
 
-		calculateAABB();
+		// calculateAABB();
 	}
 
-	function calculateAABB() {
+	// function calculateAABB() {
+	// 	aabbMin = new Vec4(-0.01, -0.01, -0.01);
+	// 	aabbMax = new Vec4(0.01, 0.01, 0.01);
+	// 	size = new Vec4();
 
-		aabbMin = new Vec4(-0.01, -0.01, -0.01);
-		aabbMax = new Vec4(0.01, 0.01, 0.01);
-		size = new Vec4();
+	// 	var i = 0;
+	// 	while (i < positions.length) {
 
-		var i = 0;
-		while (i < positions.length) {
+	// 		if (positions[i] > aabbMax.x)		aabbMax.x = positions[i];
+	// 		if (positions[i + 1] > aabbMax.y)	aabbMax.y = positions[i + 1];
+	// 		if (positions[i + 2] > aabbMax.z)	aabbMax.z = positions[i + 2];
 
-			if (positions[i] > aabbMax.x)		aabbMax.x = positions[i];
-			if (positions[i + 1] > aabbMax.y)	aabbMax.y = positions[i + 1];
-			if (positions[i + 2] > aabbMax.z)	aabbMax.z = positions[i + 2];
+	// 		if (positions[i] < aabbMin.x)		aabbMin.x = positions[i];
+	// 		if (positions[i + 1] < aabbMin.y)	aabbMin.y = positions[i + 1];
+	// 		if (positions[i + 2] < aabbMin.z)	aabbMin.z = positions[i + 2];
 
-			if (positions[i] < aabbMin.x)		aabbMin.x = positions[i];
-			if (positions[i + 1] < aabbMin.y)	aabbMin.y = positions[i + 1];
-			if (positions[i + 2] < aabbMin.z)	aabbMin.z = positions[i + 2];
+	// 		i += 3;
+	// 	}
 
-			i += 3;
-		}
+	// 	size.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);
+	// 	size.y = Math.abs(aabbMin.y) + Math.abs(aabbMax.y);
+	// 	size.z = Math.abs(aabbMin.z) + Math.abs(aabbMax.z);
 
-		size.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);
-		size.y = Math.abs(aabbMin.y) + Math.abs(aabbMax.y);
-		size.z = Math.abs(aabbMin.z) + Math.abs(aabbMax.z);
-
-		// Sphere radius
-		if (size.x >= size.y && size.x >= size.z) radius = size.x / 2;
-		else if (size.y >= size.x && size.y >= size.z) radius = size.y / 2;
-		else radius = size.z / 2;
-	}
+	// 	// Sphere radius
+	// 	if (size.x >= size.y && size.x >= size.z) radius = size.x / 2;
+	// 	else if (size.y >= size.x && size.y >= size.z) radius = size.y / 2;
+	// 	else radius = size.z / 2;
+	// }
 
 	public function getVerticesCount():Int {
 		return Std.int(vertices.length / structureLength);
