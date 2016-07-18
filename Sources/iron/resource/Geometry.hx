@@ -4,29 +4,33 @@ import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
+import kha.graphics4.VertexData;
 import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.resource.SceneFormat;
 
 class Geometry {
-
+#if WITH_DEINTERLEAVED
+	public var vertexBuffers:Array<VertexBuffer>;
+#else
 	public var vertexBuffer:VertexBuffer;
+	var data:haxe.ds.Vector<Float>;
+#end
 	public var indexBuffers:Array<IndexBuffer>;
     public var vertices:kha.arrays.Float32Array;
     public var indices:Array<Array<Int>>;
     public var materialIndices:Array<Int>;
-    public var structureLength:Int;
+    public var structLength:Int;
 
     public var instancedVertexBuffers:Array<VertexBuffer>;
-    public var instanced:Bool = false;
-	public var instanceCount:Int = 0;
+    public var instanced = false;
+	public var instanceCount = 0;
 
     // public var aabbMin:Vec4;
 	// public var aabbMax:Vec4;
 	// public var size:Vec4;
 	// public var radius:Float;
 
-	var data:Array<Float>;
 	var ids:Array<Array<Int>>;
 	public var usage:Usage;
 
@@ -52,7 +56,7 @@ class Geometry {
 	public var skeletonTransforms:Array<Mat4> = null;
 	public var skeletonTransformsI:Array<Mat4> = null;
 
-	public function new(data:Array<Float>, indices:Array<Array<Int>>, materialIndices:Array<Int>,
+	public function new(indices:Array<Array<Int>>, materialIndices:Array<Int>,
 						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>, cols:Array<Float>,
 						tangents:Array<Float> = null,
 						bones:Array<Float> = null, weights:Array<Float> = null,
@@ -60,43 +64,109 @@ class Geometry {
 
 		if (usage == null) usage = Usage.StaticUsage;
 
-		this.data = data;
 		this.ids = indices;
 		this.materialIndices = materialIndices;
 		this.usage = usage;
 
 		this.positions = positions;
-		this.uvs = uvs;
 		this.normals = normals;
+		this.uvs = uvs;
 		this.cols = cols;
-
 		this.tangents = tangents;
-
 		this.bones = bones;
 		this.weights = weights;
+
+		// TODO: Mandatory vertex data names and sizes
+		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
+		var struct = ShaderResource.getVertexStructure(positions != null, normals != null, uvs != null, cols != null, tangents != null, bones != null, weights != null);
+		structLength = Std.int(struct.byteSize() / 4);
+
+#if !WITH_DEINTERLEAVED
+		data = buildData(structLength, positions, normals, uvs, cols, tangents, bones, weights);
+#end
+		build(struct);
 	}
 
-	public function build(structure:VertexStructure) {
-		structureLength = Std.int(structure.byteSize() / 4);
+#if !WITH_DEINTERLEAVED
+	static function buildData(structLength:Int,
+							  pa:Array<Float> = null,
+					   		  na:Array<Float> = null,
+					   		  uva:Array<Float> = null,
+					   		  ca:Array<Float> = null,
+					   		  tana:Array<Float> = null,
+					   		  bonea:Array<Float> = null,
+					   		  weighta:Array<Float> = null):haxe.ds.Vector<Float> {
 
-		vertexBuffer = new VertexBuffer(Std.int(data.length / structureLength),
-										structure, usage);
-		vertices = vertexBuffer.lock();
-		
-		for (i in 0...vertices.length) {
-			vertices.set(i, data[i]);
+		var data = new haxe.ds.Vector<Float>(structLength);
+		var di = -1;
+		for (i in 0...Std.int(pa.length / 3)) {
+			data.set(++di, pa[i * 3]); // Positions
+			data.set(++di, pa[i * 3 + 1]);
+			data.set(++di, pa[i * 3 + 2]);
+
+			if (na != null) { // Normals
+				data.set(++di, na[i * 3]);
+				data.set(++di, na[i * 3 + 1]);
+				data.set(++di, na[i * 3 + 2]);
+			}
+			if (uva != null) { // Texture coords
+				data.set(++di, uva[i * 2]);
+				data.set(++di, 1 - uva[i * 2 + 1]);
+			}
+			if (ca != null) { // Colors
+				data.set(++di, ca[i * 3]);
+				data.set(++di, ca[i * 3 + 1]);
+				data.set(++di, ca[i * 3 + 2]);
+				data.set(++di, 1.0);
+			}
+			// Normal mapping
+			if (tana != null) { // Tangents
+				data.set(++di, tana[i * 3]);
+				data.set(++di, tana[i * 3 + 1]);
+				data.set(++di, tana[i * 3 + 2]);
+			}
+			// GPU skinning
+			if (bonea != null) { // Bone indices
+				data.set(++di, bonea[i * 4]);
+				data.set(++di, bonea[i * 4 + 1]);
+				data.set(++di, bonea[i * 4 + 2]);
+				data.set(++di, bonea[i * 4 + 3]);
+			}
+			if (weighta != null) { // Weights
+				data.set(++di, weighta[i * 4]);
+				data.set(++di, weighta[i * 4 + 1]);
+				data.set(++di, weighta[i * 4 + 2]);
+				data.set(++di, weighta[i * 4 + 3]);
+			}
 		}
+		return data;
+	}
+#end
+
+	public function build(struct:VertexStructure) {
+#if WITH_DEINTERLEAVED
+		vertexBuffers = [];
+		vertexBuffers.push(makeDeinterleavedVB(positions, "pos", 3));
+		if (normals != null) vertexBuffers.push(makeDeinterleavedVB(normals, "nor", 3));
+		if (uvs != null) vertexBuffers.push(makeDeinterleavedVB(uvs, "uv", 2));
+		if (cols != null) vertexBuffers.push(makeDeinterleavedVB(cols, "col", 4));
+		if (tangents != null) vertexBuffers.push(makeDeinterleavedVB(tangents, "tan", 3));
+		if (bones != null) vertexBuffers.push(makeDeinterleavedVB(bones, "bone", 4));
+		if (weights != null) vertexBuffers.push(makeDeinterleavedVB(weights, "weight", 4));
+#else
+		vertexBuffer = new VertexBuffer(Std.int(data.length / structLength),
+										struct, usage);
+		vertices = vertexBuffer.lock();
+		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		vertexBuffer.unlock();
+#end
 
 		indexBuffers = [];
 		indices = [];
 		for (id in ids) {
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			var indicesA = indexBuffer.lock();
-
-			for (i in 0...indicesA.length) {
-				indicesA[i] = id[i];
-			}
+			for (i in 0...indicesA.length) indicesA[i] = id[i];
 			indexBuffer.unlock();
 
 			indexBuffers.push(indexBuffer);
@@ -105,6 +175,22 @@ class Geometry {
 
 		// calculateAABB();
 	}
+
+#if WITH_DEINTERLEAVED
+	function makeDeinterleavedVB(data:Array<Float>, name:String, structLength:Int) {
+		var struct = new VertexStructure();
+		if (structLength == 2) struct.add(name, VertexData.Float2);
+		else if (structLength == 3) struct.add(name, VertexData.Float3);
+		else if (structLength == 4) struct.add(name, VertexData.Float4);
+
+		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength),
+										struct, usage);
+		var vertices = vertexBuffer.lock();
+		for (i in 0...vertices.length) vertices.set(i, data[i]);
+		vertexBuffer.unlock();
+		return vertexBuffer;
+	}
+#end
 
 	// function calculateAABB() {
 	// 	aabbMin = new Vec4(-0.01, -0.01, -0.01);
@@ -136,7 +222,7 @@ class Geometry {
 	// }
 
 	public function getVerticesCount():Int {
-		return Std.int(vertices.length / structureLength);
+		return Std.int(vertices.length / structLength);
 	}
 
 	// Skinned

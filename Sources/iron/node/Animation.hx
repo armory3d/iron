@@ -217,8 +217,14 @@ class Animation {
 	}
 
 	function updateSkinCpu() {
+#if WITH_DEINTERLEAVED
+		// Assume position=0, normal=1 storage
+		var v = resource.geometry.vertexBuffers[0].lock();
+		var vnor = resource.geometry.vertexBuffers[1].lock();
+#else
 		var v = resource.geometry.vertexBuffer.lock();
-		var l = resource.geometry.structureLength;
+#end
+		var l = resource.geometry.structLength;
 
 		var index = 0;
 
@@ -279,6 +285,14 @@ class Animation {
 				nor.add(m.pos());
 			}
 
+#if WITH_DEINTERLEAVED
+			v.set(i * l, pos.x);
+			v.set(i * l + 1, pos.y);
+			v.set(i * l + 2, pos.z);
+			vnor.set(i * l, nor.x);
+			vnor.set(i * l + 1, nor.y);
+			vnor.set(i * l + 2, nor.z);
+#else
 			// TODO: use correct vertex structure
 			v.set(i * l, pos.x);
 			v.set(i * l + 1, pos.y);
@@ -286,9 +300,15 @@ class Animation {
 			v.set(i * l + 3, nor.x);
 			v.set(i * l + 4, nor.y);
 			v.set(i * l + 5, nor.z);
+#end
 		}
 
+#if WITH_DEINTERLEAVED
+		resource.geometry.vertexBuffers[0].unlock();
+		resource.geometry.vertexBuffers[1].unlock();
+#else
 		resource.geometry.vertexBuffer.unlock();
+#end
 	}
 }
 

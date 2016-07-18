@@ -576,7 +576,11 @@ class ModelNode extends Node {
 			g.setVertexBuffers(resource.geometry.instancedVertexBuffers);
 		}
 		else {
+#if WITH_DEINTERLEAVED
+			g.setVertexBuffers(resource.geometry.vertexBuffers);
+#else
 			g.setVertexBuffer(resource.geometry.vertexBuffer);
+#end
 		}
 
 		setConstants(g, shaderContext, this, camera, light, bindParams);

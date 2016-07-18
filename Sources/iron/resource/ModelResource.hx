@@ -50,6 +50,7 @@ class ModelResource extends Resource {
 
 		// Skinning
 		isSkinned = resource.mesh.skin != null ? true : false;
+		
 		// Usage, also used for instanced data
 		var parsedUsage = Usage.StaticUsage;
 		if (resource.mesh.static_usage != null && resource.mesh.static_usage == false) parsedUsage = Usage.DynamicUsage;
@@ -76,16 +77,9 @@ class ModelResource extends Resource {
 				index += boneCount;
 			}
 		}
-
-		// Create data
-		var data = buildData(pa, na, uva, ca, tana, bonea, weighta);
 		
-		// TODO: Mandatory vertex data names and sizes
-		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
-		var struct = ShaderResource.getVertexStructure(pa != null, na != null, uva != null, ca != null, tana != null, bonea != null, weighta != null);
-		
-		geometry = new Geometry(data, indices, materialIndices, pa, na, uva, ca, tana, bonea, weighta, usage);		
-		geometry.build(struct);
+		// Make vertex buffers
+		geometry = new Geometry(indices, materialIndices, pa, na, uva, ca, tana, bonea, weighta, usage);
 
 		// Instanced
 		if (resource.mesh.instance_offsets != null) {
@@ -109,7 +103,13 @@ class ModelResource extends Resource {
 		}
 		vb.unlock();
 
+#if WITH_DEINTERLEAVED
+		geometry.instancedVertexBuffers = [];
+		for (vb in geometry.vertexBuffers) geometry.instancedVertexBuffers.push(vb);
+		geometry.instancedVertexBuffers.push(vb);
+#else
 		geometry.instancedVertexBuffers = [geometry.vertexBuffer, vb];
+#end
 	}
 
 	public static function parse(name:String, id:String, boneNodes:Array<TNode> = null):ModelResource {
@@ -170,64 +170,5 @@ class ModelResource extends Resource {
 			}
 		}
 		return null;
-	}
-
-	function buildData(pa:Array<Float> = null,
-					   na:Array<Float> = null,
-					   uva:Array<Float> = null,
-					   ca:Array<Float> = null,
-					   tana:Array<Float> = null,
-					   bonea:Array<Float> = null,
-					   weighta:Array<Float> = null):Array<Float> {
-
-		var data:Array<Float> = [];
-		for (i in 0...Std.int(pa.length / 3)) {
-			
-			data.push(pa[i * 3]); // Pos
-			data.push(pa[i * 3 + 1]);
-			data.push(pa[i * 3 + 2]);
-
-			if (na != null) { // Normals
-				data.push(na[i * 3]);
-				data.push(na[i * 3 + 1]);
-				data.push(na[i * 3 + 2]);
-			}
-
-			if (uva != null) { // TC
-				data.push(uva[i * 2]);
-				data.push(1 - uva[i * 2 + 1]);
-			}
-
-			if (ca != null) { // Colors
-				data.push(ca[i * 3]);
-				data.push(ca[i * 3 + 1]);
-				data.push(ca[i * 3 + 2]);
-				data.push(1.0);
-			}
-
-			// Normal mapping
-			if (tana != null) { // Tangents
-				data.push(tana[i * 3]);
-				data.push(tana[i * 3 + 1]);
-				data.push(tana[i * 3 + 2]);
-			}
-
-			// GPU skinning
-			if (bonea != null) { // Bone indices
-				data.push(bonea[i * 4]);
-				data.push(bonea[i * 4 + 1]);
-				data.push(bonea[i * 4 + 2]);
-				data.push(bonea[i * 4 + 3]);
-			}
-
-			if (weighta != null) { // Weights
-				data.push(weighta[i * 4]);
-				data.push(weighta[i * 4 + 1]);
-				data.push(weighta[i * 4 + 2]);
-				data.push(weighta[i * 4 + 3]);
-			}
-		}
-
-		return data;
 	}
 }
