@@ -530,7 +530,14 @@ class ModelNode extends Node {
 		if (materials[0].getContext(context) == null) return;
 
 		// Frustum culling
-		if (camera.resource.resource.frustum_culling && !camera.sphereInFrustum(transform)) return;
+		if (camera.resource.resource.frustum_culling) {
+		 	if (context == "shadowmap") { // Hard-coded for now
+		 		if (!CameraNode.sphereInFrustum(light.frustumPlanes, transform)) return;
+		 	}
+		 	else {
+		 		if (!CameraNode.sphereInFrustum(camera.frustumPlanes, transform)) return;
+		 	}
+		}
 
 		// Get context
 		var cc = cachedContexts.get(context);
@@ -579,7 +586,12 @@ class ModelNode extends Node {
 #if WITH_DEINTERLEAVED
 			g.setVertexBuffers(resource.geometry.vertexBuffers);
 #else
-			g.setVertexBuffer(resource.geometry.vertexBuffer);
+			// if (context == "shadowmap") { // Hard-coded for now
+				// g.setVertexBuffer(resource.geometry.vertexBufferDepth);
+			// }
+			// else {
+				g.setVertexBuffer(resource.geometry.vertexBuffer);
+			// }
 #end
 		}
 

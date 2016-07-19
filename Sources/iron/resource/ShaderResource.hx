@@ -73,7 +73,7 @@ class ShaderResource extends Resource {
 		if (pos) structure.add("pos", VertexData.Float3);
 		if (nor) structure.add("nor", VertexData.Float3);
 		if (tex) structure.add("tex", VertexData.Float2);
-		if (col) structure.add("col", VertexData.Float4);
+		if (col) structure.add("col", VertexData.Float3);
 		if (tan) structure.add("tan", VertexData.Float3);
 		if (bone) structure.add("bone", VertexData.Float4);
 		if (weight) structure.add("weight", VertexData.Float4);

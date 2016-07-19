@@ -225,6 +225,8 @@ class Animation {
 #else
 		var v = resource.geometry.vertexBuffer.lock();
 		var l = resource.geometry.structLength;
+		// var vdepth = resource.geometry.vertexBufferDepth.lock();
+		// var ldepth = resource.geometry.structLengthDepth;
 #end
 
 		var index = 0;
@@ -301,6 +303,9 @@ class Animation {
 			v.set(i * l + 3, nor.x);
 			v.set(i * l + 4, nor.y);
 			v.set(i * l + 5, nor.z);
+			// vdepth.set(i * ldepth, pos.x);
+			// vdepth.set(i * ldepth + 1, pos.y);
+			// vdepth.set(i * ldepth + 2, pos.z);
 #end
 		}
 
@@ -309,6 +314,7 @@ class Animation {
 		resource.geometry.vertexBuffers[1].unlock();
 #else
 		resource.geometry.vertexBuffer.unlock();
+		// resource.geometry.vertexBufferDepth.unlock();
 #end
 	}
 }

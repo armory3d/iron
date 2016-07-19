@@ -14,7 +14,8 @@ class Geometry {
 	public var vertexBuffers:Array<VertexBuffer>;
 #else
 	public var vertexBuffer:VertexBuffer;
-	var data:haxe.ds.Vector<Float>;
+	// public var vertexBufferDepth:VertexBuffer; // Depth pass - pos, bone, weight
+	// public var structLengthDepth:Int;
 #end
 	public var indexBuffers:Array<IndexBuffer>;
     public var vertices:kha.arrays.Float32Array;
@@ -76,18 +77,10 @@ class Geometry {
 		this.bones = bones;
 		this.weights = weights;
 
-		// TODO: Mandatory vertex data names and sizes
-		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
-		var struct = ShaderResource.getVertexStructure(positions != null, normals != null, uvs != null, cols != null, tangents != null, bones != null, weights != null);
-		structLength = Std.int(struct.byteSize() / 4);
-
-#if !WITH_DEINTERLEAVED
-		data = buildData(structLength, positions, normals, uvs, cols, tangents, bones, weights);
-#end
-		build(struct);
+		build();
 	}
 
-#if !WITH_DEINTERLEAVED
+#if (!WITH_DEINTERLEAVED)
 	static function buildData(structLength:Int,
 							  pa:Array<Float> = null,
 					   		  na:Array<Float> = null,
@@ -97,9 +90,10 @@ class Geometry {
 					   		  bonea:Array<Float> = null,
 					   		  weighta:Array<Float> = null):haxe.ds.Vector<Float> {
 
-		var data = new haxe.ds.Vector<Float>(structLength);
+		var numVertices = Std.int(pa.length / 3);
+		var data = new haxe.ds.Vector<Float>(structLength * numVertices);
 		var di = -1;
-		for (i in 0...Std.int(pa.length / 3)) {
+		for (i in 0...numVertices) {
 			data.set(++di, pa[i * 3]); // Positions
 			data.set(++di, pa[i * 3 + 1]);
 			data.set(++di, pa[i * 3 + 2]);
@@ -111,13 +105,12 @@ class Geometry {
 			}
 			if (uva != null) { // Texture coords
 				data.set(++di, uva[i * 2]);
-				data.set(++di, 1 - uva[i * 2 + 1]);
+				data.set(++di, uva[i * 2 + 1]);
 			}
 			if (ca != null) { // Colors
 				data.set(++di, ca[i * 3]);
 				data.set(++di, ca[i * 3 + 1]);
 				data.set(++di, ca[i * 3 + 2]);
-				data.set(++di, 1.0);
 			}
 			// Normal mapping
 			if (tana != null) { // Tangents
@@ -143,22 +136,39 @@ class Geometry {
 	}
 #end
 
-	public function build(struct:VertexStructure) {
+	public function build() {
 #if WITH_DEINTERLEAVED
 		vertexBuffers = [];
 		vertexBuffers.push(makeDeinterleavedVB(positions, "pos", 3));
 		if (normals != null) vertexBuffers.push(makeDeinterleavedVB(normals, "nor", 3));
 		if (uvs != null) vertexBuffers.push(makeDeinterleavedVB(uvs, "uv", 2));
-		if (cols != null) vertexBuffers.push(makeDeinterleavedVB(cols, "col", 4));
+		if (cols != null) vertexBuffers.push(makeDeinterleavedVB(cols, "col", 3));
 		if (tangents != null) vertexBuffers.push(makeDeinterleavedVB(tangents, "tan", 3));
 		if (bones != null) vertexBuffers.push(makeDeinterleavedVB(bones, "bone", 4));
 		if (weights != null) vertexBuffers.push(makeDeinterleavedVB(weights, "weight", 4));
 #else
-		vertexBuffer = new VertexBuffer(Std.int(data.length / structLength),
-										struct, usage);
+		// TODO: Mandatory vertex data names and sizes
+		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
+		var struct = ShaderResource.getVertexStructure(positions != null, normals != null, uvs != null, cols != null, tangents != null, bones != null, weights != null);
+		structLength = Std.int(struct.byteSize() / 4);
+		var data = buildData(structLength, positions, normals, uvs, cols, tangents, bones, weights);
+
+		vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
 		vertices = vertexBuffer.lock();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		vertexBuffer.unlock();
+
+		// For depth passes, pos=3, bone=4, weight=4
+	// #if (!WITHOUT_SHADOWS)
+		// var structDepth = ShaderResource.getVertexStructure(positions != null, bones != null, weights != null);
+		// structLengthDepth = Std.int(struct.byteSize() / 4);
+		// var dataDepth = buildData(structLengthDepth, positions, bones, weights);
+
+		// vertexBufferDepth = new VertexBuffer(Std.int(dataDepth.length / structLengthDepth), structDepth, usage);
+		// var verticesDepth = vertexBufferDepth.lock();
+		// for (i in 0...verticesDepth.length) verticesDepth.set(i, dataDepth[i]);
+		// vertexBufferDepth.unlock();
+	// #end
 #end
 
 		indexBuffers = [];
@@ -183,8 +193,7 @@ class Geometry {
 		else if (structLength == 3) struct.add(name, VertexData.Float3);
 		else if (structLength == 4) struct.add(name, VertexData.Float4);
 
-		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength),
-										struct, usage);
+		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
 		var vertices = vertexBuffer.lock();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		vertexBuffer.unlock();
@@ -222,7 +231,7 @@ class Geometry {
 	// }
 
 	public function getVerticesCount():Int {
-		return Std.int(vertices.length / structLength);
+		return Std.int(positions.length / 3);
 	}
 
 	// Skinned

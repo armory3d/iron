@@ -50,7 +50,7 @@ class ModelResource extends Resource {
 
 		// Skinning
 		isSkinned = resource.mesh.skin != null ? true : false;
-		
+
 		// Usage, also used for instanced data
 		var parsedUsage = Usage.StaticUsage;
 		if (resource.mesh.static_usage != null && resource.mesh.static_usage == false) parsedUsage = Usage.DynamicUsage;

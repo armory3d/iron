@@ -129,7 +129,7 @@ class RenderPath {
 		this.lights = lights;
 		currentLightIndex = 0;
 		
-		for (l in lights) l.buildMatrices();
+		for (l in lights) l.buildMatrices(camera);
 
 		for (i in 0...stageCommands.length) {
 			currentStageIndex = i;

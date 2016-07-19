@@ -19,7 +19,7 @@ class CameraNode extends Node {
 	public var V:Mat4;
 	public var prevV:Mat4;
 	public var VP:Mat4;
-	var frustumPlanes:Array<Plane> = null;
+	public var frustumPlanes:Array<Plane> = null;
 
 	public function new(resource:CameraResource) {
 		super();
@@ -40,9 +40,7 @@ class CameraNode extends Node {
 
 		if (resource.resource.frustum_culling) {
 			frustumPlanes = [];
-			for (i in 0...6) {
-				frustumPlanes.push(new Plane());
-			}
+			for (i in 0...6) frustumPlanes.push(new Plane());
 		}
 
 		RootNode.cameras.push(this);
@@ -66,13 +64,12 @@ class CameraNode extends Node {
 		V.inverse2(transform.matrix);
 
 		if (resource.resource.frustum_culling) {
-			buildViewFrustum();
+			VP.multiply(V, P);
+			buildViewFrustum(VP, frustumPlanes);
 		}
 	}
 
-	function buildViewFrustum() {
-		VP.multiply(V, P);
-
+	public static function buildViewFrustum(VP:Mat4, frustumPlanes:Array<Plane>) {
 	    // Left plane
 	    frustumPlanes[0].setComponents(
 	    	VP._03 + VP._00,
@@ -132,7 +129,7 @@ class CameraNode extends Node {
 	}
 
 	static var sphere = new iron.math.Sphere();
-	public function sphereInFrustum(t:Transform):Bool {
+	public static function sphereInFrustum(frustumPlanes:Array<Plane>, t:Transform):Bool {
 		for (plane in frustumPlanes) {	
 			sphere.set(t.pos, t.radius);
 			// Outside the frustum
