@@ -80,17 +80,21 @@ class ShaderResource extends Resource {
 		return structure;
 	}
 
-	// Usable by fullscreen quad
+	// Specialized structures
 	public static function createScreenAlignedQuadStructure():VertexStructure {
 		var structure = new VertexStructure();
         structure.add("pos", VertexData.Float2);
         return structure;
 	}
-	
-	// Usable by decal
 	public static function createDecalStructure():VertexStructure {
 		var structure = new VertexStructure();
         structure.add("pos", VertexData.Float3);
+        return structure;
+	}
+	public static function createSkydomeStructure():VertexStructure {
+		var structure = new VertexStructure();
+        structure.add("pos", VertexData.Float3);
+        structure.add("nor", VertexData.Float3);
         return structure;
 	}
 

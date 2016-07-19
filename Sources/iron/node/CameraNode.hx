@@ -20,6 +20,8 @@ class CameraNode extends Node {
 	public var prevV:Mat4;
 	public var VP:Mat4;
 	public var frustumPlanes:Array<Plane> = null;
+	public var nearPlane:Float;
+	public var farPlane:Float;
 
 	public function new(resource:CameraResource) {
 		super();
@@ -28,12 +30,16 @@ class CameraNode extends Node {
 
 		renderPath = new RenderPath(this);
 
+		nearPlane = resource.resource.near_plane;
+		farPlane = resource.resource.far_plane;
+
 		if (resource.resource.type == "perspective") {
-			P = Mat4.perspective(3.14159265 / 4, App.w / App.h, resource.resource.near_plane, resource.resource.far_plane);
+			P = Mat4.perspective(3.14159265 / 4, App.w / App.h, nearPlane, farPlane);
 		}
 		else if (resource.resource.type == "orthographic") {
-			P = Mat4.orthogonal(-10, 10, -6, 6, -resource.resource.far_plane, resource.resource.far_plane, 2);
+			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane, 2);
 		}
+
 		V = Mat4.identity();
 		prevV = V;
 		VP = Mat4.identity();

@@ -6,6 +6,7 @@ import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
 import iron.math.Vec4;
+import iron.math.Quat;
 import iron.math.Mat4;
 import iron.resource.ModelResource;
 import iron.resource.MaterialResource;
@@ -21,8 +22,10 @@ class ModelNode extends Node {
 	public var animation:Animation = null;
 
 	static var helpMat = Mat4.identity();
-	static var helpMat2 = Mat4.identity();
+	// static var helpMat2 = Mat4.identity();
 	static var helpVec = new Vec4();
+	static var helpVec2 = new Vec4();
+	static var helpQuat = new Quat();
 
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
 	
@@ -241,6 +244,15 @@ class ModelNode extends Node {
 		    	if (node != null) helpMat.mult2(node.transform.matrix); // node is null for DrawQuad
 		    	helpMat.mult2(light.V);
 		    	helpMat.mult2(light.resource.P);
+		    	m = helpMat;
+			}
+			else if (c.link == "_skydomeMatrix") {
+				var cpos = camera.transform.pos;
+				helpVec.set(cpos.x, cpos.y, cpos.z + 3.0);
+				helpVec2.set(camera.farPlane - 5.0, camera.farPlane - 5.0, camera.farPlane - 5.0);
+				helpMat.compose(helpVec, helpQuat, helpVec2);
+		    	helpMat.mult2(camera.V);
+		    	helpMat.mult2(camera.P);
 		    	m = helpMat;
 			}
 			else if (c.link == "_lightViewMatrix") {

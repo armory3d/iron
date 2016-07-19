@@ -30,6 +30,8 @@ class RenderPath {
 	static var screenAlignedIB:IndexBuffer = null;
 	static var decalVB:VertexBuffer = null;
 	static var decalIB:IndexBuffer = null;
+	static var skydomeVB:VertexBuffer = null;
+	static var skydomeIB:IndexBuffer = null;
 
 	var stageCommands:Array<TStageCommand>;
 	var stageParams:Array<Array<String>>;
@@ -59,6 +61,7 @@ class RenderPath {
 
 		if (screenAlignedVB == null) createScreenAlignedData();
 		if (decalVB == null) createDecalData();
+		if (skydomeVB == null) createSkydomeData();
 	}
 
 	static function createScreenAlignedData() {
@@ -68,21 +71,14 @@ class RenderPath {
 		// TODO: Mandatory vertex data names and sizes
 		// pos=2
 		var struct = ShaderResource.createScreenAlignedQuadStructure();
-		screenAlignedVB = new VertexBuffer(Std.int(data.length / Std.int(struct.byteSize() / 4)),
-										   struct, Usage.StaticUsage);
+		screenAlignedVB = new VertexBuffer(Std.int(data.length / Std.int(struct.byteSize() / 4)), struct, Usage.StaticUsage);
 		var vertices = screenAlignedVB.lock();
-		
-		for (i in 0...vertices.length) {
-			vertices.set(i, data[i]);
-		}
+		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		screenAlignedVB.unlock();
 
 		screenAlignedIB = new IndexBuffer(indices.length, Usage.StaticUsage);
 		var id = screenAlignedIB.lock();
-
-		for (i in 0...id.length) {
-			id[i] = indices[i];
-		}
+		for (i in 0...id.length) id[i] = indices[i];
 		screenAlignedIB.unlock();
 	}
 	
@@ -101,22 +97,40 @@ class RenderPath {
 
 		// pos=3
 		var struct = ShaderResource.createDecalStructure();
-		decalVB = new VertexBuffer(Std.int(data.length / Std.int(struct.byteSize() / 4)),
-										   struct, Usage.StaticUsage);
+		decalVB = new VertexBuffer(Std.int(data.length / Std.int(struct.byteSize() / 4)), struct, Usage.StaticUsage);
 		var vertices = decalVB.lock();
-		
-		for (i in 0...vertices.length) {
-			vertices.set(i, data[i]);
-		}
+		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		decalVB.unlock();
 
 		decalIB = new IndexBuffer(indices.length, Usage.StaticUsage);
 		var id = decalIB.lock();
-
-		for (i in 0...id.length) {
-			id[i] = indices[i];
-		}
+		for (i in 0...id.length) id[i] = indices[i];
 		decalIB.unlock();
+	}
+
+	static function createSkydomeData() {
+		// pos=3, nor=3
+		var struct = ShaderResource.createSkydomeStructure();
+		var structLength = Std.int(struct.byteSize() / 4);
+		var pos = iron.resource.ConstData.skydomePos;
+		var nor = iron.resource.ConstData.skydomeNor;
+		skydomeVB = new VertexBuffer(Std.int(pos.length / 3), struct, Usage.StaticUsage);
+		var vertices = skydomeVB.lock();
+		for (i in 0...Std.int(vertices.length / structLength)) {
+			vertices.set(i * structLength, pos[i * 3]);
+			vertices.set(i * structLength + 1, pos[i * 3 + 1]);
+			vertices.set(i * structLength + 2, pos[i * 3 + 2]);
+			vertices.set(i * structLength + 3, -nor[i * 3]); // Flip to match quad
+			vertices.set(i * structLength + 4, -nor[i * 3 + 1]);
+			vertices.set(i * structLength + 5, -nor[i * 3 + 2]);
+		}
+		skydomeVB.unlock();
+
+		var indices = iron.resource.ConstData.skydomeIndices;
+		skydomeIB = new IndexBuffer(indices.length, Usage.StaticUsage);
+		var id = skydomeIB.lock();
+		for (i in 0...id.length) id[i] = indices[i];
+		skydomeIB.unlock();
 	}
 
 	public function renderFrame(g:Graphics, root:Node, lights:Array<LightNode>) {
@@ -243,11 +257,36 @@ class RenderPath {
 		var g = currentRenderTarget;
 		var light = lights[currentLightIndex];
 		for (decal in RootNode.decals) {
-			decal.renderDecal(g, context, camera, light, bindParams);
+			decal.render(g, context, camera, light, bindParams);
 			g.setVertexBuffer(decalVB);
 			g.setIndexBuffer(decalIB);
 			g.drawIndexedVertices();
 		}
+		end(g);
+    }
+
+    function drawSkydome(params:Array<String>, root:Node) {		
+    	var handle = params[0];
+    	var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		if (cc == null) {
+			var matPath = handle.split("/");
+			var res = Resource.getMaterial(matPath[0], matPath[1]);
+			cc = new CachedShaderContext();
+			cc.materialContext = res.getContext(matPath[2]);
+			cc.context = res.shader.getContext(matPath[2]);
+			cachedShaderContexts.set(handle, cc);
+		}
+
+		var g = currentRenderTarget;
+		g.setPipeline(cc.context.pipeState);
+		var light = lights[currentLightIndex];
+		ModelNode.setConstants(g, cc.context, null, camera, light, bindParams);
+		if (cc.materialContext != null) {
+			ModelNode.setMaterialConstants(g, cc.context, cc.materialContext);
+		}
+		g.setVertexBuffer(skydomeVB);
+		g.setIndexBuffer(skydomeIB);
+		g.drawIndexedVertices();
 		end(g);
     }
 
@@ -380,6 +419,9 @@ class RenderPath {
 		}
 		else if (command == "draw_decals") {
 			return drawDecals;
+		}
+		else if (command == "draw_skydome") {
+			return drawSkydome;
 		}
 		else if (command == "bind_target") {
 			return bindTarget;

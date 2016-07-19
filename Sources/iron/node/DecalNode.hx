@@ -27,7 +27,7 @@ class DecalNode extends Node {
 	}
 	
 	// Called before rendering decal in render pipeline
-	public function renderDecal(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
+	public function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
 		
 		if (cachedContext == null) {
 			cachedContext = new CachedModelContext();
