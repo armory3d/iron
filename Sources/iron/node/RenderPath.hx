@@ -249,6 +249,9 @@ class RenderPath {
 		for (model in RootNode.models) {
 			model.render(g, context, camera, light, bindParams);
 		}
+		for (model in RootNode.overlays) {
+			model.render(g, context, camera, light, bindParams);	
+		}
 		end(g);
     }
 	

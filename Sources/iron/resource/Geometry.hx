@@ -81,58 +81,56 @@ class Geometry {
 	}
 
 #if (!WITH_DEINTERLEAVED)
-	static function buildData(structLength:Int,
-							  pa:Array<Float> = null,
-					   		  na:Array<Float> = null,
-					   		  uva:Array<Float> = null,
-					   		  ca:Array<Float> = null,
-					   		  tana:Array<Float> = null,
-					   		  bonea:Array<Float> = null,
-					   		  weighta:Array<Float> = null):haxe.ds.Vector<Float> {
+	static function buildVertices(vertices:kha.arrays.Float32Array,
+							  	  pa:Array<Float> = null,
+					   		  	  na:Array<Float> = null,
+					   		  	  uva:Array<Float> = null,
+					   		  	  ca:Array<Float> = null,
+					   		  	  tana:Array<Float> = null,
+					   		  	  bonea:Array<Float> = null,
+					   		  	  weighta:Array<Float> = null) {
 
 		var numVertices = Std.int(pa.length / 3);
-		var data = new haxe.ds.Vector<Float>(structLength * numVertices);
 		var di = -1;
 		for (i in 0...numVertices) {
-			data.set(++di, pa[i * 3]); // Positions
-			data.set(++di, pa[i * 3 + 1]);
-			data.set(++di, pa[i * 3 + 2]);
+			vertices.set(++di, pa[i * 3]); // Positions
+			vertices.set(++di, pa[i * 3 + 1]);
+			vertices.set(++di, pa[i * 3 + 2]);
 
 			if (na != null) { // Normals
-				data.set(++di, na[i * 3]);
-				data.set(++di, na[i * 3 + 1]);
-				data.set(++di, na[i * 3 + 2]);
+				vertices.set(++di, na[i * 3]);
+				vertices.set(++di, na[i * 3 + 1]);
+				vertices.set(++di, na[i * 3 + 2]);
 			}
 			if (uva != null) { // Texture coords
-				data.set(++di, uva[i * 2]);
-				data.set(++di, uva[i * 2 + 1]);
+				vertices.set(++di, uva[i * 2]);
+				vertices.set(++di, uva[i * 2 + 1]);
 			}
 			if (ca != null) { // Colors
-				data.set(++di, ca[i * 3]);
-				data.set(++di, ca[i * 3 + 1]);
-				data.set(++di, ca[i * 3 + 2]);
+				vertices.set(++di, ca[i * 3]);
+				vertices.set(++di, ca[i * 3 + 1]);
+				vertices.set(++di, ca[i * 3 + 2]);
 			}
 			// Normal mapping
 			if (tana != null) { // Tangents
-				data.set(++di, tana[i * 3]);
-				data.set(++di, tana[i * 3 + 1]);
-				data.set(++di, tana[i * 3 + 2]);
+				vertices.set(++di, tana[i * 3]);
+				vertices.set(++di, tana[i * 3 + 1]);
+				vertices.set(++di, tana[i * 3 + 2]);
 			}
 			// GPU skinning
 			if (bonea != null) { // Bone indices
-				data.set(++di, bonea[i * 4]);
-				data.set(++di, bonea[i * 4 + 1]);
-				data.set(++di, bonea[i * 4 + 2]);
-				data.set(++di, bonea[i * 4 + 3]);
+				vertices.set(++di, bonea[i * 4]);
+				vertices.set(++di, bonea[i * 4 + 1]);
+				vertices.set(++di, bonea[i * 4 + 2]);
+				vertices.set(++di, bonea[i * 4 + 3]);
 			}
 			if (weighta != null) { // Weights
-				data.set(++di, weighta[i * 4]);
-				data.set(++di, weighta[i * 4 + 1]);
-				data.set(++di, weighta[i * 4 + 2]);
-				data.set(++di, weighta[i * 4 + 3]);
+				vertices.set(++di, weighta[i * 4]);
+				vertices.set(++di, weighta[i * 4 + 1]);
+				vertices.set(++di, weighta[i * 4 + 2]);
+				vertices.set(++di, weighta[i * 4 + 3]);
 			}
 		}
-		return data;
 	}
 #end
 
@@ -151,22 +149,18 @@ class Geometry {
 		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
 		var struct = ShaderResource.getVertexStructure(positions != null, normals != null, uvs != null, cols != null, tangents != null, bones != null, weights != null);
 		structLength = Std.int(struct.byteSize() / 4);
-		var data = buildData(structLength, positions, normals, uvs, cols, tangents, bones, weights);
-
-		vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
+		vertexBuffer = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
 		vertices = vertexBuffer.lock();
-		for (i in 0...vertices.length) vertices.set(i, data[i]);
+		buildVertices(vertices, positions, normals, uvs, cols, tangents, bones, weights);
 		vertexBuffer.unlock();
 
 		// For depth passes, pos=3, bone=4, weight=4
 	// #if (!WITHOUT_SHADOWS)
-		// var structDepth = ShaderResource.getVertexStructure(positions != null, bones != null, weights != null);
+		// var structDepth = ShaderResource.getVertexStructure(positions != null, null, null, null, null, bones != null, weights != null);
 		// structLengthDepth = Std.int(struct.byteSize() / 4);
-		// var dataDepth = buildData(structLengthDepth, positions, bones, weights);
-
-		// vertexBufferDepth = new VertexBuffer(Std.int(dataDepth.length / structLengthDepth), structDepth, usage);
+		// vertexBufferDepth = new VertexBuffer(Std.int(positions.length / 3), structDepth, usage);
 		// var verticesDepth = vertexBufferDepth.lock();
-		// for (i in 0...verticesDepth.length) verticesDepth.set(i, dataDepth[i]);
+		// buildVertices(verticesDepth, positions, null, null, null, null, bones, weights);
 		// vertexBufferDepth.unlock();
 	// #end
 #end

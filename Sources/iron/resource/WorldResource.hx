@@ -119,8 +119,12 @@ class Probe {
 			irradiance = haxe.ds.Vector.fromData(irr);
 		}
 		else {
-			var irradianceData = Reflect.field(kha.Assets.blobs, resource.irradiance + "_json").toString();
-			var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData);
+			var irradianceData = Reflect.field(kha.Assets.blobs, resource.irradiance + "_arm");
+#if WITH_JSON
+			var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData.toString());
+#else
+			var irradianceParsed:TIrradiance = iron.resource.msgpack.MsgPack.decode(irradianceData.toBytes());
+#end
 			irradiance = haxe.ds.Vector.fromData(irradianceParsed.irradiance);
 		}
 		

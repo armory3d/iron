@@ -8,6 +8,7 @@ import iron.resource.MaterialResource;
 class RootNode extends Node {
 
 	public static var models:Array<ModelNode>;
+	public static var overlays:Array<ModelNode>;
 	public static var lights:Array<LightNode>;
 	public static var cameras:Array<CameraNode>;
 	public static var speakers:Array<SpeakerNode>;
@@ -19,6 +20,7 @@ class RootNode extends Node {
 
 	public static function reset() {
 		models = [];
+		overlays = [];
 		lights = [];
 		cameras = [];
 		speakers = [];
@@ -65,7 +67,7 @@ class RootNode extends Node {
 		else if (n.type == "light_node") {
 			node = Eg.addLightNode(Resource.getLight(name, n.object_ref), parent);	
 		}
-		else if (n.type == "geometry_node") {
+		else if (n.type == "geometry_node" || n.type == "overlay_node") {
 			if (n.material_refs.length == 0) {
 				// No material, create empty node
 				node = Eg.addNode(parent);
@@ -96,7 +98,7 @@ class RootNode extends Node {
 					boneNodes = Resource.getSceneResource(parentNode.bones_ref).nodes;
 				}
 
-				node = Eg.addModelNode(Resource.getModel(object_file, object_ref, boneNodes), materials, parent);
+				node = Eg.addModelNode(Resource.getModel(object_file, object_ref, boneNodes), materials, n.type == "overlay_node", parent);
 				
 				// Attach particle system
 				if (n.particle_refs != null && n.particle_refs.length > 0) {

@@ -29,15 +29,11 @@ class Node {
 		o.parent = this;
 	}
 
-	public function removeChild(o:Node) {
-		// Remove children of o
-		while (o.children.length > 0) o.removeChild(o.children[0]);
-
-		// Remove traits
-		while (o.traits.length > 0) o.removeTrait(o.traits[0]);
-
-		children.remove(o);
-		o.parent = null;
+	public function remove() {
+		while (children.length > 0) children[0].remove();
+		while (traits.length > 0) traits[0].remove();
+		if (parent != null) parent.children.remove(this);
+		parent = null;
 	}
 
 	public function getChild(id:String):Node {

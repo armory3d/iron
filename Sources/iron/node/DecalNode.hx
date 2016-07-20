@@ -21,9 +21,9 @@ class DecalNode extends Node {
 		RootNode.decals.push(this);
 	}
 
-	public override function removeChild(o:Node) {
-		RootNode.decals.remove(cast o);
-		super.removeChild(o);
+	public override function remove() {
+		RootNode.decals.remove(this);
+		super.remove();
 	}
 	
 	// Called before rendering decal in render pipeline

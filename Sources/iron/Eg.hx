@@ -57,8 +57,8 @@ class Eg {
 		return node;
 	}
 
-	public static function addModelNode(resource:ModelResource, materials:Array<MaterialResource>, parent:Node = null):ModelNode {
-		var node = new ModelNode(resource, materials);
+	public static function addModelNode(resource:ModelResource, materials:Array<MaterialResource>, overlay = false, parent:Node = null):ModelNode {
+		var node = new ModelNode(resource, materials, overlay);
 		parent != null ? parent.addChild(node) : root.addChild(node);
 		return node;
 	}
@@ -96,9 +96,7 @@ class Eg {
 	}
 
 	public static function removeNode(node:Node) {
-		if (node.parent == null) return;
-		Std.is(node, ModelNode) ? RootNode.models.remove(cast node) : Std.is(node, LightNode) ? RootNode.lights.remove(cast node) : RootNode.cameras.remove(cast node);
-		node.parent.removeChild(node);
+		node.remove();
 	}
 
 	public static function setNodeTransform(node:Node, x:Float = 0, y:Float = 0, z:Float = 0, rX:Float = 0, rY:Float = 0, rZ:Float = 0, sX:Float = 1, sY:Float = 1, sZ:Float = 1) {

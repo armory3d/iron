@@ -103,8 +103,12 @@ class Resource {
 	public static function getSceneResource(name:String):TSceneFormat {
 		var cached = cachedScenes.get(name);
 		if (cached == null) {
-			var data = Reflect.field(kha.Assets.blobs, name + '_json').toString();
-			var parsed:TSceneFormat = haxe.Json.parse(data);
+			var data = Reflect.field(kha.Assets.blobs, name + '_arm');
+#if WITH_JSON
+			var parsed:TSceneFormat = haxe.Json.parse(data.toString());
+#else
+			var parsed:TSceneFormat = iron.resource.msgpack.MsgPack.decode(data.toBytes());
+#end
 			cachedScenes.set(name, parsed);
 			return parsed;
 		}

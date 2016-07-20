@@ -17,6 +17,7 @@ class ModelNode extends Node {
 
 	public var resource:ModelResource;
 	public var materials:Array<MaterialResource>;
+	var overlay:Bool;
 
 	public var particleSystem:ParticleSystem = null;
 	public var animation:Animation = null;
@@ -38,18 +39,19 @@ class ModelNode extends Node {
 	// public static var _u5:Float = 0.0;
 	// public static var _u6:Float = 0.34;
 
-	public function new(resource:ModelResource, materials:Array<MaterialResource>) {
+	public function new(resource:ModelResource, materials:Array<MaterialResource>, overlay = false) {
 		super();
 
 		this.resource = resource;
-		this.materials = materials;		
+		this.materials = materials;	
+		this.overlay = overlay;	
 		// processMaterials();
-		RootNode.models.push(this);
+		overlay ? RootNode.overlays.push(this) : RootNode.models.push(this);
 	}
 
-	public override function removeChild(o:Node) {
-		RootNode.models.remove(cast o);
-		super.removeChild(o);
+	public override function remove() {
+		overlay ? RootNode.overlays.remove(this) : RootNode.models.remove(this);
+		super.remove();
 	}
 
 	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {

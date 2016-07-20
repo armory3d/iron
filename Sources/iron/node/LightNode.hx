@@ -23,9 +23,9 @@ class LightNode extends Node {
 		RootNode.lights.push(this);
 	}
 
-	public override function removeChild(o:Node) {
-		RootNode.lights.remove(cast o);
-		super.removeChild(o);
+	public override function remove() {
+		RootNode.lights.remove(this);
+		super.remove();
 	}
 
 	public function buildMatrices(camera:CameraNode) {

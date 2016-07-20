@@ -52,9 +52,9 @@ class CameraNode extends Node {
 		RootNode.cameras.push(this);
 	}
 
-	public override function removeChild(o:Node) {
-		RootNode.cameras.remove(cast o);
-		super.removeChild(o);
+	public override function remove() {
+		RootNode.cameras.remove(this);
+		super.remove();
 	}
 
 	public function renderFrame(g:Graphics, root:Node, lights:Array<LightNode>) {
