@@ -119,7 +119,7 @@ class Probe {
 			irradiance = haxe.ds.Vector.fromData(irr);
 		}
 		else {
-			var irradianceData = Reflect.field(kha.Assets.blobs, resource.irradiance + "_arm");
+			var irradianceData:kha.Blob = Reflect.field(kha.Assets.blobs, resource.irradiance + "_arm");
 #if WITH_JSON
 			var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData.toString());
 #else

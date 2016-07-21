@@ -246,12 +246,17 @@ class RenderPath {
 		}
 		var g = currentRenderTarget;
 		var light = lights[currentLightIndex];
-		for (model in RootNode.models) {
-			model.render(g, context, camera, light, bindParams);
-		}
-		for (model in RootNode.overlays) {
-			model.render(g, context, camera, light, bindParams);	
-		}
+		// if (params[1] == "back_to_front") {
+		// 	var len = RootNode.models.length;
+		// 	for (i in 0...len) {
+		// 		RootNode.models[len - 1 - i].render(g, context, camera, light, bindParams);
+		// 	}
+		// }
+		// else {
+			for (model in RootNode.models) {
+				model.render(g, context, camera, light, bindParams);
+			}
+		// }
 		end(g);
     }
 	

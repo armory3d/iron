@@ -89,8 +89,8 @@ typedef TMaterialResource = {
 // @:structInit class TMaterialResource {
 	public var id:String;
 	public var shader:String;
-	@:optional public var skip_context:String;
 	public var contexts:Array<TMaterialContext>;
+	@:optional public var skip_context:String;
 }
 
 typedef TMaterialContext = {

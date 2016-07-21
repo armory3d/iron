@@ -103,7 +103,7 @@ class Resource {
 	public static function getSceneResource(name:String):TSceneFormat {
 		var cached = cachedScenes.get(name);
 		if (cached == null) {
-			var data = Reflect.field(kha.Assets.blobs, name + '_arm');
+			var data:kha.Blob = Reflect.field(kha.Assets.blobs, name + '_arm');
 #if WITH_JSON
 			var parsed:TSceneFormat = haxe.Json.parse(data.toString());
 #else
