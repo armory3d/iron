@@ -80,6 +80,15 @@ class Geometry {
 		build();
 	}
 
+	public function delete() {
+#if WITH_DEINTERLEAVED
+		for (buf in vertexBuffers) buf.delete();
+#else
+		vertexBuffer.delete();
+#end
+		for (buf in indexBuffers) buf.delete();
+	}
+
 #if (!WITH_DEINTERLEAVED)
 	static function buildVertices(vertices:kha.arrays.Float32Array,
 							  	  pa:Array<Float> = null,

@@ -87,6 +87,10 @@ class ModelResource extends Resource {
 		}
 	}
 
+	public function delete() {
+		geometry.delete();
+	}
+
 	public function setupInstancedGeometry(offsets:Array<Float>, usage:Usage) {
 		geometry.instanced = true;
 		geometry.instanceCount = Std.int(offsets.length / 3);

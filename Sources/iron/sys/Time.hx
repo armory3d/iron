@@ -23,9 +23,9 @@ class Time {
 		last = Scheduler.time();
 	}
 
-	public static inline function getSeconds():Int {
-		return Std.int(Date.now().getTime() / 1000);
-	}
+	// public static inline function getSeconds():Int {
+		// return Std.int(Date.now().getTime() / 1000);
+	// }
 
 	static function get_total():Float {
 		return Scheduler.time();

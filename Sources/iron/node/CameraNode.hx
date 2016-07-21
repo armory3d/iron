@@ -7,6 +7,7 @@ import iron.math.Quat;
 import iron.math.Plane;
 import iron.resource.CameraResource;
 import iron.resource.WorldResource;
+import iron.resource.RenderPath;
 
 class CameraNode extends Node {
 

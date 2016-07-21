@@ -1,4 +1,4 @@
-package iron.node;
+package iron.resource;
 
 import kha.Color;
 import kha.Scheduler;
@@ -6,12 +6,15 @@ import kha.graphics4.Graphics;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
-import iron.resource.Resource;
+import iron.resource.SceneFormat; // Ping-pong
 import iron.resource.PipelineResource.RenderTarget; // Ping-pong
-import iron.resource.CameraResource;
-import iron.resource.ShaderResource;
-import iron.resource.MaterialResource;
-import iron.resource.SceneFormat;
+import iron.resource.MaterialResource.MaterialContext;
+import iron.resource.ShaderResource.ShaderContext;
+import iron.node.Node;
+import iron.node.RootNode;
+import iron.node.CameraNode;
+import iron.node.LightNode;
+import iron.node.ModelNode;
 
 typedef TStageCommand = Array<String>->Node->Void;
 
@@ -51,6 +54,8 @@ class RenderPath {
 	var frames = 0;
 	public static var frameTimeAvg = 0.0;
 	public static var drawCalls = 0;
+	var totalDelta = 0.0;
+	public static var frameDeltaAvg = 0.0;
 #end
 
 	public function new(camera:CameraNode) {
@@ -134,6 +139,10 @@ class RenderPath {
 	}
 
 	public function renderFrame(g:Graphics, root:Node, lights:Array<LightNode>) {
+#if WITH_PROFILE
+		drawCalls = 0;
+#end
+
 		frameRenderTarget = g;
 		currentRenderTarget = g;
 		currentRenderTargetW = iron.App.w;
@@ -153,16 +162,17 @@ class RenderPath {
 		// Timing
 #if WITH_PROFILE
 		totalTime += frameTime;
+		totalDelta += iron.sys.Time.delta;
 		frames++;
 		if (totalTime > 1.0) {
 			frameTimeAvg = totalTime / frames;
-			trace("time: " + Math.round(frameTimeAvg * 10000) / 10 + "ms, draw calls: " + drawCalls);
 			totalTime = 0;
+			frameDeltaAvg = totalDelta / frames;
+			totalDelta = 0;
 			frames = 0;
 		}
 		frameTime = Scheduler.realTime() - lastTime;
 		lastTime = Scheduler.realTime();
-		drawCalls = 0;
 #end
 	}
 	

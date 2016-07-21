@@ -18,6 +18,24 @@ class Resource {
 
 	}
 
+	public static function deleteAll() {
+		for (res in cachedModels) {
+			res.delete();
+		}
+		for (res in cachedShaders) {
+			res.delete();
+		}
+		cachedScenes = new Map();
+		cachedModels = new Map();
+		cachedLights = new Map();
+		cachedCameras = new Map();
+		cachedPipelines = new Map();
+		cachedMaterials = new Map();
+		cachedParticles = new Map();
+		cachedWorlds = new Map();
+		cachedShaders = new Map();
+	}
+
 	public static function getModel(name:String, id:String, boneNodes:Array<TNode> = null):ModelResource {
 		// boneNodes - used when geometry is parsed from separate file
 		// TODO: preparse bone nodes

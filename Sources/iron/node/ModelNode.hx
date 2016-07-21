@@ -12,6 +12,7 @@ import iron.resource.ModelResource;
 import iron.resource.MaterialResource;
 import iron.resource.ShaderResource;
 import iron.resource.SceneFormat;
+import iron.resource.RenderPath;
 
 class ModelNode extends Node {
 

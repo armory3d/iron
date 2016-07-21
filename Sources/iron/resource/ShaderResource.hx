@@ -46,6 +46,10 @@ class ShaderResource extends Resource {
 		}
 	}
 
+	public function delete() {
+		for (c in contexts) c.delete();
+	}
+
 	function sizeToVD(size:Int):VertexData {
 		if (size == 1) return VertexData.Float1;
 		else if (size == 2) return VertexData.Float2;
@@ -203,6 +207,12 @@ class ShaderContext {
 		for (tu in resource.texture_units) {
 			addTexture(tu);
 		}
+	}
+
+	public function delete() {
+		pipeState.fragmentShader.delete();
+		pipeState.vertexShader.delete();
+		pipeState.delete();
 	}
 
 	function getBlendingOperation(s:String):BlendingOperation {
