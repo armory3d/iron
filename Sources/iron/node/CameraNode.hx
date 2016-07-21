@@ -135,9 +135,11 @@ class CameraNode extends Node {
 	}
 
 	static var sphere = new iron.math.Sphere();
+	static var abspos = new Vec4();
 	public static function sphereInFrustum(frustumPlanes:Array<Plane>, t:Transform):Bool {
 		for (plane in frustumPlanes) {	
-			sphere.set(t.pos, t.radius);
+			abspos.set(t.absx(), t.absy(), t.absz());
+			sphere.set(abspos, t.radius);
 			// Outside the frustum
 			if (plane.distanceToSphere(sphere) + t.radius * 2 < 0) {
 				return false;

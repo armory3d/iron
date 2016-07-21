@@ -58,9 +58,9 @@ class Transform {
 		}
 
 		// Update children
-		//for (n in node.children) {
-		//	n.transform.buildMatrix();
-		//}
+		for (n in node.children) {
+			n.transform.buildMatrix();
+		}
 	}
 
 	public function set(x:Float = 0, y:Float = 0, z:Float = 0, rX:Float = 0, rY:Float = 0, rZ:Float = 0, sX:Float = 1, sY:Float = 1, sZ:Float = 1) {

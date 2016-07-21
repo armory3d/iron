@@ -246,9 +246,10 @@ class ModelNode extends Node {
 		    	m = helpMat;
 			}
 			else if (c.link == "_skydomeMatrix") {
-				var cpos = camera.transform.pos;
-				helpVec.set(cpos.x, cpos.y, cpos.z + 3.0);
-				helpVec2.set(camera.farPlane - 5.0, camera.farPlane - 5.0, camera.farPlane - 5.0);
+				var tr = camera.transform;
+				helpVec.set(tr.absx(), tr.absy(), tr.absz() + 3.0);
+				var bounds = camera.farPlane * 0.98;
+				helpVec2.set(bounds, bounds, bounds);
 				helpMat.compose(helpVec, helpQuat, helpVec2);
 		    	helpMat.mult2(camera.V);
 		    	helpMat.mult2(camera.P);
