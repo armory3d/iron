@@ -13,16 +13,20 @@ class App {
     static var traitRenders:Array<kha.graphics4.Graphics->Void> = [];
     static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
 
+#if WITH_PROFILE
+    var startTime:Float;
+    public static var updateTime:Float;
+    public static var renderTime:Float;
+#end
+
 	public function new(gameClass:Class<Dynamic>) {
         this.gameClass = gameClass;
-
-        w = kha.System.windowWidth(); // TODO: do not cache
-        h = kha.System.windowHeight();
-
         kha.Assets.loadEverything(loadingFinished);
 	}
 
     function loadingFinished() {
+        w = kha.System.windowWidth(); // TODO: do not cache
+        h = kha.System.windowHeight();
 
         new Eg();
         new Ut();
@@ -50,6 +54,10 @@ class App {
     }
 
     function update() {
+#if WITH_PROFILE
+        startTime = kha.Scheduler.realTime();
+#end
+
         iron.sys.Time.update();
         iron.sys.Tween.update();
         
@@ -62,9 +70,17 @@ class App {
         for (f in traitLateUpdates) { if (traitLateUpdates.length == 0) break; f(); }
 
         iron.sys.Input.end();
+
+#if WITH_PROFILE
+        updateTime = kha.Scheduler.realTime() - startTime;
+#end
     }
 
     function render(frame:kha.Framebuffer) {
+#if WITH_PROFILE
+        startTime = kha.Scheduler.realTime();
+#end
+
         if (traitInits.length > 0) { // TODO: make sure update is called before render
             for (f in traitInits) { if (traitInits.length == 0) break; f(); f = null; }
             traitInits.splice(0, traitInits.length);     
@@ -75,6 +91,10 @@ class App {
         frame.g2.begin(false);
 		for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
         frame.g2.end();
+
+#if WITH_PROFILE
+        renderTime = kha.Scheduler.realTime() - startTime;
+#end
     }
 
     // Hooks

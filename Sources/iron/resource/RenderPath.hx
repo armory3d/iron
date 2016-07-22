@@ -6,7 +6,7 @@ import kha.graphics4.Graphics;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
-import iron.resource.SceneFormat; // Ping-pong
+import iron.resource.SceneFormat;
 import iron.resource.PipelineResource.RenderTarget; // Ping-pong
 import iron.resource.MaterialResource.MaterialContext;
 import iron.resource.ShaderResource.ShaderContext;
@@ -21,7 +21,7 @@ typedef TStageCommand = Array<String>->Node->Void;
 class RenderPath {
 
 	var camera:CameraNode;
-	var resource:CameraResource;
+	public var resource:CameraResource;
 
 	var frameRenderTarget:Graphics;
 	var currentRenderTarget:Graphics;
@@ -48,14 +48,11 @@ class RenderPath {
 	var cachedShaderContexts:Map<String, CachedShaderContext> = new Map();
 	
 #if WITH_PROFILE
-	var lastTime = 0.0;
-	var frameTime = 0.0;
-	var totalTime = 0.0;
-	var frames = 0;
-	public static var frameTimeAvg = 0.0;
 	public static var drawCalls = 0;
-	var totalDelta = 0.0;
-	public static var frameDeltaAvg = 0.0;
+	public var passNames:Array<String>;
+	public var passTimes:Array<Float>;
+	public var passEnabled:Array<Bool>;
+	var currentPass:Int;
 #end
 
 	public function new(camera:CameraNode) {
@@ -141,6 +138,7 @@ class RenderPath {
 	public function renderFrame(g:Graphics, root:Node, lights:Array<LightNode>) {
 #if WITH_PROFILE
 		drawCalls = 0;
+		currentPass = 0;
 #end
 
 		frameRenderTarget = g;
@@ -155,26 +153,35 @@ class RenderPath {
 		for (l in lights) l.buildMatrices(camera);
 
 		for (i in 0...stageCommands.length) {
+#if WITH_PROFILE
+			var cmd = stageCommands[i];
+			if (!passEnabled[currentPass]) {
+				if (cmd == drawGeometry || cmd == drawSkydome || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
+					endPass();
+				}
+				continue;
+			}
+			var startTime = kha.Scheduler.realTime();
+#end
 			currentStageIndex = i;
 			stageCommands[i](stageParams[i], root);
-		}
-		
-		// Timing
+
 #if WITH_PROFILE
-		totalTime += frameTime;
-		totalDelta += iron.sys.Time.delta;
-		frames++;
-		if (totalTime > 1.0) {
-			frameTimeAvg = totalTime / frames;
-			totalTime = 0;
-			frameDeltaAvg = totalDelta / frames;
-			totalDelta = 0;
-			frames = 0;
-		}
-		frameTime = Scheduler.realTime() - lastTime;
-		lastTime = Scheduler.realTime();
+			if (cmd == drawGeometry || cmd == drawSkydome || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
+				passTimes[currentPass] = kha.Scheduler.realTime() - startTime;
+				endPass();
+			}
 #end
+		}
 	}
+
+#if WITH_PROFILE
+	function endPass() {
+		if (loopFinished) {
+			currentPass++;
+		}
+	}
+#end
 	
 	public static var lastPongRT:RenderTarget;
 	var loopFinished = true;
@@ -270,7 +277,7 @@ class RenderPath {
 		end(g);
     }
 	
-	function drawDecals(params:Array<String>, root:Node) {		
+	function drawDecals(params:Array<String>, root:Node) {
 		var context = params[0];
 		var g = currentRenderTarget;
 		var light = lights[currentLightIndex];
@@ -283,7 +290,7 @@ class RenderPath {
 		end(g);
     }
 
-    function drawSkydome(params:Array<String>, root:Node) {		
+    function drawSkydome(params:Array<String>, root:Node) {
     	var handle = params[0];
     	var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
@@ -357,7 +364,7 @@ class RenderPath {
 		
 		end(g);
     }
-	
+
 	function callFunction(params:Array<String>, root:Node) {
 		// TODO: cache
 		var path = params[0];
@@ -400,6 +407,10 @@ class RenderPath {
 		}
 		currentLightIndex = 0;
 		loopFinished = true;
+
+#if WITH_PROFILE
+		endPass();
+#end
 	}
 
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null) {
@@ -419,9 +430,37 @@ class RenderPath {
     function cacheStageCommands() {
     	stageCommands = [];
     	stageParams = [];
+#if WITH_PROFILE
+		passNames = [];
+		passTimes = [];
+		passEnabled = [];
+#end
+
     	for (stage in resource.pipeline.resource.stages) {
-    		stageParams.push(stage.params);
 			stageCommands.push(commandToFunction(stage.command));
+			stageParams.push(stage.params);
+#if WITH_PROFILE
+			if (stage.command.substr(0, 4) == "draw") {
+				var splitParams = stage.params[0].split("_");
+				var passName = splitParams[0];
+				for (i in 1...splitParams.length) {
+					// Remove from '_pass' or appended defs, starting with upper case letter
+					if (splitParams[i] == "pass" || splitParams[i].charAt(0) == splitParams[i].charAt(0).toUpperCase()) {
+						for (j in 1...i) passName += "_" + splitParams[j];
+						break;
+					}
+				}
+				passNames.push(passName);
+				passTimes.push(0.0);
+				passEnabled.push(true);
+			}
+			// Combine into single entry for now
+			else if (stage.command == "loop_lights") {
+				passNames.push(stage.command);
+				passTimes.push(0.0);
+				passEnabled.push(true);
+			}
+#end
 		}
     }
 	
