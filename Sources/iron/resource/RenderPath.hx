@@ -16,6 +16,13 @@ import iron.node.CameraNode;
 import iron.node.LightNode;
 import iron.node.ModelNode;
 
+#if cpp
+@:headerCode('
+#include <Kore/pch.h>
+#include <Kore/Graphics/Graphics.h>
+')
+#end
+
 typedef TStageCommand = Array<String>->Node->Void;
 
 class RenderPath {
@@ -146,6 +153,13 @@ class RenderPath {
 		currentRenderTargetW = iron.App.w;
 		currentRenderTargetH = iron.App.h;
 		sorted = false;
+
+		// TODO: Fix non-independent depth clearing
+#if cpp
+		untyped __cpp__("Kore::Graphics::setRenderState(Kore::DepthWrite, true);");
+#else
+		kha.SystemImpl.gl.depthMask(true);
+#end
 
 		this.lights = lights;
 		currentLightIndex = 0;
