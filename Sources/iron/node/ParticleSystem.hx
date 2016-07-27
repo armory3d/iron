@@ -41,7 +41,7 @@ class ParticleSystem {
 			instancedData.push(p.offset.y);
 			instancedData.push(p.offset.z);
 		}
-		node.resource.setupInstancedGeometry(instancedData, Usage.DynamicUsage);
+		node.resource.geometry.setupInstanced(instancedData, Usage.DynamicUsage);
 	}
 
 	public function update() {

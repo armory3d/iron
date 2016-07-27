@@ -248,8 +248,9 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_skydomeMatrix") {
 				var tr = camera.transform;
-				helpVec.set(tr.absx(), tr.absy(), tr.absz() + 3.0);
-				var bounds = camera.farPlane * 0.98;
+				// helpVec.set(tr.absx(), tr.absy(), tr.absz() + 3.0); // Envtex
+				helpVec.set(tr.absx(), tr.absy(), tr.absz() - 3.5); // Sky
+				var bounds = camera.farPlane * 0.97;
 				helpVec2.set(bounds, bounds, bounds);
 				helpMat.compose(helpVec, helpQuat, helpVec2);
 		    	helpMat.mult2(camera.V);
@@ -542,8 +543,8 @@ class ModelNode extends Node {
 		// Skip render if material does not contain current context
 		if (materials[0].getContext(context) == null) return;
 
-		// Frustum culling
-		if (camera.resource.resource.frustum_culling) {
+		// Frustum culling, disable for instanced for now
+		if (camera.resource.resource.frustum_culling && !resource.geometry.instanced) {
 		 	if (context == "shadowmap") { // Hard-coded for now
 		 		if (!CameraNode.sphereInFrustum(light.frustumPlanes, transform)) return;
 		 	}

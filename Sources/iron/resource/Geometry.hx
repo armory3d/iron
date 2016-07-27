@@ -89,6 +89,27 @@ class Geometry {
 		for (buf in indexBuffers) buf.delete();
 	}
 
+	public function setupInstanced(offsets:Array<Float>, usage:Usage) {
+		instanced = true;
+		instanceCount = Std.int(offsets.length / 3);
+
+		var structure = new VertexStructure();
+    	structure.add("off", kha.graphics4.VertexData.Float3);
+
+		var vb = new VertexBuffer(instanceCount, structure, usage, 1);
+		var vertices = vb.lock();
+		for (i in 0...vertices.length) vertices.set(i, offsets[i]);
+		vb.unlock();
+
+#if WITH_DEINTERLEAVED
+		instancedVertexBuffers = [];
+		for (vb in vertexBuffers) instancedVertexBuffers.push(vb);
+		instancedVertexBuffers.push(vb);
+#else
+		instancedVertexBuffers = [vertexBuffer, vb];
+#end
+	}
+
 #if (!WITH_DEINTERLEAVED)
 	static function buildVertices(vertices:kha.arrays.Float32Array,
 							  	  pa:Array<Float> = null,

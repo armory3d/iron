@@ -83,37 +83,12 @@ class ModelResource extends Resource {
 
 		// Instanced
 		if (resource.mesh.instance_offsets != null) {
-			setupInstancedGeometry(resource.mesh.instance_offsets, usage);
+			geometry.setupInstanced(resource.mesh.instance_offsets, usage);
 		}
 	}
 
 	public function delete() {
 		geometry.delete();
-	}
-
-	public function setupInstancedGeometry(offsets:Array<Float>, usage:Usage) {
-		geometry.instanced = true;
-		geometry.instanceCount = Std.int(offsets.length / 3);
-
-		var structure = new VertexStructure();
-    	structure.add("off", kha.graphics4.VertexData.Float3);
-
-		var vb = new VertexBuffer(geometry.instanceCount,
-								  structure, usage,
-								  1);
-		var vertices = vb.lock();
-		for (i in 0...vertices.length) {
-			vertices.set(i, offsets[i]);
-		}
-		vb.unlock();
-
-#if WITH_DEINTERLEAVED
-		geometry.instancedVertexBuffers = [];
-		for (vb in geometry.vertexBuffers) geometry.instancedVertexBuffers.push(vb);
-		geometry.instancedVertexBuffers.push(vb);
-#else
-		geometry.instancedVertexBuffers = [geometry.vertexBuffer, vb];
-#end
 	}
 
 	public static function parse(name:String, id:String, boneNodes:Array<TNode> = null):ModelResource {

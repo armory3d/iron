@@ -35,7 +35,8 @@ class CameraNode extends Node {
 		farPlane = resource.resource.far_plane;
 
 		if (resource.resource.type == "perspective") {
-			P = Mat4.perspective(3.14159265 / 4, App.w / App.h, nearPlane, farPlane);
+			// P = Mat4.perspective(3.14159265 / 4, App.w / App.h, nearPlane, farPlane);
+			P = Mat4.perspective(3.14159265 / 3, App.w / App.h, nearPlane, farPlane); // Matches Blender viewport
 		}
 		else if (resource.resource.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane, 2);
