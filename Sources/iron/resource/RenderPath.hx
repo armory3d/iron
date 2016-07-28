@@ -154,13 +154,6 @@ class RenderPath {
 		currentRenderTargetH = iron.App.h;
 		sorted = false;
 
-		// TODO: Fix non-independent depth clearing
-#if cpp
-		untyped __cpp__("Kore::Graphics::setRenderState(Kore::DepthWrite, true);");
-#else
-		kha.SystemImpl.gl.depthMask(true);
-#end
-
 		this.lights = lights;
 		currentLightIndex = 0;
 		
@@ -252,6 +245,13 @@ class RenderPath {
 				colorFlag = Color.fromString(params[val]);
 			}
 			else if (params[pos] == "depth") {
+				// TODO: Fix non-independent depth clearing
+				#if cpp
+					untyped __cpp__("Kore::Graphics::setRenderState(Kore::DepthWrite, true);");
+				#else
+					kha.SystemImpl.gl.depthMask(true);
+				#end
+
 				if (params[val] == "1.0") depthFlag = 1.0;
 				else depthFlag = 0.0;
 			}

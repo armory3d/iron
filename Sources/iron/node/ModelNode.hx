@@ -32,10 +32,6 @@ class ModelNode extends Node {
 	
 	public var cameraDistance:Float;
 
-#if WITH_TAA
-	public static var alternate = false; // True each other frame
-#end
-
 	// public static var _u1:Float = 0.25;
 	// public static var _u2:Float = 0.1;
 	// public static var _u3:Float = 5;
@@ -549,12 +545,36 @@ class ModelNode extends Node {
 		if (materials[0].getContext(context) == null) return;
 
 		// Frustum culling, disable for instanced for now
-		if (camera.resource.resource.frustum_culling && !resource.geometry.instanced) {
-		 	if (context == "shadowmap") { // Hard-coded for now
-		 		if (!CameraNode.sphereInFrustum(light.frustumPlanes, transform)) return;
+		if (camera.resource.resource.frustum_culling) {
+		 	// Scale radius for skinned mesh
+		 	// TODO: determine max skinned radius
+		 	var radiusScale = resource.isSkinned ? 2.0 : 1.0;
+		 	
+		 	// Hard-coded for now
+		 	var frustumPlanes = context == "shadowmap" ? light.frustumPlanes : camera.frustumPlanes;
+
+		 	// Instanced
+		 	if (resource.geometry.instanced) {
+		 		// Cull
+		 		// TODO: per-instance culling
+		 		var instanceInFrustum = false;
+		 		for (v in resource.geometry.offsetVecs) {
+		 			if (CameraNode.sphereInFrustum(frustumPlanes, transform, radiusScale, v.x, v.y, v.z)) {
+		 				instanceInFrustum = true;
+		 				break;
+		 			}
+		 		}
+		 		if (!instanceInFrustum) return;
+
+		 		// Sort - always front to back for now
+		 		var camX = camera.transform.absx();
+				var camY = camera.transform.absy();
+				var camZ = camera.transform.absz();
+				resource.geometry.sortInstanced(camX, camY, camZ);
 		 	}
+		 	// Non-instanced
 		 	else {
-		 		if (!CameraNode.sphereInFrustum(camera.frustumPlanes, transform)) return;
+		 		if (!CameraNode.sphereInFrustum(frustumPlanes, transform, radiusScale)) return;
 		 	}
 		}
 

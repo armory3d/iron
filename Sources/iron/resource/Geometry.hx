@@ -44,6 +44,8 @@ class Geometry {
 
 	public var bones:Array<Float>;
 	public var weights:Array<Float>;
+	
+	public var offsetVecs:Array<Vec4>; // Used for sorting and cullong
 
 	// Skinned
 	public var skinTransform:Mat4 = null;
@@ -90,24 +92,51 @@ class Geometry {
 	}
 
 	public function setupInstanced(offsets:Array<Float>, usage:Usage) {
+		// Store vecs for sorting and culling
+		offsetVecs = [];
+		for (i in 0...Std.int(offsets.length / 3)) {
+			offsetVecs.push(new Vec4(offsets[i * 3], offsets[i * 3 + 1], offsets[i * 3 + 2]));
+		}
+
 		instanced = true;
 		instanceCount = Std.int(offsets.length / 3);
 
 		var structure = new VertexStructure();
     	structure.add("off", kha.graphics4.VertexData.Float3);
 
-		var vb = new VertexBuffer(instanceCount, structure, usage, 1);
-		var vertices = vb.lock();
+		var instVB = new VertexBuffer(instanceCount, structure, usage, 1);
+		var vertices = instVB.lock();
 		for (i in 0...vertices.length) vertices.set(i, offsets[i]);
-		vb.unlock();
+		instVB.unlock();
 
 #if WITH_DEINTERLEAVED
 		instancedVertexBuffers = [];
 		for (vb in vertexBuffers) instancedVertexBuffers.push(vb);
-		instancedVertexBuffers.push(vb);
+		instancedVertexBuffers.push(instVB);
 #else
-		instancedVertexBuffers = [vertexBuffer, vb];
+		instancedVertexBuffers = [vertexBuffer, instVB];
 #end
+	}
+
+	public function sortInstanced(camX:Float, camY:Float, camZ:Float) {
+		// Use W component to store distance to camera
+		for (v in offsetVecs) {
+			// TODO: include parent transform
+			v.w  = iron.math.Math.distance3dRaw(camX, camY, camZ, v.x, v.y, v.z);
+		}
+		
+		offsetVecs.sort(function(a, b):Int {
+			return a.w > b.w ? 1 : -1;
+		});
+
+		var vb = instancedVertexBuffers[1];
+		var vertices = vb.lock();
+		for (i in 0...Std.int(vertices.length / 3)) {
+			vertices.set(i * 3, offsetVecs[i].x);
+			vertices.set(i * 3 + 1, offsetVecs[i].y);
+			vertices.set(i * 3 + 2, offsetVecs[i].z);
+		}
+		vb.unlock();
 	}
 
 #if (!WITH_DEINTERLEAVED)
