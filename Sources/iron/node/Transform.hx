@@ -8,6 +8,7 @@ class Transform {
 	public var matrix:Mat4;
 	public var local:Mat4;
 	public var localOnly:Bool = false;
+	public var prepend:Mat4 = null;
 	public var append:Mat4 = null;
 	public var dirty:Bool;
 
@@ -48,6 +49,11 @@ class Transform {
 
 	public function buildMatrix() {
 		local.compose(pos, rot, scale);
+		
+		if (prepend != null) {
+			prepend.mult2(local);
+			local.loadFrom(prepend);
+		}
 		if (append != null) local.mult2(append);
 
 		if (!localOnly && node.parent != null) {

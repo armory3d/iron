@@ -17,6 +17,9 @@ class CameraNode extends Node {
 	public var world:WorldResource;
 
 	public var P:Mat4; // Matrices
+#if WITH_TAA
+	public var noJitterP:Mat4;
+#end
 	public var V:Mat4;
 	public var prevV:Mat4;
 	public var VP:Mat4;
@@ -41,6 +44,10 @@ class CameraNode extends Node {
 		else if (resource.resource.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane, 2);
 		}
+#if WITH_TAA
+			noJitterP = Mat4.identity();
+			noJitterP.loadFrom(P);
+#end
 
 		V = Mat4.identity();
 		prevV = V;
@@ -60,12 +67,32 @@ class CameraNode extends Node {
 	}
 
 	public function renderFrame(g:Graphics, root:Node, lights:Array<LightNode>) {
+#if WITH_TAA
+		projectionJitter();
+#end
+
 		updateMatrix(); // TODO: only when dirty
 
 		renderPath.renderFrame(g, root, lights);
 		
 		prevV = V.clone();
 	}
+
+#if WITH_TAA
+	var frame = 0;
+	function projectionJitter() {
+		var w = renderPath.currentRenderTargetW;
+		var h = renderPath.currentRenderTargetH;
+		P.loadFrom(noJitterP);
+		var x = 0.0;
+		var y = 0.0;
+		if (frame % 2 == 0) { x = 0.5; y = 0.5; }
+		else if (frame % 2 == 1) { x = -0.5; y = -0.5; }
+		P._20 += x / w;
+		P._21 += y / h;
+		frame++;
+	}
+#end
 
 	public function updateMatrix() {
 		transform.buildMatrix();

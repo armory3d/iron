@@ -31,13 +31,13 @@ class App {
         new Eg();
         new Ut();
         new iron.sys.Storage();
-        new iron.sys.Time();
+        // new iron.sys.Time();
         new iron.sys.Input();
 
         Type.createInstance(gameClass, []);
 
         kha.System.notifyOnRender(render);
-        kha.Scheduler.addTimeTask(update, 0, 1 / 60);
+        kha.Scheduler.addTimeTask(update, 0, iron.sys.Time.delta);
     }
 
     public static function reset() {
@@ -58,7 +58,7 @@ class App {
         startTime = kha.Scheduler.realTime();
 #end
 
-        iron.sys.Time.update();
+        // iron.sys.Time.update();
         iron.sys.Tween.update();
         
         if (traitInits.length > 0) {

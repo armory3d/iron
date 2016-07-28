@@ -23,7 +23,7 @@ class ModelNode extends Node {
 	public var animation:Animation = null;
 
 	static var helpMat = Mat4.identity();
-	// static var helpMat2 = Mat4.identity();
+	static var helpMat2 = Mat4.identity();
 	static var helpVec = new Vec4();
 	static var helpVec2 = new Vec4();
 	static var helpQuat = new Quat();
@@ -31,6 +31,10 @@ class ModelNode extends Node {
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
 	
 	public var cameraDistance:Float;
+
+#if WITH_TAA
+	public static var alternate = false; // True each other frame
+#end
 
 	// public static var _u1:Float = 0.25;
 	// public static var _u2:Float = 0.1;
@@ -427,10 +431,11 @@ class ModelNode extends Node {
 		else if (c.type == "float") {
 			var f = 0.0;
 			if (c.link == "_time") {
-				f = iron.sys.Time.total;
+				f = kha.Scheduler.time();
 			}
 			else if (c.link == "_deltaTime") {
 				f = iron.sys.Time.delta;
+				// f = iron.sys.Time.realDelta;
 			}
 			else if (c.link == "_lightStrength") {
 				f = light.resource.resource.strength;
