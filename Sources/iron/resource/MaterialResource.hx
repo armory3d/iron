@@ -22,7 +22,7 @@ class MaterialResource extends Resource {
 		this.resource = resource;
 
 		var shaderName:Array<String> = resource.shader.split("/");
-		shader = Resource.getShader(shaderName[0], shaderName[1]);
+		shader = Resource.getShader(shaderName[0], shaderName[1], resource.override_context);
 
 		for (c in resource.contexts) {
 			contexts.push(new MaterialContext(c));

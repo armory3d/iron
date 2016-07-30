@@ -45,7 +45,7 @@ class Geometry {
 	public var bones:Array<Float>;
 	public var weights:Array<Float>;
 	
-	public var offsetVecs:Array<Vec4>; // Used for sorting and cullong
+	public var offsetVecs:Array<Vec4>; // Used for sorting and culling
 
 	// Skinned
 	public var skinTransform:Mat4 = null;

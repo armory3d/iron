@@ -108,11 +108,14 @@ class Resource {
 		else return cached;
 	}
 
-	public static function getShader(name:String, id:String):ShaderResource {
-		var cached = cachedShaders.get(id); // Shader must have unique id
+	public static function getShader(name:String, id:String, overrideContext:TShaderOverride = null):ShaderResource {
+		// Only one context override per shader resource for now
+		var cacheId = id;
+		if (overrideContext != null) cacheId += "2";
+		var cached = cachedShaders.get(cacheId); // Shader must have unique id
 		if (cached == null) {
-			var parsed = ShaderResource.parse(name, id);
-			cachedShaders.set(id, parsed);
+			var parsed = ShaderResource.parse(name, id, overrideContext);
+			cachedShaders.set(cacheId, parsed);
 			return parsed;
 		}
 		else return cached;

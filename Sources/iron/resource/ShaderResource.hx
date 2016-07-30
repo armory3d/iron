@@ -24,7 +24,7 @@ class ShaderResource extends Resource {
 
 	public var contexts:Array<ShaderContext> = [];
 
-	public function new(resource:TShaderResource) {
+	public function new(resource:TShaderResource, overrideContext:TShaderOverride = null) {
 		super();
 
 		if (resource == null) {
@@ -42,7 +42,7 @@ class ShaderResource extends Resource {
 				continue;
 			}
 			
-			contexts.push(new ShaderContext(c, structure));
+			contexts.push(new ShaderContext(c, structure, overrideContext));
 		}
 	}
 
@@ -65,10 +65,10 @@ class ShaderResource extends Resource {
 		}
 	}
 
-	public static function parse(name:String, id:String):ShaderResource {
+	public static function parse(name:String, id:String, overrideContext:TShaderOverride = null):ShaderResource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TShaderResource = Resource.getShaderResourceById(format.shader_resources, id);
-		return new ShaderResource(resource);
+		return new ShaderResource(resource, overrideContext);
 	}
 
 	// Used by ModelResource
@@ -117,7 +117,7 @@ class ShaderContext {
 	public var constants:Array<ConstantLocation> = [];
 	public var textureUnits:Array<TextureUnit> = [];
 
-	public function new(resource:TShaderContext, structure:VertexStructure) {
+	public function new(resource:TShaderContext, structure:VertexStructure, overrideContext:TShaderOverride = null) {
 		this.resource = resource;
 
 		pipeState = new PipelineState();
@@ -172,15 +172,7 @@ class ShaderContext {
 		// pipeState.stencilWriteMask = resource.stencil_write_mask;
 
 		// Cull
-        if (resource.cull_mode == "none") {
-        	pipeState.cullMode = CullMode.None;
-        }
-        else if (resource.cull_mode == "counter_clockwise") {
-        	pipeState.cullMode = CullMode.CounterClockwise;
-        }
-        else {
-        	pipeState.cullMode = CullMode.Clockwise;	
-        }
+        pipeState.cullMode = getCullMode(resource.cull_mode);
 		
 		// Blending
 		if (resource.blend_source != null) pipeState.blendSource = getBlendingFactor(resource.blend_source);
@@ -198,6 +190,14 @@ class ShaderContext {
 
 		pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(resource.fragment_shader, ".", "_"));
 		pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(resource.vertex_shader, ".", "_"));
+		
+		// Override specified values
+		if (overrideContext != null) {
+			if (overrideContext.cull_mode != null) {
+				pipeState.cullMode = getCullMode(overrideContext.cull_mode);
+			}
+		}
+
 		pipeState.compile();
 
 		for (c in resource.constants) {
@@ -213,6 +213,15 @@ class ShaderContext {
 		pipeState.fragmentShader.delete();
 		pipeState.vertexShader.delete();
 		pipeState.delete();
+	}
+
+	function getCullMode(s:String):CullMode {
+		if (s == "none")
+			return CullMode.None;
+		else if (s == "clockwise")
+			return CullMode.Clockwise;
+		else
+			return CullMode.CounterClockwise;
 	}
 
 	function getBlendingOperation(s:String):BlendingOperation {

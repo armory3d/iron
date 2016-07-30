@@ -91,6 +91,11 @@ typedef TMaterialResource = {
 	public var shader:String;
 	public var contexts:Array<TMaterialContext>;
 	@:optional public var skip_context:String;
+	@:optional public var override_context:TShaderOverride;
+}
+
+typedef TShaderOverride = {
+	@:optional public var cull_mode:String;
 }
 
 typedef TMaterialContext = {
