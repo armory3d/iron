@@ -31,6 +31,10 @@ class ModelNode extends Node {
 	
 	public var cameraDistance:Float;
 
+#if WITH_VELOC
+	var prevMatrix = Mat4.identity();
+#end
+
 	// public static var _u1:Float = 0.25;
 	// public static var _u2:Float = 0.1;
 	// public static var _u3:Float = 5;
@@ -233,6 +237,16 @@ class ModelNode extends Node {
 		    	helpMat.mult2(camera.P);
 		    	m = helpMat;
 			}
+#if WITH_VELOC
+			else if (c.link == "_prevModelViewProjectionMatrix") {
+				helpMat.setIdentity();
+		    	helpMat.mult2(cast(node, ModelNode).prevMatrix);
+		    	helpMat.mult2(camera.prevV);
+		    	// helpMat.mult2(camera.prevP);
+		    	helpMat.mult2(camera.P);
+		    	m = helpMat;
+			}
+#end
 			else if (c.link == "_lightModelViewProjectionMatrix") {
 				helpMat.setIdentity();
 		    	if (node != null) helpMat.mult2(node.transform.matrix); // node is null for DrawQuad
@@ -649,6 +663,10 @@ class ModelNode extends Node {
 
 #if WITH_PROFILE
 		RenderPath.drawCalls++;
+#end
+
+#if WITH_VELOC
+		prevMatrix.loadFrom(transform.matrix);
 #end
 	}
 

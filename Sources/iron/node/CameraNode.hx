@@ -17,6 +17,9 @@ class CameraNode extends Node {
 	public var world:WorldResource;
 
 	public var P:Mat4; // Matrices
+// #if WITH_VELOC
+	// public var prevP:Mat4;
+// #end
 #if WITH_TAA
 	public var noJitterP:Mat4;
 #end
@@ -44,13 +47,18 @@ class CameraNode extends Node {
 		else if (resource.resource.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane, 2);
 		}
+// #if WITH_VELOC
+		// prevP = Mat4.identity();
+		// prevP.loadFrom(P);
+// #end
 #if WITH_TAA
-			noJitterP = Mat4.identity();
-			noJitterP.loadFrom(P);
+		noJitterP = Mat4.identity();
+		noJitterP.loadFrom(P);
 #end
 
 		V = Mat4.identity();
-		prevV = V;
+		prevV = Mat4.identity();
+		prevV.loadFrom(V);
 		VP = Mat4.identity();
 
 		if (resource.resource.frustum_culling) {
@@ -74,7 +82,10 @@ class CameraNode extends Node {
 
 		renderPath.renderFrame(g, root, lights);
 	
-		prevV = V.clone();
+		prevV.loadFrom(V);
+// #if (WITH_VELOC && WITH_TAA)
+		// prevP.loadFrom(P);
+// #end
 	}
 
 #if WITH_TAA
