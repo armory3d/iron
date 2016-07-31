@@ -13,6 +13,7 @@ class Animation {
 	// Skinning
 	public var resource:ModelResource;
 	public var isSkinned:Bool;
+	public var isSampled:Bool;
 	public var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
 	public var boneMats = new Map<TNode, Mat4>();
 	public var boneTimeIndices = new Map<TNode, Int>();
@@ -33,6 +34,7 @@ class Animation {
 		var anim = new Animation(startTrack, names, starts, ends, speeds, loops, reflects);
 		anim.resource = resource;
 		anim.isSkinned = resource.isSkinned;
+		anim.isSampled = false;
 
 		if (anim.isSkinned) {
 			if (!ModelResource.ForceCpuSkinning) {
@@ -48,15 +50,46 @@ class Animation {
 		return anim;
 	}
 
+	static function parseAnimationTransforms(t:Transform, animation_transforms:Array<TAnimationTransform>) {
+		for (at in animation_transforms) {
+			switch (at.type) {
+			case "translation": t.pos.set(at.values[0], at.values[1], at.values[2]);
+			case "translation_x": t.pos.x = at.value;
+			case "translation_y": t.pos.y = at.value;
+			case "translation_z": t.pos.z = at.value;
+			case "rotation": t.setRotation(at.values[0], at.values[1], at.values[2]);
+			case "rotation_x": t.setRotation(at.value, 0, 0);
+			case "rotation_y": t.setRotation(0, at.value, 0);
+			case "rotation_z": t.setRotation(0, 0, at.value);
+			case "scale": t.scale.set(at.values[0], at.values[1], at.values[2]);
+			case "scale_x": t.scale.x = at.value;
+			case "scale_y": t.scale.x = at.value;
+			case "scale_z": t.scale.x = at.value;
+			}
+		}
+		t.buildMatrix();
+	}
+
 	public static function setupNodeAnimation(node:Node, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
 		var anim = new Animation(startTrack, names, starts, ends, speeds, loops, reflects);
 		anim.isSkinned = false;
 		anim.node = node;
+
+		// Check animation_transforms to determine non-sampled animation
+		if (node.raw.animation_transforms != null) {
+			anim.isSampled = false;
+			parseAnimationTransforms(node.transform, node.raw.animation_transforms);
+		}
+		else {
+			anim.isSampled = true;
+		}
+
 		return anim;
 	}
 
 	public function setAnimationParams(delta:Float) {
 		if (player.paused) return;
+
     	player.animTime += delta * player.speed * player.dir;
 
 		if (isSkinned) {
@@ -69,15 +102,100 @@ class Animation {
     }
 
     function updateNodeAnim() {
-		updateAnim(node.raw.animation, node.transform.matrix);
+		if (isSampled) {
+			updateAnimSampled(node.raw.animation, node.transform.matrix);
 
-		// Decompose manually on every update for now
-		node.transform.matrix.decompose(node.transform.pos, node.transform.rot, node.transform.scale);
+			// Decompose manually on every update for now
+			node.transform.matrix.decompose(node.transform.pos, node.transform.rot, node.transform.scale);
+		}
+		else {
+			updateAnimNonSampled(node.raw.animation, node.transform);
+
+			node.transform.buildMatrix();
+		}
     }
 
     function updateBoneAnim() {
 		for (b in resource.geometry.skeletonBones) {
-			updateAnim(b.animation, boneMats.get(b));
+			updateAnimSampled(b.animation, boneMats.get(b));
+		}
+	}
+
+	inline function interpolateLinear(t:Float, t1:Float, t2:Float):Float {
+		return (t - t1) / (t2 - t1);
+	}
+	inline function interpolateBezier(t:Float, t1:Float, t2:Float) {
+		// TODO: proper interpolation
+		var k = interpolateLinear(t, t1, t2);
+		return k == 1 ? 1 : (1 - Math.pow(2, -10 * k));
+	}
+	inline function interpolateTcb() {}
+
+	function updateAnimNonSampled(anim:TAnimation, transform:Transform) {
+		if (anim == null) return;
+		
+		var begin = anim.begin;
+		var end = anim.end;
+		var total = end - begin;
+
+		for (track in anim.tracks) {
+
+			// No data for this track at current time
+			if (player.timeIndex >= track.time.values.length) continue;
+
+			// End of track
+			if (player.animTime > total || player.animTime < 0) {
+				if (!player.current.loop) {
+					player.paused = true;
+					return;
+				}
+
+				if (player.current.reflect) player.dir *= -1; // Reflect
+				
+				player.animTime = player.dir > 0 ? 0 : total; // Rewind
+				player.timeIndex = player.dir > 0 ? 0 : track.time.values.length - 1;
+			}
+
+			// End of current time range
+			var t = player.animTime + begin;
+			if (player.dir > 0) {
+				while (player.timeIndex < track.time.values.length - 2 && t > track.time.values[player.timeIndex + 1]) {
+					player.timeIndex++;
+				}
+			}
+			// Reversed
+			else {
+				while (player.timeIndex > 1 && t < track.time.values[player.timeIndex - 1]) {
+					player.timeIndex--;
+				}
+			}
+
+			var ti = player.timeIndex;
+			var t1 = track.time.values[ti];
+			var t2 = track.time.values[ti + 1 * player.dir];
+			var interpolate = interpolateLinear;
+			switch (track.curve) {
+			case "linear": interpolate = interpolateLinear;
+			case "bezier": interpolate = interpolateBezier;
+			// case "tcb": interpolate = interpolateTcb;
+			}
+			var s = player.dir > 0 ? interpolate(t, t1, t2) : interpolate(t, t2, t1);
+			var v1 = track.value.values[ti];
+			var v2 = track.value.values[ti + 1 * player.dir];
+			var invs = 1.0 - s;
+			var v = player.dir > 0 ? v1 * invs + v2 * s : v1 * s + v2 * invs;
+
+			switch (track.target) {
+			case "xpos": transform.pos.x = v;
+			case "ypos": transform.pos.y = v;
+			case "zpos": transform.pos.z = v;
+			case "xrot": transform.setRotation(v, 0, 0);
+			case "yrot": transform.setRotation(0, v, 0);
+			case "zrot": transform.setRotation(0, 0, v);
+			case "xscl": transform.scale.x = v;
+			case "yscl": transform.scale.y = v;
+			case "zscl": transform.scale.z = v;
+			}
 		}
 	}
 
@@ -99,84 +217,85 @@ class Animation {
 		}
 	}
 
-    function updateAnim(anim:TAnimation, targetMatrix:Mat4) {
-    	if (anim != null) {
-			var track = anim.tracks[0];
+    function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
+    	if (anim == null) return;
+		var track = anim.tracks[0];
 
-			// Current track has been changed
-			if (player.dirty) {
-				player.dirty = false;
-				// Single frame - set skin and pause
-				if (player.current.frames == 0) {
-					player.paused = true;
-					if (isSkinned) setBoneAnimFrame(player.current.start);
-					else setNodeAnimFrame(player.current.start);
-					return;
-				}
-				// Animation - loop frames
-				else {
-					if (player.current.reflect) {
-						player.dir *= -1;
-					}
-
-					player.timeIndex = player.dir > 0 ? player.current.start : player.current.end;
-					player.animTime = track.time.values[player.timeIndex];
-				}
-			}
-
-			// Move keyframe
-			//var timeIndex = boneTimeIndices.get(b);
-			while (checkTimeIndex(player, track.time.values)) {
-				player.timeIndex += 1 * player.dir;
-			}
-			//boneTimeIndices.set(b, timeIndex);
-
-			// End of track
-			if (checkTrackEnd(player, track)) {
-				if (player.current.loop) player.dirty = true; // Rewind
-				else player.paused = true;
-
-				// Give chance to change current track
-				if (player.onTrackComplete != null) player.onTrackComplete();
-
-				//boneTimeIndices.set(b, player.timeIndex);
-				//continue;
+		// Current track has been changed
+		if (player.dirty) {
+			player.dirty = false;
+			// Single frame - set skin and pause
+			if (player.current.frames == 0) {
+				player.paused = true;
+				if (isSkinned) setBoneAnimFrame(player.current.start);
+				else setNodeAnimFrame(player.current.start);
 				return;
 			}
+			// Animation - loop frames
+			else {
+				if (player.current.reflect) player.dir *= -1;
 
-			var t1 = track.time.values[player.timeIndex];
-			var t2 = track.time.values[player.timeIndex + 1 * player.dir];
-			var s = (player.animTime - t1) / (t2 - t1);
-
-			var v1:Array<Float> = track.value.values[player.timeIndex];
-			var v2:Array<Float> = track.value.values[player.timeIndex + 1 * player.dir];
-
-			var m1 = Mat4.fromArray(v1);
-			var m2 = Mat4.fromArray(v2);
-
-			// Decompose
-			var p1 = m1.pos();
-			var p2 = m2.pos();
-			var s1 = m1.scaleV();
-			var s2 = m2.scaleV();
-			var q1 = m1.getQuat();
-			var q2 = m2.getQuat();
-
-			// Lerp
-			var fp = Vec4.lerp(p1, p2, 1.0 - s);
-			// var fp = Vec4.lerp(p1, p2, s);
-			var fs = Vec4.lerp(s1, s2, s);
-			var fq = Quat.lerp(q1, q2, s);
-
-			// Compose
-			var m = targetMatrix;
-			fq.saveToMatrix(m);
-			m.scale(fs);
-			m._30 = fp.x;
-			m._31 = fp.y;
-			m._32 = fp.z;
-			// boneMats.set(b, m);
+				player.timeIndex = player.dir > 0 ? player.current.start : player.current.end;
+				player.animTime = track.time.values[player.timeIndex];
+			}
 		}
+
+		// Move keyframe
+		//var timeIndex = boneTimeIndices.get(b);
+		while (checkTimeIndex(player, track.time.values)) {
+			player.timeIndex += 1 * player.dir;
+		}
+		// Safe check, remove
+		if (player.timeIndex >= track.time.values.length) player.timeIndex = track.time.values.length - 1;
+		//boneTimeIndices.set(b, timeIndex);
+
+		// End of track
+		if (checkTrackEnd(player, track)) {
+			if (player.current.loop) player.dirty = true; // Rewind
+			else player.paused = true;
+
+			// Give chance to change current track
+			if (player.onTrackComplete != null) player.onTrackComplete();
+
+			//boneTimeIndices.set(b, player.timeIndex);
+			//continue;
+			return;
+		}
+
+		var t = player.animTime;
+		var ti = player.timeIndex;
+		var t1 = track.time.values[ti];
+		var t2 = track.time.values[ti + 1 * player.dir];
+		var s = (t - t1) / (t2 - t1); // Linear
+
+		var v1:Array<Float> = track.value.values[ti];
+		var v2:Array<Float> = track.value.values[ti + 1 * player.dir];
+
+		var m1 = Mat4.fromArray(v1);
+		var m2 = Mat4.fromArray(v2);
+
+		// Decompose
+		var p1 = m1.pos();
+		var p2 = m2.pos();
+		var s1 = m1.scaleV();
+		var s2 = m2.scaleV();
+		var q1 = m1.getQuat();
+		var q2 = m2.getQuat();
+
+		// Lerp
+		var fp = Vec4.lerp(p1, p2, 1.0 - s);
+		// var fp = Vec4.lerp(p1, p2, s);
+		var fs = Vec4.lerp(s1, s2, s);
+		var fq = Quat.lerp(q1, q2, s);
+
+		// Compose
+		var m = targetMatrix;
+		fq.saveToMatrix(m);
+		m.scale(fs);
+		m._30 = fp.x;
+		m._31 = fp.y;
+		m._32 = fp.z;
+		// boneMats.set(b, m);
     }
 
 	function setBoneAnimFrame(frame:Int) {

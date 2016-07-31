@@ -316,6 +316,8 @@ typedef TAnimationTransform = {
 typedef TAnimation = {
 // @:structInit class TAnimation {
 	public var tracks:Array<TTrack>;
+	@:optional public var begin:Float; // For non-sampled
+	@:optional public var end:Float;
 }
 
 typedef TTrack = {
@@ -323,11 +325,14 @@ typedef TTrack = {
 	public var target:String;
 	public var time:TTime;
 	public var value:TValue;
-	@:optional public var curve:String; // bezier
-	@:optional public var time_control_plus:TTime;
+	@:optional public var curve:String; // bezier, tcb, ...
+	@:optional public var time_control_plus:TTime; // bezier
 	@:optional public var time_control_minus:TTime;
 	@:optional public var value_control_plus:TValue;
 	@:optional public var value_control_minus:TValue;
+	// @:optional public var tension:TValue; // tcb
+	// @:optional public var continuity:TValue;
+	// @:optional public var bias:TValue;
 }
 
 typedef TTime = {
@@ -337,8 +342,9 @@ typedef TTime = {
 
 typedef TValue = {
 // @:structInit class TValue {
-	public var values:Array<Array<Float>>; // Array of transforms
-	// public var values:Array<Float>;
+	public var values:Array<Dynamic>; // TODO: Unify
+	// public var values:Array<Array<Float>>; // Array of transforms
+	// public var values:Array<Float>; // Non-sampled
 }
 
 // Raw shader resource
