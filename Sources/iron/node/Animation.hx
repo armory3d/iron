@@ -57,8 +57,8 @@ class Animation {
 
 	public function setAnimationParams(delta:Float) {
 		if (player.paused) return;
-    	player.animTime += delta * player.current.speed;
-		
+    	player.animTime += delta * player.speed * player.dir;
+
 		if (isSkinned) {
 			updateBoneAnim();
 			updateSkin();
@@ -81,6 +81,24 @@ class Animation {
 		}
 	}
 
+	inline function checkTimeIndex(player:Player, timeValues:Array<Float>):Bool {
+		if (player.dir > 0) {
+			return ((player.timeIndex + 1) < timeValues.length && player.animTime > timeValues[player.timeIndex + 1]);
+		}
+		else {
+			return ((player.timeIndex - 1) > 0 && player.animTime < timeValues[player.timeIndex - 1]);
+		}
+	}
+
+	inline function checkTrackEnd(player:Player, track:TTrack):Bool {
+		if (player.dir > 0) {
+			return (player.timeIndex >= track.time.values.length - 1 || player.timeIndex >= player.current.end);
+		}
+		else {
+			return (player.timeIndex <= 1 || player.timeIndex <= player.current.start);
+		}
+	}
+
     function updateAnim(anim:TAnimation, targetMatrix:Mat4) {
     	if (anim != null) {
 			var track = anim.tracks[0];
@@ -97,31 +115,26 @@ class Animation {
 				}
 				// Animation - loop frames
 				else {
-					player.timeIndex = player.current.start;
+					if (player.current.reflect) {
+						player.dir *= -1;
+					}
+
+					player.timeIndex = player.dir > 0 ? player.current.start : player.current.end;
 					player.animTime = track.time.values[player.timeIndex];
 				}
 			}
 
 			// Move keyframe
 			//var timeIndex = boneTimeIndices.get(b);
-			while (track.time.values.length > (player.timeIndex + 1) &&
-				   player.animTime > track.time.values[player.timeIndex + 1]) {
-				player.timeIndex++;
+			while (checkTimeIndex(player, track.time.values)) {
+				player.timeIndex += 1 * player.dir;
 			}
 			//boneTimeIndices.set(b, timeIndex);
 
 			// End of track
-			if (player.timeIndex >= track.time.values.length - 1 ||
-				player.timeIndex >= player.current.end) {
-
-				// Rewind
-				if (player.current.loop) {
-					player.dirty = true;
-				}
-				// Pause
-				else {
-					player.paused = true;
-				}
+			if (checkTrackEnd(player, track)) {
+				if (player.current.loop) player.dirty = true; // Rewind
+				else player.paused = true;
 
 				// Give chance to change current track
 				if (player.onTrackComplete != null) player.onTrackComplete();
@@ -132,11 +145,11 @@ class Animation {
 			}
 
 			var t1 = track.time.values[player.timeIndex];
-			var t2 = track.time.values[player.timeIndex + 1];
+			var t2 = track.time.values[player.timeIndex + 1 * player.dir];
 			var s = (player.animTime - t1) / (t2 - t1);
 
 			var v1:Array<Float> = track.value.values[player.timeIndex];
-			var v2:Array<Float> = track.value.values[player.timeIndex + 1];
+			var v2:Array<Float> = track.value.values[player.timeIndex + 1 * player.dir];
 
 			var m1 = Mat4.fromArray(v1);
 			var m2 = Mat4.fromArray(v2);
@@ -341,6 +354,8 @@ class Player {
 	public var onTrackComplete:Void->Void = null;
 
 	public var paused = false;
+	public var speed:Float;
+	public var dir:Int;
 
     public function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
         for (i in 0...names.length) {
@@ -351,10 +366,13 @@ class Player {
     }
 
     public function play(name:String, onTrackComplete:Void->Void = null) {
+ 		this.onTrackComplete = onTrackComplete;
  		current = tracks.get(name);
  		dirty = true;
- 		this.onTrackComplete = onTrackComplete;
  		paused = false;
+ 		dir = current.speed >= 0 ? 1 : -1;
+ 		if (current.reflect) dir *= -1; // Start at correct dir for reflect
+ 		speed = Math.abs(current.speed);
     }
 
     public function pause() {
