@@ -8,50 +8,58 @@ import iron.resource.SceneFormat;
 
 class Animation {
 
-	public var resource:ModelResource;
-	public var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
 	public var player:Player = null;
+
 	// Skinning
-	var boneMats = new Map<TNode, Mat4>();
-	var boneTimeIndices = new Map<TNode, Int>();
-	// Node based
-	var node:ModelNode;
+	public var resource:ModelResource;
+	public var isSkinned:Bool;
+	public var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
+	public var boneMats = new Map<TNode, Mat4>();
+	public var boneTimeIndices = new Map<TNode, Int>();
 
 	var m = Mat4.identity(); // Skinning matrix
 	var bm = Mat4.identity(); // Absolute bone matrix
 	var pos = new Vec4();
 	var nor = new Vec4();
 
-	public function new(resource:ModelResource) {
-		this.resource = resource;
+	// Node based
+	public var node:Node;
+
+	function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+		player = new Player(startTrack, names, starts, ends, speeds, loops, reflects);
 	}
 
-	public function setupBoneAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
-		player = new Player(startTrack, names, starts, ends);
+	public static function setupBoneAnimation(resource:ModelResource, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+		var anim = new Animation(startTrack, names, starts, ends, speeds, loops, reflects);
+		anim.resource = resource;
+		anim.isSkinned = resource.isSkinned;
 
-		if (resource.isSkinned) {
+		if (anim.isSkinned) {
 			if (!ModelResource.ForceCpuSkinning) {
-				skinBuffer = new haxe.ds.Vector(50 * 12);
-				for (i in 0...skinBuffer.length) skinBuffer[i] = 0;
+				anim.skinBuffer = new haxe.ds.Vector(50 * 12);
+				for (i in 0...anim.skinBuffer.length) anim.skinBuffer[i] = 0;
 			}
 
 			for (b in resource.geometry.skeletonBones) {
-				boneMats.set(b, Mat4.fromArray(b.transform.values));
-				boneTimeIndices.set(b, 0);
+				anim.boneMats.set(b, Mat4.fromArray(b.transform.values));
+				anim.boneTimeIndices.set(b, 0);
 			}
 		}
+		return anim;
 	}
 
-	public function setupNodeAnimation(node:ModelNode, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
-		player = new Player(startTrack, names, starts, ends);
-		this.node = node;
+	public static function setupNodeAnimation(node:Node, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+		var anim = new Animation(startTrack, names, starts, ends, speeds, loops, reflects);
+		anim.isSkinned = false;
+		anim.node = node;
+		return anim;
 	}
 
 	public function setAnimationParams(delta:Float) {
 		if (player.paused) return;
-    	player.animTime += delta * player.speed;
+    	player.animTime += delta * player.current.speed;
 		
-		if (resource.isSkinned) {
+		if (isSkinned) {
 			updateBoneAnim();
 			updateSkin();
 		}
@@ -62,6 +70,9 @@ class Animation {
 
     function updateNodeAnim() {
 		updateAnim(node.raw.animation, node.transform.matrix);
+
+		// Decompose manually on every update for now
+		node.transform.matrix.decompose(node.transform.pos, node.transform.rot, node.transform.scale);
     }
 
     function updateBoneAnim() {
@@ -80,7 +91,7 @@ class Animation {
 				// Single frame - set skin and pause
 				if (player.current.frames == 0) {
 					player.paused = true;
-					if (resource.isSkinned) setBoneAnimFrame(player.current.start);
+					if (isSkinned) setBoneAnimFrame(player.current.start);
 					else setNodeAnimFrame(player.current.start);
 					return;
 				}
@@ -104,7 +115,7 @@ class Animation {
 				player.timeIndex >= player.current.end) {
 
 				// Rewind
-				if (player.loop) {
+				if (player.current.loop) {
 					player.dirty = true;
 				}
 				// Pause
@@ -327,30 +338,22 @@ class Player {
 
 	public var current:Track;
 	var tracks:Map<String, Track> = new Map();
-
-	public var speed:Float = 1.0;
-	public var loop:Bool;
 	public var onTrackComplete:Void->Void = null;
 
 	public var paused = false;
 
-    public function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
-
+    public function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
         for (i in 0...names.length) {
-        	addTrack(names[i], starts[i], ends[i]);
+        	addTrack(names[i], starts[i], ends[i], speeds[i], loops[i], reflects[i]);
         }
 
         play(startTrack);
     }
 
-    public function play(name:String, loop = true, speed = 1.0, onTrackComplete:Void->Void = null) {
+    public function play(name:String, onTrackComplete:Void->Void = null) {
  		current = tracks.get(name);
  		dirty = true;
-
- 		this.speed = speed;
- 		this.loop = loop;
  		this.onTrackComplete = onTrackComplete;
-
  		paused = false;
     }
 
@@ -358,8 +361,8 @@ class Player {
     	paused = true;
     }
 
-    function addTrack(name:String, start:Int, end:Int) {
-    	var t = new Track(start, end);
+    function addTrack(name:String, start:Int, end:Int, speed:Float, loop:Bool, reflect:Bool) {
+    	var t = new Track(start, end, speed, loop, reflect);
     	tracks.set(name, t);
     }
 }
@@ -368,10 +371,16 @@ class Track {
 	public var start:Int;
 	public var end:Int;
 	public var frames:Int;
+	public var speed:Float;
+	public var loop:Bool;
+	public var reflect:Bool;
 
-	public function new(start:Int, end:Int) {
+	public function new(start:Int, end:Int, speed:Float, loop:Bool, reflect:Bool) {
 		this.start = start;
 		this.end = end;
 		frames = end - start;
+		this.speed = speed;
+		this.loop = loop;
+		this.reflect = reflect;
 	}
 }

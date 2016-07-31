@@ -19,6 +19,8 @@ class Node {
 	public var parent:Node;
 	public var children:Array<Node> = [];
 
+	public var animation:Animation = null;
+
 	public function new() {
 		uid = uidCounter++;
 		transform = new Transform(this);
@@ -76,5 +78,13 @@ class Node {
 			}
 		}
 		return null;
+	}
+
+	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+		animation = Animation.setupNodeAnimation(this, startTrack, names, starts, ends, speeds, loops, reflects);
+	}
+
+	public inline function setAnimationParams(delta:Float) {
+		animation.setAnimationParams(delta);
 	}
 }

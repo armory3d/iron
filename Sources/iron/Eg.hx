@@ -113,11 +113,11 @@ class Eg {
     }
 
     // Animation
-    public static function setupAnimation(node:ModelNode, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
-    	node.setupAnimation(startTrack, names, starts, ends);
+    public static function setupAnimation(node:Node, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+    	node.setupAnimation(startTrack, names, starts, ends, speeds, loops, reflects);
     }
 
-    public static function setAnimationParams(node:ModelNode, delta:Float) {
+    public static function setAnimationParams(node:Node, delta:Float) {
     	node.setAnimationParams(delta);
     }
 }

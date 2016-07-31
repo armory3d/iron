@@ -70,11 +70,10 @@ class CameraNode extends Node {
 #if WITH_TAA
 		projectionJitter();
 #end
-
 		updateMatrix(); // TODO: only when dirty
 
 		renderPath.renderFrame(g, root, lights);
-		
+	
 		prevV = V.clone();
 	}
 
@@ -183,16 +182,14 @@ class CameraNode extends Node {
 		var q = new Quat();
 		q.setFromAxisAngle(axis, f);
 		transform.rot.multiply(q, transform.rot);
-
+		transform.dirty = true;
 		updateMatrix();
 	}
 
 	public function move(axis:Vec4, f:Float) {
         axis.mult(f, axis);
-
 		transform.pos.vadd(axis, transform.pos);
 		transform.dirty = true;
-		transform.update();
 		updateMatrix();
 	}
 

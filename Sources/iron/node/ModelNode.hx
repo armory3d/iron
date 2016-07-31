@@ -20,7 +20,6 @@ class ModelNode extends Node {
 	public var materials:Array<MaterialResource>;
 
 	public var particleSystem:ParticleSystem = null;
-	public var animation:Animation = null;
 
 	static var helpMat = Mat4.identity();
 	static var helpMat2 = Mat4.identity();
@@ -52,22 +51,17 @@ class ModelNode extends Node {
 		super.remove();
 	}
 
-	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>) {
-		animation = new Animation(resource);
+	public override function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
 		if (resource.isSkinned) {
-			animation.setupBoneAnimation(startTrack, names, starts, ends);
+			animation = Animation.setupBoneAnimation(resource, startTrack, names, starts, ends, speeds, loops, reflects);
 		}
 		else {
-			animation.setupNodeAnimation(this, startTrack, names, starts, ends);
+			super.setupAnimation(startTrack, names, starts, ends, speeds, loops, reflects);
 		}
 	}
 
 	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {
 		particleSystem = new ParticleSystem(this, sceneName, pref);
-	}
-
-	public inline function setAnimationParams(delta:Float) {
-		animation.setAnimationParams(delta);
 	}
 
 	public static function setConstants(g:Graphics, context:ShaderContext, node:Node, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
