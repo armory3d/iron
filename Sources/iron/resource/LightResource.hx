@@ -23,18 +23,22 @@ class LightResource extends Resource {
 		this.resource = resource;
 		
 		var type = resource.type;
+		var fov = resource.fov;
 		
 		if (type == "sun") {
 			lightType = 0;
-			P = Mat4.orthogonal(-10, 10, -10, 10, -resource.far_plane, resource.far_plane, 2);
+			// Estimate planes from fov
+			var orthoScale = 2.0;
+			P = Mat4.orthogonal(-fov * 25, fov * 25, -fov * 25, fov * 25, -resource.far_plane, resource.far_plane, orthoScale);
 		}
 		else if (type == "point") {
 			lightType = 1;
-			P = Mat4.perspective(45, 1, resource.near_plane, resource.far_plane);
+			// fov = iron.math.Math.PI / 4
+			P = Mat4.perspective(fov, 1, resource.near_plane, resource.far_plane);
 		}
 		else if (type == "spot") {
 			lightType = 2;
-			P = Mat4.perspective(45, 1, resource.near_plane, resource.far_plane);
+			P = Mat4.perspective(fov, 1, resource.near_plane, resource.far_plane);
 		}
 	}
 

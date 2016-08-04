@@ -38,6 +38,7 @@ class App {
 
         kha.System.notifyOnRender(render);
         kha.Scheduler.addTimeTask(update, 0, iron.sys.Time.delta);
+        // kha.Scheduler.addTimeTask(update, 0, 1 / 60);
     }
 
     public static function reset() {

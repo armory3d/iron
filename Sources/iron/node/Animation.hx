@@ -189,9 +189,9 @@ class Animation {
 			case "xpos": transform.pos.x = v;
 			case "ypos": transform.pos.y = v;
 			case "zpos": transform.pos.z = v;
-			case "xrot": transform.setRotation(v, 0, 0);
-			case "yrot": transform.setRotation(0, v, 0);
-			case "zrot": transform.setRotation(0, 0, v);
+			case "xrot": transform.rotate(Vec4.xAxis(), v / 360);
+			case "yrot": transform.rotate(Vec4.yAxis(), v / 360);
+			case "zrot": transform.rotate(Vec4.zAxis(), -v / 360);
 			case "xscl": transform.scale.x = v;
 			case "yscl": transform.scale.y = v;
 			case "zscl": transform.scale.z = v;

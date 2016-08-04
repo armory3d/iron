@@ -40,6 +40,8 @@ class CameraNode extends Node {
 		nearPlane = resource.resource.near_plane;
 		farPlane = resource.resource.far_plane;
 
+		// var fov = resource.resource.fov;
+
 		if (resource.resource.type == "perspective") {
 			// P = Mat4.perspective(3.14159265 / 4, App.w / App.h, nearPlane, farPlane);
 			P = Mat4.perspective(3.14159265 / 3, App.w / App.h, nearPlane, farPlane); // Matches Blender viewport

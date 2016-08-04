@@ -86,7 +86,7 @@ class Transform {
 	public function rotate(axis:Vec4, f:Float) {
 		var q = new Quat();
 		q.setFromAxisAngle(axis, f);
-		rot.multiply(rot, q);
+		rot.multiply(q, rot);
 		dirty = true;
 	}
 

@@ -70,6 +70,7 @@ typedef TLightResource = {
 	public var cast_shadow:Bool;
 	public var near_plane:Float;
 	public var far_plane:Float;
+	public var fov:Float;
 	@:optional public var spot_size:Null<Float>;
 	@:optional public var spot_blend:Null<Float>;
 }
@@ -80,9 +81,10 @@ typedef TCameraResource = {
 	public var clear_color:Array<Float>;
 	public var near_plane:Float;
 	public var far_plane:Float;
-	@:optional public var frustum_culling:Bool;
+	public var fov:Float;
 	public var pipeline:String;
 	public var type:String;
+	@:optional public var frustum_culling:Bool;
 }
 
 typedef TMaterialResource = {
