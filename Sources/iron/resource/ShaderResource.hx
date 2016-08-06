@@ -145,6 +145,9 @@ class ShaderContext {
 		else if (resource.compare_mode == "less_equal") {
         	pipeState.depthMode = CompareMode.LessEqual;
         }
+        else if (resource.compare_mode == "equal") {
+        	pipeState.depthMode = CompareMode.Equal;
+        }
 		
 		// Stencil
 		if (resource.stencil_mode != null) {
@@ -252,6 +255,14 @@ class ShaderContext {
 			return BlendingFactor.InverseSourceAlpha;
 		else if (s == "inverse_destination_alpha")
 			return BlendingFactor.InverseDestinationAlpha;
+		else if (s == "source_color")
+			return BlendingFactor.SourceColor;
+		else if (s == "destination_color")
+			return BlendingFactor.DestinationColor;
+		else if (s == "inverse_source_color")
+			return BlendingFactor.InverseSourceColor;
+		else if (s == "inverse_destination_color")
+			return BlendingFactor.InverseDestinationColor;
 		else
 			return BlendingFactor.Undefined;
 	}

@@ -141,6 +141,10 @@ class ModelNode extends Node {
 				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "noise256"));
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 			}
+			else if (tulink == "_noise512") {
+				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "noise512"));
+				// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+			}
 			// else if (tulink == "_checker") {
 				// g.setTexture(context.textureUnits[j], kha.Assets.images.checker);
 				// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
@@ -443,6 +447,9 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_lightStrength") {
 				f = light.resource.resource.strength;
+			}
+			else if (c.link == "_lightBias") {
+				f = light.resource.resource.bias;
 			}
 			else if (c.link == "_spotlightCutoff") {
 				f = light.resource.resource.spot_size;
