@@ -161,7 +161,7 @@ class Transform {
     }
 
     public function computeRadius() {
-    	radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z) / 2;
+    	radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);// / 2;
     }
 
  	public inline function absx():Float { return matrix._30; }

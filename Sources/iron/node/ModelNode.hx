@@ -21,6 +21,11 @@ class ModelNode extends Node {
 
 	public var particleSystem:ParticleSystem = null;
 
+	// static var biasMat = new Mat4(
+	// 	0.5, 0.0, 0.0, 0.0,
+	// 	0.0, 0.5, 0.0, 0.0,
+	// 	0.0, 0.0, 0.5, 0.0,
+	// 	0.5, 0.5, 0.5, 1.0);
 	static var helpMat = Mat4.identity();
 	static var helpMat2 = Mat4.identity();
 	static var helpVec = new Vec4();
@@ -152,7 +157,7 @@ class ModelNode extends Node {
 		}
 	}
 	static function setConstant(g:Graphics, node:Node, camera:CameraNode, light:LightNode,
-						 		location:ConstantLocation, c:TShaderConstant) {
+								location:ConstantLocation, c:TShaderConstant) {
 		if (c.link == null) return;
 
 		if (c.type == "mat4") {
@@ -218,45 +223,53 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_modelViewProjectionMatrix") {
 				helpMat.setIdentity();
-		    	helpMat.mult2(node.transform.matrix);
-		    	helpMat.mult2(camera.V);
-		    	helpMat.mult2(camera.P);
-		    	m = helpMat;
+				helpMat.mult2(node.transform.matrix);
+				helpMat.mult2(camera.V);
+				helpMat.mult2(camera.P);
+				m = helpMat;
 			}
 			else if (c.link == "_modelViewMatrix") {
 				helpMat.setIdentity();
-		    	helpMat.mult2(node.transform.matrix);
-		    	helpMat.mult2(camera.V);
-		    	m = helpMat;
+				helpMat.mult2(node.transform.matrix);
+				helpMat.mult2(camera.V);
+				m = helpMat;
 			}
 			else if (c.link == "_viewProjectionMatrix") {
 				helpMat.setIdentity();
-		    	helpMat.mult2(camera.V);
-		    	helpMat.mult2(camera.P);
-		    	m = helpMat;
+				helpMat.mult2(camera.V);
+				helpMat.mult2(camera.P);
+				m = helpMat;
 			}
 			else if (c.link == "_prevViewProjectionMatrix") {
 				helpMat.setIdentity();
-		    	helpMat.mult2(camera.prevV);
-		    	helpMat.mult2(camera.P);
-		    	m = helpMat;
+				helpMat.mult2(camera.prevV);
+				helpMat.mult2(camera.P);
+				m = helpMat;
 			}
 #if WITH_VELOC
 			else if (c.link == "_prevModelViewProjectionMatrix") {
 				helpMat.setIdentity();
-		    	helpMat.mult2(cast(node, ModelNode).prevMatrix);
-		    	helpMat.mult2(camera.prevV);
-		    	// helpMat.mult2(camera.prevP);
-		    	helpMat.mult2(camera.P);
-		    	m = helpMat;
+				helpMat.mult2(cast(node, ModelNode).prevMatrix);
+				helpMat.mult2(camera.prevV);
+				// helpMat.mult2(camera.prevP);
+				helpMat.mult2(camera.P);
+				m = helpMat;
 			}
 #end
 			else if (c.link == "_lightModelViewProjectionMatrix") {
 				helpMat.setIdentity();
-		    	if (node != null) helpMat.mult2(node.transform.matrix); // node is null for DrawQuad
-		    	helpMat.mult2(light.V);
-		    	helpMat.mult2(light.resource.P);
-		    	m = helpMat;
+				if (node != null) helpMat.mult2(node.transform.matrix); // node is null for DrawQuad
+				helpMat.mult2(light.V);
+				helpMat.mult2(light.resource.P);
+				m = helpMat;
+			}
+			else if (c.link == "_biasLightModelViewProjectionMatrix") {
+				helpMat.setIdentity();
+				if (node != null) helpMat.mult2(node.transform.matrix); // node is null for DrawQuad
+				helpMat.mult2(light.V);
+				helpMat.mult2(light.resource.P);
+				// helpMat.mult2(biasMat);
+				m = helpMat;
 			}
 			else if (c.link == "_skydomeMatrix") {
 				var tr = camera.transform;
@@ -265,15 +278,15 @@ class ModelNode extends Node {
 				var bounds = camera.farPlane * 0.97;
 				helpVec2.set(bounds, bounds, bounds);
 				helpMat.compose(helpVec, helpQuat, helpVec2);
-		    	helpMat.mult2(camera.V);
-		    	helpMat.mult2(camera.P);
-		    	m = helpMat;
+				helpMat.mult2(camera.V);
+				helpMat.mult2(camera.P);
+				m = helpMat;
 			}
 			else if (c.link == "_lightViewMatrix") {
-		    	m = light.V;
+				m = light.V;
 			}
 			else if (c.link == "_lightProjectionMatrix") {
-		    	m = light.resource.P;
+				m = light.resource.P;
 			}
 			if (m == null) return;
 			g.setMatrix(location, m);
@@ -412,6 +425,7 @@ class ModelNode extends Node {
 			else if (c.link == "_vec2x2") vx = 2.0;
 			else if (c.link == "_vec2y") vy = 1.0;
 			else if (c.link == "_vec2y2") vy = 2.0;
+			else if (c.link == "_vec2y3") vy = 3.0;
 			else if (c.link == "_windowSize") {
 				vx = App.w;
 				vy = App.h;
@@ -559,38 +573,38 @@ class ModelNode extends Node {
 		// Skip render if material does not contain current context
 		if (materials[0].getContext(context) == null) return;
 
-		// Frustum culling, disable for instanced for now
+		// Frustum culling
 		if (camera.resource.resource.frustum_culling) {
-		 	// Scale radius for skinned mesh
-		 	// TODO: determine max skinned radius
-		 	var radiusScale = resource.isSkinned ? 2.0 : 1.0;
-		 	
-		 	// Hard-coded for now
-		 	var frustumPlanes = context == "shadowmap" ? light.frustumPlanes : camera.frustumPlanes;
+			// Scale radius for skinned mesh
+			// TODO: determine max skinned radius
+			var radiusScale = resource.isSkinned ? 2.0 : 1.0;
+			
+			// Hard-coded for now
+			var frustumPlanes = context == "shadowmap" ? light.frustumPlanes : camera.frustumPlanes;
 
-		 	// Instanced
-		 	if (resource.geometry.instanced) {
-		 		// Cull
-		 		// TODO: per-instance culling
-		 		var instanceInFrustum = false;
-		 		for (v in resource.geometry.offsetVecs) {
-		 			if (CameraNode.sphereInFrustum(frustumPlanes, transform, radiusScale, v.x, v.y, v.z)) {
-		 				instanceInFrustum = true;
-		 				break;
-		 			}
-		 		}
-		 		if (!instanceInFrustum) return;
+			// Instanced
+			if (resource.geometry.instanced) {
+				// Cull
+				// TODO: per-instance culling
+				var instanceInFrustum = false;
+				for (v in resource.geometry.offsetVecs) {
+					if (CameraNode.sphereInFrustum(frustumPlanes, transform, radiusScale, v.x, v.y, v.z)) {
+						instanceInFrustum = true;
+						break;
+					}
+				}
+				if (!instanceInFrustum) return;
 
-		 		// Sort - always front to back for now
-		 		var camX = camera.transform.absx();
+				// Sort - always front to back for now
+				var camX = camera.transform.absx();
 				var camY = camera.transform.absy();
 				var camZ = camera.transform.absz();
 				resource.geometry.sortInstanced(camX, camY, camZ);
-		 	}
-		 	// Non-instanced
-		 	else {
-		 		if (!CameraNode.sphereInFrustum(frustumPlanes, transform, radiusScale)) return;
-		 	}
+			}
+			// Non-instanced
+			else {
+				if (!CameraNode.sphereInFrustum(frustumPlanes, transform, radiusScale)) return;
+			}
 		}
 
 		// Get context
