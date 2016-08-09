@@ -91,6 +91,18 @@ class Geometry {
 		for (buf in indexBuffers) buf.delete();
 	}
 
+	static function getVertexStructure(pos = false, nor = false, tex = false, col = false, tan = false, bone = false, weight = false):VertexStructure {
+		var structure = new VertexStructure();
+		if (pos) structure.add("pos", VertexData.Float3);
+		if (nor) structure.add("nor", VertexData.Float3);
+		if (tex) structure.add("tex", VertexData.Float2);
+		if (col) structure.add("col", VertexData.Float3);
+		if (tan) structure.add("tan", VertexData.Float3);
+		if (bone) structure.add("bone", VertexData.Float4);
+		if (weight) structure.add("weight", VertexData.Float4);
+		return structure;
+	}
+
 	public function setupInstanced(offsets:Array<Float>, usage:Usage) {
 		// Store vecs for sorting and culling
 		offsetVecs = [];
@@ -206,7 +218,7 @@ class Geometry {
 #else
 		// TODO: Mandatory vertex data names and sizes
 		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
-		var struct = ShaderResource.getVertexStructure(positions != null, normals != null, uvs != null, cols != null, tangents != null, bones != null, weights != null);
+		var struct = getVertexStructure(positions != null, normals != null, uvs != null, cols != null, tangents != null, bones != null, weights != null);
 		structLength = Std.int(struct.byteSize() / 4);
 		vertexBuffer = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
 		vertices = vertexBuffer.lock();
@@ -215,7 +227,7 @@ class Geometry {
 
 		// For depth passes, pos=3, bone=4, weight=4
 	// #if (!WITHOUT_SHADOWS)
-		// var structDepth = ShaderResource.getVertexStructure(positions != null, null, null, null, null, bones != null, weights != null);
+		// var structDepth = getVertexStructure(positions != null, null, null, null, null, bones != null, weights != null);
 		// structLengthDepth = Std.int(struct.byteSize() / 4);
 		// vertexBufferDepth = new VertexBuffer(Std.int(positions.length / 3), structDepth, usage);
 		// var verticesDepth = vertexBufferDepth.lock();

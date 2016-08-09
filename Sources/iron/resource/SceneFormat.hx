@@ -195,8 +195,10 @@ typedef TPipelineResource = {
 // @:structInit class TPipelineResource {
 	public var id:String;
 	public var render_targets:Array<TPipelineRenderTarget>;
-	@:optional public var depth_buffers:Array<TPipelineDepthBuffer>;
 	public var stages:Array<TPipelineStage>;
+	public var geometry_context:String; // Main geometry context
+	public var shadows_context:String; // Light depth context
+	@:optional public var depth_buffers:Array<TPipelineDepthBuffer>;
 }
 
 typedef TPipelineRenderTarget = {

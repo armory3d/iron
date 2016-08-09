@@ -24,7 +24,7 @@ class CameraNode extends Node {
 	public var noJitterP:Mat4;
 #end
 	public var V:Mat4;
-	public var prevV:Mat4;
+	public var prevV:Mat4 = null;
 	public var VP:Mat4;
 	public var frustumPlanes:Array<Plane> = null;
 	public var nearPlane:Float;
@@ -59,8 +59,6 @@ class CameraNode extends Node {
 #end
 
 		V = Mat4.identity();
-		prevV = Mat4.identity();
-		prevV.loadFrom(V);
 		VP = Mat4.identity();
 
 		if (resource.resource.frustum_culling) {
@@ -81,6 +79,11 @@ class CameraNode extends Node {
 		projectionJitter();
 #end
 		updateMatrix(); // TODO: only when dirty
+		// First time setting up previous V, prevents first frame flicker
+		if (prevV == null) {
+			prevV = Mat4.identity();
+			prevV.loadFrom(V);
+		}
 
 		renderPath.renderFrame(g, root, lights);
 	
@@ -98,8 +101,9 @@ class CameraNode extends Node {
 		P.loadFrom(noJitterP);
 		var x = 0.0;
 		var y = 0.0;
-		if (frame % 2 == 0) { x = 0.5; y = 0.5; }
-		else if (frame % 2 == 1) { x = -0.5; y = -0.5; }
+		// Alternate only 2 frames for now
+		if (frame % 2 == 0) { x = 0.25; y = 0.25; }
+		else if (frame % 2 == 1) { x = -0.25; y = -0.25; }
 		P._20 += x / w;
 		P._21 += y / h;
 		frame++;

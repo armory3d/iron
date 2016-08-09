@@ -71,37 +71,6 @@ class ShaderResource extends Resource {
 		return new ShaderResource(resource, overrideContext);
 	}
 
-	// Used by ModelResource
-	public static function getVertexStructure(pos = false, nor = false, tex = false, col = false, tan = false, bone = false, weight = false):VertexStructure {
-		var structure = new VertexStructure();
-		if (pos) structure.add("pos", VertexData.Float3);
-		if (nor) structure.add("nor", VertexData.Float3);
-		if (tex) structure.add("tex", VertexData.Float2);
-		if (col) structure.add("col", VertexData.Float3);
-		if (tan) structure.add("tan", VertexData.Float3);
-		if (bone) structure.add("bone", VertexData.Float4);
-		if (weight) structure.add("weight", VertexData.Float4);
-		return structure;
-	}
-
-	// Specialized structures
-	public static function createScreenAlignedQuadStructure():VertexStructure {
-		var structure = new VertexStructure();
-        structure.add("pos", VertexData.Float2);
-        return structure;
-	}
-	public static function createDecalStructure():VertexStructure {
-		var structure = new VertexStructure();
-        structure.add("pos", VertexData.Float3);
-        return structure;
-	}
-	public static function createSkydomeStructure():VertexStructure {
-		var structure = new VertexStructure();
-        structure.add("pos", VertexData.Float3);
-        structure.add("nor", VertexData.Float3);
-        return structure;
-	}
-
 	public function getContext(id:String):ShaderContext {
 		for (c in contexts) {
 			if (c.resource.id == id) return c;
@@ -125,8 +94,8 @@ class ShaderContext {
 		// Instancing
 		if (resource.vertex_shader.indexOf("_Instancing") != -1) {
 			var instStruct = new VertexStructure();
-        	instStruct.add("off", VertexData.Float3);
-        	pipeState.inputLayout = [structure, instStruct];
+			instStruct.add("off", VertexData.Float3);
+			pipeState.inputLayout = [structure, instStruct];
 		}
 		// Regular
 		else {
@@ -137,17 +106,29 @@ class ShaderContext {
 		pipeState.depthWrite = resource.depth_write;
 		
 		if (resource.compare_mode == "always") { // TODO: parse from CompareMode enum
-        	pipeState.depthMode = CompareMode.Always;
-        }
-        else if (resource.compare_mode == "less") {
-        	pipeState.depthMode = CompareMode.Less;
-        }
+			pipeState.depthMode = CompareMode.Always;
+		}
+		else if (resource.compare_mode == "never") {
+			pipeState.depthMode = CompareMode.Never;
+		}
+		else if (resource.compare_mode == "less") {
+			pipeState.depthMode = CompareMode.Less;
+		}
 		else if (resource.compare_mode == "less_equal") {
-        	pipeState.depthMode = CompareMode.LessEqual;
-        }
-        else if (resource.compare_mode == "equal") {
-        	pipeState.depthMode = CompareMode.Equal;
-        }
+			pipeState.depthMode = CompareMode.LessEqual;
+		}
+		else if (resource.compare_mode == "greater") {
+			pipeState.depthMode = CompareMode.Greater;
+		}
+		else if (resource.compare_mode == "greater_equal") {
+			pipeState.depthMode = CompareMode.GreaterEqual;
+		}
+		else if (resource.compare_mode == "equal") {
+			pipeState.depthMode = CompareMode.Equal;
+		}
+		else if (resource.compare_mode == "not_equal") {
+			pipeState.depthMode = CompareMode.NotEqual;
+		}
 		
 		// Stencil
 		if (resource.stencil_mode != null) {
@@ -175,7 +156,7 @@ class ShaderContext {
 		// pipeState.stencilWriteMask = resource.stencil_write_mask;
 
 		// Cull
-        pipeState.cullMode = getCullMode(resource.cull_mode);
+		pipeState.cullMode = getCullMode(resource.cull_mode);
 		
 		// Blending
 		if (resource.blend_source != null) pipeState.blendSource = getBlendingFactor(resource.blend_source);

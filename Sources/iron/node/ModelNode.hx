@@ -30,7 +30,7 @@ class ModelNode extends Node {
 	static var helpMat2 = Mat4.identity();
 	static var helpVec = new Vec4();
 	static var helpVec2 = new Vec4();
-	static var helpQuat = new Quat();
+	static var helpQuat = new Quat(); // Keep at identity
 
 	var cachedContexts:Map<String, CachedModelContext> = new Map();
 	
@@ -261,6 +261,15 @@ class ModelNode extends Node {
 				if (node != null) helpMat.mult2(node.transform.matrix); // node is null for DrawQuad
 				helpMat.mult2(light.V);
 				helpMat.mult2(light.resource.P);
+				m = helpMat;
+			}
+			else if (c.link == "_lightVolumeModelViewProjectionMatrix") {
+				var tr = light.transform;
+				helpVec.set(tr.absx(), tr.absy(), tr.absz());
+				helpVec2.set(light.farPlane, light.farPlane, light.farPlane);
+				helpMat.compose(helpVec, helpQuat, helpVec2);
+				helpMat.mult2(camera.V);
+				helpMat.mult2(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_biasLightModelViewProjectionMatrix") {
@@ -580,7 +589,8 @@ class ModelNode extends Node {
 			var radiusScale = resource.isSkinned ? 2.0 : 1.0;
 			
 			// Hard-coded for now
-			var frustumPlanes = context == "shadowmap" ? light.frustumPlanes : camera.frustumPlanes;
+			var shadowsContext = camera.resource.pipeline.resource.shadows_context;
+			var frustumPlanes = context == shadowsContext ? light.frustumPlanes : camera.frustumPlanes;
 
 			// Instanced
 			if (resource.geometry.instanced) {
@@ -654,7 +664,8 @@ class ModelNode extends Node {
 #if WITH_DEINTERLEAVED
 			g.setVertexBuffers(resource.geometry.vertexBuffers);
 #else
-			// if (context == "shadowmap") { // Hard-coded for now
+			// var shadowsContext = camera.resource.pipeline.resource.shadows_context;
+			// if (context == shadowsContext) { // Hard-coded for now
 				// g.setVertexBuffer(resource.geometry.vertexBufferDepth);
 			// }
 			// else {

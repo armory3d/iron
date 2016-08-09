@@ -15,10 +15,13 @@ class LightNode extends Node {
 
 	public var frustumPlanes:Array<Plane> = null;
 
+	public var farPlane:Float;
+
 	public function new(resource:LightResource) {
 		super();
 		
 		this.resource = resource;
+		farPlane = resource.resource.far_plane;
 
 		RootNode.lights.push(this);
 	}

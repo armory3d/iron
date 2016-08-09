@@ -6,6 +6,8 @@ import kha.graphics4.Graphics;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
+import kha.graphics4.VertexStructure;
+import kha.graphics4.VertexData;
 import iron.resource.SceneFormat;
 import iron.resource.PipelineResource.RenderTarget; // Ping-pong
 import iron.resource.MaterialResource.MaterialContext;
@@ -38,8 +40,8 @@ class RenderPath {
 
 	static var screenAlignedVB:VertexBuffer = null;
 	static var screenAlignedIB:IndexBuffer = null;
-	static var decalVB:VertexBuffer = null;
-	static var decalIB:IndexBuffer = null;
+	static var boxVB:VertexBuffer = null;
+	static var boxIB:IndexBuffer = null;
 	static var skydomeVB:VertexBuffer = null;
 	static var skydomeIB:IndexBuffer = null;
 
@@ -69,7 +71,7 @@ class RenderPath {
 		cacheStageCommands();
 
 		if (screenAlignedVB == null) createScreenAlignedData();
-		if (decalVB == null) createDecalData();
+		if (boxVB == null) createBoxData();
 		if (skydomeVB == null) createSkydomeData();
 	}
 
@@ -78,9 +80,9 @@ class RenderPath {
 		var indices = [0, 1, 2, 0, 2, 3];
 
 		// TODO: Mandatory vertex data names and sizes
-		// pos=2
-		var struct = ShaderResource.createScreenAlignedQuadStructure();
-		screenAlignedVB = new VertexBuffer(Std.int(data.length / Std.int(struct.byteSize() / 4)), struct, Usage.StaticUsage);
+		var structure = new VertexStructure();
+		structure.add("pos", VertexData.Float2);
+		screenAlignedVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
 		var vertices = screenAlignedVB.lock();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		screenAlignedVB.unlock();
@@ -91,7 +93,7 @@ class RenderPath {
 		screenAlignedIB.unlock();
 	}
 	
-	static function createDecalData() {
+	static function createBoxData() {
 		var data = [
 			-1.0,1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,1.0,-1.0,1.0,1.0,-1.0,
 			1.0,1.0,1.0,1.0,1.0,1.0,1.0,-1.0,-1.0,1.0,-1.0,1.0,1.0,1.0,1.0,-1.0,
@@ -104,26 +106,27 @@ class RenderPath {
 			18,19,20,21,22,20,22,23
 		];
 
-		// pos=3
-		var struct = ShaderResource.createDecalStructure();
-		decalVB = new VertexBuffer(Std.int(data.length / Std.int(struct.byteSize() / 4)), struct, Usage.StaticUsage);
-		var vertices = decalVB.lock();
+		var structure = new VertexStructure();
+		structure.add("pos", VertexData.Float3);
+		boxVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
+		var vertices = boxVB.lock();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
-		decalVB.unlock();
+		boxVB.unlock();
 
-		decalIB = new IndexBuffer(indices.length, Usage.StaticUsage);
-		var id = decalIB.lock();
+		boxIB = new IndexBuffer(indices.length, Usage.StaticUsage);
+		var id = boxIB.lock();
 		for (i in 0...id.length) id[i] = indices[i];
-		decalIB.unlock();
+		boxIB.unlock();
 	}
 
 	static function createSkydomeData() {
-		// pos=3, nor=3
-		var struct = ShaderResource.createSkydomeStructure();
-		var structLength = Std.int(struct.byteSize() / 4);
+		var structure = new VertexStructure();
+		structure.add("pos", VertexData.Float3);
+		structure.add("nor", VertexData.Float3);
+		var structLength = Std.int(structure.byteSize() / 4);
 		var pos = iron.resource.ConstData.skydomePos;
 		var nor = iron.resource.ConstData.skydomeNor;
-		skydomeVB = new VertexBuffer(Std.int(pos.length / 3), struct, Usage.StaticUsage);
+		skydomeVB = new VertexBuffer(Std.int(pos.length / 3), structure, Usage.StaticUsage);
 		var vertices = skydomeVB.lock();
 		for (i in 0...Std.int(vertices.length / structLength)) {
 			vertices.set(i * structLength, pos[i * 3]);
@@ -163,7 +166,7 @@ class RenderPath {
 #if WITH_PROFILE
 			var cmd = stageCommands[i];
 			if (!passEnabled[currentPass]) {
-				if (cmd == drawGeometry || cmd == drawSkydome || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
+				if (cmd == drawGeometry || cmd == drawSkydome || cmd == drawLightVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
 					endPass();
 				}
 				continue;
@@ -174,7 +177,7 @@ class RenderPath {
 			stageCommands[i](stageParams[i], root);
 
 #if WITH_PROFILE
-			if (cmd == drawGeometry || cmd == drawSkydome || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
+			if (cmd == drawGeometry || cmd == drawSkydome || cmd == drawLightVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
 				passTimes[currentPass] = kha.Scheduler.realTime() - startTime;
 				endPass();
 			}
@@ -201,19 +204,19 @@ class RenderPath {
 		}
 		drawPerformed = false;
 		
-    	var target = params[0];
-    	if (target == "") {
-    		currentRenderTarget = frameRenderTarget;
-    		currentRenderTargetW = iron.App.w;
+		var target = params[1];
+		if (target == "") {
+			currentRenderTarget = frameRenderTarget;
+			currentRenderTargetW = iron.App.w;
 			currentRenderTargetH = iron.App.h;
-    		begin(currentRenderTarget);
-    	}
+			begin(currentRenderTarget);
+		}
 		else {			
 			var rt = resource.pipeline.renderTargets.get(target);
 			var additionalImages:Array<kha.Canvas> = null;
-			if (params.length > 1) {
+			if (params.length > 2) {
 				additionalImages = [];
-				for (i in 1...params.length) {
+				for (i in 2...params.length) {
 					var t = resource.pipeline.renderTargets.get(params[i]);
 					additionalImages.push(t.image);
 				}
@@ -230,10 +233,20 @@ class RenderPath {
 			currentRenderTargetH = rt.image.height;
 			begin(currentRenderTarget, additionalImages);
 		}
+		var viewportScale = Std.parseFloat(params[0]);
+		if (viewportScale != 1.0) {
+			var viewW = Std.int(currentRenderTargetW * viewportScale);
+			var viewH = Std.int(currentRenderTargetH * viewportScale);
+			currentRenderTarget.viewport(0, viewH, viewW, viewH);
+			// kha.SystemImpl.gl.viewport(x, h - y - height, width, height);
+		}
+		// else { // Set by Kha
+			// currentRenderTarget.viewport(0, currentRenderTargetH, currentRenderTargetW, currentRenderTargetH);
+		// }
 		bindParams = null;
-    }
+	}
 
-    function clearTarget(params:Array<String>, root:Node) {
+	function clearTarget(params:Array<String>, root:Node) {
 		var colorFlag:Null<Int> = null;
 		var depthFlag:Null<Float> = null;
 		
@@ -259,10 +272,15 @@ class RenderPath {
 		}
 		
 		currentRenderTarget.clear(colorFlag, depthFlag, null);
-    }
+	}
 
-    function drawGeometry(params:Array<String>, root:Node) {
+	function drawGeometry(params:Array<String>, root:Node) {
 		var context = params[0];
+		var light = lights[currentLightIndex];
+
+		// Disabled shadow casting for this light
+		if (context == resource.pipeline.resource.shadows_context && !light.resource.resource.cast_shadow) return;
+
 		if (!sorted && params[1] == "front_to_back") { // Order max one per frame
 			var camX = camera.transform.absx();
 			var camY = camera.transform.absy();
@@ -276,7 +294,6 @@ class RenderPath {
 			sorted = true;
 		}
 		var g = currentRenderTarget;
-		var light = lights[currentLightIndex];
 		// if (params[1] == "back_to_front") {
 		// 	var len = RootNode.models.length;
 		// 	for (i in 0...len) {
@@ -289,7 +306,7 @@ class RenderPath {
 			}
 		// }
 		end(g);
-    }
+	}
 	
 	function drawDecals(params:Array<String>, root:Node) {
 		var context = params[0];
@@ -297,16 +314,16 @@ class RenderPath {
 		var light = lights[currentLightIndex];
 		for (decal in RootNode.decals) {
 			decal.render(g, context, camera, light, bindParams);
-			g.setVertexBuffer(decalVB);
-			g.setIndexBuffer(decalIB);
+			g.setVertexBuffer(boxVB);
+			g.setIndexBuffer(boxIB);
 			g.drawIndexedVertices();
 		}
 		end(g);
-    }
+	}
 
-    function drawSkydome(params:Array<String>, root:Node) {
-    	var handle = params[0];
-    	var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+	function drawSkydome(params:Array<String>, root:Node) {
+		var handle = params[0];
+		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
 			var matPath = handle.split("/");
 			var res = Resource.getMaterial(matPath[0], matPath[1]);
@@ -327,16 +344,40 @@ class RenderPath {
 		g.setIndexBuffer(skydomeIB);
 		g.drawIndexedVertices();
 		end(g);
-    }
+	}
 
-    function bindTarget(params:Array<String>, root:Node) {
-    	if (bindParams != null) for (p in params) bindParams.push(p); // Multiple binds, append params
+	function drawLightVolume(params:Array<String>, root:Node) {
+		var handle = params[0];
+		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		if (cc == null) {
+			var shaderPath = handle.split("/");
+			var res = Resource.getShader(shaderPath[0], shaderPath[1]);
+			cc = new CachedShaderContext();
+			cc.materialContext = null;
+			cc.context = res.getContext(shaderPath[2]);
+			cachedShaderContexts.set(handle, cc);
+		}
+		var g = currentRenderTarget;		
+		g.setPipeline(cc.context.pipeState);
+		var light = lights[currentLightIndex];
+		ModelNode.setConstants(g, cc.context, null, camera, light, bindParams);
+		if (cc.materialContext != null) {
+			ModelNode.setMaterialConstants(g, cc.context, cc.materialContext);
+		}
+		g.setVertexBuffer(boxVB);
+		g.setIndexBuffer(boxIB);
+		g.drawIndexedVertices();
+		end(g);
+	}
+
+	function bindTarget(params:Array<String>, root:Node) {
+		if (bindParams != null) for (p in params) bindParams.push(p); // Multiple binds, append params
 		else bindParams = params;
-    }
+	}
 	
 	function drawShaderQuad(params:Array<String>, root:Node) {
 		var handle = params[0];
-    	var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
 			var shaderPath = handle.split("/");
 			var res = Resource.getShader(shaderPath[0], shaderPath[1]);
@@ -350,7 +391,7 @@ class RenderPath {
 	
 	function drawMaterialQuad(params:Array<String>, root:Node) {
 		var handle = params[0];
-    	var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
 			var matPath = handle.split("/");
 			var res = Resource.getMaterial(matPath[0], matPath[1]);
@@ -362,7 +403,7 @@ class RenderPath {
 		drawQuad(cc, root);
 	}
 
-    function drawQuad(cc:CachedShaderContext, root:Node) {
+	function drawQuad(cc:CachedShaderContext, root:Node) {
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
 		var light = lights[currentLightIndex];
@@ -377,7 +418,7 @@ class RenderPath {
 		g.drawIndexedVertices();
 		
 		end(g);
-    }
+	}
 
 	function callFunction(params:Array<String>, root:Node) {
 		// TODO: cache
@@ -441,16 +482,16 @@ class RenderPath {
 		drawPerformed = true;
 	}
 
-    function cacheStageCommands() {
-    	stageCommands = [];
-    	stageParams = [];
+	function cacheStageCommands() {
+		stageCommands = [];
+		stageParams = [];
 #if WITH_PROFILE
 		passNames = [];
 		passTimes = [];
 		passEnabled = [];
 #end
 
-    	for (stage in resource.pipeline.resource.stages) {
+		for (stage in resource.pipeline.resource.stages) {
 			stageCommands.push(commandToFunction(stage.command));
 			stageParams.push(stage.params);
 #if WITH_PROFILE
@@ -476,7 +517,7 @@ class RenderPath {
 			}
 #end
 		}
-    }
+	}
 	
 	function commandToFunction(command:String):TStageCommand {
 		if (command == "set_target") {
@@ -493,6 +534,9 @@ class RenderPath {
 		}
 		else if (command == "draw_skydome") {
 			return drawSkydome;
+		}
+		else if (command == "draw_light_volume") {
+			return drawLightVolume;
 		}
 		else if (command == "bind_target") {
 			return bindTarget;
