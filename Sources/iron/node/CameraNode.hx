@@ -43,8 +43,13 @@ class CameraNode extends Node {
 		// var fov = resource.resource.fov;
 
 		if (resource.resource.type == "perspective") {
-			// P = Mat4.perspective(3.14159265 / 4, App.w / App.h, nearPlane, farPlane);
-			P = Mat4.perspective(3.14159265 / 3, App.w / App.h, nearPlane, farPlane); // Matches Blender viewport
+			var fovDiv = 3.0; // Matches Blender viewport
+			var w:Float = App.w;
+			var h:Float = App.h;
+#if WITH_VR
+			w /= 2.0; // Split per eye
+#end
+			P = Mat4.perspective(3.14159265 / fovDiv, w / h, nearPlane, farPlane);
 		}
 		else if (resource.resource.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane, 2);

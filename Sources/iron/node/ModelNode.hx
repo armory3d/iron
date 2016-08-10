@@ -297,6 +297,11 @@ class ModelNode extends Node {
 			else if (c.link == "_lightProjectionMatrix") {
 				m = light.resource.P;
 			}
+#if WITH_VR
+			else if (c.link == "_undistortionMatrix") {
+				m = iron.sys.VR.getUndistortionMatrix();
+			}
+#end
 			if (m == null) return;
 			g.setMatrix(location, m);
 		}
@@ -483,6 +488,11 @@ class ModelNode extends Node {
 			else if (c.link == "_envmapStrength") {
 				f = camera.world.getGlobalProbe().strength;
 			}
+#if WITH_VR
+			else if (c.link == "_maxRadiusSq") {
+				f = iron.sys.VR.getMaxRadiusSq();
+			}
+#end
 			// else if (c.link == "_u1") { f = ModelNode._u1; }
 			// else if (c.link == "_u2") { f = ModelNode._u2; }
 			// else if (c.link == "_u3") { f = ModelNode._u3; }

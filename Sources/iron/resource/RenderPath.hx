@@ -187,18 +187,18 @@ class RenderPath {
 
 #if WITH_PROFILE
 	function endPass() {
-		if (loopFinished) {
+		if (loopFinished == 0) {
 			currentPass++;
 		}
 	}
 #end
 	
 	public static var lastPongRT:RenderTarget;
-	var loopFinished = true;
+	var loopFinished = 0;
 	var drawPerformed = false;
 	function setTarget(params:Array<String>, root:Node) {
 		// Ping-pong
-		if (lastPongRT != null && drawPerformed && loopFinished) { // Drawing to pong texture has been done, switch state
+		if (lastPongRT != null && drawPerformed && loopFinished == 0) { // Drawing to pong texture has been done, switch state
 			lastPongRT.pongState = !lastPongRT.pongState;
 			lastPongRT = null;
 		}
@@ -451,7 +451,7 @@ class RenderPath {
 		var stageData = resource.pipeline.resource.stages[currentStageIndex];
 		
 		currentLightIndex = 0;
-		loopFinished = false;
+		loopFinished++;
 		for (l in lights) {
 			for (stage in stageData.returns_true) {
 				// TODO: cache commands
@@ -461,24 +461,62 @@ class RenderPath {
 			currentLightIndex++;
 		}
 		currentLightIndex = 0;
-		loopFinished = true;
+		loopFinished--;
 
 #if WITH_PROFILE
 		endPass();
 #end
 	}
 
+#if WITH_VR
+	function drawStereo(params:Array<String>, root:Node) {
+		var stageData = resource.pipeline.resource.stages[currentStageIndex];
+		
+		loopFinished++;
+		var g = currentRenderTarget;
+		var halfW = Std.int(currentRenderTargetW / 2);
+
+		// Left eye
+		g.viewport(0, 0, halfW, currentRenderTargetH);
+
+		for (stage in stageData.returns_true) {
+			var commandFun = commandToFunction(stage.command);			
+			commandFun(stage.params, root);
+		}
+
+		// Right eye
+		// TODO: For testing purposes only
+		camera.move(camera.right(), 0.032);
+		camera.updateMatrix();
+		g.viewport(halfW, 0, halfW, currentRenderTargetH);
+
+		for (stage in stageData.returns_true) {
+			var commandFun = commandToFunction(stage.command);			
+			commandFun(stage.params, root);
+		}
+
+		camera.move(camera.right(), -0.032);
+		camera.updateMatrix();
+
+		loopFinished--;
+
+	#if WITH_PROFILE
+		endPass();
+	#end
+	}
+#end
+
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null) {
-		#if !python
+		// #if !python
 		g.begin(additionalRenderTargets);
-		#end
+		// #end
 	}
 
 	inline function end(g:Graphics) {
-		#if !python
+		// #if !python
 		g.end();
 		bindParams = null; // Remove, cleared at begin
-		#end
+		// #end
 		drawPerformed = true;
 	}
 
@@ -495,7 +533,7 @@ class RenderPath {
 			stageCommands.push(commandToFunction(stage.command));
 			stageParams.push(stage.params);
 #if WITH_PROFILE
-			if (stage.command.substr(0, 4) == "draw") {
+			if (stage.command != "draw_stereo" && stage.command.substr(0, 4) == "draw") {
 				var splitParams = stage.params[0].split("_");
 				var passName = splitParams[0];
 				for (i in 1...splitParams.length) {
@@ -510,7 +548,7 @@ class RenderPath {
 				passEnabled.push(true);
 			}
 			// Combine into single entry for now
-			else if (stage.command == "loop_lights") {
+			else if (stage.command == "loop_lights" || stage.command == "loop_stages" || stage.command == "draw_stereo") {
 				passNames.push(stage.command);
 				passTimes.push(0.0);
 				passEnabled.push(true);
@@ -553,6 +591,11 @@ class RenderPath {
 		else if (command == "loop_lights") {
 			return loopLights;
 		}
+#if WITH_VR
+		else if (command == "draw_stereo") {
+			return drawStereo;
+		}
+#end
 		return null;
 	}
 }
