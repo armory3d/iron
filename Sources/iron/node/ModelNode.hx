@@ -100,6 +100,8 @@ class ModelNode extends Node {
 
 				for (j in 0...tus.length) { // Set texture
 					if (samplerID == tus[j].id) {
+						// No filtering when sampling render targets
+						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 						if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image);
 						else g.setTexture(context.textureUnits[j], rt.image);
 					}
