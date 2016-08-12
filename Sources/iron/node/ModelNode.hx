@@ -478,8 +478,8 @@ class ModelNode extends Node {
 			else if (c.link == "_lightStrength") {
 				f = light.resource.resource.strength;
 			}
-			else if (c.link == "_lightBias") {
-				f = light.resource.resource.bias;
+			else if (c.link == "_lightShadowsBias") {
+				f = light.resource.resource.shadows_bias;
 			}
 			else if (c.link == "_spotlightCutoff") {
 				f = light.resource.resource.spot_size;

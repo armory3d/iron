@@ -71,7 +71,7 @@ typedef TLightResource = {
 	public var near_plane:Float;
 	public var far_plane:Float;
 	public var fov:Float;
-	public var bias:Float; // For shadowmap
+	public var shadows_bias:Float; // For shadowmap
 	@:optional public var spot_size:Null<Float>;
 	@:optional public var spot_blend:Null<Float>;
 }
