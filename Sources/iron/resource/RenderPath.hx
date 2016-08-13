@@ -237,11 +237,8 @@ class RenderPath {
 		if (viewportScale != 1.0) {
 			var viewW = Std.int(currentRenderTargetW * viewportScale);
 			var viewH = Std.int(currentRenderTargetH * viewportScale);
-			#if js
 			currentRenderTarget.viewport(0, viewH, viewW, viewH);
-			#else
-			currentRenderTarget.viewport(0, 0, viewW, viewH);
-			#end
+			// currentRenderTarget.viewport(0, 0, viewW, viewH);
 		}
 		// else { // Set by Kha
 			// currentRenderTarget.viewport(0, 0, currentRenderTargetW, currentRenderTargetH);
