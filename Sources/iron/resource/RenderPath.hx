@@ -237,11 +237,14 @@ class RenderPath {
 		if (viewportScale != 1.0) {
 			var viewW = Std.int(currentRenderTargetW * viewportScale);
 			var viewH = Std.int(currentRenderTargetH * viewportScale);
+			#if js
 			currentRenderTarget.viewport(0, viewH, viewW, viewH);
-			// kha.SystemImpl.gl.viewport(x, h - y - height, width, height);
+			#else
+			currentRenderTarget.viewport(0, 0, viewW, viewH);
+			#end
 		}
 		// else { // Set by Kha
-			// currentRenderTarget.viewport(0, currentRenderTargetH, currentRenderTargetW, currentRenderTargetH);
+			// currentRenderTarget.viewport(0, 0, currentRenderTargetW, currentRenderTargetH);
 		// }
 		bindParams = null;
 	}
