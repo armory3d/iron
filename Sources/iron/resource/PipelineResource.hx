@@ -14,11 +14,6 @@ class PipelineResource extends Resource {
 	public function new(resource:TPipelineResource) {
 		super();
 
-		if (resource == null) {
-			trace("Resource not found!");
-			return;
-		}
-
 		this.resource = resource;
 
 		if (resource.render_targets.length > 0) {
@@ -87,7 +82,7 @@ class PipelineResource extends Resource {
 		else if (s == "RGBA128") return TextureFormat.RGBA128;
 		else if (s == "DEPTH16") return TextureFormat.DEPTH16;
 		else if (s == "RGBA64") return TextureFormat.RGBA64;
-		else if (s == "A32") return TextureFormat.A32;
+		else if (s == "A32") return TextureFormat.A32; // Single channels are non-renderable on webgl
 		else if (s == "A16") return TextureFormat.A16;
 		else if (s == "A8") return TextureFormat.L8;
 		else return TextureFormat.RGBA32;
@@ -102,6 +97,10 @@ class PipelineResource extends Resource {
 	public static function parse(name:String, id:String):PipelineResource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TPipelineResource = Resource.getPipelineResourceById(format.pipeline_resources, id);
+		if (resource == null) {
+			trace('Pipeline resource "$id" not found!');
+			return null;
+		}
 		return new PipelineResource(resource);
 	}
 }

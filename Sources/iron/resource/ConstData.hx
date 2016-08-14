@@ -9,10 +9,7 @@ class ConstData {
 	public static var ltcMagTex: kha.Image = null;
 
 	public static function initLTC() {
-		// var vec = haxe.ds.Vector.fromData([0.000200, - 0.000000, 1.000000, - 0.000000, 0.000504, - 0.000000, 1.000000, - 0.000000, 0.002016, - 0.000000, 1.000000, - 0.000000, 0.004535]);
-		
 		//ltcMatTex = kha.Image.fromBytes(Float32Array.fromArray(ltc_mat).view.buffer, 64, 64, TextureFormat.RGBA128);
-		
 		//ltcMagTex = kha.Image.fromBytes(Float32Array.fromArray(ltc_mag).view.buffer, 64, 64, TextureFormat.A32);
 	}
 

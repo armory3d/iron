@@ -14,11 +14,6 @@ class MaterialResource extends Resource {
 	public function new(resource:TMaterialResource) {
 		super();
 
-		if (resource == null) {
-			trace("Resource not found!");
-			return;
-		}
-
 		this.resource = resource;
 
 		var shaderName:Array<String> = resource.shader.split("/");
@@ -32,6 +27,10 @@ class MaterialResource extends Resource {
 	public static function parse(name:String, id:String):MaterialResource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TMaterialResource = Resource.getMaterialResourceById(format.material_resources, id);
+		if (resource == null) {
+			trace('Material resource "$id" not found!');
+			return null;
+		}
 		return new MaterialResource(resource);
 	}
 

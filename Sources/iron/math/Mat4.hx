@@ -1,14 +1,8 @@
 package iron.math;
 
 import kha.FastFloat;
-import iron.math.Math;
 
 class Mat4 extends kha.math.FastMatrix4 {
-
-	// public var _00:Float; public var _10:Float; public var _20:Float; public var _30:Float;
-	// public var _01:Float; public var _11:Float; public var _21:Float; public var _31:Float;
-	// public var _02:Float; public var _12:Float; public var _22:Float; public var _32:Float;
-	// public var _03:Float; public var _13:Float; public var _23:Float; public var _33:Float;
 
 	public function new(_00:FastFloat, _10:FastFloat, _20:FastFloat, _30:FastFloat,
 						_01:FastFloat, _11:FastFloat, _21:FastFloat, _31:FastFloat,
@@ -16,10 +10,6 @@ class Mat4 extends kha.math.FastMatrix4 {
 						_03:FastFloat, _13:FastFloat, _23:FastFloat, _33:FastFloat) {
 		
 		super(_00, _10, _20, _30, _01, _11, _21, _31, _02, _12, _22, _32, _03, _13, _23, _33);
-		// this._00 = _00; this._10 = _10; this._20 = _20; this._30 = _30;
-		// this._01 = _01; this._11 = _11; this._21 = _21; this._31 = _31;
-		// this._02 = _02; this._12 = _12; this._22 = _22; this._32 = _32;
-		// this._03 = _03; this._13 = _13; this._23 = _23; this._33 = _33;
 	}
 
 	public function compose(position:Vec4, quaternion:Quat, sc:Vec4):Mat4 {
@@ -328,7 +318,8 @@ class Mat4 extends kha.math.FastMatrix4 {
 		_33 =  m11 * m22 * m33 - m11 * m23 * m32 - m21 * m12 * m33 + m21 * m13 * m32 + m31 * m12 * m23 - m31 * m13 * m22;
 
 		var det = m11 * _00 + m12 * _10 + m13 * _20 + m14 * _30;
-		if(Math.abs(det) < Math.EPSILON) {
+		
+		if (std.Math.abs(det) < 1e-10) { // EPSILON
 			_00 = _01 = _02 = _03 = _10 = _11 = _12 = _13 = _20 = _21 = _22 = _23 = _30 = _31 = _32 = _33 = 0.0;
 			return;
 		}
@@ -609,7 +600,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 		var scaleYSq = m._10 * m._10 + m._11 * m._11 + m._12 * m._12;
 		var scaleZSq = m._20 * m._20 + m._21 * m._21 + m._22 * m._22;
 
-		return std.Math.sqrt(Math.max(scaleXSq, Math.max(scaleYSq, scaleZSq)));	
+		return std.Math.sqrt(std.Math.max(scaleXSq, std.Math.max(scaleYSq, scaleZSq)));	
 	}
 
 	public function getScale():Vec4 {
@@ -713,7 +704,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 		return false;
 	}
 	
-	public inline function right2():Vec4 { return new Vec4(_00, _10, _20); }
-	public inline function up2():Vec4 { return new Vec4(_01, _11, _21); }
-	public inline function look2():Vec4 { return new Vec4(_02, _12, _22); }
+	public inline function _right():Vec4 { return new Vec4(_00, _10, _20); }
+	public inline function _up():Vec4 { return new Vec4(_01, _11, _21); }
+	public inline function _look():Vec4 { return new Vec4(_02, _12, _22); }
 }

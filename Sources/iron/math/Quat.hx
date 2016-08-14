@@ -470,32 +470,32 @@ class Quat {
         var test:Float = x * y + z * w;
         var a = new Vec4();
         if (test > 0.499) { // singularity at north pole
-            a.x = 2.0 * std.Math.atan2(x, w) * iron.math.Math.Rad2Deg;
-            a.y = (iron.math.Math.PI / 2) * iron.math.Math.Rad2Deg;
+            a.x = 2.0 * std.Math.atan2(x, w) * (180.0 / Math.PI);
+            a.y = (Math.PI / 2) * (180.0 / Math.PI);
             a.z = 0;
             return a;
         }
         if (test < -0.499) { // singularity at south pole
-            a.x = -2.0 * std.Math.atan2(x, w) * iron.math.Math.Rad2Deg;
-            a.y = -(iron.math.Math.PI / 2) * iron.math.Math.Rad2Deg;
+            a.x = -2.0 * std.Math.atan2(x, w) * (180.0 / Math.PI);
+            a.y = -(Math.PI / 2) * (180.0 / Math.PI);
             a.z = 0;
             return a;
         }
         var sqx:Float = x * x;
         var sqy:Float = y * y;
         var sqz:Float = z * z;        
-        a.x = std.Math.atan2(2.0 * y * w - 2.0 * x * z , 1.0 - 2.0 * sqy - 2.0 * sqz) * iron.math.Math.Rad2Deg;
-        a.y = std.Math.asin(2.0 * test) * iron.math.Math.Rad2Deg;
-        a.z = std.Math.atan2(2.0 * x * w - 2.0 * y * z , 1.0 - 2.0 * sqx - 2.0 * sqz) * iron.math.Math.Rad2Deg;     
+        a.x = std.Math.atan2(2.0 * y * w - 2.0 * x * z , 1.0 - 2.0 * sqy - 2.0 * sqz) * (180.0 / Math.PI);
+        a.y = std.Math.asin(2.0 * test) * (180.0 / Math.PI);
+        a.z = std.Math.atan2(2.0 * x * w - 2.0 * y * z , 1.0 - 2.0 * sqx - 2.0 * sqz) * (180.0 / Math.PI);     
         return a;
     }
 
     static public function fromEuler(p_euler:Vec4):Quat {
         // Assuming the angles are in radians.
         var q = new Quat();
-        var ax:Float = p_euler.x * iron.math.Math.Rad2Deg;
-        var ay:Float = p_euler.y * iron.math.Math.Rad2Deg;
-        var az:Float = p_euler.z * iron.math.Math.Rad2Deg;     
+        var ax:Float = p_euler.x * (180.0 / Math.PI);
+        var ay:Float = p_euler.y * (180.0 / Math.PI);
+        var az:Float = p_euler.z * (180.0 / Math.PI);     
         var c1:Float = std.Math.cos(ax * 0.5);
         var s1:Float = std.Math.sin(ax * 0.5);
         var c2:Float = std.Math.cos(ay * 0.5);

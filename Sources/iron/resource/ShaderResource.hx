@@ -20,17 +20,13 @@ class ShaderResource extends Resource {
 	public var resource:TShaderResource;
 
 	var structure:VertexStructure;
-	var structureLength:Int = 0;
+	var structureLength = 0;
 
 	public var contexts:Array<ShaderContext> = [];
 
 	public function new(resource:TShaderResource, overrideContext:TShaderOverride = null) {
 		super();
 
-		if (resource == null) {
-			trace("Resource not found!");
-			return;
-		}
 		this.resource = resource;
 
 		parseVertexStructure();
@@ -68,6 +64,10 @@ class ShaderResource extends Resource {
 	public static function parse(name:String, id:String, overrideContext:TShaderOverride = null):ShaderResource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TShaderResource = Resource.getShaderResourceById(format.shader_resources, id);
+		if (resource == null) {
+			trace('Shader resource "$id" not found!');
+			return null;
+		}
 		return new ShaderResource(resource, overrideContext);
 	}
 
@@ -104,31 +104,7 @@ class ShaderContext {
 		
 		// Depth
 		pipeState.depthWrite = resource.depth_write;
-		
-		if (resource.compare_mode == "always") { // TODO: parse from CompareMode enum
-			pipeState.depthMode = CompareMode.Always;
-		}
-		else if (resource.compare_mode == "never") {
-			pipeState.depthMode = CompareMode.Never;
-		}
-		else if (resource.compare_mode == "less") {
-			pipeState.depthMode = CompareMode.Less;
-		}
-		else if (resource.compare_mode == "less_equal") {
-			pipeState.depthMode = CompareMode.LessEqual;
-		}
-		else if (resource.compare_mode == "greater") {
-			pipeState.depthMode = CompareMode.Greater;
-		}
-		else if (resource.compare_mode == "greater_equal") {
-			pipeState.depthMode = CompareMode.GreaterEqual;
-		}
-		else if (resource.compare_mode == "equal") {
-			pipeState.depthMode = CompareMode.Equal;
-		}
-		else if (resource.compare_mode == "not_equal") {
-			pipeState.depthMode = CompareMode.NotEqual;
-		}
+		pipeState.depthMode = getCompareMode(resource.compare_mode);
 		
 		// Stencil
 		if (resource.stencil_mode != null) {
@@ -199,80 +175,77 @@ class ShaderContext {
 		pipeState.delete();
 	}
 
+	function getCompareMode(s:String):CompareMode {
+		switch(s) {
+		case "always": return CompareMode.Always;
+		case "never": return CompareMode.Never;
+		case "less": return CompareMode.Less;
+		case "less_equal": return CompareMode.LessEqual;
+		case "greater": return CompareMode.Greater;
+		case "greater_equal": return CompareMode.GreaterEqual;
+		case "equal": return CompareMode.Equal;
+		case "not_equal": return CompareMode.NotEqual;
+		default: return CompareMode.Less;
+		}
+	}
+
 	function getCullMode(s:String):CullMode {
-		if (s == "none")
-			return CullMode.None;
-		else if (s == "clockwise")
-			return CullMode.Clockwise;
-		else
-			return CullMode.CounterClockwise;
+		switch(s) {
+		case "none": return CullMode.None;
+		case "clockwise": return CullMode.Clockwise;
+		default: return CullMode.CounterClockwise;
+		}			
 	}
 
 	function getBlendingOperation(s:String):BlendingOperation {
-		if (s == "add")
-			return BlendingOperation.Add;
-		else if (s == "substract")
-			return BlendingOperation.Subtract;
-		else if (s == "reverse_substract")
-			return BlendingOperation.ReverseSubtract;
-		else if (s == "min")
-			return BlendingOperation.Min;
-		else if (s == "max")
-			return BlendingOperation.Max;
-		else
-			return BlendingOperation.Add;
+		switch(s) {
+		case "add": return BlendingOperation.Add;
+		case "substract": return BlendingOperation.Subtract;
+		case "reverse_substract": return BlendingOperation.ReverseSubtract;
+		case "min": return BlendingOperation.Min;
+		case "max": return BlendingOperation.Max;
+		default: return BlendingOperation.Add;
+		}
 	}
 	
 	function getBlendingFactor(s:String):BlendingFactor {
-		if (s == "blend_one")
-			return BlendingFactor.BlendOne;
-		else if (s == "blend_zero")
-			return BlendingFactor.BlendZero;
-		else if (s == "source_alpha")
-			return BlendingFactor.SourceAlpha;
-		else if (s == "destination_alpha")
-			return BlendingFactor.DestinationAlpha;
-		else if (s == "inverse_source_alpha")
-			return BlendingFactor.InverseSourceAlpha;
-		else if (s == "inverse_destination_alpha")
-			return BlendingFactor.InverseDestinationAlpha;
-		else if (s == "source_color")
-			return BlendingFactor.SourceColor;
-		else if (s == "destination_color")
-			return BlendingFactor.DestinationColor;
-		else if (s == "inverse_source_color")
-			return BlendingFactor.InverseSourceColor;
-		else if (s == "inverse_destination_color")
-			return BlendingFactor.InverseDestinationColor;
-		else
-			return BlendingFactor.Undefined;
+		switch(s) {
+		case "blend_one": return BlendingFactor.BlendOne;
+		case "blend_zero": return BlendingFactor.BlendZero;
+		case "source_alpha": return BlendingFactor.SourceAlpha;
+		case "destination_alpha": return BlendingFactor.DestinationAlpha;
+		case "inverse_source_alpha": return BlendingFactor.InverseSourceAlpha;
+		case "inverse_destination_alpha": return BlendingFactor.InverseDestinationAlpha;
+		case "source_color": return BlendingFactor.SourceColor;
+		case "destination_color": return BlendingFactor.DestinationColor;
+		case "inverse_source_color": return BlendingFactor.InverseSourceColor;
+		case "inverse_destination_color": return BlendingFactor.InverseDestinationColor;
+		default: return BlendingFactor.Undefined;
+		}
 	}
 
 	function getTextureAddresing(s:String):TextureAddressing {
-		if (s == "repeat")
-			return TextureAddressing.Repeat;
-		else if (s == "mirror")
-			return TextureAddressing.Mirror;
-		else
-			return TextureAddressing.Clamp;
+		switch(s) {
+		case "repeat": return TextureAddressing.Repeat;
+		case "mirror": return TextureAddressing.Mirror;
+		default: return TextureAddressing.Clamp;
+		}
 	}
 
 	function getTextureFilter(s:String):TextureFilter {
-		if (s == "point")
-			return TextureFilter.PointFilter;
-		else if (s == "linear")
-			return TextureFilter.LinearFilter;
-		else
-			return TextureFilter.AnisotropicFilter;
+		switch(s) {
+		case "point": return TextureFilter.PointFilter;
+		case "linear": return TextureFilter.LinearFilter;
+		default: return TextureFilter.AnisotropicFilter;
+		}	
 	}
 
 	function getMipmapFilter(s:String):MipMapFilter {
-		if (s == "no")
-			return MipMapFilter.NoMipFilter;
-		else if (s == "point")
-			return MipMapFilter.PointMipFilter;
-		else
-			return MipMapFilter.LinearMipFilter;
+		switch(s) {
+		case "no": return MipMapFilter.NoMipFilter;
+		case "point": return MipMapFilter.PointMipFilter;
+		default: return MipMapFilter.LinearMipFilter;
+		}
 	}
 
 	function addConstant(c:TShaderConstant) {

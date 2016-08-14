@@ -28,10 +28,8 @@ class App {
         w = kha.System.windowWidth(); // TODO: do not cache
         h = kha.System.windowHeight();
 
-        new Eg();
-        new Ut();
+        new Root();
         new iron.sys.Storage();
-        // new iron.sys.Time();
         new iron.sys.Input();
 
         Type.createInstance(gameClass, []);
@@ -48,8 +46,7 @@ class App {
         traitRenders = [];
         traitRenders2D = [];
 
-        Eg.reset();
-
+        new Root();
         iron.sys.Input.reset();
         iron.sys.Tween.reset();
     }
@@ -59,7 +56,6 @@ class App {
         startTime = kha.Scheduler.realTime();
 #end
 
-        // iron.sys.Time.update();
         iron.sys.Tween.update();
         
         if (traitInits.length > 0) {

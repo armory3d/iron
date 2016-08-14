@@ -15,11 +15,6 @@ class WorldResource extends Resource {
 	public function new(resource:TWorldResource) {
 		super();
 
-		if (resource == null) {
-			trace("Resource not found!");
-			return;
-		}
-
 		this.resource = resource;
 		brdf = Reflect.field(kha.Assets.images, resource.brdf);
 		
@@ -35,6 +30,10 @@ class WorldResource extends Resource {
 	public static function parse(name:String, id:String):WorldResource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TWorldResource = Resource.getWorldResourceById(format.world_resources, id);
+		if (resource == null) {
+			trace('World resource "$id" not found!');
+			return null;
+		}
 		return new WorldResource(resource);
 	}
 	

@@ -1,10 +1,5 @@
 package iron.math;
 
-/**
- * @author bhouston / http://exocortex.com
- * @haxeport Krtolica Vujadin - GameStudioHx.com
- */
-
 class Ray {
 	
 	public var origin:Vec4;
@@ -28,24 +23,7 @@ class Ray {
 	public function at(t:Float, optionalTarget:Vec4 = null):Vec4 {
 		var result = optionalTarget != null ? optionalTarget : new Vec4();
 		return result.copy2(direction).multiplyScalar(t).add(origin);
-	}	
-	
-	public function recast(t:Float):Ray	{
-		var v1 = new Vec4();
-		this.origin.copy2(this.at(t, v1));
-		return this;
-	}	
-	
-	public function closestPointToPoint(point:Vec4, optionalTarget:Vec4 = null):Vec4 {
-		var result = optionalTarget == null ? new Vec4() : optionalTarget;
-		result.subVectors(point, this.origin);
-		var directionDistance = result.dot(this.direction);
-		if (directionDistance < 0) {
-			return result.copy2(this.origin);
-		}
-
-		return result.copy2(this.direction).multiplyScalar(directionDistance).add(this.origin);
-	}	
+	}
 	
 	public function distanceToPoint(point:Vec4):Float {
 		var v1 = new Vec4();
@@ -61,88 +39,8 @@ class Ray {
 		return v1.distanceTo(point);
 	}	
 	
-	public function distanceSqToSegment(v0:Vec4, v1:Vec4, optionalPointOnRay:Vec4 = null, optionalPointOnSegment:Vec4 = null) {
-		// from http://www.geometrictools.com/LibMathematics/Distance/Wm5DistRay3Segment3.cpp
-		// It returns the min distance between the ray and the segment
-		// defined by v0 and v1
-		// It can also set two optional targets :
-		// - The closest point on the ray
-		// - The closest point on the segment
-		var segCenter = v0.clone().add(v1).multiplyScalar(0.5);
-		var segDir = v1.clone().sub(v0).normalize2();
-		var segExtent = v0.distanceTo(v1) * 0.5;
-		var diff = this.origin.clone().sub(segCenter);
-		var a01 = -this.direction.dot(segDir);
-		var b0 = diff.dot(this.direction);
-		var b1 = -diff.dot(segDir);
-		var c = diff.lengthSq();
-		var det = Math.abs(1 - a01 * a01);
-		var s0, s1, sqrDist, extDet;
-
-		if (det >= 0) {
-			// The ray and segment are not parallel.
-			s0 = a01 * b1 - b0;
-			s1 = a01 * b0 - b1;
-			extDet = segExtent * det;
-			if (s0 >= 0) {
-				if (s1 >= -extDet) {
-					if (s1 <= extDet) {
-						// region 0
-						// Minimum at interior points of ray and segment.
-						var invDet = 1 / det;
-						s0 *= invDet;
-						s1 *= invDet;
-						sqrDist = s0 * (s0 + a01 * s1 + 2 * b0) + s1 * (a01 * s0 + s1 + 2 * b1) + c;
-					} else {
-						// region 1
-						s1 = segExtent;
-						s0 = Math.max(0, - (a01 * s1 + b0));
-						sqrDist = - s0 * s0 + s1 * (s1 + 2 * b1) + c;
-					}
-				} else {
-					// region 5
-					s1 = - segExtent;
-					s0 = Math.max(0, - (a01 * s1 + b0));
-					sqrDist = -s0 * s0 + s1 * (s1 + 2 * b1) + c;
-				}
-			} else {
-				if (s1 <= -extDet) {
-					// region 4
-					s0 = Math.max(0, - (-a01 * segExtent + b0));
-					s1 = (s0 > 0) ? -segExtent : Math.min(Math.max(-segExtent, -b1), segExtent);
-					sqrDist = - s0 * s0 + s1 * (s1 + 2 * b1) + c;
-				} else if (s1 <= extDet) {
-					// region 3
-					s0 = 0;
-					s1 = Math.min(Math.max(-segExtent, -b1), segExtent);
-					sqrDist = s1 * (s1 + 2 * b1) + c;
-				} else {
-					// region 2
-					s0 = Math.max(0, - (a01 * segExtent + b0));
-					s1 = (s0 > 0) ? segExtent : Math.min(Math.max(-segExtent, -b1), segExtent);
-					sqrDist = -s0 * s0 + s1 * (s1 + 2 * b1) + c;
-				}
-			}
-		} else {
-			// Ray and segment are parallel.
-			s1 = (a01 > 0) ? -segExtent : segExtent;
-			s0 = Math.max(0, - (a01 * s1 + b0));
-			sqrDist = -s0 * s0 + s1 * (s1 + 2 * b1) + c;
-		}
-
-		if (optionalPointOnRay != null) {
-			optionalPointOnRay.copy2(this.direction.clone().multiplyScalar(s0).add(this.origin));
-		}
-
-		if (optionalPointOnSegment != null) {
-			optionalPointOnSegment.copy2(segDir.clone().multiplyScalar(s1).add(segCenter));
-		}
-
-		return sqrDist;
-	}
-	
-	public function isIntersectionSphere(sphere:Sphere):Bool {
-		return distanceToPoint(sphere.center) <= sphere.radius;
+	public function isIntersectionSphere(sphereCenter:Vec4, sphereRadius:Float):Bool {
+		return distanceToPoint(sphereCenter) <= sphereRadius;
 	}	
 	
 	public function isIntersectionPlane(plane:Plane):Bool {
@@ -167,7 +65,7 @@ class Ray {
 		var denominator = plane.normal.dot(this.direction);
 		if (denominator == 0) {
 			// line is coplanar, return origin
-			if(plane.distanceToPoint(this.origin) == 0) {
+			if (plane.distanceToPoint(this.origin) == 0) {
 				return 0;
 			}
 
@@ -192,14 +90,23 @@ class Ray {
 		return this.at(t, optionalTarget);
 	}
 	
-	public function isIntersectionBox(box:Box3):Bool {
-		var v = new Vec4();
-		return this.intersectBox(box, v) != null;
+	public function isIntersectionBox(center:Vec4, size:Vec4):Bool {
+		return this.intersectBox(center, size) != null;
 	}
 	
-	public function intersectBox(box:Box3, optionalTarget:Vec4 = null):Vec4 {
+	public function intersectBox(center:Vec4, size:Vec4):Vec4 {
 		// http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
-		var tmin,tmax,tymin,tymax,tzmin,tzmax;
+		var tmin, tmax, tymin, tymax, tzmin, tzmax;
+
+		var halfX = size.x / 2;
+		var halfY = size.x / 2;
+		var halfZ = size.x / 2;
+		var boxMinX = center.x - halfX;
+		var boxMinY = center.y - halfY;
+		var boxMinZ = center.z - halfZ;
+		var boxMaxX = center.x + halfX;
+		var boxMaxY = center.y + halfY;
+		var boxMaxZ = center.z + halfZ;
 
 		var invdirx = 1 / this.direction.x;
 		var	invdiry = 1 / this.direction.y;
@@ -208,21 +115,21 @@ class Ray {
 		var origin = this.origin;
 
 		if (invdirx >= 0) {				
-			tmin = (box.min.x - origin.x) * invdirx;
-			tmax = (box.max.x - origin.x) * invdirx;
+			tmin = (boxMinX - origin.x) * invdirx;
+			tmax = (boxMaxX - origin.x) * invdirx;
 		}
 		else { 
-			tmin = (box.max.x - origin.x) * invdirx;
-			tmax = (box.min.x - origin.x) * invdirx;
+			tmin = (boxMaxX - origin.x) * invdirx;
+			tmax = (boxMinX - origin.x) * invdirx;
 		}			
 
 		if (invdiry >= 0) {		
-			tymin = (box.min.y - origin.y) * invdiry;
-			tymax = (box.max.y - origin.y) * invdiry;
+			tymin = (boxMinY - origin.y) * invdiry;
+			tymax = (boxMaxY - origin.y) * invdiry;
 		}
 		else {
-			tymin = (box.max.y - origin.y) * invdiry;
-			tymax = (box.min.y - origin.y) * invdiry;
+			tymin = (boxMaxY - origin.y) * invdiry;
+			tymax = (boxMinY - origin.y) * invdiry;
 		}
 
 		if ((tmin > tymax) || (tymin > tmax)) return null;
@@ -233,22 +140,22 @@ class Ray {
 		if (tymax < tmax || tmax != tmax) tmax = tymax;
 
 		if (invdirz >= 0) {		
-			tzmin = (box.min.z - origin.z) * invdirz;
-			tzmax = (box.max.z - origin.z) * invdirz;
+			tzmin = (boxMinZ - origin.z) * invdirz;
+			tzmax = (boxMaxZ - origin.z) * invdirz;
 		}
 		else {
-			tzmin = (box.max.z - origin.z) * invdirz;
-			tzmax = (box.min.z - origin.z) * invdirz;
+			tzmin = (boxMaxZ - origin.z) * invdirz;
+			tzmax = (boxMinZ - origin.z) * invdirz;
 		}
 
 		if ((tmin > tzmax) || (tzmin > tmax)) return null;
 		if (tzmin > tmin || tmin != tmin ) tmin = tzmin;
 		if (tzmax < tmax || tmax != tmax ) tmax = tzmax;
 
-		//return point closest to the ray (positive side)
+		// Return point closest to the ray (positive side)
 		if (tmax < 0) return null;
 
-		return this.at(tmin >= 0 ? tmin : tmax, optionalTarget);
+		return this.at(tmin >= 0 ? tmin : tmax);
 	}
 	
 	public function intersectTriangle(a:Vec4, b:Vec4, c:Vec4, backfaceCulling:Bool, optionalTarget:Vec4 = null):Vec4 {
@@ -321,12 +228,21 @@ class Ray {
 
 		return this;
 	}
+}
 
-	public function equals(ray:Ray):Bool {
-		return ray.origin.equals(this.origin) && ray.direction.equals(this.direction);
+class Plane {
+	public var normal = new Vec4(1.0, 0.0, 0.0);
+	public var constant = 0.0;
+
+	public function new() { }
+
+	public function distanceToPoint(point:Vec4):Float {
+		return normal.dot(point) + constant;
 	}
 
-	public function clone():Ray {
-		return new Ray().copy2(this);
+	public function setFromNormalAndCoplanarPoint(normal:Vec4, point:Vec4):Plane {
+		this.normal.copy2(normal);
+		constant = -point.dot(this.normal);
+		return this;
 	}
 }

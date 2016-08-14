@@ -14,9 +14,7 @@ class Resource {
 	static var cachedWorlds:Map<String, WorldResource> = new Map();
 	static var cachedShaders:Map<String, ShaderResource> = new Map();
 
-	public function new() {
-
-	}
+	public function new() { }
 
 	public static function deleteAll() {
 		for (res in cachedModels) {

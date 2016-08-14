@@ -1,12 +1,25 @@
-package iron.node;
+package iron;
 
-import iron.math.Mat4;
-import iron.resource.SceneFormat;
+import iron.Trait;
+import iron.node.Transform;
+import iron.node.Node;
+import iron.node.ModelNode;
+import iron.node.LightNode;
+import iron.node.CameraNode;
+import iron.node.SpeakerNode;
+import iron.node.DecalNode;
 import iron.resource.Resource;
+import iron.resource.ModelResource;
+import iron.resource.LightResource;
+import iron.resource.CameraResource;
 import iron.resource.MaterialResource;
+import iron.resource.ShaderResource;
+import iron.resource.SceneFormat;
+import iron.math.Mat4;
 
-class RootNode extends Node {
+class Root {
 
+	public static var root:Node;
 	public static var models:Array<ModelNode>;
 	public static var lights:Array<LightNode>;
 	public static var cameras:Array<CameraNode>;
@@ -14,18 +27,53 @@ class RootNode extends Node {
 	public static var decals:Array<DecalNode>;
 
 	public function new() {
-		super();
-	}
-
-	public static function reset() {
 		models = [];
 		lights = [];
 		cameras = [];
 		speakers = [];
 		decals = [];
+		root = new Node();
 	}
 
-	public static function addScene(name:String, parent:Node):Node {
+	// Nodes
+	public static function addNode(parent:Node = null):Node {
+		var node = new Node();
+		parent != null ? parent.addChild(node) : root.addChild(node);
+		return node;
+	}
+
+	public static function addModelNode(resource:ModelResource, materials:Array<MaterialResource>, parent:Node = null):ModelNode {
+		var node = new ModelNode(resource, materials);
+		parent != null ? parent.addChild(node) : root.addChild(node);
+		return node;
+	}
+
+	public static function addLightNode(resource:LightResource, parent:Node = null):LightNode {
+		var node = new LightNode(resource);
+		parent != null ? parent.addChild(node) : root.addChild(node);
+		return node;
+	}
+
+	public static function addCameraNode(resource:CameraResource, parent:Node = null):CameraNode {
+		var node = new CameraNode(resource);
+		parent != null ? parent.addChild(node) : root.addChild(node);
+		return node;
+	}
+
+	public static function addSpeakerNode(resource:TSpeakerResource, parent:Node = null):SpeakerNode {
+		var node = new SpeakerNode(resource);
+		parent != null ? parent.addChild(node) : root.addChild(node);
+		return node;
+	}
+	
+	public static function addDecalNode(material:MaterialResource, parent:Node = null):DecalNode {
+		var node = new DecalNode(material);
+		parent != null ? parent.addChild(node) : root.addChild(node);
+		return node;
+	}
+
+	public static function addScene(name:String, parent:Node = null):Node {
+		if (parent == null) parent = addNode();
 		var resource:TSceneFormat = Resource.getSceneResource(name);
 		traverseNodes(resource, name, parent, resource.nodes, null);
 		return parent;
@@ -53,22 +101,22 @@ class RootNode extends Node {
 			}
 		}
 		if (n == null) return null;
-		return RootNode.createNode(n, resource, sceneName, parent, null);
+		return Root.createNode(n, resource, sceneName, parent, null);
 	}
 	
 	public static function createNode(n:TNode, resource:TSceneFormat, name:String, parent:Node, parentNode:TNode):Node {
 		var node:Node = null;
 			
 		if (n.type == "camera_node") {
-			node = Eg.addCameraNode(Resource.getCamera(name, n.object_ref), parent);
+			node = Root.addCameraNode(Resource.getCamera(name, n.object_ref), parent);
 		}
 		else if (n.type == "light_node") {
-			node = Eg.addLightNode(Resource.getLight(name, n.object_ref), parent);	
+			node = Root.addLightNode(Resource.getLight(name, n.object_ref), parent);	
 		}
 		else if (n.type == "geometry_node") {
 			if (n.material_refs.length == 0) {
 				// No material, create empty node
-				node = Eg.addNode(parent);
+				node = Root.addNode(parent);
 			}
 			else {
 				// Materials
@@ -96,7 +144,7 @@ class RootNode extends Node {
 					boneNodes = Resource.getSceneResource(parentNode.bones_ref).nodes;
 				}
 
-				node = Eg.addModelNode(Resource.getModel(object_file, object_ref, boneNodes), materials, parent);
+				node = Root.addModelNode(Resource.getModel(object_file, object_ref, boneNodes), materials, parent);
 				
 				// Attach particle system
 				if (n.particle_refs != null && n.particle_refs.length > 0) {
@@ -107,17 +155,17 @@ class RootNode extends Node {
 			node.transform.computeRadius();
 		}
 		else if (n.type == "speaker_node") {
-			node = Eg.addSpeakerNode(Resource.getSpeakerResourceById(resource.speaker_resources, n.object_ref), parent);	
+			node = Root.addSpeakerNode(Resource.getSpeakerResourceById(resource.speaker_resources, n.object_ref), parent);	
 		}
 		else if (n.type == "decal_node") {
 			var material:MaterialResource = null;
 			if (n.material_refs != null && n.material_refs.length > 0) {
 				material = Resource.getMaterial(name, n.material_refs[0]);
 			}
-			node = Eg.addDecalNode(material, parent);	
+			node = Root.addDecalNode(material, parent);	
 		}
 		else if (n.type == "node") {
-			node = Eg.addNode(parent);
+			node = Root.addNode(parent);
 		}
 
 		if (node != null) {
@@ -143,7 +191,7 @@ class RootNode extends Node {
 				// Assign arguments if any
 				var args:Dynamic = [];
 				if (t.parameters != null) args = t.parameters;
-				Eg.addNodeTrait(node, createTraitClassInstance(t.class_name, args));
+				node.addTrait(createTraitClassInstance(t.class_name, args));
 			}
 		}
 	}

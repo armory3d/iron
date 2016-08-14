@@ -38,5 +38,4 @@ class MsgPack {
 
 		return new Decoder(b, option).getResult();
 	}
-
 }

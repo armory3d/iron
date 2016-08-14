@@ -1,5 +1,6 @@
 package iron.node;
 
+import iron.Root;
 import iron.resource.SceneFormat;
 
 class SpeakerNode extends Node {
@@ -11,13 +12,13 @@ class SpeakerNode extends Node {
 
 		this.resource = resource;
 
-		RootNode.speakers.push(this);
+		Root.speakers.push(this);
 
 		iron.sys.Audio.playSound(Reflect.field(kha.Assets.sounds, resource.sound));
 	}
 
 	public override function remove() {
-		RootNode.speakers.remove(this);
+		Root.speakers.remove(this);
 		super.remove();
 	}
 }

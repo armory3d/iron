@@ -9,12 +9,6 @@ class CameraResource extends Resource {
 
 	public function new(resource:TCameraResource) {
 		super();
-
-		if (resource == null) {
-			trace("Resource not found!");
-			return;
-		}
-
 		this.resource = resource;
 
 		var pipelineName:Array<String> = resource.pipeline.split("/");
@@ -24,6 +18,10 @@ class CameraResource extends Resource {
 	public static function parse(name:String, id:String):CameraResource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TCameraResource = Resource.getCameraResourceById(format.camera_resources, id);
+		if (resource == null) {
+			trace('Camera resource "$id" not found!');
+			return null;
+		}
 		return new CameraResource(resource);
 	}
 }

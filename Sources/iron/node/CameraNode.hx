@@ -1,10 +1,10 @@
 package iron.node;
 
 import kha.graphics4.Graphics;
+import iron.Root;
 import iron.math.Mat4;
 import iron.math.Vec4;
 import iron.math.Quat;
-import iron.math.Plane;
 import iron.resource.CameraResource;
 import iron.resource.WorldResource;
 import iron.resource.RenderPath;
@@ -26,7 +26,7 @@ class CameraNode extends Node {
 	public var V:Mat4;
 	public var prevV:Mat4 = null;
 	public var VP:Mat4;
-	public var frustumPlanes:Array<Plane> = null;
+	public var frustumPlanes:Array<FrustumPlane> = null;
 	public var nearPlane:Float;
 	public var farPlane:Float;
 
@@ -40,16 +40,15 @@ class CameraNode extends Node {
 		nearPlane = resource.resource.near_plane;
 		farPlane = resource.resource.far_plane;
 
-		// var fov = resource.resource.fov;
+		var fov = resource.resource.fov;
 
 		if (resource.resource.type == "perspective") {
-			var fovDiv = 3.0; // Matches Blender viewport
 			var w:Float = App.w;
 			var h:Float = App.h;
 #if WITH_VR
 			w /= 2.0; // Split per eye
 #end
-			P = Mat4.perspective(3.14159265 / fovDiv, w / h, nearPlane, farPlane);
+			P = Mat4.perspective(fov, w / h, nearPlane, farPlane);
 		}
 		else if (resource.resource.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane, 2);
@@ -68,14 +67,14 @@ class CameraNode extends Node {
 
 		if (resource.resource.frustum_culling) {
 			frustumPlanes = [];
-			for (i in 0...6) frustumPlanes.push(new Plane());
+			for (i in 0...6) frustumPlanes.push(new FrustumPlane());
 		}
 
-		RootNode.cameras.push(this);
+		Root.cameras.push(this);
 	}
 
 	public override function remove() {
-		RootNode.cameras.remove(this);
+		Root.cameras.remove(this);
 		super.remove();
 	}
 
@@ -125,7 +124,7 @@ class CameraNode extends Node {
 		}
 	}
 
-	public static function buildViewFrustum(VP:Mat4, frustumPlanes:Array<Plane>) {
+	public static function buildViewFrustum(VP:Mat4, frustumPlanes:Array<FrustumPlane>) {
 	    // Left plane
 	    frustumPlanes[0].setComponents(
 	    	VP._03 + VP._00,
@@ -184,16 +183,14 @@ class CameraNode extends Node {
 	    for (plane in frustumPlanes) plane.normalize();
 	}
 
-	static var sphere = new iron.math.Sphere();
-	static var abspos = new Vec4();
-	public static function sphereInFrustum(frustumPlanes:Array<Plane>, t:Transform, radiusScale = 1.0, offsetX = 0.0, offsetY = 0.0, offsetZ = 0.0):Bool {
+	static var sphereCenter = new Vec4();
+	public static function sphereInFrustum(frustumPlanes:Array<FrustumPlane>, t:Transform, radiusScale = 1.0, offsetX = 0.0, offsetY = 0.0, offsetZ = 0.0):Bool {
 		// Use scale when radius is changing
 		var radius = t.radius * radiusScale;
 		for (plane in frustumPlanes) {	
-			abspos.set(t.absx() + offsetX, t.absy() + offsetY, t.absz() + offsetZ);
-			sphere.set(abspos, radius);
+			sphereCenter.set(t.absx() + offsetX, t.absy() + offsetY, t.absz() + offsetZ);
 			// Outside the frustum
-			if (plane.distanceToSphere(sphere) + radius * 2 < 0) {
+			if (plane.distanceToSphere(sphereCenter, radius) + radius * 2 < 0) {
 				return false;
 			}
 	    }
@@ -215,10 +212,29 @@ class CameraNode extends Node {
 		updateMatrix();
 	}
 
-	// public inline function right():Vec4 { return new Vec4(V._00, V._10, V._20); }
-	// public inline function up():Vec4 { return new Vec4(V._01, V._11, V._21); }
-	// public inline function look():Vec4 { return new Vec4(-V._02, -V._12, -V._22); }
 	public inline function right():Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }
 	public inline function up():Vec4 { return new Vec4(transform.local._10, transform.local._11, transform.local._12); }
     public inline function look():Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
+}
+
+class FrustumPlane {
+	public var normal = new Vec4(1.0, 0.0, 0.0);
+	public var constant = 0.0;
+
+	public function new() { }
+
+	public function normalize() {
+		var inverseNormalLength = 1.0 / normal.length();
+		normal.multiplyScalar(inverseNormalLength);
+		constant *= inverseNormalLength;
+	}
+	
+	public function distanceToSphere(sphereCenter:Vec4, sphereRadius:Float):Float {
+		return (normal.dot(sphereCenter) + constant) - sphereRadius;
+	}
+
+	public inline function setComponents(x:Float, y:Float, z:Float, w:Float) {
+		normal.set(x, y, z);
+		constant = w;
+	}
 }

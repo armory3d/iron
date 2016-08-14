@@ -4,6 +4,7 @@ import iron.App;
 import iron.node.CameraNode;
 import iron.node.ModelNode;
 import iron.node.Transform;
+import iron.math.Ray.Plane;
 
 class RayCaster {
 
@@ -44,18 +45,13 @@ class RayCaster {
         end.z *= camera.resource.resource.far_plane;
     }
 
-
     public static function boxIntersect(transform:Transform, inputX:Float, inputY:Float, camera:CameraNode):Vec4 {
         var ray = getRay(inputX, inputY, camera);
 
         var t = transform;
         var c = new Vec4(t.absx(), t.absy(), t.absz());
         var s = new Vec4(t.size.x, t.size.y, t.size.z);
-
-        var box = new Box3();
-        box.setFromCenterAndSize(c, s);
-
-        return ray.intersectBox(box);
+        return ray.intersectBox(c, s);
     }
 
     public static function getClosestBoxIntersect(transforms:Array<Transform>, inputX:Float, inputY:Float, camera:CameraNode):Transform {
@@ -74,7 +70,7 @@ class RayCaster {
         var closest:Transform = null;
         var minDist:Float = std.Math.POSITIVE_INFINITY;
         for (t in intersects) {
-            var dist = iron.math.Math.distance3d(t.pos, camera.transform.pos);
+            var dist = Vec4.distance3d(t.pos, camera.transform.pos);
             if (dist < minDist) {
                 minDist = dist;
                 closest = t;

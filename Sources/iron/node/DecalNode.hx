@@ -1,28 +1,25 @@
 package iron.node;
 
 import kha.graphics4.Graphics;
-// import iron.resource.DecalResource;
 import iron.resource.MaterialResource;
 import iron.node.ModelNode;
-// import iron.resource.SceneFormat;
+import iron.Root;
 
 class DecalNode extends Node {
 
-	// public var resource:DecalResource;
 	public var material:MaterialResource;
 	var cachedContext:CachedModelContext = null;
 
 	public function new(material:MaterialResource) {
 		super();
 		
-		// this.resource = resource;
 		this.material = material;
 
-		RootNode.decals.push(this);
+		Root.decals.push(this);
 	}
 
 	public override function remove() {
-		RootNode.decals.remove(this);
+		Root.decals.remove(this);
 		super.remove();
 	}
 	

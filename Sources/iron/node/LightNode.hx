@@ -3,7 +3,8 @@ package iron.node;
 import iron.math.Mat4;
 import iron.math.Vec4;
 import iron.resource.LightResource;
-import iron.math.Plane;
+import iron.node.CameraNode.FrustumPlane;
+import iron.Root;
 
 class LightNode extends Node {
 
@@ -13,7 +14,7 @@ class LightNode extends Node {
 	public var V:Mat4 = null;
 	static var VP:Mat4 = null;
 
-	public var frustumPlanes:Array<Plane> = null;
+	public var frustumPlanes:Array<FrustumPlane> = null;
 
 	public var farPlane:Float;
 
@@ -23,11 +24,11 @@ class LightNode extends Node {
 		this.resource = resource;
 		farPlane = resource.resource.far_plane;
 
-		RootNode.lights.push(this);
+		Root.lights.push(this);
 	}
 
 	public override function remove() {
-		RootNode.lights.remove(this);
+		Root.lights.remove(this);
 		super.remove();
 	}
 
@@ -41,7 +42,7 @@ class LightNode extends Node {
 		if (camera.resource.resource.frustum_culling) {
 			if (frustumPlanes == null) {
 				frustumPlanes = [];
-				for (i in 0...6) frustumPlanes.push(new Plane());
+				for (i in 0...6) frustumPlanes.push(new FrustumPlane());
 				if (VP == null) VP = Mat4.identity();
 			}
 
@@ -49,6 +50,8 @@ class LightNode extends Node {
 			CameraNode.buildViewFrustum(VP, frustumPlanes);
 		}
 	}
-	
+
+	public inline function right():Vec4 { return new Vec4(V._00, V._10, V._20); }
+	public inline function up():Vec4 { return new Vec4(V._01, V._11, V._21); }
 	public inline function look():Vec4 { return new Vec4(V._02, V._12, V._22); }
 }

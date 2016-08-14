@@ -86,10 +86,10 @@ class ParticleSystem {
 	}
 
 	function sort() {
-		var camera = RootNode.cameras[0]; // TODO: pass camera manually
+		var camera = Root.cameras[0]; // TODO: pass camera manually
 
 		for (p in particles) { // TODO: check particle systems located at non-origin position
-			p.cameraDistance = iron.math.Math.distance3d(p.offset, camera.transform.pos);
+			p.cameraDistance = Vec4.distance3d(p.offset, camera.transform.pos);
 		}
 
 		particles.sort(function(p1:Particle, p2:Particle):Int {

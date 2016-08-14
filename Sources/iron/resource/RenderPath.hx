@@ -12,8 +12,8 @@ import iron.resource.SceneFormat;
 import iron.resource.PipelineResource.RenderTarget; // Ping-pong
 import iron.resource.MaterialResource.MaterialContext;
 import iron.resource.ShaderResource.ShaderContext;
+import iron.Root;
 import iron.node.Node;
-import iron.node.RootNode;
 import iron.node.CameraNode;
 import iron.node.LightNode;
 import iron.node.ModelNode;
@@ -285,23 +285,23 @@ class RenderPath {
 			var camX = camera.transform.absx();
 			var camY = camera.transform.absy();
 			var camZ = camera.transform.absz();
-			for (model in RootNode.models) {
+			for (model in Root.models) {
 				model.computeCameraDistance(camX, camY, camZ);
 			}
-			RootNode.models.sort(function(a, b):Int {
+			Root.models.sort(function(a, b):Int {
 				return a.cameraDistance > b.cameraDistance ? 1 : -1;
 			});
 			sorted = true;
 		}
 		var g = currentRenderTarget;
 		// if (params[1] == "back_to_front") {
-		// 	var len = RootNode.models.length;
+		// 	var len = Root.models.length;
 		// 	for (i in 0...len) {
-		// 		RootNode.models[len - 1 - i].render(g, context, camera, light, bindParams);
+		// 		Root.models[len - 1 - i].render(g, context, camera, light, bindParams);
 		// 	}
 		// }
 		// else {
-			for (model in RootNode.models) {
+			for (model in Root.models) {
 				model.render(g, context, camera, light, bindParams);
 			}
 		// }
@@ -312,7 +312,7 @@ class RenderPath {
 		var context = params[0];
 		var g = currentRenderTarget;
 		var light = lights[currentLightIndex];
-		for (decal in RootNode.decals) {
+		for (decal in Root.decals) {
 			decal.render(g, context, camera, light, bindParams);
 			g.setVertexBuffer(boxVB);
 			g.setIndexBuffer(boxIB);

@@ -27,11 +27,6 @@ class Geometry {
     public var instanced = false;
 	public var instanceCount = 0;
 
-    // public var aabbMin:Vec4;
-	// public var aabbMax:Vec4;
-	// public var size:Vec4;
-	// public var radius:Float;
-
 	var ids:Array<Array<Int>>;
 	public var usage:Usage;
 
@@ -134,7 +129,7 @@ class Geometry {
 		// Use W component to store distance to camera
 		for (v in offsetVecs) {
 			// TODO: include parent transform
-			v.w  = iron.math.Math.distance3dRaw(camX, camY, camZ, v.x, v.y, v.z);
+			v.w  = iron.math.Vec4.distance3dRaw(camX, camY, camZ, v.x, v.y, v.z);
 		}
 		
 		offsetVecs.sort(function(a, b):Int {
@@ -247,8 +242,6 @@ class Geometry {
 			indexBuffers.push(indexBuffer);
 			indices.push(indicesA);
 		}
-
-		// calculateAABB();
 	}
 
 #if WITH_DEINTERLEAVED
@@ -270,25 +263,19 @@ class Geometry {
 	// 	aabbMin = new Vec4(-0.01, -0.01, -0.01);
 	// 	aabbMax = new Vec4(0.01, 0.01, 0.01);
 	// 	size = new Vec4();
-
 	// 	var i = 0;
 	// 	while (i < positions.length) {
-
 	// 		if (positions[i] > aabbMax.x)		aabbMax.x = positions[i];
 	// 		if (positions[i + 1] > aabbMax.y)	aabbMax.y = positions[i + 1];
 	// 		if (positions[i + 2] > aabbMax.z)	aabbMax.z = positions[i + 2];
-
 	// 		if (positions[i] < aabbMin.x)		aabbMin.x = positions[i];
 	// 		if (positions[i + 1] < aabbMin.y)	aabbMin.y = positions[i + 1];
 	// 		if (positions[i + 2] < aabbMin.z)	aabbMin.z = positions[i + 2];
-
 	// 		i += 3;
 	// 	}
-
 	// 	size.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);
 	// 	size.y = Math.abs(aabbMin.y) + Math.abs(aabbMax.y);
 	// 	size.z = Math.abs(aabbMin.z) + Math.abs(aabbMax.z);
-
 	// 	// Sphere radius
 	// 	if (size.x >= size.y && size.x >= size.z) radius = size.x / 2;
 	// 	else if (size.y >= size.x && size.y >= size.z) radius = size.y / 2;

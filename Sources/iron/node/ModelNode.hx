@@ -5,6 +5,7 @@ import kha.graphics4.ConstantLocation;
 import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
+import iron.Root;
 import iron.math.Vec4;
 import iron.math.Quat;
 import iron.math.Mat4;
@@ -40,23 +41,16 @@ class ModelNode extends Node {
 	var prevMatrix = Mat4.identity();
 #end
 
-	// public static var _u1:Float = 0.25;
-	// public static var _u2:Float = 0.1;
-	// public static var _u3:Float = 5;
-	// public static var _u4:Float = 3.0;
-	// public static var _u5:Float = 0.0;
-	// public static var _u6:Float = 0.34;
-
 	public function new(resource:ModelResource, materials:Array<MaterialResource>) {
 		super();
 
 		this.resource = resource;
 		this.materials = materials;	
-		RootNode.models.push(this);
+		Root.models.push(this);
 	}
 
 	public override function remove() {
-		RootNode.models.remove(this);
+		Root.models.remove(this);
 		super.remove();
 	}
 
@@ -148,14 +142,6 @@ class ModelNode extends Node {
 				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "noise256"));
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 			}
-			else if (tulink == "_noise512") {
-				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "noise512"));
-				// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-			}
-			// else if (tulink == "_checker") {
-				// g.setTexture(context.textureUnits[j], kha.Assets.images.checker);
-				// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-			// }
 		}
 	}
 	static function setConstant(g:Graphics, node:Node, camera:CameraNode, light:LightNode,
@@ -460,10 +446,10 @@ class ModelNode extends Node {
 				vx = vx > 1 ? 1 : vx;
 				vy = vy > 1 ? 1 : vy;
 			}
-			// else if (c.link == "_cameraPlane") {
-				// vx = camera.resource.resource.near_plane;
-				// vy = camera.resource.resource.far_plane;
-			// }
+			else if (c.link == "_cameraPlane") {
+				vx = camera.resource.resource.near_plane;
+				vy = camera.resource.resource.far_plane;
+			}
 			g.setFloat2(location, vx, vy);
 		}
 		else if (c.type == "float") {
@@ -473,7 +459,6 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_deltaTime") {
 				f = iron.sys.Time.delta;
-				// f = iron.sys.Time.realDelta;
 			}
 			else if (c.link == "_lightStrength") {
 				f = light.resource.resource.strength;
@@ -495,12 +480,6 @@ class ModelNode extends Node {
 				f = iron.sys.VR.getMaxRadiusSq();
 			}
 #end
-			// else if (c.link == "_u1") { f = ModelNode._u1; }
-			// else if (c.link == "_u2") { f = ModelNode._u2; }
-			// else if (c.link == "_u3") { f = ModelNode._u3; }
-			// else if (c.link == "_u4") { f = ModelNode._u4; }
-			// else if (c.link == "_u5") { f = ModelNode._u5; }
-			// else if (c.link == "_u6") { f = ModelNode._u6; }
 			g.setFloat(location, f);
 		}
 		else if (c.type == "floats") {
@@ -718,7 +697,7 @@ class ModelNode extends Node {
 	}
 
 	public inline function computeCameraDistance(camX:Float, camY:Float, camZ:Float) {
-		cameraDistance = iron.math.Math.distance3dRaw(camX, camY, camZ, transform.absx(), transform.absy(), transform.absz());
+		cameraDistance = iron.math.Vec4.distance3dRaw(camX, camY, camZ, transform.absx(), transform.absy(), transform.absz());
 	}
 }
 

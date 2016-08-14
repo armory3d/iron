@@ -17,11 +17,6 @@ class ModelResource extends Resource {
 	public function new(resource:TGeometryResource) {
 		super();
 
-		if (resource == null) {
-			trace("Resource not found!");
-			return;
-		}
-
 		this.resource = resource;
 
 		// Mesh data
@@ -94,6 +89,10 @@ class ModelResource extends Resource {
 	public static function parse(name:String, id:String, boneNodes:Array<TNode> = null):ModelResource {
 		var format:TSceneFormat = Resource.getSceneResource(name);
 		var resource:TGeometryResource = Resource.getGeometryResourceById(format.geometry_resources, id);
+		if (resource == null) {
+			trace('Model resource "$id" not found!');
+			return null;
+		}
 
 		var res = new ModelResource(resource);
 
@@ -118,7 +117,6 @@ class ModelResource extends Resource {
 			res.geometry.initSkeletonBones(res.bones);
 			res.geometry.initSkeletonTransforms(resource.mesh.skin.skeleton.transforms);
 		}
-
 		return res;
 	}
 

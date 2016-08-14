@@ -6,7 +6,6 @@ import haxe.io.BytesOutput;
 
 using Reflect;
 
-
 class Encoder {
 
 	static private inline var FLOAT_SINGLE_MIN:Float = 1.40129846432481707e-45;
