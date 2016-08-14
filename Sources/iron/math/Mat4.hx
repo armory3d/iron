@@ -19,53 +19,6 @@ class Mat4 extends kha.math.FastMatrix4 {
 		return this;
 	}
 
-	/*public function determinant() {
-		// var n11 = te[ 0 ], n12 = te[ 4 ], n13 = te[ 8 ], n14 = te[ 12 ];
-		// var n21 = te[ 1 ], n22 = te[ 5 ], n23 = te[ 9 ], n24 = te[ 13 ];
-		// var n31 = te[ 2 ], n32 = te[ 6 ], n33 = te[ 10 ], n34 = te[ 14 ];
-		// var n41 = te[ 3 ], n42 = te[ 7 ], n43 = te[ 11 ], n44 = te[ 15 ];
-
-		var n11 = _00, n12 = _10, n13 = _20, n14 = _30;
-		var n21 = _01, n22 = _11, n23 = _21, n24 = _31;
-		var n31 = _02, n32 = _12, n33 = _22, n34 = _32;
-		var n41 = _03, n42 = _13, n43 = _23, n44 = _33;
-
-		return (
-			n41 * (
-				+ n14 * n23 * n32
-				 - n13 * n24 * n32
-				 - n14 * n22 * n33
-				 + n12 * n24 * n33
-				 + n13 * n22 * n34
-				 - n12 * n23 * n34
-			) +
-			n42 * (
-				+ n11 * n23 * n34
-				 - n11 * n24 * n33
-				 + n14 * n21 * n33
-				 - n13 * n21 * n34
-				 + n13 * n24 * n31
-				 - n14 * n23 * n31
-			) +
-			n43 * (
-				+ n11 * n24 * n32
-				 - n11 * n22 * n34
-				 - n14 * n21 * n32
-				 + n12 * n21 * n34
-				 + n14 * n22 * n31
-				 - n12 * n24 * n31
-			) +
-			n44 * (
-				- n13 * n22 * n31
-				 - n11 * n23 * n32
-				 + n11 * n22 * n33
-				 + n13 * n21 * n32
-				 - n12 * n21 * n33
-				 + n12 * n23 * n31
-			)
-		);
-	}*/
-
 	public function decompose(position:Vec4, quaternion:Quat, scale:Vec4) {
 		var vector = new Vec4(0, 0, 0, 0);
 		var matrix = Mat4.identity();
@@ -159,7 +112,6 @@ class Mat4 extends kha.math.FastMatrix4 {
 		_33 = 1;
 
 		return this;
-
 	}
 
 	public static function identity():Mat4 {
@@ -292,8 +244,6 @@ class Mat4 extends kha.math.FastMatrix4 {
 		_33 = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
 	}
 	
-	
-
 	public function inverse2(m:Mat4) {
 		var m11 = m._00; var m12 = m._01; var m13 = m._02; var m14 = m._03;
 		var m21 = m._10; var m22 = m._11; var m23 = m._12; var m24 = m._13;
@@ -382,13 +332,6 @@ class Mat4 extends kha.math.FastMatrix4 {
 		_20 = m._20; _21 = m._21; _22 = m._22; _23 = m._23;		
 		_30 = m._30; _31 = m._31; _32 = m._32; _33 = m._33;		
 	}
-	
-	// public function getFloats():Array<Float> {
-	// 	return [_00, _10, _20, _30,
-	// 			_01, _11, _21, _31,
-	// 			_02, _12, _22, _32,
-	// 			_03, _13, _23, _33];
-	// }
 
 	// Retrieves pos vector from matrix
 	public inline function pos(v:Vec4 = null):Vec4 {
@@ -423,7 +366,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 		}
 	}
 
-	public function getInverse(m:Mat4) { //-
+	public function getInverse(m:Mat4) {
 		// based on http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
 
 		var n11 = m._00, n12 = m._10, n13 = m._20, n14 = m._30;
@@ -469,7 +412,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 		return this;
 	}
 
-	public function multiplyMatrices(a:Mat4, b:Mat4):Mat4 { //-
+	public function multiplyMatrices(a:Mat4, b:Mat4):Mat4 {
 		var a11 = a._00, a12 = a._10, a13 = a._20, a14 = a._30;
 		var a21 = a._01, a22 = a._11, a23 = a._21, a24 = a._31;
 		var a31 = a._02, a32 = a._12, a33 = a._22, a34 = a._32;
@@ -534,7 +477,6 @@ class Mat4 extends kha.math.FastMatrix4 {
 
 	public function getQuat():Quat {
 		// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
-
 		var m = clone();
 		m.toRotation();
 				
@@ -554,53 +496,37 @@ class Mat4 extends kha.math.FastMatrix4 {
 		var s:Float = 0;
 
 		if ( ftrace > 0 ) {
-
 			s = 0.5 / std.Math.sqrt( ftrace + 1.0 );
-
 			q.w = 0.25 / s;
 			q.x = ( m32 - m23 ) * s;
 			q.y = ( m13 - m31 ) * s;
 			q.z = ( m21 - m12 ) * s;
 
-		} else if ( m11 > m22 && m11 > m33 ) {
-
+		}
+		else if ( m11 > m22 && m11 > m33 ) {
 			s = 2.0 * std.Math.sqrt( 1.0 + m11 - m22 - m33 );
-
 			q.w = ( m32 - m23 ) / s;
 			q.x = 0.25 * s;
 			q.y = ( m12 + m21 ) / s;
 			q.z = ( m13 + m31 ) / s;
 
-		} else if ( m22 > m33 ) {
-
+		}
+		else if ( m22 > m33 ) {
 			s = 2.0 * std.Math.sqrt( 1.0 + m22 - m11 - m33 );
-
 			q.w = ( m13 - m31 ) / s;
 			q.x = ( m12 + m21 ) / s;
 			q.y = 0.25 * s;
 			q.z = ( m23 + m32 ) / s;
 
-		} else {
-
+		}
+		else {
 			s = 2.0 * std.Math.sqrt( 1.0 + m33 - m11 - m22 );
-
 			q.w = ( m21 - m12 ) / s;
 			q.x = ( m13 + m31 ) / s;
 			q.y = ( m23 + m32 ) / s;
 			q.z = 0.25 * s;
 		}
-		
 		return q;
-	}
-
-	public function getMaxScaleOnAxis():Float { //-
-		var m = this;
-
-		var scaleXSq = m._00 * m._00 + m._01 * m._01 + m._02 * m._02;
-		var scaleYSq = m._10 * m._10 + m._11 * m._11 + m._12 * m._12;
-		var scaleZSq = m._20 * m._20 + m._21 * m._21 + m._22 * m._22;
-
-		return std.Math.sqrt(std.Math.max(scaleXSq, std.Math.max(scaleYSq, scaleZSq)));	
 	}
 
 	public function getScale():Vec4 {
@@ -679,29 +605,6 @@ class Mat4 extends kha.math.FastMatrix4 {
 						 u0,  u1,  u2, d1,
 						-f0, -f1, -f2, d2,
 						0.0, 0.0, 0.0, 1.0);
-	}
-	
-	public function isEqual(m2:Mat4):Bool {
-		var m1 = this;
-		if (m1._00 == m2._00 &&
-			m1._10 == m2._10 &&
-			m1._20 == m2._20 &&
-			m1._30 == m2._30 &&
-			m1._01 == m2._01 &&
-			m1._11 == m2._11 &&
-			m1._21 == m2._21 &&
-			m1._31 == m2._31 &&
-			m1._02 == m2._02 &&
-			m1._12 == m2._12 &&
-			m1._22 == m2._22 &&
-			m1._32 == m2._32 &&
-			m1._03 == m2._03 &&
-			m1._13 == m2._13 &&
-			m1._23 == m2._23 &&
-			m1._33 == m2._33) {
-			return true;
-		}
-		return false;
 	}
 	
 	public inline function _right():Vec4 { return new Vec4(_00, _10, _20); }

@@ -1,11 +1,8 @@
 package iron.math;
 
 // https://github.com/mrdoob/three.js/
-
 using Math;
 
-// A Quaternion describes a rotation in 3D space.
-// The Quaternion is mathematically defined as Q = x*i + y*j + z*k + w, where (i,j,k) are imaginary basis vectors. (x,y,z) can be seen as a vector related to the axis of rotation, while the real multiplier, w, is related to the amount of rotation.
 class Quat {
 
     public var x:Float;
@@ -24,7 +21,6 @@ class Quat {
         this.w = w;
     }
 
-    // Set the value of the quaternion.
     public function set(x:Float, y:Float, z:Float, w:Float) {
         this.x = x;
         this.y = y;
@@ -36,14 +32,13 @@ class Quat {
         return this.x + "," + this.y + "," + this.z + "," + this.w;
     }
 
-    // Set the quaternion components given an axis and an angle.
-    // angle in radians
+    // Set the quaternion components given an axis and an angle
     public function setFromAxisAngle(axis:Vec4, angle:Float) {
-        var s:Float = std.Math.sin(angle * 0.5);
+        var s:Float = Math.sin(angle * 0.5);
         this.x = axis.x * s;
         this.y = axis.y * s;
         this.z = axis.z * s;
-        this.w = std.Math.cos(angle * 0.5);
+        this.w = Math.cos(angle * 0.5);
     }
 
     public function setFromRotationMatrix(m:Mat4) {
@@ -90,26 +85,6 @@ class Quat {
         }
 
         return this;
-    }
-
-    // Saves axis to targetAxis and returns 
-    public function toAxisAngle(targetAxis):Dynamic {
-        if (targetAxis == null) targetAxis = new Vec4();
-        this.normalize(); // if w>1 acos and sqrt will produce errors, this cant happen if quaternion is normalised
-        var angle:Float = 2 * std.Math.acos(this.w);
-        var s:Float = std.Math.sqrt(1 - this.w * this.w); // assuming quaternion normalised then w is less than 1, so term always positive.
-        if (s < 0.001) { // test to avoid divide by zero, s is always positive due to sqrt
-            // if s close to zero then direction of axis not important
-            targetAxis.x = this.x; // if it is important that axis is normalised then replace with x=1; y=z=0;
-            targetAxis.y = this.y;
-            targetAxis.z = this.z;
-        }
-        else {
-            targetAxis.x = this.x / s; // normalise axis
-            targetAxis.y = this.y / s;
-            targetAxis.z = this.z / s;
-        }
-        return [targetAxis, angle];
     }
 
     // Quaternion multiplication
@@ -161,7 +136,7 @@ class Quat {
 
     // Normalize the quaternion
     public function normalize() {
-        var l = std.Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+        var l = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
         if (l == 0.0) {
             this.x = 0;
             this.y = 0;
@@ -251,33 +226,28 @@ class Quat {
     }
 
     // Convert the quaternion to euler angle representation. Order: YZX, as this page describes: http://www.euclideanspace.com/maths/standards/index.htm
-    public function toEuler(target:Vec4, order = "YZX") {
-        var heading:Float = std.Math.NaN; var attitude:Float = 0.0; var bank:Float = 0.0;
+    public function toEuler(target:Vec4) {
+        var heading:Float = Math.NaN; var attitude:Float = 0.0; var bank:Float = 0.0;
         var x:Float = this.x; var y:Float = this.y; var z:Float = this.z; var w:Float = this.w;
 
-        switch(order) {
-            case "YZX":
-                var test:Float = x * y + z * w;
-                if (test > 0.499) { // singularity at north pole
-                    heading = 2 * std.Math.atan2(x, w);
-                    attitude = Math.PI / 2;
-                    bank = 0;
-                }
-                if (test < -0.499) { // singularity at south pole
-                    heading = -2 * std.Math.atan2(x, w);
-                    attitude = -Math.PI / 2;
-                    bank = 0;
-                }
-                if (std.Math.isNaN(heading)) {
-                    var sqx:Float = x * x;
-                    var sqy:Float = y * y;
-                    var sqz:Float = z * z;
-                    heading = std.Math.atan2(2 * y * w - 2 * x * z , 1.0 - 2 * sqy - 2 * sqz); // Heading
-                    attitude = std.Math.asin(2 * test); // attitude
-                    bank = std.Math.atan2(2 * x * w - 2 * y * z , 1.0 - 2 * sqx - 2 * sqz); // bank
-                }
-            default:
-                throw "Euler order " + order + " not supported yet.";
+        var test:Float = x * y + z * w;
+        if (test > 0.499) { // singularity at north pole
+            heading = 2 * Math.atan2(x, w);
+            attitude = Math.PI / 2;
+            bank = 0;
+        }
+        if (test < -0.499) { // singularity at south pole
+            heading = -2 * Math.atan2(x, w);
+            attitude = -Math.PI / 2;
+            bank = 0;
+        }
+        if (Math.isNaN(heading)) {
+            var sqx:Float = x * x;
+            var sqy:Float = y * y;
+            var sqz:Float = z * z;
+            heading = Math.atan2(2 * y * w - 2 * x * z , 1.0 - 2 * sqy - 2 * sqz); // Heading
+            attitude = Math.asin(2 * test); // attitude
+            bank = Math.atan2(2 * x * w - 2 * y * z , 1.0 - 2 * sqx - 2 * sqz); // bank
         }
 
         target.y = heading;
@@ -286,22 +256,21 @@ class Quat {
     }
 
     public function getEuler() {
-        var roll  = Math.atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z);
+        var roll = Math.atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z);
         var pitch = Math.atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z);
-        var yaw   = Math.asin(2*x*y + 2*z*w);
-
+        var yaw = Math.asin(2*x*y + 2*z*w);
         return new Vec4(pitch, roll, yaw);
     }
 
     // See http://www.mathworks.com/matlabcentral/fileexchange/20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/content/SpinCalc.m
     public function setFromEuler(x:Float, y:Float, z:Float, order = "ZXY") {
 
-        var c1 = std.Math.cos(x / 2);
-        var c2 = std.Math.cos(y / 2);
-        var c3 = std.Math.cos(z / 2);
-        var s1 = std.Math.sin(x / 2);
-        var s2 = std.Math.sin(y / 2);
-        var s3 = std.Math.sin(z / 2);
+        var c1 = Math.cos(x / 2);
+        var c2 = Math.cos(y / 2);
+        var c3 = Math.cos(z / 2);
+        var s1 = Math.sin(x / 2);
+        var s2 = Math.sin(y / 2);
+        var s3 = Math.sin(z / 2);
 
         if (order == 'XYZ') {
             this.x = s1 * c2 * c3 + c1 * s2 * s3;
@@ -340,13 +309,6 @@ class Quat {
             this.w = c1 * c2 * c3 + s1 * s2 * s3;
         }
         return this;
-    }
-
-    // Extended
-    public function toMatrix():Mat4 {
-        var m = Mat4.identity();
-        saveToMatrix(m);
-        return m;
     }
 
     public function saveToMatrix(m:Mat4):Mat4 {
@@ -462,54 +424,6 @@ class Quat {
         qm.y = (qa.y * ratioA + qb.y * ratioB);
         qm.z = (qa.z * ratioA + qb.z * ratioB);
         return qm;
-    }
-
-    public var euler(get_euler, null):Vec4;
-    private function get_euler():Vec4 { 
-        normalize();
-        var test:Float = x * y + z * w;
-        var a = new Vec4();
-        if (test > 0.499) { // singularity at north pole
-            a.x = 2.0 * std.Math.atan2(x, w) * (180.0 / Math.PI);
-            a.y = (Math.PI / 2) * (180.0 / Math.PI);
-            a.z = 0;
-            return a;
-        }
-        if (test < -0.499) { // singularity at south pole
-            a.x = -2.0 * std.Math.atan2(x, w) * (180.0 / Math.PI);
-            a.y = -(Math.PI / 2) * (180.0 / Math.PI);
-            a.z = 0;
-            return a;
-        }
-        var sqx:Float = x * x;
-        var sqy:Float = y * y;
-        var sqz:Float = z * z;        
-        a.x = std.Math.atan2(2.0 * y * w - 2.0 * x * z , 1.0 - 2.0 * sqy - 2.0 * sqz) * (180.0 / Math.PI);
-        a.y = std.Math.asin(2.0 * test) * (180.0 / Math.PI);
-        a.z = std.Math.atan2(2.0 * x * w - 2.0 * y * z , 1.0 - 2.0 * sqx - 2.0 * sqz) * (180.0 / Math.PI);     
-        return a;
-    }
-
-    static public function fromEuler(p_euler:Vec4):Quat {
-        // Assuming the angles are in radians.
-        var q = new Quat();
-        var ax:Float = p_euler.x * (180.0 / Math.PI);
-        var ay:Float = p_euler.y * (180.0 / Math.PI);
-        var az:Float = p_euler.z * (180.0 / Math.PI);     
-        var c1:Float = std.Math.cos(ax * 0.5);
-        var s1:Float = std.Math.sin(ax * 0.5);
-        var c2:Float = std.Math.cos(ay * 0.5);
-        var s2:Float = std.Math.sin(ay * 0.5);
-        var c3:Float = std.Math.cos(az * 0.5);
-        var s3:Float = std.Math.sin(az * 0.5);
-        var c1c2:Float = c1*c2;
-        var s1s2:Float = s1*s2;
-        q.w = c1c2 * c3 - s1s2 * s3;
-        q.x = c1c2 * s3 + s1s2 * c3;
-        q.y = s1 * c2 * c3 + c1 * s2 * s3;
-        q.z = c1 * s2 * c3 - s1 * c2 * s3;
-        q.normalize();
-        return q;
     }
 
     public function dot(p_v:Quat):Float {
