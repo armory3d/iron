@@ -452,13 +452,15 @@ class RenderPath {
 		
 		currentLightIndex = 0;
 		loopFinished++;
-		for (l in lights) {
+		for (i in 0...lights.length) {
+			var l = lights[i];
+			if (!l.visible) continue;
+			currentLightIndex = i;
 			for (stage in stageData.returns_true) {
 				// TODO: cache commands
 				var commandFun = commandToFunction(stage.command);			
 				commandFun(stage.params, root);
 			}
-			currentLightIndex++;
 		}
 		currentLightIndex = 0;
 		loopFinished--;

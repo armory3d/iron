@@ -20,6 +20,7 @@ class Node {
 	public var children:Array<Node> = [];
 
 	public var animation:Animation = null;
+	public var visible = true; // Skip render, keep updating
 
 	public function new() {
 		uid = uidCounter++;

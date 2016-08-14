@@ -8,8 +8,8 @@ class Transform {
 	public var matrix:Mat4;
 	public var local:Mat4;
 	public var localOnly:Bool = false;
-	public var prepend:Mat4 = null;
-	public var append:Mat4 = null;
+	var prependMats:Array<Mat4> = null;
+	var appendMats:Array<Mat4> = null;
 	public var dirty:Bool;
 
 	// Decomposed local matrix
@@ -18,9 +18,7 @@ class Transform {
 	public var scale:Vec4;
 	public var size:Vec4;
 	public var radius:Float;
-
 	public var node:Node;
-
 	static var temp = Mat4.identity();
 
 	public function new(node:Node) {
@@ -47,14 +45,29 @@ class Transform {
 		}
 	}
 
+	public function prependMatrix(m:Mat4) {
+		if (prependMats == null) prependMats = [];
+		prependMats.push(m);
+	}
+
+	public function appendMatrix(m:Mat4) {
+		if (appendMats == null) appendMats = [];
+		appendMats.push(m);
+	}
+
 	public function buildMatrix() {
 		local.compose(pos, rot, scale);
 		
-		if (prepend != null) {
-			prepend.mult2(local);
-			local.loadFrom(prepend);
+		if (prependMats != null) {
+			temp.setIdentity();
+			for (m in prependMats) temp.mult2(m);
+			temp.mult2(local);
+			local.loadFrom(temp);
 		}
-		if (append != null) local.mult2(append);
+		
+		if (appendMats != null) {
+			for (m in appendMats) local.mult2(m);
+		}
 
 		if (!localOnly && node.parent != null) {
 			matrix.multiply3x4(local, node.parent.transform.matrix);

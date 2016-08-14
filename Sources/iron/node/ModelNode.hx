@@ -594,6 +594,9 @@ class ModelNode extends Node {
 		// Skip render if material does not contain current context
 		if (materials[0].getContext(context) == null) return;
 
+		// Skip render if object or light is hidden
+		if (!visible || !light.visible) return;
+
 		// Frustum culling
 		if (camera.resource.resource.frustum_culling) {
 			// Scale radius for skinned mesh
