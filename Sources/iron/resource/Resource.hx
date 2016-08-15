@@ -34,6 +34,12 @@ class Resource {
 		cachedShaders = new Map();
 	}
 
+	// Experimental scene reloading
+	public static function clearSceneData() {
+		cachedScenes = new Map();
+		cachedMaterials = new Map();
+	}
+
 	public static function getModel(name:String, id:String, boneNodes:Array<TNode> = null):ModelResource {
 		// boneNodes - used when geometry is parsed from separate file
 		// TODO: preparse bone nodes

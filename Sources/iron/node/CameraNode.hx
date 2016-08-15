@@ -53,10 +53,12 @@ class CameraNode extends Node {
 		else if (resource.resource.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane, 2);
 		}
+
 // #if WITH_VELOC
 		// prevP = Mat4.identity();
 		// prevP.loadFrom(P);
 // #end
+
 #if WITH_TAA
 		noJitterP = Mat4.identity();
 		noJitterP.loadFrom(P);
