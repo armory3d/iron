@@ -81,7 +81,7 @@ class Root {
 
 	static function traverseNodes(resource:TSceneFormat, name:String, parent:Node, nodes:Array<TNode>, parentNode:TNode) {
 		for (n in nodes) {
-			if (n.visible != null && n.visible == false) continue;
+			if (n.spawn != null && n.spawn == false) continue; // Do not auto-create this node
 			
 			var node = createNode(n, resource, name, parent, parentNode);
 			if (node != null) {
@@ -171,6 +171,7 @@ class Root {
 		if (node != null) {
 			node.raw = n;
 			node.id = n.id;
+			if (n.visible != null) node.visible = n.visible;
 			createTraits(n, node);
 			generateTranform(n, node.transform);
 		}

@@ -287,6 +287,7 @@ typedef TNode = {
 	@:optional public var bones_ref:String;
 	@:optional public var parent:TNode;
 	@:optional public var visible:Null<Bool>;
+	@:optional public var spawn:Null<Bool>; // Auto add node when creating scene
 	@:optional public var local_transform_only:Null<Bool>; // No parent matrix applied
 }
 

@@ -4,6 +4,7 @@ import kha.Scheduler;
 
 class Time {
 
+	public static inline var step = 1 / 60;	
 	public static inline var delta = 1 / 60;	
 
 	// public static var total(get, null):Float;
