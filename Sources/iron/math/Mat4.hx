@@ -2,6 +2,9 @@ package iron.math;
 
 import kha.FastFloat;
 
+// #if WITH_EXPOSE
+@:expose
+// #end
 class Mat4 extends kha.math.FastMatrix4 {
 
 	public function new(_00:FastFloat, _10:FastFloat, _20:FastFloat, _30:FastFloat,

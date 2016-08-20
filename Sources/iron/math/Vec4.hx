@@ -1,5 +1,8 @@
 package iron.math;
 
+// #if WITH_EXPOSE
+@:expose
+// #end
 class Vec4 {
 
     public var x:Float;
