@@ -1,5 +1,8 @@
 package iron;
 
+// #if WITH_EXPOSE
+@:expose
+// #end
 class App {
 
 	public static var w:Int;

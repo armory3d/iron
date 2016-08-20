@@ -17,6 +17,9 @@ import iron.resource.ShaderResource;
 import iron.resource.SceneFormat;
 import iron.math.Mat4;
 
+// #if WITH_EXPOSE
+@:expose
+// #end
 class Root {
 
 	public static var root:Node;
