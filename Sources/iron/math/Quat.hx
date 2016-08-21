@@ -3,9 +3,6 @@ package iron.math;
 // https://github.com/mrdoob/three.js/
 using Math;
 
-// #if WITH_EXPOSE
-@:expose
-// #end
 class Quat {
 
     public var x:Float;

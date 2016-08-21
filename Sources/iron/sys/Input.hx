@@ -1,8 +1,5 @@
 package iron.sys;
 
-// #if WITH_EXPOSE
-@:expose
-// #end
 class Input {
 
 	public static var x(default, null):Float = 0;

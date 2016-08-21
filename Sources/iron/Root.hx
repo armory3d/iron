@@ -17,9 +17,6 @@ import iron.resource.ShaderResource;
 import iron.resource.SceneFormat;
 import iron.math.Mat4;
 
-// #if WITH_EXPOSE
-@:expose
-// #end
 class Root {
 
 	public static var root:Node;
@@ -43,6 +40,10 @@ class Root {
 		var node = new Node();
 		parent != null ? parent.addChild(node) : root.addChild(node);
 		return node;
+	}
+
+	public static function getNode(id:String):Node {
+		return root.getChild(id);
 	}
 
 	public static function addModelNode(resource:ModelResource, materials:Array<MaterialResource>, parent:Node = null):ModelNode {

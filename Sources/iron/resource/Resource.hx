@@ -2,9 +2,6 @@ package iron.resource;
 
 import iron.resource.SceneFormat;
 
-// #if WITH_EXPOSE
-@:expose
-// #end
 class Resource {
 
 	static var cachedScenes:Map<String, TSceneFormat> = new Map();
