@@ -42,8 +42,8 @@ class Root {
 		return node;
 	}
 
-	public static function getNode(id:String):Node {
-		return root.getChild(id);
+	public static function getNode(name:String):Node {
+		return root.getChild(name);
 	}
 
 	public static function addModelNode(resource:ModelResource, materials:Array<MaterialResource>, parent:Node = null):ModelNode {
@@ -174,7 +174,7 @@ class Root {
 
 		if (node != null) {
 			node.raw = n;
-			node.id = n.id;
+			node.name = n.id;
 			if (n.visible != null) node.visible = n.visible;
 			createTraits(n, node);
 			generateTranform(n, node.transform);

@@ -5,7 +5,7 @@ class App {
 	public static var w:Int;
     public static var h:Int;
 
-    var gameClass:Class<Dynamic>;
+    var appReady:Void->Void;
 
     static var traitInits:Array<Void->Void> = [];
     static var traitUpdates:Array<Void->Void> = [];
@@ -19,8 +19,12 @@ class App {
     public static var renderTime:Float;
 #end
 
-	public function new(gameClass:Class<Dynamic>) {
-        this.gameClass = gameClass;
+    public static function init(appReady:Void->Void) {
+        new App(appReady);
+    }
+    
+	function new(appReady:Void->Void) {
+        this.appReady = appReady;
         kha.Assets.loadEverything(loadingFinished);
 	}
 
@@ -32,7 +36,7 @@ class App {
         new iron.sys.Storage();
         new iron.sys.Input();
 
-        Type.createInstance(gameClass, []);
+        appReady();
 
         kha.System.notifyOnRender(render);
         kha.Scheduler.addTimeTask(update, 0, iron.sys.Time.delta);

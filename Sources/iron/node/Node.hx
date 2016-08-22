@@ -12,7 +12,7 @@ class Node {
 	public var uid:Int;
 	public var raw:TNode = null;
 
-	public var id:String = "";
+	public var name:String = "";
 	public var transform:Transform;
 	public var traits:Array<Trait> = [];
 
@@ -39,13 +39,13 @@ class Node {
 		parent = null;
 	}
 
-	public function getChild(id:String):Node {
-		if (this.id == id) {
+	public function getChild(name:String):Node {
+		if (this.name == name) {
 			return this;
 		}
 		else {
 			for (c in children) {
-				var r = c.getChild(id);
+				var r = c.getChild(name);
 				if (r != null) {
 					return r;
 				}
