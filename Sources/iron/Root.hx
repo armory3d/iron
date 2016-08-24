@@ -1,202 +1,202 @@
 package iron;
 
 import iron.Trait;
-import iron.node.Transform;
-import iron.node.Node;
-import iron.node.ModelNode;
-import iron.node.LightNode;
-import iron.node.CameraNode;
-import iron.node.SpeakerNode;
-import iron.node.DecalNode;
-import iron.resource.Resource;
-import iron.resource.ModelResource;
-import iron.resource.LightResource;
-import iron.resource.CameraResource;
-import iron.resource.MaterialResource;
-import iron.resource.ShaderResource;
-import iron.resource.SceneFormat;
+import iron.object.Transform;
+import iron.object.Object;
+import iron.object.MeshObject;
+import iron.object.LampObject;
+import iron.object.CameraObject;
+import iron.object.SpeakerObject;
+import iron.object.DecalObject;
+import iron.data.Data;
+import iron.data.MeshData;
+import iron.data.LampData;
+import iron.data.CameraData;
+import iron.data.MaterialData;
+import iron.data.ShaderData;
+import iron.data.SceneFormat;
 import iron.math.Mat4;
 
 class Root {
 
-	public static var root:Node;
-	public static var models:Array<ModelNode>;
-	public static var lights:Array<LightNode>;
-	public static var cameras:Array<CameraNode>;
-	public static var speakers:Array<SpeakerNode>;
-	public static var decals:Array<DecalNode>;
+	public static var root:Object;
+	public static var meshes:Array<MeshObject>;
+	public static var lamps:Array<LampObject>;
+	public static var cameras:Array<CameraObject>;
+	public static var speakers:Array<SpeakerObject>;
+	public static var decals:Array<DecalObject>;
 
 	public function new() {
-		models = [];
-		lights = [];
+		meshes = [];
+		lamps = [];
 		cameras = [];
 		speakers = [];
 		decals = [];
-		root = new Node();
+		root = new Object();
 	}
 
-	// Nodes
-	public static function addNode(parent:Node = null):Node {
-		var node = new Node();
-		parent != null ? parent.addChild(node) : root.addChild(node);
-		return node;
+	// Objects
+	public static function addObject(parent:Object = null):Object {
+		var object = new Object();
+		parent != null ? parent.addChild(object) : root.addChild(object);
+		return object;
 	}
 
-	public static function getNode(name:String):Node {
+	public static function getObject(name:String):Object {
 		return root.getChild(name);
 	}
 
-	public static function addModelNode(resource:ModelResource, materials:Array<MaterialResource>, parent:Node = null):ModelNode {
-		var node = new ModelNode(resource, materials);
-		parent != null ? parent.addChild(node) : root.addChild(node);
-		return node;
+	public static function addMeshObject(data:MeshData, materials:Array<MaterialData>, parent:Object = null):MeshObject {
+		var object = new MeshObject(data, materials);
+		parent != null ? parent.addChild(object) : root.addChild(object);
+		return object;
 	}
 
-	public static function addLightNode(resource:LightResource, parent:Node = null):LightNode {
-		var node = new LightNode(resource);
-		parent != null ? parent.addChild(node) : root.addChild(node);
-		return node;
+	public static function addLampObject(data:LampData, parent:Object = null):LampObject {
+		var object = new LampObject(data);
+		parent != null ? parent.addChild(object) : root.addChild(object);
+		return object;
 	}
 
-	public static function addCameraNode(resource:CameraResource, parent:Node = null):CameraNode {
-		var node = new CameraNode(resource);
-		parent != null ? parent.addChild(node) : root.addChild(node);
-		return node;
+	public static function addCameraObject(data:CameraData, parent:Object = null):CameraObject {
+		var object = new CameraObject(data);
+		parent != null ? parent.addChild(object) : root.addChild(object);
+		return object;
 	}
 
-	public static function addSpeakerNode(resource:TSpeakerResource, parent:Node = null):SpeakerNode {
-		var node = new SpeakerNode(resource);
-		parent != null ? parent.addChild(node) : root.addChild(node);
-		return node;
+	public static function addSpeakerObject(data:TSpeakerData, parent:Object = null):SpeakerObject {
+		var object = new SpeakerObject(data);
+		parent != null ? parent.addChild(object) : root.addChild(object);
+		return object;
 	}
 	
-	public static function addDecalNode(material:MaterialResource, parent:Node = null):DecalNode {
-		var node = new DecalNode(material);
-		parent != null ? parent.addChild(node) : root.addChild(node);
-		return node;
+	public static function addDecalObject(material:MaterialData, parent:Object = null):DecalObject {
+		var object = new DecalObject(material);
+		parent != null ? parent.addChild(object) : root.addChild(object);
+		return object;
 	}
 
-	public static function addScene(name:String, parent:Node = null):Node {
-		if (parent == null) parent = addNode();
-		var resource:TSceneFormat = Resource.getSceneResource(name);
-		traverseNodes(resource, name, parent, resource.nodes, null);
+	public static function addScene(name:String, parent:Object = null):Object {
+		if (parent == null) parent = addObject();
+		var data:TSceneFormat = Data.getSceneRaw(name);
+		traverseObjects(data, name, parent, data.objects, null);
 		return parent;
 	}
 
-	static function traverseNodes(resource:TSceneFormat, name:String, parent:Node, nodes:Array<TNode>, parentNode:TNode) {
-		for (n in nodes) {
-			if (n.spawn != null && n.spawn == false) continue; // Do not auto-create this node
+	static function traverseObjects(data:TSceneFormat, name:String, parent:Object, objects:Array<TObj>, parentObject:TObj) {
+		for (o in objects) {
+			if (o.spawn != null && o.spawn == false) continue; // Do not auto-create this object
 			
-			var node = createNode(n, resource, name, parent, parentNode);
-			if (node != null) {
-				traverseNodes(resource, name, node, n.nodes, n);
+			var object = createObject(o, data, name, parent, parentObject);
+			if (object != null) {
+				traverseObjects(data, name, object, o.objects, o);
 			}
 		}
 	}
 	
-	public static function parseNode(sceneName:String, nodeName:String, parent:Node = null):Node {
-		var resource:TSceneFormat = Resource.getSceneResource(sceneName);
-		// TODO: traverse to find deeper nodes
-		var n:TNode = null;
-		for (node in resource.nodes) {
-			if (node.id == nodeName) {
-				n = node;
+	public static function parseObject(sceneName:String, objectName:String, parent:Object = null):Object {
+		var raw:TSceneFormat = Data.getSceneRaw(sceneName);
+		// TODO: traverse to find deeper objects
+		var o:TObj = null;
+		for (object in raw.objects) {
+			if (object.name == objectName) {
+				o = object;
 				break;
 			}
 		}
-		if (n == null) return null;
-		return Root.createNode(n, resource, sceneName, parent, null);
+		if (o == null) return null;
+		return Root.createObject(o, raw, sceneName, parent, null);
 	}
 	
-	public static function createNode(n:TNode, resource:TSceneFormat, name:String, parent:Node, parentNode:TNode):Node {
-		var node:Node = null;
+	public static function createObject(o:TObj, raw:TSceneFormat, name:String, parent:Object, parentObject:TObj):Object {
+		var object:Object = null;
 			
-		if (n.type == "camera_node") {
-			node = Root.addCameraNode(Resource.getCamera(name, n.object_ref), parent);
+		if (o.type == "camera_object") {
+			object = Root.addCameraObject(Data.getCamera(name, o.data_ref), parent);
 		}
-		else if (n.type == "light_node") {
-			node = Root.addLightNode(Resource.getLight(name, n.object_ref), parent);	
+		else if (o.type == "lamp_object") {
+			object = Root.addLampObject(Data.getLamp(name, o.data_ref), parent);	
 		}
-		else if (n.type == "geometry_node") {
-			if (n.material_refs.length == 0) {
-				// No material, create empty node
-				node = Root.addNode(parent);
+		else if (o.type == "mesh_object") {
+			if (o.material_refs.length == 0) {
+				// No material, create empty object
+				object = Root.addObject(parent);
 			}
 			else {
 				// Materials
-				var materials:Array<MaterialResource> = [];
-				for (ref in n.material_refs) {
-					materials.push(Resource.getMaterial(name, ref));
+				var materials:Array<MaterialData> = [];
+				for (ref in o.material_refs) {
+					materials.push(Data.getMaterial(name, ref));
 				}
 
-				// Geometry reference
-				var ref = n.object_ref.split("/");
+				// Mesh reference
+				var ref = o.data_ref.split("/");
 				var object_file = "";
-				var object_ref = "";
+				var data_ref = "";
 				if (ref.length == 2) { // File reference
 					object_file = ref[0];
-					object_ref = ref[1];
+					data_ref = ref[1];
 				}
-				else { // Local geometry resource
+				else { // Local mesh data
 					object_file = name;
-					object_ref = n.object_ref;
+					data_ref = o.data_ref;
 				}
 
-				// Bone nodes are stored in armature parent
-				var boneNodes:Array<TNode> = null;
-				if (parentNode != null && parentNode.bones_ref != null) {
-					boneNodes = Resource.getSceneResource(parentNode.bones_ref).nodes;
+				// Bone objects are stored in armature parent
+				var boneObjects:Array<TObj> = null;
+				if (parentObject != null && parentObject.bones_ref != null) {
+					boneObjects = Data.getSceneRaw(parentObject.bones_ref).objects;
 				}
 
-				node = Root.addModelNode(Resource.getModel(object_file, object_ref, boneNodes), materials, parent);
+				object = Root.addMeshObject(Data.getMesh(object_file, data_ref, boneObjects), materials, parent);
 				
 				// Attach particle system
-				if (n.particle_refs != null && n.particle_refs.length > 0) {
-					cast(node, ModelNode).setupParticleSystem(name, n.particle_refs[0]);
+				if (o.particle_refs != null && o.particle_refs.length > 0) {
+					cast(object, MeshObject).setupParticleSystem(name, o.particle_refs[0]);
 				}
 			}
-			node.transform.size.set(n.dimensions[0], n.dimensions[1], n.dimensions[2]);
-			node.transform.computeRadius();
+			object.transform.size.set(o.dimensions[0], o.dimensions[1], o.dimensions[2]);
+			object.transform.computeRadius();
 		}
-		else if (n.type == "speaker_node") {
-			node = Root.addSpeakerNode(Resource.getSpeakerResourceById(resource.speaker_resources, n.object_ref), parent);	
+		else if (o.type == "speaker_object") {
+			object = Root.addSpeakerObject(Data.getSpeakerRawByName(raw.speaker_datas, o.data_ref), parent);	
 		}
-		else if (n.type == "decal_node") {
-			var material:MaterialResource = null;
-			if (n.material_refs != null && n.material_refs.length > 0) {
-				material = Resource.getMaterial(name, n.material_refs[0]);
+		else if (o.type == "decal_object") {
+			var material:MaterialData = null;
+			if (o.material_refs != null && o.material_refs.length > 0) {
+				material = Data.getMaterial(name, o.material_refs[0]);
 			}
-			node = Root.addDecalNode(material, parent);	
+			object = Root.addDecalObject(material, parent);	
 		}
-		else if (n.type == "node") {
-			node = Root.addNode(parent);
+		else if (o.type == "object") {
+			object = Root.addObject(parent);
 		}
 
-		if (node != null) {
-			node.raw = n;
-			node.name = n.id;
-			if (n.visible != null) node.visible = n.visible;
-			createTraits(n, node);
-			generateTranform(n, node.transform);
+		if (object != null) {
+			object.raw = o;
+			object.name = o.name;
+			if (o.visible != null) object.visible = o.visible;
+			createTraits(o, object);
+			generateTranform(o, object.transform);
 		}
 		
-		return node;
+		return object;
 	}
 
-	static function generateTranform(node:TNode, transform:Transform) {
-		transform.matrix = Mat4.fromArray(node.transform.values);
-		transform.matrix.decompose(transform.pos, transform.rot, transform.scale);
+	static function generateTranform(object:TObj, transform:Transform) {
+		transform.matrix = Mat4.fromArray(object.transform.values);
+		transform.matrix.decompose(transform.loc, transform.rot, transform.scale);
 		// Whether to apply parent matrix
-		if (node.local_transform_only != null) transform.localOnly = node.local_transform_only;
+		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;
 	}
 
-	static function createTraits(n:TNode, node:Node) {
-		for (t in n.traits) {
+	static function createTraits(o:TObj, object:Object) {
+		for (t in o.traits) {
 			if (t.type == "Script") {
 				// Assign arguments if any
 				var args:Dynamic = [];
 				if (t.parameters != null) args = t.parameters;
-				node.addTrait(createTraitClassInstance(t.class_name, args));
+				object.addTrait(createTraitClassInstance(t.class_name, args));
 			}
 		}
 	}

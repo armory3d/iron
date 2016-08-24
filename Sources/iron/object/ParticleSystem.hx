@@ -1,30 +1,30 @@
-package iron.node;
+package iron.object;
 
 import kha.graphics4.Usage;
-import iron.resource.Resource;
-import iron.resource.ParticleResource;
-import iron.resource.SceneFormat;
+import iron.data.Data;
+import iron.data.ParticleData;
+import iron.data.SceneFormat;
 import iron.sys.Time;
 import iron.math.Vec4;
 
 class ParticleSystem {
 
-	var id:String;
-	var resource:ParticleResource;
+	var name:String;
+	var data:ParticleData;
 	var seed:Int;
 
-	var node:ModelNode;
+	var object:MeshObject;
 
 	var particles:Array<Particle>;
 
-	public function new(node:ModelNode, sceneName:String, pref:TParticleReference) {
-		this.node = node;
-		id = pref.id;
-		resource = Resource.getParticle(sceneName, pref.particle);
+	public function new(object:MeshObject, sceneName:String, pref:TParticleReference) {
+		this.object = object;
+		name = pref.name;
+		data = Data.getParticle(sceneName, pref.particle);
 		seed = pref.seed;
 
 		particles = [];
-		var r = resource.resource;
+		var r = data.raw;
 		for (i in 0...r.count) {
 			var p = new Particle();
 			particles.push(p);
@@ -34,21 +34,21 @@ class ParticleSystem {
 			p.lifetime = Std.random(Std.int(r.lifetime * 1000)) / 1000;
 		}
 
-		// Make model geometry instanced
+		// Make mesh data instanced
 		var instancedData:Array<Float> = []; // TODO: use Float32Array directly
 		for (p in particles) {
 			instancedData.push(p.offset.x);
 			instancedData.push(p.offset.y);
 			instancedData.push(p.offset.z);
 		}
-		node.resource.geometry.setupInstanced(instancedData, Usage.DynamicUsage);
+		object.data.mesh.setupInstanced(instancedData, Usage.DynamicUsage);
 	}
 
 	public function update() {
 		for (p in particles) { // TODO: Sort Float32Array directly
 			p.lifetime += Time.delta;
 
-			if (p.lifetime > resource.resource.lifetime) {
+			if (p.lifetime > data.raw.lifetime) {
 				p.lifetime = 0;
 				setVelocity(p.velocity);
 			}
@@ -61,7 +61,7 @@ class ParticleSystem {
 			p.offset.z = p.lifetime * p.velocity.z;
 		}
 		sort();
-		var vb = node.resource.geometry.instancedVertexBuffers[1];
+		var vb = object.data.mesh.instancedVertexBuffers[1];
 		var instancedData = vb.lock();
 		for (i in 0...particles.length) {
 			var p = particles[i];
@@ -73,7 +73,7 @@ class ParticleSystem {
 	}
 
 	function setVelocity(v:Vec4) {
-		var r = resource.resource;
+		var r = data.raw;
 		v.set(r.object_align_factor[0],
 			  r.object_align_factor[1],
 			  r.object_align_factor[2]
@@ -88,8 +88,8 @@ class ParticleSystem {
 	function sort() {
 		var camera = Root.cameras[0]; // TODO: pass camera manually
 
-		for (p in particles) { // TODO: check particle systems located at non-origin position
-			p.cameraDistance = Vec4.distance3d(p.offset, camera.transform.pos);
+		for (p in particles) { // TODO: check particle systems located at non-origin location
+			p.cameraDistance = Vec4.distance3d(p.offset, camera.transform.loc);
 		}
 
 		particles.sort(function(p1:Particle, p2:Particle):Int {

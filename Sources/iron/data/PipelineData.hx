@@ -1,32 +1,32 @@
-package iron.resource;
+package iron.data;
 
 import kha.Image;
 import kha.graphics4.TextureFormat;
 import kha.graphics4.DepthStencilFormat;
-import iron.resource.SceneFormat;
+import iron.data.SceneFormat;
 
-class PipelineResource extends Resource {
+class PipelineData extends Data {
 
-	public var resource:TPipelineResource;
+	public var raw:TPipelineData;
 	public var renderTargets:Map<String, RenderTarget> = null;
 	public var depthToRenderTarget:Map<String, RenderTarget> = null;
 
-	public function new(resource:TPipelineResource) {
+	public function new(raw:TPipelineData) {
 		super();
 
-		this.resource = resource;
+		this.raw = raw;
 
-		if (resource.render_targets.length > 0) {
+		if (raw.render_targets.length > 0) {
 			renderTargets = new Map();
 			
-			if (resource.depth_buffers != null && resource.depth_buffers.length > 0) {
+			if (raw.depth_buffers != null && raw.depth_buffers.length > 0) {
 				depthToRenderTarget = new Map();
 			}
 
-			for (t in resource.render_targets) {
+			for (t in raw.render_targets) {
 				var rt = makeRenderTarget(t);
 				if (t.ping_pong != null && t.ping_pong) rt.pong = makeRenderTarget(t);
-				renderTargets.set(t.id, rt);
+				renderTargets.set(t.name, rt);
 			}
 		}
 	}
@@ -41,9 +41,9 @@ class PipelineResource extends Resource {
 			
 			// Create new one
 			if (depthTarget == null) {
-				for (db in resource.depth_buffers) {
-					if (db.id == t.depth_buffer) {
-						depthToRenderTarget.set(db.id, rt);
+				for (db in raw.depth_buffers) {
+					if (db.name == t.depth_buffer) {
+						depthToRenderTarget.set(db.name, rt);
 						rt.image = createImage(t, getDepthStencilFormat(true, db.stencil_buffer));
 						break;
 					}
@@ -94,14 +94,14 @@ class PipelineResource extends Resource {
 		else return DepthStencilFormat.NoDepthAndStencil; 
 	}
 
-	public static function parse(name:String, id:String):PipelineResource {
-		var format:TSceneFormat = Resource.getSceneResource(name);
-		var resource:TPipelineResource = Resource.getPipelineResourceById(format.pipeline_resources, id);
-		if (resource == null) {
-			trace('Pipeline resource "$id" not found!');
+	public static function parse(file:String, name:String):PipelineData {
+		var format:TSceneFormat = Data.getSceneRaw(file);
+		var raw:TPipelineData = Data.getPipelineRawByName(format.pipeline_datas, name);
+		if (raw == null) {
+			trace('Pipeline data "$name" not found!');
 			return null;
 		}
-		return new PipelineResource(resource);
+		return new PipelineData(raw);
 	}
 }
 

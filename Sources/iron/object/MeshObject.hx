@@ -1,4 +1,4 @@
-package iron.node;
+package iron.object;
 
 import kha.graphics4.Graphics;
 import kha.graphics4.ConstantLocation;
@@ -9,16 +9,16 @@ import iron.Root;
 import iron.math.Vec4;
 import iron.math.Quat;
 import iron.math.Mat4;
-import iron.resource.ModelResource;
-import iron.resource.MaterialResource;
-import iron.resource.ShaderResource;
-import iron.resource.SceneFormat;
-import iron.resource.RenderPath;
+import iron.data.MeshData;
+import iron.data.MaterialData;
+import iron.data.ShaderData;
+import iron.data.SceneFormat;
+import iron.data.RenderPath;
 
-class ModelNode extends Node {
+class MeshObject extends Object {
 
-	public var resource:ModelResource;
-	public var materials:Array<MaterialResource>;
+	public var data:MeshData;
+	public var materials:Array<MaterialData>;
 
 	public var particleSystem:ParticleSystem = null;
 
@@ -33,7 +33,7 @@ class ModelNode extends Node {
 	static var helpVec2 = new Vec4();
 	static var helpQuat = new Quat(); // Keep at identity
 
-	var cachedContexts:Map<String, CachedModelContext> = new Map();
+	var cachedContexts:Map<String, CachedMeshContext> = new Map();
 	
 	public var cameraDistance:Float;
 
@@ -41,22 +41,22 @@ class ModelNode extends Node {
 	var prevMatrix = Mat4.identity();
 #end
 
-	public function new(resource:ModelResource, materials:Array<MaterialResource>) {
+	public function new(data:MeshData, materials:Array<MaterialData>) {
 		super();
 
-		this.resource = resource;
+		this.data = data;
 		this.materials = materials;	
-		Root.models.push(this);
+		Root.meshes.push(this);
 	}
 
 	public override function remove() {
-		Root.models.remove(this);
+		Root.meshes.remove(this);
 		super.remove();
 	}
 
 	public override function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
-		if (resource.isSkinned) {
-			animation = Animation.setupBoneAnimation(resource, startTrack, names, starts, ends, speeds, loops, reflects);
+		if (data.isSkinned) {
+			animation = Animation.setupBoneAnimation(data, startTrack, names, starts, ends, speeds, loops, reflects);
 		}
 		else {
 			super.setupAnimation(startTrack, names, starts, ends, speeds, loops, reflects);
@@ -67,11 +67,11 @@ class ModelNode extends Node {
 		particleSystem = new ParticleSystem(this, sceneName, pref);
 	}
 
-	public static function setConstants(g:Graphics, context:ShaderContext, node:Node, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
+	public static function setConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 
-		for (i in 0...context.resource.constants.length) {
-			var c = context.resource.constants[i];
-			setConstant(g, node, camera, light, context.constants[i], c);
+		for (i in 0...context.raw.constants.length) {
+			var c = context.raw.constants[i];
+			setConstant(g, object, camera, lamp, context.constants[i], c);
 		}
 
 		if (bindParams != null) { // Bind targets
@@ -85,15 +85,15 @@ class ModelNode extends Node {
 				if (attachDepth) rtID = rtID.substr(1);
 				
 				var samplerID = bindParams[pos + 1];
-				var pipe = camera.resource.pipeline;
+				var pipe = camera.data.pipeline;
 				var rt = attachDepth ? pipe.depthToRenderTarget.get(rtID) : pipe.renderTargets.get(rtID);
-				var tus = context.resource.texture_units;
+				var tus = context.raw.texture_units;
 
 				// Ping-pong
 				if (rt.pong != null && !rt.pongState) rt = rt.pong;
 
 				for (j in 0...tus.length) { // Set texture
-					if (samplerID == tus[j].id) {
+					if (samplerID == tus[j].name) {
 						// No filtering when sampling render targets
 						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 						if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image);
@@ -104,9 +104,9 @@ class ModelNode extends Node {
 		}
 		
 		// Texture links
-		for (j in 0...context.resource.texture_units.length) {
-			var tuid = context.resource.texture_units[j].id;
-			var tulink = context.resource.texture_units[j].link;
+		for (j in 0...context.raw.texture_units.length) {
+			var tuid = context.raw.texture_units[j].name;
+			var tulink = context.raw.texture_units[j].link;
 			if (tulink == "_envmapRadiance") {
 				g.setTexture(context.textureUnits[j], camera.world.getGlobalProbe().radiance);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
@@ -122,12 +122,12 @@ class ModelNode extends Node {
 				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "smaa_area"));
 			}
 			else if (tulink == "_ltcMat") {
-				if (iron.resource.ConstData.ltcMatTex == null) iron.resource.ConstData.initLTC();
-				g.setTexture(context.textureUnits[j], iron.resource.ConstData.ltcMatTex);
+				if (iron.data.ConstData.ltcMatTex == null) iron.data.ConstData.initLTC();
+				g.setTexture(context.textureUnits[j], iron.data.ConstData.ltcMatTex);
 			}
 			else if (tulink == "_ltcMag") {
-				if (iron.resource.ConstData.ltcMagTex == null) iron.resource.ConstData.initLTC();
-				g.setTexture(context.textureUnits[j], iron.resource.ConstData.ltcMagTex);
+				if (iron.data.ConstData.ltcMagTex == null) iron.data.ConstData.initLTC();
+				g.setTexture(context.textureUnits[j], iron.data.ConstData.ltcMagTex);
 			}
 			//
 			else if (tulink == "_noise8") {
@@ -144,24 +144,24 @@ class ModelNode extends Node {
 			}
 		}
 	}
-	static function setConstant(g:Graphics, node:Node, camera:CameraNode, light:LightNode,
+	static function setConstant(g:Graphics, object:Object, camera:CameraObject, lamp:LampObject,
 								location:ConstantLocation, c:TShaderConstant) {
 		if (c.link == null) return;
 
 		if (c.type == "mat4") {
 			var m:Mat4 = null;
-			if (c.link == "_modelMatrix") {
-				m = node.transform.matrix;
+			if (c.link == "_worldMatrix") {
+				m = object.transform.matrix;
 			}
-			else if (c.link == "_inverseModelMatrix") {
-				helpMat.inverse2(node.transform.matrix);
+			else if (c.link == "_inverseWorldMatrix") {
+				helpMat.inverse2(object.transform.matrix);
 				m = helpMat;
 			}
 			else if (c.link == "_normalMatrix") {
 				helpMat.setIdentity();
-				helpMat.mult2(node.transform.matrix);
+				helpMat.mult2(object.transform.matrix);
 				// Non uniform anisotropic scaling, calculate normal matrix
-				//if (!(node.transform.scale.x == node.transform.scale.y && node.transform.scale.x == node.transform.scale.z)) {
+				//if (!(object.transform.scale.x == object.transform.scale.y && object.transform.scale.x == object.transform.scale.z)) {
 					helpMat.inverse2(helpMat);
 					helpMat.transpose23x3();
 				//}
@@ -169,7 +169,7 @@ class ModelNode extends Node {
 			}
 			else if (c.link == "_viewNormalMatrix") {
 				helpMat.setIdentity();
-				helpMat.mult2(node.transform.matrix);
+				helpMat.mult2(object.transform.matrix);
 				helpMat.mult2(camera.V); // View space
 				helpMat.inverse2(helpMat);
 				helpMat.transpose23x3();
@@ -209,16 +209,16 @@ class ModelNode extends Node {
 				helpMat.inverse2(helpMat);
 				m = helpMat;
 			}
-			else if (c.link == "_modelViewProjectionMatrix") {
+			else if (c.link == "_worldViewProjectionMatrix") {
 				helpMat.setIdentity();
-				helpMat.mult2(node.transform.matrix);
+				helpMat.mult2(object.transform.matrix);
 				helpMat.mult2(camera.V);
 				helpMat.mult2(camera.P);
 				m = helpMat;
 			}
-			else if (c.link == "_modelViewMatrix") {
+			else if (c.link == "_worldViewMatrix") {
 				helpMat.setIdentity();
-				helpMat.mult2(node.transform.matrix);
+				helpMat.mult2(object.transform.matrix);
 				helpMat.mult2(camera.V);
 				m = helpMat;
 			}
@@ -235,36 +235,36 @@ class ModelNode extends Node {
 				m = helpMat;
 			}
 #if WITH_VELOC
-			else if (c.link == "_prevModelViewProjectionMatrix") {
+			else if (c.link == "_prevWorldViewProjectionMatrix") {
 				helpMat.setIdentity();
-				helpMat.mult2(cast(node, ModelNode).prevMatrix);
+				helpMat.mult2(cast(object, MeshObject).prevMatrix);
 				helpMat.mult2(camera.prevV);
 				// helpMat.mult2(camera.prevP);
 				helpMat.mult2(camera.P);
 				m = helpMat;
 			}
 #end
-			else if (c.link == "_lightModelViewProjectionMatrix") {
+			else if (c.link == "_lampWorldViewProjectionMatrix") {
 				helpMat.setIdentity();
-				if (node != null) helpMat.mult2(node.transform.matrix); // node is null for DrawQuad
-				helpMat.mult2(light.V);
-				helpMat.mult2(light.resource.P);
+				if (object != null) helpMat.mult2(object.transform.matrix); // object is null for DrawQuad
+				helpMat.mult2(lamp.V);
+				helpMat.mult2(lamp.data.P);
 				m = helpMat;
 			}
-			else if (c.link == "_lightVolumeModelViewProjectionMatrix") {
-				var tr = light.transform;
+			else if (c.link == "_lampVolumeWorldViewProjectionMatrix") {
+				var tr = lamp.transform;
 				helpVec.set(tr.absx(), tr.absy(), tr.absz());
-				helpVec2.set(light.farPlane, light.farPlane, light.farPlane);
+				helpVec2.set(lamp.farPlane, lamp.farPlane, lamp.farPlane);
 				helpMat.compose(helpVec, helpQuat, helpVec2);
 				helpMat.mult2(camera.V);
 				helpMat.mult2(camera.P);
 				m = helpMat;
 			}
-			else if (c.link == "_biasLightModelViewProjectionMatrix") {
+			else if (c.link == "_biasLampWorldViewProjectionMatrix") {
 				helpMat.setIdentity();
-				if (node != null) helpMat.mult2(node.transform.matrix); // node is null for DrawQuad
-				helpMat.mult2(light.V);
-				helpMat.mult2(light.resource.P);
+				if (object != null) helpMat.mult2(object.transform.matrix); // object is null for DrawQuad
+				helpMat.mult2(lamp.V);
+				helpMat.mult2(lamp.data.P);
 				// helpMat.mult2(biasMat);
 				m = helpMat;
 			}
@@ -279,11 +279,11 @@ class ModelNode extends Node {
 				helpMat.mult2(camera.P);
 				m = helpMat;
 			}
-			else if (c.link == "_lightViewMatrix") {
-				m = light.V;
+			else if (c.link == "_lampViewMatrix") {
+				m = lamp.V;
 			}
-			else if (c.link == "_lightProjectionMatrix") {
-				m = light.resource.P;
+			else if (c.link == "_lampProjectionMatrix") {
+				m = lamp.data.P;
 			}
 #if WITH_VR
 			else if (c.link == "_undistortionMatrix") {
@@ -295,16 +295,16 @@ class ModelNode extends Node {
 		}
 		else if (c.type == "vec3") {
 			var v:Vec4 = null;
-			if (c.link == "_lightPosition") {
-				helpVec.set(light.transform.absx(), light.transform.absy(), light.transform.absz());
+			if (c.link == "_lampPosition") {
+				helpVec.set(lamp.transform.absx(), lamp.transform.absy(), lamp.transform.absz());
 				v = helpVec;
 			}
-			else if (c.link == "_lightDirection") {
-				helpVec = light.look();
+			else if (c.link == "_lampDirection") {
+				helpVec = lamp.look();
 				v = helpVec;
 			}
-			else if (c.link == "_lightColor") {
-				helpVec.set(light.resource.resource.color[0], light.resource.resource.color[1], light.resource.resource.color[2]);
+			else if (c.link == "_lampColor") {
+				helpVec.set(lamp.data.raw.color[0], lamp.data.raw.color[1], lamp.data.raw.color[2]);
 				v = helpVec;
 			}
 			else if (c.link == "_cameraPosition") {
@@ -316,14 +316,14 @@ class ModelNode extends Node {
 				v = helpVec;
 			}
 			else if (c.link == "_backgroundCol") {
-				helpVec.set(camera.resource.resource.clear_color[0], camera.resource.resource.clear_color[1], camera.resource.resource.clear_color[2]);
+				helpVec.set(camera.data.raw.clear_color[0], camera.data.raw.clear_color[1], camera.data.raw.clear_color[2]);
 				v = helpVec;
 			}
 			else if (c.link == "_probeVolumeCenter") { // Local probes
-				v = camera.world.getProbeVolumeCenter(node.transform);
+				v = camera.world.getProbeVolumeCenter(object.transform);
 			}
 			else if (c.link == "_probeVolumeSize") {
-				v = camera.world.getProbeVolumeSize(node.transform);
+				v = camera.world.getProbeVolumeSize(object.transform);
 			}
 			
 			else if (c.link == "_hosekA") {
@@ -447,8 +447,8 @@ class ModelNode extends Node {
 				vy = vy > 1 ? 1 : vy;
 			}
 			else if (c.link == "_cameraPlane") {
-				vx = camera.resource.resource.near_plane;
-				vy = camera.resource.resource.far_plane;
+				vx = camera.data.raw.near_plane;
+				vy = camera.data.raw.far_plane;
 			}
 			g.setFloat2(location, vx, vy);
 		}
@@ -460,17 +460,17 @@ class ModelNode extends Node {
 			else if (c.link == "_deltaTime") {
 				f = iron.sys.Time.delta;
 			}
-			else if (c.link == "_lightStrength") {
-				f = light.resource.resource.strength;
+			else if (c.link == "_lampStrength") {
+				f = lamp.data.raw.strength;
 			}
-			else if (c.link == "_lightShadowsBias") {
-				f = light.resource.resource.shadows_bias;
+			else if (c.link == "_lampShadowsBias") {
+				f = lamp.data.raw.shadows_bias;
 			}
-			else if (c.link == "_spotlightCutoff") {
-				f = light.resource.resource.spot_size;
+			else if (c.link == "_spotlampCutoff") {
+				f = lamp.data.raw.spot_size;
 			}
-			else if (c.link == "_spotlightExponent") {
-				f = light.resource.resource.spot_blend;
+			else if (c.link == "_spotlampExponent") {
+				f = lamp.data.raw.spot_blend;
 			}
 			else if (c.link == "_envmapStrength") {
 				f = camera.world.getGlobalProbe().strength;
@@ -485,7 +485,7 @@ class ModelNode extends Node {
 		else if (c.type == "floats") {
 			var fa:haxe.ds.Vector<kha.FastFloat> = null;
 			if (c.link == "_skinBones") {
-				fa = cast(node, ModelNode).animation.skinBuffer;
+				fa = cast(object, MeshObject).animation.skinBuffer;
 			}
 			else if (c.link == "_envmapIrradiance") {
 				// fa = camera.world.getGlobalProbe().irradiance;
@@ -496,38 +496,38 @@ class ModelNode extends Node {
 		else if (c.type == "int") {
 			var i = 0;
 			if (c.link == "_uid") {
-				i = node.uid;
+				i = object.uid;
 			}
-			if (c.link == "_lightType") {
-				i = light.resource.lightType;
+			if (c.link == "_lampType") {
+				i = lamp.data.lampType;
 			}
-			else if (c.link == "_lightIndex") {
-				i = camera.renderPath.currentLightIndex;
+			else if (c.link == "_lampIndex") {
+				i = camera.renderPath.currentLampIndex;
 			}
 			else if (c.link == "_envmapNumMipmaps") {
 				i = camera.world.getGlobalProbe().numMipmaps + 1; // Include basecolor
 			}
 			else if (c.link == "_probeID") { // Local probes
-				i = camera.world.getProbeID(node.transform);
+				i = camera.world.getProbeID(object.transform);
 			}
 			g.setInt(location, i);
 		}
 	}
 
 	public static function setMaterialConstants(g:Graphics, context:ShaderContext, materialContext:MaterialContext) {
-		if (materialContext.resource.bind_constants != null) {
-			for (i in 0...materialContext.resource.bind_constants.length) {
-				var matc = materialContext.resource.bind_constants[i];
+		if (materialContext.raw.bind_constants != null) {
+			for (i in 0...materialContext.raw.bind_constants.length) {
+				var matc = materialContext.raw.bind_constants[i];
 				// TODO: cache
 				var pos = -1;
-				for (i in 0...context.resource.constants.length) {
-					if (context.resource.constants[i].id == matc.id) {
+				for (i in 0...context.raw.constants.length) {
+					if (context.raw.constants[i].name == matc.name) {
 						pos = i;
 						break;
 					}
 				}
 				if (pos == -1) continue;
-				var c = context.resource.constants[pos];
+				var c = context.raw.constants[pos];
 				
 				setMaterialConstant(g, context.constants[pos], c, matc);
 			}
@@ -535,12 +535,12 @@ class ModelNode extends Node {
 
 		if (materialContext.textures != null) {
 			for (i in 0...materialContext.textures.length) {
-				var mid = materialContext.resource.bind_textures[i].id;
+				var mname = materialContext.raw.bind_textures[i].name;
 
 				// TODO: cache
 				for (j in 0...context.textureUnits.length) {
-					var sid = context.resource.texture_units[j].id;
-					if (mid == sid) {
+					var sname = context.raw.texture_units[j].name;
+					if (mname == sname) {
 						g.setTexture(context.textureUnits[j], materialContext.textures[i]);
 						// After texture sampler have been assigned, set texture parameters
 						materialContext.setTextureParameters(g, i, context, j);
@@ -569,30 +569,30 @@ class ModelNode extends Node {
 		}
 	}
 
-	public function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
+	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 		// Skip render if material does not contain current context
 		if (materials[0].getContext(context) == null) return;
 
-		// Skip render if object or light is hidden
-		if (!visible || !light.visible) return;
+		// Skip render if object or lamp is hidden
+		if (!visible || !lamp.visible) return;
 
 		// Frustum culling
-		if (camera.resource.resource.frustum_culling) {
+		if (camera.data.raw.frustum_culling) {
 			// Scale radius for skinned mesh
 			// TODO: determine max skinned radius
-			var radiusScale = resource.isSkinned ? 2.0 : 1.0;
+			var radiusScale = data.isSkinned ? 2.0 : 1.0;
 			
 			// Hard-coded for now
-			var shadowsContext = camera.resource.pipeline.resource.shadows_context;
-			var frustumPlanes = context == shadowsContext ? light.frustumPlanes : camera.frustumPlanes;
+			var shadowsContext = camera.data.pipeline.raw.shadows_context;
+			var frustumPlanes = context == shadowsContext ? lamp.frustumPlanes : camera.frustumPlanes;
 
 			// Instanced
-			if (resource.geometry.instanced) {
+			if (data.mesh.instanced) {
 				// Cull
 				// TODO: per-instance culling
 				var instanceInFrustum = false;
-				for (v in resource.geometry.offsetVecs) {
-					if (CameraNode.sphereInFrustum(frustumPlanes, transform, radiusScale, v.x, v.y, v.z)) {
+				for (v in data.mesh.offsetVecs) {
+					if (CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale, v.x, v.y, v.z)) {
 						instanceInFrustum = true;
 						break;
 					}
@@ -603,22 +603,22 @@ class ModelNode extends Node {
 				var camX = camera.transform.absx();
 				var camY = camera.transform.absy();
 				var camZ = camera.transform.absz();
-				resource.geometry.sortInstanced(camX, camY, camZ);
+				data.mesh.sortInstanced(camX, camY, camZ);
 			}
 			// Non-instanced
 			else {
-				if (!CameraNode.sphereInFrustum(frustumPlanes, transform, radiusScale)) return;
+				if (!CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale)) return;
 			}
 		}
 
 		// Get context
 		var cc = cachedContexts.get(context);
 		if (cc == null) {
-			cc = new CachedModelContext();
+			cc = new CachedMeshContext();
 			// Check context skip
 			for (mat in materials) {
-				if (mat.resource.skip_context != null &&
-					mat.resource.skip_context == context) {
+				if (mat.raw.skip_context != null &&
+					mat.raw.skip_context == context) {
 					cc.enabled = false;
 					break;
 				}
@@ -626,14 +626,14 @@ class ModelNode extends Node {
 			if (cc.enabled) {
 				cc.materialContexts = [];
 				for (mat in materials) {
-					for (i in 0...mat.resource.contexts.length) {
-						if (mat.resource.contexts[i].id == context) {
+					for (i in 0...mat.raw.contexts.length) {
+						if (mat.raw.contexts[i].name == context) {
 							cc.materialContexts.push(mat.contexts[i]);
 							break;
 						}
 					}
 				}
-				// TODO: only one shader per model
+				// TODO: only one shader per mesh
 				cc.context = materials[0].shader.getContext(context);
 				cachedContexts.set(context, cc);
 			}
@@ -651,36 +651,36 @@ class ModelNode extends Node {
 		// Render mesh
 		g.setPipeline(shaderContext.pipeState);
 		
-		if (resource.geometry.instanced) {
-			g.setVertexBuffers(resource.geometry.instancedVertexBuffers);
+		if (data.mesh.instanced) {
+			g.setVertexBuffers(data.mesh.instancedVertexBuffers);
 		}
 		else {
 #if WITH_DEINTERLEAVED
-			g.setVertexBuffers(resource.geometry.vertexBuffers);
+			g.setVertexBuffers(data.mesh.vertexBuffers);
 #else
-			// var shadowsContext = camera.resource.pipeline.resource.shadows_context;
+			// var shadowsContext = camera.data.pipeline.raw.shadows_context;
 			// if (context == shadowsContext) { // Hard-coded for now
-				// g.setVertexBuffer(resource.geometry.vertexBufferDepth);
+				// g.setVertexBuffer(data.mesh.vertexBufferDepth);
 			// }
 			// else {
-				g.setVertexBuffer(resource.geometry.vertexBuffer);
+				g.setVertexBuffer(data.mesh.vertexBuffer);
 			// }
 #end
 		}
 
-		setConstants(g, shaderContext, this, camera, light, bindParams);
+		setConstants(g, shaderContext, this, camera, lamp, bindParams);
 
-		for (i in 0...resource.geometry.indexBuffers.length) {
+		for (i in 0...data.mesh.indexBuffers.length) {
 			
-			var mi = resource.geometry.materialIndices[i];
+			var mi = data.mesh.materialIndices[i];
 			if (materialContexts.length > mi) {
 				setMaterialConstants(g, shaderContext, materialContexts[mi]);
 			}
 
-			g.setIndexBuffer(resource.geometry.indexBuffers[i]);
+			g.setIndexBuffer(data.mesh.indexBuffers[i]);
 
-			if (resource.geometry.instanced) {
-				g.drawIndexedVerticesInstanced(resource.geometry.instanceCount);
+			if (data.mesh.instanced) {
+				g.drawIndexedVerticesInstanced(data.mesh.instanceCount);
 			}
 			else {
 				g.drawIndexedVertices();
@@ -701,7 +701,7 @@ class ModelNode extends Node {
 	}
 }
 
-class CachedModelContext {
+class CachedMeshContext {
 	public var materialContexts:Array<MaterialContext>;
 	public var context:ShaderContext;
 	public var enabled = true;

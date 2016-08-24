@@ -1,23 +1,23 @@
-package iron.node;
+package iron.object;
 
 import kha.graphics4.Graphics;
 import iron.math.Mat4;
 import iron.Trait;
-import iron.resource.SceneFormat;
-import iron.resource.Resource;
-import iron.resource.MaterialResource;
+import iron.data.SceneFormat;
+import iron.data.Data;
+import iron.data.MaterialData;
 
-class Node {
+class Object {
 	static var uidCounter = 0;
 	public var uid:Int;
-	public var raw:TNode = null;
+	public var raw:TObj = null;
 
 	public var name:String = "";
 	public var transform:Transform;
 	public var traits:Array<Trait> = [];
 
-	public var parent:Node;
-	public var children:Array<Node> = [];
+	public var parent:Object;
+	public var children:Array<Object> = [];
 
 	public var animation:Animation = null;
 	public var visible = true; // Skip render, keep updating
@@ -27,7 +27,7 @@ class Node {
 		transform = new Transform(this);
 	}
 	
-	public function addChild(o:Node) {
+	public function addChild(o:Object) {
 		children.push(o);
 		o.parent = this;
 	}
@@ -39,7 +39,7 @@ class Node {
 		parent = null;
 	}
 
-	public function getChild(name:String):Node {
+	public function getChild(name:String):Object {
 		if (this.name == name) {
 			return this;
 		}
@@ -56,7 +56,7 @@ class Node {
 
 	public function addTrait(t:Trait) {
 		traits.push(t);
-		t.node = this;
+		t.object = this;
 
 		if (t._add != null) { t._add(); t._add = null; }
 	}
@@ -69,7 +69,7 @@ class Node {
 		if (t._remove != null) { t._remove(); t._remove = null; }
 
 		traits.remove(t);
-		t.node = null;
+		t.object = null;
 	}
 
 	public function getTrait(c:Class<Trait>):Dynamic {
@@ -82,7 +82,7 @@ class Node {
 	}
 
 	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
-		animation = Animation.setupNodeAnimation(this, startTrack, names, starts, ends, speeds, loops, reflects);
+		animation = Animation.setupObjectAnimation(this, startTrack, names, starts, ends, speeds, loops, reflects);
 	}
 
 	public inline function setAnimationParams(delta:Float) {

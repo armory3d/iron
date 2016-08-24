@@ -1,20 +1,20 @@
-package iron.node;
+package iron.object;
 
 import kha.graphics4.Graphics;
 import iron.Root;
 import iron.math.Mat4;
 import iron.math.Vec4;
 import iron.math.Quat;
-import iron.resource.CameraResource;
-import iron.resource.WorldResource;
-import iron.resource.RenderPath;
+import iron.data.CameraData;
+import iron.data.WorldData;
+import iron.data.RenderPath;
 
-class CameraNode extends Node {
+class CameraObject extends Object {
 
-	public var resource:CameraResource;
+	public var data:CameraData;
 	public var renderPath:RenderPath;
 	
-	public var world:WorldResource;
+	public var world:WorldData;
 
 	public var P:Mat4; // Matrices
 // #if WITH_VELOC
@@ -30,19 +30,19 @@ class CameraNode extends Node {
 	public var nearPlane:Float;
 	public var farPlane:Float;
 
-	public function new(resource:CameraResource) {
+	public function new(data:CameraData) {
 		super();
 
-		this.resource = resource;
+		this.data = data;
 
 		renderPath = new RenderPath(this);
 
-		nearPlane = resource.resource.near_plane;
-		farPlane = resource.resource.far_plane;
+		nearPlane = data.raw.near_plane;
+		farPlane = data.raw.far_plane;
 
-		var fov = resource.resource.fov;
+		var fov = data.raw.fov;
 
-		if (resource.resource.type == "perspective") {
+		if (data.raw.type == "perspective") {
 			var w:Float = App.w;
 			var h:Float = App.h;
 #if WITH_VR
@@ -50,7 +50,7 @@ class CameraNode extends Node {
 #end
 			P = Mat4.perspective(fov, w / h, nearPlane, farPlane);
 		}
-		else if (resource.resource.type == "orthographic") {
+		else if (data.raw.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane, 2);
 		}
 
@@ -67,7 +67,7 @@ class CameraNode extends Node {
 		V = Mat4.identity();
 		VP = Mat4.identity();
 
-		if (resource.resource.frustum_culling) {
+		if (data.raw.frustum_culling) {
 			frustumPlanes = [];
 			for (i in 0...6) frustumPlanes.push(new FrustumPlane());
 		}
@@ -80,7 +80,9 @@ class CameraNode extends Node {
 		super.remove();
 	}
 
-	public function renderFrame(g:Graphics, root:Node, lights:Array<LightNode>) {
+	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
+		if (lamps.length == 0) return; // No lamps for this camera, skip
+
 #if WITH_TAA
 		projectionJitter();
 #end
@@ -91,7 +93,7 @@ class CameraNode extends Node {
 			prevV.loadFrom(V);
 		}
 
-		renderPath.renderFrame(g, root, lights);
+		renderPath.renderFrame(g, root, lamps);
 	
 		prevV.loadFrom(V);
 // #if (WITH_VELOC && WITH_TAA)
@@ -120,7 +122,7 @@ class CameraNode extends Node {
 		transform.buildMatrix();
 		V.inverse2(transform.matrix);
 
-		if (resource.resource.frustum_culling) {
+		if (data.raw.frustum_culling) {
 			VP.multiply(V, P);
 			buildViewFrustum(VP, frustumPlanes);
 		}
@@ -209,7 +211,7 @@ class CameraNode extends Node {
 
 	public function move(axis:Vec4, f:Float) {
         axis.mult(f, axis);
-		transform.pos.vadd(axis, transform.pos);
+		transform.loc.vadd(axis, transform.loc);
 		transform.dirty = true;
 		updateMatrix();
 	}

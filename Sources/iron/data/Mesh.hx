@@ -1,4 +1,4 @@
-package iron.resource;
+package iron.data;
 
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
@@ -7,9 +7,9 @@ import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
 import iron.math.Vec4;
 import iron.math.Mat4;
-import iron.resource.SceneFormat;
+import iron.data.SceneFormat;
 
-class Geometry {
+class Mesh {
 #if WITH_DEINTERLEAVED
 	public var vertexBuffers:Array<VertexBuffer>;
 #else
@@ -50,7 +50,7 @@ class Geometry {
 	public var skinBoneWeights:Array<Float> = null;
 
 	public var skeletonBoneRefs:Array<String> = null;
-	public var skeletonBones:Array<TNode> = null;
+	public var skeletonBones:Array<TObj> = null;
 	public var skeletonTransforms:Array<Mat4> = null;
 	public var skeletonTransformsI:Array<Mat4> = null;
 
@@ -288,13 +288,13 @@ class Geometry {
 
 	// Skinned
 	// TODO: check !ForceCpuSkinning
-	public function initSkeletonBones(bones:Array<TNode>) {
+	public function initSkeletonBones(bones:Array<TObj>) {
 		skeletonBones = [];
 
 		// Set bone references
 		for (s in skeletonBoneRefs) {
 			for (b in bones) {
-				if (b.id == s) {
+				if (b.name == s) {
 					skeletonBones.push(b);
 				}
 			}

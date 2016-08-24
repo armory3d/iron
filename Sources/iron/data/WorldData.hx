@@ -1,40 +1,40 @@
-package iron.resource;
+package iron.data;
 
 import kha.Image;
 import iron.math.Vec4;
-import iron.node.Transform;
-import iron.resource.SceneFormat;
+import iron.object.Transform;
+import iron.data.SceneFormat;
 
-class WorldResource extends Resource {
+class WorldData extends Data {
 
-	public var resource:TWorldResource;
+	public var raw:TWorldData;
 	
 	var probes:Array<Probe>; 
 	public var brdf:Image;
 	
-	public function new(resource:TWorldResource) {
+	public function new(raw:TWorldData) {
 		super();
 
-		this.resource = resource;
-		brdf = Reflect.field(kha.Assets.images, resource.brdf);
+		this.raw = raw;
+		brdf = Reflect.field(kha.Assets.images, raw.brdf);
 		
 		// Parse probes
-		if (resource.probes != null && resource.probes.length > 0) {
+		if (raw.probes != null && raw.probes.length > 0) {
 			probes = [];
-			for (p in resource.probes) {
+			for (p in raw.probes) {
 				probes.push(new Probe(p));
 			}
 		}
 	}
 
-	public static function parse(name:String, id:String):WorldResource {
-		var format:TSceneFormat = Resource.getSceneResource(name);
-		var resource:TWorldResource = Resource.getWorldResourceById(format.world_resources, id);
-		if (resource == null) {
-			trace('World resource "$id" not found!');
+	public static function parse(name:String, id:String):WorldData {
+		var format:TSceneFormat = Data.getSceneRaw(name);
+		var raw:TWorldData = Data.getWorldRawByName(format.world_datas, id);
+		if (raw == null) {
+			trace('World data "$id" not found!');
 			return null;
 		}
-		return new WorldResource(resource);
+		return new WorldData(raw);
 	}
 	
 	public function getGlobalProbe():Probe {
@@ -91,7 +91,7 @@ class WorldResource extends Resource {
 
 class Probe {
 	
-	public var resource:TProbe;
+	public var raw:TProbe;
 	
 	public var radiance:Image;
 	public var numMipmaps:Int;
@@ -104,11 +104,11 @@ class Probe {
 	public var volumeMin:Vec4;
 	public var volumeMax:Vec4;
 	
-	public function new(resource:TProbe) {
-		this.resource = resource;
+	public function new(raw:TProbe) {
+		this.raw = raw;
 		
 		// Parse probe data
-		if (resource.irradiance == "") {
+		if (raw.irradiance == "") {
 			// Use default if no data provided
 			var irr:Array<kha.FastFloat> = [1.0281457342829743,1.1617608778901902,1.3886220898440544,-0.13044863139637752,-0.2794659158733846,-0.5736106907295643,0.04065421813873111,0.0434367391348577,0.03567450494792305,0.10964557605577738,0.1129839085793664,0.11261660812141877,-0.08271974283263238,-0.08068091195339556,-0.06432614970480094,-0.12517787967665814,-0.11638582546310804,-0.09743696224655113,0.20068697715947176,0.2158788783296805,0.2109374396869599,0.19636637427150455,0.19445523113118082,0.17825330699680575,0.31440860839538637,0.33041120060402407,0.30867788630062676];
 			// var irr = [];
@@ -118,31 +118,31 @@ class Probe {
 			irradiance = haxe.ds.Vector.fromData(irr);
 		}
 		else {
-			var irradianceData:kha.Blob = Reflect.field(kha.Assets.blobs, resource.irradiance + "_arm");
+			var irradianceData:kha.Blob = Reflect.field(kha.Assets.blobs, raw.irradiance + "_arm");
 #if WITH_JSON
 			var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData.toString());
 #else
-			var irradianceParsed:TIrradiance = iron.resource.msgpack.MsgPack.decode(irradianceData.toBytes());
+			var irradianceParsed:TIrradiance = iron.data.msgpack.MsgPack.decode(irradianceData.toBytes());
 #end
 			irradiance = haxe.ds.Vector.fromData(irradianceParsed.irradiance);
 		}
 		
-		if (resource.radiance != null) {
-			numMipmaps = resource.radiance_mipmaps;
+		if (raw.radiance != null) {
+			numMipmaps = raw.radiance_mipmaps;
 			
-			radiance = Reflect.field(kha.Assets.images, resource.radiance);
+			radiance = Reflect.field(kha.Assets.images, raw.radiance);
 			var radianceMipmaps:Array<kha.Image> = [];
 			for (i in 0...numMipmaps) {
-				radianceMipmaps.push(Reflect.field(kha.Assets.images,resource.radiance + '_' + i));
+				radianceMipmaps.push(Reflect.field(kha.Assets.images, raw.radiance + '_' + i));
 			}
 			radiance.setMipmaps(radianceMipmaps);
 		}
 		
-		strength = resource.strength;
-		blending = resource.blending;
+		strength = raw.strength;
+		blending = raw.blending;
 		
-		volume = new Vec4(resource.volume[0] / 4, resource.volume[1] / 4, resource.volume[2] / 4);
-		volumeCenter = new Vec4(resource.volume_center[0], resource.volume_center[1], resource.volume_center[2]);
+		volume = new Vec4(raw.volume[0] / 4, raw.volume[1] / 4, raw.volume[2] / 4);
+		volumeCenter = new Vec4(raw.volume_center[0], raw.volume_center[1], raw.volume_center[2]);
 	
 		volumeMin = new Vec4(volumeCenter.x - volume.x, volumeCenter.y - volume.y, volumeCenter.z - volume.z);
 		volumeMax = new Vec4(volumeCenter.x + volume.x, volumeCenter.y + volume.y, volumeCenter.z + volume.z);

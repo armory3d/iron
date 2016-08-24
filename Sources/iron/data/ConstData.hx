@@ -1,4 +1,4 @@
-package iron.resource;
+package iron.data;
 
 import haxe.io.Float32Array;
 import kha.graphics4.TextureFormat;

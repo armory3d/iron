@@ -1,16 +1,16 @@
-package iron.node;
+package iron.object;
 
 import kha.graphics4.Graphics;
-import iron.resource.MaterialResource;
-import iron.node.ModelNode;
+import iron.data.MaterialData;
+import iron.object.MeshObject;
 import iron.Root;
 
-class DecalNode extends Node {
+class DecalObject extends Object {
 
-	public var material:MaterialResource;
-	var cachedContext:CachedModelContext = null;
+	public var material:MaterialData;
+	var cachedContext:CachedMeshContext = null;
 
-	public function new(material:MaterialResource) {
+	public function new(material:MaterialData) {
 		super();
 		
 		this.material = material;
@@ -24,19 +24,19 @@ class DecalNode extends Node {
 	}
 	
 	// Called before rendering decal in render pipeline
-	public function render(g:Graphics, context:String, camera:CameraNode, light:LightNode, bindParams:Array<String>) {
+	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 		
 		if (cachedContext == null) {
-			cachedContext = new CachedModelContext();
+			cachedContext = new CachedMeshContext();
 			// Check context skip
-			if (material.resource.skip_context != null &&
-				material.resource.skip_context == context) {
+			if (material.raw.skip_context != null &&
+				material.raw.skip_context == context) {
 				cachedContext.enabled = false;
 			}
 			if (cachedContext.enabled) {
 				cachedContext.materialContexts = [];
-				for (i in 0...material.resource.contexts.length) {
-					if (material.resource.contexts[i].id == context) {
+				for (i in 0...material.raw.contexts.length) {
+					if (material.raw.contexts[i].name == context) {
 						cachedContext.materialContexts.push(material.contexts[i]);
 						break;
 					}
@@ -51,7 +51,7 @@ class DecalNode extends Node {
 		
 		g.setPipeline(shaderContext.pipeState);
 		
-		ModelNode.setConstants(g, shaderContext, this, camera, light, bindParams);			
-		ModelNode.setMaterialConstants(g, shaderContext, materialContext);
+		MeshObject.setConstants(g, shaderContext, this, camera, lamp, bindParams);			
+		MeshObject.setMaterialConstants(g, shaderContext, materialContext);
 	}
 }

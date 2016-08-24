@@ -1,14 +1,14 @@
 package iron.math;
 
 import iron.App;
-import iron.node.CameraNode;
-import iron.node.ModelNode;
-import iron.node.Transform;
+import iron.object.CameraObject;
+import iron.object.MeshObject;
+import iron.object.Transform;
 import iron.math.Ray.Plane;
 
 class RayCaster {
 
-    public static function getRay(inputX:Float, inputY:Float, camera:CameraNode):Ray {
+    public static function getRay(inputX:Float, inputY:Float, camera:CameraObject):Ray {
 
         var start = new Vec4();
         var end = new Vec4();
@@ -19,7 +19,7 @@ class RayCaster {
     }
 
 
-    public static function getDirection(start:Vec4, end:Vec4, inputX:Float, inputY:Float, camera:CameraNode) {
+    public static function getDirection(start:Vec4, end:Vec4, inputX:Float, inputY:Float, camera:CameraObject) {
         // TODO: return end only
         // TODO: speed up using http://halogenica.net/ray-casting-and-picking-using-bullet-physics/
 
@@ -40,12 +40,12 @@ class RayCaster {
         end.sub(start);
         end.normalize2();
 
-        end.x *= camera.resource.resource.far_plane;
-        end.y *= camera.resource.resource.far_plane;
-        end.z *= camera.resource.resource.far_plane;
+        end.x *= camera.data.raw.far_plane;
+        end.y *= camera.data.raw.far_plane;
+        end.z *= camera.data.raw.far_plane;
     }
 
-    public static function boxIntersect(transform:Transform, inputX:Float, inputY:Float, camera:CameraNode):Vec4 {
+    public static function boxIntersect(transform:Transform, inputX:Float, inputY:Float, camera:CameraObject):Vec4 {
         var ray = getRay(inputX, inputY, camera);
 
         var t = transform;
@@ -54,7 +54,7 @@ class RayCaster {
         return ray.intersectBox(c, s);
     }
 
-    public static function getClosestBoxIntersect(transforms:Array<Transform>, inputX:Float, inputY:Float, camera:CameraNode):Transform {
+    public static function getClosestBoxIntersect(transforms:Array<Transform>, inputX:Float, inputY:Float, camera:CameraObject):Transform {
         var intersects:Array<Transform> = [];
 
         // Get intersects
@@ -70,7 +70,7 @@ class RayCaster {
         var closest:Transform = null;
         var minDist:Float = std.Math.POSITIVE_INFINITY;
         for (t in intersects) {
-            var dist = Vec4.distance3d(t.pos, camera.transform.pos);
+            var dist = Vec4.distance3d(t.loc, camera.transform.loc);
             if (dist < minDist) {
                 minDist = dist;
                 closest = t;
@@ -80,7 +80,7 @@ class RayCaster {
         return closest;
     }
 
-    public static function planeIntersect(normal:Vec4, a:Vec4, inputX:Float, inputY:Float, camera:CameraNode):Vec4 {
+    public static function planeIntersect(normal:Vec4, a:Vec4, inputX:Float, inputY:Float, camera:CameraObject):Vec4 {
         var ray = getRay(inputX, inputY, camera);
 
         var plane = new Plane();
@@ -90,14 +90,14 @@ class RayCaster {
     }
 	
 	// Project screen-space point onto 3D plane
-	public static function getPlaneUV(n:ModelNode, screenX:Float, screenY:Float, camera:CameraNode):kha.math.FastVector2 {
+	public static function getPlaneUV(obj:MeshObject, screenX:Float, screenY:Float, camera:CameraObject):kha.math.FastVector2 {
 		// Get normal from data
-		var normals = n.resource.geometry.normals;
+		var normals = obj.data.mesh.normals;
 		var nor = new Vec4(normals[0], normals[1], normals[2]);
 		
 		// Rotate by world rotation matrix
 		var m = Mat4.identity();
-		m.mult2(n.transform.matrix);
+		m.mult2(obj.transform.matrix);
 		m.inverse2(m);
 		m.transpose23x3();
 		m._30 = m._31 = m._32 = 0;
@@ -105,8 +105,8 @@ class RayCaster {
 		nor.normalize();
 	
 		// Plane intersection
-		var pos = n.transform.pos;
-		var hit = RayCaster.planeIntersect(nor, pos, screenX, screenY, camera);
+		var loc = obj.transform.loc;
+		var hit = RayCaster.planeIntersect(nor, loc, screenX, screenY, camera);
 		
 		// Convert to uv
 		if (hit != null) {
@@ -119,11 +119,11 @@ class RayCaster {
 			var v = nor.clone();
 			v.cross2(u);
 			
-			hit.sub(pos); // Center
+			hit.sub(loc); // Center
 			var uCoord = u.dot(hit);
 			var vCoord = v.dot(hit);
 			
-			var size = n.transform.size;
+			var size = obj.transform.size;
 			var hx = size.x / 2;
 			// TODO: depends on plane facing normal, do not use size of lenght 0
 			var hy = size.z > size.y ? size.z / 2 : size.y / 2;

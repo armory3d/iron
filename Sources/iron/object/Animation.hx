@@ -1,48 +1,48 @@
-package iron.node;
+package iron.object;
 
 import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.math.Quat;
-import iron.resource.ModelResource;
-import iron.resource.SceneFormat;
+import iron.data.MeshData;
+import iron.data.SceneFormat;
 
 class Animation {
 
 	public var player:Player = null;
 
 	// Skinning
-	public var resource:ModelResource;
+	public var data:MeshData;
 	public var isSkinned:Bool;
 	public var isSampled:Bool;
 	public var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
-	public var boneMats = new Map<TNode, Mat4>();
-	public var boneTimeIndices = new Map<TNode, Int>();
+	public var boneMats = new Map<TObj, Mat4>();
+	public var boneTimeIndices = new Map<TObj, Int>();
 
 	var m = Mat4.identity(); // Skinning matrix
 	var bm = Mat4.identity(); // Absolute bone matrix
 	var pos = new Vec4();
 	var nor = new Vec4();
 
-	// Node based
-	public var node:Node;
+	// Object based
+	public var object:Object;
 
 	function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
 		player = new Player(startTrack, names, starts, ends, speeds, loops, reflects);
 	}
 
-	public static function setupBoneAnimation(resource:ModelResource, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+	public static function setupBoneAnimation(data:MeshData, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
 		var anim = new Animation(startTrack, names, starts, ends, speeds, loops, reflects);
-		anim.resource = resource;
-		anim.isSkinned = resource.isSkinned;
+		anim.data = data;
+		anim.isSkinned = data.isSkinned;
 		anim.isSampled = false;
 
 		if (anim.isSkinned) {
-			if (!ModelResource.ForceCpuSkinning) {
+			if (!MeshData.ForceCpuSkinning) {
 				anim.skinBuffer = new haxe.ds.Vector(50 * 12);
 				for (i in 0...anim.skinBuffer.length) anim.skinBuffer[i] = 0;
 			}
 
-			for (b in resource.geometry.skeletonBones) {
+			for (b in data.mesh.skeletonBones) {
 				anim.boneMats.set(b, Mat4.fromArray(b.transform.values));
 				anim.boneTimeIndices.set(b, 0);
 			}
@@ -53,10 +53,10 @@ class Animation {
 	static function parseAnimationTransforms(t:Transform, animation_transforms:Array<TAnimationTransform>) {
 		for (at in animation_transforms) {
 			switch (at.type) {
-			case "translation": t.pos.set(at.values[0], at.values[1], at.values[2]);
-			case "translation_x": t.pos.x = at.value;
-			case "translation_y": t.pos.y = at.value;
-			case "translation_z": t.pos.z = at.value;
+			case "translation": t.loc.set(at.values[0], at.values[1], at.values[2]);
+			case "translation_x": t.loc.x = at.value;
+			case "translation_y": t.loc.y = at.value;
+			case "translation_z": t.loc.z = at.value;
 			case "rotation": t.setRotation(at.values[0], at.values[1], at.values[2]);
 			case "rotation_x": t.setRotation(at.value, 0, 0);
 			case "rotation_y": t.setRotation(0, at.value, 0);
@@ -70,15 +70,15 @@ class Animation {
 		t.buildMatrix();
 	}
 
-	public static function setupNodeAnimation(node:Node, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+	public static function setupObjectAnimation(object:Object, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
 		var anim = new Animation(startTrack, names, starts, ends, speeds, loops, reflects);
 		anim.isSkinned = false;
-		anim.node = node;
+		anim.object = object;
 
 		// Check animation_transforms to determine non-sampled animation
-		if (node.raw.animation_transforms != null) {
+		if (object.raw.animation_transforms != null) {
 			anim.isSampled = false;
-			parseAnimationTransforms(node.transform, node.raw.animation_transforms);
+			parseAnimationTransforms(object.transform, object.raw.animation_transforms);
 		}
 		else {
 			anim.isSampled = true;
@@ -97,26 +97,26 @@ class Animation {
 			updateSkin();
 		}
 		else {
-			updateNodeAnim();
+			updateObjectAnim();
 		}
     }
 
-    function updateNodeAnim() {
+    function updateObjectAnim() {
 		if (isSampled) {
-			updateAnimSampled(node.raw.animation, node.transform.matrix);
+			updateAnimSampled(object.raw.animation, object.transform.matrix);
 
 			// Decompose manually on every update for now
-			node.transform.matrix.decompose(node.transform.pos, node.transform.rot, node.transform.scale);
+			object.transform.matrix.decompose(object.transform.loc, object.transform.rot, object.transform.scale);
 		}
 		else {
-			updateAnimNonSampled(node.raw.animation, node.transform);
+			updateAnimNonSampled(object.raw.animation, object.transform);
 
-			node.transform.buildMatrix();
+			object.transform.buildMatrix();
 		}
     }
 
     function updateBoneAnim() {
-		for (b in resource.geometry.skeletonBones) {
+		for (b in data.mesh.skeletonBones) {
 			updateAnimSampled(b.animation, boneMats.get(b));
 		}
 	}
@@ -186,9 +186,9 @@ class Animation {
 			var v = player.dir > 0 ? v1 * invs + v2 * s : v1 * s + v2 * invs;
 
 			switch (track.target) {
-			case "xpos": transform.pos.x = v;
-			case "ypos": transform.pos.y = v;
-			case "zpos": transform.pos.z = v;
+			case "xloc": transform.loc.x = v;
+			case "yloc": transform.loc.y = v;
+			case "zloc": transform.loc.z = v;
 			case "xrot": transform.rotate(Vec4.xAxis(), v / 360);
 			case "yrot": transform.rotate(Vec4.yAxis(), v / 360);
 			case "zrot": transform.rotate(Vec4.zAxis(), -v / 360);
@@ -228,7 +228,7 @@ class Animation {
 			if (player.current.frames == 0) {
 				player.paused = true;
 				if (isSkinned) setBoneAnimFrame(player.current.start);
-				else setNodeAnimFrame(player.current.start);
+				else setObjectAnimFrame(player.current.start);
 				return;
 			}
 			// Animation - loop frames
@@ -275,8 +275,8 @@ class Animation {
 		var m2 = Mat4.fromArray(v2);
 
 		// Decompose
-		var p1 = m1.pos();
-		var p2 = m2.pos();
+		var p1 = m1.loc();
+		var p2 = m2.loc();
 		var s1 = m1.scaleV();
 		var s2 = m2.scaleV();
 		var q1 = m1.getQuat();
@@ -299,7 +299,7 @@ class Animation {
     }
 
 	function setBoneAnimFrame(frame:Int) {
-		for (b in resource.geometry.skeletonBones) {
+		for (b in data.mesh.skeletonBones) {
 			var boneAnim = b.animation;
 			if (boneAnim != null) {
 				var track = boneAnim.tracks[0];
@@ -311,27 +311,27 @@ class Animation {
 		updateSkin();
 	}
 
-	function setNodeAnimFrame(frame:Int) {
-		var nodeAnim = node.raw.animation;
-		if (nodeAnim != null) {
-			var track = nodeAnim.tracks[0];
+	function setObjectAnimFrame(frame:Int) {
+		var objectAnim = object.raw.animation;
+		if (objectAnim != null) {
+			var track = objectAnim.tracks[0];
 			var v1:Array<Float> = track.value.values[frame];
 			var m1 = Mat4.fromArray(v1);
-			node.transform.matrix = m1;
+			object.transform.matrix = m1;
 		}
 	}
 
 	function updateSkin() {
-		if (ModelResource.ForceCpuSkinning) updateSkinCpu();
+		if (MeshData.ForceCpuSkinning) updateSkinCpu();
 		else updateSkinGpu();
 	}
 
 	function updateSkinGpu() {
-		var bones = resource.geometry.skeletonBones;
+		var bones = data.mesh.skeletonBones;
 		for (i in 0...bones.length) {
 			
-			bm.loadFrom(resource.geometry.skinTransform);
-			bm.mult2(resource.geometry.skeletonTransformsI[i]);
+			bm.loadFrom(data.mesh.skinTransform);
+			bm.mult2(data.mesh.skeletonTransformsI[i]);
 			var m = Mat4.identity();
 			m.loadFrom(boneMats.get(bones[i]));
 			var p = bones[i].parent;
@@ -362,26 +362,26 @@ class Animation {
 	function updateSkinCpu() {
 #if WITH_DEINTERLEAVED
 		// Assume position=0, normal=1 storage
-		var v = resource.geometry.vertexBuffers[0].lock();
-		var vnor = resource.geometry.vertexBuffers[1].lock();
+		var v = data.mesh.vertexBuffers[0].lock();
+		var vnor = data.mesh.vertexBuffers[1].lock();
 		var l = 3;
 #else
-		var v = resource.geometry.vertexBuffer.lock();
-		var l = resource.geometry.structLength;
-		// var vdepth = resource.geometry.vertexBufferDepth.lock();
-		// var ldepth = resource.geometry.structLengthDepth;
+		var v = data.mesh.vertexBuffer.lock();
+		var l = data.mesh.structLength;
+		// var vdepth = data.mesh.vertexBufferDepth.lock();
+		// var ldepth = data.mesh.structLengthDepth;
 #end
 
 		var index = 0;
 
 		for (i in 0...Std.int(v.length / l)) {
 
-			var boneCount = resource.geometry.skinBoneCounts[i];
+			var boneCount = data.mesh.skinBoneCounts[i];
 			var boneIndices = [];
 			var boneWeights = [];
 			for (j in index...(index + boneCount)) {
-				boneIndices.push(resource.geometry.skinBoneIndices[j]);
-				boneWeights.push(resource.geometry.skinBoneWeights[j]);
+				boneIndices.push(data.mesh.skinBoneIndices[j]);
+				boneWeights.push(data.mesh.skinBoneWeights[j]);
 			}
 			index += boneCount;
 
@@ -390,16 +390,16 @@ class Animation {
 			for (j in 0...boneCount) {
 				var boneIndex = boneIndices[j];
 				var boneWeight = boneWeights[j];
-				var bone = resource.geometry.skeletonBones[boneIndex];
+				var bone = data.mesh.skeletonBones[boneIndex];
 
 				// Position
-				m.initTranslate(resource.geometry.positions[i * 3],
-								resource.geometry.positions[i * 3 + 1],
-								resource.geometry.positions[i * 3 + 2]);
+				m.initTranslate(data.mesh.positions[i * 3],
+								data.mesh.positions[i * 3 + 1],
+								data.mesh.positions[i * 3 + 2]);
 
-				m.mult2(resource.geometry.skinTransform);
+				m.mult2(data.mesh.skinTransform);
 
-				m.mult2(resource.geometry.skeletonTransformsI[boneIndex]);
+				m.mult2(data.mesh.skeletonTransformsI[boneIndex]);
 
 				bm.loadFrom(boneMats.get(bone));
 				var p = bone.parent;
@@ -413,22 +413,22 @@ class Animation {
 
 				m.multiplyScalar(boneWeight);
 				
-				pos.add(m.pos());
+				pos.add(m.loc());
 
 				// Normal
 				m.getInverse(bm);
 
-				m.mult2(resource.geometry.skeletonTransforms[boneIndex]);
+				m.mult2(data.mesh.skeletonTransforms[boneIndex]);
 
-				m.mult2(resource.geometry.skinTransformI);
+				m.mult2(data.mesh.skinTransformI);
 
-				m.translate(resource.geometry.normals[i * 3],
-							resource.geometry.normals[i * 3 + 1],
-							resource.geometry.normals[i * 3 + 2]);
+				m.translate(data.mesh.normals[i * 3],
+							data.mesh.normals[i * 3 + 1],
+							data.mesh.normals[i * 3 + 2]);
 
 				m.multiplyScalar(boneWeight);
 
-				nor.add(m.pos());
+				nor.add(m.loc());
 			}
 
 #if WITH_DEINTERLEAVED
@@ -453,11 +453,11 @@ class Animation {
 		}
 
 #if WITH_DEINTERLEAVED
-		resource.geometry.vertexBuffers[0].unlock();
-		resource.geometry.vertexBuffers[1].unlock();
+		data.mesh.vertexBuffers[0].unlock();
+		data.mesh.vertexBuffers[1].unlock();
 #else
-		resource.geometry.vertexBuffer.unlock();
-		// resource.geometry.vertexBufferDepth.unlock();
+		data.mesh.vertexBuffer.unlock();
+		// data.mesh.vertexBufferDepth.unlock();
 #end
 	}
 }

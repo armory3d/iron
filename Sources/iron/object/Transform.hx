@@ -1,4 +1,4 @@
-package iron.node;
+package iron.object;
 
 import iron.math.Mat4;
 import iron.math.Vec4;
@@ -13,16 +13,16 @@ class Transform {
 	public var dirty:Bool;
 
 	// Decomposed local matrix
-	public var pos:Vec4;
+	public var loc:Vec4;
 	public var rot:Quat;
 	public var scale:Vec4;
 	public var size:Vec4;
 	public var radius:Float;
-	public var node:Node;
+	public var object:Object;
 	static var temp = Mat4.identity();
 
-	public function new(node:Node) {
-		this.node = node;
+	public function new(object:Object) {
+		this.object = object;
 		reset();
 	}
 
@@ -30,7 +30,7 @@ class Transform {
 		matrix = Mat4.identity();
 		local = Mat4.identity();
 
-		pos = new Vec4();
+		loc = new Vec4();
 		rot = new Quat();
 		scale = new Vec4(1, 1, 1);
 		size = new Vec4();
@@ -56,7 +56,7 @@ class Transform {
 	}
 
 	public function buildMatrix() {
-		local.compose(pos, rot, scale);
+		local.compose(loc, rot, scale);
 		
 		if (prependMats != null) {
 			temp.setIdentity();
@@ -69,21 +69,21 @@ class Transform {
 			for (m in appendMats) local.mult2(m);
 		}
 
-		if (!localOnly && node.parent != null) {
-			matrix.multiply3x4(local, node.parent.transform.matrix);
+		if (!localOnly && object.parent != null) {
+			matrix.multiply3x4(local, object.parent.transform.matrix);
 		}
 		else {
 			matrix = local;
 		}
 
 		// Update children
-		for (n in node.children) {
+		for (n in object.children) {
 			n.transform.buildMatrix();
 		}
 	}
 
 	public function set(x:Float = 0, y:Float = 0, z:Float = 0, rX:Float = 0, rY:Float = 0, rZ:Float = 0, sX:Float = 1, sY:Float = 1, sZ:Float = 1) {
-		pos.set(x, y, z);
+		loc.set(x, y, z);
 		setRotation(rX, rY, rZ);
 		scale.set(sX, sY, sZ);
 		buildMatrix();
@@ -91,7 +91,7 @@ class Transform {
 
 	public function setMatrix(mat:Mat4) {
 		matrix = mat;
-		pos = matrix.pos();
+		loc = matrix.loc();
 		scale = matrix.scaleV();
 		rot = matrix.getQuat();
 	}

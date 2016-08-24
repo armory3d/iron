@@ -1,11 +1,11 @@
 package iron;
 
-import iron.node.Node;
+import iron.object.Object;
 
 class Trait {
 
 	public var name:String = "";
-	public var node:Node;
+	public var object:Object;
 
 	public var _add:Void->Void = null;
 	public var _init:Void->Void = null;
@@ -20,7 +20,7 @@ class Trait {
 	}
 
 	public function remove() {
-		node.removeTrait(this);
+		object.removeTrait(this);
 	}
 
 	function notifyOnAdd(f:Void->Void) {

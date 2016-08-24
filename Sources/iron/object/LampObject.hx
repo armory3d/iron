@@ -1,14 +1,14 @@
-package iron.node;
+package iron.object;
 
 import iron.math.Mat4;
 import iron.math.Vec4;
-import iron.resource.LightResource;
-import iron.node.CameraNode.FrustumPlane;
+import iron.data.LampData;
+import iron.object.CameraObject.FrustumPlane;
 import iron.Root;
 
-class LightNode extends Node {
+class LampObject extends Object {
 
-	public var resource:LightResource;
+	public var data:LampData;
 
 	// Shadow map matrices
 	public var V:Mat4 = null;
@@ -18,28 +18,28 @@ class LightNode extends Node {
 
 	public var farPlane:Float;
 
-	public function new(resource:LightResource) {
+	public function new(data:LampData) {
 		super();
 		
-		this.resource = resource;
-		farPlane = resource.resource.far_plane;
+		this.data = data;
+		farPlane = data.raw.far_plane;
 
-		Root.lights.push(this);
+		Root.lamps.push(this);
 	}
 
 	public override function remove() {
-		Root.lights.remove(this);
+		Root.lamps.remove(this);
 		super.remove();
 	}
 
-	public function buildMatrices(camera:CameraNode) {
+	public function buildMatrices(camera:CameraObject) {
 		transform.buildMatrix();
 		
 		V = Mat4.identity();
 		V.inverse2(transform.matrix);
 
 		// Frustum culling enabled
-		if (camera.resource.resource.frustum_culling) {
+		if (camera.data.raw.frustum_culling) {
 			if (frustumPlanes == null) {
 				frustumPlanes = [];
 				for (i in 0...6) frustumPlanes.push(new FrustumPlane());
@@ -47,7 +47,7 @@ class LightNode extends Node {
 			}
 
 			VP.multiply(V, camera.P);
-			CameraNode.buildViewFrustum(VP, frustumPlanes);
+			CameraObject.buildViewFrustum(VP, frustumPlanes);
 		}
 	}
 

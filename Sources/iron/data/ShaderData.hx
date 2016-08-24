@@ -1,4 +1,4 @@
-package iron.resource;
+package iron.data;
 
 import kha.graphics4.PipelineState;
 import kha.graphics4.ConstantLocation;
@@ -13,25 +13,25 @@ import kha.graphics4.BlendingFactor;
 import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
-import iron.resource.SceneFormat;
+import iron.data.SceneFormat;
 
-class ShaderResource extends Resource {
+class ShaderData extends Data {
 
-	public var resource:TShaderResource;
+	public var raw:TShaderData;
 
 	var structure:VertexStructure;
 	var structureLength = 0;
 
 	public var contexts:Array<ShaderContext> = [];
 
-	public function new(resource:TShaderResource, overrideContext:TShaderOverride = null) {
+	public function new(raw:TShaderData, overrideContext:TShaderOverride = null) {
 		super();
 
-		this.resource = resource;
+		this.raw = raw;
 
 		parseVertexStructure();
 
-		for (c in resource.contexts) {
+		for (c in raw.contexts) {
 			// Render pipeline might not use all shaders contexts, skip context if shader is not found
 			var fragName = StringTools.replace(c.fragment_shader, ".", "_");
 			if (Reflect.field(kha.Shaders, fragName) == null) {
@@ -55,44 +55,44 @@ class ShaderResource extends Resource {
 	}
 	function parseVertexStructure() {
 		structure = new VertexStructure();
-		for (data in resource.vertex_structure) {
-			structure.add(data.name, sizeToVD(data.size));
-			structureLength += data.size;
+		for (vs in raw.vertex_structure) {
+			structure.add(vs.name, sizeToVD(vs.size));
+			structureLength += vs.size;
 		}
 	}
 
-	public static function parse(name:String, id:String, overrideContext:TShaderOverride = null):ShaderResource {
-		var format:TSceneFormat = Resource.getSceneResource(name);
-		var resource:TShaderResource = Resource.getShaderResourceById(format.shader_resources, id);
-		if (resource == null) {
-			trace('Shader resource "$id" not found!');
+	public static function parse(file:String, name:String, overrideContext:TShaderOverride = null):ShaderData {
+		var format:TSceneFormat = Data.getSceneRaw(file);
+		var raw:TShaderData = Data.getShaderRawByName(format.shader_datas, name);
+		if (raw == null) {
+			trace('Shader data "$name" not found!');
 			return null;
 		}
-		return new ShaderResource(resource, overrideContext);
+		return new ShaderData(raw, overrideContext);
 	}
 
-	public function getContext(id:String):ShaderContext {
+	public function getContext(name:String):ShaderContext {
 		for (c in contexts) {
-			if (c.resource.id == id) return c;
+			if (c.raw.name == name) return c;
 		}
 		return null;
 	}
 }
 
 class ShaderContext {
-	public var resource:TShaderContext;
+	public var raw:TShaderContext;
 
 	public var pipeState:PipelineState;
 	public var constants:Array<ConstantLocation> = [];
 	public var textureUnits:Array<TextureUnit> = [];
 
-	public function new(resource:TShaderContext, structure:VertexStructure, overrideContext:TShaderOverride = null) {
-		this.resource = resource;
+	public function new(raw:TShaderContext, structure:VertexStructure, overrideContext:TShaderOverride = null) {
+		this.raw = raw;
 
 		pipeState = new PipelineState();
 
 		// Instancing
-		if (resource.vertex_shader.indexOf("_Instancing") != -1) {
+		if (raw.vertex_shader.indexOf("_Instancing") != -1) {
 			var instStruct = new VertexStructure();
 			instStruct.add("off", VertexData.Float3);
 			pipeState.inputLayout = [structure, instStruct];
@@ -103,53 +103,53 @@ class ShaderContext {
 		}
 		
 		// Depth
-		pipeState.depthWrite = resource.depth_write;
-		pipeState.depthMode = getCompareMode(resource.compare_mode);
+		pipeState.depthWrite = raw.depth_write;
+		pipeState.depthMode = getCompareMode(raw.compare_mode);
 		
 		// Stencil
-		if (resource.stencil_mode != null) {
-			if (resource.stencil_mode == "always")
+		if (raw.stencil_mode != null) {
+			if (raw.stencil_mode == "always")
 				pipeState.stencilMode = CompareMode.Always;
-			else if (resource.stencil_mode == "equal")
+			else if (raw.stencil_mode == "equal")
 				pipeState.stencilMode = CompareMode.Equal;
-			else if (resource.stencil_mode == "not_equal")
+			else if (raw.stencil_mode == "not_equal")
 				pipeState.stencilMode = CompareMode.NotEqual;
 		}
-		if (resource.stencil_pass != null) {
-			if (resource.stencil_pass == "replace")
+		if (raw.stencil_pass != null) {
+			if (raw.stencil_pass == "replace")
 				pipeState.stencilBothPass = StencilAction.Replace;
-			else if (resource.stencil_pass == "keep")
+			else if (raw.stencil_pass == "keep")
 				pipeState.stencilBothPass = StencilAction.Keep;
 		}
-		if (resource.stencil_fail != null && resource.stencil_fail == "keep") {
+		if (raw.stencil_fail != null && raw.stencil_fail == "keep") {
 			pipeState.stencilDepthFail = StencilAction.Keep;
 			pipeState.stencilFail = StencilAction.Keep;
 		}
-		if (resource.stencil_reference_value != null) {
-			pipeState.stencilReferenceValue = resource.stencil_reference_value;
+		if (raw.stencil_reference_value != null) {
+			pipeState.stencilReferenceValue = raw.stencil_reference_value;
 		}	
-		// pipeState.stencilReadMask = resource.stencil_read_mask;
-		// pipeState.stencilWriteMask = resource.stencil_write_mask;
+		// pipeState.stencilReadMask = raw.stencil_read_mask;
+		// pipeState.stencilWriteMask = raw.stencil_write_mask;
 
 		// Cull
-		pipeState.cullMode = getCullMode(resource.cull_mode);
+		pipeState.cullMode = getCullMode(raw.cull_mode);
 		
 		// Blending
-		if (resource.blend_source != null) pipeState.blendSource = getBlendingFactor(resource.blend_source);
-		if (resource.blend_destination != null) pipeState.blendDestination = getBlendingFactor(resource.blend_destination);
-		if (resource.blend_operation != null) pipeState.blendOperation = getBlendingOperation(resource.blend_operation);
-		if (resource.alpha_blend_source != null) pipeState.alphaBlendSource = getBlendingFactor(resource.alpha_blend_source);
-		if (resource.alpha_blend_destination != null) pipeState.alphaBlendDestination = getBlendingFactor(resource.alpha_blend_destination);
-		if (resource.alpha_blend_operation != null) pipeState.alphaBlendOperation = getBlendingOperation(resource.alpha_blend_operation);
+		if (raw.blend_source != null) pipeState.blendSource = getBlendingFactor(raw.blend_source);
+		if (raw.blend_destination != null) pipeState.blendDestination = getBlendingFactor(raw.blend_destination);
+		if (raw.blend_operation != null) pipeState.blendOperation = getBlendingOperation(raw.blend_operation);
+		if (raw.alpha_blend_source != null) pipeState.alphaBlendSource = getBlendingFactor(raw.alpha_blend_source);
+		if (raw.alpha_blend_destination != null) pipeState.alphaBlendDestination = getBlendingFactor(raw.alpha_blend_destination);
+		if (raw.alpha_blend_operation != null) pipeState.alphaBlendOperation = getBlendingOperation(raw.alpha_blend_operation);
 
 		// Color write mask
-		if (resource.color_write_red != null) pipeState.colorWriteMaskRed = resource.color_write_red;
-		if (resource.color_write_green != null) pipeState.colorWriteMaskGreen = resource.color_write_green;
-		if (resource.color_write_blue != null) pipeState.colorWriteMaskBlue = resource.color_write_blue;
-		if (resource.color_write_alpha != null) pipeState.colorWriteMaskAlpha = resource.color_write_alpha;
+		if (raw.color_write_red != null) pipeState.colorWriteMaskRed = raw.color_write_red;
+		if (raw.color_write_green != null) pipeState.colorWriteMaskGreen = raw.color_write_green;
+		if (raw.color_write_blue != null) pipeState.colorWriteMaskBlue = raw.color_write_blue;
+		if (raw.color_write_alpha != null) pipeState.colorWriteMaskAlpha = raw.color_write_alpha;
 
-		pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(resource.fragment_shader, ".", "_"));
-		pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(resource.vertex_shader, ".", "_"));
+		pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(raw.fragment_shader, ".", "_"));
+		pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(raw.vertex_shader, ".", "_"));
 		
 		// Override specified values
 		if (overrideContext != null) {
@@ -160,11 +160,11 @@ class ShaderContext {
 
 		pipeState.compile();
 
-		for (c in resource.constants) {
+		for (c in raw.constants) {
 			addConstant(c);
 		}
 
-		for (tu in resource.texture_units) {
+		for (tu in raw.texture_units) {
 			addTexture(tu);
 		}
 	}
@@ -249,11 +249,11 @@ class ShaderContext {
 	}
 
 	function addConstant(c:TShaderConstant) {
-		constants.push(pipeState.getConstantLocation(c.id));
+		constants.push(pipeState.getConstantLocation(c.name));
 	}
 
 	function addTexture(tu:TTextureUnit) {
-		var unit = pipeState.getTextureUnit(tu.id);
+		var unit = pipeState.getTextureUnit(tu.name);
 		textureUnits.push(unit);
 	}
 	

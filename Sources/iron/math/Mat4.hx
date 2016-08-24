@@ -333,8 +333,8 @@ class Mat4 extends kha.math.FastMatrix4 {
 		_30 = m._30; _31 = m._31; _32 = m._32; _33 = m._33;		
 	}
 
-	// Retrieves pos vector from matrix
-	public inline function pos(v:Vec4 = null):Vec4 {
+	// Retrieves location vector from matrix
+	public inline function loc(v:Vec4 = null):Vec4 {
 		if (v == null)
 			return new Vec4(_30, _31 , _32 , _33);
 		else {

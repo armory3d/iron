@@ -1,4 +1,4 @@
-package iron.resource;
+package iron.data;
 
 import kha.Color;
 import kha.Scheduler;
@@ -8,15 +8,15 @@ import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
-import iron.resource.SceneFormat;
-import iron.resource.PipelineResource.RenderTarget; // Ping-pong
-import iron.resource.MaterialResource.MaterialContext;
-import iron.resource.ShaderResource.ShaderContext;
+import iron.data.SceneFormat;
+import iron.data.PipelineData.RenderTarget; // Ping-pong
+import iron.data.MaterialData.MaterialContext;
+import iron.data.ShaderData.ShaderContext;
 import iron.Root;
-import iron.node.Node;
-import iron.node.CameraNode;
-import iron.node.LightNode;
-import iron.node.ModelNode;
+import iron.object.Object;
+import iron.object.CameraObject;
+import iron.object.LampObject;
+import iron.object.MeshObject;
 
 #if cpp
 @:headerCode('
@@ -25,12 +25,12 @@ import iron.node.ModelNode;
 ')
 #end
 
-typedef TStageCommand = Array<String>->Node->Void;
+typedef TStageCommand = Array<String>->Object->Void;
 
 class RenderPath {
 
-	var camera:CameraNode;
-	public var resource:CameraResource;
+	var camera:CameraObject;
+	public var data:CameraData;
 
 	var frameRenderTarget:Graphics;
 	var currentRenderTarget:Graphics;
@@ -50,8 +50,8 @@ class RenderPath {
 	var currentStageIndex = 0;
 	var sorted:Bool;
 	
-	var lights:Array<LightNode>;
-	public var currentLightIndex = 0;
+	var lamps:Array<LampObject>;
+	public var currentLampIndex = 0;
 
 	// Quad and decals contexts
 	var cachedShaderContexts:Map<String, CachedShaderContext> = new Map();
@@ -64,9 +64,9 @@ class RenderPath {
 	var currentPass:Int;
 #end
 
-	public function new(camera:CameraNode) {
+	public function new(camera:CameraObject) {
 		this.camera = camera;
-		resource = camera.resource;
+		data = camera.data;
 
 		cacheStageCommands();
 
@@ -124,8 +124,8 @@ class RenderPath {
 		structure.add("pos", VertexData.Float3);
 		structure.add("nor", VertexData.Float3);
 		var structLength = Std.int(structure.byteSize() / 4);
-		var pos = iron.resource.ConstData.skydomePos;
-		var nor = iron.resource.ConstData.skydomeNor;
+		var pos = iron.data.ConstData.skydomePos;
+		var nor = iron.data.ConstData.skydomeNor;
 		skydomeVB = new VertexBuffer(Std.int(pos.length / 3), structure, Usage.StaticUsage);
 		var vertices = skydomeVB.lock();
 		for (i in 0...Std.int(vertices.length / structLength)) {
@@ -138,14 +138,14 @@ class RenderPath {
 		}
 		skydomeVB.unlock();
 
-		var indices = iron.resource.ConstData.skydomeIndices;
+		var indices = iron.data.ConstData.skydomeIndices;
 		skydomeIB = new IndexBuffer(indices.length, Usage.StaticUsage);
 		var id = skydomeIB.lock();
 		for (i in 0...id.length) id[i] = indices[i];
 		skydomeIB.unlock();
 	}
 
-	public function renderFrame(g:Graphics, root:Node, lights:Array<LightNode>) {
+	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
 #if WITH_PROFILE
 		drawCalls = 0;
 		currentPass = 0;
@@ -157,16 +157,16 @@ class RenderPath {
 		currentRenderTargetH = iron.App.h;
 		sorted = false;
 
-		this.lights = lights;
-		currentLightIndex = 0;
+		this.lamps = lamps;
+		currentLampIndex = 0;
 		
-		for (l in lights) l.buildMatrices(camera);
+		for (l in lamps) l.buildMatrices(camera);
 
 		for (i in 0...stageCommands.length) {
 #if WITH_PROFILE
 			var cmd = stageCommands[i];
 			if (!passEnabled[currentPass]) {
-				if (cmd == drawGeometry || cmd == drawSkydome || cmd == drawLightVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
+				if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
 					endPass();
 				}
 				continue;
@@ -177,7 +177,7 @@ class RenderPath {
 			stageCommands[i](stageParams[i], root);
 
 #if WITH_PROFILE
-			if (cmd == drawGeometry || cmd == drawSkydome || cmd == drawLightVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
+			if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
 				passTimes[currentPass] = kha.Scheduler.realTime() - startTime;
 				endPass();
 			}
@@ -196,7 +196,7 @@ class RenderPath {
 	public static var lastPongRT:RenderTarget;
 	var loopFinished = 0;
 	var drawPerformed = false;
-	function setTarget(params:Array<String>, root:Node) {
+	function setTarget(params:Array<String>, root:Object) {
 		// Ping-pong
 		if (lastPongRT != null && drawPerformed && loopFinished == 0) { // Drawing to pong texture has been done, switch state
 			lastPongRT.pongState = !lastPongRT.pongState;
@@ -212,12 +212,12 @@ class RenderPath {
 			begin(currentRenderTarget);
 		}
 		else {			
-			var rt = resource.pipeline.renderTargets.get(target);
+			var rt = data.pipeline.renderTargets.get(target);
 			var additionalImages:Array<kha.Canvas> = null;
 			if (params.length > 2) {
 				additionalImages = [];
 				for (i in 2...params.length) {
-					var t = resource.pipeline.renderTargets.get(params[i]);
+					var t = data.pipeline.renderTargets.get(params[i]);
 					additionalImages.push(t.image);
 				}
 			}
@@ -246,7 +246,7 @@ class RenderPath {
 		bindParams = null;
 	}
 
-	function clearTarget(params:Array<String>, root:Node) {
+	function clearTarget(params:Array<String>, root:Object) {
 		var colorFlag:Null<Int> = null;
 		var depthFlag:Null<Float> = null;
 		
@@ -274,46 +274,46 @@ class RenderPath {
 		currentRenderTarget.clear(colorFlag, depthFlag, null);
 	}
 
-	function drawGeometry(params:Array<String>, root:Node) {
+	function drawMeshes(params:Array<String>, root:Object) {
 		var context = params[0];
-		var light = lights[currentLightIndex];
+		var lamp = lamps[currentLampIndex];
 
-		// Disabled shadow casting for this light
-		if (context == resource.pipeline.resource.shadows_context && !light.resource.resource.cast_shadow) return;
+		// Disabled shadow casting for this lamp
+		if (context == data.pipeline.raw.shadows_context && !lamp.data.raw.cast_shadow) return;
 
 		if (!sorted && params[1] == "front_to_back") { // Order max one per frame
 			var camX = camera.transform.absx();
 			var camY = camera.transform.absy();
 			var camZ = camera.transform.absz();
-			for (model in Root.models) {
-				model.computeCameraDistance(camX, camY, camZ);
+			for (mesh in Root.meshes) {
+				mesh.computeCameraDistance(camX, camY, camZ);
 			}
-			Root.models.sort(function(a, b):Int {
+			Root.meshes.sort(function(a, b):Int {
 				return a.cameraDistance > b.cameraDistance ? 1 : -1;
 			});
 			sorted = true;
 		}
 		var g = currentRenderTarget;
 		// if (params[1] == "back_to_front") {
-		// 	var len = Root.models.length;
+		// 	var len = Root.meshes.length;
 		// 	for (i in 0...len) {
-		// 		Root.models[len - 1 - i].render(g, context, camera, light, bindParams);
+		// 		Root.meshes[len - 1 - i].render(g, context, camera, lamp, bindParams);
 		// 	}
 		// }
 		// else {
-			for (model in Root.models) {
-				model.render(g, context, camera, light, bindParams);
+			for (mesh in Root.meshes) {
+				mesh.render(g, context, camera, lamp, bindParams);
 			}
 		// }
 		end(g);
 	}
 	
-	function drawDecals(params:Array<String>, root:Node) {
+	function drawDecals(params:Array<String>, root:Object) {
 		var context = params[0];
 		var g = currentRenderTarget;
-		var light = lights[currentLightIndex];
+		var lamp = lamps[currentLampIndex];
 		for (decal in Root.decals) {
-			decal.render(g, context, camera, light, bindParams);
+			decal.render(g, context, camera, lamp, bindParams);
 			g.setVertexBuffer(boxVB);
 			g.setIndexBuffer(boxIB);
 			g.drawIndexedVertices();
@@ -321,12 +321,12 @@ class RenderPath {
 		end(g);
 	}
 
-	function drawSkydome(params:Array<String>, root:Node) {
+	function drawSkydome(params:Array<String>, root:Object) {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
 			var matPath = handle.split("/");
-			var res = Resource.getMaterial(matPath[0], matPath[1]);
+			var res = Data.getMaterial(matPath[0], matPath[1]);
 			cc = new CachedShaderContext();
 			cc.materialContext = res.getContext(matPath[2]);
 			cc.context = res.shader.getContext(matPath[2]);
@@ -335,10 +335,10 @@ class RenderPath {
 
 		var g = currentRenderTarget;
 		g.setPipeline(cc.context.pipeState);
-		var light = lights[currentLightIndex];
-		ModelNode.setConstants(g, cc.context, null, camera, light, bindParams);
+		var lamp = lamps[currentLampIndex];
+		MeshObject.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {
-			ModelNode.setMaterialConstants(g, cc.context, cc.materialContext);
+			MeshObject.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
 		g.setVertexBuffer(skydomeVB);
 		g.setIndexBuffer(skydomeIB);
@@ -346,12 +346,12 @@ class RenderPath {
 		end(g);
 	}
 
-	function drawLightVolume(params:Array<String>, root:Node) {
+	function drawLampVolume(params:Array<String>, root:Object) {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
 			var shaderPath = handle.split("/");
-			var res = Resource.getShader(shaderPath[0], shaderPath[1]);
+			var res = Data.getShader(shaderPath[0], shaderPath[1]);
 			cc = new CachedShaderContext();
 			cc.materialContext = null;
 			cc.context = res.getContext(shaderPath[2]);
@@ -359,10 +359,10 @@ class RenderPath {
 		}
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
-		var light = lights[currentLightIndex];
-		ModelNode.setConstants(g, cc.context, null, camera, light, bindParams);
+		var lamp = lamps[currentLampIndex];
+		MeshObject.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {
-			ModelNode.setMaterialConstants(g, cc.context, cc.materialContext);
+			MeshObject.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
 		g.setVertexBuffer(boxVB);
 		g.setIndexBuffer(boxIB);
@@ -370,17 +370,17 @@ class RenderPath {
 		end(g);
 	}
 
-	function bindTarget(params:Array<String>, root:Node) {
+	function bindTarget(params:Array<String>, root:Object) {
 		if (bindParams != null) for (p in params) bindParams.push(p); // Multiple binds, append params
 		else bindParams = params;
 	}
 	
-	function drawShaderQuad(params:Array<String>, root:Node) {
+	function drawShaderQuad(params:Array<String>, root:Object) {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
 			var shaderPath = handle.split("/");
-			var res = Resource.getShader(shaderPath[0], shaderPath[1]);
+			var res = Data.getShader(shaderPath[0], shaderPath[1]);
 			cc = new CachedShaderContext();
 			cc.materialContext = null;
 			cc.context = res.getContext(shaderPath[2]);
@@ -389,12 +389,12 @@ class RenderPath {
 		drawQuad(cc, root);
 	}
 	
-	function drawMaterialQuad(params:Array<String>, root:Node) {
+	function drawMaterialQuad(params:Array<String>, root:Object) {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
 			var matPath = handle.split("/");
-			var res = Resource.getMaterial(matPath[0], matPath[1]);
+			var res = Data.getMaterial(matPath[0], matPath[1]);
 			cc = new CachedShaderContext();
 			cc.materialContext = res.getContext(matPath[2]);
 			cc.context = res.shader.getContext(matPath[2]);
@@ -403,14 +403,14 @@ class RenderPath {
 		drawQuad(cc, root);
 	}
 
-	function drawQuad(cc:CachedShaderContext, root:Node) {
+	function drawQuad(cc:CachedShaderContext, root:Object) {
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
-		var light = lights[currentLightIndex];
+		var lamp = lamps[currentLampIndex];
 
-		ModelNode.setConstants(g, cc.context, null, camera, light, bindParams);
+		MeshObject.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {
-			ModelNode.setMaterialConstants(g, cc.context, cc.materialContext);
+			MeshObject.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
 
 		g.setVertexBuffer(screenAlignedVB);
@@ -420,14 +420,14 @@ class RenderPath {
 		end(g);
 	}
 
-	function callFunction(params:Array<String>, root:Node) {
+	function callFunction(params:Array<String>, root:Object) {
 		// TODO: cache
 		var path = params[0];
 		var dotIndex = path.lastIndexOf(".");
 		var classPath = path.substr(0, dotIndex);
 		var classType = Type.resolveClass(classPath);
 		var funName = path.substr(dotIndex + 1);
-		var stageData = resource.pipeline.resource.stages[currentStageIndex];
+		var stageData = data.pipeline.raw.stages[currentStageIndex];
 		// Call function
 		if (stageData.returns_true == null && stageData.returns_false == null) {
 			Reflect.callMethod(classType, Reflect.field(classType, funName), []);
@@ -447,22 +447,22 @@ class RenderPath {
 		}
 	}
 	
-	function loopLights(params:Array<String>, root:Node) {
-		var stageData = resource.pipeline.resource.stages[currentStageIndex];
+	function loopLamps(params:Array<String>, root:Object) {
+		var stageData = data.pipeline.raw.stages[currentStageIndex];
 		
-		currentLightIndex = 0;
+		currentLampIndex = 0;
 		loopFinished++;
-		for (i in 0...lights.length) {
-			var l = lights[i];
+		for (i in 0...lamps.length) {
+			var l = lamps[i];
 			if (!l.visible) continue;
-			currentLightIndex = i;
+			currentLampIndex = i;
 			for (stage in stageData.returns_true) {
 				// TODO: cache commands
 				var commandFun = commandToFunction(stage.command);			
 				commandFun(stage.params, root);
 			}
 		}
-		currentLightIndex = 0;
+		currentLampIndex = 0;
 		loopFinished--;
 
 #if WITH_PROFILE
@@ -471,8 +471,8 @@ class RenderPath {
 	}
 
 #if WITH_VR
-	function drawStereo(params:Array<String>, root:Node) {
-		var stageData = resource.pipeline.resource.stages[currentStageIndex];
+	function drawStereo(params:Array<String>, root:Object) {
+		var stageData = data.pipeline.raw.stages[currentStageIndex];
 		
 		loopFinished++;
 		var g = currentRenderTarget;
@@ -531,7 +531,7 @@ class RenderPath {
 		passEnabled = [];
 #end
 
-		for (stage in resource.pipeline.resource.stages) {
+		for (stage in data.pipeline.raw.stages) {
 			stageCommands.push(commandToFunction(stage.command));
 			stageParams.push(stage.params);
 #if WITH_PROFILE
@@ -550,7 +550,7 @@ class RenderPath {
 				passEnabled.push(true);
 			}
 			// Combine into single entry for now
-			else if (stage.command == "loop_lights" || stage.command == "loop_stages" || stage.command == "draw_stereo") {
+			else if (stage.command == "loop_lamps" || stage.command == "loop_stages" || stage.command == "draw_stereo") {
 				passNames.push(stage.command);
 				passTimes.push(0.0);
 				passEnabled.push(true);
@@ -566,8 +566,8 @@ class RenderPath {
 		else if (command == "clear_target") {
 			return clearTarget;
 		}
-		else if (command == "draw_geometry") {
-			return drawGeometry;
+		else if (command == "draw_meshes") {
+			return drawMeshes;
 		}
 		else if (command == "draw_decals") {
 			return drawDecals;
@@ -575,8 +575,8 @@ class RenderPath {
 		else if (command == "draw_skydome") {
 			return drawSkydome;
 		}
-		else if (command == "draw_light_volume") {
-			return drawLightVolume;
+		else if (command == "draw_lamp_volume") {
+			return drawLampVolume;
 		}
 		else if (command == "bind_target") {
 			return bindTarget;
@@ -590,8 +590,8 @@ class RenderPath {
 		else if (command == "call_function") {
 			return callFunction;
 		}
-		else if (command == "loop_lights") {
-			return loopLights;
+		else if (command == "loop_lamps") {
+			return loopLamps;
 		}
 #if WITH_VR
 		else if (command == "draw_stereo") {
