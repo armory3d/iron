@@ -1,20 +1,17 @@
 package iron.object;
 
 import kha.graphics4.Graphics;
-import iron.Root;
+import iron.Scene;
 import iron.math.Mat4;
 import iron.math.Vec4;
 import iron.math.Quat;
 import iron.data.CameraData;
-import iron.data.WorldData;
 import iron.data.RenderPath;
 
 class CameraObject extends Object {
 
 	public var data:CameraData;
 	public var renderPath:RenderPath;
-	
-	public var world:WorldData;
 
 	public var P:Mat4; // Matrices
 // #if WITH_VELOC
@@ -72,11 +69,11 @@ class CameraObject extends Object {
 			for (i in 0...6) frustumPlanes.push(new FrustumPlane());
 		}
 
-		Root.cameras.push(this);
+		Scene.active.cameras.push(this);
 	}
 
 	public override function remove() {
-		Root.cameras.remove(this);
+		Scene.active.cameras.remove(this);
 		super.remove();
 	}
 

@@ -5,7 +5,7 @@ import kha.graphics4.ConstantLocation;
 import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
-import iron.Root;
+import iron.Scene;
 import iron.math.Vec4;
 import iron.math.Quat;
 import iron.math.Mat4;
@@ -46,17 +46,17 @@ class MeshObject extends Object {
 
 		this.data = data;
 		this.materials = materials;	
-		Root.meshes.push(this);
+		Scene.active.meshes.push(this);
 	}
 
 	public override function remove() {
-		Root.meshes.remove(this);
+		Scene.active.meshes.remove(this);
 		super.remove();
 	}
 
-	public override function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+	public override function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>, maxBones = 50) {
 		if (data.isSkinned) {
-			animation = Animation.setupBoneAnimation(data, startTrack, names, starts, ends, speeds, loops, reflects);
+			animation = Animation.setupBoneAnimation(data, startTrack, names, starts, ends, speeds, loops, reflects, maxBones);
 		}
 		else {
 			super.setupAnimation(startTrack, names, starts, ends, speeds, loops, reflects);
@@ -108,11 +108,11 @@ class MeshObject extends Object {
 			var tuid = context.raw.texture_units[j].name;
 			var tulink = context.raw.texture_units[j].link;
 			if (tulink == "_envmapRadiance") {
-				g.setTexture(context.textureUnits[j], camera.world.getGlobalProbe().radiance);
+				g.setTexture(context.textureUnits[j], Scene.active.world.getGlobalProbe().radiance);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 			}
 			else if (tulink == "_envmapBrdf") {
-				g.setTexture(context.textureUnits[j], camera.world.brdf);
+				g.setTexture(context.textureUnits[j], Scene.active.world.brdf);
 			}
 			// Migrate to arm
 			else if (tulink == "_smaaSearch") {
@@ -320,15 +320,15 @@ class MeshObject extends Object {
 				v = helpVec;
 			}
 			else if (c.link == "_probeVolumeCenter") { // Local probes
-				v = camera.world.getProbeVolumeCenter(object.transform);
+				v = Scene.active.world.getProbeVolumeCenter(object.transform);
 			}
 			else if (c.link == "_probeVolumeSize") {
-				v = camera.world.getProbeVolumeSize(object.transform);
+				v = Scene.active.world.getProbeVolumeSize(object.transform);
 			}
 			
 			else if (c.link == "_hosekA") {
 				if (armory.renderpipeline.HosekWilkie.data == null) {
-					armory.renderpipeline.HosekWilkie.init(camera.world);
+					armory.renderpipeline.HosekWilkie.init(Scene.active.world);
 				}
 				v = helpVec;
 				v.x = armory.renderpipeline.HosekWilkie.data.A.x;
@@ -337,7 +337,7 @@ class MeshObject extends Object {
 			}
 			else if (c.link == "_hosekB") {
 				if (armory.renderpipeline.HosekWilkie.data == null) {
-					armory.renderpipeline.HosekWilkie.init(camera.world);
+					armory.renderpipeline.HosekWilkie.init(Scene.active.world);
 				}
 				v = helpVec;
 				v.x = armory.renderpipeline.HosekWilkie.data.B.x;
@@ -346,7 +346,7 @@ class MeshObject extends Object {
 			}
 			else if (c.link == "_hosekC") {
 				if (armory.renderpipeline.HosekWilkie.data == null) {
-					armory.renderpipeline.HosekWilkie.init(camera.world);
+					armory.renderpipeline.HosekWilkie.init(Scene.active.world);
 				}
 				v = helpVec;
 				v.x = armory.renderpipeline.HosekWilkie.data.C.x;
@@ -355,7 +355,7 @@ class MeshObject extends Object {
 			}
 			else if (c.link == "_hosekD") {
 				if (armory.renderpipeline.HosekWilkie.data == null) {
-					armory.renderpipeline.HosekWilkie.init(camera.world);
+					armory.renderpipeline.HosekWilkie.init(Scene.active.world);
 				}
 				v = helpVec;
 				v.x = armory.renderpipeline.HosekWilkie.data.D.x;
@@ -364,7 +364,7 @@ class MeshObject extends Object {
 			}
 			else if (c.link == "_hosekE") {
 				if (armory.renderpipeline.HosekWilkie.data == null) {
-					armory.renderpipeline.HosekWilkie.init(camera.world);
+					armory.renderpipeline.HosekWilkie.init(Scene.active.world);
 				}
 				v = helpVec;
 				v.x = armory.renderpipeline.HosekWilkie.data.E.x;
@@ -373,7 +373,7 @@ class MeshObject extends Object {
 			}
 			else if (c.link == "_hosekF") {
 				if (armory.renderpipeline.HosekWilkie.data == null) {
-					armory.renderpipeline.HosekWilkie.init(camera.world);
+					armory.renderpipeline.HosekWilkie.init(Scene.active.world);
 				}
 				v = helpVec;
 				v.x = armory.renderpipeline.HosekWilkie.data.F.x;
@@ -382,7 +382,7 @@ class MeshObject extends Object {
 			}
 			else if (c.link == "_hosekG") {
 				if (armory.renderpipeline.HosekWilkie.data == null) {
-					armory.renderpipeline.HosekWilkie.init(camera.world);
+					armory.renderpipeline.HosekWilkie.init(Scene.active.world);
 				}
 				v = helpVec;
 				v.x = armory.renderpipeline.HosekWilkie.data.G.x;
@@ -391,7 +391,7 @@ class MeshObject extends Object {
 			}
 			else if (c.link == "_hosekH") {
 				if (armory.renderpipeline.HosekWilkie.data == null) {
-					armory.renderpipeline.HosekWilkie.init(camera.world);
+					armory.renderpipeline.HosekWilkie.init(Scene.active.world);
 				}
 				v = helpVec;
 				v.x = armory.renderpipeline.HosekWilkie.data.H.x;
@@ -400,7 +400,7 @@ class MeshObject extends Object {
 			}
 			else if (c.link == "_hosekI") {
 				if (armory.renderpipeline.HosekWilkie.data == null) {
-					armory.renderpipeline.HosekWilkie.init(camera.world);
+					armory.renderpipeline.HosekWilkie.init(Scene.active.world);
 				}
 				v = helpVec;
 				v.x = armory.renderpipeline.HosekWilkie.data.I.x;
@@ -409,7 +409,7 @@ class MeshObject extends Object {
 			}
 			else if (c.link == "_hosekZ") {
 				if (armory.renderpipeline.HosekWilkie.data == null) {
-					armory.renderpipeline.HosekWilkie.init(camera.world);
+					armory.renderpipeline.HosekWilkie.init(Scene.active.world);
 				}
 				v = helpVec;
 				v.x = armory.renderpipeline.HosekWilkie.data.Z.x;
@@ -473,7 +473,7 @@ class MeshObject extends Object {
 				f = lamp.data.raw.spot_blend;
 			}
 			else if (c.link == "_envmapStrength") {
-				f = camera.world.getGlobalProbe().strength;
+				f = Scene.active.world.getGlobalProbe().strength;
 			}
 #if WITH_VR
 			else if (c.link == "_maxRadiusSq") {
@@ -488,8 +488,8 @@ class MeshObject extends Object {
 				fa = cast(object, MeshObject).animation.skinBuffer;
 			}
 			else if (c.link == "_envmapIrradiance") {
-				// fa = camera.world.getGlobalProbe().irradiance;
-				fa = camera.world.getSHIrradiance();
+				// fa = Scene.active.world.getGlobalProbe().irradiance;
+				fa = Scene.active.world.getSHIrradiance();
 			}
 			g.setFloats(location, fa);
 		}
@@ -505,10 +505,10 @@ class MeshObject extends Object {
 				i = camera.renderPath.currentLampIndex;
 			}
 			else if (c.link == "_envmapNumMipmaps") {
-				i = camera.world.getGlobalProbe().numMipmaps + 1; // Include basecolor
+				i = Scene.active.world.getGlobalProbe().numMipmaps + 1; // Include basecolor
 			}
 			else if (c.link == "_probeID") { // Local probes
-				i = camera.world.getProbeID(object.transform);
+				i = Scene.active.world.getProbeID(object.transform);
 			}
 			g.setInt(location, i);
 		}
@@ -577,6 +577,7 @@ class MeshObject extends Object {
 		if (!visible || !lamp.visible) return;
 
 		// Frustum culling
+		culled = false;
 		if (camera.data.raw.frustum_culling) {
 			// Scale radius for skinned mesh
 			// TODO: determine max skinned radius
@@ -597,7 +598,10 @@ class MeshObject extends Object {
 						break;
 					}
 				}
-				if (!instanceInFrustum) return;
+				if (!instanceInFrustum) {
+					culled = true;
+					return;
+				}
 
 				// Sort - always front to back for now
 				var camX = camera.transform.absx();
@@ -607,7 +611,10 @@ class MeshObject extends Object {
 			}
 			// Non-instanced
 			else {
-				if (!CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale)) return;
+				if (!CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale)) {
+					culled = true;
+					return;
+				}
 			}
 		}
 

@@ -7,6 +7,7 @@ import iron.data.SceneFormat;
 
 class PipelineData extends Data {
 
+	public var name:String;
 	public var raw:TPipelineData;
 	public var renderTargets:Map<String, RenderTarget> = null;
 	public var depthToRenderTarget:Map<String, RenderTarget> = null;
@@ -15,6 +16,7 @@ class PipelineData extends Data {
 		super();
 
 		this.raw = raw;
+		this.name = raw.name;
 
 		if (raw.render_targets.length > 0) {
 			renderTargets = new Map();

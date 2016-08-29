@@ -17,6 +17,7 @@ import iron.data.SceneFormat;
 
 class ShaderData extends Data {
 
+	public var name:String;
 	public var raw:TShaderData;
 
 	var structure:VertexStructure;
@@ -28,6 +29,7 @@ class ShaderData extends Data {
 		super();
 
 		this.raw = raw;
+		this.name = raw.name;
 
 		parseVertexStructure();
 

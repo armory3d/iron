@@ -4,7 +4,7 @@ import iron.math.Mat4;
 import iron.math.Vec4;
 import iron.data.LampData;
 import iron.object.CameraObject.FrustumPlane;
-import iron.Root;
+import iron.Scene;
 
 class LampObject extends Object {
 
@@ -24,11 +24,11 @@ class LampObject extends Object {
 		this.data = data;
 		farPlane = data.raw.far_plane;
 
-		Root.lamps.push(this);
+		Scene.active.lamps.push(this);
 	}
 
 	public override function remove() {
-		Root.lamps.remove(this);
+		Scene.active.lamps.remove(this);
 		super.remove();
 	}
 

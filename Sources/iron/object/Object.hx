@@ -21,6 +21,7 @@ class Object {
 
 	public var animation:Animation = null;
 	public var visible = true; // Skip render, keep updating
+	public var culled = false; // Object was culled last frame
 
 	public function new() {
 		uid = uidCounter++;
@@ -81,7 +82,7 @@ class Object {
 		return null;
 	}
 
-	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>, maxBones = 50) {
 		animation = Animation.setupObjectAnimation(this, startTrack, names, starts, ends, speeds, loops, reflects);
 	}
 

@@ -6,6 +6,7 @@ import iron.object.MeshObject;
 
 class MaterialData extends Data {
 
+	public var name:String;
 	public var raw:TMaterialData;
 	public var shader:ShaderData;
 
@@ -15,6 +16,7 @@ class MaterialData extends Data {
 		super();
 
 		this.raw = raw;
+		this.name = raw.name;
 
 		var shaderName:Array<String> = raw.shader.split("/");
 		shader = Data.getShader(shaderName[0], shaderName[1], raw.override_context);

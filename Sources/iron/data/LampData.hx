@@ -5,6 +5,7 @@ import iron.data.SceneFormat;
 
 class LampData extends Data {
 
+	public var name:String;
 	public var raw:TLampData;
 
 	public var P:Mat4 = null; // Shadow map matrices
@@ -14,6 +15,7 @@ class LampData extends Data {
 		super();
 
 		this.raw = raw;
+		this.name = raw.name;
 		
 		var type = raw.type;
 		var fov = raw.fov;

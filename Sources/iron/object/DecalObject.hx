@@ -3,7 +3,7 @@ package iron.object;
 import kha.graphics4.Graphics;
 import iron.data.MaterialData;
 import iron.object.MeshObject;
-import iron.Root;
+import iron.Scene;
 
 class DecalObject extends Object {
 
@@ -15,11 +15,11 @@ class DecalObject extends Object {
 		
 		this.material = material;
 
-		Root.decals.push(this);
+		Scene.active.decals.push(this);
 	}
 
 	public override function remove() {
-		Root.decals.remove(this);
+		Scene.active.decals.remove(this);
 		super.remove();
 	}
 	

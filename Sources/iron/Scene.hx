@@ -15,19 +15,27 @@ import iron.data.CameraData;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.SceneFormat;
+import iron.data.WorldData;
 import iron.math.Mat4;
 
-class Root {
+class Scene {
 
-	public static var root:Object;
-	public static var meshes:Array<MeshObject>;
-	public static var lamps:Array<LampObject>;
-	public static var cameras:Array<CameraObject>;
-	public static var speakers:Array<SpeakerObject>;
-	public static var decals:Array<DecalObject>;
+	public static var active:Scene;
+	
+	public var root:Object;
+	public var camera:CameraObject;
+	public var world:WorldData;
+
+	public var meshes:Array<MeshObject>;
+	// public var armatures:Array<ArmatureObject>;
+	public var lamps:Array<LampObject>;
+	public var cameras:Array<CameraObject>;
+	public var speakers:Array<SpeakerObject>;
+	public var decals:Array<DecalObject>;
 
 	public function new() {
 		meshes = [];
+		// armatures = [];
 		lamps = [];
 		cameras = [];
 		speakers = [];
@@ -35,55 +43,117 @@ class Root {
 		root = new Object();
 	}
 
+	public static function create(raw:TSceneFormat):Object {
+		active = new Scene();
+
+		// Startup scene
+		var sceneObject = active.addScene(raw.name);
+
+		if (active.cameras.length == 0) {
+			trace('No camera found for scene "$raw.name"!');
+			return null;
+		}
+
+		active.camera = active.getCamera(raw.camera_ref);
+		active.world = Data.getWorld(raw.name, raw.world_ref);
+
+		// Experimental scene reloading
+		// App.notifyOnUpdate(function() {
+		// 	if (iron.sys.Input.released) {
+		// 		// kha.Assets.loadBlob(sceneName + '_arm', function(b:kha.Blob) {
+		// 			iron.App.reset();
+		// 			iron.data.Data.clearSceneData();
+		// 			new iron.App(armory.scene);
+		// 		// });
+		// 	}
+		// });
+
+		return sceneObject;
+	}
+
+	public function renderFrame(g:kha.graphics4.Graphics) {
+		var activeCamera = camera;
+		// Render active mirrors
+		for (cam in cameras) {
+			if (cam.data.mirror != null) {
+				camera = cam;
+				camera.renderFrame(g, root, lamps);
+			}
+		}
+		// Render active camera
+		camera = activeCamera;
+		camera.renderFrame(g, root, lamps);
+	}
+
 	// Objects
-	public static function addObject(parent:Object = null):Object {
+	public function addObject(parent:Object = null):Object {
 		var object = new Object();
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 
-	public static function getObject(name:String):Object {
+	public function getObject(name:String):Object {
 		return root.getChild(name);
 	}
 
-	public static function addMeshObject(data:MeshData, materials:Array<MaterialData>, parent:Object = null):MeshObject {
+	public function getMesh(name:String):MeshObject {
+		for (m in meshes) if (m.name == name) return m;
+		return null;
+	}
+
+	public function getLamp(name:String):LampObject {
+		for (l in lamps) if (l.name == name) return l;
+		return null;
+	}
+
+	public function getCamera(name:String):CameraObject {
+		for (c in cameras) if (c.name == name) return c;
+		return null;
+	}
+
+	public function getSpeaker(name:String):SpeakerObject {
+		for (s in speakers) if (s.name == name) return s;
+		return null;
+	}
+
+	public function addMeshObject(data:MeshData, materials:Array<MaterialData>, parent:Object = null):MeshObject {
 		var object = new MeshObject(data, materials);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 
-	public static function addLampObject(data:LampData, parent:Object = null):LampObject {
+	public function addLampObject(data:LampData, parent:Object = null):LampObject {
 		var object = new LampObject(data);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 
-	public static function addCameraObject(data:CameraData, parent:Object = null):CameraObject {
+	public function addCameraObject(data:CameraData, parent:Object = null):CameraObject {
 		var object = new CameraObject(data);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 
-	public static function addSpeakerObject(data:TSpeakerData, parent:Object = null):SpeakerObject {
+	public function addSpeakerObject(data:TSpeakerData, parent:Object = null):SpeakerObject {
 		var object = new SpeakerObject(data);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 	
-	public static function addDecalObject(material:MaterialData, parent:Object = null):DecalObject {
+	public function addDecalObject(material:MaterialData, parent:Object = null):DecalObject {
 		var object = new DecalObject(material);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 
-	public static function addScene(name:String, parent:Object = null):Object {
+	public function addScene(name:String, parent:Object = null):Object {
 		if (parent == null) parent = addObject();
 		var data:TSceneFormat = Data.getSceneRaw(name);
 		traverseObjects(data, name, parent, data.objects, null);
 		return parent;
 	}
 
-	static function traverseObjects(data:TSceneFormat, name:String, parent:Object, objects:Array<TObj>, parentObject:TObj) {
+	function traverseObjects(data:TSceneFormat, name:String, parent:Object, objects:Array<TObj>, parentObject:TObj) {
 		for (o in objects) {
 			if (o.spawn != null && o.spawn == false) continue; // Do not auto-create this object
 			
@@ -94,7 +164,7 @@ class Root {
 		}
 	}
 	
-	public static function parseObject(sceneName:String, objectName:String, parent:Object = null):Object {
+	public function parseObject(sceneName:String, objectName:String, parent:Object = null):Object {
 		var raw:TSceneFormat = Data.getSceneRaw(sceneName);
 		// TODO: traverse to find deeper objects
 		var o:TObj = null;
@@ -105,22 +175,22 @@ class Root {
 			}
 		}
 		if (o == null) return null;
-		return Root.createObject(o, raw, sceneName, parent, null);
+		return createObject(o, raw, sceneName, parent, null);
 	}
 	
-	public static function createObject(o:TObj, raw:TSceneFormat, name:String, parent:Object, parentObject:TObj):Object {
+	public function createObject(o:TObj, raw:TSceneFormat, name:String, parent:Object, parentObject:TObj):Object {
 		var object:Object = null;
 			
 		if (o.type == "camera_object") {
-			object = Root.addCameraObject(Data.getCamera(name, o.data_ref), parent);
+			object = addCameraObject(Data.getCamera(name, o.data_ref), parent);
 		}
 		else if (o.type == "lamp_object") {
-			object = Root.addLampObject(Data.getLamp(name, o.data_ref), parent);	
+			object = addLampObject(Data.getLamp(name, o.data_ref), parent);	
 		}
 		else if (o.type == "mesh_object") {
 			if (o.material_refs.length == 0) {
 				// No material, create empty object
-				object = Root.addObject(parent);
+				object = addObject(parent);
 			}
 			else {
 				// Materials
@@ -148,7 +218,7 @@ class Root {
 					boneObjects = Data.getSceneRaw(parentObject.bones_ref).objects;
 				}
 
-				object = Root.addMeshObject(Data.getMesh(object_file, data_ref, boneObjects), materials, parent);
+				object = addMeshObject(Data.getMesh(object_file, data_ref, boneObjects), materials, parent);
 				
 				// Attach particle system
 				if (o.particle_refs != null && o.particle_refs.length > 0) {
@@ -158,18 +228,19 @@ class Root {
 			object.transform.size.set(o.dimensions[0], o.dimensions[1], o.dimensions[2]);
 			object.transform.computeRadius();
 		}
+		// else if (o.type == "armature_object") {}
 		else if (o.type == "speaker_object") {
-			object = Root.addSpeakerObject(Data.getSpeakerRawByName(raw.speaker_datas, o.data_ref), parent);	
+			object = addSpeakerObject(Data.getSpeakerRawByName(raw.speaker_datas, o.data_ref), parent);	
 		}
 		else if (o.type == "decal_object") {
 			var material:MaterialData = null;
 			if (o.material_refs != null && o.material_refs.length > 0) {
 				material = Data.getMaterial(name, o.material_refs[0]);
 			}
-			object = Root.addDecalObject(material, parent);	
+			object = addDecalObject(material, parent);	
 		}
 		else if (o.type == "object") {
-			object = Root.addObject(parent);
+			object = addObject(parent);
 		}
 
 		if (object != null) {

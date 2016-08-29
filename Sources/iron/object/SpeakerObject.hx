@@ -1,6 +1,6 @@
 package iron.object;
 
-import iron.Root;
+import iron.Scene;
 import iron.data.SceneFormat;
 
 class SpeakerObject extends Object {
@@ -12,13 +12,13 @@ class SpeakerObject extends Object {
 
 		this.data = data;
 
-		Root.speakers.push(this);
+		Scene.active.speakers.push(this);
 
 		iron.sys.Audio.playSound(Reflect.field(kha.Assets.sounds, data.sound));
 	}
 
 	public override function remove() {
-		Root.speakers.remove(this);
+		Scene.active.speakers.remove(this);
 		super.remove();
 	}
 }

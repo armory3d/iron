@@ -19,9 +19,12 @@ class Mat4 extends kha.math.FastMatrix4 {
 		return this;
 	}
 
+	static var vector = new Vec4();
+	static var matrix = Mat4.identity();
 	public function decompose(position:Vec4, quaternion:Quat, scale:Vec4) {
-		var vector = new Vec4(0, 0, 0, 0);
-		var matrix = Mat4.identity();
+		// var vector = new Vec4(0, 0, 0, 0);
+		vector.w = 0.0;
+		// var matrix = Mat4.identity();
 
 		var sx = vector.set(_00, _01, _02).length();
 		var sy = vector.set(_10, _11, _12).length();

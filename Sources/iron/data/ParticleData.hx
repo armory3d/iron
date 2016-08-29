@@ -4,12 +4,14 @@ import iron.data.SceneFormat;
 
 class ParticleData extends Data {
 
+	public var name:String;
 	public var raw:TParticleData;
 
 	public function new(raw:TParticleData) {
 		super();
 
 		this.raw = raw;
+		this.name = raw.name;
 	}
 
 	public static function parse(name:String, id:String):ParticleData {

@@ -32,7 +32,6 @@ class App {
         w = kha.System.windowWidth(); // TODO: do not cache
         h = kha.System.windowHeight();
 
-        new Root();
         new iron.sys.Storage();
         new iron.sys.Input();
 
@@ -50,7 +49,6 @@ class App {
         traitRenders = [];
         traitRenders2D = [];
 
-        new Root();
         iron.sys.Input.reset();
         iron.sys.Tween.reset();
     }

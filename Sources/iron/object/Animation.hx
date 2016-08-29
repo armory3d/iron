@@ -30,7 +30,7 @@ class Animation {
 		player = new Player(startTrack, names, starts, ends, speeds, loops, reflects);
 	}
 
-	public static function setupBoneAnimation(data:MeshData, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+	public static function setupBoneAnimation(data:MeshData, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>, maxBones:Int) {
 		var anim = new Animation(startTrack, names, starts, ends, speeds, loops, reflects);
 		anim.data = data;
 		anim.isSkinned = data.isSkinned;
@@ -38,7 +38,8 @@ class Animation {
 
 		if (anim.isSkinned) {
 			if (!MeshData.ForceCpuSkinning) {
-				anim.skinBuffer = new haxe.ds.Vector(50 * 12);
+				// anim.skinBuffer = new haxe.ds.Vector(maxBones * 12);
+				anim.skinBuffer = new haxe.ds.Vector(maxBones * 8); // Dual quat
 				for (i in 0...anim.skinBuffer.length) anim.skinBuffer[i] = 0;
 			}
 
@@ -90,7 +91,7 @@ class Animation {
 	public function setAnimationParams(delta:Float) {
 		if (player.paused) return;
 
-    	player.animTime += delta * player.speed * player.dir;
+		player.animTime += delta * player.speed * player.dir;
 
 		if (isSkinned) {
 			updateBoneAnim();
@@ -99,9 +100,9 @@ class Animation {
 		else {
 			updateObjectAnim();
 		}
-    }
+	}
 
-    function updateObjectAnim() {
+	function updateObjectAnim() {
 		if (isSampled) {
 			updateAnimSampled(object.raw.animation, object.transform.matrix);
 
@@ -113,9 +114,9 @@ class Animation {
 
 			object.transform.buildMatrix();
 		}
-    }
+	}
 
-    function updateBoneAnim() {
+	function updateBoneAnim() {
 		for (b in data.mesh.skeletonBones) {
 			updateAnimSampled(b.animation, boneMats.get(b));
 		}
@@ -217,8 +218,8 @@ class Animation {
 		}
 	}
 
-    function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
-    	if (anim == null) return;
+	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
+		if (anim == null) return;
 		var track = anim.tracks[0];
 
 		// Current track has been changed
@@ -296,7 +297,7 @@ class Animation {
 		m._31 = fp.y;
 		m._32 = fp.z;
 		// boneMats.set(b, m);
-    }
+	}
 
 	function setBoneAnimFrame(frame:Int) {
 		for (b in data.mesh.skeletonBones) {
@@ -326,6 +327,11 @@ class Animation {
 		else updateSkinGpu();
 	}
 
+	// Dual quat skinning
+	static var vpos = new Vec4();
+	static var vscl = new Vec4();
+	static var q1 = new Quat(); // Real
+	static var q2 = new Quat(); // Dual
 	function updateSkinGpu() {
 		var bones = data.mesh.skeletonBones;
 		for (i in 0...bones.length) {
@@ -342,20 +348,35 @@ class Animation {
 				p = p.parent;
 			}
 			bm.mult2(m);
-			bm.transpose2();
 
-		 	skinBuffer[i * 12] = bm._00;
-		 	skinBuffer[i * 12 + 1] = bm._01;
-		 	skinBuffer[i * 12 + 2] = bm._02;
-		 	skinBuffer[i * 12 + 3] = bm._03;
-		 	skinBuffer[i * 12 + 4] = bm._10;
-		 	skinBuffer[i * 12 + 5] = bm._11;
-		 	skinBuffer[i * 12 + 6] = bm._12;
-		 	skinBuffer[i * 12 + 7] = bm._13;
-		 	skinBuffer[i * 12 + 8] = bm._20;
-		 	skinBuffer[i * 12 + 9] = bm._21;
-		 	skinBuffer[i * 12 + 10] = bm._22;
-		 	skinBuffer[i * 12 + 11] = bm._23;
+			// bm.transpose2();
+			// skinBuffer[i * 12] = bm._00;
+			// skinBuffer[i * 12 + 1] = bm._01;
+			// skinBuffer[i * 12 + 2] = bm._02;
+			// skinBuffer[i * 12 + 3] = bm._03;
+			// skinBuffer[i * 12 + 4] = bm._10;
+			// skinBuffer[i * 12 + 5] = bm._11;
+			// skinBuffer[i * 12 + 6] = bm._12;
+			// skinBuffer[i * 12 + 7] = bm._13;
+			// skinBuffer[i * 12 + 8] = bm._20;
+			// skinBuffer[i * 12 + 9] = bm._21;
+			// skinBuffer[i * 12 + 10] = bm._22;
+			// skinBuffer[i * 12 + 11] = bm._23;
+
+			// Dual quat skinning
+			bm.decompose(vpos, q1, vscl);
+			q1.normalize();
+			q2.set(vpos.x, vpos.y, vpos.z, 0.0);
+			q2.multiply(q2, q1);
+			q2.x *= 0.5; q2.y *= 0.5; q2.z *= 0.5; q2.w *= 0.5;
+			skinBuffer[i * 8] = q1.x;
+			skinBuffer[i * 8 + 1] = q1.y;
+			skinBuffer[i * 8 + 2] = q1.z;
+			skinBuffer[i * 8 + 3] = q1.w;
+			skinBuffer[i * 8 + 4] = q2.x;
+			skinBuffer[i * 8 + 5] = q2.y;
+			skinBuffer[i * 8 + 6] = q2.z;
+			skinBuffer[i * 8 + 7] = q2.w;
 		}
 	}
 
@@ -476,32 +497,32 @@ class Player {
 	public var speed:Float;
 	public var dir:Int;
 
-    public function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
-        for (i in 0...names.length) {
-        	addTrack(names[i], starts[i], ends[i], speeds[i], loops[i], reflects[i]);
-        }
+	public function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
+		for (i in 0...names.length) {
+			addTrack(names[i], starts[i], ends[i], speeds[i], loops[i], reflects[i]);
+		}
 
-        play(startTrack);
-    }
+		play(startTrack);
+	}
 
-    public function play(name:String, onTrackComplete:Void->Void = null) {
- 		this.onTrackComplete = onTrackComplete;
- 		current = tracks.get(name);
- 		dirty = true;
- 		paused = false;
- 		dir = current.speed >= 0 ? 1 : -1;
- 		if (current.reflect) dir *= -1; // Start at correct dir for reflect
- 		speed = Math.abs(current.speed);
-    }
+	public function play(name:String, onTrackComplete:Void->Void = null) {
+		this.onTrackComplete = onTrackComplete;
+		current = tracks.get(name);
+		dirty = true;
+		paused = false;
+		dir = current.speed >= 0 ? 1 : -1;
+		if (current.reflect) dir *= -1; // Start at correct dir for reflect
+		speed = Math.abs(current.speed);
+	}
 
-    public function pause() {
-    	paused = true;
-    }
+	public function pause() {
+		paused = true;
+	}
 
-    function addTrack(name:String, start:Int, end:Int, speed:Float, loop:Bool, reflect:Bool) {
-    	var t = new Track(start, end, speed, loop, reflect);
-    	tracks.set(name, t);
-    }
+	function addTrack(name:String, start:Int, end:Int, speed:Float, loop:Bool, reflect:Bool) {
+		var t = new Track(start, end, speed, loop, reflect);
+		tracks.set(name, t);
+	}
 }
 
 class Track {

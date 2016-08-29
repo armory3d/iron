@@ -7,6 +7,7 @@ import iron.data.SceneFormat;
 
 class MeshData extends Data {
 
+	public var name:String;
 	public var raw:TMeshData;
 	public var mesh:Mesh;
 
@@ -23,6 +24,7 @@ class MeshData extends Data {
 		super();
 
 		this.raw = raw;
+		this.name = raw.name;
 
 		// Mesh data
 		var indices:Array<Array<Int>> = [];

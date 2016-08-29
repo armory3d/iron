@@ -2,9 +2,12 @@ package iron.data;
 
 typedef TSceneFormat = {
 // @:structInit class TSceneFormat {
+	public var name:String;
 	@:optional public var mesh_datas:Array<TMeshData>;
+	// @:optional public var armature_datas:Array<TArmatureData>;
 	@:optional public var lamp_datas:Array<TLampData>;
 	@:optional public var camera_datas:Array<TCameraData>;
+	@:optional public var camera_ref:String; // Active camera
 	@:optional public var material_datas:Array<TMaterialData>;
 	@:optional public var particle_datas:Array<TParticleData>;
 	@:optional public var shader_datas:Array<TShaderData>;
@@ -86,6 +89,9 @@ typedef TCameraData = {
 	public var pipeline:String;
 	public var type:String;
 	@:optional public var frustum_culling:Bool;
+	@:optional public var is_mirror:Bool; // Render camera output to texture
+	@:optional public var mirror_resolution_x:Int;
+	@:optional public var mirror_resolution_y:Int;
 }
 
 typedef TMaterialData = {

@@ -12,7 +12,7 @@ import iron.data.SceneFormat;
 import iron.data.PipelineData.RenderTarget; // Ping-pong
 import iron.data.MaterialData.MaterialContext;
 import iron.data.ShaderData.ShaderContext;
-import iron.Root;
+import iron.Scene;
 import iron.object.Object;
 import iron.object.CameraObject;
 import iron.object.LampObject;
@@ -151,7 +151,7 @@ class RenderPath {
 		currentPass = 0;
 #end
 
-		frameRenderTarget = g;
+		frameRenderTarget = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture
 		currentRenderTarget = g;
 		currentRenderTargetW = iron.App.w;
 		currentRenderTargetH = iron.App.h;
@@ -285,23 +285,23 @@ class RenderPath {
 			var camX = camera.transform.absx();
 			var camY = camera.transform.absy();
 			var camZ = camera.transform.absz();
-			for (mesh in Root.meshes) {
+			for (mesh in Scene.active.meshes) {
 				mesh.computeCameraDistance(camX, camY, camZ);
 			}
-			Root.meshes.sort(function(a, b):Int {
+			Scene.active.meshes.sort(function(a, b):Int {
 				return a.cameraDistance > b.cameraDistance ? 1 : -1;
 			});
 			sorted = true;
 		}
 		var g = currentRenderTarget;
 		// if (params[1] == "back_to_front") {
-		// 	var len = Root.meshes.length;
+		// 	var len = Scene.active.meshes.length;
 		// 	for (i in 0...len) {
-		// 		Root.meshes[len - 1 - i].render(g, context, camera, lamp, bindParams);
+		// 		Scene.active.meshes[len - 1 - i].render(g, context, camera, lamp, bindParams);
 		// 	}
 		// }
 		// else {
-			for (mesh in Root.meshes) {
+			for (mesh in Scene.active.meshes) {
 				mesh.render(g, context, camera, lamp, bindParams);
 			}
 		// }
@@ -312,7 +312,7 @@ class RenderPath {
 		var context = params[0];
 		var g = currentRenderTarget;
 		var lamp = lamps[currentLampIndex];
-		for (decal in Root.decals) {
+		for (decal in Scene.active.decals) {
 			decal.render(g, context, camera, lamp, bindParams);
 			g.setVertexBuffer(boxVB);
 			g.setIndexBuffer(boxIB);

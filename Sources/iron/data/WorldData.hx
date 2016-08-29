@@ -7,6 +7,7 @@ import iron.data.SceneFormat;
 
 class WorldData extends Data {
 
+	public var name:String;
 	public var raw:TWorldData;
 	
 	var probes:Array<Probe>; 
@@ -16,6 +17,7 @@ class WorldData extends Data {
 		super();
 
 		this.raw = raw;
+		this.name = raw.name;
 		brdf = Reflect.field(kha.Assets.images, raw.brdf);
 		
 		// Parse probes
