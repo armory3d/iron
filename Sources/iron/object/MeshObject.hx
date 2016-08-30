@@ -460,6 +460,9 @@ class MeshObject extends Object {
 			else if (c.link == "_deltaTime") {
 				f = iron.sys.Time.delta;
 			}
+			else if (c.link == "_lampRadius") {
+				f = lamp.data.raw.far_plane;
+			}
 			else if (c.link == "_lampStrength") {
 				f = lamp.data.raw.strength;
 			}
