@@ -38,6 +38,8 @@ class Data {
 	public static function clearSceneData() {
 		cachedSceneRaws = new Map();
 		cachedMaterials = new Map();
+		cachedLamps = new Map();
+		cachedMeshes = new Map();
 	}
 
 	public static function getMesh(file:String, name:String, boneObjects:Array<TObj> = null):MeshData {
@@ -129,6 +131,15 @@ class Data {
 		var cached = cachedSceneRaws.get(file);
 		if (cached == null) {
 			var blob:kha.Blob = Reflect.field(kha.Assets.blobs, file + '_arm');
+#if WITH_LIVEPATCH
+			// Attempt to load manually
+			if (blob == null) {
+				var data:Dynamic = null;
+				untyped __js__('var fs = require("fs");');
+				untyped __js__('{0} = fs.readFileSync(__dirname + "/" + {1} + ".arm");', data, file);
+				blob = kha.Blob.fromBytes(haxe.io.Bytes.ofData(data));
+			}
+#end
 #if WITH_JSON
 			var parsed:TSceneFormat = haxe.Json.parse(blob.toString());
 #else

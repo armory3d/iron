@@ -241,9 +241,8 @@ typedef TSpeakerData = {
 typedef TWorldData = {
 // @:structInit class TWorldData {
 	public var name:String;
-	// public var material_ref:String;
-	// public var bind_constants:Array<TBindConstant>;
-	// public var bind_textures:Array<TBindTexture>;
+	public var material_ref:String;
+	public var background_color:Int;
 	public var brdf:String;
 	public var probes:Array<TProbe>;
 }
@@ -293,6 +292,7 @@ typedef TObj = {
 	@:optional public var bones_ref:String;
 	@:optional public var parent:TObj;
 	@:optional public var visible:Null<Bool>;
+	@:optional public var mobile:Null<Bool>;
 	@:optional public var spawn:Null<Bool>; // Auto add object when creating scene
 	@:optional public var local_transform_only:Null<Bool>; // No parent matrix applied
 }

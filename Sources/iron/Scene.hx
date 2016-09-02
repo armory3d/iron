@@ -20,14 +20,14 @@ import iron.math.Mat4;
 
 class Scene {
 
-	public static var active:Scene;
+	public static var active:Scene = null;
 	
+	public var raw:TSceneFormat;
 	public var root:Object;
 	public var camera:CameraObject;
 	public var world:WorldData;
 
 	public var meshes:Array<MeshObject>;
-	// public var armatures:Array<ArmatureObject>;
 	public var lamps:Array<LampObject>;
 	public var cameras:Array<CameraObject>;
 	public var speakers:Array<SpeakerObject>;
@@ -35,7 +35,6 @@ class Scene {
 
 	public function new() {
 		meshes = [];
-		// armatures = [];
 		lamps = [];
 		cameras = [];
 		speakers = [];
@@ -43,8 +42,15 @@ class Scene {
 		root = new Object();
 	}
 
+#if WITH_LIVEPATCH
+	static var first = true;
+	static var patchTime = 0.0;
+	static var lastMtime:Dynamic;
+	static var lastSize:Dynamic;
+#end
 	public static function create(raw:TSceneFormat):Object {
 		active = new Scene();
+		active.raw = raw;
 
 		// Startup scene
 		var sceneObject = active.addScene(raw.name);
@@ -57,18 +63,49 @@ class Scene {
 		active.camera = active.getCamera(raw.camera_ref);
 		active.world = Data.getWorld(raw.name, raw.world_ref);
 
-		// Experimental scene reloading
-		// App.notifyOnUpdate(function() {
-		// 	if (iron.sys.Input.released) {
-		// 		// kha.Assets.loadBlob(sceneName + '_arm', function(b:kha.Blob) {
-		// 			iron.App.reset();
-		// 			iron.data.Data.clearSceneData();
-		// 			new iron.App(armory.scene);
-		// 		// });
-		// 	}
-		// });
+#if WITH_LIVEPATCH
+		if (first) {
+			first = false;
+			untyped __js__('var fs = require("fs");');
+			// Experimental scene reloading
+			App.notifyOnUpdate(function() {
+				patchTime += iron.sys.Time.delta;
+				if (patchTime > 0.2) {
+					patchTime = 0;
+					var repatch = false;
+					// Compare mtime and size of scene file
+					untyped __js__('fs.stat(__dirname + "/" + {0} + ".arm", function(err, stats) {', active.raw.name);
+					untyped __js__('	if ({0} > stats.mtime || {0} < stats.mtime || {1} !== stats.size) { {0} = stats.mtime; {1} = stats.size; {2} = true; }', lastMtime, lastSize, repatch);
+						if (repatch) {
+							var cameraTransform = active.camera.transform;
+							iron.App.reloadAssets(function() {
+								Data.clearSceneData();
+								Scene.setActive(Scene.active.raw.name);
+								active.camera.transform = cameraTransform;
+							});
+						}
+					untyped __js__('});');
+				}
+			});
+		}
+#end
 
 		return sceneObject;
+	}
+
+	public function remove() {
+		for (o in meshes) o.remove();
+		for (o in lamps) o.remove();
+		for (o in cameras) o.remove();
+		for (o in speakers) o.remove();
+		for (o in decals) o.remove();
+		root.remove();
+	}
+
+	public static function setActive(sceneName:String):Object {
+		if (Scene.active != null) Scene.active.remove();
+		var raw = iron.data.Data.getSceneRaw(sceneName);
+        return Scene.create(raw);
 	}
 
 	public function renderFrame(g:kha.graphics4.Graphics) {

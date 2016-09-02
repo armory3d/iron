@@ -16,13 +16,12 @@ class LampObject extends Object {
 
 	public var frustumPlanes:Array<FrustumPlane> = null;
 
-	public var farPlane:Float;
+	// public var farPlane:Float;
 
 	public function new(data:LampData) {
 		super();
 		
 		this.data = data;
-		farPlane = data.raw.far_plane;
 
 		Scene.active.lamps.push(this);
 	}

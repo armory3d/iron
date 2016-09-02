@@ -10,6 +10,7 @@ import iron.math.Vec4;
 import iron.math.Quat;
 import iron.math.Mat4;
 import iron.data.MeshData;
+import iron.data.LampData;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.SceneFormat;
@@ -254,7 +255,7 @@ class MeshObject extends Object {
 			else if (c.link == "_lampVolumeWorldViewProjectionMatrix") {
 				var tr = lamp.transform;
 				helpVec.set(tr.absx(), tr.absy(), tr.absz());
-				helpVec2.set(lamp.farPlane, lamp.farPlane, lamp.farPlane);
+				helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane, lamp.data.raw.far_plane);
 				helpMat.compose(helpVec, helpQuat, helpVec2);
 				helpMat.mult2(camera.V);
 				helpMat.mult2(camera.P);
@@ -478,6 +479,12 @@ class MeshObject extends Object {
 			else if (c.link == "_envmapStrength") {
 				f = Scene.active.world.getGlobalProbe().strength;
 			}
+			else if (c.link == "_probeStrength") {
+				f = Scene.active.world.getProbeStrength(object.transform);
+			}
+			else if (c.link == "_probeBlending") {
+				f = Scene.active.world.getProbeBlending(object.transform);
+			}
 #if WITH_VR
 			else if (c.link == "_maxRadiusSq") {
 				f = iron.sys.VR.getMaxRadiusSq();
@@ -502,7 +509,7 @@ class MeshObject extends Object {
 				i = object.uid;
 			}
 			if (c.link == "_lampType") {
-				i = lamp.data.lampType;
+				i = LampData.typeToInt(lamp.data.raw.type);
 			}
 			else if (c.link == "_lampIndex") {
 				i = camera.renderPath.currentLampIndex;

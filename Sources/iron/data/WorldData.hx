@@ -51,7 +51,7 @@ class WorldData extends Data {
 	public function getSHIrradiance():haxe.ds.Vector<kha.FastFloat> {
 		// Fetch spherical harmonics from all probes
 		if (shirr == null) {
-			shirr = new haxe.ds.Vector(27 * 20);
+			shirr = new haxe.ds.Vector(27 * 6); // Just 6 sets for now
 			for (i in 0...probes.length) {
 				var p = probes[i];
 				for (j in 0...p.irradiance.length) {
@@ -88,6 +88,14 @@ class WorldData extends Data {
 	
 	public function getProbeVolumeSize(t:Transform):Vec4 {
 		return probes[getProbeID(t)].volume;
+	}
+
+	public function getProbeStrength(t:Transform):Float {
+		return probes[getProbeID(t)].strength;
+	}
+
+	public function getProbeBlending(t:Transform):Float {
+		return probes[getProbeID(t)].blending;
 	}
 }
 
@@ -143,7 +151,8 @@ class Probe {
 		strength = raw.strength;
 		blending = raw.blending;
 		
-		volume = new Vec4(raw.volume[0] / 4, raw.volume[1] / 4, raw.volume[2] / 4);
+		// Cube half-extents
+		volume = new Vec4(raw.volume[0], raw.volume[1], raw.volume[2]);
 		volumeCenter = new Vec4(raw.volume_center[0], raw.volume_center[1], raw.volume_center[2]);
 	
 		volumeMin = new Vec4(volumeCenter.x - volume.x, volumeCenter.y - volume.y, volumeCenter.z - volume.z);

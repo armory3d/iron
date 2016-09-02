@@ -255,7 +255,7 @@ class RenderPath {
 			var pos = i * 2;
 			var val = pos + 1;
 			if (params[pos] == "color") {
-				colorFlag = Color.fromString(params[val]);
+				colorFlag = params[val] == '-1' ? Scene.active.world.raw.background_color : Color.fromString(params[val]);
 			}
 			else if (params[pos] == "depth") {
 				// TODO: Fix non-independent depth clearing
@@ -321,11 +321,18 @@ class RenderPath {
 		end(g);
 	}
 
+	function parseMaterialLink(handle:String):Array<String> {
+		if (handle == '_worldMaterial') return Scene.active.world.raw.material_ref.split('/');
+		return null;
+	}
+
 	function drawSkydome(params:Array<String>, root:Object) {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
-			var matPath = handle.split("/");
+			var matPath:Array<String> = null;
+			if (handle.charAt(0) == '_') matPath = parseMaterialLink(handle);
+			else matPath = handle.split('/');
 			var res = Data.getMaterial(matPath[0], matPath[1]);
 			cc = new CachedShaderContext();
 			cc.materialContext = res.getContext(matPath[2]);
@@ -393,7 +400,9 @@ class RenderPath {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc == null) {
-			var matPath = handle.split("/");
+			var matPath:Array<String> = null;
+			if (handle.charAt(0) == '_') matPath = parseMaterialLink(handle);
+			else matPath = handle.split('/');
 			var res = Data.getMaterial(matPath[0], matPath[1]);
 			cc = new CachedShaderContext();
 			cc.materialContext = res.getContext(matPath[2]);

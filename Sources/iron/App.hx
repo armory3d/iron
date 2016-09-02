@@ -5,7 +5,7 @@ class App {
 	public static var w:Int;
     public static var h:Int;
 
-    var appReady:Void->Void;
+    static var appReady:Void->Void;
 
     static var traitInits:Array<Void->Void> = [];
     static var traitUpdates:Array<Void->Void> = [];
@@ -14,21 +14,25 @@ class App {
     static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
 
 #if WITH_PROFILE
-    var startTime:Float;
+    static var startTime:Float;
     public static var updateTime:Float;
     public static var renderTime:Float;
 #end
 
-    public static function init(appReady:Void->Void) {
-        new App(appReady);
+    public static function init(_appReady:Void->Void) {
+        new App(_appReady);
     }
     
-	function new(appReady:Void->Void) {
-        this.appReady = appReady;
+	function new(_appReady:Void->Void) {
+        appReady = _appReady;
         kha.Assets.loadEverything(loadingFinished);
 	}
 
-    function loadingFinished() {
+    public static function reloadAssets(loadingFinished:Void->Void) {
+        kha.Assets.loadEverything(loadingFinished);
+    }
+
+    static function loadingFinished() {
         w = kha.System.windowWidth(); // TODO: do not cache
         h = kha.System.windowHeight();
 
@@ -53,7 +57,7 @@ class App {
         iron.sys.Tween.reset();
     }
 
-    function update() {
+    static function update() {
 #if WITH_PROFILE
         startTime = kha.Scheduler.realTime();
 #end
@@ -75,7 +79,7 @@ class App {
 #end
     }
 
-    function render(frame:kha.Framebuffer) {
+    static function render(frame:kha.Framebuffer) {
 #if WITH_PROFILE
         startTime = kha.Scheduler.realTime();
 #end
