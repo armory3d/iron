@@ -4,7 +4,6 @@ typedef TSceneFormat = {
 // @:structInit class TSceneFormat {
 	public var name:String;
 	@:optional public var mesh_datas:Array<TMeshData>;
-	// @:optional public var armature_datas:Array<TArmatureData>;
 	@:optional public var lamp_datas:Array<TLampData>;
 	@:optional public var camera_datas:Array<TCameraData>;
 	@:optional public var camera_ref:String; // Active camera
@@ -17,6 +16,7 @@ typedef TSceneFormat = {
 	@:optional public var world_ref:String;
 	@:optional public var objects:Array<TObj>;
 	@:optional public var gravity:Array<Float>;
+	@:optional public var traits:Array<TTrait>; // Scene root traits
 }
 
 typedef TMeshData = {

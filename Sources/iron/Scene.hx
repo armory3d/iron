@@ -67,15 +67,15 @@ class Scene {
 		if (first) {
 			first = false;
 			untyped __js__('var fs = require("fs");');
-			// Experimental scene reloading
+			// Experimental scene patching
 			App.notifyOnUpdate(function() {
 				patchTime += iron.sys.Time.delta;
-				if (patchTime > 0.2) {
+				if (patchTime > 0.1) {
 					patchTime = 0;
 					var repatch = false;
 					// Compare mtime and size of scene file
 					untyped __js__('fs.stat(__dirname + "/" + {0} + ".arm", function(err, stats) {', active.raw.name);
-					untyped __js__('	if ({0} > stats.mtime || {0} < stats.mtime || {1} !== stats.size) { {0} = stats.mtime; {1} = stats.size; {2} = true; }', lastMtime, lastSize, repatch);
+					untyped __js__('	if ({0} > stats.mtime || {0} < stats.mtime || {1} !== stats.size) { if ({0} !== undefined) { {2} = true; } {0} = stats.mtime; {1} = stats.size; }', lastMtime, lastSize, repatch);
 						if (repatch) {
 							var cameraTransform = active.camera.transform;
 							iron.App.reloadAssets(function() {
@@ -186,6 +186,9 @@ class Scene {
 	public function addScene(name:String, parent:Object = null):Object {
 		if (parent == null) parent = addObject();
 		var data:TSceneFormat = Data.getSceneRaw(name);
+		// Scene traits
+		if (data.traits != null) createTraits(data.traits, parent);
+		// Scene objects
 		traverseObjects(data, name, parent, data.objects, null);
 		return parent;
 	}
@@ -284,7 +287,7 @@ class Scene {
 			object.raw = o;
 			object.name = o.name;
 			if (o.visible != null) object.visible = o.visible;
-			createTraits(o, object);
+			createTraits(o.traits, object);
 			generateTranform(o, object.transform);
 		}
 		
@@ -298,8 +301,8 @@ class Scene {
 		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;
 	}
 
-	static function createTraits(o:TObj, object:Object) {
-		for (t in o.traits) {
+	static function createTraits(traits:Array<TTrait>, object:Object) {
+		for (t in traits) {
 			if (t.type == "Script") {
 				// Assign arguments if any
 				var args:Dynamic = [];

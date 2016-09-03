@@ -34,12 +34,17 @@ class Data {
 		cachedShaders = new Map();
 	}
 
-	// Experimental scene reloading
+	// Experimental scene patching
 	public static function clearSceneData() {
 		cachedSceneRaws = new Map();
-		cachedMaterials = new Map();
+		cachedMeshes = new Map(); // Delete data
 		cachedLamps = new Map();
-		cachedMeshes = new Map();
+		cachedMaterials = new Map();
+		cachedPipelines = new Map();
+		cachedCameras = new Map();
+		// cachedParticles = new Map();
+		// cachedWorlds = new Map();
+		// cachedShaders = new Map(); // Slow
 	}
 
 	public static function getMesh(file:String, name:String, boneObjects:Array<TObj> = null):MeshData {
