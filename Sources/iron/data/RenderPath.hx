@@ -9,7 +9,7 @@ import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
 import iron.data.SceneFormat;
-import iron.data.PipelineData.RenderTarget; // Ping-pong
+import iron.data.RenderPathData.RenderTarget; // Ping-pong
 import iron.data.MaterialData.MaterialContext;
 import iron.data.ShaderData.ShaderContext;
 import iron.Scene;
@@ -173,6 +173,7 @@ class RenderPath {
 			}
 			var startTime = kha.Scheduler.realTime();
 #end
+
 			currentStageIndex = i;
 			stageCommands[i](stageParams[i], root);
 
@@ -212,12 +213,12 @@ class RenderPath {
 			begin(currentRenderTarget);
 		}
 		else {			
-			var rt = data.pipeline.renderTargets.get(target);
+			var rt = data.pathdata.renderTargets.get(target);
 			var additionalImages:Array<kha.Canvas> = null;
 			if (params.length > 2) {
 				additionalImages = [];
 				for (i in 2...params.length) {
-					var t = data.pipeline.renderTargets.get(params[i]);
+					var t = data.pathdata.renderTargets.get(params[i]);
 					additionalImages.push(t.image);
 				}
 			}
@@ -279,7 +280,7 @@ class RenderPath {
 		var lamp = lamps[currentLampIndex];
 
 		// Disabled shadow casting for this lamp
-		if (context == data.pipeline.raw.shadows_context && !lamp.data.raw.cast_shadow) return;
+		if (context == data.pathdata.raw.shadows_context && !lamp.data.raw.cast_shadow) return;
 
 		if (!sorted && params[1] == "front_to_back") { // Order max one per frame
 			var camX = camera.transform.absx();
@@ -436,7 +437,7 @@ class RenderPath {
 		var classPath = path.substr(0, dotIndex);
 		var classType = Type.resolveClass(classPath);
 		var funName = path.substr(dotIndex + 1);
-		var stageData = data.pipeline.raw.stages[currentStageIndex];
+		var stageData = data.pathdata.raw.stages[currentStageIndex];
 		// Call function
 		if (stageData.returns_true == null && stageData.returns_false == null) {
 			Reflect.callMethod(classType, Reflect.field(classType, funName), []);
@@ -445,7 +446,7 @@ class RenderPath {
 		else {
 			var result:Bool = Reflect.callMethod(classType, Reflect.field(classType, funName), []);
 			// Nested commands
-			var stages:Array<TPipelineStage> = null;
+			var stages:Array<TRenderPathStage> = null;
 			if (result) stages = stageData.returns_true;
 			else stages = stageData.returns_false;
 			for (stage in stages) {
@@ -457,7 +458,7 @@ class RenderPath {
 	}
 	
 	function loopLamps(params:Array<String>, root:Object) {
-		var stageData = data.pipeline.raw.stages[currentStageIndex];
+		var stageData = data.pathdata.raw.stages[currentStageIndex];
 		
 		currentLampIndex = 0;
 		loopFinished++;
@@ -481,7 +482,7 @@ class RenderPath {
 
 #if WITH_VR
 	function drawStereo(params:Array<String>, root:Object) {
-		var stageData = data.pipeline.raw.stages[currentStageIndex];
+		var stageData = data.pathdata.raw.stages[currentStageIndex];
 		
 		loopFinished++;
 		var g = currentRenderTarget;
@@ -540,7 +541,7 @@ class RenderPath {
 		passEnabled = [];
 #end
 
-		for (stage in data.pipeline.raw.stages) {
+		for (stage in data.pathdata.raw.stages) {
 			stageCommands.push(commandToFunction(stage.command));
 			stageParams.push(stage.params);
 #if WITH_PROFILE

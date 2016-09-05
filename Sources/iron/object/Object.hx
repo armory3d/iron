@@ -16,7 +16,7 @@ class Object {
 	public var transform:Transform;
 	public var traits:Array<Trait> = [];
 
-	public var parent:Object;
+	public var parent:Object = null;
 	public var children:Array<Object> = [];
 
 	public var animation:Animation = null;

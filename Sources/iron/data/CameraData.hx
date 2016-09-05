@@ -6,7 +6,7 @@ class CameraData extends Data {
 
 	public var name:String;
 	public var raw:TCameraData;
-	public var pipeline:PipelineData;
+	public var pathdata:RenderPathData;
 
 	public var mirror:kha.Image = null;
 
@@ -15,8 +15,8 @@ class CameraData extends Data {
 		this.raw = raw;
 		this.name = raw.name;
 
-		var pipelineName:Array<String> = raw.pipeline.split("/");
-		pipeline = Data.getPipeline(pipelineName[0], pipelineName[1]);
+		var pathName:Array<String> = raw.render_path.split("/");
+		pathdata = Data.getRenderPath(pathName[0], pathName[1]);
 
 		// Render this camera to texture
 		if (raw.is_mirror) {

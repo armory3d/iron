@@ -34,7 +34,7 @@ class ShaderData extends Data {
 		parseVertexStructure();
 
 		for (c in raw.contexts) {
-			// Render pipeline might not use all shaders contexts, skip context if shader is not found
+			// Render path might not use all shaders contexts, skip context if shader is not found
 			var fragName = StringTools.replace(c.fragment_shader, ".", "_");
 			if (Reflect.field(kha.Shaders, fragName) == null) {
 				continue;

@@ -10,7 +10,7 @@ typedef TSceneFormat = {
 	@:optional public var material_datas:Array<TMaterialData>;
 	@:optional public var particle_datas:Array<TParticleData>;
 	@:optional public var shader_datas:Array<TShaderData>;
-	@:optional public var pipeline_datas:Array<TPipelineData>;
+	@:optional public var renderpath_datas:Array<TRenderPathData>;
 	@:optional public var speaker_datas:Array<TSpeakerData>;
 	@:optional public var world_datas:Array<TWorldData>;
 	@:optional public var world_ref:String;
@@ -86,7 +86,7 @@ typedef TCameraData = {
 	public var near_plane:Float;
 	public var far_plane:Float;
 	public var fov:Float;
-	public var pipeline:String;
+	public var render_path:String;
 	public var type:String;
 	@:optional public var frustum_culling:Bool;
 	@:optional public var is_mirror:Bool; // Render camera output to texture
@@ -197,18 +197,18 @@ typedef TTextureUnit = {
 	@:optional public var link:String;
 }
 
-typedef TPipelineData = {
-// @:structInit class TPipelineData {
+typedef TRenderPathData = {
+// @:structInit class TRenderPathData {
 	public var name:String;
-	public var render_targets:Array<TPipelineRenderTarget>;
-	public var stages:Array<TPipelineStage>;
+	public var render_targets:Array<TRenderPathTarget>;
+	public var stages:Array<TRenderPathStage>;
 	public var mesh_context:String; // Main mesh context
 	public var shadows_context:String; // Lamp depth context
-	@:optional public var depth_buffers:Array<TPipelineDepthBuffer>;
+	@:optional public var depth_buffers:Array<TRenderPathDepthBuffer>;
 }
 
-typedef TPipelineRenderTarget = {
-// @:structInit class TPipelineRenderTarget {
+typedef TRenderPathTarget = {
+// @:structInit class TRenderPathTarget {
 	public var name:String;
 	public var width:Int;
 	public var height:Int;
@@ -218,18 +218,18 @@ typedef TPipelineRenderTarget = {
 	@:optional public var scale:Null<Float>;
 }
 
-typedef TPipelineDepthBuffer = {
-// @:structInit class TPipelineDepthBuffer {
+typedef TRenderPathDepthBuffer = {
+// @:structInit class TRenderPathDepthBuffer {
 	public var name:String;
 	@:optional public var stencil_buffer:Bool;
 }
 
-typedef TPipelineStage = {
-// @:structInit class TPipelineStage {
+typedef TRenderPathStage = {
+// @:structInit class TRenderPathStage {
 	public var command:String;
 	@:optional public var params:Array<String>;
-	@:optional public var returns_true:Array<TPipelineStage>; // Nested commands
-	@:optional public var returns_false:Array<TPipelineStage>;
+	@:optional public var returns_true:Array<TRenderPathStage>; // Nested commands
+	@:optional public var returns_false:Array<TRenderPathStage>;
 }
 
 typedef TSpeakerData = {
@@ -284,7 +284,7 @@ typedef TObj = {
 	public var material_refs:Array<String>;
 	public var particle_refs:Array<TParticleReference>;
 	public var transform:TTransform;
-	public var objects:Array<TObj>;
+	public var children:Array<TObj>;
 	public var traits:Array<TTrait>;
 	@:optional public var dimensions:Array<Float>; // Geometry objects
 	@:optional public var animation:TAnimation;

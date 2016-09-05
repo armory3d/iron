@@ -5,14 +5,14 @@ import kha.graphics4.TextureFormat;
 import kha.graphics4.DepthStencilFormat;
 import iron.data.SceneFormat;
 
-class PipelineData extends Data {
+class RenderPathData extends Data {
 
 	public var name:String;
-	public var raw:TPipelineData;
+	public var raw:TRenderPathData;
 	public var renderTargets:Map<String, RenderTarget> = null;
 	public var depthToRenderTarget:Map<String, RenderTarget> = null;
 
-	public function new(raw:TPipelineData) {
+	public function new(raw:TRenderPathData) {
 		super();
 
 		this.raw = raw;
@@ -33,7 +33,7 @@ class PipelineData extends Data {
 		}
 	}
 	
-	function makeRenderTarget(t:TPipelineRenderTarget) {
+	function makeRenderTarget(t:TRenderPathTarget) {
 		var rt = new RenderTarget();
 		
 		// With depth buffer
@@ -66,7 +66,7 @@ class PipelineData extends Data {
 		return rt;
 	}
 
-	function createImage(t:TPipelineRenderTarget, depthStencil:DepthStencilFormat):Image {
+	function createImage(t:TRenderPathTarget, depthStencil:DepthStencilFormat):Image {
 		var width = t.width == 0 ? kha.System.windowWidth() : t.width;
 		var height = t.height == 0 ? kha.System.windowHeight() : t.height;
 		if (t.scale != null) {
@@ -96,14 +96,14 @@ class PipelineData extends Data {
 		else return DepthStencilFormat.NoDepthAndStencil; 
 	}
 
-	public static function parse(file:String, name:String):PipelineData {
+	public static function parse(file:String, name:String):RenderPathData {
 		var format:TSceneFormat = Data.getSceneRaw(file);
-		var raw:TPipelineData = Data.getPipelineRawByName(format.pipeline_datas, name);
+		var raw:TRenderPathData = Data.getRenderPathRawByName(format.renderpath_datas, name);
 		if (raw == null) {
-			trace('Pipeline data "$name" not found!');
+			trace('Render path data "$name" not found!');
 			return null;
 		}
-		return new PipelineData(raw);
+		return new RenderPathData(raw);
 	}
 }
 

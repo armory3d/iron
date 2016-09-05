@@ -128,8 +128,8 @@ class MeshData extends Data {
 	}
 
 	static function setParents(object:TObj) {
-		if (object.objects == null) return;
-		for (o in object.objects) {
+		if (object.children == null) return;
+		for (o in object.children) {
 			o.parent = object;
 			setParents(o);
 		}
@@ -141,9 +141,9 @@ class MeshData extends Data {
 	}
 	static function traverseObjectsStep(object:TObj, callback:TObj->Void) {
 		callback(object);
-		if (object.objects == null) return;
-		for (i in 0...object.objects.length) {
-			traverseObjectsStep(object.objects[i], callback);
+		if (object.children == null) return;
+		for (i in 0...object.children.length) {
+			traverseObjectsStep(object.children[i], callback);
 		}
 	}
 

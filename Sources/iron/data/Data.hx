@@ -8,7 +8,7 @@ class Data {
 	static var cachedMeshes:Map<String, MeshData> = new Map();
 	static var cachedLamps:Map<String, LampData> = new Map();
 	static var cachedCameras:Map<String, CameraData> = new Map();
-	static var cachedPipelines:Map<String, PipelineData> = new Map();
+	static var cachedRenderPaths:Map<String, RenderPathData> = new Map();
 	static var cachedMaterials:Map<String, MaterialData> = new Map();
 	static var cachedParticles:Map<String, ParticleData> = new Map();
 	static var cachedWorlds:Map<String, WorldData> = new Map();
@@ -27,7 +27,7 @@ class Data {
 		cachedMeshes = new Map();
 		cachedLamps = new Map();
 		cachedCameras = new Map();
-		cachedPipelines = new Map();
+		cachedRenderPaths = new Map();
 		cachedMaterials = new Map();
 		cachedParticles = new Map();
 		cachedWorlds = new Map();
@@ -40,7 +40,7 @@ class Data {
 		cachedMeshes = new Map(); // Delete data
 		cachedLamps = new Map();
 		cachedMaterials = new Map();
-		cachedPipelines = new Map();
+		cachedRenderPaths = new Map();
 		cachedCameras = new Map();
 		// cachedParticles = new Map();
 		// cachedWorlds = new Map();
@@ -79,11 +79,11 @@ class Data {
 		else return cached;
 	}
 
-	public static function getPipeline(file:String, name:String):PipelineData {
-		var cached = cachedPipelines.get(file + name);
+	public static function getRenderPath(file:String, name:String):RenderPathData {
+		var cached = cachedRenderPaths.get(file + name);
 		if (cached == null) {
-			var parsed = PipelineData.parse(file, name);
-			cachedPipelines.set(file + name, parsed);
+			var parsed = RenderPathData.parse(file, name);
+			cachedRenderPaths.set(file + name, parsed);
 			return parsed;
 		}
 		else return cached;
@@ -182,7 +182,7 @@ class Data {
 		return null;
 	}
 
-	public static function getPipelineRawByName(datas:Array<TPipelineData>, name:String):TPipelineData {
+	public static function getRenderPathRawByName(datas:Array<TRenderPathData>, name:String):TRenderPathData {
 		if (name == "") return datas[0];
 		for (dat in datas) {
 			if (dat.name == name) return dat;

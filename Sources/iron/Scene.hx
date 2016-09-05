@@ -186,10 +186,8 @@ class Scene {
 	public function addScene(name:String, parent:Object = null):Object {
 		if (parent == null) parent = addObject();
 		var data:TSceneFormat = Data.getSceneRaw(name);
-		// Scene traits
-		if (data.traits != null) createTraits(data.traits, parent);
-		// Scene objects
-		traverseObjects(data, name, parent, data.objects, null);
+		if (data.traits != null) createTraits(data.traits, parent); // Scene traits
+		traverseObjects(data, name, parent, data.objects, null); // Scene objects
 		return parent;
 	}
 
@@ -199,7 +197,7 @@ class Scene {
 			
 			var object = createObject(o, data, name, parent, parentObject);
 			if (object != null) {
-				traverseObjects(data, name, object, o.objects, o);
+				traverseObjects(data, name, object, o.children, o);
 			}
 		}
 	}

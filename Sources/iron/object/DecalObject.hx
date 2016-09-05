@@ -23,7 +23,7 @@ class DecalObject extends Object {
 		super.remove();
 	}
 	
-	// Called before rendering decal in render pipeline
+	// Called before rendering decal in render path
 	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 		
 		if (cachedContext == null) {
