@@ -91,11 +91,11 @@ class WorldData extends Data {
 	}
 
 	public function getProbeStrength(t:Transform):Float {
-		return probes[getProbeID(t)].strength;
+		return probes[getProbeID(t)].raw.strength;
 	}
 
 	public function getProbeBlending(t:Transform):Float {
-		return probes[getProbeID(t)].blending;
+		return probes[getProbeID(t)].raw.blending;
 	}
 }
 
@@ -106,8 +106,6 @@ class Probe {
 	public var radiance:Image;
 	public var numMipmaps:Int;
 	public var irradiance:haxe.ds.Vector<kha.FastFloat>;
-	public var strength:Float;
-	public var blending:Float;
 	public var volume:Vec4;
 	public var volumeCenter:Vec4;
 	
@@ -147,9 +145,6 @@ class Probe {
 			}
 			radiance.setMipmaps(radianceMipmaps);
 		}
-		
-		strength = raw.strength;
-		blending = raw.blending;
 		
 		// Cube half-extents
 		volume = new Vec4(raw.volume[0], raw.volume[1], raw.volume[2]);

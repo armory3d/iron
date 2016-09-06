@@ -3,6 +3,7 @@ package iron.object;
 import kha.graphics4.Graphics;
 import iron.data.MaterialData;
 import iron.object.MeshObject;
+import iron.object.Uniforms;
 import iron.Scene;
 
 class DecalObject extends Object {
@@ -51,7 +52,7 @@ class DecalObject extends Object {
 		
 		g.setPipeline(shaderContext.pipeState);
 		
-		MeshObject.setConstants(g, shaderContext, this, camera, lamp, bindParams);			
-		MeshObject.setMaterialConstants(g, shaderContext, materialContext);
+		Uniforms.setConstants(g, shaderContext, this, camera, lamp, bindParams);			
+		Uniforms.setMaterialConstants(g, shaderContext, materialContext);
 	}
 }

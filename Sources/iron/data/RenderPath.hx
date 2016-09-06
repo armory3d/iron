@@ -16,7 +16,7 @@ import iron.Scene;
 import iron.object.Object;
 import iron.object.CameraObject;
 import iron.object.LampObject;
-import iron.object.MeshObject;
+import iron.object.Uniforms;
 
 #if cpp
 @:headerCode('
@@ -344,9 +344,9 @@ class RenderPath {
 		var g = currentRenderTarget;
 		g.setPipeline(cc.context.pipeState);
 		var lamp = lamps[currentLampIndex];
-		MeshObject.setConstants(g, cc.context, null, camera, lamp, bindParams);
+		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {
-			MeshObject.setMaterialConstants(g, cc.context, cc.materialContext);
+			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
 		g.setVertexBuffer(skydomeVB);
 		g.setIndexBuffer(skydomeIB);
@@ -368,9 +368,9 @@ class RenderPath {
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
 		var lamp = lamps[currentLampIndex];
-		MeshObject.setConstants(g, cc.context, null, camera, lamp, bindParams);
+		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {
-			MeshObject.setMaterialConstants(g, cc.context, cc.materialContext);
+			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
 		g.setVertexBuffer(boxVB);
 		g.setIndexBuffer(boxIB);
@@ -418,9 +418,9 @@ class RenderPath {
 		g.setPipeline(cc.context.pipeState);
 		var lamp = lamps[currentLampIndex];
 
-		MeshObject.setConstants(g, cc.context, null, camera, lamp, bindParams);
+		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {
-			MeshObject.setMaterialConstants(g, cc.context, cc.materialContext);
+			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
 
 		g.setVertexBuffer(screenAlignedVB);
