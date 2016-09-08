@@ -139,10 +139,13 @@ class Data {
 #if WITH_LIVEPATCH
 			// Attempt to load manually
 			if (blob == null) {
-				var data:Dynamic = null;
-				untyped __js__('var fs = require("fs");');
-				untyped __js__('{0} = fs.readFileSync(__dirname + "/" + {1} + ".arm");', data, file);
-				blob = kha.Blob.fromBytes(haxe.io.Bytes.ofData(data));
+				var electron = untyped __js__('window && window.process && window.process.versions["electron"]');
+				if (electron) {
+					var data:Dynamic = null;
+					untyped __js__('var fs = require("fs");');
+					untyped __js__('{0} = fs.readFileSync(__dirname + "/" + {1} + ".arm");', data, file);
+					blob = kha.Blob.fromBytes(haxe.io.Bytes.ofData(data));
+				}
 			}
 #end
 #if WITH_JSON

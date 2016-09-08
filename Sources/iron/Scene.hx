@@ -62,31 +62,34 @@ class Scene {
 
 		active.camera = active.getCamera(raw.camera_ref);
 		active.world = Data.getWorld(raw.name, raw.world_ref);
-
+		
 #if WITH_LIVEPATCH
 		if (first) {
 			first = false;
-			untyped __js__('var fs = require("fs");');
-			// Experimental scene patching
-			App.notifyOnUpdate(function() {
-				patchTime += iron.sys.Time.delta;
-				if (patchTime > 0.1) {
-					patchTime = 0;
-					var repatch = false;
-					// Compare mtime and size of scene file
-					untyped __js__('fs.stat(__dirname + "/" + {0} + ".arm", function(err, stats) {', active.raw.name);
-					untyped __js__('	if ({0} > stats.mtime || {0} < stats.mtime || {1} !== stats.size) { if ({0} !== undefined) { {2} = true; } {0} = stats.mtime; {1} = stats.size; }', lastMtime, lastSize, repatch);
-						if (repatch) {
-							var cameraTransform = active.camera.transform;
-							iron.App.reloadAssets(function() {
-								Data.clearSceneData();
-								Scene.setActive(Scene.active.raw.name);
-								active.camera.transform = cameraTransform;
-							});
-						}
-					untyped __js__('});');
-				}
-			});
+			var electron = untyped __js__('window && window.process && window.process.versions["electron"]');
+			if (electron) {
+				untyped __js__('var fs = require("fs");');
+				// Experimental scene patching
+				App.notifyOnUpdate(function() {
+					patchTime += iron.sys.Time.delta;
+					if (patchTime > 0.1) {
+						patchTime = 0;
+						var repatch = false;
+						// Compare mtime and size of scene file
+						untyped __js__('fs.stat(__dirname + "/" + {0} + ".arm", function(err, stats) {', active.raw.name);
+						untyped __js__('	if ({0} > stats.mtime || {0} < stats.mtime || {1} !== stats.size) { if ({0} !== undefined) { {2} = true; } {0} = stats.mtime; {1} = stats.size; }', lastMtime, lastSize, repatch);
+							if (repatch) {
+								var cameraTransform = active.camera.transform;
+								iron.App.reloadAssets(function() {
+									Data.clearSceneData();
+									Scene.setActive(Scene.active.raw.name);
+									active.camera.transform = cameraTransform;
+								});
+							}
+						untyped __js__('});');
+					}
+				});
+			}
 		}
 #end
 

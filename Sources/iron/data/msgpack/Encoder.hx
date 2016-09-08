@@ -88,7 +88,7 @@ class Encoder {
 				o.writeUInt16(d);
 			} else {
 				// unsigned int 32 
-				// TODO: HaXe writeUInt32 ?
+				// TODO: Haxe writeUInt32 ?
 				o.writeByte(0xce);
 				o.writeInt32(d);
 			}

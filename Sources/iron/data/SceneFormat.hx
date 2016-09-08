@@ -77,6 +77,7 @@ typedef TLampData = {
 	public var shadows_bias:Float;
 	@:optional public var spot_size:Null<Float>;
 	@:optional public var spot_blend:Null<Float>;
+	@:optional public var lamp_size:Null<Float>; // Shadow soft size
 }
 
 typedef TCameraData = {

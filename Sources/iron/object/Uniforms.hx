@@ -235,7 +235,7 @@ class Uniforms {
 				var tr = camera.transform;
 				// helpVec.set(tr.absx(), tr.absy(), tr.absz() + 3.0); // Envtex
 				helpVec.set(tr.absx(), tr.absy(), tr.absz() - 3.5); // Sky
-				var bounds = camera.farPlane * 0.97;
+				var bounds = camera.farPlane * 0.95;
 				helpVec2.set(bounds, bounds, bounds);
 				helpMat.compose(helpVec, helpQuat, helpVec2);
 				helpMat.mult2(camera.V);
@@ -431,6 +431,18 @@ class Uniforms {
 			}
 			else if (c.link == "_lampShadowsBias") {
 				f = lamp.data.raw.shadows_bias;
+			}
+			else if (c.link == "_lampPlaneNear") {
+				f = lamp.data.raw.near_plane;
+			}
+			else if (c.link == "_lampPlaneFar") {
+				f = lamp.data.raw.far_plane;
+			}
+			else if (c.link == "_lampSize") {
+				if (lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size;
+			}
+			else if (c.link == "_lampSizeUV") {
+				if (lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size / lamp.data.raw.fov;
 			}
 			else if (c.link == "_spotlampCutoff") {
 				f = lamp.data.raw.spot_size;
