@@ -136,29 +136,20 @@ class Data {
 		var cached = cachedSceneRaws.get(file);
 		if (cached == null) {
 			var blob:kha.Blob = Reflect.field(kha.Assets.blobs, file + '_arm');
-#if WITH_LIVEPATCH
-			// Attempt to load manually
-			if (blob == null) {
-				var electron = untyped __js__('window && window.process && window.process.versions["electron"]');
-				if (electron) {
-					var data:Dynamic = null;
-					untyped __js__('var fs = require("fs");');
-					untyped __js__('{0} = fs.readFileSync(__dirname + "/" + {1} + ".arm");', data, file);
-					blob = kha.Blob.fromBytes(haxe.io.Bytes.ofData(data));
-				}
-			}
-#end
-#if WITH_JSON
-			var parsed:TSceneFormat = haxe.Json.parse(blob.toString());
-#else
-			var parsed:TSceneFormat = iron.data.msgpack.MsgPack.decode(blob.toBytes());
-#end
-			cachedSceneRaws.set(file, parsed);
-			return parsed;
+			return parsedScene(blob, file);
 		}
 		else {
 			return cached;
 		}	
+	}
+	static function parsedScene(blob:kha.Blob, file:String) {
+#if WITH_JSON
+		var parsed:TSceneFormat = haxe.Json.parse(blob.toString());
+#else
+		var parsed:TSceneFormat = iron.data.msgpack.MsgPack.decode(blob.toBytes());
+#end
+		cachedSceneRaws.set(file, parsed);
+		return parsed;
 	}
 
 	public static function getMeshRawByName(datas:Array<TMeshData>, name:String):TMeshData {
