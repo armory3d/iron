@@ -2,10 +2,8 @@ package iron;
 
 class App {
 
-	public static var w:Int;
-    public static var h:Int;
-
-    static var appReady:Void->Void;
+	public static inline function w():Int { return kha.System.windowWidth(); }
+    public static inline function h():Int { return kha.System.windowHeight(); };
 
     static var traitInits:Array<Void->Void> = [];
     static var traitUpdates:Array<Void->Void> = [];
@@ -24,27 +22,15 @@ class App {
     }
     
 	function new(_appReady:Void->Void) {
-        appReady = _appReady;
-        kha.Assets.loadEverything(loadingFinished);
-	}
-
-    public static function reloadAssets(loadingFinished:Void->Void) {
-        kha.Assets.loadEverything(loadingFinished);
-    }
-
-    static function loadingFinished() {
-        w = kha.System.windowWidth(); // TODO: do not cache
-        h = kha.System.windowHeight();
-
         new iron.sys.Storage();
         new iron.sys.Input();
 
-        appReady();
+        _appReady();
 
         kha.System.notifyOnRender(render);
         kha.Scheduler.addTimeTask(update, 0, iron.sys.Time.delta);
         // kha.Scheduler.addTimeTask(update, 0, 1 / 60);
-    }
+	}
 
     public static function reset() {
         traitInits = [];

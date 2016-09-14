@@ -25,7 +25,7 @@ class ShaderData extends Data {
 
 	public var contexts:Array<ShaderContext> = [];
 
-	public function new(raw:TShaderData, overrideContext:TShaderOverride = null) {
+	public function new(raw:TShaderData, overrideContext:TShaderOverride, done:ShaderData->Void) {
 		super();
 
 		this.raw = raw;
@@ -42,6 +42,19 @@ class ShaderData extends Data {
 			
 			contexts.push(new ShaderContext(c, structure, overrideContext));
 		}
+
+		done(this);
+	}
+
+	public static function parse(file:String, name:String, overrideContext:TShaderOverride, done:ShaderData->Void) {
+		Data.getSceneRaw(file, function(format:TSceneFormat) {
+			var raw:TShaderData = Data.getShaderRawByName(format.shader_datas, name);
+			if (raw == null) {
+				trace('Shader data "$name" not found!');
+				done(null);
+			}
+			new ShaderData(raw, overrideContext, done);
+		});
 	}
 
 	public function delete() {
@@ -61,16 +74,6 @@ class ShaderData extends Data {
 			structure.add(vs.name, sizeToVD(vs.size));
 			structureLength += vs.size;
 		}
-	}
-
-	public static function parse(file:String, name:String, overrideContext:TShaderOverride = null):ShaderData {
-		var format:TSceneFormat = Data.getSceneRaw(file);
-		var raw:TShaderData = Data.getShaderRawByName(format.shader_datas, name);
-		if (raw == null) {
-			trace('Shader data "$name" not found!');
-			return null;
-		}
-		return new ShaderData(raw, overrideContext);
 	}
 
 	public function getContext(name:String):ShaderContext {

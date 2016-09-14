@@ -20,7 +20,7 @@ class MeshData extends Data {
 	public var isSkinned:Bool;
 	public var bones:Array<TObj> = [];
 
-	public function new(raw:TMeshData) {
+	public function new(raw:TMeshData, done:MeshData->Void) {
 		super();
 
 		this.raw = raw;
@@ -87,44 +87,47 @@ class MeshData extends Data {
 		if (raw.mesh.instance_offsets != null) {
 			mesh.setupInstanced(raw.mesh.instance_offsets, usage);
 		}
+
+		done(this);
 	}
 
 	public function delete() {
 		mesh.delete();
 	}
 
-	public static function parse(name:String, id:String, boneObjects:Array<TObj> = null):MeshData {
-		var format:TSceneFormat = Data.getSceneRaw(name);
-		var raw:TMeshData = Data.getMeshRawByName(format.mesh_datas, id);
-		if (raw == null) {
-			trace('Mesh data "$id" not found!');
-			return null;
-		}
-
-		var dat = new MeshData(raw);
-
-		// Skinned
-		if (raw.mesh.skin != null) {
-			// TODO: check !ForceCpuSkinning
-			var objects = boneObjects != null ? boneObjects : format.objects;
-			for (o in objects) {
-				setParents(o);
+	public static function parse(name:String, id:String, boneObjects:Array<TObj>, done:MeshData->Void) {
+		Data.getSceneRaw(name, function(format:TSceneFormat) {
+			var raw:TMeshData = Data.getMeshRawByName(format.mesh_datas, id);
+			if (raw == null) {
+				trace('Mesh data "$id" not found!');
+				done(null);
 			}
-			traverseObjects(objects, function(object:TObj) {
-				if (object.type == "bone_object") {
-					dat.bones.push(object);
-				}
-			});
 
-			dat.mesh.initSkinTransform(raw.mesh.skin.transform.values);
-			dat.mesh.skinBoneCounts = raw.mesh.skin.bone_count_array;
-			dat.mesh.skinBoneIndices = raw.mesh.skin.bone_index_array;
-			dat.mesh.skinBoneWeights = raw.mesh.skin.bone_weight_array;
-			dat.mesh.skeletonBoneRefs = raw.mesh.skin.skeleton.bone_ref_array;
-			dat.mesh.initSkeletonBones(dat.bones);
-			dat.mesh.initSkeletonTransforms(raw.mesh.skin.skeleton.transforms);
-		}
-		return dat;
+			new MeshData(raw, function(dat:MeshData) {
+				// Skinned
+				if (raw.mesh.skin != null) {
+					// TODO: check !ForceCpuSkinning
+					var objects = boneObjects != null ? boneObjects : format.objects;
+					for (o in objects) {
+						setParents(o);
+					}
+					traverseObjects(objects, function(object:TObj) {
+						if (object.type == "bone_object") {
+							dat.bones.push(object);
+						}
+					});
+
+					dat.mesh.initSkinTransform(raw.mesh.skin.transform.values);
+					dat.mesh.skinBoneCounts = raw.mesh.skin.bone_count_array;
+					dat.mesh.skinBoneIndices = raw.mesh.skin.bone_index_array;
+					dat.mesh.skinBoneWeights = raw.mesh.skin.bone_weight_array;
+					dat.mesh.skeletonBoneRefs = raw.mesh.skin.skeleton.bone_ref_array;
+					dat.mesh.initSkeletonBones(dat.bones);
+					dat.mesh.initSkeletonTransforms(raw.mesh.skin.skeleton.transforms);
+				}
+				done(dat);
+			});
+		});
 	}
 
 	static function setParents(object:TObj) {

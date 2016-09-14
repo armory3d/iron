@@ -26,6 +26,7 @@ import iron.object.Uniforms;
 #end
 
 typedef TStageCommand = Array<String>->Object->Void;
+typedef TStageParams = Array<String>;
 
 class RenderPath {
 
@@ -46,9 +47,12 @@ class RenderPath {
 	static var skydomeIB:IndexBuffer = null;
 
 	var stageCommands:Array<TStageCommand>;
-	var stageParams:Array<Array<String>>;
+	var stageParams:Array<TStageParams>;
 	var currentStageIndex = 0;
+	var nestedCommands:Map<String, Array<TStageCommand>> = new Map(); // Just one level deep nesting for now
+	var nestedParams:Map<String, Array<TStageParams>> = new Map();
 	var sorted:Bool;
+	var waiting:Bool;
 	
 	var lamps:Array<LampObject>;
 	public var currentLampIndex = 0;
@@ -59,7 +63,6 @@ class RenderPath {
 #if WITH_PROFILE
 	public static var drawCalls = 0;
 	public var passNames:Array<String>;
-	public var passTimes:Array<Float>;
 	public var passEnabled:Array<Bool>;
 	var currentPass:Int;
 #end
@@ -68,7 +71,10 @@ class RenderPath {
 		this.camera = camera;
 		data = camera.data;
 
-		cacheStageCommands();
+		waiting = true;
+		stageCommands = [];
+		stageParams = [];
+		cacheStageCommands(stageCommands, stageParams, data.pathdata.raw.stages, function() { waiting = false; });
 
 		if (screenAlignedVB == null) createScreenAlignedData();
 		if (boxVB == null) createBoxData();
@@ -146,6 +152,8 @@ class RenderPath {
 	}
 
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
+		if (waiting) return;
+
 #if WITH_PROFILE
 		drawCalls = 0;
 		currentPass = 0;
@@ -153,8 +161,8 @@ class RenderPath {
 
 		frameRenderTarget = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture
 		currentRenderTarget = g;
-		currentRenderTargetW = iron.App.w;
-		currentRenderTargetH = iron.App.h;
+		currentRenderTargetW = iron.App.w();
+		currentRenderTargetH = iron.App.h();
 		sorted = false;
 
 		this.lamps = lamps;
@@ -171,7 +179,6 @@ class RenderPath {
 				}
 				continue;
 			}
-			var startTime = kha.Scheduler.realTime();
 #end
 
 			currentStageIndex = i;
@@ -179,21 +186,18 @@ class RenderPath {
 
 #if WITH_PROFILE
 			if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
-				passTimes[currentPass] = kha.Scheduler.realTime() - startTime;
 				endPass();
 			}
 #end
 		}
 	}
-
+	
 #if WITH_PROFILE
 	function endPass() {
-		if (loopFinished == 0) {
-			currentPass++;
-		}
+		if (loopFinished == 0) currentPass++;
 	}
 #end
-	
+
 	public static var lastPongRT:RenderTarget;
 	var loopFinished = 0;
 	var drawPerformed = false;
@@ -208,11 +212,11 @@ class RenderPath {
 		var target = params[1];
 		if (target == "") {
 			currentRenderTarget = frameRenderTarget;
-			currentRenderTargetW = iron.App.w;
-			currentRenderTargetH = iron.App.h;
+			currentRenderTargetW = iron.App.w();
+			currentRenderTargetH = iron.App.h();
 			begin(currentRenderTarget);
 		}
-		else {			
+		else {
 			var rt = data.pathdata.renderTargets.get(target);
 			var additionalImages:Array<kha.Canvas> = null;
 			if (params.length > 2) {
@@ -330,17 +334,6 @@ class RenderPath {
 	function drawSkydome(params:Array<String>, root:Object) {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		if (cc == null) {
-			var matPath:Array<String> = null;
-			if (handle.charAt(0) == '_') matPath = parseMaterialLink(handle);
-			else matPath = handle.split('/');
-			var res = Data.getMaterial(matPath[0], matPath[1]);
-			cc = new CachedShaderContext();
-			cc.materialContext = res.getContext(matPath[2]);
-			cc.context = res.shader.getContext(matPath[2]);
-			cachedShaderContexts.set(handle, cc);
-		}
-
 		var g = currentRenderTarget;
 		g.setPipeline(cc.context.pipeState);
 		var lamp = lamps[currentLampIndex];
@@ -357,14 +350,6 @@ class RenderPath {
 	function drawLampVolume(params:Array<String>, root:Object) {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		if (cc == null) {
-			var shaderPath = handle.split("/");
-			var res = Data.getShader(shaderPath[0], shaderPath[1]);
-			cc = new CachedShaderContext();
-			cc.materialContext = null;
-			cc.context = res.getContext(shaderPath[2]);
-			cachedShaderContexts.set(handle, cc);
-		}
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
 		var lamp = lamps[currentLampIndex];
@@ -386,30 +371,12 @@ class RenderPath {
 	function drawShaderQuad(params:Array<String>, root:Object) {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		if (cc == null) {
-			var shaderPath = handle.split("/");
-			var res = Data.getShader(shaderPath[0], shaderPath[1]);
-			cc = new CachedShaderContext();
-			cc.materialContext = null;
-			cc.context = res.getContext(shaderPath[2]);
-			cachedShaderContexts.set(handle, cc);
-		}
 		drawQuad(cc, root);
 	}
 	
 	function drawMaterialQuad(params:Array<String>, root:Object) {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		if (cc == null) {
-			var matPath:Array<String> = null;
-			if (handle.charAt(0) == '_') matPath = parseMaterialLink(handle);
-			else matPath = handle.split('/');
-			var res = Data.getMaterial(matPath[0], matPath[1]);
-			cc = new CachedShaderContext();
-			cc.materialContext = res.getContext(matPath[2]);
-			cc.context = res.shader.getContext(matPath[2]);
-			cachedShaderContexts.set(handle, cc);
-		}
 		drawQuad(cc, root);
 	}
 
@@ -446,19 +413,20 @@ class RenderPath {
 		else {
 			var result:Bool = Reflect.callMethod(classType, Reflect.field(classType, funName), []);
 			// Nested commands
-			var stages:Array<TRenderPathStage> = null;
-			if (result) stages = stageData.returns_true;
-			else stages = stageData.returns_false;
-			for (stage in stages) {
-				// TODO: cache commands
-				var commandFun = commandToFunction(stage.command);			
-				commandFun(stage.params, root);
+			var key = currentStageIndex + '';
+			key = result ? key + '_true' : key + '_false';
+			var stageCommands:Array<TStageCommand> = nestedCommands.get(key);
+			var stageParams:Array<TStageParams> = nestedParams.get(key);
+			for (i in 0...stageCommands.length) {
+				stageCommands[i](stageParams[i], root);
 			}
 		}
 	}
 	
 	function loopLamps(params:Array<String>, root:Object) {
-		var stageData = data.pathdata.raw.stages[currentStageIndex];
+		var key = currentStageIndex + '_true';
+		var stageCommands:Array<TStageCommand> = nestedCommands.get(key);
+		var stageParams:Array<TStageParams> = nestedParams.get(key);
 		
 		currentLampIndex = 0;
 		loopFinished++;
@@ -466,10 +434,8 @@ class RenderPath {
 			var l = lamps[i];
 			if (!l.visible) continue;
 			currentLampIndex = i;
-			for (stage in stageData.returns_true) {
-				// TODO: cache commands
-				var commandFun = commandToFunction(stage.command);			
-				commandFun(stage.params, root);
+			for (i in 0...stageCommands.length) {
+				stageCommands[i](stageParams[i], root);
 			}
 		}
 		currentLampIndex = 0;
@@ -482,18 +448,18 @@ class RenderPath {
 
 #if WITH_VR
 	function drawStereo(params:Array<String>, root:Object) {
-		var stageData = data.pathdata.raw.stages[currentStageIndex];
-		
+		var key = currentStageIndex + '_true';
+		var stageCommands:Array<TStageCommand> = nestedCommands.get(key);
+		var stageParams:Array<TStageParams> = nestedParams.get(key);
+
 		loopFinished++;
 		var g = currentRenderTarget;
 		var halfW = Std.int(currentRenderTargetW / 2);
 
 		// Left eye
 		g.viewport(0, 0, halfW, currentRenderTargetH);
-
-		for (stage in stageData.returns_true) {
-			var commandFun = commandToFunction(stage.command);			
-			commandFun(stage.params, root);
+		for (i in 0...stageCommands.length) {
+			stageCommands[i](stageParams[i], root);
 		}
 
 		// Right eye
@@ -501,10 +467,8 @@ class RenderPath {
 		camera.move(camera.right(), 0.032);
 		camera.updateMatrix();
 		g.viewport(halfW, 0, halfW, currentRenderTargetH);
-
-		for (stage in stageData.returns_true) {
-			var commandFun = commandToFunction(stage.command);			
-			commandFun(stage.params, root);
+		for (i in 0...stageCommands.length) {
+			stageCommands[i](stageParams[i], root);
 		}
 
 		camera.move(camera.right(), -0.032);
@@ -532,83 +496,149 @@ class RenderPath {
 		drawPerformed = true;
 	}
 
-	function cacheStageCommands() {
-		stageCommands = [];
-		stageParams = [];
+	function cacheStageCommands(stageCommands:Array<TStageCommand>, stageParams:Array<TStageParams>, stages:Array<TRenderPathStage>, done:Void->Void) {
 #if WITH_PROFILE
-		passNames = [];
-		passTimes = [];
-		passEnabled = [];
+		var setPasses = this.stageCommands == stageCommands;
+		if (setPasses) {
+			passNames = [];
+			passEnabled = [];
+		}
 #end
 
-		for (stage in data.pathdata.raw.stages) {
-			stageCommands.push(commandToFunction(stage.command));
+		while (stageCommands.length < stages.length) stageCommands.push(null);
+		var stagesLoaded = 0;
+
+		for (i in 0...stages.length) {
+			var stage = stages[i];
+
 			stageParams.push(stage.params);
+			commandToFunction(stage, i, function(cmd:TStageCommand) {
+				stageCommands[i] = cmd;
+				
+				stagesLoaded++;
+				if (stagesLoaded == stages.length) done();
+			});
+
 #if WITH_PROFILE
-			if (stage.command != "draw_stereo" && stage.command.substr(0, 4) == "draw") {
-				var splitParams = stage.params[0].split("_");
-				var passName = splitParams[0];
-				for (i in 1...splitParams.length) {
-					// Remove from '_pass' or appended defs, starting with upper case letter
-					if (splitParams[i] == "pass" || splitParams[i].charAt(0) == splitParams[i].charAt(0).toUpperCase()) {
-						for (j in 1...i) passName += "_" + splitParams[j];
-						break;
+			if (setPasses) {
+				if (stage.command != "draw_stereo" && stage.command.substr(0, 4) == "draw") {
+					var splitParams = stage.params[0].split("_");
+					var passName = splitParams[0];
+					for (i in 1...splitParams.length) {
+						// Remove from '_pass' or appended defs, starting with upper case letter
+						if (splitParams[i] == "pass" || splitParams[i].charAt(0) == splitParams[i].charAt(0).toUpperCase()) {
+							for (j in 1...i) passName += "_" + splitParams[j];
+							break;
+						}
 					}
+					passNames.push(passName);
+					passEnabled.push(true);
 				}
-				passNames.push(passName);
-				passTimes.push(0.0);
-				passEnabled.push(true);
-			}
-			// Combine into single entry for now
-			else if (stage.command == "loop_lamps" || stage.command == "loop_stages" || stage.command == "draw_stereo") {
-				passNames.push(stage.command);
-				passTimes.push(0.0);
-				passEnabled.push(true);
+				// Combine into single entry for now
+				else if (stage.command == "loop_lamps" || stage.command == "loop_stages" || stage.command == "draw_stereo") {
+					passNames.push(stage.command);
+					passEnabled.push(true);
+				}
 			}
 #end
 		}
 	}
 	
-	function commandToFunction(command:String):TStageCommand {
-		if (command == "set_target") {
-			return setTarget;
-		}
-		else if (command == "clear_target") {
-			return clearTarget;
-		}
-		else if (command == "draw_meshes") {
-			return drawMeshes;
-		}
-		else if (command == "draw_decals") {
-			return drawDecals;
-		}
-		else if (command == "draw_skydome") {
-			return drawSkydome;
-		}
-		else if (command == "draw_lamp_volume") {
-			return drawLampVolume;
-		}
-		else if (command == "bind_target") {
-			return bindTarget;
-		}
-		else if (command == "draw_shader_quad") {
-			return drawShaderQuad;
-		}
-		else if (command == "draw_material_quad") {
-			return drawMaterialQuad;
-		}
-		else if (command == "call_function") {
-			return callFunction;
-		}
-		else if (command == "loop_lamps") {
-			return loopLamps;
-		}
+	function commandToFunction(stage:TRenderPathStage, parsedStageIndex:Int, done:TStageCommand->Void) {
+		var handle = stage.params.length > 0 ? stage.params[0] : '';
+		switch (stage.command) {
+			case "set_target": done(setTarget);
+			case "clear_target": done(clearTarget);
+			case "draw_meshes": done(drawMeshes);
+			case "draw_decals": done(drawDecals);
+			case "draw_skydome": cacheMaterialQuad(handle, function() { done(drawSkydome); });
+			case "draw_lamp_volume": cacheShaderQuad(handle, function() { done(drawLampVolume); });
+			case "bind_target": done(bindTarget);
+			case "draw_shader_quad": cacheShaderQuad(handle, function() { done(drawShaderQuad); });
+			case "draw_material_quad": cacheMaterialQuad(handle, function() { done(drawMaterialQuad); });
+			case "call_function": cacheReturnsBoth(stage, parsedStageIndex, function() { done(callFunction); });
+			case "loop_lamps": cacheReturnsTrue(stage, parsedStageIndex, function() { done(loopLamps); });
 #if WITH_VR
-		else if (command == "draw_stereo") {
-			return drawStereo;
-		}
+			case "draw_stereo": cacheReturnsTrue(stage, parsedStageIndex, function() { done(drawStereo); });
 #end
-		return null;
+			default: done(null);
+		}
+	}
+
+	function cacheReturnsBoth(stageData:TRenderPathStage, parsedStageIndex:Int, done:Void->Void) {
+		var key = parsedStageIndex + '';
+		var cached = 0;
+		var cacheTo = 0;
+		if (stageData.returns_true != null) cacheTo++;
+		if (stageData.returns_false != null) cacheTo++;
+		if (cacheTo == 0) done();
+
+		if (stageData.returns_true != null) {
+			var stageCommands:Array<TStageCommand> = [];
+			var stageParams:Array<TStageParams> = [];
+			nestedCommands.set(key + '_true', stageCommands);
+			nestedParams.set(key + '_true', stageParams);
+
+			cacheStageCommands(stageCommands, stageParams, stageData.returns_true, function() { cached++; if (cached == cacheTo) done(); });
+		}
+
+		if (stageData.returns_false != null) {
+			var stageCommands:Array<TStageCommand> = [];
+			var stageParams:Array<TStageParams> = [];
+			nestedCommands.set(key + '_false', stageCommands);
+			nestedParams.set(key + '_false', stageParams);
+
+			cacheStageCommands(stageCommands, stageParams, stageData.returns_false, function() { cached++; if (cached == cacheTo) done(); });
+		}
+
+	}
+
+	function cacheReturnsTrue(stageData:TRenderPathStage, parsedStageIndex:Int, done:Void->Void) {
+		var key = parsedStageIndex + '_true';
+
+		if (stageData.returns_true != null) {
+			var stageCommands:Array<TStageCommand> = [];
+			var stageParams:Array<TStageParams> = [];
+			nestedCommands.set(key, stageCommands);
+			nestedParams.set(key, stageParams);
+
+			cacheStageCommands(stageCommands, stageParams, stageData.returns_true, done);
+		}
+		else done();
+	}
+
+	function cacheMaterialQuad(handle:String, done:Void->Void) {
+		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		if (cc != null) { done(); return; }
+
+		cc = new CachedShaderContext();
+		cachedShaderContexts.set(handle, cc);
+
+		var matPath:Array<String> = null;
+		if (handle.charAt(0) == '_') matPath = parseMaterialLink(handle);
+		else matPath = handle.split('/');
+		
+		Data.getMaterial(matPath[0], matPath[1], function(res:MaterialData) {
+			cc.materialContext = res.getContext(matPath[2]);
+			cc.context = res.shader.getContext(matPath[2]);
+			done();
+		});
+	}
+
+	function cacheShaderQuad(handle:String, done:Void->Void) {
+		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		if (cc != null) { done(); return; }
+
+		cc = new CachedShaderContext();
+		cachedShaderContexts.set(handle, cc);
+
+		var shaderPath = handle.split("/");
+
+		Data.getShader(shaderPath[0], shaderPath[1], null, function(res:ShaderData) {
+			cc.materialContext = null;
+			cc.context = res.getContext(shaderPath[2]);
+			done();
+		});
 	}
 }
 

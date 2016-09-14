@@ -40,8 +40,8 @@ class CameraObject extends Object {
 		var fov = data.raw.fov;
 
 		if (data.raw.type == "perspective") {
-			var w:Float = App.w;
-			var h:Float = App.h;
+			var w:Float = iron.App.w();
+			var h:Float = iron.App.h();
 #if WITH_VR
 			w /= 2.0; // Split per eye
 #end

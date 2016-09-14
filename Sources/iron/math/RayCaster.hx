@@ -24,8 +24,8 @@ class RayCaster {
         // TODO: speed up using http://halogenica.net/ray-casting-and-picking-using-bullet-physics/
 
         // Get 3D point form screen coords
-        start.x =  (inputX / App.w) * 2 - 1;
-        start.y = -(inputY / App.h) * 2 + 1;
+        start.x =  (inputX / App.w()) * 2 - 1;
+        start.y = -(inputY / App.h()) * 2 + 1;
 
         // Set two vectors with opposing z values
         start.z = -1.0;

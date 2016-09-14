@@ -17,34 +17,44 @@ class ParticleSystem {
 
 	var particles:Array<Particle>;
 
+	var waiting:Bool;
+
 	public function new(object:MeshObject, sceneName:String, pref:TParticleReference) {
 		this.object = object;
 		name = pref.name;
-		data = Data.getParticle(sceneName, pref.particle);
 		seed = pref.seed;
-
 		particles = [];
-		var r = data.raw;
-		for (i in 0...r.count) {
-			var p = new Particle();
-			particles.push(p);
-			p.offset = new Vec4(0.0, 0.0, 0.0);
-			p.velocity = new Vec4(0.0, 0.0, 0.0);
-			setVelocity(p.velocity);
-			p.lifetime = Std.random(Std.int(r.lifetime * 1000)) / 1000;
-		}
 
-		// Make mesh data instanced
-		var instancedData:Array<Float> = []; // TODO: use Float32Array directly
-		for (p in particles) {
-			instancedData.push(p.offset.x);
-			instancedData.push(p.offset.y);
-			instancedData.push(p.offset.z);
-		}
-		object.data.mesh.setupInstanced(instancedData, Usage.DynamicUsage);
+		waiting = true;
+		Data.getParticle(sceneName, pref.particle, function(b:ParticleData) {
+			data = b;
+
+			var r = data.raw;
+			for (i in 0...r.count) {
+				var p = new Particle();
+				particles.push(p);
+				p.offset = new Vec4(0.0, 0.0, 0.0);
+				p.velocity = new Vec4(0.0, 0.0, 0.0);
+				setVelocity(p.velocity);
+				p.lifetime = Std.random(Std.int(r.lifetime * 1000)) / 1000;
+			}
+
+			// Make mesh data instanced
+			var instancedData:Array<Float> = []; // TODO: use Float32Array directly
+			for (p in particles) {
+				instancedData.push(p.offset.x);
+				instancedData.push(p.offset.y);
+				instancedData.push(p.offset.z);
+			}
+			object.data.mesh.setupInstanced(instancedData, Usage.DynamicUsage);
+
+			waiting = false;
+		});
 	}
 
 	public function update() {
+		if (waiting) return;
+
 		for (p in particles) { // TODO: Sort Float32Array directly
 			p.lifetime += Time.delta;
 

@@ -21,10 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package iron.data.msgpack;
+package iron.sys.msgpack;
 
 import haxe.io.Bytes;
-import iron.data.msgpack.Decoder.DecodeOption;
+import iron.sys.msgpack.Decoder.DecodeOption;
 
 class MsgPack {
 

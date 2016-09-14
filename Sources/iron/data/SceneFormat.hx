@@ -17,6 +17,7 @@ typedef TSceneFormat = {
 	@:optional public var objects:Array<TObj>;
 	@:optional public var gravity:Array<Float>;
 	@:optional public var traits:Array<TTrait>; // Scene root traits
+	@:optional public var embedded_datas:Array<String>; // Preload for this scene, images only for now
 }
 
 typedef TMeshData = {

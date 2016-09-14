@@ -78,10 +78,10 @@ class Uniforms {
 			}
 			// Migrate to arm
 			else if (tulink == "_smaaSearch") {
-				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "smaa_search"));
+				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('smaa_search.png'));
 			}
 			else if (tulink == "_smaaArea") {
-				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "smaa_area"));
+				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('smaa_area.png'));
 			}
 			else if (tulink == "_ltcMat") {
 				if (iron.data.ConstData.ltcMatTex == null) iron.data.ConstData.initLTC();
@@ -93,15 +93,15 @@ class Uniforms {
 			}
 			//
 			else if (tulink == "_noise8") {
-				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "noise8"));
+				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise8.png'));
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 			}
 			else if (tulink == "_noise64") {
-				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "noise64"));
+				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise64.png'));
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 			}
 			else if (tulink == "_noise256") {
-				g.setTexture(context.textureUnits[j], Reflect.field(kha.Assets.images, "noise256"));
+				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise256.png'));
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 			}
 		}
@@ -392,8 +392,8 @@ class Uniforms {
 			else if (c.link == "_vec2y2") vy = 2.0;
 			else if (c.link == "_vec2y3") vy = 3.0;
 			else if (c.link == "_windowSize") {
-				vx = App.w;
-				vy = App.h;
+				vx = App.w();
+				vy = App.h();
 			}
 			else if (c.link == "_screenSize") {
 				vx = camera.renderPath.currentRenderTargetW;
@@ -489,7 +489,7 @@ class Uniforms {
 				i = camera.renderPath.currentLampIndex;
 			}
 			else if (c.link == "_envmapNumMipmaps") {
-				i = Scene.active.world.getGlobalProbe().numMipmaps + 1; // Include basecolor
+				i = Scene.active.world.getGlobalProbe().raw.radiance_mipmaps + 1; // Include basecolor
 			}
 			else if (c.link == "_probeID") { // Local probes
 				i = Scene.active.world.getProbeID(object.transform);

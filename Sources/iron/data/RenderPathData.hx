@@ -12,7 +12,7 @@ class RenderPathData extends Data {
 	public var renderTargets:Map<String, RenderTarget> = null;
 	public var depthToRenderTarget:Map<String, RenderTarget> = null;
 
-	public function new(raw:TRenderPathData) {
+	public function new(raw:TRenderPathData, done:RenderPathData->Void) {
 		super();
 
 		this.raw = raw;
@@ -31,11 +31,23 @@ class RenderPathData extends Data {
 				renderTargets.set(t.name, rt);
 			}
 		}
+
+		done(this);
+	}
+
+	public static function parse(file:String, name:String, done:RenderPathData->Void) {
+		Data.getSceneRaw(file, function(format:TSceneFormat) {
+			var raw:TRenderPathData = Data.getRenderPathRawByName(format.renderpath_datas, name);
+			if (raw == null) {
+				trace('Render path data "$name" not found!');
+				done(null);
+			}
+			new RenderPathData(raw, done);
+		});
 	}
 	
 	function makeRenderTarget(t:TRenderPathTarget) {
 		var rt = new RenderTarget();
-		
 		// With depth buffer
 		if (t.depth_buffer != null) {
 			rt.hasDepth = true;
@@ -94,16 +106,6 @@ class RenderPathData extends Data {
 		if (depth && stencil) return DepthStencilFormat.Depth24Stencil8;
 		else if (depth) return DepthStencilFormat.DepthOnly;
 		else return DepthStencilFormat.NoDepthAndStencil; 
-	}
-
-	public static function parse(file:String, name:String):RenderPathData {
-		var format:TSceneFormat = Data.getSceneRaw(file);
-		var raw:TRenderPathData = Data.getRenderPathRawByName(format.renderpath_datas, name);
-		if (raw == null) {
-			trace('Render path data "$name" not found!');
-			return null;
-		}
-		return new RenderPathData(raw);
 	}
 }
 

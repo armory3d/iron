@@ -14,7 +14,9 @@ class SpeakerObject extends Object {
 
 		Scene.active.speakers.push(this);
 
-		iron.sys.Audio.playSound(Reflect.field(kha.Assets.sounds, data.sound));
+		iron.data.Data.getSound(data.sound, function(sound:kha.Sound) {
+			iron.sys.Audio.playSound(sound);
+		});
 	}
 
 	public override function remove() {

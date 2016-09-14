@@ -10,7 +10,7 @@ class LampData extends Data {
 
 	public var P:Mat4 = null; // Shadow map matrices
 
-	public function new(raw:TLampData) {
+	public function new(raw:TLampData, done:LampData->Void) {
 		super();
 
 		this.raw = raw;
@@ -30,19 +30,22 @@ class LampData extends Data {
 		else if (type == "spot") {
 			P = Mat4.perspective(fov, 1, raw.near_plane, raw.far_plane);
 		}
+
+		done(this);
 	}
 
 	public static function typeToInt(s:String):Int {
 		s == "sun" ? return 0 : s == "point" ? return 1 : return 2;
 	}
 
-	public static function parse(name:String, id:String):LampData {
-		var format:TSceneFormat = Data.getSceneRaw(name);
-		var raw:TLampData = Data.getLampRawByName(format.lamp_datas, id);
-		if (raw == null) {
-			trace('Lamp data "$id" not found!');
-			return null;
-		}
-		return new LampData(raw);
+	public static function parse(name:String, id:String, done:LampData->Void) {
+		Data.getSceneRaw(name, function(format:TSceneFormat) {
+			var raw:TLampData = Data.getLampRawByName(format.lamp_datas, id);
+			if (raw == null) {
+				trace('Lamp data "$id" not found!');
+				done(null);
+			}
+			new LampData(raw, done);
+		});
 	}
 }

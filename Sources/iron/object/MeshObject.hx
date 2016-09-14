@@ -70,8 +70,6 @@ class MeshObject extends Object {
 			// Scale radius for skinned mesh
 			// TODO: determine max skinned radius
 			var radiusScale = data.isSkinned ? 2.0 : 1.0;
-			
-			// Hard-coded for now
 			var shadowsContext = camera.data.pathdata.raw.shadows_context;
 			var frustumPlanes = context == shadowsContext ? lamp.frustumPlanes : camera.frustumPlanes;
 
@@ -86,10 +84,7 @@ class MeshObject extends Object {
 						break;
 					}
 				}
-				if (!instanceInFrustum) {
-					culled = true;
-					return;
-				}
+				if (!instanceInFrustum) { culled = true; return; }
 
 				// Sort - always front to back for now
 				var camX = camera.transform.absx();
