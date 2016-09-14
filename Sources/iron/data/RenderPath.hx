@@ -52,7 +52,7 @@ class RenderPath {
 	var nestedCommands:Map<String, Array<TStageCommand>> = new Map(); // Just one level deep nesting for now
 	var nestedParams:Map<String, Array<TStageParams>> = new Map();
 	var sorted:Bool;
-	var waiting:Bool;
+	public var waiting:Bool;
 	
 	var lamps:Array<LampObject>;
 	public var currentLampIndex = 0;

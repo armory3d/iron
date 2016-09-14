@@ -71,7 +71,13 @@ class Vec4 {
         x += v.x;
         y += v.y;
         z += v.z;
+        return this;
+    }
 
+    public function addf(x:Float, y:Float, z:Float):Vec4 {
+        this.x += x;
+        this.y += y;
+        this.z += z;
         return this;
     }
 

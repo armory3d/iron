@@ -65,7 +65,10 @@ class App {
 #end
     }
 
+    public static var patched = false;
     static function render(frame:kha.Framebuffer) {
+        // if (patched) return;
+
 #if WITH_PROFILE
         startTime = kha.Scheduler.realTime();
 #end
@@ -74,6 +77,8 @@ class App {
             for (f in traitInits) { if (traitInits.length == 0) break; f(); f = null; }
             traitInits.splice(0, traitInits.length);     
         }
+
+        if (Scene.active != null) Scene.active.renderFrame(frame.g4);
 
         for (f in traitRenders) { if (traitRenders.length == 0) break; f(frame.g4); }
 

@@ -35,7 +35,7 @@ class Scene {
 
 	public var embedded:Map<String, kha.Image>;
 
-	static var waiting = false; // Async in progress
+	public var waiting:Bool; // Async in progress
 
 	public function new() {
 		meshes = [];
@@ -55,6 +55,7 @@ class Scene {
 #end
 	public static function create(format:TSceneFormat, done:Object->Void) {
 		active = new Scene();
+		active.waiting = true;
 		active.raw = format;
 
 		Data.getWorld(format.name, format.world_ref, function(world:WorldData) {
@@ -117,11 +118,11 @@ class Scene {
 
 	public static function setActive(sceneName:String, done:Object->Void) {
 		if (Scene.active != null) Scene.active.remove();
-		waiting = true;
 		iron.data.Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			Scene.create(format, function(o:Object) {
 				done(o);
-				waiting = false;
+				Scene.active.waiting = false;
+				// o.addTrait(new armory.trait.internal.SceneEditor());
 			});
 		});
 	}
@@ -208,6 +209,7 @@ class Scene {
 		Data.getSceneRaw(name, function(format:TSceneFormat) {
 			createTraits(format.traits, parent); // Scene traits
 			loadEmbeddedData(format.embedded_datas, function() { // Additional scene assets
+				objectsTraversed = 0;
 				traverseObjects(format, name, parent, format.objects, null, function() { // Scene objects
 					done(parent);
 				}, getObjectsCount(format.objects));
@@ -223,7 +225,8 @@ class Scene {
 		return result;
 	}
 
-	function traverseObjects(format:TSceneFormat, name:String, parent:Object, objects:Array<TObj>, parentObject:TObj, done:Void->Void, objectsCount:Int, objectsTraversed = 0) {
+	var objectsTraversed:Int;
+	function traverseObjects(format:TSceneFormat, name:String, parent:Object, objects:Array<TObj>, parentObject:TObj, done:Void->Void, objectsCount:Int) {
 		for (i in 0...objects.length) {
 			var o = objects[i];
 			if (o.spawn != null && o.spawn == false) {
@@ -233,7 +236,7 @@ class Scene {
 			}
 			
 			createObject(o, format, name, parent, parentObject, function(object:Object) {
-				if (object != null) traverseObjects(format, name, object, o.children, o, null, objectsCount, objectsTraversed);
+				if (object != null) traverseObjects(format, name, object, o.children, o, null, objectsCount);
 
 				objectsTraversed++;
 				if (objectsTraversed == objectsCount) done();
