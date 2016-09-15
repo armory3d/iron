@@ -122,7 +122,7 @@ class Scene {
 			Scene.create(format, function(o:Object) {
 				done(o);
 				Scene.active.waiting = false;
-				// o.addTrait(new armory.trait.internal.SceneEditor());
+				o.addTrait(new armory.trait.internal.SceneEditor());
 			});
 		});
 	}
@@ -236,7 +236,7 @@ class Scene {
 			}
 			
 			createObject(o, format, name, parent, parentObject, function(object:Object) {
-				if (object != null) traverseObjects(format, name, object, o.children, o, null, objectsCount);
+				if (object != null) traverseObjects(format, name, object, o.children, o, done, objectsCount);
 
 				objectsTraversed++;
 				if (objectsTraversed == objectsCount) done();
@@ -306,8 +306,8 @@ class Scene {
 
 							// Bone objects are stored in armature parent
 							if (parentObject != null && parentObject.bones_ref != null) {
-								Data.getSceneRaw(parentObject.bones_ref, function(format:TSceneFormat) {
-									var boneObjects:Array<TObj> = format.objects;
+								Data.getSceneRaw(parentObject.bones_ref, function(boneformat:TSceneFormat) {
+									var boneObjects:Array<TObj> = boneformat.objects;
 									returnMeshObject(object_file, data_ref, name, boneObjects, materials, parent, o, done);
 								});
 							}

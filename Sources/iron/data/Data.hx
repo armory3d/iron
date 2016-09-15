@@ -1,5 +1,4 @@
 package iron.data;
-
 import iron.data.SceneFormat;
 
 // Global data list and asynchronous data loading

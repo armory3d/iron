@@ -65,9 +65,7 @@ class App {
 #end
     }
 
-    public static var patched = false;
     static function render(frame:kha.Framebuffer) {
-        // if (patched) return;
 
 #if WITH_PROFILE
         startTime = kha.Scheduler.realTime();
