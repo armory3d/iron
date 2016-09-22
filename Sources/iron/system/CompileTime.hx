@@ -1,5 +1,5 @@
 // Based on https://github.com/jasononeil/compiletime
-package iron.sys;
+package iron.system;
 
 import haxe.macro.Context;
 

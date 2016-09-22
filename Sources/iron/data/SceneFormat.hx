@@ -31,7 +31,7 @@ typedef TMesh = {
 	public var primitive:String;
 	public var vertex_arrays:Array<TVertexArray>;
 	public var index_arrays:Array<TIndexArray>;
-	@:optional public var static_usage:Null<Bool>;
+	@:optional public var dynamic_usage:Null<Bool>;
 	@:optional public var skin:TSkin;
 	@:optional public var instance_offsets:Array<Float>;
 }
@@ -238,6 +238,12 @@ typedef TSpeakerData = {
 // @:structInit class TSpeakerData {
 	public var name:String;
 	public var sound:String;
+	public var muted:Bool;
+	public var loop:Bool;
+	public var stream:Bool;
+	public var volume:Float;
+	public var pitch:Float;
+	public var attenuation:Float;
 }
 
 typedef TWorldData = {

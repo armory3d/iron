@@ -120,64 +120,64 @@ class Transform {
 	}
 
 	public function getForward():Vec4 {
-        var mat = Mat4.identity();
-        rot.saveToMatrix(mat);
-        var f = new Vec4(0, 1, 0);
-        f.applyProjection(mat);
-        f = f.mult(iron.sys.Time.delta * 200); // TODO: remove delta
-        return f;
-    }
+		var mat = Mat4.identity();
+		rot.saveToMatrix(mat);
+		var f = new Vec4(0, 1, 0);
+		f.applyProjection(mat);
+		f = f.mult(iron.system.Time.delta * 200); // TODO: remove delta
+		return f;
+	}
 
-    public function getBackward():Vec4 {
-        var mat = Mat4.identity();
-        rot.saveToMatrix(mat);
-        var f = new Vec4(0, -1, 0);
-        f.applyProjection(mat);
-        f = f.mult(iron.sys.Time.delta * 200);
-        return f;
-    }
+	public function getBackward():Vec4 {
+		var mat = Mat4.identity();
+		rot.saveToMatrix(mat);
+		var f = new Vec4(0, -1, 0);
+		f.applyProjection(mat);
+		f = f.mult(iron.system.Time.delta * 200);
+		return f;
+	}
 
-    public function getRight():Vec4 {
-        var mat = Mat4.identity();
-        rot.saveToMatrix(mat);
-        var f = new Vec4(1, 0, 0);
-        f.applyProjection(mat);
-        f = f.mult(iron.sys.Time.delta * 200);
-        return f;
-    }
+	public function getRight():Vec4 {
+		var mat = Mat4.identity();
+		rot.saveToMatrix(mat);
+		var f = new Vec4(1, 0, 0);
+		f.applyProjection(mat);
+		f = f.mult(iron.system.Time.delta * 200);
+		return f;
+	}
 
-    public function getLeft():Vec4 {
-        var mat = Mat4.identity();
-        rot.saveToMatrix(mat);
-        var f = new Vec4(-1, 0, 0);
-        f.applyProjection(mat);
-        f = f.mult(iron.sys.Time.delta * 200);
-        return f;
-    }
+	public function getLeft():Vec4 {
+		var mat = Mat4.identity();
+		rot.saveToMatrix(mat);
+		var f = new Vec4(-1, 0, 0);
+		f.applyProjection(mat);
+		f = f.mult(iron.system.Time.delta * 200);
+		return f;
+	}
 
-    public function getUp():Vec4 {
-        var mat = Mat4.identity();
-        rot.saveToMatrix(mat);
-        var f = new Vec4(0, 0, 1);
-        f.applyProjection(mat);
-        f = f.mult(iron.sys.Time.delta * 200);
-        return f;
-    }
+	public function getUp():Vec4 {
+		var mat = Mat4.identity();
+		rot.saveToMatrix(mat);
+		var f = new Vec4(0, 0, 1);
+		f.applyProjection(mat);
+		f = f.mult(iron.system.Time.delta * 200);
+		return f;
+	}
 
-    public function getDown():Vec4 {
-        var mat = Mat4.identity();
-        rot.saveToMatrix(mat);
-        var f = new Vec4(0, 0, -1);
-        f.applyProjection(mat);
-        f = f.mult(iron.sys.Time.delta * 200);
-        return f;
-    }
+	public function getDown():Vec4 {
+		var mat = Mat4.identity();
+		rot.saveToMatrix(mat);
+		var f = new Vec4(0, 0, -1);
+		f.applyProjection(mat);
+		f = f.mult(iron.system.Time.delta * 200);
+		return f;
+	}
 
-    public function computeRadius() {
-    	radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);// / 2;
-    }
+	public function computeRadius() {
+		radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);// / 2;
+	}
 
- 	public inline function absx():Float { return matrix._30; }
+	public inline function absx():Float { return matrix._30; }
 	public inline function absy():Float { return matrix._31; }
 	public inline function absz():Float { return matrix._32; }
 }

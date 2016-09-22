@@ -250,7 +250,7 @@ class Uniforms {
 			}
 #if WITH_VR
 			else if (c.link == "_undistortionMatrix") {
-				m = iron.sys.VR.getUndistortionMatrix();
+				m = iron.system.VR.getUndistortionMatrix();
 			}
 #end
 			if (m == null) return;
@@ -421,7 +421,7 @@ class Uniforms {
 				f = kha.Scheduler.time();
 			}
 			else if (c.link == "_deltaTime") {
-				f = iron.sys.Time.delta;
+				f = iron.system.Time.delta;
 			}
 			else if (c.link == "_lampRadius") {
 				f = lamp.data.raw.far_plane;
@@ -461,7 +461,7 @@ class Uniforms {
 			}
 #if WITH_VR
 			else if (c.link == "_maxRadiusSq") {
-				f = iron.sys.VR.getMaxRadiusSq();
+				f = iron.system.VR.getMaxRadiusSq();
 			}
 #end
 			g.setFloat(location, f);

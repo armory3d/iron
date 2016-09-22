@@ -55,7 +55,7 @@ class MeshData extends Data {
 
 		// Usage, also used for instanced data
 		var parsedUsage = Usage.StaticUsage;
-		if (raw.mesh.static_usage != null && raw.mesh.static_usage == false) parsedUsage = Usage.DynamicUsage;
+		if (raw.mesh.dynamic_usage != null && raw.mesh.dynamic_usage == true) parsedUsage = Usage.DynamicUsage;
 		var usage = (isSkinned && ForceCpuSkinning) ? Usage.DynamicUsage : parsedUsage;
 
 		var bonea:Array<Float> = null; // Store bone indices and weights per vertex

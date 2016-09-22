@@ -4,7 +4,7 @@ import kha.graphics4.Usage;
 import iron.data.Data;
 import iron.data.ParticleData;
 import iron.data.SceneFormat;
-import iron.sys.Time;
+import iron.system.Time;
 import iron.math.Vec4;
 
 class ParticleSystem {

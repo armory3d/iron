@@ -216,7 +216,7 @@ class Data {
 #if WITH_JSON
 			var parsed:TSceneFormat = haxe.Json.parse(b.toString());
 #else
-			var parsed:TSceneFormat = iron.sys.msgpack.MsgPack.decode(b.toBytes());
+			var parsed:TSceneFormat = iron.system.msgpack.MsgPack.decode(b.toBytes());
 #end
 			cachedSceneRaws.set(file, parsed);
 			for (f in loadingSceneRaws.get(file)) f(parsed);
@@ -298,7 +298,7 @@ class Data {
 	}
 
 	static var loadingImages:Map<String, Array<kha.Image->Void>> = new Map();
-	public static function getImage(file:String, done:kha.Image->Void) {
+	public static function getImage(file:String, done:kha.Image->Void, readable = false) {
 #if cpp
 		if (StringTools.endsWith(file, '.png')) file = file.substring(0, file.length - 4) + '.kng';
 #end
@@ -311,7 +311,7 @@ class Data {
 
 		loadingImages.set(file, [done]);
 
-		var description = { files: [file] };
+		var description = { files: [file], readable: readable };
 		kha.LoaderImpl.loadImageFromDescription(description, function(b:kha.Image) {
 			cachedImages.set(file, b);
 			for (f in loadingImages.get(file)) f(b);
@@ -321,7 +321,9 @@ class Data {
 
 	static var loadingSounds:Map<String, Array<kha.Sound->Void>> = new Map();
 	public static function getSound(file:String, done:kha.Sound->Void) {
-		// TODO: fix extension
+
+		if (StringTools.endsWith(file, '.wav')) file = file.substring(0, file.length - 4) + '.ogg';
+
 		var cached = cachedSounds.get(file);
 		if (cached != null) { done(cached); return; }
 

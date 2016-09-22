@@ -1,4 +1,4 @@
-package iron.sys;
+package iron.system;
 
 class Input {
 

@@ -143,7 +143,7 @@ class Probe {
 								radiance.setMipmaps(radianceMipmaps);
 								mipsSet(done);
 							}
-						});
+						}, true); // Readable
 					}
 				});
 			}
@@ -179,7 +179,7 @@ class Probe {
 #if WITH_JSON
 				var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData.toString());
 #else
-				var irradianceParsed:TIrradiance = iron.sys.msgpack.MsgPack.decode(irradianceData.toBytes());
+				var irradianceParsed:TIrradiance = iron.system.msgpack.MsgPack.decode(irradianceData.toBytes());
 #end
 				done(haxe.ds.Vector.fromData(irradianceParsed.irradiance));
 			});

@@ -37,6 +37,8 @@ class Scene {
 
 	public var waiting:Bool; // Async in progress
 
+	public var traitInits:Array<Void->Void> = [];
+
 	public function new() {
 		meshes = [];
 		lamps = [];
@@ -45,14 +47,15 @@ class Scene {
 		decals = [];
 		embedded = new Map();
 		root = new Object();
+		traitInits = [];
 	}
 
-#if WITH_PATCH_ELECTRON
-	static var first = true;
-	static var patchTime = 0.0;
-	static var lastMtime:Dynamic;
-	static var lastSize:Dynamic;
-#end
+// #if (js && WITH_PATCH_ELECTRON)
+	// static var first = true;
+	// static var patchTime = 0.0;
+	// static var lastMtime:Dynamic;
+	// static var lastSize:Dynamic;
+// #end
 	public static function create(format:TSceneFormat, done:Object->Void) {
 		active = new Scene();
 		active.waiting = true;
@@ -70,29 +73,33 @@ class Scene {
 				}
 
 				active.camera = active.getCamera(format.camera_ref);
-		
-#if WITH_PATCH_ELECTRON
-				if (first) {
-					first = false;
-					var electron = untyped __js__('window && window.process && window.process.versions["electron"]');
-					if (electron) {
-						untyped __js__('var fs = require("fs");');
-						App.notifyOnUpdate(function() {
-							patchTime += iron.sys.Time.delta;
-							if (patchTime > 0.1) {
-								patchTime = 0;
-								var repatch = false;
-								// Compare mtime and size of scene file
-								untyped __js__('fs.stat(__dirname + "/" + {0} + ".arm", function(err, stats) {', active.raw.name);
-								untyped __js__('	if ({0} > stats.mtime || {0} < stats.mtime || {1} !== stats.size) { if ({0} !== undefined) { {2} = true; } {0} = stats.mtime; {1} = stats.size; }', lastMtime, lastSize, repatch);
-								if (repatch) patch();
-								untyped __js__('});');
-							}
-						});
-					}
-				}
-#end
+
+// #if (js && WITH_PATCH_ELECTRON)
+// 				if (first) {
+// 					first = false;
+// 					var electron = untyped __js__('window && window.process && window.process.versions["electron"]');
+// 					if (electron) {
+// 						untyped __js__('var fs = require("fs");');
+// 						App.notifyOnUpdate(function() {
+// 							patchTime += iron.system.Time.delta;
+// 							if (patchTime > 0.1) {
+// 								patchTime = 0;
+// 								var repatch = false;
+// 								// Compare mtime and size of scene file
+// 								untyped __js__('fs.stat(__dirname + "/" + {0} + ".arm", function(err, stats) {', active.raw.name);
+// 								untyped __js__('	if ({0} > stats.mtime || {0} < stats.mtime || {1} !== stats.size) { if ({0} !== undefined) { {2} = true; } {0} = stats.mtime; {1} = stats.size; }', lastMtime, lastSize, repatch);
+// 								if (repatch) patch();
+// 								untyped __js__('});');
+// 							}
+// 						});
+// 					}
+// 				}
+// #end
 				done(sceneObject);
+
+				// Hooks
+				for (f in active.traitInits) f();
+				active.traitInits = [];
 			});
 		});
 	}
@@ -122,7 +129,6 @@ class Scene {
 			Scene.create(format, function(o:Object) {
 				done(o);
 				Scene.active.waiting = false;
-				o.addTrait(new armory.trait.internal.SceneEditor());
 			});
 		});
 	}
@@ -407,4 +413,13 @@ class Scene {
 			});
 		}
 	}
+
+	// Hooks
+    public function notifyOnInit(f:Void->Void) {
+        traitInits.push(f);
+    }
+
+    public function removeInit(f:Void->Void) {
+        traitInits.remove(f);
+    }
 }

@@ -22,13 +22,13 @@ class App {
     }
     
 	function new(_appReady:Void->Void) {
-        new iron.sys.Storage();
-        new iron.sys.Input();
+        new iron.system.Storage();
+        new iron.system.Input();
 
         _appReady();
 
         kha.System.notifyOnRender(render);
-        kha.Scheduler.addTimeTask(update, 0, iron.sys.Time.delta);
+        kha.Scheduler.addTimeTask(update, 0, iron.system.Time.delta);
         // kha.Scheduler.addTimeTask(update, 0, 1 / 60);
 	}
 
@@ -39,8 +39,8 @@ class App {
         traitRenders = [];
         traitRenders2D = [];
 
-        iron.sys.Input.reset();
-        iron.sys.Tween.reset();
+        iron.system.Input.reset();
+        iron.system.Tween.reset();
     }
 
     static function update() {
@@ -48,7 +48,7 @@ class App {
         startTime = kha.Scheduler.realTime();
 #end
 
-        iron.sys.Tween.update();
+        iron.system.Tween.update();
         
         if (traitInits.length > 0) {
             for (f in traitInits) { if (traitInits.length == 0) break; f(); f = null; }
@@ -58,7 +58,7 @@ class App {
         for (f in traitUpdates) { if (traitUpdates.length == 0) break; f(); }
         for (f in traitLateUpdates) { if (traitLateUpdates.length == 0) break; f(); }
 
-        iron.sys.Input.end();
+        iron.system.Input.end();
 
 #if WITH_PROFILE
         updateTime = kha.Scheduler.realTime() - startTime;
