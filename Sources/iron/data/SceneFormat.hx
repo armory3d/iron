@@ -178,6 +178,9 @@ typedef TShaderContext = {
 	@:optional public var color_write_alpha:Null<Bool>;
 	public var vertex_shader:String;
 	public var fragment_shader:String;
+	@:optional public var geometry_shader:String;
+	@:optional public var tesscontrol_shader:String;
+	@:optional public var tesseval_shader:String;
 	public var constants:Array<TShaderConstant>;
 	public var texture_units:Array<TTextureUnit>;
 }
@@ -379,6 +382,9 @@ typedef TRawContext = {
 	public var links:Array<TRawLink>;
 	public var vertex_shader:String;
 	public var fragment_shader:String;
+	@:optional public var geometry_shader:String;
+	@:optional public var tesscontrol_shader:String;
+	@:optional public var tesseval_shader:String;
 }
 
 typedef TRawParam = {

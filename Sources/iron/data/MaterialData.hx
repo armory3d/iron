@@ -50,7 +50,8 @@ class MaterialData extends Data {
 
 	public function getContext(name:String):MaterialContext {
 		for (c in contexts) {
-			if (c.raw.name == name) return c;
+			// 'mesh' will fetch both 'mesh' and 'meshheight' contexts
+			if (c.raw.name.substr(0, name.length) == name) return c;
 		}
 		return null;
 	}

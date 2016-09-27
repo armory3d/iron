@@ -18,13 +18,6 @@ import iron.object.CameraObject;
 import iron.object.LampObject;
 import iron.object.Uniforms;
 
-#if cpp
-@:headerCode('
-#include <Kore/pch.h>
-#include <Kore/Graphics/Graphics.h>
-')
-#end
-
 typedef TStageCommand = Array<String>->Object->Void;
 typedef TStageParams = Array<String>;
 
@@ -263,13 +256,6 @@ class RenderPath {
 				colorFlag = params[val] == '-1' ? Scene.active.world.raw.background_color : Color.fromString(params[val]);
 			}
 			else if (params[pos] == "depth") {
-				// TODO: Fix non-independent depth clearing
-				#if cpp
-					untyped __cpp__("Kore::Graphics::setRenderState(Kore::DepthWrite, true);");
-				#else
-					kha.SystemImpl.gl.depthMask(true);
-				#end
-
 				if (params[val] == "1.0") depthFlag = 1.0;
 				else depthFlag = 0.0;
 			}

@@ -117,7 +117,7 @@ class MeshObject extends Object {
 				cc.materialContexts = [];
 				for (mat in materials) {
 					for (i in 0...mat.raw.contexts.length) {
-						if (mat.raw.contexts[i].name == context) {
+						if (mat.raw.contexts[i].name.substr(0, context.length) == context) {
 							cc.materialContexts.push(mat.contexts[i]);
 							break;
 						}

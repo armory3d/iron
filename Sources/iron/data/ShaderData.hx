@@ -78,7 +78,7 @@ class ShaderData extends Data {
 
 	public function getContext(name:String):ShaderContext {
 		for (c in contexts) {
-			if (c.raw.name == name) return c;
+			if (c.raw.name.substr(0, name.length) == name) return c;
 		}
 		return null;
 	}
@@ -153,9 +153,20 @@ class ShaderContext {
 		if (raw.color_write_blue != null) pipeState.colorWriteMaskBlue = raw.color_write_blue;
 		if (raw.color_write_alpha != null) pipeState.colorWriteMaskAlpha = raw.color_write_alpha;
 
+		// Shaders
 		pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(raw.fragment_shader, ".", "_"));
 		pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(raw.vertex_shader, ".", "_"));
-		
+
+		if (raw.geometry_shader != null) {
+			pipeState.geometryShader = Reflect.field(kha.Shaders, StringTools.replace(raw.geometry_shader, ".", "_"));
+		}
+		if (raw.tesscontrol_shader != null) {
+			pipeState.tesselationControlShader = Reflect.field(kha.Shaders, StringTools.replace(raw.tesscontrol_shader, ".", "_"));
+		}
+		if (raw.tesseval_shader != null) {
+			pipeState.tesselationEvaluationShader = Reflect.field(kha.Shaders, StringTools.replace(raw.tesseval_shader, ".", "_"));
+		}
+
 		// Override specified values
 		if (overrideContext != null) {
 			if (overrideContext.cull_mode != null) {
