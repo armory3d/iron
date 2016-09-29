@@ -416,7 +416,8 @@ class Scene {
 
 	// Hooks
     public function notifyOnInit(f:Void->Void) {
-        traitInits.push(f);
+    	if (!waiting) f(); // Scene already running
+        else traitInits.push(f);
     }
 
     public function removeInit(f:Void->Void) {
