@@ -167,7 +167,7 @@ class RenderPath {
 #if WITH_PROFILE
 			var cmd = stageCommands[i];
 			if (!passEnabled[currentPass]) {
-				if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
+				if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad || cmd == drawGreasePencil) {
 					endPass();
 				}
 				continue;
@@ -178,7 +178,7 @@ class RenderPath {
 			stageCommands[i](stageParams[i], root);
 
 #if WITH_PROFILE
-			if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad) {
+			if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad || cmd == drawGreasePencil) {
 				endPass();
 			}
 #end
@@ -308,6 +308,42 @@ class RenderPath {
 			g.setVertexBuffer(boxVB);
 			g.setIndexBuffer(boxIB);
 			g.drawIndexedVertices();
+		}
+		end(g);
+	}
+
+	static var gpFrame = 0;
+	function drawGreasePencil(params:Array<String>, root:Object) {
+		var gp = Scene.active.greasePencil;
+		if (gp == null) return;
+		var g = currentRenderTarget;
+		var lamp = lamps[currentLampIndex];
+		g.setPipeline(GreasePencilData.context.pipeState);
+		Uniforms.setConstants(g, GreasePencilData.context, null, camera, lamp, null);
+		// Draw layers
+		for (layer in gp.layers) {
+			// Next frame
+			if (layer.frames.length - 1 > layer.currentFrame && gpFrame >= layer.frames[layer.currentFrame + 1].raw.frame_number) {
+				layer.currentFrame++;
+			}
+			var frame = layer.frames[layer.currentFrame];
+			if (frame.numVertices > 0) {
+				g.setVertexBuffer(frame.vertexBuffer);
+				g.setIndexBuffer(frame.indexBuffer);
+				g.drawIndexedVertices();
+#if js
+				// TODO: temporary, construct triangulated lines from points instead
+				g.setVertexBuffer(frame.vertexStrokeBuffer);
+				kha.SystemImpl.gl.lineWidth(2);
+				kha.SystemImpl.gl.drawArrays(js.html.webgl.GL.LINE_STRIP, 0, frame.numVertices - 1);
+			}
+#end
+		}
+		gpFrame++;
+		// Reset timeline
+		if (gpFrame > GreasePencilData.frameEnd) {
+			gpFrame = 0;
+			for (layer in gp.layers) layer.currentFrame = 0;
 		}
 		end(g);
 	}
@@ -542,6 +578,7 @@ class RenderPath {
 			case "bind_target": done(bindTarget);
 			case "draw_shader_quad": cacheShaderQuad(handle, function() { done(drawShaderQuad); });
 			case "draw_material_quad": cacheMaterialQuad(handle, function() { done(drawMaterialQuad); });
+			case "draw_grease_pencil": done(drawGreasePencil);
 			case "call_function": cacheReturnsBoth(stage, parsedStageIndex, function() { done(callFunction); });
 			case "loop_lamps": cacheReturnsTrue(stage, parsedStageIndex, function() { done(loopLamps); });
 #if WITH_VR

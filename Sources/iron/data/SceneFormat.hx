@@ -14,6 +14,8 @@ typedef TSceneFormat = {
 	@:optional public var speaker_datas:Array<TSpeakerData>;
 	@:optional public var world_datas:Array<TWorldData>;
 	@:optional public var world_ref:String;
+	@:optional public var grease_pencil_datas:Array<TGreasePencilData>;
+	@:optional public var grease_pencil_ref:String;
 	@:optional public var objects:Array<TObj>;
 	@:optional public var gravity:Array<Float>;
 	@:optional public var traits:Array<TTrait>; // Scene root traits
@@ -256,6 +258,45 @@ typedef TWorldData = {
 	public var background_color:Int;
 	public var brdf:String;
 	public var probes:Array<TProbe>;
+}
+
+typedef TGreasePencilData = {
+// @:structInit class TGreasePencilData {
+	public var name:String;
+	public var layers:Array<TGreasePencilLayer>;
+	// public var palettes:Array<TGreasePencilPalette>;
+	public var shader:String;
+}
+
+typedef TGreasePencilLayer = {
+// @:structInit class TGreasePencilLayer {
+	public var name:String;
+	public var opacity:Float;
+	public var frames:Array<TGreasePencilFrame>;
+}
+
+typedef TGreasePencilFrame = {
+// @:structInit class TGreasePencilFrame {
+	public var frame_number:Int;
+	public var vertex_array:TVertexArray;
+	public var col_array:TVertexArray; // TODO: Use array instead
+	public var colfill_array:TVertexArray;
+	public var index_array:TIndexArray;
+}
+
+typedef TGreasePencilPalette = {
+// @:structInit class TGreasePencilPalette {
+	public var name:String;
+	public var colors:Array<TGreasePencilPaletteColor>;
+}
+
+typedef TGreasePencilPaletteColor = {
+// @:structInit class TGreasePencilPaletteColor {
+	public var name:String;
+	public var color:Array<Float>;
+	public var alpha:Float;
+	public var fill_color:Array<Float>;
+	public var fill_alpha:Float;
 }
 
 typedef TProbe = {

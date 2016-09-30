@@ -8,14 +8,15 @@ import iron.object.LampObject;
 import iron.object.CameraObject;
 import iron.object.SpeakerObject;
 import iron.object.DecalObject;
+import iron.data.SceneFormat;
 import iron.data.Data;
 import iron.data.MeshData;
 import iron.data.LampData;
 import iron.data.CameraData;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
-import iron.data.SceneFormat;
 import iron.data.WorldData;
+import iron.data.GreasePencilData;
 import iron.math.Mat4;
 
 class Scene {
@@ -26,6 +27,7 @@ class Scene {
 	public var root:Object;
 	public var camera:CameraObject;
 	public var world:WorldData;
+	public var greasePencil:GreasePencilData = null;
 
 	public var meshes:Array<MeshObject>;
 	public var lamps:Array<LampObject>;
@@ -215,6 +217,25 @@ class Scene {
 		Data.getSceneRaw(name, function(format:TSceneFormat) {
 			createTraits(format.traits, parent); // Scene traits
 			loadEmbeddedData(format.embedded_datas, function() { // Additional scene assets
+
+				// GP
+				if (format.grease_pencil_ref != null) {
+					var ref = format.grease_pencil_ref.split('/');
+					var object_file = '';
+					var data_ref = '';
+					if (ref.length == 2) { // File reference
+						object_file = ref[0];
+						data_ref = ref[1];
+					}
+					else { // Local GP data
+						object_file = name;
+						data_ref = format.grease_pencil_ref;
+					}
+					Data.getGreasePencil(object_file, data_ref, function(gp:GreasePencilData) {
+						greasePencil = gp;
+					});
+				}
+
 				objectsTraversed = 0;
 				traverseObjects(format, name, parent, format.objects, null, function() { // Scene objects
 					done(parent);
@@ -415,12 +436,12 @@ class Scene {
 	}
 
 	// Hooks
-    public function notifyOnInit(f:Void->Void) {
-    	if (!waiting) f(); // Scene already running
-        else traitInits.push(f);
-    }
+	public function notifyOnInit(f:Void->Void) {
+		if (!waiting) f(); // Scene already running
+		else traitInits.push(f);
+	}
 
-    public function removeInit(f:Void->Void) {
-        traitInits.remove(f);
-    }
+	public function removeInit(f:Void->Void) {
+		traitInits.remove(f);
+	}
 }
