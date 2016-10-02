@@ -70,13 +70,16 @@ class MaterialContext {
 		if (raw.bind_textures != null && raw.bind_textures.length > 0) {
 			
 			textures = [];
+			while (textures.length < raw.bind_textures.length) textures.push(null);
+			var texturesLoaded = 0;
 
-			for (tex in raw.bind_textures) {
+			for (i in 0...raw.bind_textures.length) {
+				var tex = raw.bind_textures[i];
 				// TODO: make sure to store in the same order as shader texture units array
 
 				iron.data.Data.getImage(tex.file, function(image:kha.Image) {
-
-					textures.push(image);
+					textures[i] = image;
+					texturesLoaded++;
 
 					// Set mipmaps
 					if (tex.mipmaps != null) {
@@ -84,11 +87,11 @@ class MaterialContext {
 						while (mipmaps.length < tex.mipmaps.length) mipmaps.push(null);
 						var mipmapsLoaded = 0;
 
-						for (i in 0...tex.mipmaps.length) {
-							var name = tex.mipmaps[i];
+						for (j in 0...tex.mipmaps.length) {
+							var name = tex.mipmaps[j];
 
 							iron.data.Data.getImage(name, function(mipimg:kha.Image) {
-								mipmaps[i] = mipimg;
+								mipmaps[j] = mipimg;
 								mipmapsLoaded++;
 
 								if (mipmapsLoaded == tex.mipmaps.length) {
@@ -96,7 +99,7 @@ class MaterialContext {
 									tex.mipmaps = null;
 									tex.generate_mipmaps = false;
 
-									if (textures.length == raw.bind_textures.length) done(this);
+									if (texturesLoaded == raw.bind_textures.length) done(this);
 								}
 							});
 						}
@@ -106,9 +109,9 @@ class MaterialContext {
 						tex.mipmaps = null;
 						tex.generate_mipmaps = false;
 
-						if (textures.length == raw.bind_textures.length) done(this);
+						if (texturesLoaded == raw.bind_textures.length) done(this);
 					}
-					else if (textures.length == raw.bind_textures.length) done(this);
+					else if (texturesLoaded == raw.bind_textures.length) done(this);
 				});
 			}
 		}

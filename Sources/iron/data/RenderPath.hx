@@ -318,8 +318,9 @@ class RenderPath {
 		if (gp == null) return;
 		var g = currentRenderTarget;
 		var lamp = lamps[currentLampIndex];
-		g.setPipeline(GreasePencilData.context.pipeState);
-		Uniforms.setConstants(g, GreasePencilData.context, null, camera, lamp, null);
+		var context = GreasePencilData.getContext(params[0]);
+		g.setPipeline(context.pipeState);
+		Uniforms.setConstants(g, context, null, camera, lamp, null);
 		// Draw layers
 		for (layer in gp.layers) {
 			// Next frame
@@ -334,8 +335,12 @@ class RenderPath {
 #if js
 				// TODO: temporary, construct triangulated lines from points instead
 				g.setVertexBuffer(frame.vertexStrokeBuffer);
-				kha.SystemImpl.gl.lineWidth(2);
-				kha.SystemImpl.gl.drawArrays(js.html.webgl.GL.LINE_STRIP, 0, frame.numVertices - 1);
+				kha.SystemImpl.gl.lineWidth(3);
+				var start = 0;
+				for (i in frame.raw.num_stroke_points) {
+					kha.SystemImpl.gl.drawArrays(js.html.webgl.GL.LINE_STRIP, start, i);
+					start += i;
+				}
 			}
 #end
 		}

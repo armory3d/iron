@@ -53,20 +53,6 @@ class Vec4 {
         return this;
     }
 
-    public function vadd(v:Vec4, target:Vec4 = null):Vec4 {
-        if(target != null) {
-            target.x = v.x + this.x;
-            target.y = v.y + this.y;
-            target.z = v.z + this.z;
-            return target;
-        }
-        else {
-            return new Vec4(this.x + v.x,
-                            this.y + v.y,
-                            this.z + v.z);
-        }
-    }
-
     public function add(v:Vec4):Vec4 {
         x += v.x;
         y += v.y;
@@ -109,24 +95,15 @@ class Vec4 {
         return this;
     }   
 
-    public function normalize():Float {
-        var x = this.x;
-        var y = this.y;
-        var z = this.z;
+    public function normalize():Vec4 {
         var n = std.Math.sqrt(x * x + y * y + z * z);
         if (n > 0.0) {
-            var invN:Float = 1 / n;
+            var invN = 1.0 / n;
             this.x *= invN;
             this.y *= invN;
             this.z *= invN;
         }
-        else {
-            // Make something up
-            this.x = 0;
-            this.y = 0;
-            this.z = 0;
-        }
-        return n;
+        return this;
     }
 
     // Get the 2-norm (length) of the vector
@@ -143,22 +120,10 @@ class Vec4 {
                          (pz - z) * (pz - z));
     }
 
-    // Multiply the vector with a scalar
-    public function mult(scalar:Float, target:Vec4 = null):Vec4 {
-        if (target == null) target = new Vec4();
-        var x:Float = this.x;
-        var y:Float = this.y;
-        var z:Float = this.z;
-        target.x = scalar * x;
-        target.y = scalar * y;
-        target.z = scalar * z;
-        return target;
-    }
-
-    public function multiplyScalar(scalar:Float):Vec4 {
-        x *= scalar;
-        y *= scalar;
-        z *= scalar;
+    public function mult(f:Float):Vec4 {
+        x *= f;
+        y *= f;
+        z *= f;
         return this;
     }
 
@@ -189,8 +154,6 @@ class Vec4 {
         return new Vec4(x, y, z);
     }
 
-    // Do a linear interpolation between two vectors
-    // t A number between 0 and 1. 0 will make this function return u, and 1 will make it return v. Numbers in between will generate a vector in between them.
     public static function lerp(va:Vec4, vb:Vec4, t:Float) {
         var target = new Vec4();
         target.x = vb.x + (va.x - vb.x) * t;
@@ -280,23 +243,15 @@ class Vec4 {
         return this.applyProjection(VPInv);
     }
 
-    public static function xAxis():Vec4 {
-        return new Vec4(1, 0, 0);
-    }
-
-    public static function yAxis():Vec4 {
-        return new Vec4(0, 1, 0);
-    }
-
-    public static function zAxis():Vec4 {
-        return new Vec4(0, 0, 1);
-    }
+    public static function xAxis():Vec4 { return new Vec4(1, 0, 0); }
+    public static function yAxis():Vec4 { return new Vec4(0, 1, 0); }
+    public static function zAxis():Vec4 { return new Vec4(0, 0, 1); }
 
     public static inline function distance3d(v1:Vec4, v2:Vec4):Float {
-        return distance3dRaw(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+        return distance3df(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
     }
 
-    public static inline function distance3dRaw(v1x:Float, v1y:Float, v1z:Float, v2x:Float, v2y:Float, v2z:Float):Float {
+    public static inline function distance3df(v1x:Float, v1y:Float, v1z:Float, v2x:Float, v2y:Float, v2z:Float):Float {
         var vx = v1x - v2x;
         var vy = v1y - v2y;
         var vz = v1z - v2z;

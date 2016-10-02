@@ -282,6 +282,7 @@ typedef TGreasePencilFrame = {
 	public var col_array:TVertexArray; // TODO: Use array instead
 	public var colfill_array:TVertexArray;
 	public var index_array:TIndexArray;
+	public var num_stroke_points:Array<Int>;
 }
 
 typedef TGreasePencilPalette = {
@@ -333,11 +334,12 @@ typedef TObj = {
 	public var type:String;
 	public var name:String;
 	public var data_ref:String;
-	public var material_refs:Array<String>;
-	public var particle_refs:Array<TParticleReference>;
 	public var transform:TTransform;
-	public var children:Array<TObj>;
-	public var traits:Array<TTrait>;
+	public var material_refs:Array<String>;
+	@:optional public var particle_refs:Array<TParticleReference>;
+	@:optional public var children:Array<TObj>;
+	@:optional public var traits:Array<TTrait>;
+	@:optional public var constraints:Array<TConstraint>;
 	@:optional public var dimensions:Array<Float>; // Geometry objects
 	@:optional public var animation:TAnimation;
 	@:optional public var animation_transforms:Array<TAnimationTransform>;
@@ -347,6 +349,21 @@ typedef TObj = {
 	@:optional public var mobile:Null<Bool>;
 	@:optional public var spawn:Null<Bool>; // Auto add object when creating scene
 	@:optional public var local_transform_only:Null<Bool>; // No parent matrix applied
+}
+
+typedef TConstraint = {
+// @:structInit class TConstraint {
+	public var name:String;
+	public var type:String;
+	public var target:String;
+	@:optional public var use_x:Bool;
+	@:optional public var use_y:Bool;
+	@:optional public var use_z:Bool;
+	@:optional public var invert_x:Bool;
+	@:optional public var invert_y:Bool;
+	@:optional public var invert_z:Bool;
+	@:optional public var use_offset:Bool;
+	@:optional public var influence:Float;
 }
 
 typedef TParticleReference = {

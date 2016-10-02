@@ -21,10 +21,11 @@ class GreasePencilData extends Data {
 	public var raw:TGreasePencilData;
 	public var layers:Array<GreasePencilLayer>;
 
-	public static var context:ShaderContext = null;
+	public static var shaderData:ShaderData = null;
 	public static var structure:VertexStructure = null;
 	public static var usage:Usage;
 	public static var frameEnd = 0;
+	static var first = true;
 
 	public function new(raw:TGreasePencilData, done:GreasePencilData->Void) {
 		super();
@@ -39,10 +40,11 @@ class GreasePencilData extends Data {
 			usage = Usage.StaticUsage;
 		}
 
-		if (context == null) {
+		if (first) {
+			first = false;
 			var shaderName:Array<String> = raw.shader.split("/");
 			Data.getShader(shaderName[0], shaderName[1], null, function(b:ShaderData) {
-				context = b.getContext("grease_pencil");
+				shaderData = b;
 				makeLayers(done);
 			});
 		}
@@ -66,6 +68,10 @@ class GreasePencilData extends Data {
 			}
 			new GreasePencilData(raw, done);
 		});
+	}
+
+	public static function getContext(name:String):ShaderContext {
+		return shaderData.getContext(name);
 	}
 }
 

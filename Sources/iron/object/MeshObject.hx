@@ -188,7 +188,7 @@ class MeshObject extends Object {
 	}
 
 	public inline function computeCameraDistance(camX:Float, camY:Float, camZ:Float) {
-		cameraDistance = iron.math.Vec4.distance3dRaw(camX, camY, camZ, transform.absx(), transform.absy(), transform.absz());
+		cameraDistance = iron.math.Vec4.distance3df(camX, camY, camZ, transform.absx(), transform.absy(), transform.absz());
 	}
 }
 

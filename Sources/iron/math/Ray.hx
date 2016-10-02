@@ -22,7 +22,7 @@ class Ray {
 	
 	public function at(t:Float, optionalTarget:Vec4 = null):Vec4 {
 		var result = optionalTarget != null ? optionalTarget : new Vec4();
-		return result.copy2(direction).multiplyScalar(t).add(origin);
+		return result.copy2(direction).mult(t).add(origin);
 	}
 	
 	public function distanceToPoint(point:Vec4):Float {
@@ -34,7 +34,7 @@ class Ray {
 			return this.origin.distanceTo(point);
 		}
 
-		v1.copy2(this.direction).multiplyScalar(directionDistance).add(this.origin);
+		v1.copy2(this.direction).mult(directionDistance).add(this.origin);
 
 		return v1.distanceTo(point);
 	}	

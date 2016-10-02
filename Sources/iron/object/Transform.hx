@@ -8,18 +8,19 @@ class Transform {
 	public var matrix:Mat4;
 	public var local:Mat4;
 	public var localOnly:Bool = false;
-	var prependMats:Array<Mat4> = null;
-	var appendMats:Array<Mat4> = null;
 	public var dirty:Bool;
 
 	// Decomposed local matrix
 	public var loc:Vec4;
 	public var rot:Quat;
 	public var scale:Vec4;
+	
+	public var object:Object;
 	public var size:Vec4;
 	public var radius:Float;
-	public var object:Object;
 	static var temp = Mat4.identity();
+	var prependMats:Array<Mat4> = null;
+	var appendMats:Array<Mat4> = null;
 
 	public function new(object:Object) {
 		this.object = object;
@@ -29,20 +30,15 @@ class Transform {
 	public function reset() {
 		matrix = Mat4.identity();
 		local = Mat4.identity();
-
 		loc = new Vec4();
 		rot = new Quat();
 		scale = new Vec4(1, 1, 1);
 		size = new Vec4();
-
 		dirty = true;
 	}
 
 	public function update() {
-		if (dirty) {
-			dirty = false;
-			buildMatrix();
-		}
+		if (dirty) { dirty = false; buildMatrix(); }
 	}
 
 	public function prependMatrix(m:Mat4) {
@@ -65,9 +61,7 @@ class Transform {
 			local.loadFrom(temp);
 		}
 		
-		if (appendMats != null) {
-			for (m in appendMats) local.mult2(m);
-		}
+		if (appendMats != null) for (m in appendMats) local.mult2(m);
 
 		if (!localOnly && object.parent != null) {
 			matrix.multiply3x4(local, object.parent.transform.matrix);
@@ -75,6 +69,9 @@ class Transform {
 		else {
 			matrix = local;
 		}
+
+		// Constraints
+		if (object.constraints != null) for (c in object.constraints) c.apply(this);
 
 		// Update children
 		for (n in object.children) {
@@ -119,63 +116,13 @@ class Transform {
 		dirty = true;
 	}
 
-	public function getForward():Vec4 {
-		var mat = Mat4.identity();
-		rot.saveToMatrix(mat);
-		var f = new Vec4(0, 1, 0);
-		f.applyProjection(mat);
-		f = f.mult(iron.system.Time.delta * 200); // TODO: remove delta
-		return f;
-	}
-
-	public function getBackward():Vec4 {
-		var mat = Mat4.identity();
-		rot.saveToMatrix(mat);
-		var f = new Vec4(0, -1, 0);
-		f.applyProjection(mat);
-		f = f.mult(iron.system.Time.delta * 200);
-		return f;
-	}
-
-	public function getRight():Vec4 {
-		var mat = Mat4.identity();
-		rot.saveToMatrix(mat);
-		var f = new Vec4(1, 0, 0);
-		f.applyProjection(mat);
-		f = f.mult(iron.system.Time.delta * 200);
-		return f;
-	}
-
-	public function getLeft():Vec4 {
-		var mat = Mat4.identity();
-		rot.saveToMatrix(mat);
-		var f = new Vec4(-1, 0, 0);
-		f.applyProjection(mat);
-		f = f.mult(iron.system.Time.delta * 200);
-		return f;
-	}
-
-	public function getUp():Vec4 {
-		var mat = Mat4.identity();
-		rot.saveToMatrix(mat);
-		var f = new Vec4(0, 0, 1);
-		f.applyProjection(mat);
-		f = f.mult(iron.system.Time.delta * 200);
-		return f;
-	}
-
-	public function getDown():Vec4 {
-		var mat = Mat4.identity();
-		rot.saveToMatrix(mat);
-		var f = new Vec4(0, 0, -1);
-		f.applyProjection(mat);
-		f = f.mult(iron.system.Time.delta * 200);
-		return f;
-	}
-
 	public function computeRadius() {
 		radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);// / 2;
 	}
+
+	public inline function look():Vec4 { return matrix._look2(); }
+	public inline function right():Vec4 { return matrix._right2(); }
+	public inline function up():Vec4 { return matrix._up2(); }
 
 	public inline function absx():Float { return matrix._30; }
 	public inline function absy():Float { return matrix._31; }

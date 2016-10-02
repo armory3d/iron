@@ -1,6 +1,7 @@
 package iron;
 
 import iron.Trait;
+import iron.object.Constraint;
 import iron.object.Transform;
 import iron.object.Object;
 import iron.object.MeshObject;
@@ -158,7 +159,7 @@ class Scene {
 		return object;
 	}
 
-	public function getObject(name:String):Object {
+	public function getChild(name:String):Object {
 		return root.getChild(name);
 	}
 
@@ -212,9 +213,9 @@ class Scene {
 		return object;
 	}
 
-	public function addScene(name:String, parent:Object, done:Object->Void) {
+	public function addScene(sceneName:String, parent:Object, done:Object->Void) {
 		if (parent == null) parent = addObject();
-		Data.getSceneRaw(name, function(format:TSceneFormat) {
+		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			createTraits(format.traits, parent); // Scene traits
 			loadEmbeddedData(format.embedded_datas, function() { // Additional scene assets
 
@@ -228,7 +229,7 @@ class Scene {
 						data_ref = ref[1];
 					}
 					else { // Local GP data
-						object_file = name;
+						object_file = sceneName;
 						data_ref = format.grease_pencil_ref;
 					}
 					Data.getGreasePencil(object_file, data_ref, function(gp:GreasePencilData) {
@@ -237,7 +238,7 @@ class Scene {
 				}
 
 				objectsTraversed = 0;
-				traverseObjects(format, name, parent, format.objects, null, function() { // Scene objects
+				traverseObjects(format, sceneName, parent, format.objects, null, function() { // Scene objects
 					done(parent);
 				}, getObjectsCount(format.objects));
 			});
@@ -247,13 +248,14 @@ class Scene {
 	function getObjectsCount(objects:Array<TObj>):Int {
 		var result = objects.length;
 		for (o in objects) {
-			result += getObjectsCount(o.children);
+			if (o.children != null) result += getObjectsCount(o.children);
 		}
 		return result;
 	}
 
 	var objectsTraversed:Int;
-	function traverseObjects(format:TSceneFormat, name:String, parent:Object, objects:Array<TObj>, parentObject:TObj, done:Void->Void, objectsCount:Int) {
+	function traverseObjects(format:TSceneFormat, sceneName:String, parent:Object, objects:Array<TObj>, parentObject:TObj, done:Void->Void, objectsCount:Int) {
+		if (objects == null) return;
 		for (i in 0...objects.length) {
 			var o = objects[i];
 			if (o.spawn != null && o.spawn == false) {
@@ -262,8 +264,8 @@ class Scene {
 				continue; // Do not auto-create this object
 			}
 			
-			createObject(o, format, name, parent, parentObject, function(object:Object) {
-				if (object != null) traverseObjects(format, name, object, o.children, o, done, objectsCount);
+			createObject(o, format, sceneName, parent, parentObject, function(object:Object) {
+				if (object != null) traverseObjects(format, sceneName, object, o.children, o, done, objectsCount);
 
 				objectsTraversed++;
 				if (objectsTraversed == objectsCount) done();
@@ -271,28 +273,34 @@ class Scene {
 		}
 	}
 	
+	public function spawnObject(name:String, parent:Object, done:Object->Void) {
+		createObject(getObj(raw, name), raw, raw.name, parent, null, done); // Get rid of scene name passing
+	}
+
 	public function parseObject(sceneName:String, objectName:String, parent:Object, done:Object->Void) {
 		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
-			// TODO: traverse to find deeper objects
-			var o:TObj = null;
-			for (object in format.objects) {
-				if (object.name == objectName) { o = object; break; }
-			}
+			var o:TObj = getObj(format, sceneName);
 			if (o == null) done(null);
 			createObject(o, format, sceneName, parent, null, done);
 		});
 	}
+
+	function getObj(format:TSceneFormat, name:String) {
+		// TODO: traverse to find deeper objects
+		for (o in format.objects) if (o.name == name) return o;
+		return null;
+	}
 	
-	public function createObject(o:TObj, format:TSceneFormat, name:String, parent:Object, parentObject:TObj, done:Object->Void) {
+	public function createObject(o:TObj, format:TSceneFormat, sceneName:String, parent:Object, parentObject:TObj, done:Object->Void) {
 
 		if (o.type == "camera_object") {
-			Data.getCamera(name, o.data_ref, function(b:CameraData) {
+			Data.getCamera(sceneName, o.data_ref, function(b:CameraData) {
 				var object = addCameraObject(b, parent);
 				returnObject(object, o, done);
 			});
 		}
 		else if (o.type == "lamp_object") {
-			Data.getLamp(name, o.data_ref, function(b:LampData) {
+			Data.getLamp(sceneName, o.data_ref, function(b:LampData) {
 				var object = addLampObject(b, parent);	
 				returnObject(object, o, done);
 			});
@@ -312,7 +320,7 @@ class Scene {
 
 				for (i in 0...o.material_refs.length) {
 					var ref = o.material_refs[i];
-					Data.getMaterial(name, ref, function(mat:MaterialData) {
+					Data.getMaterial(sceneName, ref, function(mat:MaterialData) {
 						materials[i] = mat;
 						materialsLoaded++;
 
@@ -327,7 +335,7 @@ class Scene {
 								data_ref = ref[1];
 							}
 							else { // Local mesh data
-								object_file = name;
+								object_file = sceneName;
 								data_ref = o.data_ref;
 							}
 
@@ -335,10 +343,10 @@ class Scene {
 							if (parentObject != null && parentObject.bones_ref != null) {
 								Data.getSceneRaw(parentObject.bones_ref, function(boneformat:TSceneFormat) {
 									var boneObjects:Array<TObj> = boneformat.objects;
-									returnMeshObject(object_file, data_ref, name, boneObjects, materials, parent, o, done);
+									returnMeshObject(object_file, data_ref, sceneName, boneObjects, materials, parent, o, done);
 								});
 							}
-							else returnMeshObject(object_file, data_ref, name, null, materials, parent, o, done);
+							else returnMeshObject(object_file, data_ref, sceneName, null, materials, parent, o, done);
 						}
 					});
 				}
@@ -351,7 +359,7 @@ class Scene {
 		}
 		else if (o.type == "decal_object") {
 			if (o.material_refs != null && o.material_refs.length > 0) {
-				Data.getMaterial(name, o.material_refs[0], function(material:MaterialData) {
+				Data.getMaterial(sceneName, o.material_refs[0], function(material:MaterialData) {
 					var object = addDecalObject(material, parent);	
 					returnObject(object, o, done);
 				});
@@ -368,13 +376,13 @@ class Scene {
 		else done(null);
 	}
 
-	function returnMeshObject(object_file:String, data_ref:String, name:String, boneObjects:Array<TObj>, materials:Array<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
+	function returnMeshObject(object_file:String, data_ref:String, sceneName:String, boneObjects:Array<TObj>, materials:Array<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
 		Data.getMesh(object_file, data_ref, boneObjects, function(mesh:MeshData) {
 			var object = addMeshObject(mesh, materials, parent);
 		
 			// Attach particle system
 			if (o.particle_refs != null && o.particle_refs.length > 0) {
-				cast(object, MeshObject).setupParticleSystem(name, o.particle_refs[0]);
+				cast(object, MeshObject).setupParticleSystem(sceneName, o.particle_refs[0]);
 			}
 
 			setTransformDimensions(object.transform, o.dimensions);
@@ -393,6 +401,7 @@ class Scene {
 			object.name = o.name;
 			if (o.visible != null) object.visible = o.visible;
 			createTraits(o.traits, object);
+			createConstraints(o.constraints, object);
 			generateTranform(o, object.transform);
 		}
 		done(object);
@@ -414,6 +423,15 @@ class Scene {
 				if (t.parameters != null) args = t.parameters;
 				object.addTrait(createTraitClassInstance(t.class_name, args));
 			}
+		}
+	}
+
+	static function createConstraints(constraints:Array<TConstraint>, object:Object) {
+		if (constraints == null) return;
+		object.constraints = [];
+		for (c in constraints) {
+			var constr = new Constraint(c);
+			object.constraints.push(constr);
 		}
 	}
 

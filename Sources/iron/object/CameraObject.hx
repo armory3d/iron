@@ -207,8 +207,8 @@ class CameraObject extends Object {
 	}
 
 	public function move(axis:Vec4, f:Float) {
-        axis.mult(f, axis);
-		transform.loc.vadd(axis, transform.loc);
+        axis.mult(f);
+		transform.loc.add(axis);
 		transform.dirty = true;
 		updateMatrix();
 	}
@@ -226,7 +226,7 @@ class FrustumPlane {
 
 	public function normalize() {
 		var inverseNormalLength = 1.0 / normal.length();
-		normal.multiplyScalar(inverseNormalLength);
+		normal.mult(inverseNormalLength);
 		constant *= inverseNormalLength;
 	}
 	

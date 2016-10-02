@@ -14,6 +14,7 @@ class Object {
 
 	public var name:String = "";
 	public var transform:Transform;
+	public var constraints:Array<Constraint> = null;
 	public var traits:Array<Trait> = [];
 
 	public var parent:Object = null;
@@ -41,15 +42,22 @@ class Object {
 	}
 
 	public function getChild(name:String):Object {
-		if (this.name == name) {
-			return this;
-		}
+		if (this.name == name) return this;
 		else {
 			for (c in children) {
 				var r = c.getChild(name);
-				if (r != null) {
-					return r;
-				}
+				if (r != null) return r;
+			}
+		}
+		return null;
+	}
+
+	public function getChildOfType(type:Class<Object>):Object {
+		if (Std.is(this, type)) return this;
+		else {
+			for (c in children) {
+				var r = c.getChildOfType(type);
+				if (r != null) return r;
 			}
 		}
 		return null;

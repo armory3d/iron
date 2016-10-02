@@ -613,4 +613,8 @@ class Mat4 extends kha.math.FastMatrix4 {
 	public inline function _right():Vec4 { return new Vec4(_00, _10, _20); }
 	public inline function _up():Vec4 { return new Vec4(_01, _11, _21); }
 	public inline function _look():Vec4 { return new Vec4(_02, _12, _22); }
+	
+	public inline function _right2():Vec4 { return new Vec4(_00, _01, _02); } // Non-inverted
+	public inline function _up2():Vec4 { return new Vec4(_20, _21, _22); }
+	public inline function _look2():Vec4 { return new Vec4(_10, _11, _12); }
 }
