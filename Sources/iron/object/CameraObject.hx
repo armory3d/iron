@@ -48,7 +48,7 @@ class CameraObject extends Object {
 			P = Mat4.perspective(fov, w / h, nearPlane, farPlane);
 		}
 		else if (data.raw.type == "orthographic") {
-			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane, 2);
+			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane);
 		}
 
 // #if WITH_VELOC
@@ -83,7 +83,7 @@ class CameraObject extends Object {
 #if WITH_TAA
 		projectionJitter();
 #end
-		updateMatrix(); // TODO: only when dirty
+		buildMatrix(); // TODO: only when dirty
 		// First time setting up previous V, prevents first frame flicker
 		if (prevV == null) {
 			prevV = Mat4.identity();
@@ -115,7 +115,7 @@ class CameraObject extends Object {
 	}
 #end
 
-	public function updateMatrix() {
+	public function buildMatrix() {
 		transform.buildMatrix();
 		V.inverse2(transform.matrix);
 
@@ -203,19 +203,22 @@ class CameraObject extends Object {
 		q.setFromAxisAngle(axis, f);
 		transform.rot.multiply(q, transform.rot);
 		transform.dirty = true;
-		updateMatrix();
+		buildMatrix();
 	}
 
 	public function move(axis:Vec4, f:Float) {
         axis.mult(f);
 		transform.loc.add(axis);
 		transform.dirty = true;
-		updateMatrix();
+		buildMatrix();
 	}
 
 	public inline function right():Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }
 	public inline function up():Vec4 { return new Vec4(transform.local._10, transform.local._11, transform.local._12); }
     public inline function look():Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
+    public inline function rightAbsolute():Vec4 { return new Vec4(transform.matrix._00, transform.matrix._01, transform.matrix._02); }
+	public inline function upAbsolute():Vec4 { return new Vec4(transform.matrix._10, transform.matrix._11, transform.matrix._12); }
+    public inline function lookAbsolute():Vec4 { return new Vec4(-transform.matrix._20, -transform.matrix._21, -transform.matrix._22); }
 }
 
 class FrustumPlane {

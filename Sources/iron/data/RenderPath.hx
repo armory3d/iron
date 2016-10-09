@@ -30,6 +30,7 @@ class RenderPath {
 	var currentRenderTarget:Graphics;
 	public var currentRenderTargetW:Int;
 	public var currentRenderTargetH:Int;
+	public var currentRenderTargetD:Int;
 	var bindParams:Array<String>;
 
 	static var screenAlignedVB:VertexBuffer = null;
@@ -156,6 +157,7 @@ class RenderPath {
 		currentRenderTarget = g;
 		currentRenderTargetW = iron.App.w();
 		currentRenderTargetH = iron.App.h();
+		currentRenderTargetD = 1;
 		sorted = false;
 
 		this.lamps = lamps;
@@ -203,13 +205,14 @@ class RenderPath {
 		drawPerformed = false;
 		
 		var target = params[1];
-		if (target == "") {
+		if (target == "") { // Framebuffer
 			currentRenderTarget = frameRenderTarget;
 			currentRenderTargetW = iron.App.w();
 			currentRenderTargetH = iron.App.h();
+			currentRenderTargetD = 1;
 			begin(currentRenderTarget);
 		}
-		else {
+		else { // Render target
 			var rt = data.pathdata.renderTargets.get(target);
 			var additionalImages:Array<kha.Canvas> = null;
 			if (params.length > 2) {
@@ -229,6 +232,7 @@ class RenderPath {
 			currentRenderTarget = rt.image.g4;
 			currentRenderTargetW = rt.image.width;
 			currentRenderTargetH = rt.image.height;
+			if (rt.is3D) currentRenderTargetD = rt.image.depth;
 			begin(currentRenderTarget, additionalImages);
 		}
 		var viewportScale = Std.parseFloat(params[0]);
@@ -236,12 +240,15 @@ class RenderPath {
 			var viewW = Std.int(currentRenderTargetW * viewportScale);
 			var viewH = Std.int(currentRenderTargetH * viewportScale);
 			currentRenderTarget.viewport(0, viewH, viewW, viewH);
-			// currentRenderTarget.viewport(0, 0, viewW, viewH);
 		}
-		// else { // Set by Kha
-			// currentRenderTarget.viewport(0, 0, currentRenderTargetW, currentRenderTargetH);
-		// }
 		bindParams = null;
+	}
+
+	function setViewport(params:Array<String>, root:Object) {
+		var viewW = Std.int(Std.parseFloat(params[0]));
+		var viewH = Std.int(Std.parseFloat(params[1]));
+		// glViewport(x, _renderTargetHeight - y - height, width, height);
+		currentRenderTarget.viewport(0, currentRenderTargetH - viewH, viewW, viewH);
 	}
 
 	function clearTarget(params:Array<String>, root:Object) {
@@ -263,6 +270,12 @@ class RenderPath {
 		}
 		
 		currentRenderTarget.clear(colorFlag, depthFlag, null);
+	}
+
+	function generateMipmaps(params:Array<String>, root:Object) {
+		var target = params[0];
+		var rt = data.pathdata.renderTargets.get(target);
+		rt.image.generateMipmaps(1000);
 	}
 
 	function drawMeshes(params:Array<String>, root:Object) {
@@ -341,8 +354,8 @@ class RenderPath {
 					kha.SystemImpl.gl.drawArrays(js.html.webgl.GL.LINE_STRIP, start, i);
 					start += i;
 				}
-			}
 #end
+			}
 		}
 		gpFrame++;
 		// Reset timeline
@@ -492,14 +505,14 @@ class RenderPath {
 		// Right eye
 		// TODO: For testing purposes only
 		camera.move(camera.right(), 0.032);
-		camera.updateMatrix();
+		camera.buildMatrix();
 		g.viewport(halfW, 0, halfW, currentRenderTargetH);
 		for (i in 0...stageCommands.length) {
 			stageCommands[i](stageParams[i], root);
 		}
 
 		camera.move(camera.right(), -0.032);
-		camera.updateMatrix();
+		camera.buildMatrix();
 
 		loopFinished--;
 
@@ -575,7 +588,9 @@ class RenderPath {
 		var handle = stage.params.length > 0 ? stage.params[0] : '';
 		switch (stage.command) {
 			case "set_target": done(setTarget);
+			case "set_viewport": done(setViewport);
 			case "clear_target": done(clearTarget);
+			case "generate_mipmaps": done(generateMipmaps);
 			case "draw_meshes": done(drawMeshes);
 			case "draw_decals": done(drawDecals);
 			case "draw_skydome": cacheMaterialQuad(handle, function() { done(drawSkydome); });

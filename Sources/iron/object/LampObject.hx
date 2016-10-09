@@ -16,8 +16,6 @@ class LampObject extends Object {
 
 	public var frustumPlanes:Array<FrustumPlane> = null;
 
-	// public var farPlane:Float;
-
 	public function new(data:LampData) {
 		super();
 		

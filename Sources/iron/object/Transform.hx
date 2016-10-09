@@ -56,12 +56,12 @@ class Transform {
 		
 		if (prependMats != null) {
 			temp.setIdentity();
-			for (m in prependMats) temp.mult2(m);
-			temp.mult2(local);
+			for (m in prependMats) temp.multmat2(m);
+			temp.multmat2(local);
 			local.loadFrom(temp);
 		}
 		
-		if (appendMats != null) for (m in appendMats) local.mult2(m);
+		if (appendMats != null) for (m in appendMats) local.multmat2(m);
 
 		if (!localOnly && object.parent != null) {
 			matrix.multiply3x4(local, object.parent.transform.matrix);

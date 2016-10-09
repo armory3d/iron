@@ -73,6 +73,7 @@ class Object {
 	public function removeTrait(t:Trait) {
 		if (t._init != null) App.removeInit(t._init);
 		if (t._update != null) App.removeUpdate(t._update);
+		if (t._lateUpdate != null) App.removeLateUpdate(t._lateUpdate);
 		if (t._render != null) App.removeRender(t._render);
 		if (t._render2D != null) App.removeRender2D(t._render2D);
 		if (t._remove != null) { t._remove(); t._remove = null; }

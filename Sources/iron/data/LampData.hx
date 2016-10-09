@@ -21,8 +21,7 @@ class LampData extends Data {
 		
 		if (type == "sun") {
 			// Estimate planes from fov
-			var orthoScale = 2.0;
-			P = Mat4.orthogonal(-fov * 25, fov * 25, -fov * 25, fov * 25, -raw.far_plane, raw.far_plane, orthoScale);
+			P = Mat4.orthogonal(-fov * 25, fov * 25, -fov * 25, fov * 25, -raw.far_plane, raw.far_plane);
 		}
 		else if (type == "point") {
 			P = Mat4.perspective(fov, 1, raw.near_plane, raw.far_plane);

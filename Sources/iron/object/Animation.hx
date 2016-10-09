@@ -337,17 +337,17 @@ class Animation {
 		for (i in 0...bones.length) {
 			
 			bm.loadFrom(data.mesh.skinTransform);
-			bm.mult2(data.mesh.skeletonTransformsI[i]);
+			bm.multmat2(data.mesh.skeletonTransformsI[i]);
 			var m = Mat4.identity();
 			m.loadFrom(boneMats.get(bones[i]));
 			var p = bones[i].parent;
 			while (p != null) { // TODO: store absolute transforms per bone
 				var pm = boneMats.get(p);
 				if (pm == null) pm = Mat4.fromArray(p.transform.values);
-				m.mult2(pm);
+				m.multmat2(pm);
 				p = p.parent;
 			}
-			bm.mult2(m);
+			bm.multmat2(m);
 
 			// bm.transpose2();
 			// skinBuffer[i * 12] = bm._00;
@@ -418,19 +418,19 @@ class Animation {
 								data.mesh.positions[i * 3 + 1],
 								data.mesh.positions[i * 3 + 2]);
 
-				m.mult2(data.mesh.skinTransform);
+				m.multmat2(data.mesh.skinTransform);
 
-				m.mult2(data.mesh.skeletonTransformsI[boneIndex]);
+				m.multmat2(data.mesh.skeletonTransformsI[boneIndex]);
 
 				bm.loadFrom(boneMats.get(bone));
 				var p = bone.parent;
 				while (p != null) { // TODO: store absolute transforms per bone
 					var pm = boneMats.get(p);
 					if (pm == null) pm = Mat4.fromArray(p.transform.values);
-					bm.mult2(pm);
+					bm.multmat2(pm);
 					p = p.parent;
 				}
-				m.mult2(bm);
+				m.multmat2(bm);
 
 				m.multiplyScalar(boneWeight);
 				
@@ -439,9 +439,9 @@ class Animation {
 				// Normal
 				m.getInverse(bm);
 
-				m.mult2(data.mesh.skeletonTransforms[boneIndex]);
+				m.multmat2(data.mesh.skeletonTransforms[boneIndex]);
 
-				m.mult2(data.mesh.skinTransformI);
+				m.multmat2(data.mesh.skinTransformI);
 
 				m.translate(data.mesh.normals[i * 3],
 							data.mesh.normals[i * 3 + 1],

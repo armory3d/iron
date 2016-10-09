@@ -212,7 +212,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 		_33 = 1;
 	}
 
-	public function mult2(b:Mat4) {
+	public inline function multmat2(b:Mat4) {
 		multiply(this, b);
 	}
 
@@ -550,7 +550,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 		);
 	}
 
-	public static function orthogonal(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float, orthoScale:Float = 7.314):Mat4 {
+	public static function orthogonal(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float, orthoScale:Float = 2):Mat4 {
 		var w = right - left;
 		var h = top - bottom;
 		var p = far - near;
@@ -567,7 +567,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 		);
 	}
 	
-	public static function lookAt(_eye:Vec4, _centre:Vec4, _up:Null<Vec4> = null):Mat4 {
+	public static function lookAt(_eye:Vec4, _centre:Vec4, _up:Vec4):Mat4 {
 		var eye = _eye;
 		var centre = _centre;
 		var up = _up;
@@ -576,9 +576,9 @@ class Mat4 extends kha.math.FastMatrix4 {
 		var e1 = eye.y;
 		var e2 = eye.z;
 
-		var u0 = (up == null ? 0 : up.x);
-		var u1 = (up == null ? 1 : up.y);
-		var u2 = (up == null ? 0 : up.z);
+		var u0 = up.x;
+		var u1 = up.y;
+		var u2 = up.z;
 
 		var f0 = centre.x - e0;
 		var f1 = centre.y - e1;

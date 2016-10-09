@@ -201,6 +201,7 @@ typedef TShaderConstant = {
 typedef TTextureUnit = {
 // @:structInit class TTextureUnit {
 	public var name:String;
+	@:optional public var is_image:Null<Bool>; // image2D
 	@:optional public var link:String;
 }
 
@@ -220,9 +221,14 @@ typedef TRenderPathTarget = {
 	public var width:Int;
 	public var height:Int;
 	@:optional public var format:String;
+	@:optional public var scale:Null<Float>;
+	// 2D texture
 	@:optional public var depth_buffer:String;
 	@:optional public var ping_pong:Null<Bool>;
-	@:optional public var scale:Null<Float>;
+	// 3D texture
+	@:optional public var depth:Null<Int>;
+	// Image
+	@:optional public var is_image:Null<Bool>;
 }
 
 typedef TRenderPathDepthBuffer = {

@@ -72,6 +72,7 @@ class RenderPathData extends Data {
 		// No depth buffer
 		else {
 			rt.hasDepth = false;
+			if (t.depth != null && t.depth > 1) rt.is3D = true;
 			rt.image = createImage(t, DepthStencilFormat.NoDepthAndStencil);
 		}
 		
@@ -81,14 +82,28 @@ class RenderPathData extends Data {
 	function createImage(t:TRenderPathTarget, depthStencil:DepthStencilFormat):Image {
 		var width = t.width == 0 ? kha.System.windowWidth() : t.width;
 		var height = t.height == 0 ? kha.System.windowHeight() : t.height;
+		var depth = t.depth != null ? t.depth : 0;
 		if (t.scale != null) {
 			width = Std.int(width * t.scale);
 			height = Std.int(height * t.scale);
+			depth = Std.int(depth * t.scale);
 		}
-		return Image.createRenderTarget(
-			width, height,
-			t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
-			depthStencil);
+		if (t.depth != null && t.depth > 1) { // 3D texture
+			// Image only
+			return Image.create3D(width, height, depth,
+				t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
+		}
+		else { // 2D texture
+			if (t.is_image != null && t.is_image) { // Image
+				return Image.create(width, height,
+					t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
+			}
+			else { // Render target
+				return Image.createRenderTarget(width, height,
+					t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
+					depthStencil);
+			}
+		}
 	}
 
 	inline function getTextureFormat(s:String):TextureFormat {
@@ -110,9 +125,10 @@ class RenderPathData extends Data {
 }
 
 class RenderTarget {
-	public var image:Image;
+	public var image:Image; // RT or image
 	public var hasDepth:Bool;
 	public var pongState = false;
 	public var pong:RenderTarget = null;
+	public var is3D:Bool = false; // sampler2D / sampler3D
 	public function new() {}
 }

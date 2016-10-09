@@ -68,9 +68,10 @@ class MeshObject extends Object {
 		culled = false;
 		if (camera.data.raw.frustum_culling) {
 			// Scale radius for skinned mesh and particle system
-			// TODO: determine max skinned radius and max particle system radius
+			// TODO: determine max radius
 			var radiusScale = data.isSkinned ? 2.0 : 1.0;
 			if (particleSystem != null) radiusScale *= 100;
+			if (context == "voxel") radiusScale *= 100;
 			var shadowsContext = camera.data.pathdata.raw.shadows_context;
 			var frustumPlanes = context == shadowsContext ? lamp.frustumPlanes : camera.frustumPlanes;
 

@@ -97,7 +97,7 @@ class RayCaster {
 		
 		// Rotate by world rotation matrix
 		var m = Mat4.identity();
-		m.mult2(obj.transform.matrix);
+		m.multmat2(obj.transform.matrix);
 		m.inverse2(m);
 		m.transpose23x3();
 		m._30 = m._31 = m._32 = 0;
