@@ -14,10 +14,10 @@ class CameraObject extends Object {
 	public var renderPath:RenderPath;
 
 	public var P:Mat4; // Matrices
-// #if WITH_VELOC
+// #if arm_veloc
 	// public var prevP:Mat4;
 // #end
-#if WITH_TAA
+#if arm_taa
 	public var noJitterP:Mat4;
 #end
 	public var V:Mat4;
@@ -42,7 +42,7 @@ class CameraObject extends Object {
 		if (data.raw.type == "perspective") {
 			var w:Float = iron.App.w();
 			var h:Float = iron.App.h();
-#if WITH_VR
+#if arm_vr
 			w /= 2.0; // Split per eye
 #end
 			P = Mat4.perspective(fov, w / h, nearPlane, farPlane);
@@ -51,12 +51,12 @@ class CameraObject extends Object {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane);
 		}
 
-// #if WITH_VELOC
+// #if arm_veloc
 		// prevP = Mat4.identity();
 		// prevP.loadFrom(P);
 // #end
 
-#if WITH_TAA
+#if arm_taa
 		noJitterP = Mat4.identity();
 		noJitterP.loadFrom(P);
 #end
@@ -80,7 +80,7 @@ class CameraObject extends Object {
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
 		if (lamps.length == 0) return; // No lamps for this camera, skip
 
-#if WITH_TAA
+#if arm_taa
 		projectionJitter();
 #end
 		buildMatrix(); // TODO: only when dirty
@@ -93,12 +93,12 @@ class CameraObject extends Object {
 		renderPath.renderFrame(g, root, lamps);
 	
 		prevV.loadFrom(V);
-// #if (WITH_VELOC && WITH_TAA)
+// #if (arm_veloc && arm_taa)
 		// prevP.loadFrom(P);
 // #end
 	}
 
-#if WITH_TAA
+#if arm_taa
 	var frame = 0;
 	function projectionJitter() {
 		var w = renderPath.currentRenderTargetW;

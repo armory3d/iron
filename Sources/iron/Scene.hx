@@ -57,7 +57,7 @@ class Scene {
 		traitInits = [];
 	}
 
-// #if (js && WITH_PATCH_ELECTRON)
+// #if (js && arm_patch_electron)
 	// static var first = true;
 	// static var patchTime = 0.0;
 	// static var lastMtime:Dynamic;
@@ -81,7 +81,7 @@ class Scene {
 
 				active.camera = active.getCamera(format.camera_ref);
 
-// #if (js && WITH_PATCH_ELECTRON)
+// #if (js && arm_patch_electron)
 // 				if (first) {
 // 					first = false;
 // 					var electron = untyped __js__('window && window.process && window.process.versions["electron"]');

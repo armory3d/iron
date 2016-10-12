@@ -10,7 +10,7 @@ import iron.math.Mat4;
 import iron.data.SceneFormat;
 
 class Mesh {
-#if WITH_DEINTERLEAVED
+#if arm_deinterleaved
 	public var vertexBuffers:Array<VertexBuffer>;
 #else
 	public var vertexBuffer:VertexBuffer;
@@ -78,7 +78,7 @@ class Mesh {
 	}
 
 	public function delete() {
-#if WITH_DEINTERLEAVED
+#if arm_deinterleaved
 		for (buf in vertexBuffers) buf.delete();
 #else
 		vertexBuffer.delete();
@@ -116,7 +116,7 @@ class Mesh {
 		for (i in 0...vertices.length) vertices.set(i, offsets[i]);
 		instVB.unlock();
 
-#if WITH_DEINTERLEAVED
+#if arm_deinterleaved
 		instancedVertexBuffers = [];
 		for (vb in vertexBuffers) instancedVertexBuffers.push(vb);
 		instancedVertexBuffers.push(instVB);
@@ -146,7 +146,7 @@ class Mesh {
 		vb.unlock();
 	}
 
-#if (!WITH_DEINTERLEAVED)
+#if (!arm_deinterleaved)
 	static function buildVertices(vertices:kha.arrays.Float32Array,
 							  	  pa:Array<Float> = null,
 					   		  	  na:Array<Float> = null,
@@ -201,7 +201,7 @@ class Mesh {
 #end
 
 	public function build() {
-#if WITH_DEINTERLEAVED
+#if arm_deinterleaved
 		vertexBuffers = [];
 		vertexBuffers.push(makeDeinterleavedVB(positions, "pos", 3));
 		if (normals != null) vertexBuffers.push(makeDeinterleavedVB(normals, "nor", 3));
@@ -221,7 +221,7 @@ class Mesh {
 		vertexBuffer.unlock();
 
 		// For depth passes, pos=3, bone=4, weight=4
-	// #if (!WITHOUT_SHADOWS)
+	// #if (!arm_no_shadows)
 		// var structDepth = getVertexStructure(positions != null, null, null, null, null, bones != null, weights != null);
 		// structLengthDepth = Std.int(struct.byteSize() / 4);
 		// vertexBufferDepth = new VertexBuffer(Std.int(positions.length / 3), structDepth, usage);
@@ -244,7 +244,7 @@ class Mesh {
 		}
 	}
 
-#if WITH_DEINTERLEAVED
+#if arm_deinterleaved
 	function makeDeinterleavedVB(data:Array<Float>, name:String, structLength:Int) {
 		var struct = new VertexStructure();
 		if (structLength == 2) struct.add(name, VertexData.Float2);

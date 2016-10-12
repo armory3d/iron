@@ -55,7 +55,7 @@ class RenderPath {
 	// Quad and decals contexts
 	var cachedShaderContexts:Map<String, CachedShaderContext> = new Map();
 	
-#if WITH_PROFILE
+#if arm_profile
 	public static var drawCalls = 0;
 	public var passNames:Array<String>;
 	public var passEnabled:Array<Bool>;
@@ -154,7 +154,7 @@ class RenderPath {
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
 		if (waiting) return;
 
-#if WITH_PROFILE
+#if arm_profile
 		drawCalls = 0;
 		currentPass = 0;
 #end
@@ -172,7 +172,7 @@ class RenderPath {
 		for (l in lamps) l.buildMatrices(camera);
 
 		for (i in 0...stageCommands.length) {
-#if WITH_PROFILE
+#if arm_profile
 			var cmd = stageCommands[i];
 			if (!passEnabled[currentPass]) {
 				if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad || cmd == drawGreasePencil) {
@@ -185,7 +185,7 @@ class RenderPath {
 			currentStageIndex = i;
 			stageCommands[i](stageParams[i], root);
 
-#if WITH_PROFILE
+#if arm_profile
 			if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad || cmd == drawGreasePencil) {
 				endPass();
 			}
@@ -193,7 +193,7 @@ class RenderPath {
 		}
 	}
 	
-#if WITH_PROFILE
+#if arm_profile
 	function endPass() {
 		if (loopFinished == 0) currentPass++;
 	}
@@ -487,12 +487,12 @@ class RenderPath {
 		currentLampIndex = 0;
 		loopFinished--;
 
-#if WITH_PROFILE
+#if arm_profile
 		endPass();
 #end
 	}
 
-#if WITH_VR
+#if arm_vr
 	function drawStereo(params:Array<String>, root:Object) {
 		var key = currentStageIndex + '_true';
 		var stageCommands = nestedCommands.get(key);
@@ -522,28 +522,24 @@ class RenderPath {
 
 		loopFinished--;
 
-	#if WITH_PROFILE
+	#if arm_profile
 		endPass();
 	#end
 	}
 #end
 
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null) {
-		// #if !python
 		g.begin(additionalRenderTargets);
-		// #end
 	}
 
 	inline function end(g:Graphics) {
-		// #if !python
 		g.end();
 		bindParams = null; // Remove, cleared at begin
-		// #end
 		drawPerformed = true;
 	}
 
 	function cacheStageCommands(stageCommands:Vector<TStageCommand>, stageParams:Vector<TStageParams>, stages:Array<TRenderPathStage>, done:Void->Void) {
-#if WITH_PROFILE
+#if arm_profile
 		var setPasses = this.stageCommands == stageCommands;
 		if (setPasses) {
 			passNames = [];
@@ -564,7 +560,7 @@ class RenderPath {
 				if (stagesLoaded == stages.length) done();
 			});
 
-#if WITH_PROFILE
+#if arm_profile
 			if (setPasses) {
 				if (stage.command != "draw_stereo" && stage.command.substr(0, 4) == "draw") {
 					var splitParams = stage.params[0].split("_");
@@ -606,7 +602,7 @@ class RenderPath {
 			case "draw_grease_pencil": done(drawGreasePencil);
 			case "call_function": cacheReturnsBoth(stage, parsedStageIndex, function() { done(callFunction); });
 			case "loop_lamps": cacheReturnsTrue(stage, parsedStageIndex, function() { done(loopLamps); });
-#if WITH_VR
+#if arm_vr
 			case "draw_stereo": cacheReturnsTrue(stage, parsedStageIndex, function() { done(drawStereo); });
 #end
 			default: done(null);

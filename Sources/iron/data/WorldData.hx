@@ -176,7 +176,7 @@ class Probe {
 		else {
 			iron.data.Data.getBlob(raw.irradiance + '.arm', function(b:kha.Blob) {
 				var irradianceData = b;
-#if WITH_JSON
+#if arm_json
 				var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData.toString());
 #else
 				var irradianceParsed:TIrradiance = iron.system.msgpack.MsgPack.decode(irradianceData.toBytes());

@@ -11,7 +11,7 @@ class MeshData extends Data {
 	public var raw:TMeshData;
 	public var mesh:Mesh;
 
-#if WITH_CPU_SKIN
+#if arm_cpu_skin
 	public static inline var ForceCpuSkinning = true;
 #else
 	public static inline var ForceCpuSkinning = false;

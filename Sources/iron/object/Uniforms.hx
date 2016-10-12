@@ -199,7 +199,7 @@ class Uniforms {
 				helpMat.multmat2(camera.P);
 				m = helpMat;
 			}
-#if WITH_VELOC
+#if arm_veloc
 			else if (c.link == "_prevWorldViewProjectionMatrix") {
 				helpMat.setIdentity();
 				helpMat.multmat2(cast(object, MeshObject).prevMatrix);
@@ -250,7 +250,7 @@ class Uniforms {
 			else if (c.link == "_lampProjectionMatrix") {
 				m = lamp.data.P;
 			}
-#if WITH_VR
+#if arm_vr
 			else if (c.link == "_undistortionMatrix") {
 				m = iron.system.VR.getUndistortionMatrix();
 			}
@@ -483,7 +483,7 @@ class Uniforms {
 			else if (c.link == "_probeBlending") {
 				f = Scene.active.world.getProbeBlending(object.transform);
 			}
-#if WITH_VR
+#if arm_vr
 			else if (c.link == "_maxRadiusSq") {
 				f = iron.system.VR.getMaxRadiusSq();
 			}

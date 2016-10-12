@@ -386,7 +386,7 @@ class Animation {
 	}
 
 	function updateSkinCpu() {
-#if WITH_DEINTERLEAVED
+#if arm_deinterleaved
 		// Assume position=0, normal=1 storage
 		var v = data.mesh.vertexBuffers[0].lock();
 		var vnor = data.mesh.vertexBuffers[1].lock();
@@ -457,7 +457,7 @@ class Animation {
 				nor.add(m.loc());
 			}
 
-#if WITH_DEINTERLEAVED
+#if arm_deinterleaved
 			v.set(i * l, pos.x);
 			v.set(i * l + 1, pos.y);
 			v.set(i * l + 2, pos.z);
@@ -478,7 +478,7 @@ class Animation {
 #end
 		}
 
-#if WITH_DEINTERLEAVED
+#if arm_deinterleaved
 		data.mesh.vertexBuffers[0].unlock();
 		data.mesh.vertexBuffers[1].unlock();
 #else

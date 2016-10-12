@@ -233,7 +233,7 @@ class Data {
 		loadingSceneRaws.set(file, [done]);
 
 		getBlob(file + '.arm', function(b:kha.Blob) {
-#if WITH_JSON
+#if arm_json
 			var parsed:TSceneFormat = haxe.Json.parse(b.toString());
 #else
 			var parsed:TSceneFormat = iron.system.msgpack.MsgPack.decode(b.toBytes());

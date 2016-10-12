@@ -107,14 +107,16 @@ class RenderPathData extends Data {
 	}
 
 	inline function getTextureFormat(s:String):TextureFormat {
-		if (s == "RGBA32") return TextureFormat.RGBA32;
-		else if (s == "RGBA128") return TextureFormat.RGBA128;
-		else if (s == "DEPTH16") return TextureFormat.DEPTH16;
-		else if (s == "RGBA64") return TextureFormat.RGBA64;
-		else if (s == "A32") return TextureFormat.A32; // Single channels are non-renderable on webgl
-		else if (s == "A16") return TextureFormat.A16;
-		else if (s == "A8") return TextureFormat.L8;
-		else return TextureFormat.RGBA32;
+		switch (s) {
+		case "RGBA32": return TextureFormat.RGBA32;
+		case "RGBA64": return TextureFormat.RGBA64;
+		case "RGBA128": return TextureFormat.RGBA128;
+		case "DEPTH16": return TextureFormat.DEPTH16;
+		case "A32": return TextureFormat.A32; // Single channels are non-renderable on webgl
+		case "A16": return TextureFormat.A16;
+		case "A8": return TextureFormat.L8;
+		default: return TextureFormat.RGBA32;
+		}
 	}
 	
 	inline function getDepthStencilFormat(depth:Bool, stencil:Bool):DepthStencilFormat {

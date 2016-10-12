@@ -28,7 +28,7 @@ class MeshObject extends Object {
 	
 	public var cameraDistance:Float;
 
-#if WITH_VELOC
+#if arm_veloc
 	public var prevMatrix = Mat4.identity();
 #end
 
@@ -148,7 +148,7 @@ class MeshObject extends Object {
 			g.setVertexBuffers(data.mesh.instancedVertexBuffers);
 		}
 		else {
-#if WITH_DEINTERLEAVED
+#if arm_deinterleaved
 			g.setVertexBuffers(data.mesh.vertexBuffers);
 #else
 			// var shadowsContext = camera.data.pathdata.raw.shadows_context;
@@ -180,11 +180,11 @@ class MeshObject extends Object {
 			}
 		}
 
-#if WITH_PROFILE
+#if arm_profile
 		RenderPath.drawCalls++;
 #end
 
-#if WITH_VELOC
+#if arm_veloc
 		prevMatrix.loadFrom(transform.matrix);
 #end
 	}
