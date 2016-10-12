@@ -278,7 +278,7 @@ class Uniforms {
 			    m = matLook;
 			}
 			if (m == null) return;
-			g.setMatrix(location, m);
+			g.setMatrix(location, m.self);
 		}
 		else if (c.type == "vec3") {
 			var v:Vec4 = null;

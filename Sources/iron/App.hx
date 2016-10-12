@@ -49,6 +49,8 @@ class App {
 #end
 
         iron.system.Tween.update();
+
+        if (Scene.active != null) Scene.active.updateFrame();
         
         if (traitInits.length > 0) {
             for (f in traitInits) { if (traitInits.length == 0) break; f(); f = null; }

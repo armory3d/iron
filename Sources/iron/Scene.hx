@@ -1,5 +1,6 @@
 package iron;
 
+import haxe.ds.Vector;
 import iron.Trait;
 import iron.object.Constraint;
 import iron.object.Transform;
@@ -9,6 +10,7 @@ import iron.object.LampObject;
 import iron.object.CameraObject;
 import iron.object.SpeakerObject;
 import iron.object.DecalObject;
+import iron.object.Animation;
 import iron.data.SceneFormat;
 import iron.data.Data;
 import iron.data.MeshData;
@@ -35,6 +37,7 @@ class Scene {
 	public var cameras:Array<CameraObject>;
 	public var speakers:Array<SpeakerObject>;
 	public var decals:Array<DecalObject>;
+	public var animations:Array<Animation>;
 
 	public var embedded:Map<String, kha.Image>;
 
@@ -48,6 +51,7 @@ class Scene {
 		cameras = [];
 		speakers = [];
 		decals = [];
+		animations = [];
 		embedded = new Map();
 		root = new Object();
 		traitInits = [];
@@ -136,6 +140,10 @@ class Scene {
 		});
 	}
 
+	public function updateFrame() {
+		for (anim in animations) anim.update(iron.system.Time.delta);
+	}
+
 	public function renderFrame(g:kha.graphics4.Graphics) {
 		if (waiting) return;
 
@@ -183,7 +191,7 @@ class Scene {
 		return null;
 	}
 
-	public function addMeshObject(data:MeshData, materials:Array<MaterialData>, parent:Object = null):MeshObject {
+	public function addMeshObject(data:MeshData, materials:Vector<MaterialData>, parent:Object = null):MeshObject {
 		var object = new MeshObject(data, materials);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
@@ -314,8 +322,7 @@ class Scene {
 			}
 			else {
 				// Materials
-				var materials:Array<MaterialData> = [];
-				while (materials.length < o.material_refs.length) materials.push(null);
+				var materials = new Vector<MaterialData>(o.material_refs.length);
 				var materialsLoaded = 0;
 
 				for (i in 0...o.material_refs.length) {
@@ -376,7 +383,7 @@ class Scene {
 		else done(null);
 	}
 
-	function returnMeshObject(object_file:String, data_ref:String, sceneName:String, boneObjects:Array<TObj>, materials:Array<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
+	function returnMeshObject(object_file:String, data_ref:String, sceneName:String, boneObjects:Array<TObj>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
 		Data.getMesh(object_file, data_ref, boneObjects, function(mesh:MeshData) {
 			var object = addMeshObject(mesh, materials, parent);
 		
@@ -403,6 +410,7 @@ class Scene {
 			createTraits(o.traits, object);
 			createConstraints(o.constraints, object);
 			generateTranform(o, object.transform);
+			setupAnimation(o.animation_setup, object);
 		}
 		done(object);
 	}
@@ -414,6 +422,11 @@ class Scene {
 		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;
 	}
 
+	static function setupAnimation(setup:TAnimationSetup, object:Object) {
+		if (setup == null) return;
+		object.setupAnimation(setup.start_track, setup.names, setup.starts, setup.ends, setup.speeds, setup.loops, setup.reflects, setup.max_bones);
+	}
+
 	static function createTraits(traits:Array<TTrait>, object:Object) {
 		if (traits == null) return;
 		for (t in traits) {
@@ -421,7 +434,12 @@ class Scene {
 				// Assign arguments if any
 				var args:Dynamic = [];
 				if (t.parameters != null) args = t.parameters;
-				object.addTrait(createTraitClassInstance(t.class_name, args));
+				var traitInst = createTraitClassInstance(t.class_name, args);
+				if (traitInst == null) {
+					trace("Error: Trait '" + t.class_name + "' referenced in object '" + object.name + "' not found");
+					continue;
+				}
+				object.addTrait(traitInst);
 			}
 		}
 	}
@@ -437,7 +455,7 @@ class Scene {
 
 	static function createTraitClassInstance(traitName:String, args:Dynamic):Dynamic {
 		var cname = Type.resolveClass(traitName);
-		if (cname == null) throw "Trait " + traitName + "not found.";
+		if (cname == null) return null;
 		return Type.createInstance(cname, args);
 	}
 

@@ -50,7 +50,7 @@ typedef TSkin = {
 typedef TSkeleton = {
 // @:structInit class TSkeleton {
 	public var bone_ref_array:Array<String>;
-	public var transforms:Array<Array<Float>>; // size = 16
+	public var transforms:Array<Array<kha.FastFloat>>; // size = 16
 }
 
 typedef TVertexArray = {
@@ -355,6 +355,19 @@ typedef TObj = {
 	@:optional public var mobile:Null<Bool>;
 	@:optional public var spawn:Null<Bool>; // Auto add object when creating scene
 	@:optional public var local_transform_only:Null<Bool>; // No parent matrix applied
+	@:optional public var animation_setup:TAnimationSetup;
+}
+
+typedef TAnimationSetup = {
+// @:structInit class TAnimationSetup {
+	public var start_track:String;
+	public var names:Array<String>;
+	public var starts:Array<Int>;
+	public var ends:Array<Int>;
+	public var speeds:Array<Float>;
+	public var loops:Array<Bool>;
+	public var reflects:Array<Bool>;
+	public var max_bones:Int;
 }
 
 typedef TConstraint = {
@@ -389,7 +402,7 @@ typedef TTrait = {
 typedef TTransform = {
 // @:structInit class TTransform {
 	@:optional public var target:String;
-	public var values:Array<Float>;
+	public var values:Array<kha.FastFloat>;
 }
 
 typedef TAnimationTransform = {
@@ -460,5 +473,6 @@ typedef TRawLink = {
 	public var name:String;
 	public var link:String;
 	@:optional public var ifdef:Array<String>;
+	@:optional public var ifndef:Array<String>;
 }
 */

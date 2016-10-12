@@ -28,6 +28,11 @@ class Animation {
 
 	function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
 		player = new Player(startTrack, names, starts, ends, speeds, loops, reflects);
+		Scene.active.animations.push(this);
+	}
+
+	public function remove() {
+		Scene.active.animations.remove(this);
 	}
 
 	public static function setupBoneAnimation(data:MeshData, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>, maxBones:Int) {
@@ -88,7 +93,7 @@ class Animation {
 		return anim;
 	}
 
-	public function setAnimationParams(delta:Float) {
+	public function update(delta:Float) {
 		if (player.paused) return;
 
 		player.animTime += delta * player.speed * player.dir;
@@ -269,8 +274,8 @@ class Animation {
 		var t2 = track.time.values[ti + 1 * player.dir];
 		var s = (t - t1) / (t2 - t1); // Linear
 
-		var v1:Array<Float> = track.value.values[ti];
-		var v2:Array<Float> = track.value.values[ti + 1 * player.dir];
+		var v1:Array<kha.FastFloat> = track.value.values[ti];
+		var v2:Array<kha.FastFloat> = track.value.values[ti + 1 * player.dir];
 
 		var m1 = Mat4.fromArray(v1);
 		var m2 = Mat4.fromArray(v2);
@@ -304,7 +309,7 @@ class Animation {
 			var boneAnim = b.animation;
 			if (boneAnim != null) {
 				var track = boneAnim.tracks[0];
-				var v1:Array<Float> = track.value.values[frame];
+				var v1:Array<kha.FastFloat> = track.value.values[frame];
 				var m1 = Mat4.fromArray(v1);
 				boneMats.set(b, m1);
 			}
@@ -316,7 +321,7 @@ class Animation {
 		var objectAnim = object.raw.animation;
 		if (objectAnim != null) {
 			var track = objectAnim.tracks[0];
-			var v1:Array<Float> = track.value.values[frame];
+			var v1:Array<kha.FastFloat> = track.value.values[frame];
 			var m1 = Mat4.fromArray(v1);
 			object.transform.matrix = m1;
 		}

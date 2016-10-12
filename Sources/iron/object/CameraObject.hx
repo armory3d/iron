@@ -120,7 +120,7 @@ class CameraObject extends Object {
 		V.inverse2(transform.matrix);
 
 		if (data.raw.frustum_culling) {
-			VP.multiply(V, P);
+			VP = V.multmat(P);
 			buildViewFrustum(VP, frustumPlanes);
 		}
 	}

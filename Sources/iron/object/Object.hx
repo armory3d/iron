@@ -35,6 +35,7 @@ class Object {
 	}
 
 	public function remove() {
+		if (animation != null) animation.remove();
 		while (children.length > 0) children[0].remove();
 		while (traits.length > 0) traits[0].remove();
 		if (parent != null) parent.children.remove(this);
@@ -93,9 +94,5 @@ class Object {
 
 	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>, maxBones = 50) {
 		animation = Animation.setupObjectAnimation(this, startTrack, names, starts, ends, speeds, loops, reflects);
-	}
-
-	public inline function setAnimationParams(delta:Float) {
-		animation.setAnimationParams(delta);
 	}
 }

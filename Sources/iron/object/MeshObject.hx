@@ -1,5 +1,6 @@
 package iron.object;
 
+import haxe.ds.Vector;
 import kha.graphics4.Graphics;
 import kha.graphics4.ConstantLocation;
 import kha.graphics4.TextureAddressing;
@@ -19,7 +20,7 @@ import iron.data.RenderPath;
 class MeshObject extends Object {
 
 	public var data:MeshData;
-	public var materials:Array<MaterialData>;
+	public var materials:Vector<MaterialData>;
 
 	public var particleSystem:ParticleSystem = null;
 
@@ -31,7 +32,7 @@ class MeshObject extends Object {
 	public var prevMatrix = Mat4.identity();
 #end
 
-	public function new(data:MeshData, materials:Array<MaterialData>) {
+	public function new(data:MeshData, materials:Vector<MaterialData>) {
 		super();
 
 		this.data = data;

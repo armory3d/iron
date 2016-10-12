@@ -2,14 +2,14 @@ package iron.math;
 
 import kha.FastFloat;
 
-class Mat4 extends kha.math.FastMatrix4 {
+class Mat4 {
 
 	public function new(_00:FastFloat, _10:FastFloat, _20:FastFloat, _30:FastFloat,
 						_01:FastFloat, _11:FastFloat, _21:FastFloat, _31:FastFloat,
 						_02:FastFloat, _12:FastFloat, _22:FastFloat, _32:FastFloat,
 						_03:FastFloat, _13:FastFloat, _23:FastFloat, _33:FastFloat) {
 		
-		super(_00, _10, _20, _30, _01, _11, _21, _31, _02, _12, _22, _32, _03, _13, _23, _33);
+		self = new kha.math.FastMatrix4(_00, _10, _20, _30, _01, _11, _21, _31, _02, _12, _22, _32, _03, _13, _23, _33);
 	}
 
 	public function compose(position:Vec4, quaternion:Quat, sc:Vec4):Mat4 {
@@ -29,7 +29,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 		var sx = vector.set(_00, _01, _02).length();
 		var sy = vector.set(_10, _11, _12).length();
 		var sz = vector.set(_20, _21, _22).length();
-		var det = this.determinant();
+		var det = self.determinant();
 		if (det < 0) sx = -sx;
 		position.x = _30;
 		position.y = _31;
@@ -126,7 +126,7 @@ class Mat4 extends kha.math.FastMatrix4 {
 		);
 	}
 
-	public static function fromArray(a:Array<Float>) {
+	public static function fromArray(a:Array<FastFloat>) {
 		return new Mat4(
 			a[0], a[1], a[2], a[3],
 			a[4], a[5], a[6], a[7],
@@ -212,19 +212,24 @@ class Mat4 extends kha.math.FastMatrix4 {
 		_33 = 1;
 	}
 
-	public inline function multmat2(b:Mat4) {
-		multiply(this, b);
+	public function multmat(m:Mat4):Mat4 {
+		return new Mat4(
+			_00 * m._00 + _10 * m._01 + _20 * m._02 + _30 * m._03, _00 * m._10 + _10 * m._11 + _20 * m._12 + _30 * m._13, _00 * m._20 + _10 * m._21 + _20 * m._22 + _30 * m._23, _00 * m._30 + _10 * m._31 + _20 * m._32 + _30 * m._33,
+			_01 * m._00 + _11 * m._01 + _21 * m._02 + _31 * m._03, _01 * m._10 + _11 * m._11 + _21 * m._12 + _31 * m._13, _01 * m._20 + _11 * m._21 + _21 * m._22 + _31 * m._23, _01 * m._30 + _11 * m._31 + _21 * m._32 + _31 * m._33,
+			_02 * m._00 + _12 * m._01 + _22 * m._02 + _32 * m._03, _02 * m._10 + _12 * m._11 + _22 * m._12 + _32 * m._13, _02 * m._20 + _12 * m._21 + _22 * m._22 + _32 * m._23, _02 * m._30 + _12 * m._31 + _22 * m._32 + _32 * m._33,
+			_03 * m._00 + _13 * m._01 + _23 * m._02 + _33 * m._03, _03 * m._10 + _13 * m._11 + _23 * m._12 + _33 * m._13, _03 * m._20 + _13 * m._21 + _23 * m._22 + _33 * m._23, _03 * m._30 + _13 * m._31 + _23 * m._32 + _33 * m._33
+		);
 	}
 
-	public function multiply(a:Mat4, b:Mat4) {
-		var a11 = a._00; var a12 = a._01; var a13 = a._02; var a14 = a._03;
-		var a21 = a._10; var a22 = a._11; var a23 = a._12; var a24 = a._13;
-		var a31 = a._20; var a32 = a._21; var a33 = a._22; var a34 = a._23;
-		var a41 = a._30; var a42 = a._31; var a43 = a._32; var a44 = a._33;
-		var b11 = b._00; var b12 = b._01; var b13 = b._02; var b14 = b._03;
-		var b21 = b._10; var b22 = b._11; var b23 = b._12; var b24 = b._13;
-		var b31 = b._20; var b32 = b._21; var b33 = b._22; var b34 = b._23;
-		var b41 = b._30; var b42 = b._31; var b43 = b._32; var b44 = b._33;
+	public function multmat2(m:Mat4) {
+		var a11 = _00; var a12 = _01; var a13 = _02; var a14 = _03;
+		var a21 = _10; var a22 = _11; var a23 = _12; var a24 = _13;
+		var a31 = _20; var a32 = _21; var a33 = _22; var a34 = _23;
+		var a41 = _30; var a42 = _31; var a43 = _32; var a44 = _33;
+		var b11 = m._00; var b12 = m._01; var b13 = m._02; var b14 = m._03;
+		var b21 = m._10; var b22 = m._11; var b23 = m._12; var b24 = m._13;
+		var b31 = m._20; var b32 = m._21; var b33 = m._22; var b34 = m._23;
+		var b41 = m._30; var b42 = m._31; var b43 = m._32; var b44 = m._33;
 
 		_00 = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
 		_01 = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
@@ -245,9 +250,10 @@ class Mat4 extends kha.math.FastMatrix4 {
 		_31 = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
 		_32 = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
 		_33 = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
+		return this;
 	}
-	
-	public function inverse2(m:Mat4) {
+
+	public inline function inverse2(m:Mat4) {
 		var m11 = m._00; var m12 = m._01; var m13 = m._02; var m14 = m._03;
 		var m21 = m._10; var m22 = m._11; var m23 = m._12; var m24 = m._13;
 		var m31 = m._20; var m32 = m._21; var m33 = m._22; var m34 = m._23;
@@ -609,6 +615,10 @@ class Mat4 extends kha.math.FastMatrix4 {
 						-f0, -f1, -f2, d2,
 						0.0, 0.0, 0.0, 1.0);
 	}
+
+	public inline function multvec(value: kha.math.FastVector4): kha.math.FastVector4 {
+		return self.multvec(value);
+	}
 	
 	public inline function _right():Vec4 { return new Vec4(_00, _10, _20); }
 	public inline function _up():Vec4 { return new Vec4(_01, _11, _21); }
@@ -617,4 +627,22 @@ class Mat4 extends kha.math.FastMatrix4 {
 	public inline function _right2():Vec4 { return new Vec4(_00, _01, _02); } // Non-inverted
 	public inline function _up2():Vec4 { return new Vec4(_20, _21, _22); }
 	public inline function _look2():Vec4 { return new Vec4(_10, _11, _12); }
+
+	public var self:kha.math.FastMatrix4;
+	public var _00(get, set):FastFloat; inline function get__00():FastFloat { return self._00; } inline function set__00(f:FastFloat):FastFloat { return self._00 = f; }
+	public var _01(get, set):FastFloat; inline function get__01():FastFloat { return self._01; } inline function set__01(f:FastFloat):FastFloat { return self._01 = f; }
+	public var _02(get, set):FastFloat; inline function get__02():FastFloat { return self._02; } inline function set__02(f:FastFloat):FastFloat { return self._02 = f; }
+	public var _03(get, set):FastFloat; inline function get__03():FastFloat { return self._03; } inline function set__03(f:FastFloat):FastFloat { return self._03 = f; }
+	public var _10(get, set):FastFloat; inline function get__10():FastFloat { return self._10; } inline function set__10(f:FastFloat):FastFloat { return self._10 = f; }
+	public var _11(get, set):FastFloat; inline function get__11():FastFloat { return self._11; } inline function set__11(f:FastFloat):FastFloat { return self._11 = f; }
+	public var _12(get, set):FastFloat; inline function get__12():FastFloat { return self._12; } inline function set__12(f:FastFloat):FastFloat { return self._12 = f; }
+	public var _13(get, set):FastFloat; inline function get__13():FastFloat { return self._13; } inline function set__13(f:FastFloat):FastFloat { return self._13 = f; }
+	public var _20(get, set):FastFloat; inline function get__20():FastFloat { return self._20; } inline function set__20(f:FastFloat):FastFloat { return self._20 = f; }
+	public var _21(get, set):FastFloat; inline function get__21():FastFloat { return self._21; } inline function set__21(f:FastFloat):FastFloat { return self._21 = f; }
+	public var _22(get, set):FastFloat; inline function get__22():FastFloat { return self._22; } inline function set__22(f:FastFloat):FastFloat { return self._22 = f; }
+	public var _23(get, set):FastFloat; inline function get__23():FastFloat { return self._23; } inline function set__23(f:FastFloat):FastFloat { return self._23 = f; }
+	public var _30(get, set):FastFloat; inline function get__30():FastFloat { return self._30; } inline function set__30(f:FastFloat):FastFloat { return self._30 = f; }
+	public var _31(get, set):FastFloat; inline function get__31():FastFloat { return self._31; } inline function set__31(f:FastFloat):FastFloat { return self._31 = f; }
+	public var _32(get, set):FastFloat; inline function get__32():FastFloat { return self._32; } inline function set__32(f:FastFloat):FastFloat { return self._32 = f; }
+	public var _33(get, set):FastFloat; inline function get__33():FastFloat { return self._33; } inline function set__33(f:FastFloat):FastFloat { return self._33 = f; }
 }

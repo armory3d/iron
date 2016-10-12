@@ -1,5 +1,6 @@
 package iron.data;
 
+import haxe.ds.Vector;
 import iron.data.SceneFormat;
 import iron.data.ShaderData;
 import iron.object.MeshObject;
@@ -10,7 +11,7 @@ class MaterialData extends Data {
 	public var raw:TMaterialData;
 	public var shader:ShaderData;
 
-	public var contexts:Array<MaterialContext> = [];
+	public var contexts:Vector<MaterialContext> = null;
 
 	public function new(raw:TMaterialData, done:MaterialData->Void) {
 		super();
@@ -23,7 +24,7 @@ class MaterialData extends Data {
 			shader = b;
 
 			// Contexts have to be in the same order as in raw data for now
-			while (contexts.length < raw.contexts.length) contexts.push(null);
+			contexts = new Vector(raw.contexts.length);
 			var contextsLoaded = 0;
 
 			for (i in 0...raw.contexts.length) {
@@ -59,7 +60,7 @@ class MaterialData extends Data {
 
 class MaterialContext {
 	public var raw:TMaterialContext;
-	public var textures:Array<kha.Image> = null;
+	public var textures:Vector<kha.Image> = null;
 	static var num = 0;
 	public var id = 0;
 
@@ -69,8 +70,7 @@ class MaterialContext {
 
 		if (raw.bind_textures != null && raw.bind_textures.length > 0) {
 			
-			textures = [];
-			while (textures.length < raw.bind_textures.length) textures.push(null);
+			textures = new Vector(raw.bind_textures.length);
 			var texturesLoaded = 0;
 
 			for (i in 0...raw.bind_textures.length) {

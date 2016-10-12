@@ -17,6 +17,7 @@ import iron.object.Object;
 import iron.object.CameraObject;
 import iron.object.LampObject;
 import iron.object.Uniforms;
+import haxe.ds.Vector;
 
 typedef TStageCommand = Array<String>->Object->Void;
 typedef TStageParams = Array<String>;
@@ -40,11 +41,11 @@ class RenderPath {
 	static var skydomeVB:VertexBuffer = null;
 	static var skydomeIB:IndexBuffer = null;
 
-	var stageCommands:Array<TStageCommand>;
-	var stageParams:Array<TStageParams>;
+	var stageCommands:Vector<TStageCommand>;
+	var stageParams:Vector<TStageParams>;
 	var currentStageIndex = 0;
-	var nestedCommands:Map<String, Array<TStageCommand>> = new Map(); // Just one level deep nesting for now
-	var nestedParams:Map<String, Array<TStageParams>> = new Map();
+	var nestedCommands:Map<String, Vector<TStageCommand>> = new Map(); // Just one level deep nesting for now
+	var nestedParams:Map<String, Vector<TStageParams>> = new Map();
 	var sorted:Bool;
 	public var waiting:Bool;
 	
@@ -66,8 +67,9 @@ class RenderPath {
 		data = camera.data;
 
 		waiting = true;
-		stageCommands = [];
-		stageParams = [];
+		var numStages = data.pathdata.raw.stages.length;
+		stageCommands = new Vector(numStages);
+		stageParams = new Vector(numStages);
 		cacheStageCommands(stageCommands, stageParams, data.pathdata.raw.stages, function() { waiting = false; });
 
 		if (screenAlignedVB == null) createScreenAlignedData();
@@ -76,8 +78,12 @@ class RenderPath {
 	}
 
 	static function createScreenAlignedData() {
-		var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];
-		var indices = [0, 1, 2, 0, 2, 3];
+		// Quad
+		// var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];
+		// var indices = [0, 1, 2, 0, 2, 3];
+		// Over-sized triangle
+		var data = [-1.0, -1.0, 3.0, -1.0, -1.0, 3.0];
+		var indices = [0, 1, 2];
 
 		// TODO: Mandatory vertex data names and sizes
 		var structure = new VertexStructure();
@@ -455,8 +461,8 @@ class RenderPath {
 			// Nested commands
 			var key = currentStageIndex + '';
 			key = result ? key + '_true' : key + '_false';
-			var stageCommands:Array<TStageCommand> = nestedCommands.get(key);
-			var stageParams:Array<TStageParams> = nestedParams.get(key);
+			var stageCommands = nestedCommands.get(key);
+			var stageParams = nestedParams.get(key);
 			for (i in 0...stageCommands.length) {
 				stageCommands[i](stageParams[i], root);
 			}
@@ -465,8 +471,8 @@ class RenderPath {
 	
 	function loopLamps(params:Array<String>, root:Object) {
 		var key = currentStageIndex + '_true';
-		var stageCommands:Array<TStageCommand> = nestedCommands.get(key);
-		var stageParams:Array<TStageParams> = nestedParams.get(key);
+		var stageCommands = nestedCommands.get(key);
+		var stageParams = nestedParams.get(key);
 		
 		currentLampIndex = 0;
 		loopFinished++;
@@ -489,8 +495,8 @@ class RenderPath {
 #if WITH_VR
 	function drawStereo(params:Array<String>, root:Object) {
 		var key = currentStageIndex + '_true';
-		var stageCommands:Array<TStageCommand> = nestedCommands.get(key);
-		var stageParams:Array<TStageParams> = nestedParams.get(key);
+		var stageCommands = nestedCommands.get(key);
+		var stageParams = nestedParams.get(key);
 
 		loopFinished++;
 		var g = currentRenderTarget;
@@ -536,7 +542,7 @@ class RenderPath {
 		drawPerformed = true;
 	}
 
-	function cacheStageCommands(stageCommands:Array<TStageCommand>, stageParams:Array<TStageParams>, stages:Array<TRenderPathStage>, done:Void->Void) {
+	function cacheStageCommands(stageCommands:Vector<TStageCommand>, stageParams:Vector<TStageParams>, stages:Array<TRenderPathStage>, done:Void->Void) {
 #if WITH_PROFILE
 		var setPasses = this.stageCommands == stageCommands;
 		if (setPasses) {
@@ -545,13 +551,12 @@ class RenderPath {
 		}
 #end
 
-		while (stageCommands.length < stages.length) stageCommands.push(null);
 		var stagesLoaded = 0;
 
 		for (i in 0...stages.length) {
 			var stage = stages[i];
 
-			stageParams.push(stage.params);
+			stageParams[i] = stage.params;
 			commandToFunction(stage, i, function(cmd:TStageCommand) {
 				stageCommands[i] = cmd;
 				
@@ -617,8 +622,9 @@ class RenderPath {
 		if (cacheTo == 0) done();
 
 		if (stageData.returns_true != null) {
-			var stageCommands:Array<TStageCommand> = [];
-			var stageParams:Array<TStageParams> = [];
+			var numStages = stageData.returns_true.length;
+			var stageCommands = new Vector<TStageCommand>(numStages);
+			var stageParams = new Vector<TStageParams>(numStages);
 			nestedCommands.set(key + '_true', stageCommands);
 			nestedParams.set(key + '_true', stageParams);
 
@@ -626,8 +632,9 @@ class RenderPath {
 		}
 
 		if (stageData.returns_false != null) {
-			var stageCommands:Array<TStageCommand> = [];
-			var stageParams:Array<TStageParams> = [];
+			var numStages = stageData.returns_false.length;
+			var stageCommands = new Vector<TStageCommand>(numStages);
+			var stageParams = new Vector<TStageParams>(numStages);
 			nestedCommands.set(key + '_false', stageCommands);
 			nestedParams.set(key + '_false', stageParams);
 
@@ -640,8 +647,9 @@ class RenderPath {
 		var key = parsedStageIndex + '_true';
 
 		if (stageData.returns_true != null) {
-			var stageCommands:Array<TStageCommand> = [];
-			var stageParams:Array<TStageParams> = [];
+			var numStages = stageData.returns_true.length;
+			var stageCommands = new Vector<TStageCommand>(numStages);
+			var stageParams = new Vector<TStageParams>(numStages);
 			nestedCommands.set(key, stageCommands);
 			nestedParams.set(key, stageParams);
 

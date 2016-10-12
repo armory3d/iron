@@ -301,7 +301,7 @@ class Mesh {
 		}
 	}
 
-	public function initSkeletonTransforms(transforms:Array<Array<Float>>) {
+	public function initSkeletonTransforms(transforms:Array<Array<kha.FastFloat>>) {
 		skeletonTransforms = [];
 		skeletonTransformsI = [];
 
@@ -315,7 +315,7 @@ class Mesh {
 		}
 	}
 
-	public function initSkinTransform(t:Array<Float>) {
+	public function initSkinTransform(t:Array<kha.FastFloat>) {
 		skinTransform = Mat4.fromArray(t);
 		skinTransformI = Mat4.identity();
 		skinTransformI.getInverse(skinTransform);
