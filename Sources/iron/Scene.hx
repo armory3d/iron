@@ -57,12 +57,6 @@ class Scene {
 		traitInits = [];
 	}
 
-// #if (js && arm_patch_electron)
-	// static var first = true;
-	// static var patchTime = 0.0;
-	// static var lastMtime:Dynamic;
-	// static var lastSize:Dynamic;
-// #end
 	public static function create(format:TSceneFormat, done:Object->Void) {
 		active = new Scene();
 		active.waiting = true;
@@ -80,28 +74,6 @@ class Scene {
 				}
 
 				active.camera = active.getCamera(format.camera_ref);
-
-// #if (js && arm_patch_electron)
-// 				if (first) {
-// 					first = false;
-// 					var electron = untyped __js__('window && window.process && window.process.versions["electron"]');
-// 					if (electron) {
-// 						untyped __js__('var fs = require("fs");');
-// 						App.notifyOnUpdate(function() {
-// 							patchTime += iron.system.Time.delta;
-// 							if (patchTime > 0.1) {
-// 								patchTime = 0;
-// 								var repatch = false;
-// 								// Compare mtime and size of scene file
-// 								untyped __js__('fs.stat(__dirname + "/" + {0} + ".arm", function(err, stats) {', active.raw.name);
-// 								untyped __js__('	if ({0} > stats.mtime || {0} < stats.mtime || {1} !== stats.size) { if ({0} !== undefined) { {2} = true; } {0} = stats.mtime; {1} = stats.size; }', lastMtime, lastSize, repatch);
-// 								if (repatch) patch();
-// 								untyped __js__('});');
-// 							}
-// 						});
-// 					}
-// 				}
-// #end
 				done(sceneObject);
 
 				// Hooks
@@ -113,7 +85,6 @@ class Scene {
 
 	// Reload scene for now
 	public static function patch() {
-		// TODO: Pause render?
 		var cameraTransform = Scene.active.camera.transform;
 		Data.clearSceneData();
 		Scene.setActive(Scene.active.raw.name, function(o:Object) {
@@ -359,7 +330,6 @@ class Scene {
 				}
 			}
 		}
-		// else if (o.type == "armature_object") {}
 		else if (o.type == "speaker_object") {
 			var object = addSpeakerObject(Data.getSpeakerRawByName(format.speaker_datas, o.data_ref), parent);	
 			returnObject(object, o, done);

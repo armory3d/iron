@@ -33,7 +33,7 @@ class LampObject extends Object {
 		transform.buildMatrix();
 		
 		V = Mat4.identity();
-		V.inverse2(transform.matrix);
+		V.getInverse(transform.matrix);
 
 		// Frustum culling enabled
 		if (camera.data.raw.frustum_culling) {

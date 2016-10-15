@@ -7,7 +7,6 @@ class LampData extends Data {
 
 	public var name:String;
 	public var raw:TLampData;
-
 	public var P:Mat4 = null; // Shadow map matrices
 
 	public function new(raw:TLampData, done:LampData->Void) {
@@ -33,7 +32,7 @@ class LampData extends Data {
 		done(this);
 	}
 
-	public static function typeToInt(s:String):Int {
+	public static inline function typeToInt(s:String):Int {
 		s == "sun" ? return 0 : s == "point" ? return 1 : return 2;
 	}
 

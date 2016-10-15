@@ -16,6 +16,7 @@ import iron.data.ShaderData;
 import iron.data.SceneFormat;
 import iron.data.RenderPath;
 
+// Structure for setting shader uniforms
 class Uniforms {
 
 	// static var biasMat = new Mat4(
@@ -111,7 +112,7 @@ class Uniforms {
 				m = object.transform.matrix;
 			}
 			else if (c.link == "_inverseWorldMatrix") {
-				helpMat.inverse2(object.transform.matrix);
+				helpMat.getInverse(object.transform.matrix);
 				m = helpMat;
 			}
 			else if (c.link == "_normalMatrix") {
@@ -119,8 +120,8 @@ class Uniforms {
 				helpMat.multmat2(object.transform.matrix);
 				// Non uniform anisotropic scaling, calculate normal matrix
 				//if (!(object.transform.scale.x == object.transform.scale.y && object.transform.scale.x == object.transform.scale.z)) {
-					helpMat.inverse2(helpMat);
-					helpMat.transpose23x3();
+					helpMat.getInverse(helpMat);
+					helpMat.transpose3x3();
 				//}
 				m = helpMat;
 			}
@@ -128,8 +129,8 @@ class Uniforms {
 				helpMat.setIdentity();
 				helpMat.multmat2(object.transform.matrix);
 				helpMat.multmat2(camera.V); // View space
-				helpMat.inverse2(helpMat);
-				helpMat.transpose23x3();
+				helpMat.getInverse(helpMat);
+				helpMat.transpose3x3();
 				m = helpMat;
 			}
 			else if (c.link == "_viewMatrix") {
@@ -138,32 +139,32 @@ class Uniforms {
 			else if (c.link == "_transposeInverseViewMatrix") {
 				helpMat.setIdentity();
 				helpMat.multmat2(camera.V);
-				helpMat.inverse2(helpMat);
-				helpMat.transpose2();
+				helpMat.getInverse(helpMat);
+				helpMat.transpose();
 				m = helpMat;
 			}
 			else if (c.link == "_inverseViewMatrix") {
-				helpMat.inverse2(camera.V);
+				helpMat.getInverse(camera.V);
 				m = helpMat;
 			}
 			else if (c.link == "_transposeViewMatrix") {
 				helpMat.setIdentity();
 				helpMat.multmat2(camera.V);
-				helpMat.transpose23x3();
+				helpMat.transpose3x3();
 				m = helpMat;
 			}
 			else if (c.link == "_projectionMatrix") {
 				m = camera.P;
 			}
 			else if (c.link == "_inverseProjectionMatrix") {
-				helpMat.inverse2(camera.P);
+				helpMat.getInverse(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_inverseViewProjectionMatrix") {
 				helpMat.setIdentity();
 				helpMat.multmat2(camera.V);
 				helpMat.multmat2(camera.P);
-				helpMat.inverse2(helpMat);
+				helpMat.getInverse(helpMat);
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrix") {
@@ -291,7 +292,7 @@ class Uniforms {
 				v = helpVec;
 			}
 			else if (c.link == "_cameraLook") {
-				helpVec = camera.lookAbsolute(); // = camera.look();
+				helpVec = camera.lookAbs();
 				v = helpVec;
 			}
 			else if (c.link == "_backgroundCol") {
@@ -304,6 +305,7 @@ class Uniforms {
 			else if (c.link == "_probeVolumeSize") {
 				v = Scene.active.world.getProbeVolumeSize(object.transform);
 			}
+			// External
 			else if (externalVec3Link != null) {
 				v = externalVec3Link(c.link);
 			}

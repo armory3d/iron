@@ -17,8 +17,7 @@ class Input {
 	public static var deltaY(default, null):Float = 0;
 
 	public function new() {
-            kha.input.Mouse.get().notify(downListener, upListener, moveListener, null);
-            //kha.input.Surface.get().notify(touchStartListener, touchEndListener, touchMoveListener);
+		kha.input.Mouse.get().notify(downListener, upListener, moveListener, null);
 	}
 
 	public static function end() {

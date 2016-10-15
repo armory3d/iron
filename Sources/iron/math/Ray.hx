@@ -8,63 +8,47 @@ class Ray {
 	public function new(origin:Vec4 = null, direction:Vec4 = null) {
 		this.origin = origin == null ? new Vec4() : origin;		
 		this.direction = direction == null ? new Vec4() : direction;
-	}	
+	}
 	
-	public function set(origin:Vec4, direction:Vec4):Ray {
-		this.origin.copy2(origin);
-		this.direction.copy2(direction);
-		return this;
-	}	
-	
-	public function copy2(ray:Ray):Ray {
-		return set(ray.origin, ray.direction);
-	}	
-	
-	public function at(t:Float, optionalTarget:Vec4 = null):Vec4 {
-		var result = optionalTarget != null ? optionalTarget : new Vec4();
-		return result.copy2(direction).mult(t).add(origin);
+	public function at(t:Float):Vec4 {
+		var result = new Vec4();
+		return result.setFrom(direction).mult(t).add(origin);
 	}
 	
 	public function distanceToPoint(point:Vec4):Float {
 		var v1 = new Vec4();
-		var directionDistance = v1.subVectors(point, this.origin).dot(this.direction);
+		var directionDistance = v1.subvecs(point, this.origin).dot(this.direction);
 		
-		// point behind the ray
+		// Point behind the ray
 		if (directionDistance < 0) {
 			return this.origin.distanceTo(point);
 		}
 
-		v1.copy2(this.direction).mult(directionDistance).add(this.origin);
+		v1.setFrom(this.direction).mult(directionDistance).add(this.origin);
 
 		return v1.distanceTo(point);
-	}	
+	}
 	
-	public function isIntersectionSphere(sphereCenter:Vec4, sphereRadius:Float):Bool {
+	public function intersectsSphere(sphereCenter:Vec4, sphereRadius:Float):Bool {
 		return distanceToPoint(sphereCenter) <= sphereRadius;
 	}	
 	
-	public function isIntersectionPlane(plane:Plane):Bool {
-		// check if the ray lies on the plane first
+	public function intersectsPlane(plane:Plane):Bool {
+		// Check if the ray lies on the plane first
 		var distToPoint = plane.distanceToPoint(this.origin);
-
-		if (distToPoint == 0) {
-			return true;
-		}
+		if (distToPoint == 0) return true;
 
 		var denominator = plane.normal.dot(this.direction);
+		if (denominator * distToPoint < 0) return true;
 
-		if (denominator * distToPoint < 0) {
-			return true;
-		}
-
-		// ray origin is behind the plane (and is pointing behind it)
+		// Ray origin is behind the plane (and is pointing behind it)
 		return false;
-	}	
+	}
 	
 	public function distanceToPlane(plane:Plane):Float {
 		var denominator = plane.normal.dot(this.direction);
 		if (denominator == 0) {
-			// line is coplanar, return origin
+			// Line is coplanar, return origin
 			if (plane.distanceToPoint(this.origin) == 0) {
 				return 0;
 			}
@@ -77,20 +61,15 @@ class Ray {
 
 		// Return if the ray never intersects the plane
 		return t >= 0 ? t :  -1;
-	}	
-	
-	public function intersectPlane(plane:Plane, optionalTarget:Vec4 = null):Vec4 {
-		var t = this.distanceToPlane(plane);
-
-		//if (t == null) {
-		if (t == -1) {
-			return null;
-		}
-
-		return this.at(t, optionalTarget);
 	}
 	
-	public function isIntersectionBox(center:Vec4, size:Vec4):Bool {
+	public function intersectPlane(plane:Plane):Vec4 {
+		var t = this.distanceToPlane(plane);
+		if (t == -1) return null;
+		return this.at(t);
+	}
+	
+	public function intersectsBox(center:Vec4, size:Vec4):Bool {
 		return this.intersectBox(center, size) != null;
 	}
 	
@@ -114,16 +93,16 @@ class Ray {
 
 		var origin = this.origin;
 
-		if (invdirx >= 0) {				
+		if (invdirx >= 0) {
 			tmin = (boxMinX - origin.x) * invdirx;
 			tmax = (boxMaxX - origin.x) * invdirx;
 		}
 		else { 
 			tmin = (boxMaxX - origin.x) * invdirx;
 			tmax = (boxMinX - origin.x) * invdirx;
-		}			
+		}
 
-		if (invdiry >= 0) {		
+		if (invdiry >= 0) {
 			tymin = (boxMinY - origin.y) * invdiry;
 			tymax = (boxMaxY - origin.y) * invdiry;
 		}
@@ -139,7 +118,7 @@ class Ray {
 		if (tymin > tmin || tmin != tmin) tmin = tymin;
 		if (tymax < tmax || tmax != tmax) tmax = tymax;
 
-		if (invdirz >= 0) {		
+		if (invdirz >= 0) {
 			tzmin = (boxMinZ - origin.z) * invdirz;
 			tzmax = (boxMaxZ - origin.z) * invdirz;
 		}
@@ -158,17 +137,17 @@ class Ray {
 		return this.at(tmin >= 0 ? tmin : tmax);
 	}
 	
-	public function intersectTriangle(a:Vec4, b:Vec4, c:Vec4, backfaceCulling:Bool, optionalTarget:Vec4 = null):Vec4 {
-		// Compute the offset origin, edges, and normal.
+	public function intersectTriangle(a:Vec4, b:Vec4, c:Vec4, backfaceCulling:Bool):Vec4 {
+		// Compute the offset origin, edges, and normal
 		var diff = new Vec4();
 		var edge1 = new Vec4();
 		var edge2 = new Vec4();
 		var normal = new Vec4();
 
 		// from http://www.geometrictools.com/LibMathematics/Intersection/Wm5IntrRay3Triangle3.cpp
-		edge1.subVectors(b, a);
-		edge2.subVectors(c, a);
-		normal.crossVectors(edge1, edge2);
+		edge1.subvecs(b, a);
+		edge2.subvecs(c, a);
+		normal.crossvecs(edge1, edge2);
 
 		// Solve Q + t*D = b1*E1 + b2*E2 (Q = kDiff, D = ray direction,
 		// E1 = kEdge1, E2 = kEdge2, N = Cross(E1,E2)) by
@@ -188,15 +167,15 @@ class Ray {
 			return null;
 		}
 
-		diff.subVectors(this.origin, a);
-		var DdQxE2 = sign * this.direction.dot(edge2.crossVectors(diff, edge2));
+		diff.subvecs(this.origin, a);
+		var DdQxE2 = sign * this.direction.dot(edge2.crossvecs(diff, edge2));
 
 		// b1 < 0, no intersection
 		if (DdQxE2 < 0) {
 			return null;
 		}
 
-		var DdE1xQ = sign * this.direction.dot(edge1.cross2(diff));
+		var DdE1xQ = sign * this.direction.dot(edge1.cross(diff));
 
 		// b2 < 0, no intersection
 		if (DdE1xQ < 0) {
@@ -217,16 +196,7 @@ class Ray {
 		}
 
 		// Ray intersects triangle.
-		return this.at(QdN / DdN, optionalTarget);
-	}
-	
-	public function applyMat4(matrix4:Mat4):Ray {
-		this.direction.add(this.origin).applyMat4(matrix4);
-		this.origin.applyMat4(matrix4);
-		this.direction.sub(this.origin);
-		this.direction.normalize2();
-
-		return this;
+		return this.at(QdN / DdN);
 	}
 }
 
@@ -241,7 +211,7 @@ class Plane {
 	}
 
 	public function setFromNormalAndCoplanarPoint(normal:Vec4, point:Vec4):Plane {
-		this.normal.copy2(normal);
+		this.normal.setFrom(normal);
 		constant = -point.dot(this.normal);
 		return this;
 	}

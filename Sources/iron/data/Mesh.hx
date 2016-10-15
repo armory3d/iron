@@ -18,13 +18,13 @@ class Mesh {
 	// public var structLengthDepth:Int;
 #end
 	public var indexBuffers:Array<IndexBuffer>;
-    public var vertices:kha.arrays.Float32Array;
-    public var indices:Array<Array<Int>>;
-    public var materialIndices:Array<Int>;
-    public var structLength:Int;
+	public var vertices:kha.arrays.Float32Array;
+	public var indices:Array<Array<Int>>;
+	public var materialIndices:Array<Int>;
+	public var structLength:Int;
 
-    public var instancedVertexBuffers:Array<VertexBuffer>;
-    public var instanced = false;
+	public var instancedVertexBuffers:Array<VertexBuffer>;
+	public var instanced = false;
 	public var instanceCount = 0;
 
 	var ids:Array<Array<Int>>;
@@ -109,7 +109,7 @@ class Mesh {
 		instanceCount = Std.int(offsets.length / 3);
 
 		var structure = new VertexStructure();
-    	structure.add("off", kha.graphics4.VertexData.Float3);
+		structure.add("off", kha.graphics4.VertexData.Float3);
 
 		var instVB = new VertexBuffer(instanceCount, structure, usage, 1);
 		var vertices = instVB.lock();
@@ -148,13 +148,13 @@ class Mesh {
 
 #if (!arm_deinterleaved)
 	static function buildVertices(vertices:kha.arrays.Float32Array,
-							  	  pa:Array<Float> = null,
-					   		  	  na:Array<Float> = null,
-					   		  	  uva:Array<Float> = null,
-					   		  	  ca:Array<Float> = null,
-					   		  	  tana:Array<Float> = null,
-					   		  	  bonea:Array<Float> = null,
-					   		  	  weighta:Array<Float> = null) {
+								  pa:Array<Float> = null,
+								  na:Array<Float> = null,
+								  uva:Array<Float> = null,
+								  ca:Array<Float> = null,
+								  tana:Array<Float> = null,
+								  bonea:Array<Float> = null,
+								  weighta:Array<Float> = null) {
 
 		var numVertices = Std.int(pa.length / 3);
 		var di = -1;
@@ -259,35 +259,11 @@ class Mesh {
 	}
 #end
 
-	// function calculateAABB() {
-	// 	aabbMin = new Vec4(-0.01, -0.01, -0.01);
-	// 	aabbMax = new Vec4(0.01, 0.01, 0.01);
-	// 	size = new Vec4();
-	// 	var i = 0;
-	// 	while (i < positions.length) {
-	// 		if (positions[i] > aabbMax.x)		aabbMax.x = positions[i];
-	// 		if (positions[i + 1] > aabbMax.y)	aabbMax.y = positions[i + 1];
-	// 		if (positions[i + 2] > aabbMax.z)	aabbMax.z = positions[i + 2];
-	// 		if (positions[i] < aabbMin.x)		aabbMin.x = positions[i];
-	// 		if (positions[i + 1] < aabbMin.y)	aabbMin.y = positions[i + 1];
-	// 		if (positions[i + 2] < aabbMin.z)	aabbMin.z = positions[i + 2];
-	// 		i += 3;
-	// 	}
-	// 	size.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);
-	// 	size.y = Math.abs(aabbMin.y) + Math.abs(aabbMax.y);
-	// 	size.z = Math.abs(aabbMin.z) + Math.abs(aabbMax.z);
-	// 	// Sphere radius
-	// 	if (size.x >= size.y && size.x >= size.z) radius = size.x / 2;
-	// 	else if (size.y >= size.x && size.y >= size.z) radius = size.y / 2;
-	// 	else radius = size.z / 2;
-	// }
-
 	public function getVerticesCount():Int {
 		return Std.int(positions.length / 3);
 	}
 
 	// Skinned
-	// TODO: check !ForceCpuSkinning
 	public function initSkeletonBones(bones:Array<TObj>) {
 		skeletonBones = [];
 

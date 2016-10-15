@@ -106,7 +106,6 @@ class MeshData extends Data {
 			new MeshData(raw, function(dat:MeshData) {
 				// Skinned
 				if (raw.mesh.skin != null) {
-					// TODO: check !ForceCpuSkinning
 					var objects = boneObjects != null ? boneObjects : format.objects;
 					for (o in objects) {
 						setParents(o);

@@ -43,8 +43,7 @@ class Animation {
 
 		if (anim.isSkinned) {
 			if (!MeshData.ForceCpuSkinning) {
-				// anim.skinBuffer = new haxe.ds.Vector(maxBones * 12);
-				anim.skinBuffer = new haxe.ds.Vector(maxBones * 8); // Dual quat
+				anim.skinBuffer = new haxe.ds.Vector(maxBones * 8); // Dual quat // * 12 for matrices
 				for (i in 0...anim.skinBuffer.length) anim.skinBuffer[i] = 0;
 			}
 
@@ -281,10 +280,10 @@ class Animation {
 		var m2 = Mat4.fromArray(v2);
 
 		// Decompose
-		var p1 = m1.loc();
-		var p2 = m2.loc();
-		var s1 = m1.scaleV();
-		var s2 = m2.scaleV();
+		var p1 = m1.getLoc();
+		var p2 = m2.getLoc();
+		var s1 = m1.getScale();
+		var s2 = m2.getScale();
 		var q1 = m1.getQuat();
 		var q2 = m2.getQuat();
 
@@ -296,7 +295,7 @@ class Animation {
 
 		// Compose
 		var m = targetMatrix;
-		fq.saveToMatrix(m);
+		fq.toMat(m);
 		m.scale(fs);
 		m._30 = fp.x;
 		m._31 = fp.y;
@@ -341,10 +340,10 @@ class Animation {
 		var bones = data.mesh.skeletonBones;
 		for (i in 0...bones.length) {
 			
-			bm.loadFrom(data.mesh.skinTransform);
+			bm.setFrom(data.mesh.skinTransform);
 			bm.multmat2(data.mesh.skeletonTransformsI[i]);
 			var m = Mat4.identity();
-			m.loadFrom(boneMats.get(bones[i]));
+			m.setFrom(boneMats.get(bones[i]));
 			var p = bones[i].parent;
 			while (p != null) { // TODO: store absolute transforms per bone
 				var pm = boneMats.get(p);
@@ -354,6 +353,7 @@ class Animation {
 			}
 			bm.multmat2(m);
 
+			// Matrix skinning
 			// bm.transpose2();
 			// skinBuffer[i * 12] = bm._00;
 			// skinBuffer[i * 12 + 1] = bm._01;
@@ -372,7 +372,7 @@ class Animation {
 			bm.decompose(vpos, q1, vscl);
 			q1.normalize();
 			q2.set(vpos.x, vpos.y, vpos.z, 0.0);
-			q2.multiply(q2, q1);
+			q2.multquats(q2, q1);
 			q2.x *= 0.5; q2.y *= 0.5; q2.z *= 0.5; q2.w *= 0.5;
 			skinBuffer[i * 8] = q1.x;
 			skinBuffer[i * 8 + 1] = q1.y;
@@ -427,7 +427,7 @@ class Animation {
 
 				m.multmat2(data.mesh.skeletonTransformsI[boneIndex]);
 
-				bm.loadFrom(boneMats.get(bone));
+				bm.setFrom(boneMats.get(bone));
 				var p = bone.parent;
 				while (p != null) { // TODO: store absolute transforms per bone
 					var pm = boneMats.get(p);
@@ -437,9 +437,9 @@ class Animation {
 				}
 				m.multmat2(bm);
 
-				m.multiplyScalar(boneWeight);
+				m.mult(boneWeight);
 				
-				pos.add(m.loc());
+				pos.add(m.getLoc());
 
 				// Normal
 				m.getInverse(bm);
@@ -452,9 +452,9 @@ class Animation {
 							data.mesh.normals[i * 3 + 1],
 							data.mesh.normals[i * 3 + 2]);
 
-				m.multiplyScalar(boneWeight);
+				m.mult(boneWeight);
 
-				nor.add(m.loc());
+				nor.add(m.getLoc());
 			}
 
 #if arm_deinterleaved

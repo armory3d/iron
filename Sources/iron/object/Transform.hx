@@ -32,7 +32,7 @@ class Transform {
 		local = Mat4.identity();
 		loc = new Vec4();
 		rot = new Quat();
-		scale = new Vec4(1, 1, 1);
+		scale = new Vec4(1.0, 1.0, 1.0);
 		size = new Vec4();
 		dirty = true;
 	}
@@ -58,13 +58,13 @@ class Transform {
 			temp.setIdentity();
 			for (m in prependMats) temp.multmat2(m);
 			temp.multmat2(local);
-			local.loadFrom(temp);
+			local.setFrom(temp);
 		}
 		
 		if (appendMats != null) for (m in appendMats) local.multmat2(m);
 
 		if (!localOnly && object.parent != null) {
-			matrix.multiply3x4(local, object.parent.transform.matrix);
+			matrix.multmat3x4(local, object.parent.transform.matrix);
 		}
 		else {
 			matrix = local;
@@ -79,7 +79,7 @@ class Transform {
 		}
 	}
 
-	public function set(x:Float = 0, y:Float = 0, z:Float = 0, rX:Float = 0, rY:Float = 0, rZ:Float = 0, sX:Float = 1, sY:Float = 1, sZ:Float = 1) {
+	public function set(x = 0.0, y = 0.0, z = 0.0, rX = 0.0, rY = 0.0, rZ = 0.0, sX = 1.0, sY = 1.0, sZ = 1.0) {
 		loc.set(x, y, z);
 		setRotation(rX, rY, rZ);
 		scale.set(sX, sY, sZ);
@@ -88,31 +88,20 @@ class Transform {
 
 	public function setMatrix(mat:Mat4) {
 		matrix = mat;
-		loc = matrix.loc();
-		scale = matrix.scaleV();
+		loc = matrix.getLoc();
+		scale = matrix.getScale();
 		rot = matrix.getQuat();
 	}
 
 	public function rotate(axis:Vec4, f:Float) {
 		var q = new Quat();
-		q.setFromAxisAngle(axis, f);
-		rot.multiply(q, rot);
+		q.fromAxisAngle(axis, f);
+		rot.multquats(q, rot);
 		dirty = true;
 	}
 
 	public function setRotation(x:Float, y:Float, z:Float) {
-		rot.setFromEuler(x, y, z, "ZXY");
-		dirty = true;
-	}
-
-	public function getEuler():Vec4 {
-		var v = new Vec4();
-		rot.toEuler(v);
-		return v;
-	}
-
-	public function setEuler(v:Vec4) {
-		rot.setFromEuler(v.x, v.y, v.z, "YZX");
+		rot.fromEuler(x, y, z);
 		dirty = true;
 	}
 
@@ -120,9 +109,9 @@ class Transform {
 		radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);// / 2;
 	}
 
-	public inline function look():Vec4 { return matrix._look2(); }
-	public inline function right():Vec4 { return matrix._right2(); }
-	public inline function up():Vec4 { return matrix._up2(); }
+	public inline function look():Vec4 { return matrix._look(); }
+	public inline function right():Vec4 { return matrix._right(); }
+	public inline function up():Vec4 { return matrix._up(); }
 
 	public inline function absx():Float { return matrix._30; }
 	public inline function absy():Float { return matrix._31; }

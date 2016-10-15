@@ -53,12 +53,12 @@ class CameraObject extends Object {
 
 // #if arm_veloc
 		// prevP = Mat4.identity();
-		// prevP.loadFrom(P);
+		// prevP.setFrom(P);
 // #end
 
 #if arm_taa
 		noJitterP = Mat4.identity();
-		noJitterP.loadFrom(P);
+		noJitterP.setFrom(P);
 #end
 
 		V = Mat4.identity();
@@ -84,17 +84,18 @@ class CameraObject extends Object {
 		projectionJitter();
 #end
 		buildMatrix(); // TODO: only when dirty
+
 		// First time setting up previous V, prevents first frame flicker
 		if (prevV == null) {
 			prevV = Mat4.identity();
-			prevV.loadFrom(V);
+			prevV.setFrom(V);
 		}
 
 		renderPath.renderFrame(g, root, lamps);
 	
-		prevV.loadFrom(V);
+		prevV.setFrom(V);
 // #if (arm_veloc && arm_taa)
-		// prevP.loadFrom(P);
+		// prevP.setFrom(P);
 // #end
 	}
 
@@ -103,7 +104,7 @@ class CameraObject extends Object {
 	function projectionJitter() {
 		var w = renderPath.currentRenderTargetW;
 		var h = renderPath.currentRenderTargetH;
-		P.loadFrom(noJitterP);
+		P.setFrom(noJitterP);
 		var x = 0.0;
 		var y = 0.0;
 		// Alternate only 2 frames for now
@@ -117,7 +118,7 @@ class CameraObject extends Object {
 
 	public function buildMatrix() {
 		transform.buildMatrix();
-		V.inverse2(transform.matrix);
+		V.getInverse(transform.matrix);
 
 		if (data.raw.frustum_culling) {
 			VP = V.multmat(P);
@@ -126,62 +127,56 @@ class CameraObject extends Object {
 	}
 
 	public static function buildViewFrustum(VP:Mat4, frustumPlanes:Array<FrustumPlane>) {
-	    // Left plane
-	    frustumPlanes[0].setComponents(
-	    	VP._03 + VP._00,
-	    	VP._13 + VP._10,
-	    	VP._23 + VP._20,
-	    	VP._33 + VP._30
-	    );
+		// Left plane
+		frustumPlanes[0].setComponents(
+			VP._03 + VP._00,
+			VP._13 + VP._10,
+			VP._23 + VP._20,
+			VP._33 + VP._30
+		);
 	 
-	    // Right plane
-	    frustumPlanes[1].setComponents(
-	    	VP._03 - VP._00,
-	    	VP._13 - VP._10,
-	    	VP._23 - VP._20,
-	    	VP._33 - VP._30
-	    );
+		// Right plane
+		frustumPlanes[1].setComponents(
+			VP._03 - VP._00,
+			VP._13 - VP._10,
+			VP._23 - VP._20,
+			VP._33 - VP._30
+		);
 	 
-	    // Top plane
-	    frustumPlanes[2].setComponents(
-	    	VP._03 - VP._01,
-	    	VP._13 - VP._11,
-	    	VP._23 - VP._21,
-	    	VP._33 - VP._31
-	    );
+		// Top plane
+		frustumPlanes[2].setComponents(
+			VP._03 - VP._01,
+			VP._13 - VP._11,
+			VP._23 - VP._21,
+			VP._33 - VP._31
+		);
 	 
-	    // Bottom plane
-	    frustumPlanes[3].setComponents(
-	    	VP._03 + VP._01,
-	    	VP._13 + VP._11,
-	    	VP._23 + VP._21,
-	    	VP._33 + VP._31
-	    );
+		// Bottom plane
+		frustumPlanes[3].setComponents(
+			VP._03 + VP._01,
+			VP._13 + VP._11,
+			VP._23 + VP._21,
+			VP._33 + VP._31
+		);
 	 
-	    // Near plane
-	    frustumPlanes[4].setComponents(
-	    	VP._02,
-	    	VP._12,
-	    	VP._22,
-	    	VP._32
-	    );
-	    // frustumPlanes[4].setComponents(
-	    // 	VP._03 + VP._02,
-	    // 	VP._13 + VP._12,
-	    // 	VP._23 + VP._22,
-	    // 	VP._33 + VP._32
-	    // );
+		// Near plane
+		frustumPlanes[4].setComponents(
+			VP._02,
+			VP._12,
+			VP._22,
+			VP._32
+		);
 	 
-	    // Far plane
-	    frustumPlanes[5].setComponents(
-	    	VP._03 - VP._02,
-	    	VP._13 - VP._12,
-	    	VP._23 - VP._22,
-	    	VP._33 - VP._32
-	    );
+		// Far plane
+		frustumPlanes[5].setComponents(
+			VP._03 - VP._02,
+			VP._13 - VP._12,
+			VP._23 - VP._22,
+			VP._33 - VP._32
+		);
 	 
-	    // Normalize planes
-	    for (plane in frustumPlanes) plane.normalize();
+		// Normalize planes
+		for (plane in frustumPlanes) plane.normalize();
 	}
 
 	static var sphereCenter = new Vec4();
@@ -194,20 +189,20 @@ class CameraObject extends Object {
 			if (plane.distanceToSphere(sphereCenter, radius) + radius * 2 < 0) {
 				return false;
 			}
-	    }
-	    return true;
+		}
+		return true;
 	}
 
 	public function rotate(axis:Vec4, f:Float) {
 		var q = new Quat();
-		q.setFromAxisAngle(axis, f);
-		transform.rot.multiply(q, transform.rot);
+		q.fromAxisAngle(axis, f);
+		transform.rot.multquats(q, transform.rot);
 		transform.dirty = true;
 		buildMatrix();
 	}
 
 	public function move(axis:Vec4, f:Float) {
-        axis.mult(f);
+		axis.mult(f);
 		transform.loc.add(axis);
 		transform.dirty = true;
 		buildMatrix();
@@ -215,10 +210,10 @@ class CameraObject extends Object {
 
 	public inline function right():Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }
 	public inline function up():Vec4 { return new Vec4(transform.local._10, transform.local._11, transform.local._12); }
-    public inline function look():Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
-    public inline function rightAbsolute():Vec4 { return new Vec4(transform.matrix._00, transform.matrix._01, transform.matrix._02); }
-	public inline function upAbsolute():Vec4 { return new Vec4(transform.matrix._10, transform.matrix._11, transform.matrix._12); }
-    public inline function lookAbsolute():Vec4 { return new Vec4(-transform.matrix._20, -transform.matrix._21, -transform.matrix._22); }
+	public inline function look():Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
+	public inline function rightAbs():Vec4 { return new Vec4(transform.matrix._00, transform.matrix._01, transform.matrix._02); }
+	public inline function upAbs():Vec4 { return new Vec4(transform.matrix._10, transform.matrix._11, transform.matrix._12); }
+	public inline function lookAbs():Vec4 { return new Vec4(-transform.matrix._20, -transform.matrix._21, -transform.matrix._22); }
 }
 
 class FrustumPlane {
