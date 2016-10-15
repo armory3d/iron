@@ -132,6 +132,7 @@ typedef TBindTexture = {
 // @:structInit class TBindTexture {
 	public var name:String;
 	public var file:String;
+	@:optional public var format:String; // RGBA32, RGBA64, R8
 	@:optional public var generate_mipmaps:Bool;
 	@:optional public var mipmaps:Array<String>; // Reference image names
 	@:optional public var u_addressing:String;

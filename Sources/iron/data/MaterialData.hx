@@ -112,7 +112,8 @@ class MaterialContext {
 						if (texturesLoaded == raw.bind_textures.length) done(this);
 					}
 					else if (texturesLoaded == raw.bind_textures.length) done(this);
-				});
+				
+				}, false, tex.format != null ? tex.format : 'RGBA32');
 			}
 		}
 		else done(this);

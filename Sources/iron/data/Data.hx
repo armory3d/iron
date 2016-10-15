@@ -1,4 +1,6 @@
 package iron.data;
+import haxe.io.BytesInput;
+import haxe.zip.Reader;
 import iron.data.SceneFormat;
 
 // Global data list and asynchronous data loading
@@ -232,7 +234,23 @@ class Data {
 
 		loadingSceneRaws.set(file, [done]);
 
-		getBlob(file + '.arm', function(b:kha.Blob) {
+		// If no extension specified, set to .arm
+		var compressed = StringTools.endsWith(file, '.zip');
+		var ext = (compressed || StringTools.endsWith(file, '.arm')) ? '' : '.arm';
+
+		getBlob(file + ext, function(b:kha.Blob) {
+
+			if (compressed) {
+				var input = new BytesInput(b.toBytes());
+				var entry = Reader.readZip(input).first();
+				if (entry == null) {
+					trace('Failed to uncompress ' + file);
+					return;
+				}
+				if (entry.compressed) b = kha.Blob.fromBytes(Reader.unzip(entry));
+				else b = kha.Blob.fromBytes(entry.data);
+			}
+
 #if arm_json
 			var parsed:TSceneFormat = haxe.Json.parse(b.toString());
 #else
@@ -324,7 +342,7 @@ class Data {
 	}
 
 	static var loadingImages:Map<String, Array<kha.Image->Void>> = new Map();
-	public static function getImage(file:String, done:kha.Image->Void, readable = false) {
+	public static function getImage(file:String, done:kha.Image->Void, readable = false, format = 'RGBA32') {
 #if cpp
 		if (StringTools.endsWith(file, '.png')) file = file.substring(0, file.length - 4) + '.kng';
 #end
@@ -337,7 +355,8 @@ class Data {
 
 		loadingImages.set(file, [done]);
 
-		var description = { files: [file], readable: readable };
+		// TODO: process format in Kha
+		var description = { files: [file], readable: readable, format: format };
 		kha.LoaderImpl.loadImageFromDescription(description, function(b:kha.Image) {
 			cachedImages.set(file, b);
 			for (f in loadingImages.get(file)) f(b);

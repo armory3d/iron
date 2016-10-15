@@ -348,9 +348,7 @@ class RenderPath {
 			}
 			var frame = layer.frames[layer.currentFrame];
 			if (frame.numVertices > 0) {
-				g.setVertexBuffer(frame.vertexBuffer);
-				g.setIndexBuffer(frame.indexBuffer);
-				g.drawIndexedVertices();
+				// Stroke
 #if js
 				// TODO: temporary, construct triangulated lines from points instead
 				g.setVertexBuffer(frame.vertexStrokeBuffer);
@@ -361,6 +359,10 @@ class RenderPath {
 					start += i;
 				}
 #end
+				// Fill
+				g.setVertexBuffer(frame.vertexBuffer);
+				g.setIndexBuffer(frame.indexBuffer);
+				g.drawIndexedVertices();
 			}
 		}
 		gpFrame++;
