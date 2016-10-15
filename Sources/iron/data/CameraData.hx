@@ -7,7 +7,6 @@ class CameraData extends Data {
 	public var name:String;
 	public var raw:TCameraData;
 	public var pathdata:RenderPathData;
-
 	public var mirror:kha.Image = null;
 
 	public function new(raw:TCameraData, done:CameraData->Void) {

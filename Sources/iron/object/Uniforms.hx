@@ -23,11 +23,14 @@ class Uniforms {
 	// 	0.0, 0.5, 0.0, 0.0,
 	// 	0.0, 0.0, 0.5, 0.0,
 	// 	0.5, 0.5, 0.5, 1.0);
-	static var helpMat = Mat4.identity();
-	static var helpMat2 = Mat4.identity();
-	static var helpVec = new Vec4();
-	static var helpVec2 = new Vec4();
-	static var helpQuat = new Quat(); // Keep at identity
+	public static var helpMat = Mat4.identity();
+	public static var helpMat2 = Mat4.identity();
+	public static var helpVec = new Vec4();
+	public static var helpVec2 = new Vec4();
+	public static var helpQuat = new Quat(); // Keep at identity
+
+	public static var externalTextureLink:String->kha.Image = null;
+	public static var externalVec3Link:String->Vec4 = null;
 
 	public static function setConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 
@@ -78,22 +81,6 @@ class Uniforms {
 			else if (tulink == "_envmapBrdf") {
 				g.setTexture(context.textureUnits[j], Scene.active.world.brdf);
 			}
-			// Migrate to arm
-			else if (tulink == "_smaaSearch") {
-				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('smaa_search.png'));
-			}
-			else if (tulink == "_smaaArea") {
-				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('smaa_area.png'));
-			}
-			else if (tulink == "_ltcMat") {
-				if (iron.data.ConstData.ltcMatTex == null) iron.data.ConstData.initLTC();
-				g.setTexture(context.textureUnits[j], iron.data.ConstData.ltcMatTex);
-			}
-			else if (tulink == "_ltcMag") {
-				if (iron.data.ConstData.ltcMagTex == null) iron.data.ConstData.initLTC();
-				g.setTexture(context.textureUnits[j], iron.data.ConstData.ltcMagTex);
-			}
-			//
 			else if (tulink == "_noise8") {
 				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise8.png'));
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
@@ -105,6 +92,11 @@ class Uniforms {
 			else if (tulink == "_noise256") {
 				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise256.png'));
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+			}
+			// External
+			else if (externalTextureLink != null) {
+				var image = externalTextureLink(tulink);
+				if (image != null) g.setTexture(context.textureUnits[j], image);
 			}
 		}
 	}
@@ -312,96 +304,8 @@ class Uniforms {
 			else if (c.link == "_probeVolumeSize") {
 				v = Scene.active.world.getProbeVolumeSize(object.transform);
 			}
-			
-			else if (c.link == "_hosekA") {
-				if (armory.renderpath.HosekWilkie.data == null) {
-					armory.renderpath.HosekWilkie.init(Scene.active.world);
-				}
-				v = helpVec;
-				v.x = armory.renderpath.HosekWilkie.data.A.x;
-				v.y = armory.renderpath.HosekWilkie.data.A.y;
-				v.z = armory.renderpath.HosekWilkie.data.A.z;
-			}
-			else if (c.link == "_hosekB") {
-				if (armory.renderpath.HosekWilkie.data == null) {
-					armory.renderpath.HosekWilkie.init(Scene.active.world);
-				}
-				v = helpVec;
-				v.x = armory.renderpath.HosekWilkie.data.B.x;
-				v.y = armory.renderpath.HosekWilkie.data.B.y;
-				v.z = armory.renderpath.HosekWilkie.data.B.z;
-			}
-			else if (c.link == "_hosekC") {
-				if (armory.renderpath.HosekWilkie.data == null) {
-					armory.renderpath.HosekWilkie.init(Scene.active.world);
-				}
-				v = helpVec;
-				v.x = armory.renderpath.HosekWilkie.data.C.x;
-				v.y = armory.renderpath.HosekWilkie.data.C.y;
-				v.z = armory.renderpath.HosekWilkie.data.C.z;
-			}
-			else if (c.link == "_hosekD") {
-				if (armory.renderpath.HosekWilkie.data == null) {
-					armory.renderpath.HosekWilkie.init(Scene.active.world);
-				}
-				v = helpVec;
-				v.x = armory.renderpath.HosekWilkie.data.D.x;
-				v.y = armory.renderpath.HosekWilkie.data.D.y;
-				v.z = armory.renderpath.HosekWilkie.data.D.z;
-			}
-			else if (c.link == "_hosekE") {
-				if (armory.renderpath.HosekWilkie.data == null) {
-					armory.renderpath.HosekWilkie.init(Scene.active.world);
-				}
-				v = helpVec;
-				v.x = armory.renderpath.HosekWilkie.data.E.x;
-				v.y = armory.renderpath.HosekWilkie.data.E.y;
-				v.z = armory.renderpath.HosekWilkie.data.E.z;
-			}
-			else if (c.link == "_hosekF") {
-				if (armory.renderpath.HosekWilkie.data == null) {
-					armory.renderpath.HosekWilkie.init(Scene.active.world);
-				}
-				v = helpVec;
-				v.x = armory.renderpath.HosekWilkie.data.F.x;
-				v.y = armory.renderpath.HosekWilkie.data.F.y;
-				v.z = armory.renderpath.HosekWilkie.data.F.z;
-			}
-			else if (c.link == "_hosekG") {
-				if (armory.renderpath.HosekWilkie.data == null) {
-					armory.renderpath.HosekWilkie.init(Scene.active.world);
-				}
-				v = helpVec;
-				v.x = armory.renderpath.HosekWilkie.data.G.x;
-				v.y = armory.renderpath.HosekWilkie.data.G.y;
-				v.z = armory.renderpath.HosekWilkie.data.G.z;
-			}
-			else if (c.link == "_hosekH") {
-				if (armory.renderpath.HosekWilkie.data == null) {
-					armory.renderpath.HosekWilkie.init(Scene.active.world);
-				}
-				v = helpVec;
-				v.x = armory.renderpath.HosekWilkie.data.H.x;
-				v.y = armory.renderpath.HosekWilkie.data.H.y;
-				v.z = armory.renderpath.HosekWilkie.data.H.z;
-			}
-			else if (c.link == "_hosekI") {
-				if (armory.renderpath.HosekWilkie.data == null) {
-					armory.renderpath.HosekWilkie.init(Scene.active.world);
-				}
-				v = helpVec;
-				v.x = armory.renderpath.HosekWilkie.data.I.x;
-				v.y = armory.renderpath.HosekWilkie.data.I.y;
-				v.z = armory.renderpath.HosekWilkie.data.I.z;
-			}
-			else if (c.link == "_hosekZ") {
-				if (armory.renderpath.HosekWilkie.data == null) {
-					armory.renderpath.HosekWilkie.init(Scene.active.world);
-				}
-				v = helpVec;
-				v.x = armory.renderpath.HosekWilkie.data.Z.x;
-				v.y = armory.renderpath.HosekWilkie.data.Z.y;
-				v.z = armory.renderpath.HosekWilkie.data.Z.z;
+			else if (externalVec3Link != null) {
+				v = externalVec3Link(c.link);
 			}
 			
 			if (v == null) return;
