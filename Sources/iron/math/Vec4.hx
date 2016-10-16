@@ -80,7 +80,7 @@ class Vec4 {
 	}
 
 	public function dot(v:Vec4):Float {
-		return this.x * v.x + this.y * v.y + this.z * v.z;
+		return x * v.x + y * v.y + z * v.z;
 	}
 
 	public function setFrom(v:Vec4):Vec4 {
@@ -128,7 +128,7 @@ class Vec4 {
 	}
 
 	public inline function length() {
-		return std.Math.sqrt(x * x + y * y + z * z);
+		return Math.sqrt(x * x + y * y + z * z);
 	}
 
 	public function sub(v:Vec4):Vec4 {
@@ -157,11 +157,11 @@ class Vec4 {
 		var vx = v1x - v2x;
 		var vy = v1y - v2y;
 		var vz = v1z - v2z;
-		return std.Math.sqrt(vx * vx + vy * vy + vz * vz);
+		return Math.sqrt(vx * vx + vy * vy + vz * vz);
 	}
 
 	public function distanceTo(p:Vec4):Float {
-		return std.Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
+		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
 	}
 
 	public static function xAxis():Vec4 { return new Vec4(1, 0, 0); }

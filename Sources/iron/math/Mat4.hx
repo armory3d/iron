@@ -30,29 +30,29 @@ class Mat4 {
 		var sy = helpVec.set(_10, _11, _12).length();
 		var sz = helpVec.set(_20, _21, _22).length();
 		var det = self.determinant();
-		if (det < 0) sx = -sx;
+		if (det < 0.0) sx = -sx;
 		position.x = _30; position.y = _31; position.z = _32;
 		// Scale the rotation part
 		helpMat._00 = _00; helpMat._10 = _10; helpMat._20 = _20; helpMat._30 = _30;
 		helpMat._01 = _01; helpMat._11 = _11; helpMat._21 = _21; helpMat._31 = _31;
 		helpMat._02 = _02; helpMat._12 = _12; helpMat._22 = _22; helpMat._32 = _32;
 		helpMat._03 = _03; helpMat._13 = _13; helpMat._23 = _23; helpMat._33 = _33;
-		var invSX = 1 / sx;
-		var invSY = 1 / sy;
-		var invSZ = 1 / sz;
+		var invSX = 1.0 / sx;
+		var invSY = 1.0 / sy;
+		var invSZ = 1.0 / sz;
 		helpMat._00 *= invSX;
 		helpMat._01 *= invSX;
 		helpMat._02 *= invSX;
-		helpMat._03 = 0;
+		helpMat._03 = 0.0;
 		helpMat._10 *= invSY;
 		helpMat._11 *= invSY;
 		helpMat._12 *= invSY;
-		helpMat._13 = 0;
+		helpMat._13 = 0.0;
 		helpMat._20 *= invSZ;
 		helpMat._21 *= invSZ;
 		helpMat._22 *= invSZ;
-		helpMat._23 = 0;
-		helpMat._30 = 0; helpMat._31 = 0; helpMat._32 = 0; helpMat._33 = 0;
+		helpMat._23 = 0.0;
+		helpMat._30 = 0.0; helpMat._31 = 0.0; helpMat._32 = 0.0; helpMat._33 = 0.0;
 		quaternion.fromRotationMat(helpMat);
 		scale.x = sx; scale.y = sy; scale.z = sz;
 		return this;
@@ -72,20 +72,20 @@ class Mat4 {
 		var yy = y * y2, yz = y * z2, zz = z * z2;
 		var wx = w * x2, wy = w * y2, wz = w * z2;
 
-		_00 = 1 - (yy + zz);
+		_00 = 1.0 - (yy + zz);
 		_10 = xy - wz;
 		_20 = xz + wy;
 
 		_01 = xy + wz;
-		_11 = 1 - (xx + zz);
+		_11 = 1.0 - (xx + zz);
 		_21 = yz - wx;
 
 		_02 = xz - wy;
 		_12 = yz + wx;
-		_22 = 1 - (xx + yy);
+		_22 = 1.0 - (xx + yy);
 
-		_03 = 0; _13 = 0; _23 = 0;
-		_30 = 0; _31 = 0; _32 = 0; _33 = 1;
+		_03 = 0.0; _13 = 0.0; _23 = 0.0;
+		_30 = 0.0; _31 = 0.0; _32 = 0.0; _33 = 1.0;
 
 		return this;
 	}
@@ -149,22 +149,22 @@ class Mat4 {
 		_00 = m11 * b11 + m12 * b21 + m13 * b31;
 		_01 = m11 * b12 + m12 * b22 + m13 * b32;
 		_02 = m11 * b13 + m12 * b23 + m13 * b33;
-		_03 = 0;
+		_03 = 0.0;
 
 		_10 = m21 * b11 + m22 * b21 + m23 * b31;
 		_11 = m21 * b12 + m22 * b22 + m23 * b32;
 		_12 = m21 * b13 + m22 * b23 + m23 * b33;
-		_13 = 0;
+		_13 = 0.0;
 
 		_20 = a31 * b11 + a32 * b21 + a33 * b31;
 		_21 = a31 * b12 + a32 * b22 + a33 * b32;
 		_22 = a31 * b13 + a32 * b23 + a33 * b33;
-		_23 = 0;
+		_23 = 0.0;
 
 		_30 = a41 * b11 + a42 * b21 + a43 * b31 + b41;
 		_31 = a41 * b12 + a42 * b22 + a43 * b32 + b42;
 		_32 = a41 * b13 + a42 * b23 + a43 * b33 + b43;
-		_33 = 1;
+		_33 = 1.0;
 	}
 
 	public function multmat(m:Mat4):Mat4 {
@@ -298,9 +298,9 @@ class Mat4 {
 	}
 
 	public function set(a:Array<Float>) {
-		_00 = a[0];  _10 = a[1];  _20 = a[2];  _30 = a[3];
-		_01 = a[4];  _11 = a[5];  _21 = a[6];  _31 = a[7];
-		_02 = a[8];  _12 = a[9];  _22 = a[10]; _32 = a[11];
+		_00 = a[0]; _10 = a[1]; _20 = a[2]; _30 = a[3];
+		_01 = a[4]; _11 = a[5]; _21 = a[6]; _31 = a[7];
+		_02 = a[8]; _12 = a[9]; _22 = a[10];_32 = a[11];
 		_03 = a[12]; _13 = a[13]; _23 = a[14]; _33 = a[15];
 	}
 
@@ -317,9 +317,9 @@ class Mat4 {
 
 	public function getScale():Vec4 {
 		return new Vec4(
-			std.Math.sqrt(_00 * _00 + _10 * _10 + _20 * _20),
-			std.Math.sqrt(_01 * _01 + _11 * _11 + _21 * _21),
-			std.Math.sqrt(_02 * _02 + _12 * _12 + _22 * _22)
+			Math.sqrt(_00 * _00 + _10 * _10 + _20 * _20),
+			Math.sqrt(_01 * _01 + _11 * _11 + _21 * _21),
+			Math.sqrt(_02 * _02 + _12 * _12 + _22 * _22)
 		);
 	}
 
@@ -333,20 +333,20 @@ class Mat4 {
 
 	public function toRotation():Mat4 {
 		var v1 = new Vec4();
-		var scaleX = 1 / v1.set(_00, _01, _02).length();
-		var scaleY = 1 / v1.set(_10, _11, _12).length();
-		var scaleZ = 1 / v1.set(_20, _21, _22).length();
+		var scaleX = 1.0 / v1.set(_00, _01, _02).length();
+		var scaleY = 1.0 / v1.set(_10, _11, _12).length();
+		var scaleZ = 1.0 / v1.set(_20, _21, _22).length();
 
 		_00 = _00 * scaleX; _01 = _01 * scaleX; _02 = _02 * scaleX;
-		_03 = 0;
+		_03 = 0.0;
 
 		_10 = _10 * scaleY; _11 = _11 * scaleY; _12 = _12 * scaleY;
-		_13 = 0;
+		_13 = 0.0;
 
 		_20 = _20 * scaleZ; _21 = _21 * scaleZ; _22 = _22 * scaleZ;
-		_23 = 0;
+		_23 = 0.0;
 
-		_30 = 0; _31 = 0; _32 = 0; _33 = 1;
+		_30 = 0.0; _31 = 0.0; _32 = 0.0; _33 = 1.0;
 		return this;
 	}
 
@@ -368,10 +368,10 @@ class Mat4 {
 		var m33 = _22;
 
 		var ftrace = m11 + m22 + m33;
-		var s:Float = 0;
+		var s = 0.0;
 
-		if ( ftrace > 0 ) {
-			s = 0.5 / std.Math.sqrt(ftrace + 1.0);
+		if (ftrace > 0.0) {
+			s = 0.5 / Math.sqrt(ftrace + 1.0);
 			q.w = 0.25 / s;
 			q.x = (m32 - m23) * s;
 			q.y = (m13 - m31) * s;
@@ -379,7 +379,7 @@ class Mat4 {
 
 		}
 		else if (m11 > m22 && m11 > m33) {
-			s = 2.0 * std.Math.sqrt(1.0 + m11 - m22 - m33);
+			s = 2.0 * Math.sqrt(1.0 + m11 - m22 - m33);
 			q.w = (m32 - m23) / s;
 			q.x = 0.25 * s;
 			q.y = (m12 + m21) / s;
@@ -387,7 +387,7 @@ class Mat4 {
 
 		}
 		else if (m22 > m33) {
-			s = 2.0 * std.Math.sqrt(1.0 + m22 - m11 - m33);
+			s = 2.0 * Math.sqrt(1.0 + m22 - m11 - m33);
 			q.w = (m13 - m31) / s;
 			q.x = (m12 + m21) / s;
 			q.y = 0.25 * s;
@@ -395,7 +395,7 @@ class Mat4 {
 
 		}
 		else {
-			s = 2.0 * std.Math.sqrt(1.0 + m33 - m11 - m22);
+			s = 2.0 * Math.sqrt(1.0 + m33 - m11 - m22);
 			q.w = (m21 - m12) / s;
 			q.x = (m13 + m31) / s;
 			q.y = (m23 + m32) / s;
@@ -405,7 +405,7 @@ class Mat4 {
 	}
 
 	public static function perspective(fovY:Float, aspect:Float, zn:Float, zf:Float):Mat4 {
-		var uh = 1.0 / std.Math.tan(fovY / 2);
+		var uh = 1.0 / Math.tan(fovY / 2);
 		var uw = uh / aspect;
 		return new Mat4(
 			uw, 0, 0, 0,
@@ -448,7 +448,7 @@ class Mat4 {
 		var f0 = centre.x - e0;
 		var f1 = centre.y - e1;
 		var f2 = centre.z - e2;
-		var n = 1 / std.Math.sqrt(f0 * f0 + f1 * f1 + f2 * f2);
+		var n = 1.0 / Math.sqrt(f0 * f0 + f1 * f1 + f2 * f2);
 		f0 *= n;
 		f1 *= n;
 		f2 *= n;
@@ -456,7 +456,7 @@ class Mat4 {
 		var s0 = f1 * u2 - f2 * u1;
 		var s1 = f2 * u0 - f0 * u2;
 		var s2 = f0 * u1 - f1 * u0;
-		n = 1 / std.Math.sqrt(s0 * s0 + s1 * s1 + s2 * s2);
+		n = 1.0 / Math.sqrt(s0 * s0 + s1 * s1 + s2 * s2);
 		s0 *= n;
 		s1 *= n;
 		s2 *= n;
@@ -469,19 +469,19 @@ class Mat4 {
 		var d1 = -e0 * u0 - e1 * u1 - e2 * u2;
 		var d2 =  e0 * f0 + e1 * f1 + e2 * f2;
 						
-		return new Mat4( s0,  s1,  s2, d0,
-						 u0,  u1,  u2, d1,
-						-f0, -f1, -f2, d2,
+		return new Mat4(s0,  s1,  s2, d0,
+						u0,  u1,  u2, d1,
+					   -f0, -f1, -f2, d2,
 						0.0, 0.0, 0.0, 1.0);
 	}
 
-	public inline function multvec(value: kha.math.FastVector4): kha.math.FastVector4 {
+	public inline function multvec(value: kha.math.FastVector4):kha.math.FastVector4 {
 		return self.multvec(value);
 	}
 	
-	public inline function _right():Vec4 { return new Vec4(_00, _01, _02); }
-	public inline function _up():Vec4 { return new Vec4(_20, _21, _22); }
-	public inline function _look():Vec4 { return new Vec4(_10, _11, _12); }
+	public inline function right():Vec4 { return new Vec4(_00, _01, _02); }
+	public inline function up():Vec4 { return new Vec4(_20, _21, _22); }
+	public inline function look():Vec4 { return new Vec4(_10, _11, _12); }
 
 	public var _00(get, set):FastFloat; inline function get__00():FastFloat { return self._00; } inline function set__00(f:FastFloat):FastFloat { return self._00 = f; }
 	public var _01(get, set):FastFloat; inline function get__01():FastFloat { return self._01; } inline function set__01(f:FastFloat):FastFloat { return self._01 = f; }

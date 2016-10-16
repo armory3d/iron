@@ -43,7 +43,7 @@ class LampObject extends Object {
 				if (VP == null) VP = Mat4.identity();
 			}
 
-			VP = V.multmat(camera.P);
+			VP.multmats(camera.P, V);
 			CameraObject.buildViewFrustum(VP, frustumPlanes);
 		}
 	}

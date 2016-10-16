@@ -61,8 +61,8 @@ class MaterialData extends Data {
 class MaterialContext {
 	public var raw:TMaterialContext;
 	public var textures:Vector<kha.Image> = null;
-	static var num = 0;
 	public var id = 0;
+	static var num = 0;
 
 	public function new(raw:TMaterialContext, done:MaterialContext->Void) {
 		this.raw = raw;

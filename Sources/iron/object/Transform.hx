@@ -109,9 +109,9 @@ class Transform {
 		radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);// / 2;
 	}
 
-	public inline function look():Vec4 { return matrix._look(); }
-	public inline function right():Vec4 { return matrix._right(); }
-	public inline function up():Vec4 { return matrix._up(); }
+	public inline function look():Vec4 { return matrix.look(); }
+	public inline function right():Vec4 { return matrix.right(); }
+	public inline function up():Vec4 { return matrix.up(); }
 
 	public inline function absx():Float { return matrix._30; }
 	public inline function absy():Float { return matrix._31; }

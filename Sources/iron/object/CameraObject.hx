@@ -121,7 +121,7 @@ class CameraObject extends Object {
 		V.getInverse(transform.matrix);
 
 		if (data.raw.frustum_culling) {
-			VP = V.multmat(P);
+			VP.multmats(P, V);
 			buildViewFrustum(VP, frustumPlanes);
 		}
 	}

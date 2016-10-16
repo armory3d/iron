@@ -185,7 +185,7 @@ class MeshObject extends Object {
 #end
 
 #if arm_veloc
-		prevMatrix.loadFrom(transform.matrix);
+		prevMatrix.setFrom(transform.matrix);
 #end
 	}
 
