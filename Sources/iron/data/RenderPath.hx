@@ -246,15 +246,27 @@ class RenderPath {
 			var viewW = Std.int(currentRenderTargetW * viewportScale);
 			var viewH = Std.int(currentRenderTargetH * viewportScale);
 			currentRenderTarget.viewport(0, viewH, viewW, viewH);
+			currentRenderTarget.scissor(0, viewH, viewW, viewH);
 		}
 		bindParams = null;
+	}
+
+	public function setCurrentViewport(viewW:Int, viewH:Int) {
+		// glViewport(x, _renderTargetHeight - y - height, width, height);
+		currentRenderTarget.viewport(0, currentRenderTargetH - viewH, viewW, viewH);
+	}
+
+	var scissorSet = false;
+	public function setCurrentScissor(viewW:Int, viewH:Int) {
+		currentRenderTarget.scissor(0, currentRenderTargetH - viewH, viewW, viewH);
+		scissorSet = true;
 	}
 
 	function setViewport(params:Array<String>, root:Object) {
 		var viewW = Std.int(Std.parseFloat(params[0]));
 		var viewH = Std.int(Std.parseFloat(params[1]));
-		// glViewport(x, _renderTargetHeight - y - height, width, height);
-		currentRenderTarget.viewport(0, currentRenderTargetH - viewH, viewW, viewH);
+		setCurrentViewport(viewW, viewH);
+		setCurrentScissor(viewW, viewH);
 	}
 
 	function clearTarget(params:Array<String>, root:Object) {
@@ -455,11 +467,11 @@ class RenderPath {
 		var stageData = data.pathdata.raw.stages[currentStageIndex];
 		// Call function
 		if (stageData.returns_true == null && stageData.returns_false == null) {
-			Reflect.callMethod(classType, Reflect.field(classType, funName), []);
+			Reflect.callMethod(classType, Reflect.field(classType, funName), [this]);
 		}
 		// Branch function
 		else {
-			var result:Bool = Reflect.callMethod(classType, Reflect.field(classType, funName), []);
+			var result:Bool = Reflect.callMethod(classType, Reflect.field(classType, funName), [this]);
 			// Nested commands
 			var key = currentStageIndex + '';
 			key = result ? key + '_true' : key + '_false';
@@ -536,6 +548,10 @@ class RenderPath {
 
 	inline function end(g:Graphics) {
 		g.end();
+		if (scissorSet) {
+			g.disableScissor();
+			scissorSet = false;
+		}
 		bindParams = null; // Remove, cleared at begin
 		drawPerformed = true;
 	}

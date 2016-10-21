@@ -32,6 +32,7 @@ class Uniforms {
 
 	public static var externalTextureLink:String->kha.Image = null;
 	public static var externalVec3Link:String->Vec4 = null;
+	public static var externalFloatLink:String->Float = null;
 
 	public static function setConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 
@@ -325,19 +326,23 @@ class Uniforms {
 				vx = App.w();
 				vy = App.h();
 			}
+			else if (c.link == "_windowSizeInv") {
+				vx = 1.0 / App.w();
+				vy = 1.0 / App.h();
+			}
 			else if (c.link == "_screenSize") {
 				vx = camera.renderPath.currentRenderTargetW;
 				vy = camera.renderPath.currentRenderTargetH;
 			}
 			else if (c.link == "_screenSizeInv") {
-				vx = 1 / camera.renderPath.currentRenderTargetW;
-				vy = 1 / camera.renderPath.currentRenderTargetH;
+				vx = 1.0 / camera.renderPath.currentRenderTargetW;
+				vy = 1.0 / camera.renderPath.currentRenderTargetH;
 			}
 			else if (c.link == "_aspectRatio") {
 				vx = camera.renderPath.currentRenderTargetH / camera.renderPath.currentRenderTargetW;
 				vy = camera.renderPath.currentRenderTargetW / camera.renderPath.currentRenderTargetH;
-				vx = vx > 1 ? 1 : vx;
-				vy = vy > 1 ? 1 : vy;
+				vx = vx > 1.0 ? 1.0 : vx;
+				vy = vy > 1.0 ? 1.0 : vy;
 			}
 			else if (c.link == "_cameraPlane") {
 				vx = camera.data.raw.near_plane;
@@ -394,6 +399,10 @@ class Uniforms {
 				f = iron.system.VR.getMaxRadiusSq();
 			}
 #end
+			// External
+			else if (externalFloatLink != null) {
+				f = externalFloatLink(c.link);
+			}
 			g.setFloat(location, f);
 		}
 		else if (c.type == "floats") {

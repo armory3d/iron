@@ -52,7 +52,10 @@ class Mat4 {
 		helpMat._21 *= invSZ;
 		helpMat._22 *= invSZ;
 		helpMat._23 = 0.0;
-		helpMat._30 = 0.0; helpMat._31 = 0.0; helpMat._32 = 0.0; helpMat._33 = 0.0;
+		helpMat._30 = 0.0;
+		helpMat._31 = 0.0;
+		helpMat._32 = 0.0;
+		helpMat._33 = 0.0;
 		quaternion.fromRotationMat(helpMat);
 		scale.x = sx; scale.y = sy; scale.z = sz;
 		return this;
