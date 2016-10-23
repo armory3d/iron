@@ -394,6 +394,9 @@ class Uniforms {
 			else if (c.link == "_probeBlending") {
 				f = Scene.active.world.getProbeBlending(object.transform);
 			}
+			else if (c.link == "_aspectRatioF") {
+				f = camera.renderPath.currentRenderTargetW / camera.renderPath.currentRenderTargetH;
+			}
 #if arm_vr
 			else if (c.link == "_maxRadiusSq") {
 				f = iron.system.VR.getMaxRadiusSq();
