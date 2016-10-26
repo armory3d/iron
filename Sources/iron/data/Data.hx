@@ -59,8 +59,8 @@ class Data {
 		cachedMaterials = new Map();
 		cachedRenderPaths = new Map();
 		cachedCameras = new Map();
-		// cachedParticles = new Map();
-		// cachedWorlds = new Map();
+		cachedParticles = new Map();
+		cachedWorlds = new Map();
 		// cachedGreasePencils = new Map();
 		// cachedShaders = new Map(); // Slow
 		cachedBlobs = new Map();
