@@ -9,6 +9,8 @@ class LampData extends Data {
 	public var raw:TLampData;
 	public var P:Mat4 = null; // Shadow map matrices
 
+	public var colorTexture:kha.Image = null;
+
 	public function new(raw:TLampData, done:LampData->Void) {
 		super();
 
@@ -29,7 +31,13 @@ class LampData extends Data {
 			P = Mat4.perspective(fov, 1, raw.near_plane, raw.far_plane);
 		}
 
-		done(this);
+		if (raw.color_texture != null) {
+			iron.data.Data.getImage(raw.color_texture, function(image:kha.Image) {
+				colorTexture = image;
+				done(this);
+			});
+		}
+		else done(this);
 	}
 
 	public static inline function typeToInt(s:String):Int {
