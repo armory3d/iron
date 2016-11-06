@@ -151,6 +151,10 @@ class RenderPath {
 		skydomeIB.unlock();
 	}
 
+	inline function getLamp(index:Int) {
+		return lamps.length > 0 ? lamps[index] : null;
+	}
+
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
 		if (waiting) return;
 
@@ -298,10 +302,12 @@ class RenderPath {
 
 	function drawMeshes(params:Array<String>, root:Object) {
 		var context = params[0];
-		var lamp = lamps[currentLampIndex];
+		var lamp = getLamp(currentLampIndex);
 
 		// Disabled shadow casting for this lamp
-		if (context == data.pathdata.raw.shadows_context && !lamp.data.raw.cast_shadow) return;
+		if (context == data.pathdata.raw.shadows_context) {
+			if (lamp == null || !lamp.data.raw.cast_shadow) return;
+		}
 
 		if (!sorted && params[1] == "front_to_back") { // Order max one per frame
 			var camX = camera.transform.absx();
@@ -333,7 +339,7 @@ class RenderPath {
 	function drawDecals(params:Array<String>, root:Object) {
 		var context = params[0];
 		var g = currentRenderTarget;
-		var lamp = lamps[currentLampIndex];
+		var lamp = getLamp(currentLampIndex);
 		for (decal in Scene.active.decals) {
 			decal.render(g, context, camera, lamp, bindParams);
 			g.setVertexBuffer(boxVB);
@@ -348,7 +354,7 @@ class RenderPath {
 		var gp = Scene.active.greasePencil;
 		if (gp == null) return;
 		var g = currentRenderTarget;
-		var lamp = lamps[currentLampIndex];
+		var lamp = getLamp(currentLampIndex);
 		var context = GreasePencilData.getContext(params[0]);
 		g.setPipeline(context.pipeState);
 		Uniforms.setConstants(g, context, null, camera, lamp, null);
@@ -396,7 +402,7 @@ class RenderPath {
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		var g = currentRenderTarget;
 		g.setPipeline(cc.context.pipeState);
-		var lamp = lamps[currentLampIndex];
+		var lamp = getLamp(currentLampIndex);
 		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {
 			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
@@ -412,7 +418,7 @@ class RenderPath {
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
-		var lamp = lamps[currentLampIndex];
+		var lamp = getLamp(currentLampIndex);
 		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {
 			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
@@ -443,7 +449,7 @@ class RenderPath {
 	function drawQuad(cc:CachedShaderContext, root:Object) {
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
-		var lamp = lamps[currentLampIndex];
+		var lamp = getLamp(currentLampIndex);
 
 		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {

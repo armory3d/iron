@@ -78,8 +78,6 @@ class CameraObject extends Object {
 	}
 
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
-		if (lamps.length == 0) return; // No lamps for this camera, skip
-
 #if arm_taa
 		projectionJitter();
 #end

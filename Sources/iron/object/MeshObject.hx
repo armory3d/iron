@@ -63,7 +63,8 @@ class MeshObject extends Object {
 		if (materials[0].getContext(context) == null) return;
 
 		// Skip render if object or lamp is hidden
-		if (!visible || !lamp.visible) return;
+		if (!visible) return;
+		if (lamp != null && !lamp.visible) return;
 
 		// Frustum culling
 		culled = false;

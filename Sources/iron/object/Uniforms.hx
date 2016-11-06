@@ -96,8 +96,10 @@ class Uniforms {
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 			}
 			else if (tulink == "_lampColorTexture") {
-				g.setTexture(context.textureUnits[j], lamp.data.colorTexture);
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+				if (lamp != null) {
+					g.setTexture(context.textureUnits[j], lamp.data.colorTexture);
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+				}
 			}
 			// External
 			else if (externalTextureLink != null) {
@@ -211,28 +213,34 @@ class Uniforms {
 			}
 #end
 			else if (c.link == "_lampWorldViewProjectionMatrix") {
-				helpMat.setIdentity();
-				if (object != null) helpMat.multmat2(object.transform.matrix); // object is null for DrawQuad
-				helpMat.multmat2(lamp.V);
-				helpMat.multmat2(lamp.data.P);
-				m = helpMat;
+				if (lamp != null) {
+					helpMat.setIdentity();
+					if (object != null) helpMat.multmat2(object.transform.matrix); // object is null for DrawQuad
+					helpMat.multmat2(lamp.V);
+					helpMat.multmat2(lamp.data.P);
+					m = helpMat;
+				}
 			}
 			else if (c.link == "_lampVolumeWorldViewProjectionMatrix") {
-				var tr = lamp.transform;
-				helpVec.set(tr.absx(), tr.absy(), tr.absz());
-				helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane, lamp.data.raw.far_plane);
-				helpMat.compose(helpVec, helpQuat, helpVec2);
-				helpMat.multmat2(camera.V);
-				helpMat.multmat2(camera.P);
-				m = helpMat;
+				if (lamp != null) {
+					var tr = lamp.transform;
+					helpVec.set(tr.absx(), tr.absy(), tr.absz());
+					helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane, lamp.data.raw.far_plane);
+					helpMat.compose(helpVec, helpQuat, helpVec2);
+					helpMat.multmat2(camera.V);
+					helpMat.multmat2(camera.P);
+					m = helpMat;
+				}
 			}
 			else if (c.link == "_biasLampWorldViewProjectionMatrix") {
-				helpMat.setIdentity();
-				if (object != null) helpMat.multmat2(object.transform.matrix); // object is null for DrawQuad
-				helpMat.multmat2(lamp.V);
-				helpMat.multmat2(lamp.data.P);
-				// helpMat.multmat2(biasMat);
-				m = helpMat;
+				if (lamp != null)  {
+					helpMat.setIdentity();
+					if (object != null) helpMat.multmat2(object.transform.matrix); // object is null for DrawQuad
+					helpMat.multmat2(lamp.V);
+					helpMat.multmat2(lamp.data.P);
+					// helpMat.multmat2(biasMat);
+					m = helpMat;
+				}
 			}
 			else if (c.link == "_skydomeMatrix") {
 				var tr = camera.transform;
@@ -246,10 +254,10 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_lampViewMatrix") {
-				m = lamp.V;
+				if (lamp != null) m = lamp.V;
 			}
 			else if (c.link == "_lampProjectionMatrix") {
-				m = lamp.data.P;
+				if (lamp != null) m = lamp.data.P;
 			}
 #if arm_vr
 			else if (c.link == "_undistortionMatrix") {
@@ -284,19 +292,19 @@ class Uniforms {
 		else if (c.type == "vec3") {
 			var v:Vec4 = null;
 			if (c.link == "_lampPosition") {
-				helpVec.set(lamp.transform.absx(), lamp.transform.absy(), lamp.transform.absz());
+				if (lamp != null) helpVec.set(lamp.transform.absx(), lamp.transform.absy(), lamp.transform.absz());
 				v = helpVec;
 			}
 			else if (c.link == "_lampDirection") {
-				helpVec = lamp.look();
+				if (lamp != null) helpVec = lamp.look();
 				v = helpVec;
 			}
 			else if (c.link == "_lampColor") {
-				helpVec.set(lamp.data.raw.color[0], lamp.data.raw.color[1], lamp.data.raw.color[2]);
+				if (lamp != null) helpVec.set(lamp.data.raw.color[0], lamp.data.raw.color[1], lamp.data.raw.color[2]);
 				v = helpVec;
 			}
 			else if (c.link == "_lampArea0") {
-				if (lamp.data.raw.size != null) {
+				if (lamp != null && lamp.data.raw.size != null) {
 					var sx = lamp.data.raw.size;
 					var sy = lamp.data.raw.size_y;
 					helpVec.set(-sx, sy, 0.0);
@@ -305,7 +313,7 @@ class Uniforms {
 				}
 			}
 			else if (c.link == "_lampArea1") {
-				if (lamp.data.raw.size != null) {
+				if (lamp != null && lamp.data.raw.size != null) {
 					var sx = lamp.data.raw.size;
 					var sy = lamp.data.raw.size_y;
 					helpVec.set(sx, sy, 0.0);
@@ -314,7 +322,7 @@ class Uniforms {
 				}
 			}
 			else if (c.link == "_lampArea2") {
-				if (lamp.data.raw.size != null) {
+				if (lamp != null && lamp.data.raw.size != null) {
 					var sx = lamp.data.raw.size;
 					var sy = lamp.data.raw.size_y;
 					helpVec.set(sx, -sy, 0.0);
@@ -323,7 +331,7 @@ class Uniforms {
 				}
 			}
 			else if (c.link == "_lampArea3") {
-				if (lamp.data.raw.size != null) {
+				if (lamp != null && lamp.data.raw.size != null) {
 					var sx = lamp.data.raw.size;
 					var sy = lamp.data.raw.size_y;
 					helpVec.set(-sx, -sy, 0.0);
@@ -402,31 +410,31 @@ class Uniforms {
 				f = iron.system.Time.delta;
 			}
 			else if (c.link == "_lampRadius") {
-				f = lamp.data.raw.far_plane;
+				f = lamp == null ? 0.0 : lamp.data.raw.far_plane;
 			}
 			else if (c.link == "_lampStrength") {
-				f = lamp.data.raw.strength;
+				f = lamp == null ? 0.0 : lamp.data.raw.strength;
 			}
 			else if (c.link == "_lampShadowsBias") {
-				f = lamp.data.raw.shadows_bias;
+				f = lamp == null ? 0.0 : lamp.data.raw.shadows_bias;
 			}
 			else if (c.link == "_lampPlaneNear") {
-				f = lamp.data.raw.near_plane;
+				f = lamp == null ? 0.0 : lamp.data.raw.near_plane;
 			}
 			else if (c.link == "_lampPlaneFar") {
-				f = lamp.data.raw.far_plane;
+				f = lamp == null ? 0.0 : lamp.data.raw.far_plane;
 			}
 			else if (c.link == "_lampSize") {
-				if (lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size;
+				if (lamp != null && lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size;
 			}
 			else if (c.link == "_lampSizeUV") {
-				if (lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size / lamp.data.raw.fov;
+				if (lamp != null && lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size / lamp.data.raw.fov;
 			}
 			else if (c.link == "_spotlampCutoff") {
-				f = lamp.data.raw.spot_size;
+				f = lamp == null ? 0.0 : lamp.data.raw.spot_size;
 			}
 			else if (c.link == "_spotlampExponent") {
-				f = lamp.data.raw.spot_blend;
+				f = lamp == null ? 0.0 : lamp.data.raw.spot_blend;
 			}
 			else if (c.link == "_envmapStrength") {
 				f = Scene.active.world.getGlobalProbe().raw.strength;
@@ -468,7 +476,7 @@ class Uniforms {
 				i = object.uid;
 			}
 			if (c.link == "_lampType") {
-				i = LampData.typeToInt(lamp.data.raw.type);
+				i = lamp == null ? 0 : LampData.typeToInt(lamp.data.raw.type);
 			}
 			else if (c.link == "_lampIndex") {
 				i = camera.renderPath.currentLampIndex;
