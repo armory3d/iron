@@ -106,7 +106,7 @@ class Vec4 {
 		var z = this.z;
 
 		// Perspective divide
-		var d = 1 / (m._03 * x + m._13 * y + m._23 * z + m._33);
+		var d = 1.0 / (m._03 * x + m._13 * y + m._23 * z + m._33);
 
 		this.x = (m._00 * x + m._10 * y + m._20 * z + m._30) * d;
 		this.y = (m._01 * x + m._11 * y + m._21 * z + m._31) * d;

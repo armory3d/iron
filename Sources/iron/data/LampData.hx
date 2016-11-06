@@ -24,7 +24,7 @@ class LampData extends Data {
 			// Estimate planes from fov
 			P = Mat4.orthogonal(-fov * 25, fov * 25, -fov * 25, fov * 25, -raw.far_plane, raw.far_plane);
 		}
-		else if (type == "point") {
+		else if (type == "point" || type == "area") {
 			P = Mat4.perspective(fov, 1, raw.near_plane, raw.far_plane);
 		}
 		else if (type == "spot") {
@@ -41,7 +41,13 @@ class LampData extends Data {
 	}
 
 	public static inline function typeToInt(s:String):Int {
-		s == "sun" ? return 0 : s == "point" ? return 1 : return 2;
+		switch(s) {
+		case "sun": return 0;
+		case "point": return 1;
+		case "spot": return 2;
+		case "area": return 3;
+		default: return 0;
+		}
 	}
 
 	public static function parse(name:String, id:String, done:LampData->Void) {

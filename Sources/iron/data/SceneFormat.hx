@@ -82,6 +82,8 @@ typedef TLampData = {
 	@:optional public var spot_blend:Null<Float>;
 	@:optional public var lamp_size:Null<Float>; // Shadow soft size
 	@:optional public var color_texture:String; // Image reference
+	@:optional public var size:Float; // Area lamp
+	@:optional public var size_y:Float;
 }
 
 typedef TCameraData = {

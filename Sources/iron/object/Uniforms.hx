@@ -102,7 +102,10 @@ class Uniforms {
 			// External
 			else if (externalTextureLink != null) {
 				var image = externalTextureLink(tulink);
-				if (image != null) g.setTexture(context.textureUnits[j], image);
+				if (image != null) {
+					g.setTexture(context.textureUnits[j], image);
+					// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+				}
 			}
 		}
 	}
@@ -291,6 +294,42 @@ class Uniforms {
 			else if (c.link == "_lampColor") {
 				helpVec.set(lamp.data.raw.color[0], lamp.data.raw.color[1], lamp.data.raw.color[2]);
 				v = helpVec;
+			}
+			else if (c.link == "_lampArea0") {
+				if (lamp.data.raw.size != null) {
+					var sx = lamp.data.raw.size;
+					var sy = lamp.data.raw.size_y;
+					helpVec.set(-sx, sy, 0.0);
+					helpVec.applymat(lamp.transform.matrix);
+					v = helpVec;
+				}
+			}
+			else if (c.link == "_lampArea1") {
+				if (lamp.data.raw.size != null) {
+					var sx = lamp.data.raw.size;
+					var sy = lamp.data.raw.size_y;
+					helpVec.set(sx, sy, 0.0);
+					helpVec.applymat(lamp.transform.matrix);
+					v = helpVec;
+				}
+			}
+			else if (c.link == "_lampArea2") {
+				if (lamp.data.raw.size != null) {
+					var sx = lamp.data.raw.size;
+					var sy = lamp.data.raw.size_y;
+					helpVec.set(sx, -sy, 0.0);
+					helpVec.applymat(lamp.transform.matrix);
+					v = helpVec;
+				}
+			}
+			else if (c.link == "_lampArea3") {
+				if (lamp.data.raw.size != null) {
+					var sx = lamp.data.raw.size;
+					var sy = lamp.data.raw.size_y;
+					helpVec.set(-sx, -sy, 0.0);
+					helpVec.applymat(lamp.transform.matrix);
+					v = helpVec;
+				}
 			}
 			else if (c.link == "_cameraPosition") {
 				helpVec.set(camera.transform.absx(), camera.transform.absy(), camera.transform.absz());
