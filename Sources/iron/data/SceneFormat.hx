@@ -207,15 +207,16 @@ typedef TTextureUnit = {
 	public var name:String;
 	@:optional public var is_image:Null<Bool>; // image2D
 	@:optional public var link:String;
+	@:optional public var params_set:Null<Bool>; // Prevents setting texture params
 }
 
 typedef TRenderPathData = {
 // @:structInit class TRenderPathData {
 	public var name:String;
-	public var render_targets:Array<TRenderPathTarget>;
-	public var stages:Array<TRenderPathStage>;
 	public var mesh_context:String; // Main mesh context
 	public var shadows_context:String; // Lamp depth context
+	public var stages:Array<TRenderPathStage>;
+	public var render_targets:Array<TRenderPathTarget>;
 	@:optional public var depth_buffers:Array<TRenderPathDepthBuffer>;
 }
 

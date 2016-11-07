@@ -60,13 +60,16 @@ class Uniforms {
 				if (rt.pong != null && !rt.pongState) rt = rt.pong;
 
 				for (j in 0...tus.length) { // Set texture
-					if (samplerID == tus[j].name) {
-						// No filtering when sampling render targets
-						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-						
+					if (samplerID == tus[j].name) {						
 						if (tus[j].is_image != null && tus[j].is_image) g.setImageTexture(context.textureUnits[j], rt.image); // image2D
 						else if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image); // sampler2D
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
+
+						// No filtering when sampling render targets
+						if (tus[j].params_set == null) {
+							tus[j].params_set = true;
+							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+						}
 					}
 				}
 			}
