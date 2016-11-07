@@ -323,6 +323,8 @@ class Data {
 	}
 
 	// Raw assets
+	public static var assetsLoaded = 0;
+
 	static var loadingBlobs:Map<String, Array<kha.Blob->Void>> = new Map();
 	public static function getBlob(file:String, done:kha.Blob->Void) {
 		var cached = cachedBlobs.get(file); // Is already cached
@@ -338,6 +340,7 @@ class Data {
 			cachedBlobs.set(file, b);
 			for (f in loadingBlobs.get(file)) f(b);
 			loadingBlobs.remove(file);
+			assetsLoaded++;
 		});
 	}
 
@@ -361,6 +364,7 @@ class Data {
 			cachedImages.set(file, b);
 			for (f in loadingImages.get(file)) f(b);
 			loadingImages.remove(file);
+			assetsLoaded++;
 		});
 	}
 
@@ -383,6 +387,7 @@ class Data {
 				cachedSounds.set(file, b);
 				for (f in loadingSounds.get(file)) f(b);
 				loadingSounds.remove(file);
+				assetsLoaded++;
 			});
 		});
 	}
@@ -403,6 +408,7 @@ class Data {
 			cachedVideos.set(file, b);
 			for (f in loadingVideos.get(file)) f(b);
 			loadingVideos.remove(file);
+			assetsLoaded++;
 		});
 	}
 
@@ -421,6 +427,7 @@ class Data {
 			cachedFonts.set(file, b);
 			for (f in loadingFonts.get(file)) f(b);
 			loadingFonts.remove(file);
+			assetsLoaded++;
 		});
 	}
 }
