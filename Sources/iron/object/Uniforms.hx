@@ -77,8 +77,10 @@ class Uniforms {
 		
 		// Texture links
 		for (j in 0...context.raw.texture_units.length) {
-			var tuid = context.raw.texture_units[j].name;
 			var tulink = context.raw.texture_units[j].link;
+			if (tulink == null) continue;
+			var tuid = context.raw.texture_units[j].name;
+
 			if (tulink == "_envmapRadiance") {
 				g.setTexture(context.textureUnits[j], Scene.active.world.getGlobalProbe().radiance);
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);

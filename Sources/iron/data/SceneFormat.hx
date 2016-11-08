@@ -357,6 +357,8 @@ typedef TObj = {
 	@:optional public var bones_ref:String;
 	@:optional public var parent:TObj;
 	@:optional public var visible:Null<Bool>;
+	@:optional public var visible_mesh:Null<Bool>;
+	@:optional public var visible_shadow:Null<Bool>;
 	@:optional public var mobile:Null<Bool>;
 	@:optional public var spawn:Null<Bool>; // Auto add object when creating scene
 	@:optional public var local_transform_only:Null<Bool>; // No parent matrix applied

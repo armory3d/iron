@@ -66,6 +66,12 @@ class MeshObject extends Object {
 		if (!visible) return;
 		if (lamp != null && !lamp.visible) return;
 
+		var meshContext = camera.data.pathdata.raw.mesh_context;
+		if (!visibleMesh && context == meshContext) return;
+		
+		var shadowsContext = camera.data.pathdata.raw.shadows_context;
+		if (!visibleShadow && context == shadowsContext) return;
+
 		// Frustum culling
 		culled = false;
 		if (camera.data.raw.frustum_culling) {
@@ -74,7 +80,6 @@ class MeshObject extends Object {
 			var radiusScale = data.isSkinned ? 2.0 : 1.0;
 			if (particleSystem != null) radiusScale *= 100;
 			if (context == "voxel") radiusScale *= 100;
-			var shadowsContext = camera.data.pathdata.raw.shadows_context;
 			var frustumPlanes = context == shadowsContext ? lamp.frustumPlanes : camera.frustumPlanes;
 
 			// Instanced

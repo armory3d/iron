@@ -22,6 +22,8 @@ class Object {
 
 	public var animation:Animation = null;
 	public var visible = true; // Skip render, keep updating
+	public var visibleMesh = true;
+	public var visibleShadow = true;
 	public var culled = false; // Object was culled last frame
 
 	public function new() {
