@@ -61,7 +61,7 @@ class Uniforms {
 
 				for (j in 0...tus.length) { // Set texture
 					if (samplerID == tus[j].name) {						
-						if (tus[j].is_image != null && tus[j].is_image) g.setImageTexture(context.textureUnits[j], rt.image); // image2D
+						if (tus[j].is_image != null && tus[j].is_image) {} //g.setImageTexture(context.textureUnits[j], rt.image); // image2D
 						else if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image); // sampler2D
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
 
