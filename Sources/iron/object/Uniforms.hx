@@ -66,10 +66,10 @@ class Uniforms {
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
 
 						// No filtering when sampling render targets
-						if (tus[j].params_set == null) {
-							tus[j].params_set = true;
-							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-						}
+						// if (tus[j].params_set == null) {
+							// tus[j].params_set = true;
+							// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+						// }
 					}
 				}
 			}
@@ -111,7 +111,7 @@ class Uniforms {
 				var image = externalTextureLink(tulink);
 				if (image != null) {
 					g.setTexture(context.textureUnits[j], image);
-					// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 				}
 			}
 		}
