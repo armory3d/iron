@@ -111,7 +111,7 @@ class Uniforms {
 				var image = externalTextureLink(tulink);
 				if (image != null) {
 					g.setTexture(context.textureUnits[j], image);
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+					// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 				}
 			}
 		}
