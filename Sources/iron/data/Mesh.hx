@@ -33,6 +33,7 @@ class Mesh {
 	public var positions:Array<Float>; // TODO: no need to store these references
 	public var normals:Array<Float>;
 	public var uvs:Array<Float>;
+	public var uvs1:Array<Float>;
 	public var cols:Array<Float>;
 
 	public var tangents:Array<Float>;
@@ -55,7 +56,7 @@ class Mesh {
 	public var skeletonTransformsI:Array<Mat4> = null;
 
 	public function new(indices:Array<Array<Int>>, materialIndices:Array<Int>,
-						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>, cols:Array<Float>,
+						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>, uvs1:Array<Float>, cols:Array<Float>,
 						tangents:Array<Float> = null,
 						bones:Array<Float> = null, weights:Array<Float> = null,
 						usage:Usage = null) {
@@ -69,6 +70,7 @@ class Mesh {
 		this.positions = positions;
 		this.normals = normals;
 		this.uvs = uvs;
+		this.uvs1 = uvs1;
 		this.cols = cols;
 		this.tangents = tangents;
 		this.bones = bones;
@@ -86,11 +88,12 @@ class Mesh {
 		for (buf in indexBuffers) buf.delete();
 	}
 
-	static function getVertexStructure(pos = false, nor = false, tex = false, col = false, tan = false, bone = false, weight = false):VertexStructure {
+	static function getVertexStructure(pos = false, nor = false, tex = false, tex1 = false, col = false, tan = false, bone = false, weight = false):VertexStructure {
 		var structure = new VertexStructure();
 		if (pos) structure.add("pos", VertexData.Float3);
 		if (nor) structure.add("nor", VertexData.Float3);
 		if (tex) structure.add("tex", VertexData.Float2);
+		if (tex1) structure.add("tex1", VertexData.Float2);
 		if (col) structure.add("col", VertexData.Float3);
 		if (tan) structure.add("tan", VertexData.Float3);
 		if (bone) structure.add("bone", VertexData.Float4);
@@ -151,6 +154,7 @@ class Mesh {
 								  pa:Array<Float> = null,
 								  na:Array<Float> = null,
 								  uva:Array<Float> = null,
+								  uva1:Array<Float> = null,
 								  ca:Array<Float> = null,
 								  tana:Array<Float> = null,
 								  bonea:Array<Float> = null,
@@ -171,6 +175,10 @@ class Mesh {
 			if (uva != null) { // Texture coords
 				vertices.set(++di, uva[i * 2]);
 				vertices.set(++di, uva[i * 2 + 1]);
+			}
+			if (uva1 != null) { // Texture coords 1
+				vertices.set(++di, uva1[i * 2]);
+				vertices.set(++di, uva1[i * 2 + 1]);
 			}
 			if (ca != null) { // Colors
 				vertices.set(++di, ca[i * 3]);
@@ -205,7 +213,8 @@ class Mesh {
 		vertexBuffers = [];
 		vertexBuffers.push(makeDeinterleavedVB(positions, "pos", 3));
 		if (normals != null) vertexBuffers.push(makeDeinterleavedVB(normals, "nor", 3));
-		if (uvs != null) vertexBuffers.push(makeDeinterleavedVB(uvs, "uv", 2));
+		if (uvs != null) vertexBuffers.push(makeDeinterleavedVB(uvs, "tex", 2));
+		if (uvs1 != null) vertexBuffers.push(makeDeinterleavedVB(uvs1, "tex1", 2));
 		if (cols != null) vertexBuffers.push(makeDeinterleavedVB(cols, "col", 3));
 		if (tangents != null) vertexBuffers.push(makeDeinterleavedVB(tangents, "tan", 3));
 		if (bones != null) vertexBuffers.push(makeDeinterleavedVB(bones, "bone", 4));
@@ -213,20 +222,20 @@ class Mesh {
 #else
 		// TODO: Mandatory vertex data names and sizes
 		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
-		var struct = getVertexStructure(positions != null, normals != null, uvs != null, cols != null, tangents != null, bones != null, weights != null);
+		var struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
 		structLength = Std.int(struct.byteSize() / 4);
 		vertexBuffer = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
 		vertices = vertexBuffer.lock();
-		buildVertices(vertices, positions, normals, uvs, cols, tangents, bones, weights);
+		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights);
 		vertexBuffer.unlock();
 
 		// For depth passes, pos=3, bone=4, weight=4
 	// #if (!arm_no_shadows)
-		// var structDepth = getVertexStructure(positions != null, null, null, null, null, bones != null, weights != null);
+		// var structDepth = getVertexStructure(positions != null, null, null, null, null, null, bones != null, weights != null);
 		// structLengthDepth = Std.int(struct.byteSize() / 4);
 		// vertexBufferDepth = new VertexBuffer(Std.int(positions.length / 3), structDepth, usage);
 		// var verticesDepth = vertexBufferDepth.lock();
-		// buildVertices(verticesDepth, positions, null, null, null, null, bones, weights);
+		// buildVertices(verticesDepth, positions, null, null, null, null, null, bones, weights);
 		// vertexBufferDepth.unlock();
 	// #end
 #end

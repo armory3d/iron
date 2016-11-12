@@ -43,6 +43,9 @@ class MeshData extends Data {
 		var uvaVA = getVertexArray("texcoord");
 		var uva = uvaVA != null ? uvaVA.values : null;
 
+		var uva1VA = getVertexArray("texcoord1");
+		var uva1 = uva1VA != null ? uva1VA.values : null;
+
 		var caVA = getVertexArray("color");
 		var ca = caVA != null ? caVA.values : null;
 
@@ -81,7 +84,7 @@ class MeshData extends Data {
 		}
 		
 		// Make vertex buffers
-		mesh = new Mesh(indices, materialIndices, pa, na, uva, ca, tana, bonea, weighta, usage);
+		mesh = new Mesh(indices, materialIndices, pa, na, uva, uva1, ca, tana, bonea, weighta, usage);
 
 		// Instanced
 		if (raw.mesh.instance_offsets != null) {
