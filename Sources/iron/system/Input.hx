@@ -4,8 +4,8 @@ class Input {
 
 	public static var x(default, null):Float = 0;
 	public static var y(default, null):Float = 0;
-	public static var touch(default, null) = false;
-	public static var touch2(default, null) = false;
+	public static var down(default, null) = false;
+	public static var down2(default, null) = false;
 	public static var started(default, null) = false;
 	public static var started2(default, null) = false;
 	public static var released(default, null) = false;
@@ -33,8 +33,8 @@ class Input {
 	public static function reset() {
 		started = false;
 		started2 = false;
-		touch = false;
-		touch2 = false;
+		down = false;
+		down2 = false;
 		released = false;
 		released2 = false;
 		moved = false;
@@ -45,11 +45,11 @@ class Input {
 	
 	public static function downListener(_index:Int, _x:Float, _y:Float) {
 		if (_index == 0) {
-			touch = true;
+			down = true;
 			started = true;
 		}
 		else {
-			touch2 = true;
+			down2 = true;
 			started2 = true;
 		}
 
@@ -59,11 +59,11 @@ class Input {
 	
 	public static function upListener(_index:Int, _x:Float, _y:Float) {
 		if (_index == 0) {
-			touch = false;
+			down = false;
 			released = true;
 		}
 		else {
-			touch2 = false;
+			down2 = false;
 			released = true;
 		}
 
