@@ -77,6 +77,10 @@ class RenderPath {
 		if (skydomeVB == null) createSkydomeData();
 	}
 
+	public function unload() {
+		data.pathdata.unload();
+	}
+
 	static function createScreenAlignedData() {
 		// Quad
 		// var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];

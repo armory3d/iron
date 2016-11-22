@@ -27,27 +27,29 @@ class Data {
 	public function new() { }
 
 	public static function deleteAll() {
-		for (dat in cachedMeshes) {
-			dat.delete();
-		}
-		for (dat in cachedShaders) {
-			dat.delete();
-		}
-		cachedSceneRaws = new Map();
+		for (c in cachedMeshes) c.delete();
 		cachedMeshes = new Map();
+		for (c in cachedShaders) c.delete();
+		cachedShaders = new Map();
+		cachedSceneRaws = new Map();
 		cachedLamps = new Map();
 		cachedCameras = new Map();
+		for (c in cachedRenderPaths) c.unload();
 		cachedRenderPaths = new Map();
 		cachedMaterials = new Map();
 		cachedParticles = new Map();
 		cachedWorlds = new Map();
 		cachedGreasePencils = new Map();
-		cachedShaders = new Map();
 
+		for (c in cachedBlobs) c.unload();
 		cachedBlobs = new Map();
+		for (c in cachedImages) c.unload();
 		cachedImages = new Map();
+		for (c in cachedSounds) c.unload();
 		cachedSounds = new Map();
+		for (c in cachedVideos) c.unload();
 		cachedVideos = new Map();
+		for (c in cachedFonts) c.unload();
 		cachedFonts = new Map();
 	}
 

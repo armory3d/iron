@@ -35,6 +35,10 @@ class RenderPathData extends Data {
 		done(this);
 	}
 
+	public function unload() {
+		for (rt in renderTargets) rt.unload();
+	}
+
 	public static function parse(file:String, name:String, done:RenderPathData->Void) {
 		Data.getSceneRaw(file, function(format:TSceneFormat) {
 			var raw:TRenderPathData = Data.getRenderPathRawByName(format.renderpath_datas, name);
@@ -133,4 +137,8 @@ class RenderTarget {
 	public var pong:RenderTarget = null;
 	public var is3D:Bool = false; // sampler2D / sampler3D
 	public function new() {}
+	public function unload() {
+		image.unload();
+		if (pong != null) pong.unload();
+	}
 }

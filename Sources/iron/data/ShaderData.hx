@@ -186,8 +186,11 @@ class ShaderContext {
 	}
 
 	public function delete() {
-		pipeState.fragmentShader.delete();
-		pipeState.vertexShader.delete();
+		if (pipeState.fragmentShader != null && pipeState.fragmentShader.shader != null) pipeState.fragmentShader.delete();
+		if (pipeState.vertexShader != null && pipeState.vertexShader.shader != null) pipeState.vertexShader.delete();
+		if (pipeState.geometryShader != null && pipeState.geometryShader.shader != null) pipeState.geometryShader.delete();
+		if (pipeState.tessellationControlShader != null && pipeState.tessellationControlShader.shader != null) pipeState.tessellationControlShader.delete();
+		if (pipeState.tessellationEvaluationShader != null && pipeState.tessellationEvaluationShader.shader != null) pipeState.tessellationEvaluationShader.delete();
 		pipeState.delete();
 	}
 
