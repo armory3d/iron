@@ -110,14 +110,14 @@ class MeshData extends Data {
 				// Skinned
 				if (raw.mesh.skin != null) {
 					var objects = boneObjects != null ? boneObjects : format.objects;
-					for (o in objects) {
-						setParents(o);
+					if (objects != null) { // Wrong data
+						for (o in objects) setParents(o);
+						traverseObjects(objects, function(object:TObj) {
+							if (object.type == "bone_object") {
+								dat.bones.push(object);
+							}
+						});
 					}
-					traverseObjects(objects, function(object:TObj) {
-						if (object.type == "bone_object") {
-							dat.bones.push(object);
-						}
-					});
 
 					dat.mesh.initSkinTransform(raw.mesh.skin.transform.values);
 					dat.mesh.skinBoneCounts = raw.mesh.skin.bone_count_array;
