@@ -381,7 +381,7 @@ typedef TConstraint = {
 // @:structInit class TConstraint {
 	public var name:String;
 	public var type:String;
-	public var target:String;
+	@:optional public var target:String;
 	@:optional public var use_x:Bool;
 	@:optional public var use_y:Bool;
 	@:optional public var use_z:Bool;
