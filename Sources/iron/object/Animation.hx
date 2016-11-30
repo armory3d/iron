@@ -68,8 +68,8 @@ class Animation {
 			case "rotation_z": t.setRotation(0, 0, at.value);
 			case "scale": t.scale.set(at.values[0], at.values[1], at.values[2]);
 			case "scale_x": t.scale.x = at.value;
-			case "scale_y": t.scale.x = at.value;
-			case "scale_z": t.scale.x = at.value;
+			case "scale_y": t.scale.y = at.value;
+			case "scale_z": t.scale.z = at.value;
 			}
 		}
 		t.buildMatrix();
@@ -109,13 +109,11 @@ class Animation {
 	function updateObjectAnim() {
 		if (isSampled) {
 			updateAnimSampled(object.raw.animation, object.transform.matrix);
-
 			// Decompose manually on every update for now
 			object.transform.matrix.decompose(object.transform.loc, object.transform.rot, object.transform.scale);
 		}
 		else {
 			updateAnimNonSampled(object.raw.animation, object.transform);
-
 			object.transform.buildMatrix();
 		}
 	}
@@ -185,18 +183,27 @@ class Animation {
 			// case "tcb": interpolate = interpolateTcb;
 			}
 			var s = player.dir > 0 ? interpolate(t, t1, t2) : interpolate(t, t2, t1);
+			var invs = 1.0 - s;
 			var v1 = track.value.values[ti];
 			var v2 = track.value.values[ti + 1 * player.dir];
-			var invs = 1.0 - s;
 			var v = player.dir > 0 ? v1 * invs + v2 * s : v1 * s + v2 * invs;
 
 			switch (track.target) {
 			case "xloc": transform.loc.x = v;
 			case "yloc": transform.loc.y = v;
 			case "zloc": transform.loc.z = v;
-			case "xrot": transform.rotate(Vec4.xAxis(), v / 360);
-			case "yrot": transform.rotate(Vec4.yAxis(), v / 360);
-			case "zrot": transform.rotate(Vec4.zAxis(), -v / 360);
+			case "xrot": {
+				var e = transform.rot.getEuler();
+				transform.setRotation(v, e.y, e.z);
+			}
+			case "yrot": {
+				var e = transform.rot.getEuler();
+				transform.setRotation(e.x, v, e.z);
+			}
+			case "zrot": {
+				var e = transform.rot.getEuler();
+				transform.setRotation(e.x, e.y, v);
+			}
 			case "xscl": transform.scale.x = v;
 			case "yscl": transform.scale.y = v;
 			case "zscl": transform.scale.z = v;

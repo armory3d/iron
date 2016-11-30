@@ -113,7 +113,7 @@ class Quat {
 		w = q.w;
 	}
 
-	public function getEuler() {
+	public function getEuler():Vec4 {
 		// YZX
 		var roll = Math.NaN;
 		var yaw = 0.0;
