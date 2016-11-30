@@ -182,28 +182,19 @@ class Animation {
 			case "bezier": interpolate = interpolateBezier;
 			// case "tcb": interpolate = interpolateTcb;
 			}
-			var s = player.dir > 0 ? interpolate(t, t1, t2) : interpolate(t, t2, t1);
+			var s = player.dir > 0 ? interpolate(t, t1, t2) : interpolate(t1 - (t - t2), t2, t1);
 			var invs = 1.0 - s;
 			var v1 = track.value.values[ti];
 			var v2 = track.value.values[ti + 1 * player.dir];
-			var v = player.dir > 0 ? v1 * invs + v2 * s : v1 * s + v2 * invs;
+			var v = v1 * invs + v2 * s;
 
 			switch (track.target) {
 			case "xloc": transform.loc.x = v;
 			case "yloc": transform.loc.y = v;
 			case "zloc": transform.loc.z = v;
-			case "xrot": {
-				var e = transform.rot.getEuler();
-				transform.setRotation(v, e.y, e.z);
-			}
-			case "yrot": {
-				var e = transform.rot.getEuler();
-				transform.setRotation(e.x, v, e.z);
-			}
-			case "zrot": {
-				var e = transform.rot.getEuler();
-				transform.setRotation(e.x, e.y, v);
-			}
+			case "xrot": transform.setRotation(v, transform._eulerY, transform._eulerZ);
+			case "yrot": transform.setRotation(transform._eulerX, v, transform._eulerZ);
+			case "zrot": transform.setRotation(transform._eulerX, transform._eulerY, v);
 			case "xscl": transform.scale.x = v;
 			case "yscl": transform.scale.y = v;
 			case "zscl": transform.scale.z = v;

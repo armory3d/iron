@@ -4,6 +4,7 @@ import iron.math.Mat4;
 import iron.math.Vec4;
 import iron.math.Quat;
 
+@:allow(iron.object.Animation)
 class Transform {
 	public var matrix:Mat4;
 	public var local:Mat4;
@@ -103,6 +104,9 @@ class Transform {
 	public function setRotation(x:Float, y:Float, z:Float) {
 		rot.fromEuler(x, y, z);
 		dirty = true;
+		_eulerX = x;
+		_eulerY = y;
+		_eulerZ = z;
 	}
 
 	public function computeRadius() {
@@ -113,6 +117,11 @@ class Transform {
 		size.set(x, y, z);
 		computeRadius();
 	}
+
+	// Wrong order returned from getEuler(), store last state for animation
+	var _eulerX:Float;
+	var _eulerY:Float;
+	var _eulerZ:Float;
 
 	public inline function look():Vec4 { return matrix.look(); }
 	public inline function right():Vec4 { return matrix.right(); }
