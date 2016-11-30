@@ -43,6 +43,8 @@ class Mesh {
 	
 	public var offsetVecs:Array<Vec4>; // Used for sorting and culling
 
+	public var aabb:Vec4 = null;
+
 	// Skinned
 	public var skinTransform:Mat4 = null;
 	public var skinTransformI:Mat4 = null;
@@ -304,5 +306,28 @@ class Mesh {
 		skinTransform = Mat4.fromArray(t);
 		skinTransformI = Mat4.identity();
 		skinTransformI.getInverse(skinTransform);
+	}
+
+	public function calculateAABB() {
+		var aabbMin = new Vec4(-0.01, -0.01, -0.01);
+		var aabbMax = new Vec4(0.01, 0.01, 0.01);
+		aabb = new Vec4();
+		var i = 0;
+		while (i < positions.length) {
+			if (positions[i] > aabbMax.x)		aabbMax.x = positions[i];
+			if (positions[i + 1] > aabbMax.y)	aabbMax.y = positions[i + 1];
+			if (positions[i + 2] > aabbMax.z)	aabbMax.z = positions[i + 2];
+			if (positions[i] < aabbMin.x)		aabbMin.x = positions[i];
+			if (positions[i + 1] < aabbMin.y)	aabbMin.y = positions[i + 1];
+			if (positions[i + 2] < aabbMin.z)	aabbMin.z = positions[i + 2];
+			i += 3;
+		}
+		aabb.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);
+		aabb.y = Math.abs(aabbMin.y) + Math.abs(aabbMax.y);
+		aabb.z = Math.abs(aabbMin.z) + Math.abs(aabbMax.z);
+		// Sphere radius
+		// if (aabb.x >= aabb.y && aabb.x >= aabb.z) radius = aabb.x / 2;
+		// else if (aabb.y >= aabb.x && aabb.y >= aabb.z) radius = aabb.y / 2;
+		// else radius = aabb.z / 2;
 	}
 }

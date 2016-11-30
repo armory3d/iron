@@ -109,6 +109,11 @@ class Transform {
 		radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);// / 2;
 	}
 
+	public function setDimensions(x:Float, y:Float, z:Float) {
+		size.set(x, y, z);
+		computeRadius();
+	}
+
 	public inline function look():Vec4 { return matrix.look(); }
 	public inline function right():Vec4 { return matrix.right(); }
 	public inline function up():Vec4 { return matrix.up(); }

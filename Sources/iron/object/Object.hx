@@ -1,11 +1,7 @@
 package iron.object;
 
-import kha.graphics4.Graphics;
-import iron.math.Mat4;
 import iron.Trait;
 import iron.data.SceneFormat;
-import iron.data.Data;
-import iron.data.MaterialData;
 
 class Object {
 	static var uidCounter = 0;

@@ -30,9 +30,9 @@ typedef TMeshData = {
 
 typedef TMesh = {
 // @:structInit class TMesh {
-	public var primitive:String;
 	public var vertex_arrays:Array<TVertexArray>;
 	public var index_arrays:Array<TIndexArray>;
+	@:optional public var primitive:String; // triangles
 	@:optional public var dynamic_usage:Null<Bool>;
 	@:optional public var skin:TSkin;
 	@:optional public var instance_offsets:Array<Float>;
@@ -56,15 +56,15 @@ typedef TSkeleton = {
 typedef TVertexArray = {
 // @:structInit class TVertexArray {
 	public var attrib:String;
-	public var size:Int;
 	public var values:Array<Float>;
+	@:optional public var size:Int; // 3
 }
 
 typedef TIndexArray = {
 // @:structInit class TIndexArray {
-	public var size:Int;
 	public var values:Array<Int>;
 	public var material:Int;
+	@:optional public var size:Int; // 3
 }
 
 typedef TLampData = {

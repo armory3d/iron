@@ -288,7 +288,7 @@ class Scene {
 			if (o.material_refs.length == 0) {
 				// No material, create empty object
 				var object = addObject(parent);
-				setTransformDimensions(object.transform, o.dimensions);
+				if (o.dimensions != null) object.transform.setDimensions(o.dimensions[0], o.dimensions[1], o.dimensions[2]);
 				returnObject(object, o, done);
 			}
 			else {
@@ -362,14 +362,9 @@ class Scene {
 				cast(object, MeshObject).setupParticleSystem(sceneName, o.particle_refs[0]);
 			}
 
-			setTransformDimensions(object.transform, o.dimensions);
+			if (o.dimensions != null) object.transform.setDimensions(o.dimensions[0], o.dimensions[1], o.dimensions[2]);
 			returnObject(object, o, done);
 		});
-	}
-
-	function setTransformDimensions(transform:Transform, dimensions:Array<Float>) {
-		transform.size.set(dimensions[0], dimensions[1], dimensions[2]);
-		transform.computeRadius();
 	}
 
 	function returnObject(object:Object, o:TObj, done:Object->Void) {

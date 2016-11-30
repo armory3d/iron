@@ -34,6 +34,7 @@ class MeshData extends Data {
 			materialIndices.push(ind.material);
 		}
 
+		// Mandatory vertex array names for now
 		var paVA = getVertexArray("position");
 		var pa = paVA != null ? paVA.values : null;
 		
