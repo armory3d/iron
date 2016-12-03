@@ -397,13 +397,14 @@ class RenderPath {
 	}
 
 	function parseMaterialLink(handle:String):Array<String> {
-		if (handle == '_worldMaterial') return Scene.active.world.raw.material_ref.split('/');
+		if (handle == '_worldMaterial' && Scene.active.world != null) return Scene.active.world.raw.material_ref.split('/');
 		return null;
 	}
 
 	function drawSkydome(params:Array<String>, root:Object) {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		if (cc.context == null) return; // World data not specified
 		var g = currentRenderTarget;
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);
@@ -692,7 +693,8 @@ class RenderPath {
 		var matPath:Array<String> = null;
 		if (handle.charAt(0) == '_') matPath = parseMaterialLink(handle);
 		else matPath = handle.split('/');
-		
+		if (matPath == null) { done(); return; } // World material not specified
+
 		Data.getMaterial(matPath[0], matPath[1], function(res:MaterialData) {
 			cc.materialContext = res.getContext(matPath[2]);
 			cc.context = res.shader.getContext(matPath[2]);

@@ -9,12 +9,11 @@ import iron.Scene;
 import iron.math.Vec4;
 import iron.math.Quat;
 import iron.math.Mat4;
-import iron.data.MeshData;
+import iron.data.WorldData;
 import iron.data.LampData;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.SceneFormat;
-import iron.data.RenderPath;
 
 // Structure for setting shader uniforms
 class Uniforms {
@@ -86,7 +85,7 @@ class Uniforms {
 				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 			}
 			else if (tulink == "_envmapBrdf") {
-				g.setTexture(context.textureUnits[j], Scene.active.world.brdf);
+				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('brdf.png'));
 			}
 			else if (tulink == "_noise8") {
 				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise8.png'));
@@ -442,7 +441,8 @@ class Uniforms {
 				f = lamp == null ? 0.0 : lamp.data.raw.spot_blend;
 			}
 			else if (c.link == "_envmapStrength") {
-				f = Scene.active.world.getGlobalProbe().raw.strength;
+				if (Scene.active.world == null) f = 0.0;
+				else f = Scene.active.world.getGlobalProbe().raw.strength;
 			}
 			else if (c.link == "_probeStrength") {
 				f = Scene.active.world.getProbeStrength(object.transform);
@@ -470,8 +470,8 @@ class Uniforms {
 				fa = cast(object, MeshObject).animation.skinBuffer;
 			}
 			else if (c.link == "_envmapIrradiance") {
-				// fa = Scene.active.world.getGlobalProbe().irradiance;
-				fa = Scene.active.world.getSHIrradiance();
+				if (Scene.active.world == null) fa = WorldData.getEmptyIrradiance();
+				else fa = Scene.active.world.getSHIrradiance();
 			}
 			g.setFloats(location, fa);
 		}

@@ -267,7 +267,6 @@ typedef TWorldData = {
 	public var name:String;
 	public var material_ref:String;
 	public var background_color:Int;
-	public var brdf:String;
 	public var probes:Array<TProbe>;
 }
 

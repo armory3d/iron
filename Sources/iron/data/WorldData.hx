@@ -11,29 +11,26 @@ class WorldData extends Data {
 	public var raw:TWorldData;
 	
 	var probes:Array<Probe>; 
-	public var brdf:Image;
+
+	static var emptyIrr:haxe.ds.Vector<kha.FastFloat> = null;
 	
 	public function new(raw:TWorldData, done:WorldData->Void) {
 		super();
 
 		this.raw = raw;
 		this.name = raw.name;
-
-		iron.data.Data.getImage(raw.brdf, function(image:kha.Image) {
-			brdf = image;
 		
-			// Parse probes
-			if (raw.probes != null && raw.probes.length > 0) {
-				probes = [];
-				for (p in raw.probes) {
-					new Probe(p, function(self:Probe) {
-						probes.push(self);
-						if (probes.length == raw.probes.length) done(this);
-					});
-				}
+		// Parse probes
+		if (raw.probes != null && raw.probes.length > 0) {
+			probes = [];
+			for (p in raw.probes) {
+				new Probe(p, function(self:Probe) {
+					probes.push(self);
+					if (probes.length == raw.probes.length) done(this);
+				});
 			}
-			else done(this);
-		});
+		}
+		else done(this);
 	}
 
 	public static function parse(name:String, id:String, done:WorldData->Void) {
@@ -45,6 +42,11 @@ class WorldData extends Data {
 			}
 			new WorldData(raw, done);
 		});
+	}
+
+	public static function getEmptyIrradiance():haxe.ds.Vector<kha.FastFloat> {
+		if (emptyIrr == null) emptyIrr = haxe.ds.Vector.fromData([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]);
+		return emptyIrr;
 	}
 	
 	public function getGlobalProbe():Probe {

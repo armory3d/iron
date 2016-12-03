@@ -174,6 +174,8 @@ class Data {
 
 	static var loadingWorlds:Map<String, Array<WorldData->Void>> = new Map();
 	public static function getWorld(file:String, name:String, done:WorldData->Void) {
+		if (name == null) { done(null); return; } // No world defined in scene
+
 		var cached = cachedWorlds.get(file + name);
 		if (cached != null) { done(cached); return; }
 
