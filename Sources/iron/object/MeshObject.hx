@@ -21,12 +21,10 @@ class MeshObject extends Object {
 
 	public var data:MeshData;
 	public var materials:Vector<MaterialData>;
-
 	public var particleSystem:ParticleSystem = null;
-
-	var cachedContexts:Map<String, CachedMeshContext> = new Map();
-	
+	public var cachedContexts:Map<String, CachedMeshContext> = new Map();	
 	public var cameraDistance:Float;
+	public var screenSize:Float = 0.0;
 
 #if arm_veloc
 	public var prevMatrix = Mat4.identity();
@@ -58,9 +56,14 @@ class MeshObject extends Object {
 		particleSystem = new ParticleSystem(this, sceneName, pref);
 	}
 
+	inline function isLodMaterial() {
+		return (raw.lod_material != null && raw.lod_material == true);
+	}
+
 	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 		// Skip render if material does not contain current context
-		if (materials[0].getContext(context) == null) return;
+		var mats = materials;
+		if (!isLodMaterial() && !validContext(mats[0], context)) return;
 
 		// Skip render if object or lamp is hidden
 		if (!visible) return;
@@ -110,12 +113,28 @@ class MeshObject extends Object {
 			}
 		}
 
+		// Get lod
+		var lod = this;
+		if (raw.lods != null && raw.lods.length > 0) {
+			computeScreenSize(camera);
+			initLods();
+			// Select lod
+			for (i in 0...raw.lods.length) {
+				// Lod found
+				if (screenSize > raw.lods[i].screen_size) break;
+				lod = cast lods[i];
+				if (isLodMaterial()) mats = lod.materials;
+			}
+			if (lod == null) return; // Empty object
+		}
+		if (isLodMaterial() && !validContext(mats[0], context)) return;
+
 		// Get context
-		var cc = cachedContexts.get(context);
+		var cc = lod.cachedContexts.get(context);
 		if (cc == null) {
 			cc = new CachedMeshContext();
 			// Check context skip
-			for (mat in materials) {
+			for (mat in mats) {
 				if (mat.raw.skip_context != null &&
 					mat.raw.skip_context == context) {
 					cc.enabled = false;
@@ -124,7 +143,7 @@ class MeshObject extends Object {
 			}
 			if (cc.enabled) {
 				cc.materialContexts = [];
-				for (mat in materials) {
+				for (mat in mats) {
 					for (i in 0...mat.raw.contexts.length) {
 						if (mat.raw.contexts[i].name.substr(0, context.length) == context) {
 							cc.materialContexts.push(mat.contexts[i]);
@@ -133,14 +152,14 @@ class MeshObject extends Object {
 					}
 				}
 				// TODO: only one shader per mesh
-				cc.context = materials[0].shader.getContext(context);
-				cachedContexts.set(context, cc);
+				cc.context = mats[0].shader.getContext(context);
+				lod.cachedContexts.set(context, cc);
 			}
 		}
 		if (!cc.enabled) return;
 		
 		// TODO: move to update
-		if (particleSystem != null) particleSystem.update();
+		if (lod.particleSystem != null) lod.particleSystem.update();
 
 		var materialContexts = cc.materialContexts;
 		var shaderContext = cc.context;
@@ -150,36 +169,37 @@ class MeshObject extends Object {
 		// Render mesh
 		g.setPipeline(shaderContext.pipeState);
 		
-		if (data.mesh.instanced) {
-			g.setVertexBuffers(data.mesh.instancedVertexBuffers);
+		var ldata = lod.data;
+		if (ldata.mesh.instanced) {
+			g.setVertexBuffers(ldata.mesh.instancedVertexBuffers);
 		}
 		else {
 #if arm_deinterleaved
-			g.setVertexBuffers(data.mesh.vertexBuffers);
+			g.setVertexBuffers(ldata.mesh.vertexBuffers);
 #else
 			// var shadowsContext = camera.data.pathdata.raw.shadows_context;
 			// if (context == shadowsContext) { // Hard-coded for now
-				// g.setVertexBuffer(data.mesh.vertexBufferDepth);
+				// g.setVertexBuffer(ldata.mesh.vertexBufferDepth);
 			// }
 			// else {
-				g.setVertexBuffer(data.mesh.vertexBuffer);
+				g.setVertexBuffer(ldata.mesh.vertexBuffer);
 			// }
 #end
 		}
 
 		Uniforms.setConstants(g, shaderContext, this, camera, lamp, bindParams);
 
-		for (i in 0...data.mesh.indexBuffers.length) {
+		for (i in 0...ldata.mesh.indexBuffers.length) {
 			
-			var mi = data.mesh.materialIndices[i];
+			var mi = ldata.mesh.materialIndices[i];
 			if (materialContexts.length > mi) {
 				Uniforms.setMaterialConstants(g, shaderContext, materialContexts[mi]);
 			}
 
-			g.setIndexBuffer(data.mesh.indexBuffers[i]);
+			g.setIndexBuffer(ldata.mesh.indexBuffers[i]);
 
-			if (data.mesh.instanced) {
-				g.drawIndexedVerticesInstanced(data.mesh.instanceCount);
+			if (ldata.mesh.instanced) {
+				g.drawIndexedVerticesInstanced(ldata.mesh.instanceCount);
 			}
 			else {
 				g.drawIndexedVertices();
@@ -195,8 +215,33 @@ class MeshObject extends Object {
 #end
 	}
 
+	inline function validContext(mat:MaterialData, context:String):Bool {
+		 return mat.getContext(context) != null;
+	}
+
 	public inline function computeCameraDistance(camX:Float, camY:Float, camZ:Float) {
+		// Render path mesh sorting
 		cameraDistance = iron.math.Vec4.distance3df(camX, camY, camZ, transform.absx(), transform.absy(), transform.absz());
+	}
+
+	public inline function computeScreenSize(camera:CameraObject) {
+		// Approx..
+		// var rp = camera.renderPath;
+		// var screenVolume = rp.currentRenderTargetW * rp.currentRenderTargetH;
+		var tr = transform;
+		var volume = tr.size.x * tr.scale.x * tr.size.y * tr.scale.y * tr.size.z * tr.scale.z;
+		screenSize = volume * (1.0 / cameraDistance);
+		screenSize = screenSize > 1.0 ? 1.0 : screenSize;
+	}
+
+	inline function initLods() {
+		if (lods == null) {
+			lods = [];
+			for (l in raw.lods) {
+				if (l.object_ref == "") lods.push(null); // Empty
+				else lods.push(Scene.active.getChild(l.object_ref));
+			}
+		}
 	}
 }
 

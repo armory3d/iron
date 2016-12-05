@@ -15,6 +15,7 @@ class Object {
 
 	public var parent:Object = null;
 	public var children:Array<Object> = [];
+	public var lods:Array<Object> = null;
 
 	public var animation:Animation = null;
 	public var visible = true; // Skip render, keep updating

@@ -348,6 +348,8 @@ typedef TObj = {
 	public var material_refs:Array<String>;
 	@:optional public var particle_refs:Array<TParticleReference>;
 	@:optional public var children:Array<TObj>;
+	@:optional public var lods:Array<TLod>;
+	@:optional public var lod_material:Null<Bool>;
 	@:optional public var traits:Array<TTrait>;
 	@:optional public var constraints:Array<TConstraint>;
 	@:optional public var dimensions:Array<Float>; // Geometry objects
@@ -362,6 +364,12 @@ typedef TObj = {
 	@:optional public var spawn:Null<Bool>; // Auto add object when creating scene
 	@:optional public var local_transform_only:Null<Bool>; // No parent matrix applied
 	@:optional public var animation_setup:TAnimationSetup;
+}
+
+typedef TLod = {
+// @:structInit class TLod {
+	public var object_ref:String; // Empty when limiting draw distance
+	public var screen_size:Float; // (0-1) size compared to lod0
 }
 
 typedef TAnimationSetup = {
