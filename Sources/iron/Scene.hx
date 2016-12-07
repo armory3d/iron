@@ -227,6 +227,7 @@ class Scene {
 	function getObjectsCount(objects:Array<TObj>):Int {
 		var result = objects.length;
 		for (o in objects) {
+			if (o.spawn != null && o.spawn == false) continue; // Do not count children of non-spawned objects
 			if (o.children != null) result += getObjectsCount(o.children);
 		}
 		return result;
