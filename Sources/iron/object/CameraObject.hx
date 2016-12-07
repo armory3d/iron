@@ -26,6 +26,7 @@ class CameraObject extends Object {
 	public var frustumPlanes:Array<FrustumPlane> = null;
 	public var nearPlane:Float;
 	public var farPlane:Float;
+	static var temp = new Vec4();
 
 	public function new(data:CameraData) {
 		super();
@@ -116,6 +117,12 @@ class CameraObject extends Object {
 
 	public function buildMatrix() {
 		transform.buildMatrix();
+
+		// Prevent camera matrix scaling
+		var sc = transform.matrix.getScale();
+		temp.set(1.0 / sc.x, 1.0 / sc.y, 1.0 / sc.z);
+		transform.matrix.scale(temp);
+
 		V.getInverse(transform.matrix);
 
 		if (data.raw.frustum_culling) {

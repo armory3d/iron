@@ -307,6 +307,7 @@ class RenderPath {
 	function drawMeshes(params:Array<String>, root:Object) {
 		var context = params[0];
 		var lamp = getLamp(currentLampIndex);
+		if (lamp != null && !lamp.visible) return;
 
 		// Disabled shadow casting for this lamp
 		if (context == data.pathdata.raw.shadows_context) {
