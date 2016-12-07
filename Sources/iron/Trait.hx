@@ -40,10 +40,20 @@ class Trait {
 		App.notifyOnUpdate(f);
 		_update = f;
 	}
+
+	function removeUpdate(f:Void->Void) {
+		App.removeUpdate(f);
+		_update = null;
+	}
 	
 	function notifyOnLateUpdate(f:Void->Void) {
 		App.notifyOnLateUpdate(f);
 		_lateUpdate = f;
+	}
+
+	function removeLateUpdate(f:Void->Void) {
+		App.removeLateUpdate(f);
+		_lateUpdate = null;
 	}
 
 	function notifyOnRender(f:kha.graphics4.Graphics->Void) {
@@ -51,8 +61,18 @@ class Trait {
 		_render = f;
 	}
 
+	function removeRender(f:kha.graphics4.Graphics->Void) {
+		App.removeRender(f);
+		_render = null;
+	}
+
 	function notifyOnRender2D(f:kha.graphics2.Graphics->Void) {
 		App.notifyOnRender2D(f);
 		_render2D = f;
+	}
+
+	function removeRender2D(f:kha.graphics2.Graphics->Void) {
+		App.removeRender2D(f);
+		_render2D = null;
 	}
 }

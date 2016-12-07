@@ -34,6 +34,23 @@ class Quat {
 		w = Math.cos(angle * 0.5);
 	}
 
+	public function toAxisAngle(axis:Vec4):Float {
+	    this.normalize();
+	    var angle = 2 * Math.acos(w);
+	    var s = Math.sqrt(1 - w * w);
+	    if (s < 0.001) {
+	        axis.x = this.x;
+	        axis.y = this.y;
+	        axis.z = this.z;
+	    }
+	    else {
+	        axis.x = this.x / s;
+	        axis.y = this.y / s;
+	        axis.z = this.z / s;
+	    }
+	    return angle;
+	};
+
 	public function fromRotationMat(m:Mat4) {
 		// Assumes the upper 3x3 is a pure rotation matrix
 		var m11 = m._00, m12 = m._10, m13 = m._20;
