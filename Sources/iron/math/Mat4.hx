@@ -111,6 +111,15 @@ class Mat4 {
 		);
 	}
 
+	public function toArray():Array<FastFloat> {
+		return [
+			_00, _01, _20, _30,
+			_01, _11, _21, _31,
+			_02, _12, _22, _32,
+			_03, _13, _23, _33
+		];
+	}
+
 	public function setIdentity() {
 		_00 = 1.0; _01 = 0.0; _02 = 0.0; _03 = 0.0;
 		_10 = 0.0; _11 = 1.0; _12 = 0.0; _13 = 0.0;
