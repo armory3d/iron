@@ -388,6 +388,8 @@ class Scene {
 		transform.matrix.decompose(transform.loc, transform.rot, transform.scale);
 		// Whether to apply parent matrix
 		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;
+		// Build matrix now if parent is invisible
+		if (transform.object.parent != null && !transform.object.parent.visible) transform.update();
 	}
 
 	static function setupAnimation(setup:TAnimationSetup, object:Object) {

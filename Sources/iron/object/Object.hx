@@ -83,11 +83,7 @@ class Object {
 	}
 
 	public function getTrait(c:Class<Trait>):Dynamic {
-		for (t in traits) {
-			if (Type.getClass(t) == c) {
-				return t;
-			}
-		}
+		for (t in traits) if (Type.getClass(t) == c) return t;
 		return null;
 	}
 
