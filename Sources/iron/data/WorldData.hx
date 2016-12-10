@@ -45,7 +45,10 @@ class WorldData extends Data {
 	}
 
 	public static function getEmptyIrradiance():haxe.ds.Vector<kha.FastFloat> {
-		if (emptyIrr == null) emptyIrr = haxe.ds.Vector.fromData([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]);
+		if (emptyIrr == null) {
+			emptyIrr = new haxe.ds.Vector<kha.FastFloat>(27);
+			for (i in 0...emptyIrr.length) emptyIrr.set(i, 0.0);
+		}
 		return emptyIrr;
 	}
 	
