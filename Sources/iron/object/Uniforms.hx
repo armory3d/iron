@@ -304,7 +304,10 @@ class Uniforms {
 				v = helpVec;
 			}
 			else if (c.link == "_lampColor") {
-				if (lamp != null) helpVec.set(lamp.data.raw.color[0], lamp.data.raw.color[1], lamp.data.raw.color[2]);
+				if (lamp != null) {
+					var str = lamp.data.raw.strength; // Merge with strength
+					helpVec.set(lamp.data.raw.color[0] * str, lamp.data.raw.color[1] * str, lamp.data.raw.color[2] * str);
+				}
 				v = helpVec;
 			}
 			else if (c.link == "_lampArea0") {
@@ -415,9 +418,6 @@ class Uniforms {
 			}
 			else if (c.link == "_lampRadius") {
 				f = lamp == null ? 0.0 : lamp.data.raw.far_plane;
-			}
-			else if (c.link == "_lampStrength") {
-				f = lamp == null ? 0.0 : lamp.data.raw.strength;
 			}
 			else if (c.link == "_lampShadowsBias") {
 				f = lamp == null ? 0.0 : lamp.data.raw.shadows_bias;
