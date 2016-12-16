@@ -225,6 +225,14 @@ class Uniforms {
 					m = helpMat;
 				}
 			}
+			else if (c.link == "_lampViewProjectionMatrix") {
+				if (lamp != null) {
+					helpMat.setIdentity();
+					helpMat.multmat2(lamp.V);
+					helpMat.multmat2(lamp.data.P);
+					m = helpMat;
+				}
+			}
 			else if (c.link == "_lampVolumeWorldViewProjectionMatrix") {
 				if (lamp != null) {
 					var tr = lamp.transform;
