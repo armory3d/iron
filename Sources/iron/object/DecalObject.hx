@@ -42,13 +42,14 @@ class DecalObject extends Object {
 						break;
 					}
 				}
-				cachedContext.context = material.shader.getContext(context);
+				cachedContext.shaderContexts = [];
+				cachedContext.shaderContexts.push(material.shader.getContext(context));
 			}
 		}
 		if (!cachedContext.enabled) return;
 
 		var materialContext = cachedContext.materialContexts[0]; // Single material decals
-		var shaderContext = cachedContext.context;
+		var shaderContext = cachedContext.shaderContexts[0];
 		
 		g.setPipeline(shaderContext.pipeState);
 		

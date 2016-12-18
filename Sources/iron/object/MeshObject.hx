@@ -143,16 +143,16 @@ class MeshObject extends Object {
 			}
 			if (cc.enabled) {
 				cc.materialContexts = [];
+				cc.shaderContexts = [];
 				for (mat in mats) {
 					for (i in 0...mat.raw.contexts.length) {
 						if (mat.raw.contexts[i].name.substr(0, context.length) == context) {
 							cc.materialContexts.push(mat.contexts[i]);
+							cc.shaderContexts.push(mat.shader.getContext(context));
 							break;
 						}
 					}
 				}
-				// TODO: only one shader per mesh
-				cc.context = mats[0].shader.getContext(context);
 				lod.cachedContexts.set(context, cc);
 			}
 		}
@@ -161,14 +161,9 @@ class MeshObject extends Object {
 		// TODO: move to update
 		if (lod.particleSystem != null) lod.particleSystem.update();
 
-		var materialContexts = cc.materialContexts;
-		var shaderContext = cc.context;
-
 		transform.update();
 		
 		// Render mesh
-		g.setPipeline(shaderContext.pipeState);
-		
 		var ldata = lod.data;
 		if (ldata.mesh.instanced) {
 			g.setVertexBuffers(ldata.mesh.instancedVertexBuffers);
@@ -187,13 +182,19 @@ class MeshObject extends Object {
 #end
 		}
 
-		Uniforms.setConstants(g, shaderContext, this, camera, lamp, bindParams);
+		var materialContexts = cc.materialContexts;
+		var shaderContexts = cc.shaderContexts;
 
 		for (i in 0...ldata.mesh.indexBuffers.length) {
-			
+
 			var mi = ldata.mesh.materialIndices[i];
+			if (shaderContexts.length <= mi) continue; 
+
+			g.setPipeline(shaderContexts[mi].pipeState);
+			Uniforms.setConstants(g, shaderContexts[mi], this, camera, lamp, bindParams);
+
 			if (materialContexts.length > mi) {
-				Uniforms.setMaterialConstants(g, shaderContext, materialContexts[mi]);
+				Uniforms.setMaterialConstants(g, shaderContexts[mi], materialContexts[mi]);
 			}
 
 			g.setIndexBuffer(ldata.mesh.indexBuffers[i]);
@@ -247,7 +248,7 @@ class MeshObject extends Object {
 
 class CachedMeshContext {
 	public var materialContexts:Array<MaterialContext>;
-	public var context:ShaderContext;
+	public var shaderContexts:Array<ShaderContext>;
 	public var enabled = true;
 	public function new() {}
 }
