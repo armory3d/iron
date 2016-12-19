@@ -69,10 +69,8 @@ class MeshObject extends Object {
 		if (!visible) return;
 		if (lamp != null && !lamp.visible) return;
 
-		var meshContext = camera.data.pathdata.raw.mesh_context;
-		if (!visibleMesh && context == meshContext) return;
-		
 		var shadowsContext = camera.data.pathdata.raw.shadows_context;
+		if (!visibleMesh && context != shadowsContext) return;
 		if (!visibleShadow && context == shadowsContext) return;
 
 		// Frustum culling
