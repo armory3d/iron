@@ -57,7 +57,7 @@ class MeshObject extends Object {
 	}
 
 	inline function isLodMaterial() {
-		return (raw.lod_material != null && raw.lod_material == true);
+		return (raw != null && raw.lod_material != null && raw.lod_material == true);
 	}
 
 	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
@@ -113,7 +113,7 @@ class MeshObject extends Object {
 
 		// Get lod
 		var lod = this;
-		if (raw.lods != null && raw.lods.length > 0) {
+		if (raw != null && raw.lods != null && raw.lods.length > 0) {
 			computeScreenSize(camera);
 			initLods();
 			// Select lod
