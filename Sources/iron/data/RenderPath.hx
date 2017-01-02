@@ -28,6 +28,11 @@ class RenderPath {
 	public var data:CameraData;
 
 	var frameRenderTarget:Graphics;
+	public var frameScissor = false;
+	public var frameScissorX = 0;
+	public var frameScissorY = 0;
+	public var frameScissorW = 0;
+	public var frameScissorH = 0;
 	var currentRenderTarget:Graphics;
 	public var currentRenderTargetW:Int;
 	public var currentRenderTargetH:Int;
@@ -224,6 +229,7 @@ class RenderPath {
 			currentRenderTargetW = iron.App.w();
 			currentRenderTargetH = iron.App.h();
 			currentRenderTargetD = 1;
+			if (frameScissor) setFrameScissor();
 			begin(currentRenderTarget);
 		}
 		else { // Render target
@@ -268,6 +274,10 @@ class RenderPath {
 	public function setCurrentScissor(viewW:Int, viewH:Int) {
 		currentRenderTarget.scissor(0, currentRenderTargetH - viewH, viewW, viewH);
 		scissorSet = true;
+	}
+
+	public function setFrameScissor() {
+		frameRenderTarget.scissor(frameScissorX, currentRenderTargetH - (frameScissorH - frameScissorY), frameScissorW, frameScissorH);
 	}
 
 	function setViewport(params:Array<String>, root:Object) {
