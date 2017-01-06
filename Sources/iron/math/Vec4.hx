@@ -55,13 +55,17 @@ class Vec4 {
 		return this;
 	}
 
+	public function addvecs(a:Vec4, b:Vec4):Vec4 {
+		x = a.x + b.x;
+		y = a.y + b.y;
+		z = a.z + b.z;
+		return this;
+	} 
+
 	public function subvecs(a:Vec4, b:Vec4):Vec4 {
-		var x2 = a.x - b.x;
-		var y2 = a.y - b.y;
-		var z2 = a.z - b.z;
-		x = x2;
-		y = y2;
-		z = z2;
+		x = a.x - b.x;
+		y = a.y - b.y;
+		z = a.z - b.z;
 		return this;
 	}   
 
@@ -89,7 +93,7 @@ class Vec4 {
 	}   
 
 	public function clone():Vec4 {
-		return new Vec4(x, y, z);
+		return new Vec4(x, y, z, w);
 	}
 
 	public static function lerp(v1:Vec4, v2:Vec4, t:Float) {
@@ -125,6 +129,27 @@ class Vec4 {
 		this.z = (m._02 * x + m._12 * y + m._22 * z + m._32);
 
 		return this;
+	}
+
+	public function applyAxisAngle(axis:Vec4, angle:Float):Vec4 {
+		var quat = new Quat();
+		quat.fromAxisAngle(axis, angle);
+		return applyQuat(quat);
+	}
+
+	public function applyQuat(q:Quat):Vec4 {
+		var ix = q.w * x + q.y * z - q.z * y;
+		var iy = q.w * y + q.z * x - q.x * z;
+		var iz = q.w * z + q.x * y - q.y * x;
+		var iw = -q.x * x - q.y * y - q.z * z;
+		x = ix * q.w + iw * -q.x + iy * -q.z - iz * -q.y;
+		y = iy * q.w + iw * -q.y + iz * -q.x - ix * -q.z;
+		z = iz * q.w + iw * -q.z + ix * -q.y - iy * -q.x;
+		return this;
+	}
+
+	public inline function equals(v:Vec4):Bool {
+		return x == v.x && y == v.y && z == v.z;
 	}
 
 	public inline function length() {

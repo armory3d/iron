@@ -113,7 +113,7 @@ class Mat4 {
 
 	public function toArray():Array<FastFloat> {
 		return [
-			_00, _01, _20, _30,
+			_00, _10, _20, _30,
 			_01, _11, _21, _31,
 			_02, _12, _22, _32,
 			_03, _13, _23, _33
