@@ -215,6 +215,9 @@ class Uniforms {
 				helpMat.multmat2(camera.P);
 				m = helpMat;
 			}
+			else if (c.link == "_prevWorldMatrix") {
+				m = cast(object, MeshObject).prevMatrix;
+			}
 #end
 			else if (c.link == "_lampWorldViewProjectionMatrix") {
 				if (lamp != null) {
