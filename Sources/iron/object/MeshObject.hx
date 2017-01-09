@@ -25,6 +25,7 @@ class MeshObject extends Object {
 	public var cachedContexts:Map<String, CachedMeshContext> = new Map();	
 	public var cameraDistance:Float;
 	public var screenSize:Float = 0.0;
+	public var frustumCulling = true;
 
 #if arm_veloc
 	public var prevMatrix = Mat4.identity();
@@ -75,7 +76,7 @@ class MeshObject extends Object {
 
 		// Frustum culling
 		culled = false;
-		if (camera.data.raw.frustum_culling) {
+		if (camera.data.raw.frustum_culling && frustumCulling) {
 			// Scale radius for skinned mesh and particle system
 			// TODO: determine max radius
 			var radiusScale = data.isSkinned ? 2.0 : 1.0;
