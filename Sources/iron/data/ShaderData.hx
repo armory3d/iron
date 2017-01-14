@@ -22,6 +22,7 @@ class ShaderData extends Data {
 
 	var structure:VertexStructure;
 	var structureLength = 0;
+	var inst = false;
 
 	public var contexts:Array<ShaderContext> = [];
 
@@ -40,7 +41,7 @@ class ShaderData extends Data {
 				continue;
 			}
 			
-			contexts.push(new ShaderContext(c, structure, overrideContext));
+			contexts.push(new ShaderContext(c, structure, inst, overrideContext));
 		}
 
 		done(this);
@@ -71,6 +72,11 @@ class ShaderData extends Data {
 	function parseVertexStructure() {
 		structure = new VertexStructure();
 		for (vs in raw.vertex_structure) {
+			if (vs.name == 'off') {
+				inst = true;
+				continue;
+			}
+
 			structure.add(vs.name, sizeToVD(vs.size));
 			structureLength += vs.size;
 		}
@@ -91,13 +97,13 @@ class ShaderContext {
 	public var constants:Array<ConstantLocation> = [];
 	public var textureUnits:Array<TextureUnit> = [];
 
-	public function new(raw:TShaderContext, structure:VertexStructure, overrideContext:TShaderOverride = null) {
+	public function new(raw:TShaderContext, structure:VertexStructure, inst = false, overrideContext:TShaderOverride = null) {
 		this.raw = raw;
 
 		pipeState = new PipelineState();
 
 		// Instancing
-		if (raw.vertex_shader.indexOf("_Instancing") != -1) {
+		if (inst) {
 			var instStruct = new VertexStructure();
 			instStruct.add("off", VertexData.Float3);
 			pipeState.inputLayout = [structure, instStruct];
