@@ -2,7 +2,7 @@ package iron.data;
 
 typedef TSceneFormat = {
 // @:structInit class TSceneFormat {
-	public var name:String;
+	@:optional public var name:String;
 	@:optional public var mesh_datas:Array<TMeshData>;
 	@:optional public var lamp_datas:Array<TLampData>;
 	@:optional public var camera_datas:Array<TCameraData>;
