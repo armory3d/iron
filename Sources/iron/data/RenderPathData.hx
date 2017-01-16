@@ -18,7 +18,7 @@ class RenderPathData extends Data {
 		this.raw = raw;
 		this.name = raw.name;
 
-		if (raw.render_targets.length > 0) {
+		if (raw.render_targets != null && raw.render_targets.length > 0) {
 			renderTargets = new Map();
 			
 			if (raw.depth_buffers != null && raw.depth_buffers.length > 0) {

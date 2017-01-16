@@ -182,12 +182,12 @@ class ShaderContext {
 
 		pipeState.compile();
 
-		for (c in raw.constants) {
-			addConstant(c);
+		if (raw.constants != null) {
+			for (c in raw.constants) addConstant(c);
 		}
 
-		for (tu in raw.texture_units) {
-			addTexture(tu);
+		if (raw.texture_units != null) {
+			for (tu in raw.texture_units) addTexture(tu);
 		}
 	}
 

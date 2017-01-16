@@ -35,9 +35,11 @@ class Uniforms {
 
 	public static function setConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 
-		for (i in 0...context.raw.constants.length) {
-			var c = context.raw.constants[i];
-			setConstant(g, object, camera, lamp, context.constants[i], c);
+		if (context.raw.constants != null) {
+			for (i in 0...context.raw.constants.length) {
+				var c = context.raw.constants[i];
+				setConstant(g, object, camera, lamp, context.constants[i], c);
+			}
 		}
 
 		if (bindParams != null) { // Bind targets
@@ -75,42 +77,44 @@ class Uniforms {
 		}
 		
 		// Texture links
-		for (j in 0...context.raw.texture_units.length) {
-			var tulink = context.raw.texture_units[j].link;
-			if (tulink == null) continue;
-			var tuid = context.raw.texture_units[j].name;
+		if (context.raw.texture_units != null) {
+			for (j in 0...context.raw.texture_units.length) {
+				var tulink = context.raw.texture_units[j].link;
+				if (tulink == null) continue;
+				var tuid = context.raw.texture_units[j].name;
 
-			if (tulink == "_envmapRadiance") {
-				g.setTexture(context.textureUnits[j], Scene.active.world.getGlobalProbe().radiance);
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
-			}
-			else if (tulink == "_envmapBrdf") {
-				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('brdf.png'));
-			}
-			else if (tulink == "_noise8") {
-				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise8.png'));
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-			}
-			else if (tulink == "_noise64") {
-				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise64.png'));
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-			}
-			else if (tulink == "_noise256") {
-				g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise256.png'));
-				g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-			}
-			else if (tulink == "_lampColorTexture") {
-				if (lamp != null) {
-					g.setTexture(context.textureUnits[j], lamp.data.colorTexture);
+				if (tulink == "_envmapRadiance") {
+					g.setTexture(context.textureUnits[j], Scene.active.world.getGlobalProbe().radiance);
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+				}
+				else if (tulink == "_envmapBrdf") {
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('brdf.png'));
+				}
+				else if (tulink == "_noise8") {
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise8.png'));
 					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 				}
-			}
-			// External
-			else if (externalTextureLink != null) {
-				var image = externalTextureLink(tulink);
-				if (image != null) {
-					g.setTexture(context.textureUnits[j], image);
-					// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+				else if (tulink == "_noise64") {
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise64.png'));
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+				}
+				else if (tulink == "_noise256") {
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise256.png'));
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+				}
+				else if (tulink == "_lampColorTexture") {
+					if (lamp != null) {
+						g.setTexture(context.textureUnits[j], lamp.data.colorTexture);
+						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+					}
+				}
+				// External
+				else if (externalTextureLink != null) {
+					var image = externalTextureLink(tulink);
+					if (image != null) {
+						g.setTexture(context.textureUnits[j], image);
+						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+					}
 				}
 			}
 		}

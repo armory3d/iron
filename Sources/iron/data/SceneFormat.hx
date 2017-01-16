@@ -73,11 +73,11 @@ typedef TLampData = {
 	public var type:String; // Sun, point, spot
 	public var color:Array<Float>;
 	public var strength:Float;
-	public var cast_shadow:Bool;
-	public var near_plane:Float;
-	public var far_plane:Float;
-	public var fov:Float;
-	public var shadows_bias:Float;
+	@:optional public var cast_shadow:Bool;
+	@:optional public var near_plane:Float;
+	@:optional public var far_plane:Float;
+	@:optional public var fov:Float;
+	@:optional public var shadows_bias:Float;
 	@:optional public var spot_size:Null<Float>;
 	@:optional public var spot_blend:Null<Float>;
 	@:optional public var lamp_size:Null<Float>; // Shadow soft size
@@ -187,8 +187,8 @@ typedef TShaderContext = {
 	@:optional public var geometry_shader:String;
 	@:optional public var tesscontrol_shader:String;
 	@:optional public var tesseval_shader:String;
-	public var constants:Array<TShaderConstant>;
-	public var texture_units:Array<TTextureUnit>;
+	@:optional public var constants:Array<TShaderConstant>;
+	@:optional public var texture_units:Array<TTextureUnit>;
 }
 
 typedef TShaderConstant = {
@@ -213,11 +213,11 @@ typedef TTextureUnit = {
 typedef TRenderPathData = {
 // @:structInit class TRenderPathData {
 	public var name:String;
-	public var mesh_context:String; // Main mesh context
-	public var shadows_context:String; // Lamp depth context
 	public var stages:Array<TRenderPathStage>;
-	public var render_targets:Array<TRenderPathTarget>;
+	@:optional public var render_targets:Array<TRenderPathTarget>;
 	@:optional public var depth_buffers:Array<TRenderPathDepthBuffer>;
+	@:optional public var mesh_context:String; // Main mesh context
+	@:optional public var shadows_context:String; // Lamp depth context
 }
 
 typedef TRenderPathTarget = {

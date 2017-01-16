@@ -101,11 +101,11 @@ class Scene {
 		root.remove();
 	}
 
-	public static function setActive(sceneName:String, done:Object->Void) {
+	public static function setActive(sceneName:String, done:Object->Void = null) {
 		if (Scene.active != null) Scene.active.remove();
 		iron.data.Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			Scene.create(format, function(o:Object) {
-				done(o);
+				if (done != null) done(o);
 				Scene.active.waiting = false;
 			});
 		});
