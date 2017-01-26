@@ -324,30 +324,29 @@ class RenderPath {
 			if (lamp == null || !lamp.data.raw.cast_shadow) return;
 		}
 
-		if (!sorted && params[1] == "front_to_back") { // Order max one per frame
-			var camX = camera.transform.absx();
-			var camY = camera.transform.absy();
-			var camZ = camera.transform.absz();
-			for (mesh in Scene.active.meshes) {
-				mesh.computeCameraDistance(camX, camY, camZ);
+		if (!sorted) { // Order max one per frame for now
+			if (params[1] == "front_to_back") {
+				var camX = camera.transform.absx();
+				var camY = camera.transform.absy();
+				var camZ = camera.transform.absz();
+				for (mesh in Scene.active.meshes) {
+					mesh.computeCameraDistance(camX, camY, camZ);
+				}
+				Scene.active.meshes.sort(function(a, b):Int {
+					return a.cameraDistance > b.cameraDistance ? 1 : -1;
+				});
 			}
-			Scene.active.meshes.sort(function(a, b):Int {
-				return a.cameraDistance > b.cameraDistance ? 1 : -1;
-			});
+			else if (params[1] == "material") {
+				Scene.active.meshes.sort(function(a, b):Int {
+					return a.materials[0].name > b.materials[0].name ? 1 : -1;
+				});
+			}
 			sorted = true;
 		}
 		var g = currentRenderTarget;
-		// if (params[1] == "back_to_front") {
-		// 	var len = Scene.active.meshes.length;
-		// 	for (i in 0...len) {
-		// 		Scene.active.meshes[len - 1 - i].render(g, context, camera, lamp, bindParams);
-		// 	}
-		// }
-		// else {
-			for (mesh in Scene.active.meshes) {
-				mesh.render(g, context, camera, lamp, bindParams);
-			}
-		// }
+		for (mesh in Scene.active.meshes) {
+			mesh.render(g, context, camera, lamp, bindParams);
+		}
 		end(g);
 	}
 	
