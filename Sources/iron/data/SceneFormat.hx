@@ -17,6 +17,7 @@ typedef TSceneFormat = {
 	@:optional public var grease_pencil_datas:Array<TGreasePencilData>;
 	@:optional public var grease_pencil_ref:String;
 	@:optional public var objects:Array<TObj>;
+	@:optional public var groups:Array<TGroup>;
 	@:optional public var gravity:Array<Float>;
 	@:optional public var traits:Array<TTrait>; // Scene root traits
 	@:optional public var embedded_datas:Array<String>; // Preload for this scene, images only for now
@@ -348,6 +349,7 @@ typedef TObj = {
 	public var material_refs:Array<String>;
 	@:optional public var particle_refs:Array<TParticleReference>;
 	@:optional public var children:Array<TObj>;
+	@:optional public var group_ref:String;
 	@:optional public var lods:Array<TLod>;
 	@:optional public var lod_material:Null<Bool>;
 	@:optional public var traits:Array<TTrait>;
@@ -364,6 +366,11 @@ typedef TObj = {
 	@:optional public var spawn:Null<Bool>; // Auto add object when creating scene
 	@:optional public var local_transform_only:Null<Bool>; // No parent matrix applied
 	@:optional public var animation_setup:TAnimationSetup;
+}
+
+typedef TGroup = {
+	public var name:String;
+	public var object_refs:Array<String>;
 }
 
 typedef TLod = {

@@ -213,6 +213,19 @@ class MeshObject extends Object {
 #if arm_veloc
 		prevMatrix.setFrom(transform.matrix);
 #end
+
+		// Mesh-only groups for now
+		if (group != null) {
+			for (o in group) {
+				if (Std.is(o, MeshObject)) {
+					o.transform.appendMatrix(transform.matrix);
+					o.transform.buildMatrix();
+					cast(o, MeshObject).render(g, context, camera, lamp, bindParams);
+					o.transform.popAppendMatrix();
+					o.transform.buildMatrix();
+				}
+			}
+		}
 	}
 
 	inline function validContext(mat:MaterialData, context:String):Bool {

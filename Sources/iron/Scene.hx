@@ -217,7 +217,9 @@ class Scene {
 				}
 
 				objectsTraversed = 0;
-				traverseObjects(format, sceneName, parent, format.objects, null, function() { // Scene objects
+				var withGroup:Array<Object> = [];
+				traverseObjects(format, sceneName, parent, format.objects, null, withGroup, function() { // Scene objects
+					for (object in withGroup) setupGroup(object, format);
 					done(parent);
 				}, getObjectsCount(format.objects));
 			});
@@ -234,7 +236,7 @@ class Scene {
 	}
 
 	var objectsTraversed:Int;
-	function traverseObjects(format:TSceneFormat, sceneName:String, parent:Object, objects:Array<TObj>, parentObject:TObj, done:Void->Void, objectsCount:Int) {
+	function traverseObjects(format:TSceneFormat, sceneName:String, parent:Object, objects:Array<TObj>, parentObject:TObj, withGroup:Array<Object>, done:Void->Void, objectsCount:Int) {
 		if (objects == null) return;
 		for (i in 0...objects.length) {
 			var o = objects[i];
@@ -245,7 +247,8 @@ class Scene {
 			}
 			
 			createObject(o, format, sceneName, parent, parentObject, function(object:Object) {
-				if (object != null) traverseObjects(format, sceneName, object, o.children, o, done, objectsCount);
+				if (o.group_ref != null) withGroup.push(object);
+				if (object != null) traverseObjects(format, sceneName, object, o.children, o, withGroup, done, objectsCount);
 
 				objectsTraversed++;
 				if (objectsTraversed == objectsCount) done();
@@ -390,6 +393,19 @@ class Scene {
 		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;
 		// Build matrix now if parent is invisible
 		if (transform.object.parent != null && !transform.object.parent.visible) transform.update();
+	}
+
+	function setupGroup(object:Object, raw:TSceneFormat) {
+		var o = object.raw;
+		if (o.group_ref == null) return;
+		for (g in raw.groups) {
+			// Store referenced group objects
+			if (g.name == o.group_ref) {
+				object.group = [];
+				for (s in g.object_refs) object.group.push(getChild(s));
+				break;
+			}
+		}
 	}
 
 	static function setupAnimation(setup:TAnimationSetup, object:Object) {

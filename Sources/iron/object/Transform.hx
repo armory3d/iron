@@ -47,9 +47,23 @@ class Transform {
 		prependMats.push(m);
 	}
 
+	public function popPrependMatrix() {
+		if (prependMats != null) {
+			prependMats.pop();
+			if (prependMats.length == 0) prependMats = null;
+		}
+	}
+
 	public function appendMatrix(m:Mat4) {
 		if (appendMats == null) appendMats = [];
 		appendMats.push(m);
+	}
+
+	public function popAppendMatrix() {
+		if (appendMats != null) {
+			appendMats.pop();
+			if (appendMats.length == 0) appendMats = null;
+		}
 	}
 
 	public function buildMatrix() {
