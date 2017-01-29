@@ -351,7 +351,7 @@ class Data {
 	static var loadingImages:Map<String, Array<kha.Image->Void>> = new Map();
 	public static function getImage(file:String, done:kha.Image->Void, readable = false, format = 'RGBA32') {
 #if cpp
-		if (StringTools.endsWith(file, '.png')) file = file.substring(0, file.length - 4) + '.kng';
+		file = file.substring(0, file.length - 4) + '.k';
 #end
 
 		var cached = cachedImages.get(file);
