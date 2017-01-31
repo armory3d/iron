@@ -46,7 +46,7 @@ class WorldData extends Data {
 
 	public static function getEmptyIrradiance():haxe.ds.Vector<kha.FastFloat> {
 		if (emptyIrr == null) {
-			emptyIrr = new haxe.ds.Vector<kha.FastFloat>(27);
+			emptyIrr = new haxe.ds.Vector<kha.FastFloat>(28);
 			for (i in 0...emptyIrr.length) emptyIrr.set(i, 0.0);
 		}
 		return emptyIrr;
@@ -62,15 +62,15 @@ class WorldData extends Data {
 	
 	var shirr:haxe.ds.Vector<kha.FastFloat> = null;
 	public function getSHIrradiance():haxe.ds.Vector<kha.FastFloat> {
-		// Fetch spherical harmonics from all probes
+		// Fetch spherical harmonics from probe
 		if (shirr == null) {
-			shirr = new haxe.ds.Vector(27 * 6); // Just 6 sets for now
-			for (i in 0...probes.length) {
-				var p = probes[i];
+			shirr = new haxe.ds.Vector(28);
+			// for (i in 0...probes.length) {
+				var p = probes[0];
 				for (j in 0...p.irradiance.length) {
-					shirr[j + i * 27] = p.irradiance[j];
+					shirr[j] = p.irradiance[j];
 				}
-			}
+			// }
 		}
 		return shirr;
 	}
@@ -176,6 +176,7 @@ class Probe {
 			// for (i in 0...9) {
 				// irr.push(1.0); irr.push(1.0); irr.push(1.0);
 			// }
+			irr.push(0.0); // Align to mult of 4 - 27->28
 			done(haxe.ds.Vector.fromData(irr));
 		}
 		else {
@@ -186,6 +187,7 @@ class Probe {
 #else
 				var irradianceParsed:TIrradiance = iron.system.msgpack.MsgPack.decode(irradianceData.toBytes());
 #end
+				irradianceParsed.irradiance.push(0.0); // Align to mult of 4 - 27->28
 				done(haxe.ds.Vector.fromData(irradianceParsed.irradiance));
 			});
 		}
