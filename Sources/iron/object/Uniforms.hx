@@ -308,6 +308,15 @@ class Uniforms {
 			if (m == null) return;
 			g.setMatrix(location, m.self);
 		}
+		else if (c.type == "vec4") {
+			var v:Vec4 = null;
+			if (c.link == "_input") {
+				helpVec.set(iron.system.Input.x / iron.App.w(), iron.system.Input.y / iron.App.h(), iron.system.Input.down ? 1.0 : 0.0, 0.0);
+				v = helpVec;
+			}
+			if (v == null) return;
+			g.setFloat4(location, v.x, v.y, v.z, v.w);
+		}
 		else if (c.type == "vec3") {
 			var v:Vec4 = null;
 			if (c.link == "_lampPosition") {
@@ -479,11 +488,7 @@ class Uniforms {
 			}
 			g.setFloat(location, f);
 		}
-		// else if (c.type == "floats") {
-		// 	var fa:haxe.ds.Vector<kha.FastFloat> = null;
-		// 	g.setFloats(location, fa);
-		// }
-		else if (c.type == "float4s") {
+		else if (c.type == "floats") {
 			var fa:haxe.ds.Vector<kha.FastFloat> = null;
 			if (c.link == "_skinBones") {
 				fa = cast(object, MeshObject).animation.skinBuffer;
@@ -492,7 +497,7 @@ class Uniforms {
 				if (Scene.active.world == null) fa = WorldData.getEmptyIrradiance();
 				else fa = Scene.active.world.getSHIrradiance();
 			}
-			g.setFloat4s(location, fa);
+			g.setFloats(location, fa);
 		}
 		else if (c.type == "int") {
 			var i = 0;

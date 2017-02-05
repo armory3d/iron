@@ -34,10 +34,11 @@ class Vec4 {
 		return this;
 	}
 
-	public function set(x:Float, y:Float, z:Float):Vec4{
+	public function set(x:Float, y:Float, z:Float, w = 1.0):Vec4{
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.w = w;
 		return this;
 	}
 
