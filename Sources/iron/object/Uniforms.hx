@@ -488,7 +488,11 @@ class Uniforms {
 			}
 			g.setFloat(location, f);
 		}
-		else if (c.type == "floats") {
+		// else if (c.type == "float4s") {
+			// var fa:haxe.ds.Vector<kha.FastFloat> = null;
+			// g.setFloats(location, fa);
+		// }
+		else if (c.type == "float4s") {
 			var fa:haxe.ds.Vector<kha.FastFloat> = null;
 			if (c.link == "_skinBones") {
 				fa = cast(object, MeshObject).animation.skinBuffer;
@@ -497,7 +501,7 @@ class Uniforms {
 				if (Scene.active.world == null) fa = WorldData.getEmptyIrradiance();
 				else fa = Scene.active.world.getSHIrradiance();
 			}
-			g.setFloats(location, fa);
+			g.setFloat4s(location, fa);
 		}
 		else if (c.type == "int") {
 			var i = 0;
