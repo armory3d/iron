@@ -52,7 +52,7 @@ class RenderPath {
 	var nestedCommands:Map<String, Vector<TStageCommand>> = new Map(); // Just one level deep nesting for now
 	var nestedParams:Map<String, Vector<TStageParams>> = new Map();
 	var sorted:Bool;
-	public var waiting:Bool;
+	public var ready:Bool;
 	
 	var lamps:Array<LampObject>;
 	public var currentLampIndex = 0;
@@ -71,11 +71,11 @@ class RenderPath {
 		this.camera = camera;
 		data = camera.data;
 
-		waiting = true;
+		ready = false;
 		var numStages = data.pathdata.raw.stages.length;
 		stageCommands = new Vector(numStages);
 		stageParams = new Vector(numStages);
-		cacheStageCommands(stageCommands, stageParams, data.pathdata.raw.stages, function() { waiting = false; });
+		cacheStageCommands(stageCommands, stageParams, data.pathdata.raw.stages, function() { ready = true; });
 
 		if (screenAlignedVB == null) createScreenAlignedData();
 		if (boxVB == null) createBoxData();
@@ -165,7 +165,7 @@ class RenderPath {
 	}
 
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
-		if (waiting) return;
+		if (!ready) return;
 
 #if arm_profile
 		drawCalls = 0;

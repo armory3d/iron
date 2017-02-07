@@ -17,7 +17,7 @@ class ParticleSystem {
 
 	var particles:Array<Particle>;
 
-	var waiting:Bool;
+	var ready:Bool;
 
 	public function new(object:MeshObject, sceneName:String, pref:TParticleReference) {
 		this.object = object;
@@ -25,7 +25,7 @@ class ParticleSystem {
 		seed = pref.seed;
 		particles = [];
 
-		waiting = true;
+		ready = false;
 		Data.getParticle(sceneName, pref.particle, function(b:ParticleData) {
 			data = b;
 
@@ -48,12 +48,12 @@ class ParticleSystem {
 			}
 			object.data.mesh.setupInstanced(instancedData, Usage.DynamicUsage);
 
-			waiting = false;
+			ready = true;
 		});
 	}
 
 	public function update() {
-		if (waiting) return;
+		if (!ready) return;
 
 		for (p in particles) { // TODO: Sort Float32Array directly
 			p.lifetime += Time.delta;

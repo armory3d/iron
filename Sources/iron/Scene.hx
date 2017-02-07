@@ -41,7 +41,7 @@ class Scene {
 
 	public var embedded:Map<String, kha.Image>;
 
-	public var waiting:Bool; // Async in progress
+	public var ready:Bool; // Async in progress
 
 	public var traitInits:Array<Void->Void> = [];
 
@@ -59,7 +59,7 @@ class Scene {
 
 	public static function create(format:TSceneFormat, done:Object->Void) {
 		active = new Scene();
-		active.waiting = true;
+		active.ready = false;
 		active.raw = format;
 
 		Data.getWorld(format.name, format.world_ref, function(world:WorldData) {
@@ -106,7 +106,7 @@ class Scene {
 		iron.data.Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			Scene.create(format, function(o:Object) {
 				if (done != null) done(o);
-				Scene.active.waiting = false;
+				Scene.active.ready = true;
 			});
 		});
 	}
@@ -116,7 +116,7 @@ class Scene {
 	}
 
 	public function renderFrame(g:kha.graphics4.Graphics) {
-		if (waiting) return;
+		if (!ready) return;
 
 		var activeCamera = camera;
 		// Render active mirrors
@@ -459,7 +459,7 @@ class Scene {
 
 	// Hooks
 	public function notifyOnInit(f:Void->Void) {
-		if (!waiting) f(); // Scene already running
+		if (ready) f(); // Scene already running
 		else traitInits.push(f);
 	}
 
