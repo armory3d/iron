@@ -498,8 +498,10 @@ class RenderPath {
 			key = result ? key + '_true' : key + '_false';
 			var stageCommands = nestedCommands.get(key);
 			var stageParams = nestedParams.get(key);
-			for (i in 0...stageCommands.length) {
-				stageCommands[i](stageParams[i], root);
+			if (stageCommands != null) { // Null when only single branch is populated with commands
+				for (i in 0...stageCommands.length) {
+					stageCommands[i](stageParams[i], root);
+				}
 			}
 		}
 	}
@@ -652,11 +654,11 @@ class RenderPath {
 		var key = parsedStageIndex + '';
 		var cached = 0;
 		var cacheTo = 0;
-		if (stageData.returns_true != null) cacheTo++;
-		if (stageData.returns_false != null) cacheTo++;
+		if (stageData.returns_true != null && stageData.returns_true.length > 0) cacheTo++;
+		if (stageData.returns_false != null && stageData.returns_false.length > 0) cacheTo++;
 		if (cacheTo == 0) done();
 
-		if (stageData.returns_true != null) {
+		if (stageData.returns_true != null && stageData.returns_true.length > 0) {
 			var numStages = stageData.returns_true.length;
 			var stageCommands = new Vector<TStageCommand>(numStages);
 			var stageParams = new Vector<TStageParams>(numStages);
@@ -666,7 +668,7 @@ class RenderPath {
 			cacheStageCommands(stageCommands, stageParams, stageData.returns_true, function() { cached++; if (cached == cacheTo) done(); });
 		}
 
-		if (stageData.returns_false != null) {
+		if (stageData.returns_false != null && stageData.returns_false.length > 0) {
 			var numStages = stageData.returns_false.length;
 			var stageCommands = new Vector<TStageCommand>(numStages);
 			var stageParams = new Vector<TStageParams>(numStages);

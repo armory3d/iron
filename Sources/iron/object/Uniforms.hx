@@ -488,7 +488,7 @@ class Uniforms {
 			}
 			g.setFloat(location, f);
 		}
-		// else if (c.type == "float4s") {
+		// else if (c.type == "floats") {
 			// var fa:haxe.ds.Vector<kha.FastFloat> = null;
 			// g.setFloats(location, fa);
 		// }
