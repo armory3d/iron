@@ -29,9 +29,15 @@ class Uniforms {
 	public static var helpVec2 = new Vec4();
 	public static var helpQuat = new Quat(); // Keep at identity
 
-	public static var externalTextureLink:String->kha.Image = null;
-	public static var externalVec3Link:String->Vec4 = null;
-	public static var externalFloatLink:String->Float = null;
+	public static var externalTextureLinks:Array<String->kha.Image> = null;
+	public static var externalMat4Links:Array<String->Mat4> = null;
+	public static var externalVec4Links:Array<String->Vec4> = null;
+	public static var externalVec3Links:Array<String->Vec4> = null;
+	public static var externalVec2Links:Array<String->Vec4> = null;
+	public static var externalFloatLinks:Array<String->Null<Float>> = null;
+	public static var externalFloatsLinks:Array<String->haxe.ds.Vector<kha.FastFloat>> = null;
+	public static var externalIntLinks:Array<String->Null<Int>> = null;
+	// public static var externalBoolLinks:Array<String->Null<Bool>> = null;
 
 	public static function setConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 
@@ -109,11 +115,14 @@ class Uniforms {
 					}
 				}
 				// External
-				else if (externalTextureLink != null) {
-					var image = externalTextureLink(tulink);
-					if (image != null) {
-						g.setTexture(context.textureUnits[j], image);
-						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+				else if (externalTextureLinks != null) {
+					for (f in externalTextureLinks) {
+						var image = f(tulink);
+						if (image != null) {
+							g.setTexture(context.textureUnits[j], image);
+							// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+							break;
+						}
 					}
 				}
 			}
@@ -305,6 +314,14 @@ class Uniforms {
 			    matLook.multmat2(matP);
 			    m = matLook;
 			}
+			// External
+			else if (externalMat4Links != null) {
+				for (fn in externalMat4Links) {
+					m = fn(c.link);
+					if (m != null) break;
+				}
+			}
+
 			if (m == null) return;
 			g.setMatrix(location, m.self);
 		}
@@ -314,6 +331,14 @@ class Uniforms {
 				helpVec.set(iron.system.Input.x / iron.App.w(), iron.system.Input.y / iron.App.h(), iron.system.Input.down ? 1.0 : 0.0, 0.0);
 				v = helpVec;
 			}
+			// External
+			else if (externalVec4Links != null) {
+				for (fn in externalVec4Links) {
+					v = fn(c.link);
+					if (v != null) break;
+				}
+			}
+
 			if (v == null) return;
 			g.setFloat4(location, v.x, v.y, v.z, v.w);
 		}
@@ -389,8 +414,11 @@ class Uniforms {
 				v = Scene.active.world.getProbeVolumeSize(object.transform);
 			}
 			// External
-			else if (externalVec3Link != null) {
-				v = externalVec3Link(c.link);
+			else if (externalVec3Links != null) {
+				for (f in externalVec3Links) {
+					v = f(c.link);
+					if (v != null) break;
+				}
 			}
 			
 			if (v == null) return;
@@ -430,6 +458,18 @@ class Uniforms {
 				vx = camera.data.raw.near_plane;
 				vy = camera.data.raw.far_plane;
 			}
+			// External
+			else if (externalVec2Links != null) {
+				for (fn in externalVec2Links) {
+					var v = fn(c.link);
+					if (v != null) {
+						vx = v.x;
+						vy = v.y;
+						break;
+					}
+				}
+			}
+
 			g.setFloat2(location, vx, vy);
 		}
 		else if (c.type == "float") {
@@ -483,9 +523,16 @@ class Uniforms {
 			}
 #end
 			// External
-			else if (externalFloatLink != null) {
-				f = externalFloatLink(c.link);
+			else if (externalFloatLinks != null) {
+				for (fn in externalFloatLinks) {
+					var res = fn(c.link);
+					if (res != null) {
+						f = res;
+						break;
+					}
+				}
 			}
+
 			g.setFloat(location, f);
 		}
 		// else if (c.type == "floats") {
@@ -501,6 +548,14 @@ class Uniforms {
 				if (Scene.active.world == null) fa = WorldData.getEmptyIrradiance();
 				else fa = Scene.active.world.getSHIrradiance();
 			}
+			// External
+			else if (externalFloatsLinks != null) {
+				for (fn in externalFloatsLinks) {
+					fa = fn(c.link);
+					if (fa != null) break;
+				}
+			}
+
 			g.setFloat4s(location, fa);
 		}
 		else if (c.type == "int") {
@@ -520,6 +575,17 @@ class Uniforms {
 			else if (c.link == "_probeID") { // Local probes
 				i = Scene.active.world.getProbeID(object.transform);
 			}
+			// External
+			else if (externalIntLinks != null) {
+				for (fn in externalIntLinks) {
+					var res = fn(c.link);
+					if (res != null) {
+						i = res;
+						break;
+					}
+				}
+			}
+
 			g.setInt(location, i);
 		}
 	}
