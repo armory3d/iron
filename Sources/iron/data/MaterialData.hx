@@ -77,6 +77,12 @@ class MaterialContext {
 				var tex = raw.bind_textures[i];
 				// TODO: make sure to store in the same order as shader texture units array
 
+				if (tex.file == '') { // Empty texture
+					texturesLoaded++;
+					if (texturesLoaded == raw.bind_textures.length) done(this);
+					continue;
+				}
+
 				iron.data.Data.getImage(tex.file, function(image:kha.Image) {
 					textures[i] = image;
 					texturesLoaded++;
