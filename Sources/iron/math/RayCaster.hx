@@ -90,7 +90,7 @@ class RayCaster {
 	}
 	
 	// Project screen-space point onto 3D plane
-	public static function getPlaneUV(obj:MeshObject, screenX:Float, screenY:Float, camera:CameraObject):kha.math.FastVector2 {
+	public static function getPlaneUV(obj:MeshObject, screenX:Float, screenY:Float, camera:CameraObject):Vec2 {
 		// Get normal from data
 		var normals = obj.data.mesh.normals;
 		var nor = new Vec4(normals[0], normals[1], normals[2]);
@@ -132,7 +132,7 @@ class RayCaster {
 			var ix = uCoord / hx * (-1) * 0.5 + 0.5;
 			var iy = vCoord / hy * 0.5 + 0.5;
 			
-			return new kha.math.FastVector2(ix, iy);
+			return new Vec2(ix, iy);
 		}
 		return null;
 	}
