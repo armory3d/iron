@@ -340,7 +340,7 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
                 t0data[i * 2 + 1] = 1.0 - vtx.uvs[0].y # Reverse TCY
                 if num_uv_layers > 1:
                     t1data[i * 2] = vtx.uvs[1].x
-                    t1data[i * 2 + 1] = vtx.uvs[1].y
+                    t1data[i * 2 + 1] = 1.0 - vtx.uvs[1].y
             if num_colors > 0:
                 cdata[i * 3] = vtx.col[0]
                 cdata[i * 3 + 1] = vtx.col[1]
