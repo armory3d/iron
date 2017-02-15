@@ -2,18 +2,19 @@ package iron;
 
 import iron.object.Object;
 
+@:allow(iron.object.Object)
 class Trait {
 
 	public var name:String = "";
 	public var object:Object;
 
-	public var _add:Void->Void = null;
-	public var _init:Void->Void = null;
-	public var _remove:Void->Void = null;
-	public var _update:Void->Void = null;
-	public var _lateUpdate:Void->Void = null;
-	public var _render:kha.graphics4.Graphics->Void = null;
-	public var _render2D:kha.graphics2.Graphics->Void = null;
+	var _add:Array<Void->Void> = null;
+	var _init:Array<Void->Void> = null;
+	var _remove:Array<Void->Void> = null;
+	var _update:Array<Void->Void> = null;
+	var _lateUpdate:Array<Void->Void> = null;
+	var _render:Array<kha.graphics4.Graphics->Void> = null;
+	var _render2D:Array<kha.graphics2.Graphics->Void> = null;
 
 	public function new() {
 	
@@ -24,55 +25,62 @@ class Trait {
 	}
 
 	function notifyOnAdd(f:Void->Void) {
-		_add = f;
+		if (_add == null) _add = [];
+		_add.push(f);
 	}
 
 	function notifyOnInit(f:Void->Void) {
+		if (_init == null) _init = [];
+		_init.push(f);
 		App.notifyOnInit(f);
-		_init = f;
 	}
 
 	function notifyOnRemove(f:Void->Void) {
-		_remove = f;
+		if (_remove == null) _remove = [];
+		_remove.push(f);
 	}
 
 	function notifyOnUpdate(f:Void->Void) {
+		if (_update == null) _update = [];
+		_update.push(f);
 		App.notifyOnUpdate(f);
-		_update = f;
 	}
 
 	function removeUpdate(f:Void->Void) {
+		_update.remove(f);
 		App.removeUpdate(f);
-		_update = null;
 	}
 	
 	function notifyOnLateUpdate(f:Void->Void) {
+		if (_lateUpdate == null) _lateUpdate = [];
+		_lateUpdate.push(f);
 		App.notifyOnLateUpdate(f);
-		_lateUpdate = f;
 	}
 
 	function removeLateUpdate(f:Void->Void) {
+		_lateUpdate.remove(f);
 		App.removeLateUpdate(f);
-		_lateUpdate = null;
 	}
 
 	function notifyOnRender(f:kha.graphics4.Graphics->Void) {
+		if (_render == null) _render = [];
+		_render.push(f);
 		App.notifyOnRender(f);
-		_render = f;
 	}
 
 	function removeRender(f:kha.graphics4.Graphics->Void) {
+		_render.remove(f);
 		App.removeRender(f);
-		_render = null;
 	}
 
 	function notifyOnRender2D(f:kha.graphics2.Graphics->Void) {
+		if (_render2D == null) _render2D = [];
+		_render2D.push(f);
 		App.notifyOnRender2D(f);
-		_render2D = f;
 	}
 
 	function removeRender2D(f:kha.graphics2.Graphics->Void) {
+		_render2D.remove(f);
 		App.removeRender2D(f);
-		_render2D = null;
 	}
 }

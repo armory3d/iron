@@ -68,16 +68,37 @@ class Object {
 		traits.push(t);
 		t.object = this;
 
-		if (t._add != null) { t._add(); t._add = null; }
+		if (t._add != null) {
+			for (f in t._add) f();
+			t._add = null;
+		}
 	}
 
 	public function removeTrait(t:Trait) {
-		if (t._init != null) App.removeInit(t._init);
-		if (t._update != null) App.removeUpdate(t._update);
-		if (t._lateUpdate != null) App.removeLateUpdate(t._lateUpdate);
-		if (t._render != null) App.removeRender(t._render);
-		if (t._render2D != null) App.removeRender2D(t._render2D);
-		if (t._remove != null) { t._remove(); t._remove = null; }
+		if (t._init != null) {
+			for (f in t._init) App.removeInit(f);
+			t._init = null;
+		}
+		if (t._update != null) {
+			for (f in t._update) App.removeUpdate(f);
+			t._update = null;
+		}
+		if (t._lateUpdate != null) {
+			for (f in t._lateUpdate) App.removeLateUpdate(f);
+			t._lateUpdate = null;
+		}
+		if (t._render != null) {
+			for (f in t._render) App.removeRender(f);
+			t._render = null;
+		}
+		if (t._render2D != null) {
+			for (f in t._render2D) App.removeRender2D(f);
+			t._render2D = null;
+		}
+		if (t._remove != null) {
+			for (f in t._remove) f();
+			t._remove = null;
+		}
 
 		traits.remove(t);
 		t.object = null;
