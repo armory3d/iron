@@ -55,6 +55,7 @@ class RenderPath {
 	public var ready:Bool;
 	
 	var lamps:Array<LampObject>;
+	var visibleLampExists:Bool;
 	public var currentLampIndex = 0;
 
 	// Quad and decals contexts
@@ -182,7 +183,13 @@ class RenderPath {
 		this.lamps = lamps;
 		currentLampIndex = 0;
 		
-		for (l in lamps) l.buildMatrices(camera);
+		visibleLampExists = false;
+		for (l in lamps) {
+			if (l.visible) {
+				l.buildMatrices(camera);
+				visibleLampExists = true;
+			}
+		}
 
 		for (i in 0...stageCommands.length) {
 #if arm_profile
@@ -317,7 +324,9 @@ class RenderPath {
 	function drawMeshes(params:Array<String>, root:Object) {
 		var context = params[0];
 		var lamp = getLamp(currentLampIndex);
-		if (lamp != null && !lamp.visible) return;
+		// Draw 
+		if (!visibleLampExists && currentLampIndex == 0) {} // Draw atleast once to fill geometry buffers
+		else if (lamp != null && !lamp.visible) return;
 
 		// Disabled shadow casting for this lamp
 		if (context == data.pathdata.raw.shadows_context) {

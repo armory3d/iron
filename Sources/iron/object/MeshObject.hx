@@ -68,7 +68,7 @@ class MeshObject extends Object {
 
 		// Skip render if object or lamp is hidden
 		if (!visible) return;
-		if (lamp != null && !lamp.visible) return;
+		// if (lamp != null && !lamp.visible) return; // Discarded in render path
 
 		var shadowsContext = camera.data.pathdata.raw.shadows_context;
 		if (!visibleMesh && context != shadowsContext) return;
