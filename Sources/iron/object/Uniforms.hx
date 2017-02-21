@@ -68,7 +68,11 @@ class Uniforms {
 
 				for (j in 0...tus.length) { // Set texture
 					if (samplerID == tus[j].name) {						
-						if (tus[j].is_image != null && tus[j].is_image) {} //g.setImageTexture(context.textureUnits[j], rt.image); // image2D
+						if (tus[j].is_image != null && tus[j].is_image) {
+#if arm_voxelgi // setImageTexture() not yet available in master Kha
+							g.setImageTexture(context.textureUnits[j], rt.image); // image2D
+#end
+						}
 						else if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image); // sampler2D
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
 
@@ -292,28 +296,6 @@ class Uniforms {
 				m = iron.system.VR.getUndistortionMatrix();
 			}
 #end
-			else if (c.link == "_projectionXMatrix") {
-				// TODO: cache..
-				var size = 150.0; //voxelGridWorldSize;
-			    var matP = Mat4.orthogonal(-size * 0.5, size * 0.5, -size * 0.5, size * 0.5, size * 0.5, size * 1.5);
-			    var matLook = Mat4.lookAt(new Vec4(size, 0, 0), new Vec4(0, 0, 0), new Vec4(0, 1, 0));
-			    matLook.multmat2(matP);
-			    m = matLook;
-			}
-			else if (c.link == "_projectionYMatrix") {
-				var size = 150.0;
-			    var matP = Mat4.orthogonal(-size * 0.5, size * 0.5, -size * 0.5, size * 0.5, size * 0.5, size * 1.5);
-			    var matLook = Mat4.lookAt(new Vec4(0, size, 0), new Vec4(0, 0, 0), new Vec4(0, 0, -1));
-			    matLook.multmat2(matP);
-			    m = matLook;
-			}
-			else if (c.link == "_projectionZMatrix") {
-				var size = 150.0;
-			    var matP = Mat4.orthogonal(-size * 0.5, size * 0.5, -size * 0.5, size * 0.5, size * 0.5, size * 1.5);
-			    var matLook = Mat4.lookAt(new Vec4(0, 0, size), new Vec4(0, 0, 0), new Vec4(0, 1, 0));
-			    matLook.multmat2(matP);
-			    m = matLook;
-			}
 			// External
 			else if (externalMat4Links != null) {
 				for (fn in externalMat4Links) {
