@@ -317,9 +317,9 @@ class RenderPath {
 
 	function clearImage(params:Array<String>, root:Object) {
 		var target = params[0];
-		// var color = params[1];
+		var color = Color.fromString(params[1]);
 		var rt = data.pathdata.renderTargets.get(target);
-		rt.image.clear();
+		rt.image.clear(0, 0, 0, rt.image.width, rt.image.height, rt.image.depth, color);
 	}
 
 	function generateMipmaps(params:Array<String>, root:Object) {
