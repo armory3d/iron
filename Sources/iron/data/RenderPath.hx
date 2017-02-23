@@ -315,6 +315,13 @@ class RenderPath {
 		currentRenderTarget.clear(colorFlag, depthFlag, null);
 	}
 
+	function clearImage(params:Array<String>, root:Object) {
+		var target = params[0];
+		// var color = params[1];
+		var rt = data.pathdata.renderTargets.get(target);
+		rt.image.clear();
+	}
+
 	function generateMipmaps(params:Array<String>, root:Object) {
 		var target = params[0];
 		var rt = data.pathdata.renderTargets.get(target);
@@ -641,6 +648,7 @@ class RenderPath {
 			case "set_target": done(setTarget);
 			case "set_viewport": done(setViewport);
 			case "clear_target": done(clearTarget);
+			case "clear_image": done(clearImage);
 			case "generate_mipmaps": done(generateMipmaps);
 			case "draw_meshes": done(drawMeshes);
 			case "draw_decals": done(drawDecals);
