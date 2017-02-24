@@ -22,7 +22,6 @@ class App {
 	}
 	
 	function new(_appReady:Void->Void) {
-		new iron.system.Storage();
 		new iron.system.Input();
 
 		_appReady();

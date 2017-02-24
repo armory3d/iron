@@ -4,10 +4,10 @@ import kha.StorageFile;
 
 class Storage {
 	
-	static var file:StorageFile;
+	static var file:StorageFile = null;
 	static var data:Array<Dynamic>;
-	
-	public function new() {
+
+	static function init() {
 		file = kha.Storage.defaultFile();
 		if (file != null) {
 			data = file.readObject();
@@ -27,6 +27,7 @@ class Storage {
 	}
 
 	public static function setValue(pos:EnumValue, value:Dynamic) {
+		if (file == null) init();
 
 		// Get index
 		var p = Type.enumIndex(pos);
@@ -40,7 +41,6 @@ class Storage {
 	}
 
 	public static function getValue(pos:EnumValue):Dynamic {
-
 		return data[Type.enumIndex(pos)];
 	}
 }
