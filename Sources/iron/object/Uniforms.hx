@@ -118,6 +118,9 @@ class Uniforms {
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 					}
 				}
+				else if (tulink == "_lensTexture") {
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('lenstexture.jpg'));
+				}
 				// External
 				else if (externalTextureLinks != null) {
 					for (f in externalTextureLinks) {
