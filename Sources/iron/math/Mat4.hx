@@ -511,4 +511,8 @@ class Mat4 {
 	public var _31(get, set):FastFloat; inline function get__31():FastFloat { return self._31; } inline function set__31(f:FastFloat):FastFloat { return self._31 = f; }
 	public var _32(get, set):FastFloat; inline function get__32():FastFloat { return self._32; } inline function set__32(f:FastFloat):FastFloat { return self._32 = f; }
 	public var _33(get, set):FastFloat; inline function get__33():FastFloat { return self._33; } inline function set__33(f:FastFloat):FastFloat { return self._33 = f; }
+
+	public function toString():String {
+        return '[[$_00, $_10, $_20, $_30], [$_01, $_11, $_21, $_31], [$_02, $_12, $_22, $_32], [$_03, $_13, $_23, $_33]]';
+    }
 }

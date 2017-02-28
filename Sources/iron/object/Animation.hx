@@ -336,11 +336,11 @@ class Animation {
 	static var q2 = new Quat(); // Dual
 	function updateSkinGpu() {
 		var bones = data.mesh.skeletonBones;
+
 		for (i in 0...bones.length) {
 			
 			bm.setFrom(data.mesh.skinTransform);
 			bm.multmat2(data.mesh.skeletonTransformsI[i]);
-			var m = Mat4.identity();
 			m.setFrom(boneMats.get(bones[i]));
 			var p = bones[i].parent;
 			while (p != null) { // TODO: store absolute transforms per bone
@@ -372,6 +372,8 @@ class Animation {
 			q2.set(vpos.x, vpos.y, vpos.z, 0.0);
 			q2.multquats(q2, q1);
 			q2.x *= 0.5; q2.y *= 0.5; q2.z *= 0.5; q2.w *= 0.5;
+			// q1.set(0, 0, 0, 1); // No skin
+			// q2.set(0, 0, 0, 1);
 			skinBuffer[i * 8] = q1.x;
 			skinBuffer[i * 8 + 1] = q1.y;
 			skinBuffer[i * 8 + 2] = q1.z;
