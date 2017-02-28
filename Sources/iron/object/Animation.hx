@@ -135,7 +135,7 @@ class Animation {
 	inline function interpolateTcb() {}
 
 	function updateAnimNonSampled(anim:TAnimation, transform:Transform) {
-		if (anim == null) return;
+		if (anim == null || player.current == null) return;
 		
 		var begin = anim.begin;
 		var end = anim.end;
@@ -221,7 +221,7 @@ class Animation {
 	}
 
 	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
-		if (anim == null) return;
+		if (anim == null || player.current == null) return;
 		var track = anim.tracks[0];
 
 		// Current track has been changed
@@ -492,7 +492,7 @@ class Player {
 	public var timeIndex:Int = 0; // TODO: use boneTimeIndices
 	public var dirty:Bool = false;
 
-	public var current:Track;
+	public var current:Track = null;
 	var tracks:Map<String, Track> = new Map();
 	public var onTrackComplete:Void->Void = null;
 
@@ -511,6 +511,7 @@ class Player {
 	public function play(name:String, onTrackComplete:Void->Void = null) {
 		this.onTrackComplete = onTrackComplete;
 		current = tracks.get(name);
+		if (current == null) return; // Track not found
 		dirty = true;
 		paused = false;
 		dir = current.speed >= 0 ? 1 : -1;
