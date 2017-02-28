@@ -18,11 +18,11 @@ import iron.data.SceneFormat;
 // Structure for setting shader uniforms
 class Uniforms {
 
-	// static var biasMat = new Mat4(
-	// 	0.5, 0.0, 0.0, 0.0,
-	// 	0.0, 0.5, 0.0, 0.0,
-	// 	0.0, 0.0, 0.5, 0.0,
-	// 	0.5, 0.5, 0.5, 1.0);
+	static var biasMat = new Mat4(
+		0.5, 0.0, 0.0, 0.5,
+		0.0, 0.5, 0.0, 0.5,
+		0.0, 0.0, 0.5, 0.5,
+		0.0, 0.0, 0.0, 1.0);
 	public static var helpMat = Mat4.identity();
 	public static var helpMat2 = Mat4.identity();
 	public static var helpVec = new Vec4();
@@ -248,11 +248,30 @@ class Uniforms {
 					m = helpMat;
 				}
 			}
+			else if (c.link == "_biasLampWorldViewProjectionMatrix") {
+				if (lamp != null)  {
+					helpMat.setIdentity();
+					if (object != null) helpMat.multmat2(object.transform.matrix); // object is null for DrawQuad
+					helpMat.multmat2(lamp.V);
+					helpMat.multmat2(lamp.data.P);
+					helpMat.multmat2(biasMat);
+					m = helpMat;
+				}
+			}
 			else if (c.link == "_lampViewProjectionMatrix") {
 				if (lamp != null) {
 					helpMat.setIdentity();
 					helpMat.multmat2(lamp.V);
 					helpMat.multmat2(lamp.data.P);
+					m = helpMat;
+				}
+			}
+			else if (c.link == "_biasLampViewProjectionMatrix") {
+				if (lamp != null) {
+					helpMat.setIdentity();
+					helpMat.multmat2(lamp.V);
+					helpMat.multmat2(lamp.data.P);
+					helpMat.multmat2(biasMat);
 					m = helpMat;
 				}
 			}
@@ -264,16 +283,6 @@ class Uniforms {
 					helpMat.compose(helpVec, helpQuat, helpVec2);
 					helpMat.multmat2(camera.V);
 					helpMat.multmat2(camera.P);
-					m = helpMat;
-				}
-			}
-			else if (c.link == "_biasLampWorldViewProjectionMatrix") {
-				if (lamp != null)  {
-					helpMat.setIdentity();
-					if (object != null) helpMat.multmat2(object.transform.matrix); // object is null for DrawQuad
-					helpMat.multmat2(lamp.V);
-					helpMat.multmat2(lamp.data.P);
-					// helpMat.multmat2(biasMat);
 					m = helpMat;
 				}
 			}
