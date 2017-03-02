@@ -79,6 +79,7 @@ typedef TLampData = {
 	@:optional public var far_plane:Float;
 	@:optional public var fov:Float;
 	@:optional public var shadows_bias:Float;
+	@:optional public var shadowmap_size:Int;
 	@:optional public var spot_size:Null<Float>;
 	@:optional public var spot_blend:Null<Float>;
 	@:optional public var lamp_size:Null<Float>; // Shadow soft size

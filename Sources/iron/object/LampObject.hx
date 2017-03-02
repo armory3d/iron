@@ -89,19 +89,40 @@ class LampObject extends Object {
 			var maxz = corners[0].z;
 			for (v in corners) {
 				if (v.x < minx) minx = v.x;
-				else if (v.x > maxx) maxx = v.x;
+				if (v.x > maxx) maxx = v.x;
 				if (v.y < miny) miny = v.y;
-				else if (v.y > maxy) maxy = v.y;
+				if (v.y > maxy) maxy = v.y;
 				if (v.z < minz) minz = v.z;
-				else if (v.z > maxz) maxz = v.z;
+				if (v.z > maxz) maxz = v.z;
 			}
+
+			// Adjust frustum size by longest diagonal - fix rotation swim
+			var diag0 = Vec4.distance3d(corners[0], corners[7]);
+			var offx = (diag0 - (maxx - minx)) * 0.5;
+			var offy = (diag0 - (maxy - miny)) * 0.5;
+			minx -= offx;
+			maxx += offx;
+			miny -= offy;
+			maxy += offy;
+
+			// Snap to texel coords - fix translation swim
+			var worldPerTexelX = (maxx - minx) / data.raw.shadowmap_size;
+			var worldPerTexelY = (maxy - miny) / data.raw.shadowmap_size;
+			var worldPerTexelZ = (maxz - minz) / data.raw.shadowmap_size;
+			minx = Math.floor(minx / worldPerTexelX) * worldPerTexelX;
+			miny = Math.floor(miny / worldPerTexelY) * worldPerTexelY;
+			minz = Math.floor(minz / worldPerTexelZ) * worldPerTexelZ;
+			maxx = Math.floor(maxx / worldPerTexelX) * worldPerTexelX;
+			maxy = Math.floor(maxy / worldPerTexelY) * worldPerTexelY;
+			maxz = Math.floor(maxz / worldPerTexelZ) * worldPerTexelZ;
+
 			var hx = (maxx - minx) / 2;
 			var hy = (maxy - miny) / 2;
 			var hz = (maxz - minz) / 2;
 			V._30 = -(minx + hx);
 			V._31 = -(miny + hy);
-			V._32 = -(minz + hz);
-			P = Mat4.orthogonal(-hx, hx, -hy, hy, -hz, hz);
+
+			P = Mat4.orthogonal(-hx, hx, -hy, hy, -hz * 2, hz); // -hz * 2 - include shadow casters out of view frustum
 		}
 		else { // Point, spot, area
 			V.getInverse(transform.matrix);
