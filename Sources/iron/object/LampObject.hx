@@ -2,6 +2,7 @@ package iron.object;
 
 import iron.math.Mat4;
 import iron.math.Vec4;
+import iron.math.Quat;
 import iron.data.LampData;
 import iron.object.CameraObject.FrustumPlane;
 import iron.Scene;
@@ -11,15 +12,36 @@ class LampObject extends Object {
 	public var data:LampData;
 
 	// Shadow map matrices
-	public var V:Mat4 = null;
+	public var V:Mat4 = Mat4.identity();
+	public var P:Mat4 = null;
 	static var VP:Mat4 = null;
 
 	public var frustumPlanes:Array<FrustumPlane> = null;
+	static var corners:Array<Vec4> = null;
 
 	public function new(data:LampData) {
 		super();
 		
 		this.data = data;
+
+		var type = data.raw.type;
+		var fov = data.raw.fov;
+		
+		if (type == "sun") {
+			// Estimate planes from fov
+			P = Mat4.orthogonal(-fov * 25, fov * 25, -fov * 25, fov * 25, -data.raw.far_plane, data.raw.far_plane);
+			
+			if (corners == null) {
+				corners = [];
+				for (i in 0...8) corners.push(new Vec4());
+			}
+		}
+		else if (type == "point" || type == "area") {
+			P = Mat4.perspective(fov, 1, data.raw.near_plane, data.raw.far_plane);
+		}
+		else if (type == "spot") {
+			P = Mat4.perspective(fov, 1, data.raw.near_plane, data.raw.far_plane);
+		}
 
 		Scene.active.lamps.push(this);
 	}
@@ -29,11 +51,61 @@ class LampObject extends Object {
 		super.remove();
 	}
 
+	static function setCorners() {
+		corners[0].set(-1.0, -1.0, 1.0);
+		corners[1].set(-1.0, -1.0, -1.0);
+		corners[2].set(-1.0, 1.0, 1.0);
+		corners[3].set(-1.0, 1.0, -1.0);
+		corners[4].set(1.0, -1.0, 1.0);
+		corners[5].set(1.0, -1.0, -1.0);
+		corners[6].set(1.0, 1.0, 1.0);
+		corners[7].set(1.0, 1.0, -1.0);
+	}
+
+	static var m = Mat4.identity();
 	public function buildMatrices(camera:CameraObject) {
+
 		transform.buildMatrix();
-		
-		V = Mat4.identity();
-		V.getInverse(transform.matrix);
+
+		if (data.raw.type == "sun") { // Cover camera frustum
+			m.setFrom(camera.V);
+			m.multmat2(camera.P);
+			m.getInverse(m);
+			V.setFrom(transform.matrix);
+			V.toRotation();
+			V.getInverse(V);
+			m.multmat2(V);
+			setCorners();
+			for (v in corners) {
+				v.applymat4(m);
+				v.set(v.x / v.w, v.y / v.w, v.z / v.w);
+			}
+			
+			var minx = corners[0].x;
+			var miny = corners[0].y;
+			var minz = corners[0].z;
+			var maxx = corners[0].x;
+			var maxy = corners[0].y;
+			var maxz = corners[0].z;
+			for (v in corners) {
+				if (v.x < minx) minx = v.x;
+				else if (v.x > maxx) maxx = v.x;
+				if (v.y < miny) miny = v.y;
+				else if (v.y > maxy) maxy = v.y;
+				if (v.z < minz) minz = v.z;
+				else if (v.z > maxz) maxz = v.z;
+			}
+			var hx = (maxx - minx) / 2;
+			var hy = (maxy - miny) / 2;
+			var hz = (maxz - minz) / 2;
+			V._30 = -(minx + hx);
+			V._31 = -(miny + hy);
+			V._32 = -(minz + hz);
+			P = Mat4.orthogonal(-hx, hx, -hy, hy, -hz, hz);
+		}
+		else { // Point, spot, area
+			V.getInverse(transform.matrix);
+		}
 
 		// Frustum culling enabled
 		if (camera.data.raw.frustum_culling) {
@@ -44,6 +116,7 @@ class LampObject extends Object {
 			}
 
 			VP.multmats(camera.P, V);
+			// VP.multmats(P, V);
 			CameraObject.buildViewFrustum(VP, frustumPlanes);
 		}
 	}

@@ -420,11 +420,11 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
         
         # Make tangents
         if num_uv_layers > 0:
-            tana = {}
-            tana['attrib'] = "tangent"
-            tana['size'] = 3
-            tana['values'] = self.calc_tangents(pa['values'], na['values'], ta['values'], om['index_arrays'][0]['values'])  
-            om['vertex_arrays'].append(tana)
+            tanga = {}
+            tanga['attrib'] = "tangent"
+            tanga['size'] = 3
+            tanga['values'] = self.calc_tangents(pa['values'], na['values'], ta['values'], om['index_arrays'][0]['values'])  
+            om['vertex_arrays'].append(tanga)
 
         return vert_list
 

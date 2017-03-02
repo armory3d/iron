@@ -125,9 +125,23 @@ class Vec4 {
 		var y = this.y;
 		var z = this.z;
 
-		this.x = (m._00 * x + m._10 * y + m._20 * z + m._30);
-		this.y = (m._01 * x + m._11 * y + m._21 * z + m._31);
-		this.z = (m._02 * x + m._12 * y + m._22 * z + m._32);
+		this.x = m._00 * x + m._10 * y + m._20 * z + m._30;
+		this.y = m._01 * x + m._11 * y + m._21 * z + m._31;
+		this.z = m._02 * x + m._12 * y + m._22 * z + m._32;
+
+		return this;
+	}
+
+	public function applymat4(m:Mat4):Vec4 {
+		var x = this.x;
+		var y = this.y;
+		var z = this.z;
+		var w = this.w;
+
+		this.x = m._00 * x + m._10 * y + m._20 * z + m._30 * w;
+		this.y = m._01 * x + m._11 * y + m._21 * z + m._31 * w;
+		this.z = m._02 * x + m._12 * y + m._22 * z + m._32 * w;
+		this.w = m._03 * x + m._13 * y + m._23 * z + m._33 * w;
 
 		return this;
 	}

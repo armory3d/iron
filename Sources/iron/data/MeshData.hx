@@ -51,8 +51,8 @@ class MeshData extends Data {
 		var ca = caVA != null ? caVA.values : null;
 
 		// Normal mapping
-		var tanaVA = getVertexArray("tangent");
-		var tana = tanaVA != null ? tanaVA.values : null;
+		var tangaVA = getVertexArray("tangent");
+		var tanga = tangaVA != null ? tangaVA.values : null;
 
 		// Skinning
 		isSkinned = raw.mesh.skin != null ? true : false;
@@ -85,7 +85,7 @@ class MeshData extends Data {
 		}
 		
 		// Make vertex buffers
-		mesh = new Mesh(indices, materialIndices, pa, na, uva, uva1, ca, tana, bonea, weighta, usage);
+		mesh = new Mesh(indices, materialIndices, pa, na, uva, uva1, ca, tanga, bonea, weighta, usage);
 
 		// Instanced
 		if (raw.mesh.instance_offsets != null) {

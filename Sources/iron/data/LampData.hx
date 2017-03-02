@@ -7,7 +7,6 @@ class LampData extends Data {
 
 	public var name:String;
 	public var raw:TLampData;
-	public var P:Mat4 = null; // Shadow map matrices
 
 	public var colorTexture:kha.Image = null;
 
@@ -16,20 +15,6 @@ class LampData extends Data {
 
 		this.raw = raw;
 		this.name = raw.name;
-		
-		var type = raw.type;
-		var fov = raw.fov;
-		
-		if (type == "sun") {
-			// Estimate planes from fov
-			P = Mat4.orthogonal(-fov * 25, fov * 25, -fov * 25, fov * 25, -raw.far_plane, raw.far_plane);
-		}
-		else if (type == "point" || type == "area") {
-			P = Mat4.perspective(fov, 1, raw.near_plane, raw.far_plane);
-		}
-		else if (type == "spot") {
-			P = Mat4.perspective(fov, 1, raw.near_plane, raw.far_plane);
-		}
 
 		if (raw.color_texture != null) {
 			iron.data.Data.getImage(raw.color_texture, function(image:kha.Image) {

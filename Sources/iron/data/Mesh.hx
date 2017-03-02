@@ -90,14 +90,14 @@ class Mesh {
 		for (buf in indexBuffers) buf.delete();
 	}
 
-	static function getVertexStructure(pos = false, nor = false, tex = false, tex1 = false, col = false, tan = false, bone = false, weight = false):VertexStructure {
+	static function getVertexStructure(pos = false, nor = false, tex = false, tex1 = false, col = false, tang = false, bone = false, weight = false):VertexStructure {
 		var structure = new VertexStructure();
 		if (pos) structure.add("pos", VertexData.Float3);
 		if (nor) structure.add("nor", VertexData.Float3);
 		if (tex) structure.add("tex", VertexData.Float2);
 		if (tex1) structure.add("tex1", VertexData.Float2);
 		if (col) structure.add("col", VertexData.Float3);
-		if (tan) structure.add("tan", VertexData.Float3);
+		if (tang) structure.add("tang", VertexData.Float3);
 		if (bone) structure.add("bone", VertexData.Float4);
 		if (weight) structure.add("weight", VertexData.Float4);
 		return structure;
@@ -158,7 +158,7 @@ class Mesh {
 								  uva:Array<Float> = null,
 								  uva1:Array<Float> = null,
 								  ca:Array<Float> = null,
-								  tana:Array<Float> = null,
+								  tanga:Array<Float> = null,
 								  bonea:Array<Float> = null,
 								  weighta:Array<Float> = null) {
 
@@ -188,10 +188,10 @@ class Mesh {
 				vertices.set(++di, ca[i * 3 + 2]);
 			}
 			// Normal mapping
-			if (tana != null) { // Tangents
-				vertices.set(++di, tana[i * 3]);
-				vertices.set(++di, tana[i * 3 + 1]);
-				vertices.set(++di, tana[i * 3 + 2]);
+			if (tanga != null) { // Tangents
+				vertices.set(++di, tanga[i * 3]);
+				vertices.set(++di, tanga[i * 3 + 1]);
+				vertices.set(++di, tanga[i * 3 + 2]);
 			}
 			// GPU skinning
 			if (bonea != null) { // Bone indices
@@ -218,12 +218,12 @@ class Mesh {
 		if (uvs != null) vertexBuffers.push(makeDeinterleavedVB(uvs, "tex", 2));
 		if (uvs1 != null) vertexBuffers.push(makeDeinterleavedVB(uvs1, "tex1", 2));
 		if (cols != null) vertexBuffers.push(makeDeinterleavedVB(cols, "col", 3));
-		if (tangents != null) vertexBuffers.push(makeDeinterleavedVB(tangents, "tan", 3));
+		if (tangents != null) vertexBuffers.push(makeDeinterleavedVB(tangents, "tang", 3));
 		if (bones != null) vertexBuffers.push(makeDeinterleavedVB(bones, "bone", 4));
 		if (weights != null) vertexBuffers.push(makeDeinterleavedVB(weights, "weight", 4));
 #else
 		// TODO: Mandatory vertex data names and sizes
-		// pos=3, tex=2, nor=3, col=4, tan=3, bone=4, weight=4
+		// pos=3, tex=2, nor=3, col=4, tang=3, bone=4, weight=4
 		var struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
 		structLength = Std.int(struct.byteSize() / 4);
 		vertexBuffer = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
@@ -314,12 +314,12 @@ class Mesh {
 		aabb = new Vec4();
 		var i = 0;
 		while (i < positions.length) {
-			if (positions[i] > aabbMax.x)		aabbMax.x = positions[i];
-			if (positions[i + 1] > aabbMax.y)	aabbMax.y = positions[i + 1];
-			if (positions[i + 2] > aabbMax.z)	aabbMax.z = positions[i + 2];
-			if (positions[i] < aabbMin.x)		aabbMin.x = positions[i];
-			if (positions[i + 1] < aabbMin.y)	aabbMin.y = positions[i + 1];
-			if (positions[i + 2] < aabbMin.z)	aabbMin.z = positions[i + 2];
+			if (positions[i] > aabbMax.x) aabbMax.x = positions[i];
+			if (positions[i + 1] > aabbMax.y) aabbMax.y = positions[i + 1];
+			if (positions[i + 2] > aabbMax.z) aabbMax.z = positions[i + 2];
+			if (positions[i] < aabbMin.x) aabbMin.x = positions[i];
+			if (positions[i + 1] < aabbMin.y) aabbMin.y = positions[i + 1];
+			if (positions[i + 2] < aabbMin.z) aabbMin.z = positions[i + 2];
 			i += 3;
 		}
 		aabb.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);

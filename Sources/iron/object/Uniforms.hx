@@ -244,7 +244,7 @@ class Uniforms {
 					helpMat.setIdentity();
 					if (object != null) helpMat.multmat2(object.transform.matrix); // object is null for DrawQuad
 					helpMat.multmat2(lamp.V);
-					helpMat.multmat2(lamp.data.P);
+					helpMat.multmat2(lamp.P);
 					m = helpMat;
 				}
 			}
@@ -253,7 +253,7 @@ class Uniforms {
 					helpMat.setIdentity();
 					if (object != null) helpMat.multmat2(object.transform.matrix); // object is null for DrawQuad
 					helpMat.multmat2(lamp.V);
-					helpMat.multmat2(lamp.data.P);
+					helpMat.multmat2(lamp.P);
 					helpMat.multmat2(biasMat);
 					m = helpMat;
 				}
@@ -262,7 +262,7 @@ class Uniforms {
 				if (lamp != null) {
 					helpMat.setIdentity();
 					helpMat.multmat2(lamp.V);
-					helpMat.multmat2(lamp.data.P);
+					helpMat.multmat2(lamp.P);
 					m = helpMat;
 				}
 			}
@@ -270,7 +270,7 @@ class Uniforms {
 				if (lamp != null) {
 					helpMat.setIdentity();
 					helpMat.multmat2(lamp.V);
-					helpMat.multmat2(lamp.data.P);
+					helpMat.multmat2(lamp.P);
 					helpMat.multmat2(biasMat);
 					m = helpMat;
 				}
@@ -301,7 +301,7 @@ class Uniforms {
 				if (lamp != null) m = lamp.V;
 			}
 			else if (c.link == "_lampProjectionMatrix") {
-				if (lamp != null) m = lamp.data.P;
+				if (lamp != null) m = lamp.P;
 			}
 #if arm_vr
 			else if (c.link == "_undistortionMatrix") {
