@@ -18,6 +18,7 @@ class LampObject extends Object {
 
 	public var frustumPlanes:Array<FrustumPlane> = null;
 	static var corners:Array<Vec4> = null;
+	var camSlicedP:Mat4 = null;
 
 	public function new(data:LampData) {
 		super();
@@ -29,8 +30,8 @@ class LampObject extends Object {
 		
 		if (type == "sun") {
 			// Estimate planes from fov
-			P = Mat4.orthogonal(-fov * 25, fov * 25, -fov * 25, fov * 25, -data.raw.far_plane, data.raw.far_plane);
-			
+			// P = Mat4.orthogonal(-fov * 25, fov * 25, -fov * 25, fov * 25, -data.raw.far_plane, data.raw.far_plane);
+
 			if (corners == null) {
 				corners = [];
 				for (i in 0...8) corners.push(new Vec4());
@@ -68,8 +69,15 @@ class LampObject extends Object {
 		transform.buildMatrix();
 
 		if (data.raw.type == "sun") { // Cover camera frustum
+
+			if (camSlicedP == null) { // Move in far plane for now
+				var raw = camera.data.raw;
+				camSlicedP = Mat4.perspective(raw.fov, iron.App.w() / iron.App.h(), raw.near_plane, raw.far_plane / 4.0);
+			}
+
 			m.setFrom(camera.V);
-			m.multmat2(camera.P);
+			// m.multmat2(camera.P);
+			m.multmat2(camSlicedP);
 			m.getInverse(m);
 			V.setFrom(transform.matrix);
 			V.toRotation();
@@ -136,8 +144,7 @@ class LampObject extends Object {
 				if (VP == null) VP = Mat4.identity();
 			}
 
-			VP.multmats(camera.P, V);
-			// VP.multmats(P, V);
+			VP.multmats(P, V);
 			CameraObject.buildViewFrustum(VP, frustumPlanes);
 		}
 	}

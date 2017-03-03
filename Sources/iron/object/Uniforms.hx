@@ -355,8 +355,8 @@ class Uniforms {
 			}
 			else if (c.link == "_lampArea0") {
 				if (lamp != null && lamp.data.raw.size != null) {
-					var sx = lamp.data.raw.size;
-					var sy = lamp.data.raw.size_y;
+					var sx = lamp.data.raw.size / 2;
+					var sy = lamp.data.raw.size_y / 2;
 					helpVec.set(-sx, sy, 0.0);
 					helpVec.applymat(lamp.transform.matrix);
 					v = helpVec;
@@ -364,8 +364,8 @@ class Uniforms {
 			}
 			else if (c.link == "_lampArea1") {
 				if (lamp != null && lamp.data.raw.size != null) {
-					var sx = lamp.data.raw.size;
-					var sy = lamp.data.raw.size_y;
+					var sx = lamp.data.raw.size / 2;
+					var sy = lamp.data.raw.size_y / 2;
 					helpVec.set(sx, sy, 0.0);
 					helpVec.applymat(lamp.transform.matrix);
 					v = helpVec;
@@ -373,8 +373,8 @@ class Uniforms {
 			}
 			else if (c.link == "_lampArea2") {
 				if (lamp != null && lamp.data.raw.size != null) {
-					var sx = lamp.data.raw.size;
-					var sy = lamp.data.raw.size_y;
+					var sx = lamp.data.raw.size / 2;
+					var sy = lamp.data.raw.size_y / 2;
 					helpVec.set(sx, -sy, 0.0);
 					helpVec.applymat(lamp.transform.matrix);
 					v = helpVec;
@@ -382,8 +382,8 @@ class Uniforms {
 			}
 			else if (c.link == "_lampArea3") {
 				if (lamp != null && lamp.data.raw.size != null) {
-					var sx = lamp.data.raw.size;
-					var sy = lamp.data.raw.size_y;
+					var sx = lamp.data.raw.size / 2;
+					var sy = lamp.data.raw.size_y / 2;
 					helpVec.set(-sx, -sy, 0.0);
 					helpVec.applymat(lamp.transform.matrix);
 					v = helpVec;
