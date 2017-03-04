@@ -101,6 +101,13 @@ class Transform {
 		buildMatrix();
 	}
 
+	public function translate(x:Float, y:Float, z:Float) {
+		loc.x += x;
+		loc.y += y;
+		loc.z += z;
+		buildMatrix();
+	}
+
 	public function setMatrix(mat:Mat4) {
 		matrix = mat;
 		loc = matrix.getLoc();

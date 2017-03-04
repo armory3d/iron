@@ -90,14 +90,17 @@ class RayCaster {
 	}
 	
 	// Project screen-space point onto 3D plane
+	static var loc = new Vec4();
+	static var nor = new Vec4();
+	static var m = Mat4.identity();
 	public static function getPlaneUV(obj:MeshObject, screenX:Float, screenY:Float, camera:CameraObject):Vec2 {
 		// Get normal from data
 		var normals = obj.data.mesh.normals;
-		var nor = new Vec4(normals[0], normals[1], normals[2]);
+		nor.set(normals[0], normals[1], normals[2]);
 		
 		// Rotate by world rotation matrix
-		var m = Mat4.identity();
-		m.multmat2(obj.transform.matrix);
+		m.setFrom(obj.transform.matrix);
+		// m.toRotation();
 		m.getInverse(m);
 		m.transpose3x3();
 		m._30 = m._31 = m._32 = 0;
@@ -105,7 +108,7 @@ class RayCaster {
 		nor.normalize();
 	
 		// Plane intersection
-		var loc = obj.transform.loc;
+		loc.set(obj.transform.absx(), obj.transform.absy(), obj.transform.absz());
 		var hit = RayCaster.planeIntersect(nor, loc, screenX, screenY, camera);
 		
 		// Convert to uv

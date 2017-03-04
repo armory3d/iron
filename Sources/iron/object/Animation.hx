@@ -141,13 +141,28 @@ class Animation {
 		var end = anim.end;
 		var total = end - begin;
 
+		if (player.dirty) {
+			player.dirty = false;
+			player.animTime = player.current.start * 0.0167;
+			player.timeIndex = 0;
+			var track = anim.tracks[0];
+			while (player.animTime > track.time.values[player.timeIndex] + 0.0167) {
+				player.timeIndex++;
+			}
+		}
+
+		// Track with no frames - keep idle
+		if (player.current.frames == 0) return;
+
 		for (track in anim.tracks) {
 
 			// No data for this track at current time
 			if (player.timeIndex >= track.time.values.length) continue;
 
 			// End of track
-			if (player.animTime > total || player.animTime < 0) {
+			if (player.animTime > total || player.animTime < 0 ||
+				player.animTime > player.current.end * 0.0167 - 0.0167) { // Assume 60fps..
+
 				if (!player.current.loop) {
 					player.paused = true;
 					return;
@@ -511,9 +526,9 @@ class Player {
 	}
 
 	public function play(name:String, onTrackComplete:Void->Void = null) {
-		this.onTrackComplete = onTrackComplete;
 		current = tracks.get(name);
 		if (current == null) return; // Track not found
+		this.onTrackComplete = onTrackComplete;
 		dirty = true;
 		paused = false;
 		dir = current.speed >= 0 ? 1 : -1;
