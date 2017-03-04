@@ -161,7 +161,9 @@ class Animation {
 
 			// End of track
 			if (player.animTime > total || player.animTime < 0 ||
-				player.animTime > player.current.end * 0.0167 - 0.0167) { // Assume 60fps..
+				(player.animTime > player.current.end * 0.0167 - 0.0167 && player.dir > 0) ||
+				(player.animTime < player.current.start * 0.0167 + 0.0167 && player.dir < 0)
+				) { // Assume 60fps..
 
 				if (!player.current.loop) {
 					player.paused = true;
