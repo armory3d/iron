@@ -17,10 +17,8 @@ import iron.object.Object;
 import iron.object.CameraObject;
 import iron.object.LampObject;
 import iron.object.Uniforms;
-import haxe.ds.Vector;
 
 typedef TStageCommand = Array<String>->Object->Void;
-typedef TStageParams = Array<String>;
 
 class RenderPath {
 
@@ -33,6 +31,8 @@ class RenderPath {
 	public var frameScissorY = 0;
 	public var frameScissorW = 0;
 	public var frameScissorH = 0;
+	var scissorSet = false;
+	var viewportScaled = false;
 	var currentRenderTarget:Graphics;
 	public var currentRenderTargetW:Int;
 	public var currentRenderTargetH:Int;
@@ -46,12 +46,10 @@ class RenderPath {
 	static var skydomeVB:VertexBuffer = null;
 	static var skydomeIB:IndexBuffer = null;
 
-	var stageCommands:Vector<TStageCommand>;
-	var stageParams:Vector<TStageParams>;
+	var currentStages:Array<TRenderPathStage> = null;
 	var currentStageIndex = 0;
-	var nestedCommands:Map<String, Vector<TStageCommand>> = new Map(); // Just one level deep nesting for now
-	var nestedParams:Map<String, Vector<TStageParams>> = new Map();
-	var sorted:Bool;
+	
+	var meshesSorted:Bool;
 	public var ready:Bool;
 	
 	var lamps:Array<LampObject>;
@@ -63,20 +61,26 @@ class RenderPath {
 	
 #if arm_profile
 	public static var drawCalls = 0;
-	public var passNames:Array<String>;
-	public var passEnabled:Array<Bool>;
-	var currentPass:Int;
 #end
+
+	// Used by render path nodes for branch functions
+	public static function lampCastShadow(rp:RenderPath) {
+		return rp.getLamp(rp.currentLampIndex).data.raw.cast_shadow;
+	}
+
+	static var voxelized = false;
+	public static function voxelize(rp:RenderPath) {
+		var res = !voxelized;
+		voxelized = true;
+		return res;
+	}
 
 	public function new(camera:CameraObject) {
 		this.camera = camera;
 		data = camera.data;
 
 		ready = false;
-		var numStages = data.pathdata.raw.stages.length;
-		stageCommands = new Vector(numStages);
-		stageParams = new Vector(numStages);
-		cacheStageCommands(stageCommands, stageParams, data.pathdata.raw.stages, function() { ready = true; });
+		loadStageCommands(data.pathdata.raw.stages, function() { ready = true; });
 
 		if (screenAlignedVB == null) createScreenAlignedData();
 		if (boxVB == null) createBoxData();
@@ -95,7 +99,7 @@ class RenderPath {
 		var data = [-1.0, -1.0, 3.0, -1.0, -1.0, 3.0];
 		var indices = [0, 1, 2];
 
-		// TODO: Mandatory vertex data names and sizes
+		// Mandatory vertex data names and sizes
 		var structure = new VertexStructure();
 		structure.add("pos", VertexData.Float2);
 		screenAlignedVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
@@ -170,7 +174,6 @@ class RenderPath {
 
 #if arm_profile
 		drawCalls = 0;
-		currentPass = 0;
 #end
 
 		frameRenderTarget = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture
@@ -178,11 +181,10 @@ class RenderPath {
 		currentRenderTargetW = iron.App.w();
 		currentRenderTargetH = iron.App.h();
 		currentRenderTargetD = 1;
-		sorted = false;
+		meshesSorted = false;
 
 		this.lamps = lamps;
 		currentLampIndex = 0;
-		
 		visibleLampExists = false;
 		for (l in lamps) {
 			if (l.visible) {
@@ -191,33 +193,17 @@ class RenderPath {
 			}
 		}
 
-		for (i in 0...stageCommands.length) {
-#if arm_profile
-			var cmd = stageCommands[i];
-			if (!passEnabled[currentPass]) {
-				if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad || cmd == drawGreasePencil) {
-					endPass();
-				}
-				continue;
-			}
-#end
+		currentStages = data.pathdata.raw.stages;
+		callCurrentStages(root);
+	}
 
+	function callCurrentStages(root:Object) {
+		for (i in 0...currentStages.length) {
 			currentStageIndex = i;
-			stageCommands[i](stageParams[i], root);
-
-#if arm_profile
-			if (cmd == drawMeshes || cmd == drawSkydome || cmd == drawLampVolume || cmd == drawDecals || cmd == drawMaterialQuad || cmd == drawShaderQuad || cmd == drawGreasePencil) {
-				endPass();
-			}
-#end
+			var f = commandToFunction(currentStages[i].command);
+			f(currentStages[i].params, root);
 		}
 	}
-	
-#if arm_profile
-	function endPass() {
-		if (loopFinished == 0) currentPass++;
-	}
-#end
 
 	public static var lastPongRT:RenderTarget;
 	var loopFinished = 0;
@@ -264,20 +250,24 @@ class RenderPath {
 		}
 		var viewportScale = Std.parseFloat(params[0]);
 		if (viewportScale != 1.0) {
+			viewportScaled = true;
 			var viewW = Std.int(currentRenderTargetW * viewportScale);
 			var viewH = Std.int(currentRenderTargetH * viewportScale);
 			currentRenderTarget.viewport(0, viewH, viewW, viewH);
 			currentRenderTarget.scissor(0, viewH, viewW, viewH);
 		}
+		else if (viewportScaled) { // Reset viewport
+			viewportScaled = false;
+			setCurrentViewport(currentRenderTargetW, currentRenderTargetH);
+			setCurrentScissor(currentRenderTargetW, currentRenderTargetH);
+		}
 		bindParams = null;
 	}
 
 	public function setCurrentViewport(viewW:Int, viewH:Int) {
-		// glViewport(x, _renderTargetHeight - y - height, width, height);
 		currentRenderTarget.viewport(0, currentRenderTargetH - viewH, viewW, viewH);
 	}
 
-	var scissorSet = false;
 	public function setCurrentScissor(viewW:Int, viewH:Int) {
 		currentRenderTarget.scissor(0, currentRenderTargetH - viewH, viewW, viewH);
 		scissorSet = true;
@@ -297,8 +287,6 @@ class RenderPath {
 	function clearTarget(params:Array<String>, root:Object) {
 		var colorFlag:Null<Int> = null;
 		var depthFlag:Null<Float> = null;
-		
-		// TODO: Cache parsed clear flags
 		for (i in 0...Std.int(params.length / 2)) {
 			var pos = i * 2;
 			var val = pos + 1;
@@ -340,7 +328,7 @@ class RenderPath {
 			if (lamp == null || !lamp.data.raw.cast_shadow) return;
 		}
 
-		if (!sorted) { // Order max one per frame for now
+		if (!meshesSorted) { // Order max one per frame for now
 			if (params[1] == "front_to_back") {
 				var camX = camera.transform.absx();
 				var camY = camera.transform.absy();
@@ -352,12 +340,13 @@ class RenderPath {
 					return a.cameraDistance > b.cameraDistance ? 1 : -1;
 				});
 			}
+			// TODO: sort into buckets by material, then fron to back
 			else if (params[1] == "material") {
 				Scene.active.meshes.sort(function(a, b):Int {
 					return a.materials[0].name > b.materials[0].name ? 1 : -1;
 				});
 			}
-			sorted = true;
+			meshesSorted = true;
 		}
 		var g = currentRenderTarget;
 		for (mesh in Scene.active.meshes) {
@@ -495,61 +484,54 @@ class RenderPath {
 	}
 
 	function callFunction(params:Array<String>, root:Object) {
-		// TODO: cache
 		var path = params[0];
 		var dotIndex = path.lastIndexOf(".");
 		var classPath = path.substr(0, dotIndex);
 		var classType = Type.resolveClass(classPath);
 		var funName = path.substr(dotIndex + 1);
-		var stageData = data.pathdata.raw.stages[currentStageIndex];
+		var stage = currentStages[currentStageIndex];
 		// Call function
-		if (stageData.returns_true == null && stageData.returns_false == null) {
+		if (stage.returns_true == null && stage.returns_false == null) {
 			Reflect.callMethod(classType, Reflect.field(classType, funName), [this]);
 		}
 		// Branch function
 		else {
 			var result:Bool = Reflect.callMethod(classType, Reflect.field(classType, funName), [this]);
 			// Nested commands
-			var key = currentStageIndex + '';
-			key = result ? key + '_true' : key + '_false';
-			var stageCommands = nestedCommands.get(key);
-			var stageParams = nestedParams.get(key);
-			if (stageCommands != null) { // Null when only single branch is populated with commands
-				for (i in 0...stageCommands.length) {
-					stageCommands[i](stageParams[i], root);
-				}
+			var nestedStages = result ? stage.returns_true : stage.returns_false;
+			if (nestedStages != null) { // Null when only single branch is populated with commands
+				var parentStages = currentStages;
+				currentStages = nestedStages;
+				callCurrentStages(root);
+				currentStages = parentStages;
 			}
 		}
 	}
 	
 	function loopLamps(params:Array<String>, root:Object) {
-		var key = currentStageIndex + '_true';
-		var stageCommands = nestedCommands.get(key);
-		var stageParams = nestedParams.get(key);
-		
+		var nestedStages = currentStages[currentStageIndex].returns_true;
+		var parentStages = currentStages;
+		currentStages = nestedStages;
 		currentLampIndex = 0;
 		loopFinished++;
+
 		for (i in 0...lamps.length) {
 			var l = lamps[i];
 			if (!l.visible) continue;
 			currentLampIndex = i;
-			for (i in 0...stageCommands.length) {
-				stageCommands[i](stageParams[i], root);
-			}
+			callCurrentStages(root);
 		}
+
 		currentLampIndex = 0;
 		loopFinished--;
-
-#if arm_profile
-		endPass();
-#end
+		currentStages = parentStages;
 	}
 
 #if arm_vr
 	function drawStereo(params:Array<String>, root:Object) {
-		var key = currentStageIndex + '_true';
-		var stageCommands = nestedCommands.get(key);
-		var stageParams = nestedParams.get(key);
+		var nestedStages = currentStages[currentStageIndex].returns_true;
+		var parentStages = currentStages;
+		currentStages = nestedStages;
 
 		loopFinished++;
 		var g = currentRenderTarget;
@@ -557,27 +539,19 @@ class RenderPath {
 
 		// Left eye
 		g.viewport(0, 0, halfW, currentRenderTargetH);
-		for (i in 0...stageCommands.length) {
-			stageCommands[i](stageParams[i], root);
-		}
+		callCurrentStages(root);
 
 		// Right eye
-		// TODO: For testing purposes only
-		camera.move(camera.right(), 0.032);
+		camera.move(camera.right(), 0.032); // TODO: For testing purposes only
 		camera.buildMatrix();
 		g.viewport(halfW, 0, halfW, currentRenderTargetH);
-		for (i in 0...stageCommands.length) {
-			stageCommands[i](stageParams[i], root);
-		}
+		callCurrentStages(root);
 
-		camera.move(camera.right(), -0.032);
+		camera.move(camera.right(), -0.032); // TODO:
 		camera.buildMatrix();
 
 		loopFinished--;
-
-	#if arm_profile
-		endPass();
-	#end
+		currentStages = parentStages;
 	}
 #end
 
@@ -595,119 +569,76 @@ class RenderPath {
 		drawPerformed = true;
 	}
 
-	function cacheStageCommands(stageCommands:Vector<TStageCommand>, stageParams:Vector<TStageParams>, stages:Array<TRenderPathStage>, done:Void->Void) {
-#if arm_profile
-		var setPasses = this.stageCommands == stageCommands;
-		if (setPasses) {
-			passNames = [];
-			passEnabled = [];
-		}
-#end
-
+	function loadStageCommands(stages:Array<TRenderPathStage>, done:Void->Void) {
 		var stagesLoaded = 0;
-
 		for (i in 0...stages.length) {
-			var stage = stages[i];
-
-			stageParams[i] = stage.params;
-			commandToFunction(stage, i, function(cmd:TStageCommand) {
-				stageCommands[i] = cmd;
-				
+			loadCommand(stages[i], function() {				
 				stagesLoaded++;
 				if (stagesLoaded == stages.length) done();
 			});
-
-#if arm_profile
-			if (setPasses) {
-				if (stage.command != "draw_stereo" && stage.command.substr(0, 4) == "draw") {
-					var splitParams = stage.params[0].split("_");
-					var passName = splitParams[0];
-					for (i in 1...splitParams.length) {
-						// Remove from '_pass' or appended defs, starting with upper case letter
-						if (splitParams[i] == "pass" || splitParams[i].charAt(0) == splitParams[i].charAt(0).toUpperCase()) {
-							for (j in 1...i) passName += "_" + splitParams[j];
-							break;
-						}
-					}
-					passNames.push(passName);
-					passEnabled.push(true);
-				}
-				// Combine into single entry for now
-				else if (stage.command == "loop_lamps" || stage.command == "loop_stages" || stage.command == "draw_stereo") {
-					passNames.push(stage.command);
-					passEnabled.push(true);
-				}
-			}
-#end
 		}
 	}
 	
-	function commandToFunction(stage:TRenderPathStage, parsedStageIndex:Int, done:TStageCommand->Void) {
+	function commandToFunction(command:String):TStageCommand {
+		return switch (command) {
+			case "set_target": setTarget;
+			case "set_viewport": setViewport;
+			case "clear_target": clearTarget;
+			case "clear_image": clearImage;
+			case "generate_mipmaps": generateMipmaps;
+			case "draw_meshes": drawMeshes;
+			case "draw_decals": drawDecals;
+			case "draw_skydome": drawSkydome;
+			case "draw_lamp_volume": drawLampVolume;
+			case "bind_target": bindTarget;
+			case "draw_shader_quad": drawShaderQuad;
+			case "draw_material_quad": drawMaterialQuad;
+			case "draw_grease_pencil": drawGreasePencil;
+			case "call_function": callFunction;
+			case "loop_lamps": loopLamps;
+#if arm_vr
+			case "draw_stereo": drawStereo;
+#end
+			default: null;
+		}
+	}
+
+	function loadCommand(stage:TRenderPathStage, done:Void->Void) {
 		var handle = stage.params.length > 0 ? stage.params[0] : '';
 		switch (stage.command) {
-			case "set_target": done(setTarget);
-			case "set_viewport": done(setViewport);
-			case "clear_target": done(clearTarget);
-			case "clear_image": done(clearImage);
-			case "generate_mipmaps": done(generateMipmaps);
-			case "draw_meshes": done(drawMeshes);
-			case "draw_decals": done(drawDecals);
-			case "draw_skydome": cacheMaterialQuad(handle, function() { done(drawSkydome); });
-			case "draw_lamp_volume": cacheShaderQuad(handle, function() { done(drawLampVolume); });
-			case "bind_target": done(bindTarget);
-			case "draw_shader_quad": cacheShaderQuad(handle, function() { done(drawShaderQuad); });
-			case "draw_material_quad": cacheMaterialQuad(handle, function() { done(drawMaterialQuad); });
-			case "draw_grease_pencil": done(drawGreasePencil);
-			case "call_function": cacheReturnsBoth(stage, parsedStageIndex, function() { done(callFunction); });
-			case "loop_lamps": cacheReturnsTrue(stage, parsedStageIndex, function() { done(loopLamps); });
+			case "draw_skydome": cacheMaterialQuad(handle, done);
+			case "draw_lamp_volume": cacheShaderQuad(handle, done);
+			case "draw_shader_quad": cacheShaderQuad(handle, done);
+			case "draw_material_quad": cacheMaterialQuad(handle, done);
+			case "call_function": cacheReturnsBoth(stage, done);
+			case "loop_lamps": cacheReturnsTrue(stage, done);
 #if arm_vr
-			case "draw_stereo": cacheReturnsTrue(stage, parsedStageIndex, function() { done(drawStereo); });
+			case "draw_stereo": cacheReturnsTrue(stage, done);
 #end
-			default: done(null);
+			default: done();
 		}
 	}
 
-	function cacheReturnsBoth(stageData:TRenderPathStage, parsedStageIndex:Int, done:Void->Void) {
-		var key = parsedStageIndex + '';
+	function cacheReturnsBoth(stage:TRenderPathStage, done:Void->Void) {
 		var cached = 0;
 		var cacheTo = 0;
-		if (stageData.returns_true != null && stageData.returns_true.length > 0) cacheTo++;
-		if (stageData.returns_false != null && stageData.returns_false.length > 0) cacheTo++;
+		if (stage.returns_true != null && stage.returns_true.length > 0) cacheTo++;
+		if (stage.returns_false != null && stage.returns_false.length > 0) cacheTo++;
 		if (cacheTo == 0) done();
 
-		if (stageData.returns_true != null && stageData.returns_true.length > 0) {
-			var numStages = stageData.returns_true.length;
-			var stageCommands = new Vector<TStageCommand>(numStages);
-			var stageParams = new Vector<TStageParams>(numStages);
-			nestedCommands.set(key + '_true', stageCommands);
-			nestedParams.set(key + '_true', stageParams);
-
-			cacheStageCommands(stageCommands, stageParams, stageData.returns_true, function() { cached++; if (cached == cacheTo) done(); });
+		if (stage.returns_true != null && stage.returns_true.length > 0) {
+			loadStageCommands(stage.returns_true, function() { cached++; if (cached == cacheTo) done(); });
 		}
 
-		if (stageData.returns_false != null && stageData.returns_false.length > 0) {
-			var numStages = stageData.returns_false.length;
-			var stageCommands = new Vector<TStageCommand>(numStages);
-			var stageParams = new Vector<TStageParams>(numStages);
-			nestedCommands.set(key + '_false', stageCommands);
-			nestedParams.set(key + '_false', stageParams);
-
-			cacheStageCommands(stageCommands, stageParams, stageData.returns_false, function() { cached++; if (cached == cacheTo) done(); });
+		if (stage.returns_false != null && stage.returns_false.length > 0) {
+			loadStageCommands(stage.returns_false, function() { cached++; if (cached == cacheTo) done(); });
 		}
 
 	}
 
-	function cacheReturnsTrue(stageData:TRenderPathStage, parsedStageIndex:Int, done:Void->Void) {
-		var key = parsedStageIndex + '_true';
-
-		if (stageData.returns_true != null) {
-			var numStages = stageData.returns_true.length;
-			var stageCommands = new Vector<TStageCommand>(numStages);
-			var stageParams = new Vector<TStageParams>(numStages);
-			nestedCommands.set(key, stageCommands);
-			nestedParams.set(key, stageParams);
-
-			cacheStageCommands(stageCommands, stageParams, stageData.returns_true, done);
+	function cacheReturnsTrue(stage:TRenderPathStage, done:Void->Void) {
+		if (stage.returns_true != null) {
+			loadStageCommands(stage.returns_true, done);
 		}
 		else done();
 	}

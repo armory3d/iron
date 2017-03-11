@@ -8,6 +8,7 @@ import kha.graphics4.MipMapFilter;
 import iron.Scene;
 import iron.math.Vec4;
 import iron.math.Quat;
+import iron.math.Mat3;
 import iron.math.Mat4;
 import iron.data.WorldData;
 import iron.data.LampData;
@@ -24,7 +25,7 @@ class Uniforms {
 		0.0, 0.0, 0.5, 0.5,
 		0.0, 0.0, 0.0, 1.0);
 	public static var helpMat = Mat4.identity();
-	public static var helpMat2 = Mat4.identity();
+	public static var helpMat3 = Mat3.identity();
 	public static var helpVec = new Vec4();
 	public static var helpVec2 = new Vec4();
 	public static var helpQuat = new Quat(); // Keep at identity
@@ -149,24 +150,24 @@ class Uniforms {
 				helpMat.getInverse(object.transform.matrix);
 				m = helpMat;
 			}
-			else if (c.link == "_normalMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(object.transform.matrix);
-				// Non uniform anisotropic scaling, calculate normal matrix
-				//if (!(object.transform.scale.x == object.transform.scale.y && object.transform.scale.x == object.transform.scale.z)) {
-					helpMat.getInverse(helpMat);
-					helpMat.transpose3x3();
-				//}
-				m = helpMat;
-			}
-			else if (c.link == "_viewNormalMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(object.transform.matrix);
-				helpMat.multmat2(camera.V); // View space
-				helpMat.getInverse(helpMat);
-				helpMat.transpose3x3();
-				m = helpMat;
-			}
+			// else if (c.link == "_normalMatrix") {
+			// 	helpMat.setIdentity();
+			// 	helpMat.multmat2(object.transform.matrix);
+			// 	// Non uniform anisotropic scaling, calculate normal matrix
+			// 	//if (!(object.transform.scale.x == object.transform.scale.y && object.transform.scale.x == object.transform.scale.z)) {
+			// 		helpMat.getInverse(helpMat);
+			// 		helpMat.transpose3x3();
+			// 	//}
+			// 	m = helpMat;
+			// }
+			// else if (c.link == "_viewNormalMatrix") {
+			// 	helpMat.setIdentity();
+			// 	helpMat.multmat2(object.transform.matrix);
+			// 	helpMat.multmat2(camera.V); // View space
+			// 	helpMat.getInverse(helpMat);
+			// 	helpMat.transpose3x3();
+			// 	m = helpMat;
+			// }
 			else if (c.link == "_viewMatrix") {
 				m = camera.V;
 			}
@@ -319,6 +320,23 @@ class Uniforms {
 			if (m == null) return;
 			g.setMatrix(location, m.self);
 		}
+		else if (c.type == "mat3") {
+			var m:Mat3 = null;
+			if (c.link == "_normalMatrix") {
+				helpMat.setIdentity();
+				helpMat.multmat2(object.transform.matrix);
+				// Non uniform anisotropic scaling, calculate normal matrix
+				//if (!(object.transform.scale.x == object.transform.scale.y && object.transform.scale.x == object.transform.scale.z)) {
+					helpMat.getInverse(helpMat);
+					helpMat.transpose3x3();
+				//}
+				helpMat3.setFrom4(helpMat);
+				m = helpMat3;
+			}
+
+			if (m == null) return;
+			g.setMatrix3(location, m.self);
+		}
 		else if (c.type == "vec4") {
 			var v:Vec4 = null;
 			if (c.link == "_input") {
@@ -422,10 +440,16 @@ class Uniforms {
 			var vx:Float = 0;
 			var vy:Float = 0;
 			if (c.link == "_vec2x") vx = 1.0;
+			else if (c.link == "_vec2xInv") vx = 1.0 / camera.renderPath.currentRenderTargetW;
 			else if (c.link == "_vec2x2") vx = 2.0;
+			else if (c.link == "_vec2x2Inv") vx = 2.0 / camera.renderPath.currentRenderTargetW;
 			else if (c.link == "_vec2y") vy = 1.0;
+			else if (c.link == "_vec2yInv") vy = 1.0 / camera.renderPath.currentRenderTargetH;
 			else if (c.link == "_vec2y2") vy = 2.0;
+			else if (c.link == "_vec2y2Inv") vy = 2.0 / camera.renderPath.currentRenderTargetH;
 			else if (c.link == "_vec2y3") vy = 3.0;
+			else if (c.link == "_vec2y3Inv") vy = 3.0 / camera.renderPath.currentRenderTargetH;
+
 			else if (c.link == "_windowSize") {
 				vx = App.w();
 				vy = App.h();
@@ -451,6 +475,11 @@ class Uniforms {
 			else if (c.link == "_cameraPlane") {
 				vx = camera.data.raw.near_plane;
 				vy = camera.data.raw.far_plane;
+			}
+			else if (c.link == "_spotlampData") {
+				// cutoff, cutoff - exponent
+				vx = lamp == null ? 0.0 : lamp.data.raw.spot_size;
+				vy = lamp == null ? 0.0 : vx - lamp.data.raw.spot_blend;
 			}
 			// External
 			else if (externalVec2Links != null) {
@@ -491,12 +520,6 @@ class Uniforms {
 			}
 			else if (c.link == "_lampSizeUV") {
 				if (lamp != null && lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size / lamp.data.raw.fov;
-			}
-			else if (c.link == "_spotlampCutoff") {
-				f = lamp == null ? 0.0 : lamp.data.raw.spot_size;
-			}
-			else if (c.link == "_spotlampExponent") {
-				f = lamp == null ? 0.0 : lamp.data.raw.spot_blend;
 			}
 			else if (c.link == "_envmapStrength") {
 				if (Scene.active.world == null) f = 0.0;
@@ -562,6 +585,9 @@ class Uniforms {
 			}
 			else if (c.link == "_lampIndex") {
 				i = camera.renderPath.currentLampIndex;
+			}
+			else if (c.link == "_lampCastShadow") {
+				i = lamp == null ? 0 : (lamp.data.raw.cast_shadow ? 1 : 0);
 			}
 			else if (c.link == "_envmapNumMipmaps") {
 				i = Scene.active.world.getGlobalProbe().raw.radiance_mipmaps + 1; // Include basecolor
