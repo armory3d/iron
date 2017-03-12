@@ -22,7 +22,6 @@ class MeshObject extends Object {
 	public var data:MeshData;
 	public var materials:Vector<MaterialData>;
 	public var particleSystem:ParticleSystem = null;
-	public var cachedContexts:Map<String, CachedMeshContext> = new Map();	
 	public var cameraDistance:Float;
 	public var screenSize:Float = 0.0;
 	public var frustumCulling = true;
@@ -37,9 +36,15 @@ class MeshObject extends Object {
 		this.data = data;
 		this.materials = materials;	
 		Scene.active.meshes.push(this);
+#if arm_batch
+		Scene.active.meshBatch.addMesh(this);
+#end
 	}
 
 	public override function remove() {
+#if arm_batch
+		Scene.active.meshBatch.removeMesh(this);
+#end
 		Scene.active.meshes.remove(this);
 		super.remove();
 	}
@@ -61,27 +66,33 @@ class MeshObject extends Object {
 		return (raw != null && raw.lod_material != null && raw.lod_material == true);
 	}
 
-	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
+	public function cullMaterial(context:String, camera:CameraObject):Bool {
 		// Skip render if material does not contain current context
 		var mats = materials;
-		if (!isLodMaterial() && !validContext(mats[0], context)) return;
-
-		// Skip render if object or lamp is hidden
-		if (!visible) return;
-		// if (lamp != null && !lamp.visible) return; // Discarded in render path
+		if (!isLodMaterial() && !validContext(mats[0], context)) { culled = true; return culled; }
 
 		var shadowsContext = camera.data.pathdata.raw.shadows_context;
-		if (!visibleMesh && context != shadowsContext) return;
-		if (!visibleShadow && context == shadowsContext) return;
+		if (!visibleMesh && context != shadowsContext) { culled = true; return culled; }
+		if (!visibleShadow && context == shadowsContext) { culled = true; return culled; }
 
-		// Frustum culling
-		culled = false;
+		// Check context skip
+		if (skipContext(context)) { culled = true; return culled; }
+
+		culled = false; return culled;
+	}
+
+	function cullMesh(context:String, camera:CameraObject, lamp:LampObject):Bool {
+
+		// Skip render if object is hidden
+		if (!visible) { culled = true; return culled; }
+
 		if (camera.data.raw.frustum_culling && frustumCulling) {
 			// Scale radius for skinned mesh and particle system
 			// TODO: determine max radius
 			var radiusScale = data.isSkinned ? 2.0 : 1.0;
 			if (particleSystem != null) radiusScale *= 100;
 			if (context == "voxel") radiusScale *= 100;
+			var shadowsContext = camera.data.pathdata.raw.shadows_context;
 			var frustumPlanes = context == shadowsContext ? lamp.frustumPlanes : camera.frustumPlanes;
 
 			// Instanced
@@ -95,7 +106,7 @@ class MeshObject extends Object {
 						break;
 					}
 				}
-				if (!instanceInFrustum) { culled = true; return; }
+				if (!instanceInFrustum) { culled = true; return culled; }
 
 				// Sort - always front to back for now
 				var camX = camera.transform.absx();
@@ -106,11 +117,42 @@ class MeshObject extends Object {
 			// Non-instanced
 			else {
 				if (!CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale)) {
-					culled = true;
-					return;
+					culled = true; return culled;
 				}
 			}
 		}
+
+		culled = false; return culled;
+	}
+
+	function skipContext(context:String):Bool {
+		for (mat in materials) {
+			if (mat.raw.skip_context != null &&
+				mat.raw.skip_context == context) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function getContexts(context:String, materialContexts:Array<MaterialContext>, shaderContexts:Array<ShaderContext>) {
+		for (mat in materials) {
+			for (i in 0...mat.raw.contexts.length) {
+				if (mat.raw.contexts[i].name.substr(0, context.length) == context) {
+					materialContexts.push(mat.contexts[i]);
+					shaderContexts.push(mat.shader.getContext(context));
+					break;
+				}
+			}
+		}
+	}
+
+	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
+
+		if (cullMaterial(context, camera)) return;
+		if (cullMesh(context, camera, lamp)) return;
+
+		var mats = materials;
 
 		// Get lod
 		var lod = this;
@@ -127,35 +169,11 @@ class MeshObject extends Object {
 			if (lod == null) return; // Empty object
 		}
 		if (isLodMaterial() && !validContext(mats[0], context)) return;
-
+		
 		// Get context
-		var cc = lod.cachedContexts.get(context);
-		if (cc == null) {
-			cc = new CachedMeshContext();
-			// Check context skip
-			for (mat in mats) {
-				if (mat.raw.skip_context != null &&
-					mat.raw.skip_context == context) {
-					cc.enabled = false;
-					break;
-				}
-			}
-			if (cc.enabled) {
-				cc.materialContexts = [];
-				cc.shaderContexts = [];
-				for (mat in mats) {
-					for (i in 0...mat.raw.contexts.length) {
-						if (mat.raw.contexts[i].name.substr(0, context.length) == context) {
-							cc.materialContexts.push(mat.contexts[i]);
-							cc.shaderContexts.push(mat.shader.getContext(context));
-							break;
-						}
-					}
-				}
-				lod.cachedContexts.set(context, cc);
-			}
-		}
-		if (!cc.enabled) return;
+		var materialContexts:Array<MaterialContext> = [];
+		var shaderContexts:Array<ShaderContext> = [];
+		getContexts(context, materialContexts, shaderContexts);
 		
 		// TODO: move to update
 		if (lod.particleSystem != null) lod.particleSystem.update();
@@ -168,9 +186,9 @@ class MeshObject extends Object {
 			g.setVertexBuffers(ldata.mesh.instancedVertexBuffers);
 		}
 		else {
-#if arm_deinterleaved
+	#if arm_deinterleaved
 			g.setVertexBuffers(ldata.mesh.vertexBuffers);
-#else
+	#else
 			// var shadowsContext = camera.data.pathdata.raw.shadows_context;
 			// if (context == shadowsContext) { // Hard-coded for now
 				// g.setVertexBuffer(ldata.mesh.vertexBufferDepth);
@@ -178,25 +196,22 @@ class MeshObject extends Object {
 			// else {
 				g.setVertexBuffer(ldata.mesh.vertexBuffer);
 			// }
-#end
+	#end
 		}
-
-		var materialContexts = cc.materialContexts;
-		var shaderContexts = cc.shaderContexts;
 
 		for (i in 0...ldata.mesh.indexBuffers.length) {
 
 			var mi = ldata.mesh.materialIndices[i];
 			if (shaderContexts.length <= mi) continue; 
 
+			g.setIndexBuffer(ldata.mesh.indexBuffers[i]);
 			g.setPipeline(shaderContexts[mi].pipeState);
+
 			Uniforms.setConstants(g, shaderContexts[mi], this, camera, lamp, bindParams);
 
 			if (materialContexts.length > mi) {
 				Uniforms.setMaterialConstants(g, shaderContexts[mi], materialContexts[mi]);
 			}
-
-			g.setIndexBuffer(ldata.mesh.indexBuffers[i]);
 
 			if (ldata.mesh.instanced) {
 				g.drawIndexedVerticesInstanced(ldata.mesh.instanceCount);
@@ -228,6 +243,37 @@ class MeshObject extends Object {
 		}
 	}
 
+	public function renderBatch(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>, start = 0, count = -1) {
+		
+		if (cullMesh(context, camera, lamp)) return;
+
+		// Get lod
+		var lod = this;
+		
+		// Get context
+		var materialContexts:Array<MaterialContext> = [];
+		var shaderContexts:Array<ShaderContext> = [];
+		getContexts(context, materialContexts, shaderContexts);
+		
+		// TODO: move to update
+		if (lod.particleSystem != null) lod.particleSystem.update();
+		transform.update();
+		
+		// Render mesh
+		Uniforms.setConstants(g, shaderContexts[0], this, camera, lamp, bindParams);
+		Uniforms.setMaterialConstants(g, shaderContexts[0], materialContexts[0]);
+
+		g.drawIndexedVertices(start, count);
+
+#if arm_profile
+		RenderPath.drawCalls++;
+#end
+
+#if arm_veloc
+		prevMatrix.setFrom(transform.matrix);
+#end
+	}
+
 	inline function validContext(mat:MaterialData, context:String):Bool {
 		 return mat.getContext(context) != null;
 	}
@@ -256,11 +302,4 @@ class MeshObject extends Object {
 			}
 		}
 	}
-}
-
-class CachedMeshContext {
-	public var materialContexts:Array<MaterialContext>;
-	public var shaderContexts:Array<ShaderContext>;
-	public var enabled = true;
-	public function new() {}
 }

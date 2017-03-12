@@ -20,8 +20,8 @@ class ShaderData extends Data {
 	public var name:String;
 	public var raw:TShaderData;
 
-	var structure:VertexStructure;
-	var structureLength = 0;
+	public var structure:VertexStructure;
+	public var structureLength = 0;
 	var inst = false;
 
 	public var contexts:Array<ShaderContext> = [];

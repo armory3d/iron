@@ -18,6 +18,7 @@ class Mesh {
 	// public var structLengthDepth:Int;
 #end
 	public var indexBuffers:Array<IndexBuffer>;
+
 	public var vertices:kha.arrays.Float32Array;
 	public var indices:Array<Array<Int>>;
 	public var materialIndices:Array<Int>;
@@ -35,14 +36,11 @@ class Mesh {
 	public var uvs:Array<Float>;
 	public var uvs1:Array<Float>;
 	public var cols:Array<Float>;
-
 	public var tangents:Array<Float>;
-
 	public var bones:Array<Float>;
 	public var weights:Array<Float>;
 	
 	public var offsetVecs:Array<Vec4>; // Used for sorting and culling
-
 	public var aabb:Vec4 = null;
 
 	// Skinned

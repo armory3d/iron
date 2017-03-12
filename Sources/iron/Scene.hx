@@ -5,6 +5,7 @@ import iron.Trait;
 import iron.object.Constraint;
 import iron.object.Transform;
 import iron.object.Object;
+import iron.data.MeshBatch;
 import iron.object.MeshObject;
 import iron.object.LampObject;
 import iron.object.CameraObject;
@@ -32,6 +33,7 @@ class Scene {
 	public var world:WorldData;
 	public var greasePencil:GreasePencilData = null;
 
+	public var meshBatch:MeshBatch = null;
 	public var meshes:Array<MeshObject>;
 	public var lamps:Array<LampObject>;
 	public var cameras:Array<CameraObject>;
@@ -46,6 +48,7 @@ class Scene {
 	public var traitInits:Array<Void->Void> = [];
 
 	public function new() {
+		meshBatch = new MeshBatch();
 		meshes = [];
 		lamps = [];
 		cameras = [];
@@ -93,6 +96,7 @@ class Scene {
 	}
 
 	public function remove() {
+		meshBatch.remove();
 		for (o in meshes) o.remove();
 		for (o in lamps) o.remove();
 		for (o in cameras) o.remove();

@@ -15,6 +15,7 @@ import iron.data.ShaderData.ShaderContext;
 import iron.Scene;
 import iron.object.Object;
 import iron.object.CameraObject;
+import iron.object.MeshObject;
 import iron.object.LampObject;
 import iron.object.Uniforms;
 
@@ -61,6 +62,8 @@ class RenderPath {
 	
 #if arm_profile
 	public static var drawCalls = 0;
+	public static var batchBuckets = 0;
+	public static var batchCalls = 0;
 #end
 
 	// Used by render path nodes for branch functions
@@ -174,6 +177,8 @@ class RenderPath {
 
 #if arm_profile
 		drawCalls = 0;
+		batchBuckets = 0;
+		batchCalls = 0;
 #end
 
 		frameRenderTarget = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture
@@ -316,6 +321,25 @@ class RenderPath {
 		rt.image.generateMipmaps(1000);
 	}
 
+	function sortMeshes(camera:CameraObject, meshes:Array<MeshObject>) {
+		// if (params[1] == "front_to_back") {
+			var camX = camera.transform.absx();
+			var camY = camera.transform.absy();
+			var camZ = camera.transform.absz();
+			for (mesh in meshes) {
+				mesh.computeCameraDistance(camX, camY, camZ);
+			}
+			meshes.sort(function(a, b):Int {
+				return a.cameraDistance > b.cameraDistance ? 1 : -1;
+			});
+		// }
+		// else if (params[1] == "material") {
+			// Scene.active.meshes.sort(function(a, b):Int {
+				// return a.materials[0].name > b.materials[0].name ? 1 : -1;
+			// });
+		// }
+	}
+
 	function drawMeshes(params:Array<String>, root:Object) {
 		var context = params[0];
 		var lamp = getLamp(currentLampIndex);
@@ -328,30 +352,20 @@ class RenderPath {
 			if (lamp == null || !lamp.data.raw.cast_shadow) return;
 		}
 
+		var g = currentRenderTarget;
+#if arm_batch
+		Scene.active.meshBatch.render(g, context, camera, lamp, bindParams);
+#else
+
 		if (!meshesSorted) { // Order max one per frame for now
-			if (params[1] == "front_to_back") {
-				var camX = camera.transform.absx();
-				var camY = camera.transform.absy();
-				var camZ = camera.transform.absz();
-				for (mesh in Scene.active.meshes) {
-					mesh.computeCameraDistance(camX, camY, camZ);
-				}
-				Scene.active.meshes.sort(function(a, b):Int {
-					return a.cameraDistance > b.cameraDistance ? 1 : -1;
-				});
-			}
-			// TODO: sort into buckets by material, then fron to back
-			else if (params[1] == "material") {
-				Scene.active.meshes.sort(function(a, b):Int {
-					return a.materials[0].name > b.materials[0].name ? 1 : -1;
-				});
-			}
+			sortMeshes(camera, Scene.active.meshes);
 			meshesSorted = true;
 		}
-		var g = currentRenderTarget;
+
 		for (mesh in Scene.active.meshes) {
 			mesh.render(g, context, camera, lamp, bindParams);
 		}
+#end
 		end(g);
 	}
 	

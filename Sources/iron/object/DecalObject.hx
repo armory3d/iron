@@ -2,14 +2,12 @@ package iron.object;
 
 import kha.graphics4.Graphics;
 import iron.data.MaterialData;
-import iron.object.MeshObject;
 import iron.object.Uniforms;
 import iron.Scene;
 
 class DecalObject extends Object {
 
 	public var material:MaterialData;
-	var cachedContext:CachedMeshContext = null;
 
 	public function new(material:MaterialData) {
 		super();
@@ -27,29 +25,20 @@ class DecalObject extends Object {
 	// Called before rendering decal in render path
 	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 		
-		if (cachedContext == null) {
-			cachedContext = new CachedMeshContext();
-			// Check context skip
-			if (material.raw.skip_context != null &&
-				material.raw.skip_context == context) {
-				cachedContext.enabled = false;
-			}
-			if (cachedContext.enabled) {
-				cachedContext.materialContexts = [];
-				for (i in 0...material.raw.contexts.length) {
-					if (material.raw.contexts[i].name == context) {
-						cachedContext.materialContexts.push(material.contexts[i]);
-						break;
-					}
-				}
-				cachedContext.shaderContexts = [];
-				cachedContext.shaderContexts.push(material.shader.getContext(context));
+		// Check context skip
+		if (material.raw.skip_context != null &&
+			material.raw.skip_context == context) {
+			return;
+		}
+
+		var materialContext:MaterialContext = null;
+		for (i in 0...material.raw.contexts.length) {
+			if (material.raw.contexts[i].name == context) {
+				materialContext = material.contexts[i]; // Single material decals
+				break;
 			}
 		}
-		if (!cachedContext.enabled) return;
-
-		var materialContext = cachedContext.materialContexts[0]; // Single material decals
-		var shaderContext = cachedContext.shaderContexts[0];
+		var shaderContext = material.shader.getContext(context);
 		
 		g.setPipeline(shaderContext.pipeState);
 		

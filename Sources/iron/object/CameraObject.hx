@@ -202,14 +202,12 @@ class CameraObject extends Object {
 		var q = new Quat();
 		q.fromAxisAngle(axis, f);
 		transform.rot.multquats(q, transform.rot);
-		transform.dirty = true;
 		buildMatrix();
 	}
 
 	public function move(axis:Vec4, f:Float) {
 		axis.mult(f);
 		transform.loc.add(axis);
-		transform.dirty = true;
 		buildMatrix();
 	}
 
