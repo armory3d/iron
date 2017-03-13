@@ -10,6 +10,7 @@ import iron.Scene;
 import iron.math.Vec4;
 import iron.math.Quat;
 import iron.math.Mat4;
+import iron.data.MeshBatch;
 import iron.data.MeshData;
 import iron.data.LampData;
 import iron.data.MaterialData;
@@ -36,9 +37,13 @@ class MeshObject extends Object {
 		this.data = data;
 		this.materials = materials;	
 		Scene.active.meshes.push(this);
+
+		var makeBuffers = true;
 #if arm_batch
+		if (MeshBatch.isBatchable(this)) makeBuffers = false; // Batch data instead
 		Scene.active.meshBatch.addMesh(this);
 #end
+		if (makeBuffers) data.mesh.build();
 	}
 
 	public override function remove() {
@@ -82,9 +87,6 @@ class MeshObject extends Object {
 	}
 
 	function cullMesh(context:String, camera:CameraObject, lamp:LampObject):Bool {
-
-		// Skip render if object is hidden
-		if (!visible) { culled = true; return culled; }
 
 		if (camera.data.raw.frustum_culling && frustumCulling) {
 			// Scale radius for skinned mesh and particle system
@@ -149,6 +151,7 @@ class MeshObject extends Object {
 
 	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 
+		if (!visible) return; // Skip render if object is hidden
 		if (cullMaterial(context, camera)) return;
 		if (cullMesh(context, camera, lamp)) return;
 
@@ -245,6 +248,7 @@ class MeshObject extends Object {
 
 	public function renderBatch(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>, start = 0, count = -1) {
 		
+		if (!visible) return; // Skip render if object is hidden
 		if (cullMesh(context, camera, lamp)) return;
 
 		// Get lod

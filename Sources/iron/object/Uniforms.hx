@@ -25,6 +25,7 @@ class Uniforms {
 		0.0, 0.0, 0.5, 0.5,
 		0.0, 0.0, 0.0, 1.0);
 	public static var helpMat = Mat4.identity();
+	public static var helpMat2 = Mat4.identity();
 	public static var helpMat3 = Mat3.identity();
 	public static var helpVec = new Vec4();
 	public static var helpVec2 = new Vec4();
@@ -279,9 +280,31 @@ class Uniforms {
 			else if (c.link == "_lampVolumeWorldViewProjectionMatrix") {
 				if (lamp != null) {
 					var tr = lamp.transform;
-					helpVec.set(tr.absx(), tr.absy(), tr.absz());
-					helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane, lamp.data.raw.far_plane);
-					helpMat.compose(helpVec, helpQuat, helpVec2);
+					var type = lamp.data.raw.type;
+					if (type == "spot") { // Oriented cone
+						// helpMat.setIdentity();
+						// var f = lamp.data.raw.spot_size * lamp.data.raw.far_plane * 1.05;
+						// helpVec2.set(f, f, lamp.data.raw.far_plane);
+						// helpMat.scale(helpVec2);
+						// helpMat2.setFrom(tr.matrix);
+						// helpMat2.toRotation();
+						// helpMat.multmat2(helpMat2);
+						// helpMat.translate(tr.absx(), tr.absy(), tr.absz());
+						helpVec.set(tr.absx(), tr.absy(), tr.absz());
+						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * 2.0, lamp.data.raw.far_plane * 2.0);
+						helpMat.compose(helpVec, helpQuat, helpVec2);
+					}
+					else if (type == "point" || type == "area") { // Sphere
+						helpVec.set(tr.absx(), tr.absy(), tr.absz());
+						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * 2.0, lamp.data.raw.far_plane * 2.0);
+						helpMat.compose(helpVec, helpQuat, helpVec2);
+					}
+					else { // sun
+						helpVec.set(tr.absx(), tr.absy(), tr.absz());
+						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane, lamp.data.raw.far_plane);
+						helpMat.compose(helpVec, helpQuat, helpVec2);
+					}
+					
 					helpMat.multmat2(camera.V);
 					helpMat.multmat2(camera.P);
 					m = helpMat;

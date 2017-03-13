@@ -19,16 +19,18 @@ class Mesh {
 #end
 	public var indexBuffers:Array<IndexBuffer>;
 
+	public var built = false;
 	public var vertices:kha.arrays.Float32Array;
 	public var indices:Array<Array<Int>>;
 	public var materialIndices:Array<Int>;
+	public var struct:VertexStructure;
 	public var structLength:Int;
 
 	public var instancedVertexBuffers:Array<VertexBuffer>;
 	public var instanced = false;
 	public var instanceCount = 0;
 
-	var ids:Array<Array<Int>>;
+	public var ids:Array<Array<Int>>;
 	public var usage:Usage;
 
 	public var positions:Array<Float>; // TODO: no need to store these references
@@ -76,7 +78,10 @@ class Mesh {
 		this.bones = bones;
 		this.weights = weights;
 
-		build();
+		// TODO: Mandatory vertex data names and sizes
+		// pos=3, tex=2, nor=3, col=4, tang=3, bone=4, weight=4
+		struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
+		structLength = Std.int(struct.byteSize() / 4);
 	}
 
 	public function delete() {
@@ -149,6 +154,10 @@ class Mesh {
 		vb.unlock();
 	}
 
+	public function copyVertices(vertices:kha.arrays.Float32Array, offset = 0) {
+		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights, offset);
+	}
+
 #if (!arm_deinterleaved)
 	static function buildVertices(vertices:kha.arrays.Float32Array,
 								  pa:Array<Float> = null,
@@ -158,10 +167,11 @@ class Mesh {
 								  ca:Array<Float> = null,
 								  tanga:Array<Float> = null,
 								  bonea:Array<Float> = null,
-								  weighta:Array<Float> = null) {
+								  weighta:Array<Float> = null,
+								  offset = 0) {
 
 		var numVertices = Std.int(pa.length / 3);
-		var di = -1;
+		var di = -1 + offset;
 		for (i in 0...numVertices) {
 			vertices.set(++di, pa[i * 3]); // Positions
 			vertices.set(++di, pa[i * 3 + 1]);
@@ -208,7 +218,21 @@ class Mesh {
 	}
 #end
 
+	public function getVerticesLength():Int {
+		var res = positions.length;
+		if (normals != null) res += normals.length;
+		if (uvs != null) res += uvs.length;
+		if (uvs1 != null) res += uvs1.length;
+		if (cols != null) res += cols.length;
+		if (tangents != null) res += tangents.length;
+		if (bones != null) res += bones.length;
+		if (weights != null) res += weights.length;
+		return res;
+	}
+
 	public function build() {
+		if (built) return;
+
 #if arm_deinterleaved
 		vertexBuffers = [];
 		vertexBuffers.push(makeDeinterleavedVB(positions, "pos", 3));
@@ -220,10 +244,7 @@ class Mesh {
 		if (bones != null) vertexBuffers.push(makeDeinterleavedVB(bones, "bone", 4));
 		if (weights != null) vertexBuffers.push(makeDeinterleavedVB(weights, "weight", 4));
 #else
-		// TODO: Mandatory vertex data names and sizes
-		// pos=3, tex=2, nor=3, col=4, tang=3, bone=4, weight=4
-		var struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
-		structLength = Std.int(struct.byteSize() / 4);
+
 		vertexBuffer = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
 		vertices = vertexBuffer.lock();
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights);
@@ -251,6 +272,8 @@ class Mesh {
 			indexBuffers.push(indexBuffer);
 			indices.push(indicesA);
 		}
+
+		built = true;
 	}
 
 #if arm_deinterleaved

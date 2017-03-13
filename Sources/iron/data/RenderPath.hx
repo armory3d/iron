@@ -46,6 +46,10 @@ class RenderPath {
 	static var boxIB:IndexBuffer = null;
 	static var skydomeVB:VertexBuffer = null;
 	static var skydomeIB:IndexBuffer = null;
+	static var sphereVB:VertexBuffer = null;
+	static var sphereIB:IndexBuffer = null;
+	static var coneVB:VertexBuffer = null;
+	static var coneIB:IndexBuffer = null;
 
 	var currentStages:Array<TRenderPathStage> = null;
 	var currentStageIndex = 0;
@@ -54,7 +58,6 @@ class RenderPath {
 	public var ready:Bool;
 	
 	var lamps:Array<LampObject>;
-	var visibleLampExists:Bool;
 	public var currentLampIndex = 0;
 
 	// Quad and decals contexts
@@ -64,6 +67,7 @@ class RenderPath {
 	public static var drawCalls = 0;
 	public static var batchBuckets = 0;
 	public static var batchCalls = 0;
+	public static var culled = 0;
 #end
 
 	// Used by render path nodes for branch functions
@@ -81,13 +85,8 @@ class RenderPath {
 	public function new(camera:CameraObject) {
 		this.camera = camera;
 		data = camera.data;
-
 		ready = false;
 		loadStageCommands(data.pathdata.raw.stages, function() { ready = true; });
-
-		if (screenAlignedVB == null) createScreenAlignedData();
-		if (boxVB == null) createBoxData();
-		if (skydomeVB == null) createSkydomeData();
 	}
 
 	public function unload() {
@@ -168,6 +167,38 @@ class RenderPath {
 		skydomeIB.unlock();
 	}
 
+	static function createSphereData() {
+		var structure = new VertexStructure();
+		structure.add("pos", VertexData.Float3);
+		var data = iron.data.ConstData.spherePos;
+		sphereVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
+		var vertices = sphereVB.lock();
+		for (i in 0...vertices.length) vertices.set(i, data[i]);
+		sphereVB.unlock();
+
+		var indices = iron.data.ConstData.sphereIndices;
+		sphereIB = new IndexBuffer(indices.length, Usage.StaticUsage);
+		var id = sphereIB.lock();
+		for (i in 0...id.length) id[i] = indices[i];
+		sphereIB.unlock();
+	}
+
+	static function createConeData() {
+		var structure = new VertexStructure();
+		structure.add("pos", VertexData.Float3);
+		var data = iron.data.ConstData.conePos;
+		coneVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
+		var vertices = coneVB.lock();
+		for (i in 0...vertices.length) vertices.set(i, data[i]);
+		coneVB.unlock();
+
+		var indices = iron.data.ConstData.coneIndices;
+		coneIB = new IndexBuffer(indices.length, Usage.StaticUsage);
+		var id = coneIB.lock();
+		for (i in 0...id.length) id[i] = indices[i];
+		coneIB.unlock();
+	}
+
 	inline function getLamp(index:Int) {
 		return lamps.length > 0 ? lamps[index] : null;
 	}
@@ -179,6 +210,7 @@ class RenderPath {
 		drawCalls = 0;
 		batchBuckets = 0;
 		batchCalls = 0;
+		culled = 0;
 #end
 
 		frameRenderTarget = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture
@@ -190,11 +222,9 @@ class RenderPath {
 
 		this.lamps = lamps;
 		currentLampIndex = 0;
-		visibleLampExists = false;
 		for (l in lamps) {
 			if (l.visible) {
 				l.buildMatrices(camera);
-				visibleLampExists = true;
 			}
 		}
 
@@ -321,7 +351,7 @@ class RenderPath {
 		rt.image.generateMipmaps(1000);
 	}
 
-	function sortMeshes(camera:CameraObject, meshes:Array<MeshObject>) {
+	public static function sortMeshes(meshes:Array<MeshObject>, camera:CameraObject) {
 		// if (params[1] == "front_to_back") {
 			var camX = camera.transform.absx();
 			var camY = camera.transform.absy();
@@ -344,7 +374,7 @@ class RenderPath {
 		var context = params[0];
 		var lamp = getLamp(currentLampIndex);
 		// Draw 
-		if (!visibleLampExists && currentLampIndex == 0) {} // Draw atleast once to fill geometry buffers
+		if (currentLampIndex == 0) {} // Draw atleast once to fill geometry buffers
 		else if (lamp != null && !lamp.visible) return;
 
 		// Disabled shadow casting for this lamp
@@ -358,18 +388,22 @@ class RenderPath {
 #else
 
 		if (!meshesSorted) { // Order max one per frame for now
-			sortMeshes(camera, Scene.active.meshes);
+			sortMeshes(Scene.active.meshes, camera);
 			meshesSorted = true;
 		}
 
-		for (mesh in Scene.active.meshes) {
-			mesh.render(g, context, camera, lamp, bindParams);
+		for (m in Scene.active.meshes) {
+			m.render(g, context, camera, lamp, bindParams);
+			#if arm_profile
+			if (m.culled) RenderPath.culled++;
+			#end
 		}
 #end
 		end(g);
 	}
 	
 	function drawDecals(params:Array<String>, root:Object) {
+		if (boxVB == null) createBoxData();
 		var context = params[0];
 		var g = currentRenderTarget;
 		var lamp = getLamp(currentLampIndex);
@@ -431,6 +465,7 @@ class RenderPath {
 	}
 
 	function drawSkydome(params:Array<String>, root:Object) {
+		if (skydomeVB == null) createSkydomeData();
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc.context == null) return; // World data not specified
@@ -448,17 +483,42 @@ class RenderPath {
 	}
 
 	function drawLampVolume(params:Array<String>, root:Object) {
+		var vb:VertexBuffer = null;
+		var ib:IndexBuffer = null;
+		var lamp = getLamp(currentLampIndex);
+		var type = lamp.data.raw.type;
+		if (type == "sun") {
+			if (boxVB == null) createBoxData();
+			vb = boxVB;
+			ib = boxIB;
+			// if (screenAlignedVB == null) createScreenAlignedData();
+			// vb = screenAlignedVB;
+			// ib = screenAlignedIB;
+		}
+		else if (type == "point" || type == "area") { // Sphere
+			if (sphereVB == null) createSphereData();
+			vb = sphereVB;
+			ib = sphereIB;
+		}
+		else if (type == "spot") { // Oriented cone
+			// if (coneVB == null) createConeData();
+			// vb = coneVB;
+			// ib = coneIB;
+			if (sphereVB == null) createSphereData();
+			vb = sphereVB;
+			ib = sphereIB;
+		}
+		
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
-		var lamp = getLamp(currentLampIndex);
 		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {
 			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
-		g.setVertexBuffer(boxVB);
-		g.setIndexBuffer(boxIB);
+		g.setVertexBuffer(vb);
+		g.setIndexBuffer(ib);
 		g.drawIndexedVertices();
 		end(g);
 	}
@@ -481,6 +541,7 @@ class RenderPath {
 	}
 
 	function drawQuad(cc:CachedShaderContext, root:Object) {
+		if (screenAlignedVB == null) createScreenAlignedData();
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);

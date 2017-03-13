@@ -10,6 +10,8 @@ class MeshData extends Data {
 	public var name:String;
 	public var raw:TMeshData;
 	public var mesh:Mesh;
+	public var start = 0; // Batched
+	public var count = -1;
 
 #if arm_cpu_skin
 	public static inline var ForceCpuSkinning = true;

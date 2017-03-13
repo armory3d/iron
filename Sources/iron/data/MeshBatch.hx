@@ -15,7 +15,7 @@ import iron.data.MeshData;
 
 class MeshBatch {
 
-	var buckets:Map<MaterialData, Bucket> = new Map();
+	var buckets:Map<ShaderData, Bucket> = new Map();
 	var nonBatched:Array<MeshObject> = [];
 
 	public function new() {
@@ -26,30 +26,33 @@ class MeshBatch {
 		for (b in buckets) remove();
 	}
 
-	function isLod(m:MeshObject):Bool {
+	static function isLod(m:MeshObject):Bool {
 		return (m.raw != null && m.raw.lods != null && m.raw.lods.length > 0);
 	}
 
-	public function addMesh(m:MeshObject) {
-
+	public static function isBatchable(m:MeshObject):Bool {
 		// Batch only basic meshes for now
-		if (m.data.isSkinned || m.materials.length > 1 || isLod(m) || m.data.mesh.instanced) {
+		return !(m.data.isSkinned || m.materials.length > 1 || isLod(m) || m.data.mesh.instanced);
+	}
+
+	public function addMesh(m:MeshObject) {
+		if (!isBatchable(m)) {
 			nonBatched.push(m);
 			return;
 		}
 
-		var mat = m.materials[0];
-		var b = buckets.get(mat);
+		var shader = m.materials[0].shader;
+		var b = buckets.get(shader);
 		if (b == null) {
-			b = new Bucket(mat);
-			buckets.set(mat, b);
+			b = new Bucket(shader);
+			buckets.set(shader, b);
 		}
 		b.addMesh(m);
 	}
 
 	public function removeMesh(m:MeshObject) {
-		var mat = m.materials[0];
-		var b = buckets.get(mat);
+		var shader = m.materials[0].shader;
+		var b = buckets.get(shader);
 		if (b != null) b.removeMesh(m);
 	}
 
@@ -61,19 +64,18 @@ class MeshBatch {
 
 			if (b.meshes.length > 0 && b.meshes[0].cullMaterial(context, camera)) continue;
 
-			g.setPipeline(b.mat.shader.getContext(context).pipeState);
+			g.setPipeline(b.shader.getContext(context).pipeState);
 			g.setVertexBuffer(b.vertexBuffer);
 			g.setIndexBuffer(b.indexBuffer);
 
-			// TODO: Sort bucket front to back
+			// Front to back
+			RenderPath.sortMeshes(b.meshes, camera);
 
-			for (i in 0...b.meshes.length) {
-				var m = b.meshes[i];
-				var start = b.starts[i];
-				var count = b.counts[i];
-				m.renderBatch(g, context, camera, lamp, bindParams, start, count);
+			for (m in b.meshes) {
+				m.renderBatch(g, context, camera, lamp, bindParams, m.data.start, m.data.count);
 #if arm_profile
 				RenderPath.batchCalls++;
+				if (m.culled) RenderPath.culled++;
 #end
 			}
 
@@ -84,6 +86,9 @@ class MeshBatch {
 
 		for (m in nonBatched) {
 			m.render(g, context, camera, lamp, bindParams);
+#if arm_profile
+			if (m.culled) RenderPath.culled++;
+#end
 		}
 	}
 }
@@ -91,18 +96,13 @@ class MeshBatch {
 class Bucket {
 
 	public var batched = false;
-
-	public var mat:MaterialData;
+	public var shader:ShaderData;
 	public var vertexBuffer:VertexBuffer;
 	public var indexBuffer:IndexBuffer;
 	public var meshes:Array<MeshObject> = [];
-	public var starts:Array<Int> = [];
-	public var counts:Array<Int> = [];
 
-	var bdata:Map<MeshData, BucketData> = new Map();
-
-	public function new(mat:MaterialData) {
-		this.mat = mat;
+	public function new(shader:ShaderData) {
+		this.shader = shader;
 	}
 
 	public function remove() {
@@ -136,48 +136,33 @@ class Bucket {
 			}
 			if (!mdFound) {
 				mdatas.push(m.data);
-				var count = m.data.mesh.indices[0].length;
-				var d = new BucketData(icount, count);
-				bdata.set(m.data, d);
-				vcount += m.data.mesh.vertices.length;
-				icount += count;
+				m.data.start = icount;
+				m.data.count = m.data.mesh.ids[0].length;
+				icount += m.data.count;
+				vcount += m.data.mesh.getVerticesLength();
 			}
-
-			var d = bdata.get(m.data);
-			starts.push(d.start);
-			counts.push(d.count);
 		}
 
 		// Build shared buffers
-		vertexBuffer = new VertexBuffer(vcount, mat.shader.structure, Usage.StaticUsage);
+		vertexBuffer = new VertexBuffer(vcount, shader.structure, Usage.StaticUsage);
 		var vertices = vertexBuffer.lock();
-		var di = -1;
+		var offset = 0;
 		for (md in mdatas) {
-			for (i in 0...md.mesh.vertices.length) {
-				vertices.set(++di, md.mesh.vertices.get(i));
-			}
+			md.mesh.copyVertices(vertices, offset);
+			offset += md.mesh.getVerticesLength();
 		}
 		vertexBuffer.unlock();
 
 		indexBuffer = new IndexBuffer(icount, Usage.StaticUsage);
 		var indices = indexBuffer.lock();
-		di = -1;
+		var di = -1;
 		var offset = 0;
 		for (md in mdatas) {
-			for (i in 0...md.mesh.indices[0].length) {
-				indices[++di] = md.mesh.indices[0][i] + offset;
+			for (i in 0...md.mesh.ids[0].length) {
+				indices[++di] = md.mesh.ids[0][i] + offset;
 			}
-			offset += Std.int(md.mesh.vertices.length / mat.shader.structureLength); // / md.mesh.structLength
+			offset += Std.int(md.mesh.getVerticesLength() / shader.structureLength); // / md.mesh.structLength
 		}
 		indexBuffer.unlock();
-	}
-}
-
-class BucketData {
-	public var start:Int;
-	public var count:Int;
-	public function new(start:Int, count:Int) {
-		this.start = start;
-		this.count = count;
 	}
 }
