@@ -129,6 +129,7 @@ class LampObject extends Object {
 			var hz = (maxz - minz) / 2;
 			V._30 = -(minx + hx);
 			V._31 = -(miny + hy);
+			V._32 = -(minz + hz);
 
 			P = Mat4.orthogonal(-hx, hx, -hy, hy, -hz * 2, hz); // -hz * 2 - include shadow casters out of view frustum
 		}
