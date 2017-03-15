@@ -74,6 +74,9 @@ class RenderPath {
 	public static function lampCastShadow(rp:RenderPath) {
 		return rp.getLamp(rp.currentLampIndex).data.raw.cast_shadow;
 	}
+	public static function lampIsSun(rp:RenderPath) {
+		return rp.getLamp(rp.currentLampIndex).data.raw.type == "sun";
+	}
 
 	static var voxelized = false;
 	public static function voxelize(rp:RenderPath) {
@@ -487,15 +490,12 @@ class RenderPath {
 		var ib:IndexBuffer = null;
 		var lamp = getLamp(currentLampIndex);
 		var type = lamp.data.raw.type;
-		if (type == "sun") {
-			if (boxVB == null) createBoxData();
-			vb = boxVB;
-			ib = boxIB;
-			// if (screenAlignedVB == null) createScreenAlignedData();
-			// vb = screenAlignedVB;
-			// ib = screenAlignedIB;
-		}
-		else if (type == "point" || type == "area") { // Sphere
+		// if (type == "sun") { // Draw fs quad
+			// if (boxVB == null) createBoxData();
+			// vb = boxVB;
+			// ib = boxIB;
+		// }
+		/*else*/ if (type == "point" || type == "area") { // Sphere
 			if (sphereVB == null) createSphereData();
 			vb = sphereVB;
 			ib = sphereIB;

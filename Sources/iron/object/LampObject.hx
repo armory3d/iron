@@ -131,7 +131,7 @@ class LampObject extends Object {
 			V._31 = -(miny + hy);
 			V._32 = -(minz + hz);
 
-			P = Mat4.orthogonal(-hx, hx, -hy, hy, -hz * 2, hz); // -hz * 2 - include shadow casters out of view frustum
+			P = Mat4.orthogonal(-hx, hx, -hy, hy, -hz * 4, hz); // TODO: * 4 - include shadow casters out of view frustum
 		}
 		else { // Point, spot, area
 			V.getInverse(transform.matrix);

@@ -299,11 +299,11 @@ class Uniforms {
 						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * 2.0, lamp.data.raw.far_plane * 2.0);
 						helpMat.compose(helpVec, helpQuat, helpVec2);
 					}
-					else { // sun
-						helpVec.set(tr.absx(), tr.absy(), tr.absz());
-						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane, lamp.data.raw.far_plane);
-						helpMat.compose(helpVec, helpQuat, helpVec2);
-					}
+					// else { // sun - uses fs quad instead of volume
+						// helpVec.set(tr.absx(), tr.absy(), tr.absz());
+						// helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane, lamp.data.raw.far_plane);
+						// helpMat.compose(helpVec, helpQuat, helpVec2);
+					// }
 					
 					helpMat.multmat2(camera.V);
 					helpMat.multmat2(camera.P);
