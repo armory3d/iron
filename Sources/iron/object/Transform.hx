@@ -110,9 +110,7 @@ class Transform {
 
 	public function setMatrix(mat:Mat4) {
 		matrix = mat;
-		loc = matrix.getLoc();
-		scale = matrix.getScale();
-		rot = matrix.getQuat();
+		matrix.decompose(loc, rot, scale);
 	}
 
 	public function rotate(axis:Vec4, f:Float) {

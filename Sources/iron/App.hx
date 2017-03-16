@@ -48,6 +48,7 @@ class App {
 #end
 
 		iron.system.Tween.update();
+		iron.system.Time.update();
 
 		if (Scene.active != null) Scene.active.updateFrame();
 		

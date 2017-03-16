@@ -23,6 +23,16 @@ class Animation {
 	var pos = new Vec4();
 	var nor = new Vec4();
 
+	// Lerp
+	static var m1 = Mat4.identity();
+	static var m2 = Mat4.identity();
+	static var vpos = new Vec4();
+	static var vpos2 = new Vec4();
+	static var vscl = new Vec4();
+	static var vscl2 = new Vec4();
+	static var q1 = new Quat();
+	static var q2 = new Quat();
+
 	// Object based
 	public var object:Object;
 
@@ -146,7 +156,7 @@ class Animation {
 			player.animTime = player.current.start * 0.0167;
 			player.timeIndex = 0;
 			var track = anim.tracks[0];
-			while (player.animTime > track.time.values[player.timeIndex] + 0.0167) {
+			while (player.animTime > track.times[player.timeIndex] + 0.0167) {
 				player.timeIndex++;
 			}
 		}
@@ -157,7 +167,7 @@ class Animation {
 		for (track in anim.tracks) {
 
 			// No data for this track at current time
-			if (player.timeIndex >= track.time.values.length) continue;
+			if (player.timeIndex >= track.times.length) continue;
 
 			// End of track
 			if (player.animTime > total || player.animTime < 0 ||
@@ -173,26 +183,26 @@ class Animation {
 				if (player.current.reflect) player.dir *= -1; // Reflect
 				
 				player.animTime = player.dir > 0 ? 0 : total; // Rewind
-				player.timeIndex = player.dir > 0 ? 0 : track.time.values.length - 1;
+				player.timeIndex = player.dir > 0 ? 0 : track.times.length - 1;
 			}
 
 			// End of current time range
 			var t = player.animTime + begin;
 			if (player.dir > 0) {
-				while (player.timeIndex < track.time.values.length - 2 && t > track.time.values[player.timeIndex + 1]) {
+				while (player.timeIndex < track.times.length - 2 && t > track.times[player.timeIndex + 1]) {
 					player.timeIndex++;
 				}
 			}
 			// Reversed
 			else {
-				while (player.timeIndex > 1 && t < track.time.values[player.timeIndex - 1]) {
+				while (player.timeIndex > 1 && t < track.times[player.timeIndex - 1]) {
 					player.timeIndex--;
 				}
 			}
 
 			var ti = player.timeIndex;
-			var t1 = track.time.values[ti];
-			var t2 = track.time.values[ti + 1 * player.dir];
+			var t1 = track.times[ti];
+			var t2 = track.times[ti + 1 * player.dir];
 			var interpolate = interpolateLinear;
 			switch (track.curve) {
 			case "linear": interpolate = interpolateLinear;
@@ -201,8 +211,8 @@ class Animation {
 			}
 			var s = player.dir > 0 ? interpolate(t, t1, t2) : interpolate(t1 - (t - t2), t2, t1);
 			var invs = 1.0 - s;
-			var v1 = track.value.values[ti];
-			var v2 = track.value.values[ti + 1 * player.dir];
+			var v1 = track.values[ti];
+			var v2 = track.values[ti + 1 * player.dir];
 			var v = v1 * invs + v2 * s;
 
 			switch (track.target) {
@@ -230,7 +240,7 @@ class Animation {
 
 	inline function checkTrackEnd(player:Player, track:TTrack):Bool {
 		if (player.dir > 0) {
-			return (player.timeIndex >= track.time.values.length - 1 || player.timeIndex >= player.current.end);
+			return (player.timeIndex >= track.times.length - 1 || player.timeIndex >= player.current.end);
 		}
 		else {
 			return (player.timeIndex <= 1 || player.timeIndex <= player.current.start);
@@ -256,17 +266,17 @@ class Animation {
 				if (player.current.reflect) player.dir *= -1;
 
 				player.timeIndex = player.dir > 0 ? player.current.start : player.current.end;
-				player.animTime = track.time.values[player.timeIndex];
+				player.animTime = track.times[player.timeIndex];
 			}
 		}
 
 		// Move keyframe
 		//var timeIndex = boneTimeIndices.get(b);
-		while (checkTimeIndex(player, track.time.values)) {
+		while (checkTimeIndex(player, track.times)) {
 			player.timeIndex += 1 * player.dir;
 		}
 		// Safe check, remove
-		if (player.timeIndex >= track.time.values.length) player.timeIndex = track.time.values.length - 1;
+		if (player.timeIndex >= track.times.length) player.timeIndex = track.times.length - 1;
 		//boneTimeIndices.set(b, timeIndex);
 
 		// End of track
@@ -284,29 +294,22 @@ class Animation {
 
 		var t = player.animTime;
 		var ti = player.timeIndex;
-		var t1 = track.time.values[ti];
-		var t2 = track.time.values[ti + 1 * player.dir];
+		var t1 = track.times[ti];
+		var t2 = track.times[ti + 1 * player.dir];
 		var s = (t - t1) / (t2 - t1); // Linear
 
-		var v1:Array<kha.FastFloat> = track.value.values[ti];
-		var v2:Array<kha.FastFloat> = track.value.values[ti + 1 * player.dir];
-
-		var m1 = Mat4.fromArray(v1);
-		var m2 = Mat4.fromArray(v2);
+		m1.set(track.values, ti * 16); // Offset to 4x4 matrix array
+		m2.set(track.values, (ti + 1 * player.dir) * 16);
 
 		// Decompose
-		var p1 = m1.getLoc();
-		var p2 = m2.getLoc();
-		var s1 = m1.getScale();
-		var s2 = m2.getScale();
-		var q1 = m1.getQuat();
-		var q2 = m2.getQuat();
+		m1.decompose(vpos, q1, vscl);
+		m2.decompose(vpos2, q2,vscl2);
 
 		// Lerp
-		var fp = Vec4.lerp(p1, p2, 1.0 - s);
+		var fp = Vec4.lerp(vpos, vpos2, 1.0 - s);
 		// var fp = Vec4.lerp(p1, p2, s);
-		var fs = Vec4.lerp(s1, s2, s);
 		var fq = Quat.lerp(q1, q2, s);
+		var fs = Vec4.lerp(vscl, vscl2, s);
 
 		// Compose
 		var m = targetMatrix;
@@ -323,8 +326,7 @@ class Animation {
 			var boneAnim = b.animation;
 			if (boneAnim != null) {
 				var track = boneAnim.tracks[0];
-				var v1:Array<kha.FastFloat> = track.value.values[frame];
-				var m1 = Mat4.fromArray(v1);
+				var m1 = Mat4.fromArray(track.values, frame * 16); // Offset to 4x4 matrix array
 				boneMats.set(b, m1);
 			}
 		}
@@ -335,8 +337,7 @@ class Animation {
 		var objectAnim = object.raw.animation;
 		if (objectAnim != null) {
 			var track = objectAnim.tracks[0];
-			var v1:Array<kha.FastFloat> = track.value.values[frame];
-			var m1 = Mat4.fromArray(v1);
+			var m1 = Mat4.fromArray(track.values, frame * 16);
 			object.transform.matrix = m1;
 		}
 	}
@@ -347,10 +348,6 @@ class Animation {
 	}
 
 	// Dual quat skinning
-	static var vpos = new Vec4();
-	static var vscl = new Vec4();
-	static var q1 = new Quat(); // Real
-	static var q2 = new Quat(); // Dual
 	function updateSkinGpu() {
 		var bones = data.mesh.skeletonBones;
 
@@ -391,11 +388,11 @@ class Animation {
 			q2.x *= 0.5; q2.y *= 0.5; q2.z *= 0.5; q2.w *= 0.5;
 			// q1.set(0, 0, 0, 1); // No skin
 			// q2.set(0, 0, 0, 1);
-			skinBuffer[i * 8] = q1.x;
+			skinBuffer[i * 8] = q1.x; // Real
 			skinBuffer[i * 8 + 1] = q1.y;
 			skinBuffer[i * 8 + 2] = q1.z;
 			skinBuffer[i * 8 + 3] = q1.w;
-			skinBuffer[i * 8 + 4] = q2.x;
+			skinBuffer[i * 8 + 4] = q2.x; // Dual
 			skinBuffer[i * 8 + 5] = q2.y;
 			skinBuffer[i * 8 + 6] = q2.z;
 			skinBuffer[i * 8 + 7] = q2.w;

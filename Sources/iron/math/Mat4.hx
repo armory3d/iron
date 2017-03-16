@@ -17,21 +17,21 @@ class Mat4 {
 		self = new kha.math.FastMatrix4(_00, _10, _20, _30, _01, _11, _21, _31, _02, _12, _22, _32, _03, _13, _23, _33);
 	}
 
-	public function compose(position:Vec4, quaternion:Quat, sc:Vec4):Mat4 {
+	public function compose(location:Vec4, quaternion:Quat, sc:Vec4):Mat4 {
 		fromQuaternion(quaternion);
 		scale(sc);
-		setPosition(position);
+		setLocation(location);
 		return this;
 	}
 
-	public function decompose(position:Vec4, quaternion:Quat, scale:Vec4) {
+	public function decompose(location:Vec4, quaternion:Quat, scale:Vec4) {
 		helpVec.w = 0.0;
 		var sx = helpVec.set(_00, _01, _02).length();
 		var sy = helpVec.set(_10, _11, _12).length();
 		var sz = helpVec.set(_20, _21, _22).length();
 		var det = self.determinant();
 		if (det < 0.0) sx = -sx;
-		position.x = _30; position.y = _31; position.z = _32;
+		location.x = _30; location.y = _31; location.z = _32;
 		// Scale the rotation part
 		helpMat._00 = _00; helpMat._10 = _10; helpMat._20 = _20; helpMat._30 = _30;
 		helpMat._01 = _01; helpMat._11 = _11; helpMat._21 = _21; helpMat._31 = _31;
@@ -61,7 +61,7 @@ class Mat4 {
 		return this;
 	}
 
-	public function setPosition(v:Vec4) {
+	public function setLocation(v:Vec4) {
 		_30 = v.x;
 		_31 = v.y;
 		_32 = v.z;
@@ -102,12 +102,12 @@ class Mat4 {
 		);
 	}
 
-	public static function fromArray(a:Array<FastFloat>) {
+	public static function fromArray(a:Array<FastFloat>, offset = 0) {
 		return new Mat4(
-			a[0], a[1], a[2], a[3],
-			a[4], a[5], a[6], a[7],
-			a[8], a[9], a[10], a[11],
-			a[12], a[13], a[14], a[15]
+			a[0 + offset], a[1 + offset], a[2 + offset], a[3 + offset],
+			a[4 + offset], a[5 + offset], a[6 + offset], a[7 + offset],
+			a[8 + offset], a[9 + offset], a[10 + offset], a[11 + offset],
+			a[12 + offset], a[13 + offset], a[14 + offset], a[15 + offset]
 		);
 	}
 
@@ -309,11 +309,11 @@ class Mat4 {
 		return m;
 	}
 
-	public function set(a:Array<Float>) {
-		_00 = a[0]; _10 = a[1]; _20 = a[2]; _30 = a[3];
-		_01 = a[4]; _11 = a[5]; _21 = a[6]; _31 = a[7];
-		_02 = a[8]; _12 = a[9]; _22 = a[10];_32 = a[11];
-		_03 = a[12]; _13 = a[13]; _23 = a[14]; _33 = a[15];
+	public function set(a:Array<FastFloat>, offset = 0) {
+		_00 = a[0 + offset]; _10 = a[1 + offset]; _20 = a[2 + offset]; _30 = a[3 + offset];
+		_01 = a[4 + offset]; _11 = a[5 + offset]; _21 = a[6 + offset]; _31 = a[7 + offset];
+		_02 = a[8 + offset]; _12 = a[9 + offset]; _22 = a[10 + offset];_32 = a[11 + offset];
+		_03 = a[12 + offset]; _13 = a[13 + offset]; _23 = a[14 + offset]; _33 = a[15 + offset];
 	}
 
 	public function setFrom(m:Mat4) {		

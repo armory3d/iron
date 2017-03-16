@@ -16,6 +16,8 @@ class Input {
 	public static var movementX(default, null) = 0.0;
 	public static var movementY(default, null) = 0.0;
 	public static var wheelDelta(default, null) = 0;
+	// static var lastX = 0.0;
+	// static var lastY = 0.0;
 
 	public function new() {
 		kha.input.Mouse.get().notify(downListener, upListener, moveListener, wheelListener);
@@ -70,9 +72,13 @@ class Input {
 	public static function moveListener(_x:Int, _y:Int, _movementX:Int, _movementY:Int) {
 		movementX = _movementX;
 		movementY = _movementY;
+		// movementX = _x - lastX;
+		// movementY = _y - lastY;
+		// lastX = _x;
+		// lastY = _y;
 
-		x = _x ;
-		y = _y ;
+		x = _x;
+		y = _y;
 
 		moved = true;
 	}

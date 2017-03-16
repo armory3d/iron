@@ -71,8 +71,9 @@ class LampObject extends Object {
 		if (data.raw.type == "sun") { // Cover camera frustum
 
 			if (camSlicedP == null) { // Move in far plane for now
-				var raw = camera.data.raw;
-				camSlicedP = Mat4.perspective(raw.fov, iron.App.w() / iron.App.h(), raw.near_plane, raw.far_plane / 4.0);
+				// var raw = camera.data.raw;
+				var raw = data.raw;
+				camSlicedP = Mat4.perspective(raw.fov, iron.App.w() / iron.App.h(), raw.near_plane, raw.far_plane);
 			}
 
 			m.setFrom(camera.V);

@@ -445,28 +445,16 @@ typedef TAnimation = {
 typedef TTrack = {
 // @:structInit class TTrack {
 	public var target:String;
-	public var time:TTime;
-	public var value:TValue;
+	public var times:Array<Float>;
+	public var values:Array<kha.FastFloat>; // sampled - full matrix transforms, non-sampled - values
 	@:optional public var curve:String; // bezier, tcb, ...
-	@:optional public var time_control_plus:TTime; // bezier
-	@:optional public var time_control_minus:TTime;
-	@:optional public var value_control_plus:TValue;
-	@:optional public var value_control_minus:TValue;
-	// @:optional public var tension:TValue; // tcb
-	// @:optional public var continuity:TValue;
-	// @:optional public var bias:TValue;
-}
-
-typedef TTime = {
-// @:structInit class TTime {
-	public var values:Array<Float>;
-}
-
-typedef TValue = {
-// @:structInit class TValue {
-	public var values:Array<Dynamic>; // TODO: Unify
-	// public var values:Array<Array<Float>>; // Array of transforms
-	// public var values:Array<Float>; // Non-sampled
+	@:optional public var times_control_plus:Array<Float>; // bezier
+	@:optional public var times_control_minus:Array<Float>;
+	@:optional public var values_control_plus:Array<Float>;
+	@:optional public var values_control_minus:Array<Float>;
+	// @:optional public var tension:Array<Float>; // tcb
+	// @:optional public var continuity:Array<Float>;
+	// @:optional public var bias:Array<Float>;
 }
 
 // Raw shader data
