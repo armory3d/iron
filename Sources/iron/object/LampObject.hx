@@ -18,6 +18,8 @@ class LampObject extends Object {
 
 	public var frustumPlanes:Array<FrustumPlane> = null;
 	static var corners:Array<Vec4> = null;
+	static var cubeLook:Array<Vec4> = null;
+	static var cubeUp:Array<Vec4> = null;
 	var camSlicedP:Mat4 = null;
 
 	public function new(data:LampData) {
@@ -38,6 +40,25 @@ class LampObject extends Object {
 			}
 		}
 		else if (type == "point" || type == "area") {
+			if (type == "point" && cubeLook == null) {
+				cubeLook = [
+					new Vec4(1.0, 0.0, 0.0),
+					new Vec4(-1.0, 0.0, 0.0),
+					new Vec4(0.0, 1.0, 0.0),
+					new Vec4(0.0, -1.0, 0.0),
+					new Vec4(0.0, 0.0, 1.0),
+					new Vec4(0.0, 0.0, -1.0)
+				];
+				cubeUp = [
+					new Vec4(0.0, -1.0, 0.0),
+					new Vec4(0.0, -1.0, 0.0),
+					new Vec4(0.0, 0.0, 1.0),
+					new Vec4(0.0, 0.0, -1.0),
+					new Vec4(0.0, -1.0, 0.0),
+					new Vec4(0.0, -1.0, 0.0)
+				];
+			}
+
 			P = Mat4.perspective(fov, 1, data.raw.near_plane, data.raw.far_plane);
 		}
 		else if (type == "spot") {
@@ -149,6 +170,14 @@ class LampObject extends Object {
 			VP.multmats(P, V);
 			CameraObject.buildViewFrustum(VP, frustumPlanes);
 		}
+	}
+
+	public function setCubeFace(face:Int) {
+		// Set matrices to match cubemap face
+		var p = new Vec4(transform.absx(), transform.absy(), transform.absz());
+		var look = new Vec4();
+		look.addvecs(p, cubeLook[face]);
+		V = Mat4.lookAt(p, look, cubeUp[face]);
 	}
 
 	public inline function right():Vec4 { return new Vec4(V._00, V._10, V._20); }

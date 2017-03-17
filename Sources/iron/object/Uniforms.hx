@@ -54,13 +54,17 @@ class Uniforms {
 			for (i in 0...Std.int(bindParams.length / 2)) {
 				var pos = i * 2; // bind params = [texture, samplerID]
 				var rtID = bindParams[pos];
-				
+				var samplerID = bindParams[pos + 1];
+
 				var attachDepth = false; // Attach texture depth if '_' is prepended
 				var char = rtID.charAt(0);
 				if (char == "_") attachDepth = true;
 				if (attachDepth) rtID = rtID.substr(1);
-				
-				var samplerID = bindParams[pos + 1];
+				if (rtID == "shadowMap" && lamp.data.raw.shadowmap_cube) {
+					rtID += "Cube"; // Bind cubemap instead
+					samplerID += "Cube";
+				}
+
 				var pathdata = camera.data.pathdata;
 				var rt = attachDepth ? pathdata.depthToRenderTarget.get(rtID) : pathdata.renderTargets.get(rtID);
 				var tus = context.raw.texture_units;
@@ -75,8 +79,14 @@ class Uniforms {
 							g.setImageTexture(context.textureUnits[j], rt.image); // image2D
 #end
 						}
-						else if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image); // sampler2D
-						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
+						else if (rt.isCubeMap) {
+							if (attachDepth) g.setCubeMapDepth(context.textureUnits[j], rt.cubeMap); // samplerCube
+							else g.setCubeMap(context.textureUnits[j], rt.cubeMap); // samplerCube
+						}
+						else {
+							if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image); // sampler2D
+							else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
+						}
 
 						// No filtering when sampling render targets
 						// if (tus[j].params_set == null) {
@@ -610,7 +620,9 @@ class Uniforms {
 				i = camera.renderPath.currentLampIndex;
 			}
 			else if (c.link == "_lampCastShadow") {
-				i = lamp == null ? 0 : (lamp.data.raw.cast_shadow ? 1 : 0);
+				if (lamp != null && lamp.data.raw.cast_shadow) {
+					i = lamp.data.raw.shadowmap_cube ? 2 : 1;
+				}
 			}
 			else if (c.link == "_envmapNumMipmaps") {
 				i = Scene.active.world.getGlobalProbe().raw.radiance_mipmaps + 1; // Include basecolor

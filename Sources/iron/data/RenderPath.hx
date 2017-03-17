@@ -38,6 +38,8 @@ class RenderPath {
 	public var currentRenderTargetW:Int;
 	public var currentRenderTargetH:Int;
 	public var currentRenderTargetD:Int;
+	public var currentRenderTargetCube:Bool;
+	public var currentRenderTargetFace:Int;
 	var bindParams:Array<String>;
 
 	static var screenAlignedVB:VertexBuffer = null;
@@ -53,6 +55,7 @@ class RenderPath {
 
 	var currentStages:Array<TRenderPathStage> = null;
 	var currentStageIndex = 0;
+	var currentStageIndexOffset = 0;
 	
 	var meshesSorted:Bool;
 	public var ready:Bool;
@@ -221,6 +224,8 @@ class RenderPath {
 		currentRenderTargetW = iron.App.w();
 		currentRenderTargetH = iron.App.h();
 		currentRenderTargetD = 1;
+		currentRenderTargetCube = false;
+		currentRenderTargetFace = -1;
 		meshesSorted = false;
 
 		this.lamps = lamps;
@@ -236,10 +241,13 @@ class RenderPath {
 	}
 
 	function callCurrentStages(root:Object) {
-		for (i in 0...currentStages.length) {
+		var i = 0;
+		while (i < currentStages.length) {
 			currentStageIndex = i;
 			var f = commandToFunction(currentStages[i].command);
 			f(currentStages[i].params, root);
+			i += 1 + currentStageIndexOffset; // To repeat cubemap faces
+			currentStageIndexOffset = 0;
 		}
 	}
 
@@ -260,11 +268,31 @@ class RenderPath {
 			currentRenderTargetW = iron.App.w();
 			currentRenderTargetH = iron.App.h();
 			currentRenderTargetD = 1;
+			currentRenderTargetCube = false;
+			currentRenderTargetFace = -1;
 			if (frameScissor) setFrameScissor();
 			begin(currentRenderTarget);
 		}
 		else { // Render target
 			var rt = data.pathdata.renderTargets.get(target);
+			// TODO: detect cubemap shadows properly
+			// TODO: do not create non-cube texture by default either
+			if (target == "shadowMap" && getLamp(currentLampIndex).data.raw.shadowmap_cube) {
+				// Switch to cubemap
+				rt = data.pathdata.renderTargets.get(target + "Cube");
+				if (rt == null) {
+					// Cubemap size - assume sm / 4
+					var size = Std.int(getLamp(currentLampIndex).data.raw.shadowmap_size / 4);
+					var t:TRenderPathTarget = {
+						name: target + "Cube",
+						width: size,
+						height: size,
+						format: "DEPTH16",
+						is_cubemap: true
+					};
+					rt = data.pathdata.createRenderTarget(t);
+				}
+			}
 			var additionalImages:Array<kha.Canvas> = null;
 			if (params.length > 2) {
 				additionalImages = [];
@@ -280,11 +308,14 @@ class RenderPath {
 				if (rt.pongState) rt = rt.pong;
 			}
 			
-			currentRenderTarget = rt.image.g4;
-			currentRenderTargetW = rt.image.width;
-			currentRenderTargetH = rt.image.height;
+			currentRenderTarget = rt.isCubeMap ? rt.cubeMap.g4 : rt.image.g4;
+			currentRenderTargetW = rt.isCubeMap ? rt.cubeMap.width : rt.image.width;
+			currentRenderTargetH = rt.isCubeMap ? rt.cubeMap.height : rt.image.height;
 			if (rt.is3D) currentRenderTargetD = rt.image.depth;
-			begin(currentRenderTarget, additionalImages);
+			currentRenderTargetCube = rt.isCubeMap;
+			if (currentRenderTargetFace >= 0) currentRenderTargetFace++; // Already drawing to faces
+			else currentRenderTargetFace = rt.isCubeMap ? 0 : -1;
+			begin(currentRenderTarget, additionalImages, currentRenderTargetFace);
 		}
 		var viewportScale = Std.parseFloat(params[0]);
 		if (viewportScale != 1.0) {
@@ -300,6 +331,20 @@ class RenderPath {
 			setCurrentScissor(currentRenderTargetW, currentRenderTargetH);
 		}
 		bindParams = null;
+	}
+
+	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null, face = -1) {
+		g.begin(additionalRenderTargets, face);
+	}
+
+	inline function end(g:Graphics) {
+		g.end();
+		if (scissorSet) {
+			g.disableScissor();
+			scissorSet = false;
+		}
+		bindParams = null; // Remove, cleared at begin
+		drawPerformed = true;
 	}
 
 	public function setCurrentViewport(viewW:Int, viewH:Int) {
@@ -384,6 +429,8 @@ class RenderPath {
 		if (context == data.pathdata.raw.shadows_context) {
 			if (lamp == null || !lamp.data.raw.cast_shadow) return;
 		}
+		// Single face attached
+		if (currentRenderTargetFace >= 0 && lamp != null) lamp.setCubeFace(currentRenderTargetFace);
 
 		var g = currentRenderTarget;
 #if arm_batch
@@ -403,6 +450,12 @@ class RenderPath {
 		}
 #end
 		end(g);
+
+		// TODO: render all cubemap faces
+		if (currentRenderTargetFace >= 0 && currentRenderTargetFace < 5) {
+			currentStageIndexOffset = -3; // Move back draw meshes and clear, back to set target
+		}
+		else currentRenderTargetFace = -1;
 	}
 	
 	function drawDecals(params:Array<String>, root:Object) {
@@ -629,20 +682,6 @@ class RenderPath {
 		currentStages = parentStages;
 	}
 #end
-
-	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null) {
-		g.begin(additionalRenderTargets);
-	}
-
-	inline function end(g:Graphics) {
-		g.end();
-		if (scissorSet) {
-			g.disableScissor();
-			scissorSet = false;
-		}
-		bindParams = null; // Remove, cleared at begin
-		drawPerformed = true;
-	}
 
 	function loadStageCommands(stages:Array<TRenderPathStage>, done:Void->Void) {
 		var stagesLoaded = 0;

@@ -1,6 +1,7 @@
 package iron.data;
 
 import kha.Image;
+import kha.graphics4.CubeMap;
 import kha.graphics4.TextureFormat;
 import kha.graphics4.DepthStencilFormat;
 import iron.data.SceneFormat;
@@ -26,9 +27,7 @@ class RenderPathData extends Data {
 			}
 
 			for (t in raw.render_targets) {
-				var rt = makeRenderTarget(t);
-				if (t.ping_pong != null && t.ping_pong) rt.pong = makeRenderTarget(t);
-				renderTargets.set(t.name, rt);
+				createRenderTarget(t);
 			}
 		}
 
@@ -50,7 +49,14 @@ class RenderPathData extends Data {
 		});
 	}
 	
-	function makeRenderTarget(t:TRenderPathTarget) {
+	public function createRenderTarget(t:TRenderPathTarget):RenderTarget {
+		var rt = _createRenderTarget(t);
+		if (t.ping_pong != null && t.ping_pong) rt.pong = createRenderTarget(t);
+		renderTargets.set(t.name, rt);
+		return rt;
+	}
+
+	function _createRenderTarget(t:TRenderPathTarget):RenderTarget {
 		var rt = new RenderTarget();
 		// With depth buffer
 		if (t.depth_buffer != null) {
@@ -77,7 +83,13 @@ class RenderPathData extends Data {
 		else {
 			rt.hasDepth = false;
 			if (t.depth != null && t.depth > 1) rt.is3D = true;
-			rt.image = createImage(t, DepthStencilFormat.NoDepthAndStencil);
+			if (t.is_cubemap) {
+				rt.isCubeMap = true;
+				rt.cubeMap = createCubeMap(t, DepthStencilFormat.NoDepthAndStencil);
+			}
+			else {
+				rt.image = createImage(t, DepthStencilFormat.NoDepthAndStencil);
+			}
 		}
 		
 		return rt;
@@ -110,6 +122,12 @@ class RenderPathData extends Data {
 		}
 	}
 
+	function createCubeMap(t:TRenderPathTarget, depthStencil:DepthStencilFormat):CubeMap {
+		return CubeMap.createRenderTarget(t.width,
+			t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
+			depthStencil);
+	}
+
 	inline function getTextureFormat(s:String):TextureFormat {
 		switch (s) {
 		case "RGBA32": return TextureFormat.RGBA32;
@@ -131,14 +149,17 @@ class RenderPathData extends Data {
 }
 
 class RenderTarget {
-	public var image:Image; // RT or image
-	public var hasDepth:Bool;
+	public var image:Image = null; // RT or image
+	public var cubeMap:CubeMap = null;
+	public var hasDepth = false;
 	public var pongState = false;
 	public var pong:RenderTarget = null;
-	public var is3D:Bool = false; // sampler2D / sampler3D
+	public var is3D = false; // sampler2D / sampler3D
+	public var isCubeMap = false;
 	public function new() {}
 	public function unload() {
-		image.unload();
+		if (image != null) image.unload();
+		if (cubeMap != null) cubeMap.unload();
 		if (pong != null) pong.unload();
 	}
 }

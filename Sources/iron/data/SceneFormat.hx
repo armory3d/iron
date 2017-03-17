@@ -80,6 +80,7 @@ typedef TLampData = {
 	@:optional public var fov:Float;
 	@:optional public var shadows_bias:Float;
 	@:optional public var shadowmap_size:Int;
+	@:optional public var shadowmap_cube:Null<Bool>; // Omni shadows for point
 	@:optional public var spot_size:Null<Float>;
 	@:optional public var spot_blend:Null<Float>;
 	@:optional public var lamp_size:Null<Float>; // Shadow soft size
@@ -236,6 +237,8 @@ typedef TRenderPathTarget = {
 	@:optional public var depth:Null<Int>;
 	// Image
 	@:optional public var is_image:Null<Bool>;
+	// Cubemap
+	@:optional public var is_cubemap:Null<Bool>;
 }
 
 typedef TRenderPathDepthBuffer = {
