@@ -509,6 +509,10 @@ class Uniforms {
 				vx = camera.data.raw.near_plane;
 				vy = camera.data.raw.far_plane;
 			}
+			else if (c.link == "_lampPlane") {
+				vx = lamp == null ? 0.0 : lamp.data.raw.near_plane;
+				vy = lamp == null ? 0.0 : lamp.data.raw.far_plane;
+			}
 			else if (c.link == "_spotlampData") {
 				// cutoff, cutoff - exponent
 				vx = lamp == null ? 0.0 : lamp.data.raw.spot_size;
@@ -541,12 +545,6 @@ class Uniforms {
 			}
 			else if (c.link == "_lampShadowsBias") {
 				f = lamp == null ? 0.0 : lamp.data.raw.shadows_bias;
-			}
-			else if (c.link == "_lampPlaneNear") {
-				f = lamp == null ? 0.0 : lamp.data.raw.near_plane;
-			}
-			else if (c.link == "_lampPlaneFar") {
-				f = lamp == null ? 0.0 : lamp.data.raw.far_plane;
 			}
 			else if (c.link == "_lampSize") {
 				if (lamp != null && lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size;

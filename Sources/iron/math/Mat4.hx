@@ -309,6 +309,16 @@ class Mat4 {
 		return m;
 	}
 
+	public function init(_00:FastFloat, _10:FastFloat, _20:FastFloat, _30:FastFloat,
+						 _01:FastFloat, _11:FastFloat, _21:FastFloat, _31:FastFloat,
+						 _02:FastFloat, _12:FastFloat, _22:FastFloat, _32:FastFloat,
+						 _03:FastFloat, _13:FastFloat, _23:FastFloat, _33:FastFloat) {
+		this._00 = _00; this._10 = _10; this._20 = _20; this._30 = _30;
+		this._01 = _01; this._11 = _11; this._21 = _21; this._31 = _31;
+		this._02 = _02; this._12 = _12; this._22 = _22; this._32 = _32;
+		this._03 = _03; this._13 = _13; this._23 = _23; this._33 = _33;
+	}
+
 	public function set(a:Array<FastFloat>, offset = 0) {
 		_00 = a[0 + offset]; _10 = a[1 + offset]; _20 = a[2 + offset]; _30 = a[3 + offset];
 		_01 = a[4 + offset]; _11 = a[5 + offset]; _21 = a[6 + offset]; _31 = a[7 + offset];
@@ -443,48 +453,52 @@ class Mat4 {
 			0,				0,				0,				1
 		);
 	}
-	
-	public static function lookAt(_eye:Vec4, _centre:Vec4, _up:Vec4):Mat4 {
-		var eye = _eye;
-		var centre = _centre;
-		var up = _up;
 
-		var e0 = eye.x;
-		var e1 = eye.y;
-		var e2 = eye.z;
-
-		var u0 = up.x;
-		var u1 = up.y;
-		var u2 = up.z;
-
-		var f0 = centre.x - e0;
-		var f1 = centre.y - e1;
-		var f2 = centre.z - e2;
+	public function setLookAt(eye:Vec4, center:Vec4, up:Vec4) {
+		var f0 = center.x - eye.x;
+		var f1 = center.y - eye.y;
+		var f2 = center.z - eye.z;
 		var n = 1.0 / Math.sqrt(f0 * f0 + f1 * f1 + f2 * f2);
 		f0 *= n;
 		f1 *= n;
 		f2 *= n;
 
-		var s0 = f1 * u2 - f2 * u1;
-		var s1 = f2 * u0 - f0 * u2;
-		var s2 = f0 * u1 - f1 * u0;
+		var s0 = f1 * up.z - f2 * up.y;
+		var s1 = f2 * up.x - f0 * up.z;
+		var s2 = f0 * up.y - f1 * up.x;
 		n = 1.0 / Math.sqrt(s0 * s0 + s1 * s1 + s2 * s2);
 		s0 *= n;
 		s1 *= n;
 		s2 *= n;
 
-		u0 = s1 * f2 - s2 * f1;
-		u1 = s2 * f0 - s0 * f2;
-		u2 = s0 * f1 - s1 * f0;
-
-		var d0 = -e0 * s0 - e1 * s1 - e2 * s2;
-		var d1 = -e0 * u0 - e1 * u1 - e2 * u2;
-		var d2 =  e0 * f0 + e1 * f1 + e2 * f2;
-						
-		return new Mat4(s0,  s1,  s2, d0,
-						u0,  u1,  u2, d1,
-					   -f0, -f1, -f2, d2,
-						0.0, 0.0, 0.0, 1.0);
+		var u0 = s1 * f2 - s2 * f1;
+		var u1 = s2 * f0 - s0 * f2;
+		var u2 = s0 * f1 - s1 * f0;
+		var d0 = -eye.x * s0 - eye.y * s1 - eye.z * s2;
+		var d1 = -eye.x * u0 - eye.y * u1 - eye.z * u2;
+		var d2 =  eye.x * f0 + eye.y * f1 + eye.z * f2;
+		
+		_00 = s0;
+		_10 = s1;
+		_20 = s2;
+		_30 = d0;
+		_01 = u0;
+		_11 = u1;
+		_21 = u2;
+		_31 = d1;
+		_02 = -f0;
+		_12 = -f1;
+		_22 = -f2;
+		_32 = d2;
+		_03 = 0.0;
+		_13 = 0.0;
+		_23 = 0.0;
+		_33 = 1.0;
+		return this;
+	}
+	
+	public static function lookAt(eye:Vec4, center:Vec4, up:Vec4):Mat4 {
+		return Mat4.identity().setLookAt(eye, center, up);
 	}
 
 	public inline function multvec(value: kha.math.FastVector4):kha.math.FastVector4 {

@@ -231,9 +231,7 @@ class RenderPath {
 		this.lamps = lamps;
 		currentLampIndex = 0;
 		for (l in lamps) {
-			if (l.visible) {
-				l.buildMatrices(camera);
-			}
+			if (l.visible) l.buildMatrices(camera);
 		}
 
 		currentStages = data.pathdata.raw.stages;
@@ -430,7 +428,7 @@ class RenderPath {
 			if (lamp == null || !lamp.data.raw.cast_shadow) return;
 		}
 		// Single face attached
-		if (currentRenderTargetFace >= 0 && lamp != null) lamp.setCubeFace(currentRenderTargetFace);
+		if (currentRenderTargetFace >= 0 && lamp != null) lamp.setCubeFace(currentRenderTargetFace, camera);
 
 		var g = currentRenderTarget;
 #if arm_batch
@@ -455,7 +453,10 @@ class RenderPath {
 		if (currentRenderTargetFace >= 0 && currentRenderTargetFace < 5) {
 			currentStageIndexOffset = -3; // Move back draw meshes and clear, back to set target
 		}
-		else currentRenderTargetFace = -1;
+		else {
+			currentRenderTargetFace = -1;
+			// lamp.buildMatrices(camera); // Restore light matrix
+		}
 	}
 	
 	function drawDecals(params:Array<String>, root:Object) {

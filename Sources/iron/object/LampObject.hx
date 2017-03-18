@@ -18,8 +18,6 @@ class LampObject extends Object {
 
 	public var frustumPlanes:Array<FrustumPlane> = null;
 	static var corners:Array<Vec4> = null;
-	static var cubeLook:Array<Vec4> = null;
-	static var cubeUp:Array<Vec4> = null;
 	var camSlicedP:Mat4 = null;
 
 	public function new(data:LampData) {
@@ -31,34 +29,12 @@ class LampObject extends Object {
 		var fov = data.raw.fov;
 		
 		if (type == "sun") {
-			// Estimate planes from fov
-			// P = Mat4.orthogonal(-fov * 25, fov * 25, -fov * 25, fov * 25, -data.raw.far_plane, data.raw.far_plane);
-
 			if (corners == null) {
 				corners = [];
 				for (i in 0...8) corners.push(new Vec4());
 			}
 		}
 		else if (type == "point" || type == "area") {
-			if (type == "point" && cubeLook == null) {
-				cubeLook = [
-					new Vec4(1.0, 0.0, 0.0),
-					new Vec4(-1.0, 0.0, 0.0),
-					new Vec4(0.0, 1.0, 0.0),
-					new Vec4(0.0, -1.0, 0.0),
-					new Vec4(0.0, 0.0, 1.0),
-					new Vec4(0.0, 0.0, -1.0)
-				];
-				cubeUp = [
-					new Vec4(0.0, -1.0, 0.0),
-					new Vec4(0.0, -1.0, 0.0),
-					new Vec4(0.0, 0.0, 1.0),
-					new Vec4(0.0, 0.0, -1.0),
-					new Vec4(0.0, -1.0, 0.0),
-					new Vec4(0.0, -1.0, 0.0)
-				];
-			}
-
 			P = Mat4.perspective(fov, 1, data.raw.near_plane, data.raw.far_plane);
 		}
 		else if (type == "spot") {
@@ -159,6 +135,10 @@ class LampObject extends Object {
 			V.getInverse(transform.matrix);
 		}
 
+		updateViewFrustum(camera);
+	}
+
+	function updateViewFrustum(camera:CameraObject) {
 		// Frustum culling enabled
 		if (camera.data.raw.frustum_culling) {
 			if (frustumPlanes == null) {
@@ -172,12 +152,37 @@ class LampObject extends Object {
 		}
 	}
 
-	public function setCubeFace(face:Int) {
-		// Set matrices to match cubemap face
-		var p = new Vec4(transform.absx(), transform.absy(), transform.absz());
-		var look = new Vec4();
-		look.addvecs(p, cubeLook[face]);
-		V = Mat4.lookAt(p, look, cubeUp[face]);
+	static var p1 = new Vec4();
+	static var p2 = new Vec4();
+	static var p3 = new Vec4();
+	public function setCubeFace(face:Int, camera:CameraObject) {
+		// Set matrix to match cubemap face
+		p1.set(transform.absx(), transform.absy(), transform.absz());
+		p2.setFrom(p1);
+
+		switch (face) {
+		case 0: // x+
+			p2.addf(1.0, 0.0, 0.0);
+			p3.set(0.0, -1.0, 0.0);
+		case 1: // x-
+			p2.addf(-1.0, 0.0, 0.0);
+			p3.set(0.0, -1.0, 0.0);
+		case 2: // y+
+			p2.addf(0.0, 1.0, 0.0);
+			p3.set(0.0, 0.0, 1.0);
+		case 3: // y-
+			p2.addf(0.0, -1.0, 0.0);
+			p3.set(0.0, 0.0, -1.0);
+		case 4: // z+
+			p2.addf(0.0, 0.0, 1.0);
+			p3.set(0.0, -1.0, 0.0);
+		case 5: // z-
+			p2.addf(0.0, 0.0, -1.0);
+			p3.set(0.0, -1.0, 0.0);
+		}
+
+		V.setLookAt(p1, p2, p3);
+		updateViewFrustum(camera);
 	}
 
 	public inline function right():Vec4 { return new Vec4(V._00, V._10, V._20); }
