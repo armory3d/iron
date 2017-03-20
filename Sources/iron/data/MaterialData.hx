@@ -7,6 +7,8 @@ import iron.object.MeshObject;
 
 class MaterialData extends Data {
 
+	static var uidCounter = 0;
+	public var uid:Int;
 	public var name:String;
 	public var raw:TMaterialData;
 	public var shader:ShaderData;
@@ -16,6 +18,7 @@ class MaterialData extends Data {
 	public function new(raw:TMaterialData, done:MaterialData->Void) {
 		super();
 
+		uid = uidCounter++;
 		this.raw = raw;
 		this.name = raw.name;
 

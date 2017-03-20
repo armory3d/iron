@@ -565,6 +565,15 @@ class Uniforms {
 			else if (c.link == "_aspectRatioF") {
 				f = camera.renderPath.currentRenderTargetW / camera.renderPath.currentRenderTargetH;
 			}
+			else if (c.link == "_objectInfoIndex") {
+				f = object.uid;
+			}
+			else if (c.link == "_objectInfoMaterialIndex") {
+				f = cast(object, MeshObject).materials[0].uid; // Should return current one being rendered
+			}
+			else if (c.link == "_objectInfoRandom") {
+				f = object.urandom;
+			}
 #if arm_vr
 			else if (c.link == "_maxRadiusSq") {
 				f = iron.system.VR.getMaxRadiusSq();

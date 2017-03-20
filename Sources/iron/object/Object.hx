@@ -6,6 +6,7 @@ import iron.data.SceneFormat;
 class Object {
 	static var uidCounter = 0;
 	public var uid:Int;
+	public var urandom:Float;
 	public var raw:TObj = null;
 
 	public var name:String = "";
@@ -26,6 +27,7 @@ class Object {
 
 	public function new() {
 		uid = uidCounter++;
+		urandom = Math.random();
 		transform = new Transform(this);
 	}
 	

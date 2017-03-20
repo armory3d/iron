@@ -332,7 +332,7 @@ class RenderPath {
 	}
 
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null, face = -1) {
-		g.begin(additionalRenderTargets, face);
+		face >= 0 ? g.beginFace(face) : g.begin(additionalRenderTargets);
 	}
 
 	inline function end(g:Graphics) {
