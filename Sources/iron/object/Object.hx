@@ -111,7 +111,7 @@ class Object {
 		return null;
 	}
 
-	public function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>, maxBones = 50) {
-		animation = Animation.setupObjectAnimation(this, startTrack, names, starts, ends, speeds, loops, reflects);
+	public function setupAnimation(setup:TAnimationSetup) {
+		animation = Animation.setupObjectAnimation(this, setup);
 	}
 }

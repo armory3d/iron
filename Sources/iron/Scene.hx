@@ -414,7 +414,7 @@ class Scene {
 
 	static function setupAnimation(setup:TAnimationSetup, object:Object) {
 		if (setup == null) return;
-		object.setupAnimation(setup.start_track, setup.names, setup.starts, setup.ends, setup.speeds, setup.loops, setup.reflects, setup.max_bones);
+		object.setupAnimation(setup);
 	}
 
 	static function createTraits(traits:Array<TTrait>, object:Object) {

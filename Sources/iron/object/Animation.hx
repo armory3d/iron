@@ -36,8 +36,8 @@ class Animation {
 	// Object based
 	public var object:Object;
 
-	function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
-		player = new Player(startTrack, names, starts, ends, speeds, loops, reflects);
+	function new(setup:TAnimationSetup) {
+		player = new Player(setup);
 		Scene.active.animations.push(this);
 	}
 
@@ -45,15 +45,15 @@ class Animation {
 		Scene.active.animations.remove(this);
 	}
 
-	public static function setupBoneAnimation(data:MeshData, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>, maxBones:Int) {
-		var anim = new Animation(startTrack, names, starts, ends, speeds, loops, reflects);
+	public static function setupBoneAnimation(data:MeshData, setup:TAnimationSetup) {
+		var anim = new Animation(setup);
 		anim.data = data;
 		anim.isSkinned = data.isSkinned;
 		anim.isSampled = false;
 
 		if (anim.isSkinned) {
 			if (!MeshData.ForceCpuSkinning) {
-				anim.skinBuffer = new haxe.ds.Vector(maxBones * 8); // Dual quat // * 12 for matrices
+				anim.skinBuffer = new haxe.ds.Vector(setup.max_bones * 8); // Dual quat // * 12 for matrices
 				for (i in 0...anim.skinBuffer.length) anim.skinBuffer[i] = 0;
 			}
 
@@ -85,8 +85,8 @@ class Animation {
 		t.buildMatrix();
 	}
 
-	public static function setupObjectAnimation(object:Object, startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
-		var anim = new Animation(startTrack, names, starts, ends, speeds, loops, reflects);
+	public static function setupObjectAnimation(object:Object, setup:TAnimationSetup) {
+		var anim = new Animation(setup);
 		anim.isSkinned = false;
 		anim.object = object;
 
@@ -153,10 +153,10 @@ class Animation {
 
 		if (player.dirty) {
 			player.dirty = false;
-			player.animTime = player.current.start * 0.0167;
+			player.animTime = player.current.start * player.ft;
 			player.timeIndex = 0;
 			var track = anim.tracks[0];
-			while (player.animTime > track.times[player.timeIndex] + 0.0167) {
+			while (player.animTime > track.times[player.timeIndex] + player.ft) {
 				player.timeIndex++;
 			}
 		}
@@ -171,9 +171,9 @@ class Animation {
 
 			// End of track
 			if (player.animTime > total || player.animTime < 0 ||
-				(player.animTime > player.current.end * 0.0167 - 0.0167 && player.dir > 0) ||
-				(player.animTime < player.current.start * 0.0167 + 0.0167 && player.dir < 0)
-				) { // Assume 60fps..
+				(player.animTime > player.current.end * player.ft - player.ft && player.dir > 0) ||
+				(player.animTime < player.current.start * player.ft + player.ft && player.dir < 0)
+				) {
 
 				if (!player.current.loop) {
 					player.paused = true;
@@ -516,12 +516,15 @@ class Player {
 	public var speed:Float;
 	public var dir:Int;
 
-	public function new(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>) {
-		for (i in 0...names.length) {
-			addTrack(names[i], starts[i], ends[i], speeds[i], loops[i], reflects[i]);
+	public var ft:Float;
+
+	public function new(setup:TAnimationSetup) {
+		ft = setup.frame_time;
+		for (i in 0...setup.names.length) {
+			addTrack(setup.names[i], setup.starts[i], setup.ends[i], setup.speeds[i], setup.loops[i], setup.reflects[i]);
 		}
 
-		play(startTrack);
+		play(setup.start_track);
 	}
 
 	public function play(name:String, onTrackComplete:Void->Void = null) {

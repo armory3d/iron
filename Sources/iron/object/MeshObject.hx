@@ -54,12 +54,12 @@ class MeshObject extends Object {
 		super.remove();
 	}
 
-	public override function setupAnimation(startTrack:String, names:Array<String>, starts:Array<Int>, ends:Array<Int>, speeds:Array<Float>, loops:Array<Bool>, reflects:Array<Bool>, maxBones = 50) {
+	public override function setupAnimation(setup:TAnimationSetup) {
 		if (data.isSkinned) {
-			animation = Animation.setupBoneAnimation(data, startTrack, names, starts, ends, speeds, loops, reflects, maxBones);
+			animation = Animation.setupBoneAnimation(data, setup);
 		}
 		else {
-			super.setupAnimation(startTrack, names, starts, ends, speeds, loops, reflects);
+			super.setupAnimation(setup);
 		}
 	}
 

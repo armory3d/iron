@@ -386,6 +386,7 @@ typedef TLod = {
 typedef TAnimationSetup = {
 // @:structInit class TAnimationSetup {
 	public var start_track:String;
+	public var frame_time:Float;
 	public var names:Array<String>;
 	public var starts:Array<Int>;
 	public var ends:Array<Int>;
