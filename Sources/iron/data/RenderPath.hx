@@ -218,9 +218,9 @@ class RenderPath {
 		batchCalls = 0;
 		culled = 0;
 #end
-
+		
 		frameRenderTarget = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture
-		currentRenderTarget = g;
+		currentRenderTarget = frameRenderTarget;
 		currentRenderTargetW = iron.App.w();
 		currentRenderTargetH = iron.App.h();
 		currentRenderTargetD = 1;
@@ -273,14 +273,14 @@ class RenderPath {
 		}
 		else { // Render target
 			var rt = data.pathdata.renderTargets.get(target);
-			// TODO: detect cubemap shadows properly
-			// TODO: do not create non-cube texture by default either
+			// TODO: Handle shadowMap target properly
+			// Create shadowmap on the fly
 			if (target == "shadowMap" && getLamp(currentLampIndex).data.raw.shadowmap_cube) {
 				// Switch to cubemap
 				rt = data.pathdata.renderTargets.get(target + "Cube");
 				if (rt == null) {
-					// Cubemap size - assume sm / 4
-					var size = Std.int(getLamp(currentLampIndex).data.raw.shadowmap_size / 4);
+					// Cubemap size - assume sm / 2
+					var size = Std.int(getLamp(currentLampIndex).data.raw.shadowmap_size / 2);
 					var t:TRenderPathTarget = {
 						name: target + "Cube",
 						width: size,
@@ -290,6 +290,16 @@ class RenderPath {
 					};
 					rt = data.pathdata.createRenderTarget(t);
 				}
+			}
+			if (target == "shadowMap" && rt == null) { // Non-cube sm
+				var size = getLamp(currentLampIndex).data.raw.shadowmap_size;
+				var t:TRenderPathTarget = {
+					name: target,
+					width: size,
+					height: size,
+					format: "DEPTH16"
+				};
+				rt = data.pathdata.createRenderTarget(t);
 			}
 			var additionalImages:Array<kha.Canvas> = null;
 			if (params.length > 2) {
