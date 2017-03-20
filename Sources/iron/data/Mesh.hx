@@ -41,6 +41,7 @@ class Mesh {
 	public var tangents:Array<Float>;
 	public var bones:Array<Float>;
 	public var weights:Array<Float>;
+	public var instanceOffsets:Array<Float>;
 	
 	public var offsetVecs:Array<Vec4>; // Used for sorting and culling
 	public var aabb:Vec4 = null;
@@ -61,7 +62,7 @@ class Mesh {
 						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>, uvs1:Array<Float>, cols:Array<Float>,
 						tangents:Array<Float> = null,
 						bones:Array<Float> = null, weights:Array<Float> = null,
-						usage:Usage = null) {
+						usage:Usage = null, instanceOffsets:Array<Float> = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
 
@@ -77,6 +78,7 @@ class Mesh {
 		this.tangents = tangents;
 		this.bones = bones;
 		this.weights = weights;
+		this.instanceOffsets = instanceOffsets;
 
 		// TODO: Mandatory vertex data names and sizes
 		// pos=3, tex=2, nor=3, col=4, tang=3, bone=4, weight=4
@@ -272,6 +274,9 @@ class Mesh {
 			indexBuffers.push(indexBuffer);
 			indices.push(indicesA);
 		}
+
+		// Instanced
+		if (instanceOffsets != null) setupInstanced(instanceOffsets, usage);
 
 		built = true;
 	}

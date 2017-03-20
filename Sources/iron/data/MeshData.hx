@@ -87,12 +87,7 @@ class MeshData extends Data {
 		}
 		
 		// Make vertex buffers
-		mesh = new Mesh(indices, materialIndices, pa, na, uva, uva1, ca, tanga, bonea, weighta, usage);
-
-		// Instanced
-		if (raw.mesh.instance_offsets != null) {
-			mesh.setupInstanced(raw.mesh.instance_offsets, usage);
-		}
+		mesh = new Mesh(indices, materialIndices, pa, na, uva, uva1, ca, tanga, bonea, weighta, usage, raw.mesh.instance_offsets);
 
 		done(this);
 	}
