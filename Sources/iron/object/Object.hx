@@ -27,7 +27,7 @@ class Object {
 
 	public function new() {
 		uid = uidCounter++;
-		urandom = Math.random();
+		urandom = seededRandom(); //Math.random();
 		transform = new Transform(this);
 	}
 	
@@ -113,5 +113,11 @@ class Object {
 
 	public function setupAnimation(setup:TAnimationSetup) {
 		animation = Animation.setupObjectAnimation(this, setup);
+	}
+
+	static var seed = 1; // cpp / js not consistent
+	static function seededRandom():Float {
+		seed = (seed * 9301 + 49297) % 233280;
+		return seed / 233280.0;
 	}
 }
