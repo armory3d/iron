@@ -230,9 +230,7 @@ class RenderPath {
 
 		this.lamps = lamps;
 		currentLampIndex = 0;
-		for (l in lamps) {
-			if (l.visible) l.buildMatrices(camera);
-		}
+		for (l in lamps) if (l.visible) l.buildMatrices(camera);
 
 		currentStages = data.pathdata.raw.stages;
 		callCurrentStages(root);
@@ -429,9 +427,10 @@ class RenderPath {
 	function drawMeshes(params:Array<String>, root:Object) {
 		var context = params[0];
 		var lamp = getLamp(currentLampIndex);
-		// Draw 
-		if (currentLampIndex == 0) {} // Draw atleast once to fill geometry buffers
-		else if (lamp != null && !lamp.visible) return;
+		if (lamp != null && !lamp.visible) {
+			// Pass draw atleast once to fill geometry buffers
+			if (currentLampIndex > 0) return;
+		}
 
 		// Disabled shadow casting for this lamp
 		if (context == data.pathdata.raw.shadows_context) {

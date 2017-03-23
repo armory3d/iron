@@ -60,39 +60,41 @@ class Uniforms {
 				var char = rtID.charAt(0);
 				if (char == "_") attachDepth = true;
 				if (attachDepth) rtID = rtID.substr(1);
-				if (rtID == "shadowMap" && lamp.data.raw.shadowmap_cube) {
+				if (rtID == "shadowMap" && lamp != null && lamp.data.raw.shadowmap_cube) {
 					rtID += "Cube"; // Bind cubemap instead
 					samplerID += "Cube";
 				}
 
 				var pathdata = camera.data.pathdata;
 				var rt = attachDepth ? pathdata.depthToRenderTarget.get(rtID) : pathdata.renderTargets.get(rtID);
-				var tus = context.raw.texture_units;
+				if (rt != null) {
+					var tus = context.raw.texture_units;
 
-				// Ping-pong
-				if (rt.pong != null && !rt.pongState) rt = rt.pong;
+					// Ping-pong
+					if (rt.pong != null && !rt.pongState) rt = rt.pong;
 
-				for (j in 0...tus.length) { // Set texture
-					if (samplerID == tus[j].name) {						
-						if (tus[j].is_image != null && tus[j].is_image) {
+					for (j in 0...tus.length) { // Set texture
+						if (samplerID == tus[j].name) {						
+							if (tus[j].is_image != null && tus[j].is_image) {
 #if arm_voxelgi // setImageTexture() not yet available in master Kha
-							g.setImageTexture(context.textureUnits[j], rt.image); // image2D
+								g.setImageTexture(context.textureUnits[j], rt.image); // image2D
 #end
-						}
-						else if (rt.isCubeMap) {
-							if (attachDepth) g.setCubeMapDepth(context.textureUnits[j], rt.cubeMap); // samplerCube
-							else g.setCubeMap(context.textureUnits[j], rt.cubeMap); // samplerCube
-						}
-						else {
-							if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image); // sampler2D
-							else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
-						}
+							}
+							else if (rt.isCubeMap) {
+								if (attachDepth) g.setCubeMapDepth(context.textureUnits[j], rt.cubeMap); // samplerCube
+								else g.setCubeMap(context.textureUnits[j], rt.cubeMap); // samplerCube
+							}
+							else {
+								if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image); // sampler2D
+								else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
+							}
 
-						// No filtering when sampling render targets
-						// if (tus[j].params_set == null) {
-							// tus[j].params_set = true;
-							// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-						// }
+							// No filtering when sampling render targets
+							// if (tus[j].params_set == null) {
+								// tus[j].params_set = true;
+								// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+							// }
+						}
 					}
 				}
 			}
