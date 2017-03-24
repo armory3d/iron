@@ -44,6 +44,8 @@ class RenderPath {
 
 	static var screenAlignedVB:VertexBuffer = null;
 	static var screenAlignedIB:IndexBuffer = null;
+	static var rectVB:VertexBuffer = null;
+	static var rectIB:IndexBuffer = null;
 	static var boxVB:VertexBuffer = null;
 	static var boxIB:IndexBuffer = null;
 	static var skydomeVB:VertexBuffer = null;
@@ -119,6 +121,25 @@ class RenderPath {
 		var id = screenAlignedIB.lock();
 		for (i in 0...id.length) id[i] = indices[i];
 		screenAlignedIB.unlock();
+	}
+
+	static function createRectData() {
+		// Quad
+		var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];
+		var indices = [0, 1, 2, 0, 2, 3];
+
+		// Mandatory vertex data names and sizes
+		var structure = new VertexStructure();
+		structure.add("pos", VertexData.Float2);
+		rectVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
+		var vertices = rectVB.lock();
+		for (i in 0...vertices.length) vertices.set(i, data[i]);
+		rectVB.unlock();
+
+		rectIB = new IndexBuffer(indices.length, Usage.StaticUsage);
+		var id = rectIB.lock();
+		for (i in 0...id.length) id[i] = indices[i];
+		rectIB.unlock();
 	}
 	
 	static function createBoxData() {
@@ -467,6 +488,51 @@ class RenderPath {
 			// lamp.buildMatrices(camera); // Restore light matrix
 		}
 	}
+
+	function getRectContexts(mat:MaterialData, context:String, materialContexts:Array<MaterialContext>, shaderContexts:Array<ShaderContext>) {
+		for (i in 0...mat.raw.contexts.length) {
+			if (mat.raw.contexts[i].name.substr(0, context.length) == context) {
+				materialContexts.push(mat.contexts[i]);
+				shaderContexts.push(mat.shader.getContext(context));
+				break;
+			}
+		}
+	}
+	public var currentMaterial:MaterialData = null; // Temp
+	function drawRects(params:Array<String>, root:Object) {
+		if (rectVB == null) createRectData();
+		var g = currentRenderTarget;
+		var context = params[0];
+		var lamp = getLamp(currentLampIndex);
+
+		// Unique materials
+		var mats:Array<MaterialData> = [];
+		for (m in Scene.active.meshes) {
+			var found = false;
+			for (mat in mats) if (mat == m.materials[0]) { found = true; break; }
+			if (found) continue;
+			mats.push(m.materials[0]);
+		}
+
+		g.setVertexBuffer(rectVB);
+		g.setIndexBuffer(rectIB);
+		
+		// Screen-space rect per material
+		for (mat in mats) {
+			currentMaterial = mat;
+			var materialContexts:Array<MaterialContext> = [];
+			var shaderContexts:Array<ShaderContext> = [];
+			getRectContexts(mat, context, materialContexts, shaderContexts);
+			
+			g.setPipeline(mat.shader.getContext(context).pipeState);
+			Uniforms.setConstants(g, shaderContexts[0], null, camera, lamp, bindParams);
+			Uniforms.setMaterialConstants(g, shaderContexts[0], materialContexts[0]);
+			g.drawIndexedVertices();
+		}
+		currentMaterial = null;
+
+		end(g);
+	}
 	
 	function drawDecals(params:Array<String>, root:Object) {
 		if (boxVB == null) createBoxData();
@@ -711,6 +777,7 @@ class RenderPath {
 			case "clear_image": clearImage;
 			case "generate_mipmaps": generateMipmaps;
 			case "draw_meshes": drawMeshes;
+			case "draw_rects": drawRects; // Screen-space rectangle enclosing mesh bounds
 			case "draw_decals": drawDecals;
 			case "draw_skydome": drawSkydome;
 			case "draw_lamp_volume": drawLampVolume;

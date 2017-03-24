@@ -22,7 +22,10 @@ class ShaderData extends Data {
 
 	public var structure:VertexStructure;
 	public var structureLength = 0;
-	var inst = false;
+	var instancing = false;
+
+	static var structureRect:VertexStructure = null; // For screen-space rectangle
+	static var structureRectLength = 0;
 
 	public var contexts:Array<ShaderContext> = [];
 
@@ -40,11 +43,26 @@ class ShaderData extends Data {
 			if (Reflect.field(kha.Shaders, fragName) == null) {
 				continue;
 			}
-			
-			contexts.push(new ShaderContext(c, structure, inst, overrideContext));
+
+			var struct = structure;
+			var inst = instancing;
+			if (c.name == "rect") {
+				struct = getStructureRect();
+				inst = false;
+			}
+			contexts.push(new ShaderContext(c, struct, inst, overrideContext));
 		}
 
 		done(this);
+	}
+
+	static function getStructureRect() {
+		if (structureRect == null) {
+			structureRect = new VertexStructure();
+			structureRect.add("pos", VertexData.Float2);
+			structureRectLength += 2;
+		}
+		return structureRect;
 	}
 
 	public static function parse(file:String, name:String, overrideContext:TShaderOverride, done:ShaderData->Void) {
@@ -73,7 +91,7 @@ class ShaderData extends Data {
 		structure = new VertexStructure();
 		for (vs in raw.vertex_structure) {
 			if (vs.name == 'off') {
-				inst = true;
+				instancing = true;
 				continue;
 			}
 

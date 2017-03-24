@@ -571,7 +571,7 @@ class Uniforms {
 				f = object.uid;
 			}
 			else if (c.link == "_objectInfoMaterialIndex") {
-				f = cast(object, MeshObject).materials[0].uid; // Should return current one being rendered
+				f = camera.renderPath.currentMaterial != null ? camera.renderPath.currentMaterial.uid : cast(object, MeshObject).materials[0].uid; // TODO: Move to material constants
 			}
 			else if (c.link == "_objectInfoRandom") {
 				f = object.urandom;
