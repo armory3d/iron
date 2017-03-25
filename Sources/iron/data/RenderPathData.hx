@@ -10,8 +10,8 @@ class RenderPathData extends Data {
 
 	public var name:String;
 	public var raw:TRenderPathData;
-	public var renderTargets:Map<String, RenderTarget> = null;
-	public var depthToRenderTarget:Map<String, RenderTarget> = null;
+	public var renderTargets:Map<String, RenderTarget> = new Map();
+	public var depthToRenderTarget:Map<String, RenderTarget> = new Map();
 
 	public function new(raw:TRenderPathData, done:RenderPathData->Void) {
 		super();
@@ -20,11 +20,11 @@ class RenderPathData extends Data {
 		this.name = raw.name;
 
 		if (raw.render_targets != null && raw.render_targets.length > 0) {
-			renderTargets = new Map();
+			// renderTargets = new Map();
 			
-			if (raw.depth_buffers != null && raw.depth_buffers.length > 0) {
-				depthToRenderTarget = new Map();
-			}
+			// if (raw.depth_buffers != null && raw.depth_buffers.length > 0) {
+				// depthToRenderTarget = new Map();
+			// }
 
 			for (t in raw.render_targets) {
 				createRenderTarget(t);
