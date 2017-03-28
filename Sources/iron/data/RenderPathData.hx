@@ -68,7 +68,7 @@ class RenderPathData extends Data {
 				for (db in raw.depth_buffers) {
 					if (db.name == t.depth_buffer) {
 						depthToRenderTarget.set(db.name, rt);
-						rt.image = createImage(t, getDepthStencilFormat(true, db.stencil_buffer));
+						rt.image = createImage(t, getDepthStencilFormat(db.format));
 						break;
 					}
 				}
@@ -141,10 +141,16 @@ class RenderPathData extends Data {
 		}
 	}
 	
-	inline function getDepthStencilFormat(depth:Bool, stencil:Bool):DepthStencilFormat {
-		if (depth && stencil) return DepthStencilFormat.Depth24Stencil8;
-		else if (depth) return DepthStencilFormat.DepthOnly;
-		else return DepthStencilFormat.NoDepthAndStencil; 
+	inline function getDepthStencilFormat(s:String):DepthStencilFormat {
+		// if (depth && stencil) return DepthStencilFormat.Depth24Stencil8;
+		// else if (depth) return DepthStencilFormat.DepthOnly;
+		// else return DepthStencilFormat.NoDepthAndStencil; 
+		if (s == null || s == "") return DepthStencilFormat.DepthOnly;
+		switch (s) {
+		case "DEPTH24": return DepthStencilFormat.DepthOnly; // Depth32Stencil8
+		case "DEPTH16": return DepthStencilFormat.Depth16;
+		default: return DepthStencilFormat.DepthOnly;
+		}
 	}
 }
 

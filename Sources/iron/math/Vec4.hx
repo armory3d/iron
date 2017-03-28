@@ -7,7 +7,7 @@ class Vec4 {
 	public var z:Float;
 	public var w:Float;
 
-	public function new(x:Float = 0.0, y:Float = 0.0, z:Float = 0.0, w:Float = 1.0) {
+	public function new(x = 0.0, y = 0.0, z = 0.0, w = 1.0) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -204,11 +204,11 @@ class Vec4 {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
 	}
 
-	public static function xAxis():Vec4 { return new Vec4(1, 0, 0); }
-	public static function yAxis():Vec4 { return new Vec4(0, 1, 0); }
-	public static function zAxis():Vec4 { return new Vec4(0, 0, 1); }
+	public static function xAxis():Vec4 { return new Vec4(1.0, 0.0, 0.0); }
+	public static function yAxis():Vec4 { return new Vec4(0.0, 1.0, 0.0); }
+	public static function zAxis():Vec4 { return new Vec4(0.0, 0.0, 1.0); }
 
 	public function toString():String {
-		return this.x + ", " + this.y + ", " + this.z;
+		return "(" + this.x + ", " + this.y + ", " + this.z + ", " + this.w + ")";
 	}
 }

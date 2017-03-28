@@ -18,9 +18,12 @@ import iron.object.CameraObject;
 import iron.object.MeshObject;
 import iron.object.LampObject;
 import iron.object.Uniforms;
+import iron.math.Vec4;
+import iron.math.Mat4;
 
 typedef TStageCommand = Array<String>->Object->Void;
 
+@:keep
 class RenderPath {
 
 	var camera:CameraObject;
@@ -507,18 +510,90 @@ class RenderPath {
 
 		// Unique materials
 		var mats:Array<MaterialData> = [];
+		var volumesMin:Array<Vec4> = [];
+		var volumesMax:Array<Vec4> = [];
 		for (m in Scene.active.meshes) {
 			var found = false;
-			for (mat in mats) if (mat == m.materials[0]) { found = true; break; }
+			for (i in 0...mats.length) {
+				var mat = mats[i];
+				if (mat == m.materials[0]) {
+					var loc = new Vec4(m.transform.absx(), m.transform.absy(), m.transform.absz());
+					var dim = m.transform.size;
+					var min = volumesMin[i];
+					var max = volumesMax[i];
+					if (min.x > loc.x - dim.x / 2.0) min.x = loc.x - dim.x / 2.0;
+					if (min.y > loc.y - dim.y / 2.0) min.y = loc.y - dim.y / 2.0;
+					if (min.z > loc.z - dim.z / 2.0) min.z = loc.z - dim.z / 2.0;
+					if (max.x < loc.x + dim.x / 2.0) max.x = loc.x + dim.x / 2.0;
+					if (max.y < loc.y + dim.y / 2.0) max.y = loc.y + dim.y / 2.0;
+					if (max.z < loc.z + dim.z / 2.0) max.z = loc.z + dim.z / 2.0;
+					found = true;
+					break;
+				}
+			}
 			if (found) continue;
+			var loc = new Vec4(m.transform.absx(), m.transform.absy(), m.transform.absz());
+			var dim = m.transform.size;
+			volumesMin.push(new Vec4(loc.x - dim.x / 2.0, loc.y - dim.y / 2.0, loc.z - dim.z / 2.0));
+			volumesMax.push(new Vec4(loc.x + dim.x / 2.0, loc.y + dim.y / 2.0, loc.z + dim.z / 2.0));
 			mats.push(m.materials[0]);
 		}
+		var rectBounds:Array<Vec4> = [];
+		for (i in 0...volumesMin.length) {
+			var min = volumesMin[i];
+			var max = volumesMax[i];
+			var dx = max.x - min.x;
+			var dy = max.y - min.y;
+			var dz = max.z - min.z;
+			var ps:Array<Vec4> = [];
+			ps.push(new Vec4(min.x, min.y, min.z));
+			ps.push(new Vec4(min.x + dx, min.y, min.z));
+			ps.push(new Vec4(min.x, min.y + dy, min.z));
+			ps.push(new Vec4(min.x, min.y, min.z + dz));
+			ps.push(new Vec4(min.x + dx, min.y + dy, min.z));
+			ps.push(new Vec4(min.x, min.y + dy, min.z + dz));
+			ps.push(new Vec4(min.x + dx, min.y, min.z + dz));
+			ps.push(new Vec4(min.x + dx, min.y + dy, min.z + dz));
+			var helpMat = Mat4.identity();
+			helpMat.multmat2(camera.V);
+			helpMat.multmat2(camera.P);
+			var b:Vec4 = null;
+			for (v in ps) {
+				v.applymat4(helpMat);
+				v.x /= v.w; v.y /= v.w; v.z /= v.w;
+				if (b == null) {
+					b = new Vec4(v.x, v.y, v.x, v.y);
+				}
+				else {
+					if (v.x < b.x) b.x = v.x; // Min
+					if (v.y < b.y) b.y = v.y;
+					if (v.x > b.z) b.z = v.x; // Max
+					if (v.y > b.w) b.w = v.y;
+				}
+			}
+			rectBounds.push(b);
+		}
 
-		g.setVertexBuffer(rectVB);
 		g.setIndexBuffer(rectIB);
 		
 		// Screen-space rect per material
-		for (mat in mats) {
+		for (i in 0...mats.length) {
+			var mat = mats[i];
+			var b = rectBounds[i];
+			var dx = b.z - b.x;
+			var dy = b.w - b.y;
+			var v = rectVB.lock();
+			v.set(0, b.x);
+			v.set(1, b.y);
+			v.set(2, b.x + dx);
+			v.set(3, b.y);
+			v.set(4, b.x + dx);
+			v.set(5, b.y + dy);
+			v.set(6, b.x);
+			v.set(7, b.y + dy);
+			rectVB.unlock();
+			g.setVertexBuffer(rectVB);
+
 			currentMaterial = mat;
 			var materialContexts:Array<MaterialContext> = [];
 			var shaderContexts:Array<ShaderContext> = [];

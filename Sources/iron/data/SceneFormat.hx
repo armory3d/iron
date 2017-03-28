@@ -244,7 +244,7 @@ typedef TRenderPathTarget = {
 typedef TRenderPathDepthBuffer = {
 // @:structInit class TRenderPathDepthBuffer {
 	public var name:String;
-	@:optional public var stencil_buffer:Bool;
+	@:optional public var format:String;
 }
 
 typedef TRenderPathStage = {
