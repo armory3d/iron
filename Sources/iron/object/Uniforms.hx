@@ -76,8 +76,17 @@ class Uniforms {
 					for (j in 0...tus.length) { // Set texture
 						if (samplerID == tus[j].name) {						
 							if (tus[j].is_image != null && tus[j].is_image) {
-#if arm_voxelgi // setImageTexture() not yet available in master Kha
+#if arm_voxelgi
 								g.setImageTexture(context.textureUnits[j], rt.image); // image2D
+
+								// if (tus[j].params_set == null) {
+									// tus[j].params_set = true;
+									// TODO: impl setting 3d tex params in Kore
+									// glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+									// glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+									// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
+								// }
+								rt.image.generateMipmaps(16);
 #end
 							}
 							else if (rt.isCubeMap) {

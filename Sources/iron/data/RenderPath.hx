@@ -430,6 +430,9 @@ class RenderPath {
 	}
 
 	public static function sortMeshes(meshes:Array<MeshObject>, camera:CameraObject) {
+		#if (sys_windows && cpp)
+		return; // TODO: hxcpp crashes
+		#end
 		// if (params[1] == "front_to_back") {
 			var camX = camera.transform.absx();
 			var camY = camera.transform.absy();
