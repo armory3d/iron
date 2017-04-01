@@ -86,11 +86,9 @@ class RenderPath {
 		return rp.getLamp(rp.currentLampIndex).data.raw.type == "sun";
 	}
 
-	static var voxelized = false;
+	static var voxelized = 0;
 	public static function voxelize(rp:RenderPath) {
-		var res = !voxelized;
-		voxelized = true;
-		return res;
+		return ++voxelized > 2 ? false : true;
 	}
 
 	public function new(camera:CameraObject) {
@@ -430,7 +428,7 @@ class RenderPath {
 	}
 
 	public static function sortMeshes(meshes:Array<MeshObject>, camera:CameraObject) {
-		#if (sys_windows && cpp)
+		#if (sys_windows && cpp) || (arm_voxelgi)
 		return; // TODO: hxcpp crashes
 		#end
 		// if (params[1] == "front_to_back") {
@@ -504,6 +502,11 @@ class RenderPath {
 			}
 		}
 	}
+
+	inline function clampRect(f:Float):Float {
+		return f < -1.0 ? -1.0 : (f > 1.0 ? 1.0 : f);
+	}
+
 	public var currentMaterial:MaterialData = null; // Temp
 	function drawRects(params:Array<String>, root:Object) {
 		if (rectVB == null) createRectData();
@@ -586,14 +589,14 @@ class RenderPath {
 			var dx = b.z - b.x;
 			var dy = b.w - b.y;
 			var v = rectVB.lock();
-			v.set(0, b.x);
-			v.set(1, b.y);
-			v.set(2, b.x + dx);
-			v.set(3, b.y);
-			v.set(4, b.x + dx);
-			v.set(5, b.y + dy);
-			v.set(6, b.x);
-			v.set(7, b.y + dy);
+			v.set(0, clampRect(b.x));
+			v.set(1, clampRect(b.y));
+			v.set(2, clampRect(b.x + dx));
+			v.set(3, clampRect(b.y));
+			v.set(4, clampRect(b.x + dx));
+			v.set(5, clampRect(b.y + dy));
+			v.set(6, clampRect(b.x));
+			v.set(7, clampRect(b.y + dy));
 			rectVB.unlock();
 			g.setVertexBuffer(rectVB);
 

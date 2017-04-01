@@ -112,7 +112,7 @@ class Object {
 	}
 
 	public function setupAnimation(setup:TAnimationSetup) {
-		animation = Animation.setupObjectAnimation(this, setup);
+		animation = new ObjectAnimation(this, setup);
 	}
 
 	static var seed = 1; // cpp / js not consistent

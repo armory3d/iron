@@ -610,7 +610,7 @@ class Uniforms {
 		else if (c.type == "float4s") {
 			var fa:haxe.ds.Vector<kha.FastFloat> = null;
 			if (c.link == "_skinBones") {
-				fa = cast(object, MeshObject).animation.skinBuffer;
+				fa = cast(object.animation, BoneAnimation).skinBuffer;
 			}
 			else if (c.link == "_envmapIrradiance") {
 				if (Scene.active.world == null) fa = WorldData.getEmptyIrradiance();

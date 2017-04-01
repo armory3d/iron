@@ -55,12 +55,8 @@ class MeshObject extends Object {
 	}
 
 	public override function setupAnimation(setup:TAnimationSetup) {
-		if (data.isSkinned) {
-			animation = Animation.setupBoneAnimation(data, setup);
-		}
-		else {
-			super.setupAnimation(setup);
-		}
+		if (data.isSkinned) animation = new BoneAnimation(data, setup);
+		else super.setupAnimation(setup);
 	}
 
 	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {
