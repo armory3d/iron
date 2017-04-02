@@ -133,7 +133,7 @@ class MeshObject extends Object {
 		return false;
 	}
 
-	function getContexts(context:String, materialContexts:Array<MaterialContext>, shaderContexts:Array<ShaderContext>) {
+	function getContexts(context:String, materials:Vector<MaterialData>, materialContexts:Array<MaterialContext>, shaderContexts:Array<ShaderContext>) {
 		for (mat in materials) {
 			for (i in 0...mat.raw.contexts.length) {
 				if (mat.raw.contexts[i].name.substr(0, context.length) == context) {
@@ -172,7 +172,7 @@ class MeshObject extends Object {
 		// Get context
 		var materialContexts:Array<MaterialContext> = [];
 		var shaderContexts:Array<ShaderContext> = [];
-		getContexts(context, materialContexts, shaderContexts);
+		getContexts(context, mats, materialContexts, shaderContexts);
 		
 		// TODO: move to update
 		if (lod.particleSystem != null) lod.particleSystem.update();
@@ -253,7 +253,7 @@ class MeshObject extends Object {
 		// Get context
 		var materialContexts:Array<MaterialContext> = [];
 		var shaderContexts:Array<ShaderContext> = [];
-		getContexts(context, materialContexts, shaderContexts);
+		getContexts(context, materials, materialContexts, shaderContexts);
 		
 		// TODO: move to update
 		if (lod.particleSystem != null) lod.particleSystem.update();
