@@ -222,7 +222,7 @@ class Scene {
 
 				objectsTraversed = 0;
 				var withGroup:Array<Object> = [];
-				traverseObjects(format, sceneName, parent, format.objects, null, withGroup, function() { // Scene objects
+				traverseObjects(format, parent, format.objects, null, withGroup, function() { // Scene objects
 					for (object in withGroup) setupGroup(object, format);
 					done(parent);
 				}, getObjectsCount(format.objects));
@@ -240,7 +240,7 @@ class Scene {
 	}
 
 	var objectsTraversed:Int;
-	function traverseObjects(format:TSceneFormat, sceneName:String, parent:Object, objects:Array<TObj>, parentObject:TObj, withGroup:Array<Object>, done:Void->Void, objectsCount:Int) {
+	function traverseObjects(format:TSceneFormat, parent:Object, objects:Array<TObj>, parentObject:TObj, withGroup:Array<Object>, done:Void->Void, objectsCount:Int) {
 		if (objects == null) return;
 		for (i in 0...objects.length) {
 			var o = objects[i];
@@ -250,9 +250,9 @@ class Scene {
 				continue; // Do not auto-create this object
 			}
 			
-			createObject(o, format, sceneName, parent, parentObject, function(object:Object) {
+			createObject(o, format, parent, parentObject, function(object:Object) {
 				if (o.group_ref != null) withGroup.push(object);
-				if (object != null) traverseObjects(format, sceneName, object, o.children, o, withGroup, done, objectsCount);
+				if (object != null) traverseObjects(format, object, o.children, o, withGroup, done, objectsCount);
 
 				objectsTraversed++;
 				if (objectsTraversed == objectsCount) done();
@@ -261,25 +261,35 @@ class Scene {
 	}
 	
 	public function spawnObject(name:String, parent:Object, done:Object->Void) {
-		createObject(getObj(raw, name), raw, raw.name, parent, null, done); // Get rid of scene name passing
+		createObject(getObj(raw, name), raw, parent, null, done);
 	}
 
 	public function parseObject(sceneName:String, objectName:String, parent:Object, done:Object->Void) {
 		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
-			var o:TObj = getObj(format, sceneName);
+			var o:TObj = getObj(format, objectName);
 			if (o == null) done(null);
-			createObject(o, format, sceneName, parent, null, done);
+			createObject(o, format, parent, null, done);
 		});
 	}
 
-	function getObj(format:TSceneFormat, name:String) {
-		// TODO: traverse to find deeper objects
-		for (o in format.objects) if (o.name == name) return o;
+	function getObj(format:TSceneFormat, name:String):TObj {
+		return traverseObjs(format.objects, name);
+	}
+
+	function traverseObjs(children:Array<TObj>, name:String):TObj {
+		for (o in children) {
+			if (o.name == name) return o;
+			if (o.children != null) {
+				var res = traverseObjs(o.children, name);
+				if (res != null) return res;
+			}
+		}
 		return null;
 	}
 	
-	public function createObject(o:TObj, format:TSceneFormat, sceneName:String, parent:Object, parentObject:TObj, done:Object->Void) {
+	public function createObject(o:TObj, format:TSceneFormat, parent:Object, parentObject:TObj, done:Object->Void) {
 
+		var sceneName = format.name;
 		if (o.type == "camera_object") {
 			Data.getCamera(sceneName, o.data_ref, function(b:CameraData) {
 				var object = addCameraObject(b, parent);

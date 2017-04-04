@@ -120,4 +120,8 @@ class Object {
 		seed = (seed * 9301 + 49297) % 233280;
 		return seed / 233280.0;
 	}
+
+	public function toString():String {
+		return "Object " + name;
+	}
 }
