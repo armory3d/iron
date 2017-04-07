@@ -6,7 +6,7 @@ import iron.data.SceneFormat;
 class SpeakerObject extends Object {
 
 	var data:TSpeakerData;
-	var sound:kha.Sound;
+	var sound:kha.Sound = null;
 
 	public function new(data:TSpeakerData) {
 		super();
@@ -15,13 +15,16 @@ class SpeakerObject extends Object {
 
 		Scene.active.speakers.push(this);
 
+		if (data.sound == "") return;
+		
 		iron.data.Data.getSound(data.sound, function(sound:kha.Sound) {
 			this.sound = sound;
-			Scene.active.notifyOnInit(init);
+			if (!data.muted) Scene.active.notifyOnInit(play);
 		});
 	}
 
-	function init() {
+	public function play() {
+		if (sound == null) return;
 		iron.system.Audio.playSound(sound, data.loop);
 	}
 

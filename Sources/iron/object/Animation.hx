@@ -170,12 +170,13 @@ class Player {
 	}
 
 	function addTrack(name:String, start:Int, end:Int, speed:Float, loop:Bool, reflect:Bool) {
-		var t = new Track(start, end, speed, loop, reflect);
+		var t = new Track(name, start, end, speed, loop, reflect);
 		tracks.set(name, t);
 	}
 }
 
 class Track {
+	public var name:String;
 	public var start:Int;
 	public var end:Int;
 	public var frames:Int;
@@ -183,7 +184,8 @@ class Track {
 	public var loop:Bool;
 	public var reflect:Bool;
 
-	public function new(start:Int, end:Int, speed:Float, loop:Bool, reflect:Bool) {
+	public function new(name:String, start:Int, end:Int, speed:Float, loop:Bool, reflect:Bool) {
+		this.name = name;
 		this.start = start;
 		this.end = end;
 		frames = end - start;

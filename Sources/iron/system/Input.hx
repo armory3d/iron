@@ -21,6 +21,11 @@ class Input {
 
 	public function new() {
 		kha.input.Mouse.get().notify(downListener, upListener, moveListener, wheelListener);
+
+		// kha.input.Gamepad.get().notify(axisListener:Int ‑> Float ‑> Void, buttonListener:Int ‑> Float ‑> Void):Void
+		// kha.input.Keyboard
+		// kha.input.Surface
+		// getVirtualButton
 	}
 
 	public static function end() {

@@ -396,6 +396,10 @@ class Scene {
 			createConstraints(o.constraints, object);
 			generateTranform(o, object.transform);
 			setupAnimation(o.animation_setup, object);
+			if (o.dimensions == null) { // Assume 2x2x2 dimensions
+				var sc = object.transform.scale;
+				object.transform.setDimensions(2.0 * sc.x, 2.0 * sc.y, 2.0 * sc.z);
+			}
 		}
 		done(object);
 	}
@@ -479,5 +483,9 @@ class Scene {
 
 	public function removeInit(f:Void->Void) {
 		traitInits.remove(f);
+	}
+
+	public function toString():String {
+		return "Scene " + raw.name;
 	}
 }
