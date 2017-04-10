@@ -302,4 +302,6 @@ class MeshObject extends Object {
 			}
 		}
 	}
+
+	public override function toString():String { return "Mesh Object " + name; }
 }

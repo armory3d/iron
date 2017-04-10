@@ -384,7 +384,7 @@ class Uniforms {
 		else if (c.type == "vec4") {
 			var v:Vec4 = null;
 			if (c.link == "_input") {
-				helpVec.set(iron.system.Input.x / iron.App.w(), iron.system.Input.y / iron.App.h(), iron.system.Input.down ? 1.0 : 0.0, 0.0);
+				helpVec.set(iron.system.Input.getMouse().x / iron.App.w(), iron.system.Input.getMouse().y / iron.App.h(), iron.system.Input.getMouse().down() ? 1.0 : 0.0, 0.0);
 				v = helpVec;
 			}
 			// External

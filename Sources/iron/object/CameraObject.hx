@@ -217,6 +217,8 @@ class CameraObject extends Object {
 	public inline function rightAbs():Vec4 { return new Vec4(transform.matrix._00, transform.matrix._01, transform.matrix._02); }
 	public inline function upAbs():Vec4 { return new Vec4(transform.matrix._10, transform.matrix._11, transform.matrix._12); }
 	public inline function lookAbs():Vec4 { return new Vec4(-transform.matrix._20, -transform.matrix._21, -transform.matrix._22); }
+
+	public override function toString():String { return "Camera Object " + name; }
 }
 
 class FrustumPlane {

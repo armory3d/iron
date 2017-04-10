@@ -59,6 +59,8 @@ class MaterialData extends Data {
 		}
 		return null;
 	}
+
+	public function toString():String { return "Material " + name; }
 }
 
 class MaterialContext {

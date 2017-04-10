@@ -121,7 +121,5 @@ class Object {
 		return seed / 233280.0;
 	}
 
-	public function toString():String {
-		return "Object " + name;
-	}
+	public function toString():String { return "Object " + name; }
 }

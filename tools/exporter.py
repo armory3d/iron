@@ -548,7 +548,7 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
         return {'FINISHED'}
 
 def menu_func(self, context):
-    self.layout.operator(ArmoryExporter.bl_idname, text = "Armory (.arm)")
+    self.layout.operator(ArmoryExporter.bl_idname, text="Armory (.arm)")
 
 def register():
     bpy.utils.register_class(ArmoryExporter)

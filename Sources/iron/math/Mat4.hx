@@ -24,7 +24,7 @@ class Mat4 {
 		return this;
 	}
 
-	public function decompose(location:Vec4, quaternion:Quat, scale:Vec4) {
+	public function decompose(location:Vec4, quaternion:Quat, scale:Vec4):Mat4 {
 		helpVec.w = 0.0;
 		var sx = helpVec.set(_00, _01, _02).length();
 		var sy = helpVec.set(_10, _11, _12).length();
@@ -61,14 +61,14 @@ class Mat4 {
 		return this;
 	}
 
-	public function setLocation(v:Vec4) {
+	public function setLocation(v:Vec4):Mat4 {
 		_30 = v.x;
 		_31 = v.y;
 		_32 = v.z;
 		return this;
 	}
 
-	public function fromQuaternion(q:Quat) {
+	public function fromQuaternion(q:Quat):Mat4 {
 		var x = q.x, y = q.y, z = q.z, w = q.w;
 		var x2 = x + x, y2 = y + y, z2 = z + z;
 		var xx = x * x2, xy = x * y2, xz = x * z2;
@@ -95,14 +95,14 @@ class Mat4 {
 
 	public static function identity():Mat4 {
 		return new Mat4(
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1
+			1.0, 0.0, 0.0, 0.0,
+			0.0, 1.0, 0.0, 0.0,
+			0.0, 0.0, 1.0, 0.0,
+			0.0, 0.0, 0.0, 1.0
 		);
 	}
 
-	public static function fromArray(a:Array<FastFloat>, offset = 0) {
+	public static function fromArray(a:Array<FastFloat>, offset = 0):Mat4 {
 		return new Mat4(
 			a[0 + offset], a[1 + offset], a[2 + offset], a[3 + offset],
 			a[4 + offset], a[5 + offset], a[6 + offset], a[7 + offset],
@@ -120,7 +120,7 @@ class Mat4 {
 		];
 	}
 
-	public function setIdentity() {
+	public function setIdentity():Mat4 {
 		_00 = 1.0; _01 = 0.0; _02 = 0.0; _03 = 0.0;
 		_10 = 0.0; _11 = 1.0; _12 = 0.0; _13 = 0.0;
 		_20 = 0.0; _21 = 0.0; _22 = 1.0; _23 = 0.0;
@@ -188,7 +188,7 @@ class Mat4 {
 		);
 	}
 
-	public function multmat2(m:Mat4) {
+	public function multmat2(m:Mat4):Mat4 {
 		var a11 = _00; var a12 = _01; var a13 = _02; var a14 = _03;
 		var a21 = _10; var a22 = _11; var a23 = _12; var a24 = _13;
 		var a31 = _20; var a32 = _21; var a33 = _22; var a34 = _23;
@@ -254,7 +254,7 @@ class Mat4 {
 		return this;
 	}
 
-	public function getInverse(m:Mat4) {
+	public function getInverse(m:Mat4):Mat4 {
 		var n11 = m._00, n12 = m._10, n13 = m._20, n14 = m._30;
 		var n21 = m._01, n22 = m._11, n23 = m._21, n24 = m._31;
 		var n31 = m._02, n32 = m._12, n33 = m._22, n34 = m._32;
@@ -300,7 +300,7 @@ class Mat4 {
 		tmp = _12; _12 = _21; _21 = tmp;
 	}
 
-	public function clone() {
+	public function clone():Mat4 {
 		var m = Mat4.identity();
 		m._00 = _00; m._01 = _01; m._02 = _02; m._03 = _03;
 		m._10 = _10; m._11 = _11; m._12 = _12; m._13 = _13;
@@ -454,7 +454,7 @@ class Mat4 {
 		);
 	}
 
-	public function setLookAt(eye:Vec4, center:Vec4, up:Vec4) {
+	public function setLookAt(eye:Vec4, center:Vec4, up:Vec4):Mat4 {
 		var f0 = center.x - eye.x;
 		var f1 = center.y - eye.y;
 		var f2 = center.z - eye.z;

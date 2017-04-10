@@ -22,8 +22,6 @@ class App {
 	}
 	
 	function new(_appReady:Void->Void) {
-		new iron.system.Input();
-
 		_appReady();
 
 		kha.System.notifyOnRender(render);
@@ -60,7 +58,7 @@ class App {
 		for (f in traitUpdates) { if (traitUpdates.length == 0) break; f(); }
 		for (f in traitLateUpdates) { if (traitLateUpdates.length == 0) break; f(); }
 
-		iron.system.Input.end();
+		iron.system.Input.endFrame();
 
 #if arm_profile
 		updateTime = kha.Scheduler.realTime() - startTime;

@@ -188,4 +188,6 @@ class LampObject extends Object {
 	public inline function right():Vec4 { return new Vec4(V._00, V._10, V._20); }
 	public inline function up():Vec4 { return new Vec4(V._01, V._11, V._21); }
 	public inline function look():Vec4 { return new Vec4(V._02, V._12, V._22); }
+
+	public override function toString():String { return "Lamp Object " + name; }
 }
