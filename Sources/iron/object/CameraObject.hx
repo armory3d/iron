@@ -198,16 +198,15 @@ class CameraObject extends Object {
 		return true;
 	}
 
+	static var q = new Quat();
 	public function rotate(axis:Vec4, f:Float) {
-		var q = new Quat();
 		q.fromAxisAngle(axis, f);
 		transform.rot.multquats(q, transform.rot);
 		buildMatrix();
 	}
 
-	public function move(axis:Vec4, f:Float) {
-		axis.mult(f);
-		transform.loc.add(axis);
+	public function move(axis:Vec4, f = 1.0) {
+		transform.loc.addf(axis.x * f, axis.y * f, axis.z * f);
 		buildMatrix();
 	}
 

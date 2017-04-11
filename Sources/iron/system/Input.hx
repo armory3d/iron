@@ -7,7 +7,7 @@ class Input {
 	static var keyboard:Keyboard = null;
 	static var gamepads:Array<Gamepad> = [];
 	static var sensor:Sensor = null;
-	static var virtualButtons:Map<String, VirtualButton> = null; // Button name
+	public static var virtualButtons:Map<String, VirtualButton> = null; // Button name
 
 	public static function reset() {
 		occupied = false;
@@ -44,7 +44,7 @@ class Input {
 	public static function getGamepad(i:Int = 0):Gamepad {
 		if (i >= 4) return null;
 		while (gamepads.length <= i) gamepads.push(new Gamepad(gamepads.length));
-		return gamepads[i];
+		return gamepads[i].connected ? gamepads[i] : null;
 	}
 
 	public static function getSensor():Sensor {
@@ -52,32 +52,9 @@ class Input {
 		return sensor;
 	}
 
-	public static function startedVirtual(virtual:String):Bool {
-		if (virtualButtons == null) return false;
-		var button = virtualButtons.get(virtual);
-		return button != null ? button.started : false;
-	}
-
-	public static function releasedVirtual(virtual:String):Bool {
-		if (virtualButtons == null) return false;
-		var button = virtualButtons.get(virtual);
-		return button != null ? button.released : false;
-	}
-
-	public static function downVirtual(virtual:String):Bool {
-		if (virtualButtons == null) return false;
-		var button = virtualButtons.get(virtual);
-		return button != null ? button.down : false;
-	}
-
 	public static function getVirtualButton(virtual:String):VirtualButton {
-		if (virtualButtons == null) virtualButtons = new Map<String, VirtualButton>();
-		var button = virtualButtons.get(virtual);
-		if (button == null) {
-			button = new VirtualButton();
-			virtualButtons.set(virtual, button);
-		}
-		return button;
+		if (virtualButtons == null) return null;
+		return virtualButtons.get(virtual);
 	}
 }
 
@@ -92,7 +69,14 @@ class VirutalInput {
 	var virtualButtons:Map<String, VirtualButton> = null; // Button id
 
 	public function setVirtual(virtual:String, button:String) {
-		var vb = Input.getVirtualButton(virtual);
+		if (Input.virtualButtons == null) Input.virtualButtons = new Map<String, VirtualButton>();
+		
+		var vb = Input.virtualButtons.get(virtual);
+		if (vb == null) {
+			vb = new VirtualButton();
+			Input.virtualButtons.set(virtual, vb);
+		}
+
 		if (virtualButtons == null) virtualButtons = new Map<String, VirtualButton>();
 		virtualButtons.set(button, vb);
 	}
@@ -307,6 +291,7 @@ class Gamepad extends VirutalInput {
 	public var leftStick = new GamepadStick();
 	public var rightStick = new GamepadStick();
 
+	public var connected = false;
 	var num = 0;
 
 	public function new(i:Int) {
@@ -324,10 +309,11 @@ class Gamepad extends VirutalInput {
 	function connect() {
 		var gamepad = kha.input.Gamepad.get(num);
 		if (gamepad == null) {
-			if (connects < 10) armory.system.Tween.timer(1, connect);
-			connects++;
+			// if (connects < 10) armory.system.Tween.timer(1, connect);
+			// connects++;
 			return;
 		}
+		connected = true;
 		gamepad.notify(axisListener, buttonListener);
 	}
 
