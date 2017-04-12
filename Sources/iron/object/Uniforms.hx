@@ -603,11 +603,7 @@ class Uniforms {
 
 			g.setFloat(location, f);
 		}
-		// else if (c.type == "floats") {
-			// var fa:haxe.ds.Vector<kha.FastFloat> = null;
-			// g.setFloats(location, fa);
-		// }
-		else if (c.type == "float4s") {
+		else if (c.type == "floats") {
 			var fa:haxe.ds.Vector<kha.FastFloat> = null;
 			if (c.link == "_skinBones") {
 				if (object.animation != null) fa = cast(object.animation, BoneAnimation).skinBuffer;
@@ -624,7 +620,7 @@ class Uniforms {
 				}
 			}
 
-			if (fa != null) g.setFloat4s(location, fa);
+			if (fa != null) g.setFloats(location, fa);
 		}
 		else if (c.type == "int") {
 			var i = 0;
