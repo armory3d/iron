@@ -368,7 +368,11 @@ class Gamepad extends VirutalInput {
 			stick.lastX = stick.x;
 		}
 		else if (axis == 1 || axis == 3) { // Y
+			#if sys_html5
 			stick.y = value;
+			#else
+			stick.y = axis == 1 ? -value : value; // Reversed left Y axis?
+			#end
 			stick.movementY = stick.y - stick.lastY;
 			stick.lastY = stick.y;
 		}

@@ -428,7 +428,7 @@ class RenderPath {
 	}
 
 	public static function sortMeshes(meshes:Array<MeshObject>, camera:CameraObject) {
-		#if (sys_windows && cpp) || (arm_voxelgi)
+		#if ((sys_windows && cpp) || (arm_voxelgi))
 		return; // TODO: hxcpp crashes
 		#end
 		// if (params[1] == "front_to_back") {
