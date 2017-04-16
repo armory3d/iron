@@ -31,6 +31,15 @@ class RenderPathData extends Data {
 			}
 		}
 
+		// Bind empty when requested target is not found
+		var tempty:TRenderPathTarget = {
+			name: "arm_empty",
+			width: 1,
+			height: 1,
+			format: "DEPTH16"
+		};
+		createRenderTarget(tempty);
+
 		done(this);
 	}
 

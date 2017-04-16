@@ -15,6 +15,7 @@ import iron.data.LampData;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.SceneFormat;
+import iron.data.RenderPathData.RenderTarget;
 
 // Structure for setting shader uniforms
 class Uniforms {
@@ -56,53 +57,24 @@ class Uniforms {
 				var rtID = bindParams[pos];
 				var samplerID = bindParams[pos + 1];
 
+				var pathdata = camera.data.pathdata;
 				var attachDepth = false; // Attach texture depth if '_' is prepended
 				var char = rtID.charAt(0);
 				if (char == "_") attachDepth = true;
 				if (attachDepth) rtID = rtID.substr(1);
 				if (rtID == "shadowMap" && lamp != null && lamp.data.raw.shadowmap_cube) {
+					// Bind empty map to non-cubemap sampler keep webgl happy
+					bindRenderTarget(g, pathdata.renderTargets.get("arm_empty"), context, samplerID, attachDepth);
 					rtID += "Cube"; // Bind cubemap instead
 					samplerID += "Cube";
 				}
-
-				var pathdata = camera.data.pathdata;
-				var rt = attachDepth ? pathdata.depthToRenderTarget.get(rtID) : pathdata.renderTargets.get(rtID);
-				if (rt != null) {
-					var tus = context.raw.texture_units;
-
-					// Ping-pong
-					if (rt.pong != null && !rt.pongState) rt = rt.pong;
-
-					for (j in 0...tus.length) { // Set texture
-						if (samplerID == tus[j].name) {						
-							if (tus[j].is_image != null && tus[j].is_image) {
-#if arm_voxelgi
-								g.setImageTexture(context.textureUnits[j], rt.image); // image2D
-
-								if (tus[j].params_set == null) {
-									tus[j].params_set = true;
-									g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
-									rt.image.generateMipmaps(16);
-								}
-#end
-							}
-							else if (rt.isCubeMap) {
-								if (attachDepth) g.setCubeMapDepth(context.textureUnits[j], rt.cubeMap); // samplerCube
-								else g.setCubeMap(context.textureUnits[j], rt.cubeMap); // samplerCube
-							}
-							else {
-								if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image); // sampler2D
-								else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
-							}
-
-							// No filtering when sampling render targets
-							// if (tus[j].params_set == null) {
-								// tus[j].params_set = true;
-								// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-							// }
-						}
-					}
+				else {
+					// Bind empty map to cubemap sampler
+					bindRenderTarget(g, pathdata.renderTargets.get("arm_empty"), context, samplerID + "Cube", attachDepth);
 				}
+
+				var rt = attachDepth ? pathdata.depthToRenderTarget.get(rtID) : pathdata.renderTargets.get(rtID);
+				bindRenderTarget(g, rt, context, samplerID, attachDepth);
 			}
 		}
 		
@@ -151,6 +123,45 @@ class Uniforms {
 							break;
 						}
 					}
+				}
+			}
+		}
+	}
+
+	static function bindRenderTarget(g:Graphics, rt:RenderTarget, context:ShaderContext, samplerID:String, attachDepth:Bool) {
+		if (rt != null) {
+			var tus = context.raw.texture_units;
+
+			// Ping-pong
+			if (rt.pong != null && !rt.pongState) rt = rt.pong;
+
+			for (j in 0...tus.length) { // Set texture
+				if (samplerID == tus[j].name) {						
+					if (tus[j].is_image != null && tus[j].is_image) {
+#if arm_voxelgi
+						g.setImageTexture(context.textureUnits[j], rt.image); // image2D
+
+						if (tus[j].params_set == null) {
+							tus[j].params_set = true;
+							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
+							rt.image.generateMipmaps(16);
+						}
+#end
+					}
+					else if (rt.isCubeMap) {
+						if (attachDepth) g.setCubeMapDepth(context.textureUnits[j], rt.cubeMap); // samplerCube
+						else g.setCubeMap(context.textureUnits[j], rt.cubeMap); // samplerCube
+					}
+					else {
+						if (attachDepth) g.setTextureDepth(context.textureUnits[j], rt.image); // sampler2D
+						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
+					}
+
+					// No filtering when sampling render targets
+					// if (tus[j].params_set == null) {
+						// tus[j].params_set = true;
+						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+					// }
 				}
 			}
 		}

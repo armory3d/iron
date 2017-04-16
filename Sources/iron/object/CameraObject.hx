@@ -28,6 +28,14 @@ class CameraObject extends Object {
 	public var farPlane:Float;
 	static var temp = new Vec4();
 
+#if arm_vr
+	public var vrinst:kha.vr.VrInterface = null;
+	public var leftV = Mat4.identity();
+	public var rightV = Mat4.identity();
+	public var leftP = Mat4.identity();
+	public var rightP = Mat4.identity();
+#end
+
 	public function new(data:CameraData) {
 		super();
 
@@ -45,6 +53,12 @@ class CameraObject extends Object {
 			var h:Float = iron.App.h();
 #if arm_vr
 			w /= 2.0; // Split per eye
+			var vr = kha.vr.VrInterface.instance;
+			if (vr != null && vr.IsVrEnabled()) {
+				vrinst = vr;
+				vrinst.onVRRequestPresent();
+			}
+
 #end
 			P = Mat4.perspective(fov, w / h, nearPlane, farPlane);
 		}
@@ -79,6 +93,16 @@ class CameraObject extends Object {
 	}
 
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
+
+#if arm_vr
+		if (vrinst != null && vrinst.IsPresenting()) {
+			leftV.self = vrinst.GetViewMatrix(0);
+			rightV.self = vrinst.GetViewMatrix(1);
+			leftP.self = vrinst.GetProjectionMatrix(0);
+			rightP.self = vrinst.GetProjectionMatrix(1);
+		}
+#end
+
 #if arm_taa
 		projectionJitter();
 #end

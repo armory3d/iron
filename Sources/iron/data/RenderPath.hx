@@ -820,20 +820,42 @@ class RenderPath {
 
 		loopFinished++;
 		var g = currentRenderTarget;
-		var halfW = Std.int(currentRenderTargetW / 2);
+		var halfW = Std.int(kha.System.windowWidth() / 2);
 
-		// Left eye
-		g.viewport(0, 0, halfW, currentRenderTargetH);
-		callCurrentStages(root);
+		if (camera.vrinst != null && camera.vrinst.IsPresenting()) {
+			var origV = camera.V;
+			var origP = camera.P;
 
-		// Right eye
-		camera.move(camera.right(), 0.032); // TODO: For testing purposes only
-		camera.buildMatrix();
-		g.viewport(halfW, 0, halfW, currentRenderTargetH);
-		callCurrentStages(root);
+			// Left eye
+			camera.V = camera.leftV;
+			camera.P = camera.leftP;
+			g.viewport(0, 0, halfW, currentRenderTargetH);
+			callCurrentStages(root);
 
-		camera.move(camera.right(), -0.032); // TODO:
-		camera.buildMatrix();
+			// Right eye
+			camera.V = camera.rightV;
+			camera.P = camera.rightP;
+			g.viewport(halfW, 0, halfW, currentRenderTargetH);
+			callCurrentStages(root);
+
+			camera.V = origV;
+			camera.P = origP;
+		}
+		else { // Emulate
+			// Left eye
+			g.viewport(0, 0, halfW, currentRenderTargetH);
+			callCurrentStages(root);
+
+			// Right eye
+			camera.move(camera.right(), 0.032);
+			camera.buildMatrix();
+			g.viewport(halfW, 0, halfW, currentRenderTargetH);
+			callCurrentStages(root);
+
+			camera.move(camera.right(), -0.032);
+			camera.buildMatrix();
+		}
+
 
 		loopFinished--;
 		currentStages = parentStages;

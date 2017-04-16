@@ -392,7 +392,6 @@ class Scene {
 			if (o.visible != null) object.visible = o.visible;
 			if (o.visible_mesh != null) object.visibleMesh = o.visible_mesh;
 			if (o.visible_shadow != null) object.visibleShadow = o.visible_shadow;
-			createTraits(o.traits, object);
 			createConstraints(o.constraints, object);
 			generateTranform(o, object.transform);
 			setupAnimation(o.animation_setup, object);
@@ -400,6 +399,7 @@ class Scene {
 				var sc = object.transform.scale;
 				object.transform.setDimensions(2.0 * sc.x, 2.0 * sc.y, 2.0 * sc.z);
 			}
+			createTraits(o.traits, object);
 		}
 		done(object);
 	}

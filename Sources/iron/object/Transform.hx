@@ -13,6 +13,7 @@ class Transform {
 
 	// Decomposed local matrix
 	public var loc:Vec4;
+	public var abs:Vec4;
 	public var rot:Quat;
 	public var scale:Vec4;
 	
@@ -32,6 +33,7 @@ class Transform {
 		matrix = Mat4.identity();
 		local = Mat4.identity();
 		loc = new Vec4();
+		abs = new Vec4();
 		rot = new Quat();
 		scale = new Vec4(1.0, 1.0, 1.0);
 		size = new Vec4();
@@ -92,6 +94,8 @@ class Transform {
 		for (n in object.children) {
 			n.transform.buildMatrix();
 		}
+
+		abs.set(matrix._30, matrix._31, matrix._32);
 	}
 
 	public function set(x = 0.0, y = 0.0, z = 0.0, rX = 0.0, rY = 0.0, rZ = 0.0, sX = 1.0, sY = 1.0, sZ = 1.0) {
@@ -110,6 +114,11 @@ class Transform {
 
 	public function setMatrix(mat:Mat4) {
 		matrix = mat;
+		matrix.decompose(loc, rot, scale);
+	}
+
+	public function multMatrix(mat:Mat4) {
+		matrix.multmat2(mat);
 		matrix.decompose(loc, rot, scale);
 	}
 
