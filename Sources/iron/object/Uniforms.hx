@@ -20,11 +20,19 @@ import iron.data.RenderPathData.RenderTarget;
 // Structure for setting shader uniforms
 class Uniforms {
 
+	#if arm_opengl
 	static var biasMat = new Mat4(
 		0.5, 0.0, 0.0, 0.5,
 		0.0, 0.5, 0.0, 0.5,
 		0.0, 0.0, 0.5, 0.5,
 		0.0, 0.0, 0.0, 1.0);
+	#else // d3d
+	static var biasMat = new Mat4(
+		0.5, 0.0, 0.0, 0.5,
+		0.0, -0.5, 0.0, 0.5,
+		0.0, 0.0, 0.5, 0.5,
+		0.0, 0.0, 0.0, 1.0);
+	#end
 	public static var helpMat = Mat4.identity();
 	public static var helpMat2 = Mat4.identity();
 	public static var helpMat3 = Mat3.identity();
