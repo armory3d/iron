@@ -113,7 +113,7 @@ class Transform {
 	}
 
 	public function setMatrix(mat:Mat4) {
-		matrix = mat;
+		matrix.setFrom(mat);
 		matrix.decompose(loc, rot, scale);
 	}
 
