@@ -71,15 +71,19 @@ class Uniforms {
 				if (char == "_") attachDepth = true;
 				if (attachDepth) rtID = rtID.substr(1);
 				if (rtID == "shadowMap" && lamp != null && lamp.data.raw.shadowmap_cube) {
-					// Bind empty map to non-cubemap sampler keep webgl happy
+					#if kha_webgl
+					// Bind empty map to non-cubemap sampler to keep webgl happy
 					bindRenderTarget(g, pathdata.renderTargets.get("arm_empty"), context, samplerID, attachDepth);
+					#end
 					rtID += "Cube"; // Bind cubemap instead
 					samplerID += "Cube";
 				}
+				#if kha_webgl
 				else {
 					// Bind empty map to cubemap sampler
 					bindRenderTarget(g, pathdata.renderTargets.get("arm_empty"), context, samplerID + "Cube", attachDepth);
 				}
+				#end
 
 				var rt = attachDepth ? pathdata.depthToRenderTarget.get(rtID) : pathdata.renderTargets.get(rtID);
 				bindRenderTarget(g, rt, context, samplerID, attachDepth);

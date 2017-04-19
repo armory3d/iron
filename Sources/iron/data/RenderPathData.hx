@@ -31,6 +31,7 @@ class RenderPathData extends Data {
 			}
 		}
 
+		#if kha_webgl
 		// Bind empty when requested target is not found
 		var tempty:TRenderPathTarget = {
 			name: "arm_empty",
@@ -39,6 +40,7 @@ class RenderPathData extends Data {
 			format: "DEPTH16"
 		};
 		createRenderTarget(tempty);
+		#end
 
 		done(this);
 	}
