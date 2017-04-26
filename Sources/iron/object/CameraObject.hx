@@ -29,11 +29,9 @@ class CameraObject extends Object {
 	static var temp = new Vec4();
 
 #if arm_vr
-	public var vrinst:kha.vr.VrInterface = null;
+	var helpMat = Mat4.identity();
 	public var leftV = Mat4.identity();
 	public var rightV = Mat4.identity();
-	public var leftP = Mat4.identity();
-	public var rightP = Mat4.identity();
 #end
 
 	public function new(data:CameraData) {
@@ -49,17 +47,38 @@ class CameraObject extends Object {
 		var fov = data.raw.fov;
 
 		if (data.raw.type == "perspective") {
-			var w:Float = iron.App.w();
-			var h:Float = iron.App.h();
 #if arm_vr
-			w /= 2.0; // Split per eye
-			var vr = kha.vr.VrInterface.instance;
-			if (vr != null && vr.IsVrEnabled()) {
-				vrinst = vr;
-				vrinst.onVRRequestPresent();
+			var vrImage:kha.Image = Scene.active.embedded.get('vr.png');
+
+			function vrDownListener(index:Int, x:Float, y:Float) {
+				var vr = kha.vr.VrInterface.instance;
+				if (vr == null || !vr.IsVrEnabled() || vr.IsPresenting()) return;
+				var w:Float = iron.App.w();
+				var h:Float = iron.App.h();
+				if (x < w - 150 || y < h - 150) return;
+				vr.onVRRequestPresent();
+			}		
+
+			function vrRender2D(g:kha.graphics2.Graphics) {
+				var vr = kha.vr.VrInterface.instance;
+				if (vr == null || !vr.IsVrEnabled() || vr.IsPresenting()) return;
+				var w:Float = iron.App.w();
+				var h:Float = iron.App.h();
+				g.color = 0xffffffff;
+				g.drawImage(vrImage, w - 150, h - 150);
 			}
 
+			kha.input.Mouse.get().notify(vrDownListener, null, null, null);
+			iron.App.notifyOnRender2D(vrRender2D);
+
+			var vr = kha.vr.VrInterface.instance; // Straight to VR (Oculus Carmel)
+			if (vr != null && vr.IsVrEnabled()) {
+				vr.onVRRequestPresent();
+			}
 #end
+			
+			var w:Float = iron.App.w();
+			var h:Float = iron.App.h();
 			P = Mat4.perspective(fov, w / h, nearPlane, farPlane);
 		}
 		else if (data.raw.type == "orthographic") {
@@ -94,18 +113,10 @@ class CameraObject extends Object {
 
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
 
-#if arm_vr
-		if (vrinst != null && vrinst.IsPresenting()) {
-			leftV.self = vrinst.GetViewMatrix(0);
-			rightV.self = vrinst.GetViewMatrix(1);
-			leftP.self = vrinst.GetProjectionMatrix(0);
-			rightP.self = vrinst.GetProjectionMatrix(1);
-		}
-#end
-
 #if arm_taa
 		projectionJitter();
 #end
+
 		buildMatrix(); // TODO: only when dirty
 
 		// First time setting up previous V, prevents first frame flicker
@@ -149,8 +160,32 @@ class CameraObject extends Object {
 
 		V.getInverse(transform.matrix);
 
+		#if arm_vr
+		var vr = kha.vr.VrInterface.instance;
+		if (vr != null && vr.IsPresenting()) {
+			leftV.setFrom(V);
+			helpMat.self = vr.GetViewMatrix(0);
+			leftV.multmat2(helpMat);
+			
+			rightV.setFrom(V);
+			helpMat.self = vr.GetViewMatrix(1);
+			rightV.multmat2(helpMat);
+
+			// var tr = camera.transform;
+			// tr.matrix.getInverse(camera.V);
+			// tr.matrix.decompose(tr.loc, tr.rot, tr.scale);
+		}
+		else {
+			leftV.setFrom(V);
+		}
+		#end
+
 		if (data.raw.frustum_culling) {
+			#if arm_vr
+			VP.multmats(P, leftV);
+			#else
 			VP.multmats(P, V);
+			#end
 			buildViewFrustum(VP, frustumPlanes);
 		}
 	}

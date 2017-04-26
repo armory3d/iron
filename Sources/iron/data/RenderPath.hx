@@ -44,6 +44,7 @@ class RenderPath {
 	public var currentRenderTargetCube:Bool;
 	public var currentRenderTargetFace:Int;
 	var bindParams:Array<String>;
+	var helpMat = Mat4.identity();
 
 	static var screenAlignedVB:VertexBuffer = null;
 	static var screenAlignedIB:IndexBuffer = null;
@@ -411,6 +412,10 @@ class RenderPath {
 			// else if (params[pos] == "stencil") {}
 		}
 		
+		#if kha_webgl // TODO: shadowmap disables color write, preventing screen clear
+		kha.SystemImpl.gl.colorMask(true, true, true, true);
+		#end
+
 		currentRenderTarget.clear(colorFlag, depthFlag, null);
 	}
 
@@ -560,8 +565,7 @@ class RenderPath {
 			ps.push(new Vec4(min.x, min.y + dy, min.z + dz));
 			ps.push(new Vec4(min.x + dx, min.y, min.z + dz));
 			ps.push(new Vec4(min.x + dx, min.y + dy, min.z + dz));
-			var helpMat = Mat4.identity();
-			helpMat.multmat2(camera.V);
+			helpMat.setFrom(camera.V);
 			helpMat.multmat2(camera.P);
 			var b:Vec4 = null;
 			for (v in ps) {
@@ -820,42 +824,44 @@ class RenderPath {
 
 		loopFinished++;
 		var g = currentRenderTarget;
-		var halfW = Std.int(kha.System.windowWidth() / 2);
 
-		if (camera.vrinst != null && camera.vrinst.IsPresenting()) {
-			var origV = camera.V;
-			var origP = camera.P;
+		var vr = kha.vr.VrInterface.instance;
+		if (vr != null && vr.IsPresenting()) {
+			var appw = iron.App.w();
+			var apph = iron.App.h();
+			var halfw = Std.int(appw / 2);
 
 			// Left eye
-			camera.V = camera.leftV;
-			camera.P = camera.leftP;
-			g.viewport(0, 0, halfW, currentRenderTargetH);
+			camera.V.setFrom(camera.leftV);
+			camera.P.self = vr.GetProjectionMatrix(0);
+			g.viewport(0, 0, halfw, apph);
 			callCurrentStages(root);
 
 			// Right eye
-			camera.V = camera.rightV;
-			camera.P = camera.rightP;
-			g.viewport(halfW, 0, halfW, currentRenderTargetH);
+			camera.V.setFrom(camera.rightV);
+			camera.P.self = vr.GetProjectionMatrix(1);
+			g.viewport(halfw, 0, halfw, apph);
 			callCurrentStages(root);
-
-			camera.V = origV;
-			camera.P = origP;
 		}
-		else { // Emulate
-			// Left eye
-			g.viewport(0, 0, halfW, currentRenderTargetH);
+		else {
 			callCurrentStages(root);
+			// Emulate
+			// var appw = iron.App.w();
+			// var apph = iron.App.h();
+			// var halfw = Std.int(appw / 2);
+			// 	// Left eye
+			// 	g.viewport(0, 0, halfw, apph);
+			// 	callCurrentStages(root);
 
-			// Right eye
-			camera.move(camera.right(), 0.032);
-			camera.buildMatrix();
-			g.viewport(halfW, 0, halfW, currentRenderTargetH);
-			callCurrentStages(root);
+			// 	// Right eye
+			// 	camera.move(camera.right(), 0.032);
+			// 	camera.buildMatrix();
+			// 	g.viewport(halfw, 0, halfw, apph);
+			// 	callCurrentStages(root);
 
-			camera.move(camera.right(), -0.032);
-			camera.buildMatrix();
+			// 	camera.move(camera.right(), -0.032);
+			// 	camera.buildMatrix();
 		}
-
 
 		loopFinished--;
 		currentStages = parentStages;

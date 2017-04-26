@@ -3,7 +3,7 @@ package iron;
 class App {
 
 	public static inline function w():Int { return kha.System.windowWidth(); }
-	public static inline function h():Int { return kha.System.windowHeight(); };
+	public static inline function h():Int { return kha.System.windowHeight(); }
 
 	static var traitInits:Array<Void->Void> = [];
 	static var traitUpdates:Array<Void->Void> = [];

@@ -73,7 +73,11 @@ class LampObject extends Object {
 				camSlicedP = Mat4.perspective(raw.fov, iron.App.w() / iron.App.h(), raw.near_plane, raw.far_plane);
 			}
 
+			#if arm_vr
+			m.setFrom(camera.leftV);
+			#else
 			m.setFrom(camera.V);
+			#end
 			// m.multmat2(camera.P);
 			m.multmat2(camSlicedP);
 			m.getInverse(m);

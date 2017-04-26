@@ -107,8 +107,8 @@ class RenderPathData extends Data {
 	}
 
 	function createImage(t:TRenderPathTarget, depthStencil:DepthStencilFormat):Image {
-		var width = t.width == 0 ? kha.System.windowWidth() : t.width;
-		var height = t.height == 0 ? kha.System.windowHeight() : t.height;
+		var width = t.width == 0 ? iron.App.w() : t.width;
+		var height = t.height == 0 ? iron.App.h() : t.height;
 		var depth = t.depth != null ? t.depth : 0;
 		if (t.scale != null) {
 			width = Std.int(width * t.scale);
