@@ -411,11 +411,6 @@ class RenderPath {
 			}
 			// else if (params[pos] == "stencil") {}
 		}
-		
-		#if kha_webgl // TODO: shadowmap disables color write, preventing screen clear
-		kha.SystemImpl.gl.colorMask(true, true, true, true);
-		#end
-
 		currentRenderTarget.clear(colorFlag, depthFlag, null);
 	}
 

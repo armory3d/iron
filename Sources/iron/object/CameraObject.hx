@@ -154,6 +154,7 @@ class CameraObject extends Object {
 		transform.buildMatrix();
 
 		// Prevent camera matrix scaling
+		// TODO: discards position affected by scaled camera parent
 		var sc = transform.matrix.getScale();
 		temp.set(1.0 / sc.x, 1.0 / sc.y, 1.0 / sc.z);
 		transform.matrix.scale(temp);

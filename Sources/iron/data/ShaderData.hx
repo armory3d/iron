@@ -178,17 +178,33 @@ class ShaderContext {
 		if (raw.color_write_alpha != null) pipeState.colorWriteMaskAlpha = raw.color_write_alpha;
 
 		// Shaders
-		pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(raw.fragment_shader, ".", "_"));
-		pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(raw.vertex_shader, ".", "_"));
+		if (raw.shader_from_source) {
+			pipeState.fragmentShader = kha.graphics4.FragmentShader.fromSource(raw.fragment_shader);
+			pipeState.vertexShader = kha.graphics4.VertexShader.fromSource(raw.vertex_shader);
 
-		if (raw.geometry_shader != null) {
-			pipeState.geometryShader = Reflect.field(kha.Shaders, StringTools.replace(raw.geometry_shader, ".", "_"));
+			// if (raw.geometry_shader != null) {
+				// pipeState.geometryShader = kha.graphics4.GeometryShader.fromSource(raw.geometry_shader);
+			// }
+			// if (raw.tesscontrol_shader != null) {
+				// pipeState.tessellationControlShader = kha.graphics4.TessellationControlShader.fromSource(raw.tesscontrol_shader);
+			// }
+			// if (raw.tesseval_shader != null) {
+				// pipeState.tessellationEvaluationShader = kha.graphics4.TessellationEvaluationShader.fromSource(raw.tesseval_shader);
+			// }
 		}
-		if (raw.tesscontrol_shader != null) {
-			pipeState.tessellationControlShader = Reflect.field(kha.Shaders, StringTools.replace(raw.tesscontrol_shader, ".", "_"));
-		}
-		if (raw.tesseval_shader != null) {
-			pipeState.tessellationEvaluationShader = Reflect.field(kha.Shaders, StringTools.replace(raw.tesseval_shader, ".", "_"));
+		else {
+			pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(raw.fragment_shader, ".", "_"));
+			pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(raw.vertex_shader, ".", "_"));
+
+			if (raw.geometry_shader != null) {
+				pipeState.geometryShader = Reflect.field(kha.Shaders, StringTools.replace(raw.geometry_shader, ".", "_"));
+			}
+			if (raw.tesscontrol_shader != null) {
+				pipeState.tessellationControlShader = Reflect.field(kha.Shaders, StringTools.replace(raw.tesscontrol_shader, ".", "_"));
+			}
+			if (raw.tesseval_shader != null) {
+				pipeState.tessellationEvaluationShader = Reflect.field(kha.Shaders, StringTools.replace(raw.tesseval_shader, ".", "_"));
+			}
 		}
 
 		// Override specified values
