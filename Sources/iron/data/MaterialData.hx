@@ -13,7 +13,7 @@ class MaterialData extends Data {
 	public var raw:TMaterialData;
 	public var shader:ShaderData;
 
-	public var contexts:Vector<MaterialContext> = null;
+	public var contexts:Array<MaterialContext> = null;
 
 	public function new(raw:TMaterialData, done:MaterialData->Void) {
 		super();
@@ -27,7 +27,9 @@ class MaterialData extends Data {
 			shader = b;
 
 			// Contexts have to be in the same order as in raw data for now
-			contexts = new Vector(raw.contexts.length);
+			contexts = [];
+			// contexts = new Vector(raw.contexts.length);
+			while (contexts.length < raw.contexts.length) contexts.push(null);
 			var contextsLoaded = 0;
 
 			for (i in 0...raw.contexts.length) {

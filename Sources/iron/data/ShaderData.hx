@@ -112,13 +112,26 @@ class ShaderContext {
 	public var raw:TShaderContext;
 
 	public var pipeState:PipelineState;
-	public var constants:Array<ConstantLocation> = [];
-	public var textureUnits:Array<TextureUnit> = [];
+	public var constants:Array<ConstantLocation>;
+	public var textureUnits:Array<TextureUnit>;
+
+	var structure:VertexStructure;
+	var inst:Bool;
+	var overrideContext:TShaderOverride;
 
 	public function new(raw:TShaderContext, structure:VertexStructure, inst = false, overrideContext:TShaderOverride = null) {
 		this.raw = raw;
+		this.structure = structure;
+		this.inst = inst;
+		this.overrideContext = overrideContext;
+		compile();
+	}
 
+	public function compile() {
+		if (pipeState != null) pipeState.delete();
 		pipeState = new PipelineState();
+		constants = [];
+		textureUnits = [];
 
 		// Instancing
 		if (inst) {
@@ -181,7 +194,6 @@ class ShaderContext {
 		if (raw.shader_from_source) {
 			pipeState.fragmentShader = kha.graphics4.FragmentShader.fromSource(raw.fragment_shader);
 			pipeState.vertexShader = kha.graphics4.VertexShader.fromSource(raw.vertex_shader);
-
 			// if (raw.geometry_shader != null) {
 				// pipeState.geometryShader = kha.graphics4.GeometryShader.fromSource(raw.geometry_shader);
 			// }
