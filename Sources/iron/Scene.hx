@@ -436,7 +436,7 @@ class Scene {
 		for (t in traits) {
 			if (t.type == "Script") {
 				// Assign arguments if any
-				var args:Dynamic = [];
+				var args:Array<Dynamic> = [];
 				if (t.parameters != null) args = t.parameters;
 				var traitInst = createTraitClassInstance(t.class_name, args);
 				if (traitInst == null) {
@@ -457,7 +457,7 @@ class Scene {
 		}
 	}
 
-	static function createTraitClassInstance(traitName:String, args:Dynamic):Dynamic {
+	static function createTraitClassInstance(traitName:String, args:Array<Dynamic>):Dynamic {
 		var cname = Type.resolveClass(traitName);
 		if (cname == null) return null;
 		return Type.createInstance(cname, args);

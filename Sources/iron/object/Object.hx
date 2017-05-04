@@ -24,6 +24,7 @@ class Object {
 	public var visibleMesh = true;
 	public var visibleShadow = true;
 	public var culled = false; // Object was culled last frame
+	public var properties:Map<String, Dynamic> = null;
 
 	public function new() {
 		uid = uidCounter++;
