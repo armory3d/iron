@@ -81,7 +81,7 @@ class Uniforms {
 				#if kha_webgl
 				else {
 					// Bind empty map to cubemap sampler
-					bindRenderTarget(g, pathdata.renderTargets.get("arm_empty"), context, samplerID + "Cube", attachDepth);
+					bindRenderTarget(g, pathdata.renderTargets.get("arm_empty_cube"), context, samplerID + "Cube", attachDepth);
 				}
 				#end
 
@@ -595,6 +595,9 @@ class Uniforms {
 			}
 			else if (c.link == "_aspectRatioF") {
 				f = camera.renderPath.currentRenderTargetW / camera.renderPath.currentRenderTargetH;
+			}
+			else if (c.link == "_aspectRatioWindowF") {
+				f = iron.App.w() / iron.App.h();
 			}
 			else if (c.link == "_objectInfoIndex") {
 				f = object.uid;

@@ -40,6 +40,14 @@ class RenderPathData extends Data {
 			format: "DEPTH16"
 		};
 		createRenderTarget(tempty);
+		var temptyCube:TRenderPathTarget = {
+			name: "arm_empty_cube",
+			width: 1,
+			height: 1,
+			format: "DEPTH16",
+			is_cubemap: true
+		};
+		createRenderTarget(temptyCube);
 		#end
 
 		done(this);

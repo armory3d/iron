@@ -21,7 +21,11 @@ class Mesh {
 
 	public var built = false;
 	public var vertices:kha.arrays.Float32Array;
+#if kha_krom
 	public var indices:Array<Array<Int>>;
+#else
+	public var indices:Array<kha.arrays.Uint32Array>;
+#end
 	public var materialIndices:Array<Int>;
 	public var struct:VertexStructure;
 	public var structLength:Int;
