@@ -46,7 +46,8 @@ class ObjectAnimation extends Animation {
 	}
 
 	public override function update(delta:Float) {
-		if (!object.visible || object.culled) return;
+		// if (!object.visible || object.culled) return;
+		if (!object.visible) return;
 		
 #if arm_profile
 		Animation.beginProfile();
