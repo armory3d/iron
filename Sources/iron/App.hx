@@ -14,7 +14,7 @@ class App {
 #if arm_profile
 	static var startTime:Float;
 	public static var updateTime:Float;
-	public static var renderTime:Float;
+	public static var renderPathTime:Float;
 #end
 
 	public static function init(_appReady:Void->Void) {
@@ -61,6 +61,7 @@ class App {
 		iron.system.Input.endFrame();
 
 #if arm_profile
+		iron.object.Animation.endFrame();
 		updateTime = kha.Scheduler.realTime() - startTime;
 #end
 	}
@@ -85,7 +86,7 @@ class App {
 		frame.g2.end();
 
 #if arm_profile
-		renderTime = kha.Scheduler.realTime() - startTime;
+		renderPathTime = kha.Scheduler.realTime() - startTime;
 #end
 	}
 

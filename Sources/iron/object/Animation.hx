@@ -127,6 +127,23 @@ class Animation {
 		m._32 = fp.z;
 		// boneMats.set(b, m);
 	}
+
+#if arm_profile
+	public static var animTime = 0.0;
+	static var startTime = 0.0;
+
+	static function beginProfile() {
+		startTime = kha.Scheduler.realTime();
+	}
+
+	static function endProfile() {
+		animTime += kha.Scheduler.realTime() - startTime;
+	}
+
+	public static function endFrame() {
+		animTime = 0;
+	}
+#end
 }
 
 class Player {

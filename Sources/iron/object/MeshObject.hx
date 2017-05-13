@@ -55,7 +55,7 @@ class MeshObject extends Object {
 	}
 
 	public override function setupAnimation(setup:TAnimationSetup) {
-		if (data.isSkinned) animation = new BoneAnimation(data, setup);
+		if (data.isSkinned) animation = new BoneAnimation(this, setup);
 		else super.setupAnimation(setup);
 	}
 
@@ -167,6 +167,9 @@ class MeshObject extends Object {
 			}
 			if (lod == null) return; // Empty object
 		}
+		#if arm_profile
+		else computeScreenSize(camera);
+		#end
 		if (isLodMaterial() && !validContext(mats[0], context)) return;
 		
 		// Get context

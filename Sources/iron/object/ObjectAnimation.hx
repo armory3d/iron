@@ -46,12 +46,22 @@ class ObjectAnimation extends Animation {
 	}
 
 	public override function update(delta:Float) {
+		if (!object.visible || object.culled) return;
+		
+#if arm_profile
+		Animation.beginProfile();
+#end
+
 		super.update(delta);
 		if (player.paused) return;
 
 		if (!isSkinned) {
 			updateObjectAnim();
 		}
+
+#if arm_profile
+		Animation.endProfile();
+#end
 	}
 
 	function updateObjectAnim() {

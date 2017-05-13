@@ -9,6 +9,7 @@ import iron.data.SceneFormat;
 class BoneAnimation extends Animation {
 
 	// Skinning
+	public var object:MeshObject;
 	public var data:MeshData;
 	public var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
 	public var boneMats = new Map<TObj, Mat4>();
@@ -26,9 +27,10 @@ class BoneAnimation extends Animation {
 	static var q1 = new Quat();
 	static var q2 = new Quat();
 
-	public function new(data:MeshData, setup:TAnimationSetup) {
+	public function new(mo:MeshObject, setup:TAnimationSetup) {
 		super(setup);
-		this.data = data;
+		this.object = mo;
+		this.data = mo.data;
 		this.isSkinned = data.isSkinned;
 		this.isSampled = false;
 
@@ -46,6 +48,12 @@ class BoneAnimation extends Animation {
 	}
 
 	public override function update(delta:Float) {
+		if (!object.visible || object.culled) return;
+
+#if arm_profile
+		Animation.beginProfile();
+#end
+
 		super.update(delta);
 		if (player.paused) return;
 
@@ -53,6 +61,10 @@ class BoneAnimation extends Animation {
 			updateBoneAnim();
 			updateSkin();
 		}
+
+#if arm_profile
+		Animation.endProfile();
+#end
 	}
 
 	function updateBoneAnim() {
