@@ -5,6 +5,7 @@ import iron.data.SceneFormat;
 import iron.data.MaterialData;
 import iron.data.MeshData;
 import iron.object.Object;
+import iron.object.MeshObject;
 import iron.object.CameraObject;
 import iron.math.Vec4;
 
@@ -16,7 +17,7 @@ typedef TMeshHandle = {
 	var materials:Vector<MaterialData>;
 	var parent:Object;
 	var obj:TObj;
-	var object:Object;
+	var object:MeshObject;
 	var loading:Bool;
 }
 
@@ -82,7 +83,7 @@ class SceneStream {
 				h.loading = true;
 				loading++;
 				iron.Scene.active.returnMeshObject(h.object_file, h.data_ref, h.sceneName, h.boneObjects, h.materials, h.parent, h.obj, function(object:Object) {
-					h.object = object;
+					h.object = cast(object, MeshObject);
 					h.loading = false;
 					loading--;
 				});
@@ -91,8 +92,10 @@ class SceneStream {
 			// Unload mesh
 			else if (cameraDistance > unloadDistance && h.object != null) {
 				h.object.remove();
+				if (h.object.data.refcount <= 0) {
+					iron.data.Data.deleteMesh(h.object_file + h.data_ref);
+				}
 				h.object = null;
-				iron.data.Data.deleteMesh(h.object_file + h.data_ref);
 			}
 		}
 	}
