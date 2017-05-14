@@ -6,6 +6,7 @@ import iron.object.Constraint;
 import iron.object.Transform;
 import iron.object.Object;
 import iron.data.MeshBatch;
+import iron.data.SceneStream;
 import iron.object.MeshObject;
 import iron.object.LampObject;
 import iron.object.CameraObject;
@@ -34,6 +35,7 @@ class Scene {
 	public var greasePencil:GreasePencilData = null;
 
 	public var meshBatch:MeshBatch = null;
+	public var sceneStream:SceneStream = null;
 	public var meshes:Array<MeshObject>;
 	public var lamps:Array<LampObject>;
 	public var cameras:Array<CameraObject>;
@@ -48,7 +50,12 @@ class Scene {
 	public var traitInits:Array<Void->Void> = [];
 
 	public function new() {
+		#if arm_batch
 		meshBatch = new MeshBatch();
+		#end
+		#if arm_stream
+		sceneStream = new SceneStream();
+		#end
 		meshes = [];
 		lamps = [];
 		cameras = [];
@@ -116,6 +123,9 @@ class Scene {
 	}
 
 	public function updateFrame() {
+		#if arm_stream
+		sceneStream.update();
+		#end
 		for (anim in animations) anim.update(iron.system.Time.delta);
 	}
 

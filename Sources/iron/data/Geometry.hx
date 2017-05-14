@@ -9,7 +9,7 @@ import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.data.SceneFormat;
 
-class Mesh {
+class Geometry {
 #if arm_deinterleaved
 	public var vertexBuffers:Array<VertexBuffer>;
 #else

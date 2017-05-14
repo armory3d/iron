@@ -46,7 +46,7 @@ class ParticleSystem {
 				instancedData.push(p.offset.y);
 				instancedData.push(p.offset.z);
 			}
-			object.data.mesh.setupInstanced(instancedData, Usage.DynamicUsage);
+			object.data.geom.setupInstanced(instancedData, Usage.DynamicUsage);
 
 			ready = true;
 		});
@@ -71,7 +71,7 @@ class ParticleSystem {
 			p.offset.z = p.lifetime * p.velocity.z;
 		}
 		sort();
-		var vb = object.data.mesh.instancedVertexBuffers[1];
+		var vb = object.data.geom.instancedVertexBuffers[1];
 		var instancedData = vb.lock();
 		for (i in 0...particles.length) {
 			var p = particles[i];

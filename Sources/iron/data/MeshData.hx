@@ -9,7 +9,7 @@ class MeshData extends Data {
 
 	public var name:String;
 	public var raw:TMeshData;
-	public var mesh:Mesh;
+	public var geom:Geometry;
 	public var start = 0; // Batched
 	public var count = -1;
 
@@ -87,7 +87,7 @@ class MeshData extends Data {
 		}
 		
 		// Make vertex buffers
-		mesh = new Mesh(indices, materialIndices, pa, na, uva, uva1, ca, tanga, bonea, weighta, usage, raw.mesh.instance_offsets);
+		geom = new Geometry(indices, materialIndices, pa, na, uva, uva1, ca, tanga, bonea, weighta, usage, raw.mesh.instance_offsets);
 
 		done(this);
 	}
@@ -98,7 +98,7 @@ class MeshData extends Data {
 	}
 
 	public function delete() {
-		mesh.delete();
+		geom.delete();
 	}
 
 	public static function parse(name:String, id:String, boneObjects:Array<TObj>, done:MeshData->Void) {
@@ -122,13 +122,13 @@ class MeshData extends Data {
 						});
 					}
 
-					dat.mesh.initSkinTransform(raw.mesh.skin.transform.values);
-					dat.mesh.skinBoneCounts = raw.mesh.skin.bone_count_array;
-					dat.mesh.skinBoneIndices = raw.mesh.skin.bone_index_array;
-					dat.mesh.skinBoneWeights = raw.mesh.skin.bone_weight_array;
-					dat.mesh.skeletonBoneRefs = raw.mesh.skin.skeleton.bone_ref_array;
-					dat.mesh.initSkeletonBones(dat.bones);
-					dat.mesh.initSkeletonTransforms(raw.mesh.skin.skeleton.transforms);
+					dat.geom.initSkinTransform(raw.mesh.skin.transform.values);
+					dat.geom.skinBoneCounts = raw.mesh.skin.bone_count_array;
+					dat.geom.skinBoneIndices = raw.mesh.skin.bone_index_array;
+					dat.geom.skinBoneWeights = raw.mesh.skin.bone_weight_array;
+					dat.geom.skeletonBoneRefs = raw.mesh.skin.skeleton.bone_ref_array;
+					dat.geom.initSkeletonBones(dat.bones);
+					dat.geom.initSkeletonTransforms(raw.mesh.skin.skeleton.transforms);
 				}
 				done(dat);
 			});

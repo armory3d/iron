@@ -40,7 +40,7 @@ class BoneAnimation extends Animation {
 				for (i in 0...this.skinBuffer.length) this.skinBuffer[i] = 0;
 			}
 
-			for (b in data.mesh.skeletonBones) {
+			for (b in data.geom.skeletonBones) {
 				this.boneMats.set(b, Mat4.fromArray(b.transform.values));
 				this.boneTimeIndices.set(b, 0);
 			}
@@ -68,13 +68,13 @@ class BoneAnimation extends Animation {
 	}
 
 	function updateBoneAnim() {
-		for (b in data.mesh.skeletonBones) {
+		for (b in data.geom.skeletonBones) {
 			updateAnimSampled(b.animation, boneMats.get(b), setBoneAnimFrame);
 		}
 	}
 
 	function setBoneAnimFrame(frame:Int) {
-		for (b in data.mesh.skeletonBones) {
+		for (b in data.geom.skeletonBones) {
 			var boneAnim = b.animation;
 			if (boneAnim != null) {
 				var track = boneAnim.tracks[0];
@@ -92,12 +92,12 @@ class BoneAnimation extends Animation {
 
 	// Dual quat skinning
 	function updateSkinGpu() {
-		var bones = data.mesh.skeletonBones;
+		var bones = data.geom.skeletonBones;
 
 		for (i in 0...bones.length) {
 			
-			bm.setFrom(data.mesh.skinTransform);
-			bm.multmat2(data.mesh.skeletonTransformsI[i]);
+			bm.setFrom(data.geom.skinTransform);
+			bm.multmat2(data.geom.skeletonTransformsI[i]);
 			m.setFrom(boneMats.get(bones[i]));
 			var p = bones[i].parent;
 			while (p != null) { // TODO: store absolute transforms per bone
@@ -145,26 +145,26 @@ class BoneAnimation extends Animation {
 	function updateSkinCpu() {
 #if arm_deinterleaved
 		// Assume position=0, normal=1 storage
-		var v = data.mesh.vertexBuffers[0].lock();
-		var vnor = data.mesh.vertexBuffers[1].lock();
+		var v = data.geom.vertexBuffers[0].lock();
+		var vnor = data.geom.vertexBuffers[1].lock();
 		var l = 3;
 #else
-		var v = data.mesh.vertexBuffer.lock();
-		var l = data.mesh.structLength;
-		// var vdepth = data.mesh.vertexBufferDepth.lock();
-		// var ldepth = data.mesh.structLengthDepth;
+		var v = data.geom.vertexBuffer.lock();
+		var l = data.geom.structLength;
+		// var vdepth = data.geom.vertexBufferDepth.lock();
+		// var ldepth = data.geom.structLengthDepth;
 #end
 
 		var index = 0;
 
 		for (i in 0...Std.int(v.length / l)) {
 
-			var boneCount = data.mesh.skinBoneCounts[i];
+			var boneCount = data.geom.skinBoneCounts[i];
 			var boneIndices = [];
 			var boneWeights = [];
 			for (j in index...(index + boneCount)) {
-				boneIndices.push(data.mesh.skinBoneIndices[j]);
-				boneWeights.push(data.mesh.skinBoneWeights[j]);
+				boneIndices.push(data.geom.skinBoneIndices[j]);
+				boneWeights.push(data.geom.skinBoneWeights[j]);
 			}
 			index += boneCount;
 
@@ -173,16 +173,16 @@ class BoneAnimation extends Animation {
 			for (j in 0...boneCount) {
 				var boneIndex = boneIndices[j];
 				var boneWeight = boneWeights[j];
-				var bone = data.mesh.skeletonBones[boneIndex];
+				var bone = data.geom.skeletonBones[boneIndex];
 
 				// Position
-				m.initTranslate(data.mesh.positions[i * 3],
-								data.mesh.positions[i * 3 + 1],
-								data.mesh.positions[i * 3 + 2]);
+				m.initTranslate(data.geom.positions[i * 3],
+								data.geom.positions[i * 3 + 1],
+								data.geom.positions[i * 3 + 2]);
 
-				m.multmat2(data.mesh.skinTransform);
+				m.multmat2(data.geom.skinTransform);
 
-				m.multmat2(data.mesh.skeletonTransformsI[boneIndex]);
+				m.multmat2(data.geom.skeletonTransformsI[boneIndex]);
 
 				bm.setFrom(boneMats.get(bone));
 				var p = bone.parent;
@@ -201,13 +201,13 @@ class BoneAnimation extends Animation {
 				// Normal
 				m.getInverse(bm);
 
-				m.multmat2(data.mesh.skeletonTransforms[boneIndex]);
+				m.multmat2(data.geom.skeletonTransforms[boneIndex]);
 
-				m.multmat2(data.mesh.skinTransformI);
+				m.multmat2(data.geom.skinTransformI);
 
-				m.translate(data.mesh.normals[i * 3],
-							data.mesh.normals[i * 3 + 1],
-							data.mesh.normals[i * 3 + 2]);
+				m.translate(data.geom.normals[i * 3],
+							data.geom.normals[i * 3 + 1],
+							data.geom.normals[i * 3 + 2]);
 
 				m.mult(boneWeight);
 
@@ -236,11 +236,11 @@ class BoneAnimation extends Animation {
 		}
 
 #if arm_deinterleaved
-		data.mesh.vertexBuffers[0].unlock();
-		data.mesh.vertexBuffers[1].unlock();
+		data.geom.vertexBuffers[0].unlock();
+		data.geom.vertexBuffers[1].unlock();
 #else
-		data.mesh.vertexBuffer.unlock();
-		// data.mesh.vertexBufferDepth.unlock();
+		data.geom.vertexBuffer.unlock();
+		// data.geom.vertexBufferDepth.unlock();
 #end
 	}
 }

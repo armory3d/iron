@@ -32,7 +32,7 @@ class MeshBatch {
 
 	public static function isBatchable(m:MeshObject):Bool {
 		// Batch only basic meshes for now
-		return !(m.data.isSkinned || m.materials.length > 1 || isLod(m) || m.data.mesh.instanced);
+		return !(m.data.isSkinned || m.materials.length > 1 || isLod(m) || m.data.geom.instanced);
 	}
 
 	public function addMesh(m:MeshObject) {
@@ -75,7 +75,6 @@ class MeshBatch {
 				m.renderBatch(g, context, camera, lamp, bindParams, m.data.start, m.data.count);
 #if arm_profile
 				RenderPath.batchCalls++;
-				if (m.culled) RenderPath.culled++;
 #end
 			}
 
@@ -137,9 +136,9 @@ class Bucket {
 			if (!mdFound) {
 				mdatas.push(m.data);
 				m.data.start = icount;
-				m.data.count = m.data.mesh.ids[0].length;
+				m.data.count = m.data.geom.ids[0].length;
 				icount += m.data.count;
-				vcount += m.data.mesh.getVerticesLength();
+				vcount += m.data.geom.getVerticesLength();
 			}
 		}
 
@@ -148,8 +147,8 @@ class Bucket {
 		var vertices = vertexBuffer.lock();
 		var offset = 0;
 		for (md in mdatas) {
-			md.mesh.copyVertices(vertices, offset);
-			offset += md.mesh.getVerticesLength();
+			md.geom.copyVertices(vertices, offset);
+			offset += md.geom.getVerticesLength();
 		}
 		vertexBuffer.unlock();
 
@@ -158,10 +157,10 @@ class Bucket {
 		var di = -1;
 		var offset = 0;
 		for (md in mdatas) {
-			for (i in 0...md.mesh.ids[0].length) {
-				indices[++di] = md.mesh.ids[0][i] + offset;
+			for (i in 0...md.geom.ids[0].length) {
+				indices[++di] = md.geom.ids[0][i] + offset;
 			}
-			offset += Std.int(md.mesh.getVerticesLength() / shader.structureLength); // / md.mesh.structLength
+			offset += Std.int(md.geom.getVerticesLength() / shader.structureLength); // / md.geom.structLength
 		}
 		indexBuffer.unlock();
 	}

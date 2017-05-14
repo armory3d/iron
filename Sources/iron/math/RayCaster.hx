@@ -95,7 +95,7 @@ class RayCaster {
 	static var m = Mat4.identity();
 	public static function getPlaneUV(obj:MeshObject, screenX:Float, screenY:Float, camera:CameraObject):Vec2 {
 		// Get normal from data
-		var normals = obj.data.mesh.normals;
+		var normals = obj.data.geom.normals;
 		nor.set(normals[0], normals[1], normals[2]);
 		
 		// Rotate by world rotation matrix

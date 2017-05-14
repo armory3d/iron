@@ -476,9 +476,6 @@ class RenderPath {
 
 		for (m in Scene.active.meshes) {
 			m.render(g, context, camera, lamp, bindParams);
-			#if arm_profile
-			if (m.culled) RenderPath.culled++;
-			#end
 		}
 #end
 		end(g);
