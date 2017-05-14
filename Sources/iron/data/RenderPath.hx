@@ -77,6 +77,8 @@ class RenderPath {
 	public static var batchBuckets = 0;
 	public static var batchCalls = 0;
 	public static var culled = 0;
+	public static var numTrisMesh = 0;
+	public static var numTrisShadow = 0;
 #end
 
 	// Used by render path nodes for branch functions
@@ -240,6 +242,8 @@ class RenderPath {
 		batchBuckets = 0;
 		batchCalls = 0;
 		culled = 0;
+		numTrisMesh = 0;
+		numTrisShadow = 0;
 #end
 		
 		frameRenderTarget = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture

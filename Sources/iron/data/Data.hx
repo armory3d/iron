@@ -72,19 +72,29 @@ class Data {
 	public static function getMesh(file:String, name:String, boneObjects:Array<TObj>, done:MeshData->Void) {
 		// boneObjects - used when mesh is parsed from separate file
 		// TODO: preparse bone objects
-		var cached = cachedMeshes.get(file + name);
+		var handle = file + name;
+		var cached = cachedMeshes.get(handle);
 		if (cached != null) { done(cached); return; }
 
-		var loading = loadingMeshes.get(file + name);
+		var loading = loadingMeshes.get(handle);
 		if (loading != null) { loading.push(done); return; }
 
 		loadingMeshes.set(file + name, [done]);
 
 		MeshData.parse(file, name, boneObjects, function(b:MeshData) {
 			cachedMeshes.set(file + name, b);
+			b.handle = handle;
 			for (f in loadingMeshes.get(file + name)) f(b);
 			loadingMeshes.remove(file + name);
 		});
+	}
+
+	public static function deleteMesh(handle:String) {
+		// Remove cached mesh
+		var mesh = cachedMeshes.get(handle);
+		if (mesh == null) return;
+		mesh.delete();
+		cachedMeshes.remove(handle);
 	}
 
 	static var loadingLamps:Map<String, Array<LampData->Void>> = new Map();

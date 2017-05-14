@@ -35,6 +35,7 @@ class MeshObject extends Object {
 		super();
 
 		this.data = data;
+		data.refcount++;
 		this.materials = materials;	
 		Scene.active.meshes.push(this);
 
@@ -51,6 +52,7 @@ class MeshObject extends Object {
 		Scene.active.meshBatch.removeMesh(this);
 #end
 		Scene.active.meshes.remove(this);
+		data.refcount--;
 		super.remove();
 	}
 
@@ -241,6 +243,10 @@ class MeshObject extends Object {
 		}
 
 #if arm_profile
+		var meshContext = camera.data.pathdata.raw.mesh_context == context;
+		var shadowsContext = camera.data.pathdata.raw.shadows_context == context;
+		if (meshContext) RenderPath.numTrisMesh += ldata.geom.numTris;
+		else if (shadowsContext) RenderPath.numTrisShadow += ldata.geom.numTris;
 		RenderPath.drawCalls++;
 #end
 

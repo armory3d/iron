@@ -123,8 +123,9 @@ class Scene {
 	}
 
 	public function updateFrame() {
+		if (!ready) return;
 		#if arm_stream
-		sceneStream.update();
+		sceneStream.update(active.camera);
 		#end
 		for (anim in animations) anim.update(iron.system.Time.delta);
 	}
@@ -349,10 +350,22 @@ class Scene {
 							if (parentObject != null && parentObject.bones_ref != null) {
 								Data.getSceneRaw(parentObject.bones_ref, function(boneformat:TSceneFormat) {
 									var boneObjects:Array<TObj> = boneformat.objects;
-									returnMeshObject(object_file, data_ref, sceneName, boneObjects, materials, parent, o, done);
+									#if arm_stream
+									streamMeshObject(
+									#else
+									returnMeshObject(
+									#end
+										object_file, data_ref, sceneName, boneObjects, materials, parent, o, done);
 								});
 							}
-							else returnMeshObject(object_file, data_ref, sceneName, null, materials, parent, o, done);
+							else {
+								#if arm_stream
+								streamMeshObject(
+								#else
+								returnMeshObject(
+								#end
+									object_file, data_ref, sceneName, null, materials, parent, o, done);
+							}
 						}
 					});
 				}
@@ -381,7 +394,17 @@ class Scene {
 		else done(null);
 	}
 
-	function returnMeshObject(object_file:String, data_ref:String, sceneName:String, boneObjects:Array<TObj>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
+#if arm_stream
+	function streamMeshObject(object_file:String, data_ref:String, sceneName:String, boneObjects:Array<TObj>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
+		sceneStream.add(object_file, data_ref, sceneName, boneObjects, materials, parent, o);
+		// TODO: Increase objectsTraversed by full children count
+		if (o.children != null) objectsTraversed += o.children.length;
+		// Return immediately and stream progressively
+		returnObject(null, null, done);
+	}
+#end
+
+	public function returnMeshObject(object_file:String, data_ref:String, sceneName:String, boneObjects:Array<TObj>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
 		Data.getMesh(object_file, data_ref, boneObjects, function(mesh:MeshData) {
 			var object = addMeshObject(mesh, materials, parent);
 		

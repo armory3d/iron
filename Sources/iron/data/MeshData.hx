@@ -12,6 +12,8 @@ class MeshData extends Data {
 	public var geom:Geometry;
 	public var start = 0; // Batched
 	public var count = -1;
+	public var refcount = 0; // Number of users
+	public var handle:String; // Handle used to retrieve this object in Data
 
 #if arm_cpu_skin
 	public static inline var ForceCpuSkinning = true;
@@ -156,11 +158,7 @@ class MeshData extends Data {
 	}
 
 	function getVertexArray(attrib:String):TVertexArray {
-		for (va in raw.mesh.vertex_arrays) {
-			if (va.attrib == attrib) {
-				return va;
-			}
-		}
+		for (va in raw.mesh.vertex_arrays) if (va.attrib == attrib) return va;
 		return null;
 	}
 }

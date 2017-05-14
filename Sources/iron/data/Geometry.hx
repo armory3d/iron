@@ -26,6 +26,7 @@ class Geometry {
 #else
 	public var indices:Array<kha.arrays.Uint32Array>;
 #end
+	public var numTris = 0;
 	public var materialIndices:Array<Int>;
 	public var struct:VertexStructure;
 	public var structLength:Int;
@@ -271,6 +272,7 @@ class Geometry {
 		indices = [];
 		for (id in ids) {
 			var indexBuffer = new IndexBuffer(id.length, usage);
+			numTris += Std.int(id.length / 3);
 			var indicesA = indexBuffer.lock();
 			for (i in 0...indicesA.length) indicesA[i] = id[i];
 			indexBuffer.unlock();
