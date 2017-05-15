@@ -28,14 +28,13 @@ class StreamSector {
 
 class SceneStream {
 
-	var checkMax = 20; // Objects checked per frame
+	var checkMax = 64; // Objects checked per frame
 	var checkPos = 0;
-	var loadMax = 2; // Max objects loaded at once
+	var loadMax = 8; // Max objects loaded at once
 	var loading = 0; // Objects being loaded
 
-	// Assumes view distance 200
-	var loadDistance = 210;
-	var unloadDistance = 300;
+	var loadDistance = -1;
+	var unloadDistance = -1;
 	var sectors:Array<StreamSector>; // 100x100 groups
 
 	public function sceneTotal():Int {
@@ -50,7 +49,14 @@ class SceneStream {
 		sectors[0].handles.push({object_file: object_file, data_ref: data_ref, sceneName: sceneName, boneObjects: boneObjects, materials: materials, parent: parent, obj: obj, object: null, loading: false});
 	}
 
+	function setup(camera:CameraObject) {
+		loadDistance = Std.int(camera.data.raw.far_plane + 10);
+		unloadDistance = Std.int(camera.data.raw.far_plane * 1.5);
+	}
+
 	public function update(camera:CameraObject) {
+		if (loadDistance == -1) setup(camera);
+
 		if (loading >= loadMax) return; // Busy loading..
 
 		var sec = sectors[0];
