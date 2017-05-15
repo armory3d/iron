@@ -165,7 +165,6 @@ class Geometry {
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights, offset);
 	}
 
-#if (!arm_deinterleaved)
 	static function buildVertices(vertices:kha.arrays.Float32Array,
 								  pa:Array<Float> = null,
 								  na:Array<Float> = null,
@@ -223,7 +222,6 @@ class Geometry {
 			}
 		}
 	}
-#end
 
 	public function getVerticesLength():Int {
 		var res = positions.length;
