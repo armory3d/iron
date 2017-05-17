@@ -31,65 +31,57 @@ class MeshData extends Data {
 		this.name = raw.name;
 
 		// Mesh data
-		var indices:Array<Array<Int>> = [];
+		var indices:Array<kha.arrays.Uint32Array> = [];
 		var materialIndices:Array<Int> = [];
-		for (ind in raw.mesh.index_arrays) {
+		for (ind in raw.index_arrays) {
 			indices.push(ind.values);
 			materialIndices.push(ind.material);
 		}
 
 		// Mandatory vertex array names for now
-		var paVA = getVertexArray("position");
-		var pa = paVA != null ? paVA.values : null;
-		
-		var naVA = getVertexArray("normal");
-		var na = naVA != null ? naVA.values : null; 
-
-		var uvaVA = getVertexArray("texcoord");
-		var uva = uvaVA != null ? uvaVA.values : null;
-
-		var uva1VA = getVertexArray("texcoord1");
-		var uva1 = uva1VA != null ? uva1VA.values : null;
-
-		var caVA = getVertexArray("color");
-		var ca = caVA != null ? caVA.values : null;
-
-		// Normal mapping
-		var tangaVA = getVertexArray("tangent");
-		var tanga = tangaVA != null ? tangaVA.values : null;
+		var pa = getVertexArrayValues("pos");
+		var na = getVertexArrayValues("nor");
+		var uva = getVertexArrayValues("tex");
+		var uva1 = getVertexArrayValues("tex1");
+		var ca = getVertexArrayValues("col");
+		var tanga = getVertexArrayValues("tang");
 
 		// Skinning
-		isSkinned = raw.mesh.skin != null ? true : false;
+		isSkinned = raw.skin != null ? true : false;
 
 		// Usage, also used for instanced data
 		var parsedUsage = Usage.StaticUsage;
-		if (raw.mesh.dynamic_usage != null && raw.mesh.dynamic_usage == true) parsedUsage = Usage.DynamicUsage;
+		if (raw.dynamic_usage != null && raw.dynamic_usage == true) parsedUsage = Usage.DynamicUsage;
 		var usage = (isSkinned && ForceCpuSkinning) ? Usage.DynamicUsage : parsedUsage;
 
-		var bonea:Array<Float> = null; // Store bone indices and weights per vertex
-		var weighta:Array<Float> = null;
+		var bonea:kha.arrays.Float32Array = null; // Store bone indices and weights per vertex
+		var weighta:kha.arrays.Float32Array = null;
 		if (isSkinned && !ForceCpuSkinning) {
-			bonea = [];
-			weighta = [];
+			var l = Std.int(pa.length / 3) * 4;
+			bonea = new kha.arrays.Float32Array(l);
+			weighta = new kha.arrays.Float32Array(l);
 
 			var index = 0;
+			var ai = 0;
 			for (i in 0...Std.int(pa.length / 3)) {
-				var boneCount = raw.mesh.skin.bone_count_array[i];
+				var boneCount = raw.skin.bone_count_array[i];
 				for (j in index...(index + boneCount)) {
-					bonea.push(raw.mesh.skin.bone_index_array[j]);
-					weighta.push(raw.mesh.skin.bone_weight_array[j]);
+					bonea[ai] = raw.skin.bone_index_array[j];
+					weighta[ai] = raw.skin.bone_weight_array[j];
+					ai++;
 				}
 				// Fill unused weights
 				for (j in boneCount...4) {
-					bonea.push(0);
-					weighta.push(0);
+					bonea[ai] = 0.0;
+					weighta[ai] = 0.0;
+					ai++;
 				}
 				index += boneCount;
 			}
 		}
 		
 		// Make vertex buffers
-		geom = new Geometry(indices, materialIndices, pa, na, uva, uva1, ca, tanga, bonea, weighta, usage, raw.mesh.instance_offsets);
+		geom = new Geometry(indices, materialIndices, pa, na, uva, uva1, ca, tanga, bonea, weighta, usage, raw.instance_offsets);
 
 		done(this);
 	}
@@ -113,7 +105,7 @@ class MeshData extends Data {
 
 			new MeshData(raw, function(dat:MeshData) {
 				// Skinned
-				if (raw.mesh.skin != null) {
+				if (raw.skin != null) {
 					var objects = boneObjects != null ? boneObjects : format.objects;
 					if (objects != null) { // Wrong data
 						for (o in objects) setParents(o);
@@ -124,13 +116,13 @@ class MeshData extends Data {
 						});
 					}
 
-					dat.geom.initSkinTransform(raw.mesh.skin.transform.values);
-					dat.geom.skinBoneCounts = raw.mesh.skin.bone_count_array;
-					dat.geom.skinBoneIndices = raw.mesh.skin.bone_index_array;
-					dat.geom.skinBoneWeights = raw.mesh.skin.bone_weight_array;
-					dat.geom.skeletonBoneRefs = raw.mesh.skin.skeleton.bone_ref_array;
+					dat.geom.initSkinTransform(raw.skin.transform.values);
+					dat.geom.skinBoneCounts = raw.skin.bone_count_array;
+					dat.geom.skinBoneIndices = raw.skin.bone_index_array;
+					dat.geom.skinBoneWeights = raw.skin.bone_weight_array;
+					dat.geom.skeletonBoneRefs = raw.skin.skeleton.bone_ref_array;
 					dat.geom.initSkeletonBones(dat.bones);
-					dat.geom.initSkeletonTransforms(raw.mesh.skin.skeleton.transforms);
+					dat.geom.initSkeletonTransforms(raw.skin.skeleton.transforms);
 				}
 				done(dat);
 			});
@@ -157,8 +149,8 @@ class MeshData extends Data {
 		}
 	}
 
-	function getVertexArray(attrib:String):TVertexArray {
-		for (va in raw.mesh.vertex_arrays) if (va.attrib == attrib) return va;
+	function getVertexArrayValues(attrib:String):kha.arrays.Float32Array {
+		for (va in raw.vertex_arrays) if (va.attrib == attrib) return va.values;
 		return null;
 	}
 }

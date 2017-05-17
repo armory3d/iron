@@ -80,7 +80,7 @@ class ObjectAnimation extends Animation {
 		var objectAnim = object.raw.animation;
 		if (objectAnim != null) {
 			var track = objectAnim.tracks[0];
-			var m1 = Mat4.fromArray(track.values, frame * 16);
+			var m1 = Mat4.fromFloat32Array(track.values, frame * 16);
 			object.transform.matrix = m1;
 		}
 	}

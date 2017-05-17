@@ -171,13 +171,8 @@ class Probe {
 		// Parse probe data
 		if (raw.irradiance == '') {
 			// Use default if no data provided
-			var irr:Array<kha.FastFloat> = [1.0281457342829743,1.1617608778901902,1.3886220898440544,-0.13044863139637752,-0.2794659158733846,-0.5736106907295643,0.04065421813873111,0.0434367391348577,0.03567450494792305,0.10964557605577738,0.1129839085793664,0.11261660812141877,-0.08271974283263238,-0.08068091195339556,-0.06432614970480094,-0.12517787967665814,-0.11638582546310804,-0.09743696224655113,0.20068697715947176,0.2158788783296805,0.2109374396869599,0.19636637427150455,0.19445523113118082,0.17825330699680575,0.31440860839538637,0.33041120060402407,0.30867788630062676];
-			// var irr = [];
-			// for (i in 0...9) {
-				// irr.push(1.0); irr.push(1.0); irr.push(1.0);
-			// }
-			irr.push(0.0); // Align to mult of 4 - 27->28
-			done(haxe.ds.Vector.fromData(irr));
+			var ar:Array<kha.FastFloat> = [1.0281457342829743,1.1617608778901902,1.3886220898440544,-0.13044863139637752,-0.2794659158733846,-0.5736106907295643,0.04065421813873111,0.0434367391348577,0.03567450494792305,0.10964557605577738,0.1129839085793664,0.11261660812141877,-0.08271974283263238,-0.08068091195339556,-0.06432614970480094,-0.12517787967665814,-0.11638582546310804,-0.09743696224655113,0.20068697715947176,0.2158788783296805,0.2109374396869599,0.19636637427150455,0.19445523113118082,0.17825330699680575,0.31440860839538637,0.33041120060402407,0.30867788630062676,0.0];
+			done(haxe.ds.Vector.fromData(ar));
 		}
 		else {
 			iron.data.Data.getBlob(raw.irradiance + '.arm', function(b:kha.Blob) {
@@ -185,10 +180,12 @@ class Probe {
 #if arm_json
 				var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData.toString());
 #else
-				var irradianceParsed:TIrradiance = iron.system.msgpack.MsgPack.decode(irradianceData.toBytes());
+				var irradianceParsed:TIrradiance = iron.system.ArmPack.decode(irradianceData.toBytes());
 #end
-				irradianceParsed.irradiance.push(0.0); // Align to mult of 4 - 27->28
-				done(haxe.ds.Vector.fromData(irradianceParsed.irradiance));
+				var irr = new haxe.ds.Vector(28); // Align to mult of 4 - 27->28
+				for (i in 0...27) irr.set(i, irradianceParsed.irradiance[i]); 
+				irr.set(27, 0.0);
+				done(irr);
 			});
 		}
 	}

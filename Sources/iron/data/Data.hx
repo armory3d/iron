@@ -268,7 +268,7 @@ class Data {
 #if arm_json
 			var parsed:TSceneFormat = haxe.Json.parse(b.toString());
 #else
-			var parsed:TSceneFormat = iron.system.msgpack.MsgPack.decode(b.toBytes());
+			var parsed:TSceneFormat = iron.system.ArmPack.decode(b.toBytes());
 #end
 			cachedSceneRaws.set(file, parsed);
 			for (f in loadingSceneRaws.get(file)) f(parsed);

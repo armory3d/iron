@@ -1,7 +1,6 @@
 package iron.data;
 
 typedef TSceneFormat = {
-// @:structInit class TSceneFormat {
 	@:optional var name:String;
 	@:optional var mesh_datas:Array<TMeshData>;
 	@:optional var lamp_datas:Array<TLampData>;
@@ -18,61 +17,49 @@ typedef TSceneFormat = {
 	@:optional var grease_pencil_ref:String;
 	@:optional var objects:Array<TObj>;
 	@:optional var groups:Array<TGroup>;
-	@:optional var gravity:Array<Float>;
+	@:optional var gravity:kha.arrays.Float32Array;
 	@:optional var traits:Array<TTrait>; // Scene root traits
 	@:optional var embedded_datas:Array<String>; // Preload for this scene, images only for now
 }
 
 typedef TMeshData = {
-// @:structInit class TMeshData {
 	var name:String;
-	var mesh:TMesh;
-}
-
-typedef TMesh = {
-// @:structInit class TMesh {
 	var vertex_arrays:Array<TVertexArray>;
 	var index_arrays:Array<TIndexArray>;
-	@:optional var primitive:String; // triangles
 	@:optional var dynamic_usage:Null<Bool>;
 	@:optional var skin:TSkin;
-	@:optional var instance_offsets:Array<Float>;
+	@:optional var instance_offsets:kha.arrays.Float32Array;
 }
 
 typedef TSkin = {
-// @:structInit class TSkin {
 	var transform:TTransform;
 	var skeleton:TSkeleton;
-	var bone_count_array:Array<Int>;
-	var bone_index_array:Array<Int>;
-	var bone_weight_array:Array<Float>;
+	var bone_count_array:kha.arrays.Uint32Array;
+	var bone_index_array:kha.arrays.Uint32Array;
+	var bone_weight_array:kha.arrays.Float32Array;
 }
 
 typedef TSkeleton = {
-// @:structInit class TSkeleton {
 	var bone_ref_array:Array<String>;
-	var transforms:Array<Array<kha.FastFloat>>; // size = 16
+	var transforms:Array<kha.arrays.Float32Array>; // size = 16
 }
 
 typedef TVertexArray = {
-// @:structInit class TVertexArray {
 	var attrib:String;
-	var values:Array<Float>;
+	var values:kha.arrays.Float32Array;
 	@:optional var size:Int; // 3
 }
 
 typedef TIndexArray = {
-// @:structInit class TIndexArray {
-	var values:Array<Int>;
+	var values:kha.arrays.Uint32Array;
 	var material:Int;
 	@:optional var size:Int; // 3
 }
 
 typedef TLampData = {
-// @:structInit class TLampData {
 	var name:String;
 	var type:String; // Sun, point, spot
-	var color:Array<Float>;
+	var color:kha.arrays.Float32Array;
 	var strength:Float;
 	@:optional var cast_shadow:Bool;
 	@:optional var near_plane:Float;
@@ -90,9 +77,8 @@ typedef TLampData = {
 }
 
 typedef TCameraData = {
-// @:structInit class TCameraData {
 	var name:String;
-	var clear_color:Array<Float>;
+	var clear_color:kha.arrays.Float32Array;
 	var near_plane:Float;
 	var far_plane:Float;
 	var fov:Float;
@@ -105,7 +91,6 @@ typedef TCameraData = {
 }
 
 typedef TMaterialData = {
-// @:structInit class TMaterialData {
 	var name:String;
 	var shader:String;
 	var contexts:Array<TMaterialContext>;
@@ -118,24 +103,21 @@ typedef TShaderOverride = {
 }
 
 typedef TMaterialContext = {
-// @:structInit class TMaterialContext {
 	var name:String;
 	@:optional var bind_constants:Array<TBindConstant>;
 	@:optional var bind_textures:Array<TBindTexture>;
 }
 
 typedef TBindConstant = {
-// @:structInit class TBindConstant {
 	var name:String;
-	@:optional var vec4:Array<Float>;
-	@:optional var vec3:Array<Float>;
-	@:optional var vec2:Array<Float>;
+	@:optional var vec4:kha.arrays.Float32Array;
+	@:optional var vec3:kha.arrays.Float32Array;
+	@:optional var vec2:kha.arrays.Float32Array;
 	@:optional var float:Float;
 	@:optional var bool:Bool;
 }
 
 typedef TBindTexture = {
-// @:structInit class TBindTexture {
 	var name:String;
 	var file:String;
 	@:optional var format:String; // RGBA32, RGBA64, R8
@@ -151,20 +133,17 @@ typedef TBindTexture = {
 }
 
 typedef TShaderData = {
-// @:structInit class TShaderData {
 	var name:String;
 	var vertex_structure:Array<TVertexData>;
 	var contexts:Array<TShaderContext>;
 }
 
 typedef TVertexData = {
-// @:structInit class TVertexData {
 	var name:String;
 	var size:Int;
 }
 
 typedef TShaderContext = {
-// @:structInit class TShaderContext {
 	var name:String;
 	var depth_write:Bool;
 	var compare_mode:String;
@@ -196,18 +175,16 @@ typedef TShaderContext = {
 }
 
 typedef TShaderConstant = {
-// @:structInit class TShaderConstant {
 	var name:String;
 	var type:String;
 	@:optional var link:String;
-	@:optional var vec4:Array<Float>;
-	@:optional var vec3:Array<Float>;
+	@:optional var vec4:kha.arrays.Float32Array;
+	@:optional var vec3:kha.arrays.Float32Array;
 	@:optional var float:Float;
 	@:optional var bool:Bool;
 }
 
 typedef TTextureUnit = {
-// @:structInit class TTextureUnit {
 	var name:String;
 	@:optional var is_image:Null<Bool>; // image2D
 	@:optional var link:String;
@@ -215,7 +192,6 @@ typedef TTextureUnit = {
 }
 
 typedef TRenderPathData = {
-// @:structInit class TRenderPathData {
 	var name:String;
 	var stages:Array<TRenderPathStage>;
 	@:optional var render_targets:Array<TRenderPathTarget>;
@@ -225,7 +201,6 @@ typedef TRenderPathData = {
 }
 
 typedef TRenderPathTarget = {
-// @:structInit class TRenderPathTarget {
 	var name:String;
 	var width:Int;
 	var height:Int;
@@ -243,13 +218,11 @@ typedef TRenderPathTarget = {
 }
 
 typedef TRenderPathDepthBuffer = {
-// @:structInit class TRenderPathDepthBuffer {
 	var name:String;
 	@:optional var format:String;
 }
 
 typedef TRenderPathStage = {
-// @:structInit class TRenderPathStage {
 	var command:String;
 	@:optional var params:Array<String>;
 	@:optional var returns_true:Array<TRenderPathStage>; // Nested commands
@@ -257,7 +230,6 @@ typedef TRenderPathStage = {
 }
 
 typedef TSpeakerData = {
-// @:structInit class TSpeakerData {
 	var name:String;
 	var sound:String;
 	var muted:Bool;
@@ -269,7 +241,6 @@ typedef TSpeakerData = {
 }
 
 typedef TWorldData = {
-// @:structInit class TWorldData {
 	var name:String;
 	var material_ref:String;
 	var background_color:Int;
@@ -277,7 +248,6 @@ typedef TWorldData = {
 }
 
 typedef TGreasePencilData = {
-// @:structInit class TGreasePencilData {
 	var name:String;
 	var layers:Array<TGreasePencilLayer>;
 	// var palettes:Array<TGreasePencilPalette>;
@@ -285,68 +255,60 @@ typedef TGreasePencilData = {
 }
 
 typedef TGreasePencilLayer = {
-// @:structInit class TGreasePencilLayer {
 	var name:String;
 	var opacity:Float;
 	var frames:Array<TGreasePencilFrame>;
 }
 
 typedef TGreasePencilFrame = {
-// @:structInit class TGreasePencilFrame {
 	var frame_number:Int;
 	var vertex_array:TVertexArray;
 	var col_array:TVertexArray; // TODO: Use array instead
 	var colfill_array:TVertexArray;
 	var index_array:TIndexArray;
-	var num_stroke_points:Array<Int>;
+	var num_stroke_points:kha.arrays.Uint32Array;
 }
 
 typedef TGreasePencilPalette = {
-// @:structInit class TGreasePencilPalette {
 	var name:String;
 	var colors:Array<TGreasePencilPaletteColor>;
 }
 
 typedef TGreasePencilPaletteColor = {
-// @:structInit class TGreasePencilPaletteColor {
 	var name:String;
-	var color:Array<Float>;
+	var color:kha.arrays.Float32Array;
 	var alpha:Float;
-	var fill_color:Array<Float>;
+	var fill_color:kha.arrays.Float32Array;
 	var fill_alpha:Float;
 }
 
 typedef TProbe = {
-// @:structInit class TProbe {
 	var irradiance:String; // Reference to TIrradiance blob
 	var strength:Float;
 	var blending:Float;
-	var volume:Array<Float>;
-	var volume_center:Array<Float>;
+	var volume:kha.arrays.Float32Array;
+	var volume_center:kha.arrays.Float32Array;
 	@:optional var radiance:String;
 	@:optional var radiance_mipmaps:Int;
-	@:optional var sun_direction:Array<Float>; // Sky data
+	@:optional var sun_direction:kha.arrays.Float32Array; // Sky data
 	@:optional var turbidity:Float;
 	@:optional var ground_albedo:Float;
 }
 
 typedef TIrradiance = { // Blob with spherical harmonics, bands 0,1,2
-// @:structInit class TIrradiance {
-	var irradiance:Array<kha.FastFloat>;
+	var irradiance:kha.arrays.Float32Array;
 }
 
 typedef TParticleData = {
-// @:structInit class TParticleData {
 	var name:String;
 	var count:Int;
 	var lifetime:Float;
 	var normal_factor:Float;
-	var object_align_factor:Array<Float>;
+	var object_align_factor:kha.arrays.Float32Array;
 	var factor_random:Float;
 }
 
 typedef TObj = {
-// @:structInit class TObj {
 	var type:String;
 	var name:String;
 	var data_ref:String;
@@ -359,7 +321,7 @@ typedef TObj = {
 	@:optional var lod_material:Null<Bool>;
 	@:optional var traits:Array<TTrait>;
 	@:optional var constraints:Array<TConstraint>;
-	@:optional var dimensions:Array<Float>; // Geometry objects
+	@:optional var dimensions:kha.arrays.Float32Array; // Geometry objects
 	@:optional var animation:TAnimation;
 	@:optional var animation_transforms:Array<TAnimationTransform>;
 	@:optional var bones_ref:String;
@@ -379,26 +341,23 @@ typedef TGroup = {
 }
 
 typedef TLod = {
-// @:structInit class TLod {
 	var object_ref:String; // Empty when limiting draw distance
 	var screen_size:Float; // (0-1) size compared to lod0
 }
 
 typedef TAnimationSetup = {
-// @:structInit class TAnimationSetup {
 	var start_track:String;
 	var frame_time:Float;
 	var names:Array<String>;
-	var starts:Array<Int>;
-	var ends:Array<Int>;
-	var speeds:Array<Float>;
+	var starts:kha.arrays.Uint32Array;
+	var ends:kha.arrays.Uint32Array;
+	var speeds:kha.arrays.Float32Array;
 	var loops:Array<Bool>;
 	var reflects:Array<Bool>;
 	var max_bones:Int;
 }
 
 typedef TConstraint = {
-// @:structInit class TConstraint {
 	var name:String;
 	var type:String;
 	@:optional var target:String;
@@ -413,53 +372,47 @@ typedef TConstraint = {
 }
 
 typedef TParticleReference = {
-// @:structInit class TParticleReference {
 	var name:String;
 	var particle:String;
 	var seed:Int;
 }
 
 typedef TTrait = {
-// @:structInit class TTrait {
 	var type:String;
 	var class_name:String;
-	@:optional var parameters:Array<Dynamic>;
+	@:optional var parameters:Array<String>;
 }
 
 typedef TTransform = {
-// @:structInit class TTransform {
 	@:optional var target:String;
-	var values:Array<kha.FastFloat>;
+	var values:kha.arrays.Float32Array;
 }
 
 typedef TAnimationTransform = {
-// @:structInit class TAnimationTransform {
 	var type:String; // translation, translation_x, ...
 	@:optional var name:String;
-	@:optional var values:Array<Float>; // translation
+	@:optional var values:kha.arrays.Float32Array; // translation
 	@:optional var value:Float; // translation_x
 }
 
 typedef TAnimation = {
-// @:structInit class TAnimation {
 	var tracks:Array<TTrack>;
 	@:optional var begin:Float; // For non-sampled
 	@:optional var end:Float;
 }
 
 typedef TTrack = {
-// @:structInit class TTrack {
 	var target:String;
-	var times:Array<Float>;
-	var values:Array<kha.FastFloat>; // sampled - full matrix transforms, non-sampled - values
+	var times:kha.arrays.Float32Array;
+	var values:kha.arrays.Float32Array; // sampled - full matrix transforms, non-sampled - values
 	@:optional var curve:String; // bezier, tcb, ...
-	@:optional var times_control_plus:Array<Float>; // bezier
-	@:optional var times_control_minus:Array<Float>;
-	@:optional var values_control_plus:Array<Float>;
-	@:optional var values_control_minus:Array<Float>;
-	// @:optional var tension:Array<Float>; // tcb
-	// @:optional var continuity:Array<Float>;
-	// @:optional var bias:Array<Float>;
+	@:optional var times_control_plus:kha.arrays.Float32Array; // bezier
+	@:optional var times_control_minus:kha.arrays.Float32Array;
+	@:optional var values_control_plus:kha.arrays.Float32Array;
+	@:optional var values_control_minus:kha.arrays.Float32Array;
+	// @:optional var tension:kha.arrays.Float32Array; // tcb
+	// @:optional var continuity:kha.arrays.Float32Array;
+	// @:optional var bias:kha.arrays.Float32Array;
 }
 
 // Raw shader data

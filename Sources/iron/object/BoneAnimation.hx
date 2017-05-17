@@ -41,7 +41,7 @@ class BoneAnimation extends Animation {
 			}
 
 			for (b in data.geom.skeletonBones) {
-				this.boneMats.set(b, Mat4.fromArray(b.transform.values));
+				this.boneMats.set(b, Mat4.fromFloat32Array(b.transform.values));
 				this.boneTimeIndices.set(b, 0);
 			}
 		}
@@ -78,7 +78,7 @@ class BoneAnimation extends Animation {
 			var boneAnim = b.animation;
 			if (boneAnim != null) {
 				var track = boneAnim.tracks[0];
-				var m1 = Mat4.fromArray(track.values, frame * 16); // Offset to 4x4 matrix array
+				var m1 = Mat4.fromFloat32Array(track.values, frame * 16); // Offset to 4x4 matrix array
 				boneMats.set(b, m1);
 			}
 		}
@@ -102,7 +102,7 @@ class BoneAnimation extends Animation {
 			var p = bones[i].parent;
 			while (p != null) { // TODO: store absolute transforms per bone
 				var pm = boneMats.get(p);
-				if (pm == null) pm = Mat4.fromArray(p.transform.values);
+				if (pm == null) pm = Mat4.fromFloat32Array(p.transform.values);
 				m.multmat2(pm);
 				p = p.parent;
 			}
@@ -188,7 +188,7 @@ class BoneAnimation extends Animation {
 				var p = bone.parent;
 				while (p != null) { // TODO: store absolute transforms per bone
 					var pm = boneMats.get(p);
-					if (pm == null) pm = Mat4.fromArray(p.transform.values);
+					if (pm == null) pm = Mat4.fromFloat32Array(p.transform.values);
 					bm.multmat2(pm);
 					p = p.parent;
 				}

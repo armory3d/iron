@@ -19,13 +19,9 @@ class Geometry {
 #end
 	public var indexBuffers:Array<IndexBuffer>;
 
-	public var built = false;
+	public var ready = false;
 	public var vertices:kha.arrays.Float32Array;
-#if kha_krom
-	public var indices:Array<Array<Int>>;
-#else
 	public var indices:Array<kha.arrays.Uint32Array>;
-#end
 	public var numTris = 0;
 	public var materialIndices:Array<Int>;
 	public var struct:VertexStructure;
@@ -35,18 +31,18 @@ class Geometry {
 	public var instanced = false;
 	public var instanceCount = 0;
 
-	public var ids:Array<Array<Int>>;
+	public var ids:Array<kha.arrays.Uint32Array>;
 	public var usage:Usage;
 
-	public var positions:Array<Float>; // TODO: no need to store these references
-	public var normals:Array<Float>;
-	public var uvs:Array<Float>;
-	public var uvs1:Array<Float>;
-	public var cols:Array<Float>;
-	public var tangents:Array<Float>;
-	public var bones:Array<Float>;
-	public var weights:Array<Float>;
-	public var instanceOffsets:Array<Float>;
+	public var positions:kha.arrays.Float32Array; // TODO: no need to store these references
+	public var normals:kha.arrays.Float32Array;
+	public var uvs:kha.arrays.Float32Array;
+	public var uvs1:kha.arrays.Float32Array;
+	public var cols:kha.arrays.Float32Array;
+	public var tangents:kha.arrays.Float32Array;
+	public var bones:kha.arrays.Float32Array;
+	public var weights:kha.arrays.Float32Array;
+	public var instanceOffsets:kha.arrays.Float32Array;
 	
 	public var offsetVecs:Array<Vec4>; // Used for sorting and culling
 	public var aabb:Vec4 = null;
@@ -54,20 +50,25 @@ class Geometry {
 	// Skinned
 	public var skinTransform:Mat4 = null;
 	public var skinTransformI:Mat4 = null;
-	public var skinBoneCounts:Array<Int> = null;
-	public var skinBoneIndices:Array<Int> = null;
-	public var skinBoneWeights:Array<Float> = null;
+	public var skinBoneCounts:kha.arrays.Uint32Array = null;
+	public var skinBoneIndices:kha.arrays.Uint32Array = null;
+	public var skinBoneWeights:kha.arrays.Float32Array = null;
 
 	public var skeletonBoneRefs:Array<String> = null;
 	public var skeletonBones:Array<TObj> = null;
 	public var skeletonTransforms:Array<Mat4> = null;
 	public var skeletonTransformsI:Array<Mat4> = null;
 
-	public function new(indices:Array<Array<Int>>, materialIndices:Array<Int>,
-						positions:Array<Float>, normals:Array<Float>, uvs:Array<Float>, uvs1:Array<Float>, cols:Array<Float>,
-						tangents:Array<Float> = null,
-						bones:Array<Float> = null, weights:Array<Float> = null,
-						usage:Usage = null, instanceOffsets:Array<Float> = null) {
+	public function new(indices:Array<kha.arrays.Uint32Array>, materialIndices:Array<Int>,
+						positions:kha.arrays.Float32Array,
+						normals:kha.arrays.Float32Array,
+						uvs:kha.arrays.Float32Array,
+						uvs1:kha.arrays.Float32Array,
+						cols:kha.arrays.Float32Array,
+						tangents:kha.arrays.Float32Array = null,
+						bones:kha.arrays.Float32Array = null,
+						weights:kha.arrays.Float32Array = null,
+						usage:Usage = null, instanceOffsets:kha.arrays.Float32Array = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
 
@@ -113,7 +114,7 @@ class Geometry {
 		return structure;
 	}
 
-	public function setupInstanced(offsets:Array<Float>, usage:Usage) {
+	public function setupInstanced(offsets:kha.arrays.Float32Array, usage:Usage) {
 		// Store vecs for sorting and culling
 		offsetVecs = [];
 		for (i in 0...Std.int(offsets.length / 3)) {
@@ -151,7 +152,7 @@ class Geometry {
 			return a.w > b.w ? 1 : -1;
 		});
 
-		var vb = instancedVertexBuffers[1];
+		var vb = instancedVertexBuffers[instancedVertexBuffers.length - 1];
 		var vertices = vb.lock();
 		for (i in 0...Std.int(vertices.length / 3)) {
 			vertices.set(i * 3, offsetVecs[i].x);
@@ -166,14 +167,14 @@ class Geometry {
 	}
 
 	static function buildVertices(vertices:kha.arrays.Float32Array,
-								  pa:Array<Float> = null,
-								  na:Array<Float> = null,
-								  uva:Array<Float> = null,
-								  uva1:Array<Float> = null,
-								  ca:Array<Float> = null,
-								  tanga:Array<Float> = null,
-								  bonea:Array<Float> = null,
-								  weighta:Array<Float> = null,
+								  pa:kha.arrays.Float32Array = null,
+								  na:kha.arrays.Float32Array = null,
+								  uva:kha.arrays.Float32Array = null,
+								  uva1:kha.arrays.Float32Array = null,
+								  ca:kha.arrays.Float32Array = null,
+								  tanga:kha.arrays.Float32Array = null,
+								  bonea:kha.arrays.Float32Array = null,
+								  weighta:kha.arrays.Float32Array = null,
 								  offset = 0) {
 
 		var numVertices = Std.int(pa.length / 3);
@@ -236,7 +237,7 @@ class Geometry {
 	}
 
 	public function build() {
-		if (built) return;
+		if (ready) return;
 
 #if arm_deinterleaved
 		vertexBuffers = [];
@@ -252,7 +253,13 @@ class Geometry {
 
 		vertexBuffer = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
 		vertices = vertexBuffer.lock();
+
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights);
+		
+		// if (_vb != null) {
+			// vertexBuffer._data = _vb;
+		// }
+
 		vertexBuffer.unlock();
 
 		// For depth passes, pos=3, bone=4, weight=4
@@ -269,10 +276,15 @@ class Geometry {
 		indexBuffers = [];
 		indices = [];
 		for (id in ids) {
+			// TODO: duplicate storage allocated in IB
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
-			var indicesA = indexBuffer.lock();
-			for (i in 0...indicesA.length) indicesA[i] = id[i];
+			
+			indexBuffer._data = id;
+			var indicesA = id;
+			// var indicesA = indexBuffer.lock();
+			// for (i in 0...indicesA.length) indicesA[i] = id[i];
+			
 			indexBuffer.unlock();
 
 			indexBuffers.push(indexBuffer);
@@ -282,19 +294,23 @@ class Geometry {
 		// Instanced
 		if (instanceOffsets != null) setupInstanced(instanceOffsets, usage);
 
-		built = true;
+		ready = true;
 	}
 
 #if arm_deinterleaved
-	function makeDeinterleavedVB(data:Array<Float>, name:String, structLength:Int) {
+	function makeDeinterleavedVB(data:kha.arrays.Float32Array, name:String, structLength:Int) {
 		var struct = new VertexStructure();
 		if (structLength == 2) struct.add(name, VertexData.Float2);
 		else if (structLength == 3) struct.add(name, VertexData.Float3);
 		else if (structLength == 4) struct.add(name, VertexData.Float4);
 
+		// TODO: duplicate storage allocated in VB
 		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
-		var vertices = vertexBuffer.lock();
-		for (i in 0...vertices.length) vertices.set(i, data[i]);
+		
+		vertexBuffer._data = data;
+		// var vertices = vertexBuffer.lock();
+		// for (i in 0...vertices.length) vertices.set(i, data[i]);
+		
 		vertexBuffer.unlock();
 		return vertexBuffer;
 	}
@@ -318,12 +334,12 @@ class Geometry {
 		}
 	}
 
-	public function initSkeletonTransforms(transforms:Array<Array<kha.FastFloat>>) {
+	public function initSkeletonTransforms(transforms:Array<kha.arrays.Float32Array>) {
 		skeletonTransforms = [];
 		skeletonTransformsI = [];
 
 		for (t in transforms) {
-			var m = Mat4.fromArray(t);
+			var m = Mat4.fromFloat32Array(t);
 			skeletonTransforms.push(m);
 			
 			var mi = Mat4.identity();
@@ -332,8 +348,8 @@ class Geometry {
 		}
 	}
 
-	public function initSkinTransform(t:Array<kha.FastFloat>) {
-		skinTransform = Mat4.fromArray(t);
+	public function initSkinTransform(t:kha.arrays.Float32Array) {
+		skinTransform = Mat4.fromFloat32Array(t);
 		skinTransformI = Mat4.identity();
 		skinTransformI.getInverse(skinTransform);
 	}

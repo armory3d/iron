@@ -40,11 +40,15 @@ class ParticleSystem {
 			}
 
 			// Make mesh data instanced
-			var instancedData:Array<Float> = []; // TODO: use Float32Array directly
+			var instancedData = new kha.arrays.Float32Array(particles.length * 3);
+			var i = 0;
 			for (p in particles) {
-				instancedData.push(p.offset.x);
-				instancedData.push(p.offset.y);
-				instancedData.push(p.offset.z);
+				instancedData.set(i, p.offset.x);
+				i++;
+				instancedData.set(i, p.offset.y);
+				i++;
+				instancedData.set(i, p.offset.z);
+				i++;
 			}
 			object.data.geom.setupInstanced(instancedData, Usage.DynamicUsage);
 
@@ -55,7 +59,7 @@ class ParticleSystem {
 	public function update() {
 		if (!ready) return;
 
-		for (p in particles) { // TODO: Sort Float32Array directly
+		for (p in particles) {
 			p.lifetime += Time.delta;
 
 			if (p.lifetime > data.raw.lifetime) {

@@ -165,7 +165,7 @@ class MeshObject extends Object {
 
 	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 
-		if (data == null) return; // Data not yet streamed
+		if (data == null || !data.geom.ready) return; // Data not yet streamed
 		if (!visible) return; // Skip render if object is hidden
 		if (cullMaterial(context, camera)) return;
 		if (cullMesh(context, camera, lamp)) return;

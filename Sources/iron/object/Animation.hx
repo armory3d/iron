@@ -37,7 +37,7 @@ class Animation {
 		player.animTime += delta * player.speed * player.dir;
 	}	
 
-	inline function checkTimeIndex(player:Player, timeValues:Array<Float>):Bool {
+	inline function checkTimeIndex(player:Player, timeValues:kha.arrays.Float32Array):Bool {
 		if (player.dir > 0) {
 			return ((player.timeIndex + 1) < timeValues.length && player.animTime > timeValues[player.timeIndex + 1]);
 		}
@@ -105,8 +105,8 @@ class Animation {
 		var t2 = track.times[ti + 1 * player.dir];
 		var s = (t - t1) / (t2 - t1); // Linear
 
-		m1.set(track.values, ti * 16); // Offset to 4x4 matrix array
-		m2.set(track.values, (ti + 1 * player.dir) * 16);
+		m1.setF32(track.values, ti * 16); // Offset to 4x4 matrix array
+		m2.setF32(track.values, (ti + 1 * player.dir) * 16);
 
 		// Decompose
 		m1.decompose(vpos, q1, vscl);

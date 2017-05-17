@@ -438,7 +438,7 @@ class Scene {
 	}
 
 	static function generateTranform(object:TObj, transform:Transform) {
-		transform.matrix = Mat4.fromArray(object.transform.values);
+		transform.matrix = Mat4.fromFloat32Array(object.transform.values);
 		transform.matrix.decompose(transform.loc, transform.rot, transform.scale);
 		// Whether to apply parent matrix
 		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;
@@ -472,7 +472,11 @@ class Scene {
 			if (t.type == "Script") {
 				// Assign arguments if any
 				var args:Array<Dynamic> = [];
-				if (t.parameters != null) args = t.parameters;
+				if (t.parameters != null) {
+					for (param in t.parameters) {
+						args.push(parseArg(param));
+					}
+				}
 				var traitInst = createTraitClassInstance(t.class_name, args);
 				if (traitInst == null) {
 					trace("Error: Trait '" + t.class_name + "' referenced in object '" + object.name + "' not found");
@@ -480,6 +484,30 @@ class Scene {
 				}
 				object.addTrait(traitInst);
 			}
+		}
+	}
+
+ 	static function parseArg(str:String):Dynamic {
+		if (str == "true") return true;
+		else if (str == "false") return false;
+		else if (str.charAt(0) == "'") return StringTools.replace(str, "'", "");
+		else if (str.charAt(0) == "[") { // Array
+			// Remove [] and recursively parse into array,
+			// then append into parent
+			str = StringTools.replace(str, "[", "");
+			str = StringTools.replace(str, "]", "");
+			str = StringTools.replace(str, " ", "");
+			var ar:Dynamic = [];
+			var s = str.split(",");
+			for (childStr in s) {
+				ar.push(parseArg(childStr));
+			}
+			return ar;
+		}
+		else {
+			var f = Std.parseFloat(str);
+			var i = Std.parseInt(str);
+			return f == i ? i : f;
 		}
 	}
 
