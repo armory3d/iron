@@ -50,7 +50,7 @@ class SceneStream {
 	}
 
 	function setup(camera:CameraObject) {
-		loadDistance = Std.int(camera.data.raw.far_plane + 10);
+		loadDistance = Std.int(camera.data.raw.far_plane * 1.1);
 		unloadDistance = Std.int(camera.data.raw.far_plane * 1.5);
 	}
 

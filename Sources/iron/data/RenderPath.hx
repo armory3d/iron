@@ -91,7 +91,11 @@ class RenderPath {
 
 	static var voxelized = 0;
 	public static function voxelize(rp:RenderPath) {
+		#if arm_voxelgi_revox
+		return true;
+		#else
 		return ++voxelized > 2 ? false : true;
+		#end
 	}
 
 	public function new(camera:CameraObject) {

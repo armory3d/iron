@@ -20,11 +20,12 @@
 // THE SOFTWARE.
 package iron.system;
 
-import haxe.Int64;
+// import haxe.Int64;
 import haxe.io.Bytes;
 import haxe.io.BytesInput;
 import haxe.io.Eof;
 
+//@:expose
 class ArmPack {
 
 	public static inline function decode(b:Bytes):Dynamic {
@@ -83,11 +84,11 @@ class ArmPack {
 				case 0xdf: return readMap(i, i.readInt32());
 
 				default: {
-					if (b < 0x80) {	return b; } // positive fix num
-					else if (b < 0x90) { return readMap(i, (0xf & b)); } // fix map
-					else if (b < 0xa0) { return readArray(i, (0xf & b)); } // fix array
-					else if (b < 0xc0) { return i.readString(0x1f & b); } // fix string
-					else if (b > 0xdf) { return 0xffffff00 | b; } // negative fix num
+					if (b < 0x80) return b; // positive fix num
+					else if (b < 0x90) return readMap(i, (0xf & b)); // fix map
+					else if (b < 0xa0) return readArray(i, (0xf & b)); // fix array
+					else if (b < 0xc0) return i.readString(0x1f & b); // fix string
+					else if (b > 0xdf) return 0xffffff00 | b; // negative fix num
 				}
 			}
 		}
@@ -96,7 +97,6 @@ class ArmPack {
 	}
 
 	static function readArray(i:BytesInput, length:Int):Dynamic {
-
 		var b = i.readByte();
 		i.position--;
 
@@ -104,26 +104,22 @@ class ArmPack {
 		if (b == 0xca) {
 			i.position++;
 			var a = new kha.arrays.Float32Array(length);
-			for (x in 0...length) {
-				a.set(x, i.readFloat());
-			}
+			// var a = new js.html.Float32Array(length);
+			for (x in 0...length) a[x] = i.readFloat();
 			return a;
 		}
 		// Typed int32
 		else if (b == 0xd2) {
 			i.position++;
 			var a = new kha.arrays.Uint32Array(length);
-			for (x in 0...length) {
-				a.set(x, i.readInt32());
-			}
+			// var a = new js.html.Uint32Array(length);
+			for (x in 0...length) a[x] = i.readInt32();
 			return a;
 		}
-		// Dynamic Type-value
+		// Dynamic type-value
 		else {
-			var a = [];
-			for(x in 0...length) {
-				a.push(read(i));
-			}
+			var a:Array<Dynamic> = [];
+			for(x in 0...length) a.push(read(i));
 			return a;
 		}
 	}

@@ -255,10 +255,6 @@ class Geometry {
 		vertices = vertexBuffer.lock();
 
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights);
-		
-		// if (_vb != null) {
-			// vertexBuffer._data = _vb;
-		// }
 
 		vertexBuffer.unlock();
 
