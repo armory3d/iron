@@ -371,7 +371,7 @@ class RenderPath {
 	}
 
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null, face = -1) {
-		face >= 0 ? g.beginFace(face) : g.begin(additionalRenderTargets);
+		face >= 0 ? g.beginFace(5 - face) : g.begin(additionalRenderTargets); // TODO: draw first cube-face last, otherwise some opengl drivers expose glitch
 	}
 
 	inline function end(g:Graphics) {
@@ -470,7 +470,7 @@ class RenderPath {
 			if (lamp == null || !lamp.data.raw.cast_shadow) return;
 		}
 		// Single face attached
-		if (currentRenderTargetFace >= 0 && lamp != null) lamp.setCubeFace(currentRenderTargetFace, camera);
+		if (currentRenderTargetFace >= 0 && lamp != null) lamp.setCubeFace(5 - currentRenderTargetFace, camera); // TODO: draw first cube-face last, otherwise some opengl drivers expose glitch
 
 		var g = currentRenderTarget;
 #if arm_batch
