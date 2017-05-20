@@ -164,6 +164,7 @@ typedef TShaderContext = {
 	@:optional var color_write_green:Null<Bool>;
 	@:optional var color_write_blue:Null<Bool>;
 	@:optional var color_write_alpha:Null<Bool>;
+	@:optional var conservative_raster:Null<Bool>;
 	@:optional var shader_from_source:Null<Bool>; // Build shader at runtime using fromSource()
 	var vertex_shader:String;
 	var fragment_shader:String;

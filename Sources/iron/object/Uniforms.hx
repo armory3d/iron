@@ -403,6 +403,7 @@ class Uniforms {
 		}
 		else if (c.type == "vec4") {
 			var v:Vec4 = null;
+			helpVec.set(0, 0, 0);
 			if (c.link == "_input") {
 				helpVec.set(iron.system.Input.getMouse().x / iron.App.w(), iron.system.Input.getMouse().y / iron.App.h(), iron.system.Input.getMouse().down() ? 1.0 : 0.0, 0.0);
 				v = helpVec;
@@ -420,6 +421,7 @@ class Uniforms {
 		}
 		else if (c.type == "vec3") {
 			var v:Vec4 = null;
+			helpVec.set(0, 0, 0);
 			if (c.link == "_lampPosition") {
 				if (lamp != null) helpVec.set(lamp.transform.absx(), lamp.transform.absy(), lamp.transform.absz());
 				v = helpVec;

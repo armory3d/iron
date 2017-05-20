@@ -190,6 +190,9 @@ class ShaderContext {
 		if (raw.color_write_blue != null) pipeState.colorWriteMaskBlue = raw.color_write_blue;
 		if (raw.color_write_alpha != null) pipeState.colorWriteMaskAlpha = raw.color_write_alpha;
 
+		// Conservative raster for voxelization
+		if (raw.conservative_raster != null) pipeState.conservativeRasterization = raw.conservative_raster;
+
 		// Shaders
 		if (raw.shader_from_source) {
 			pipeState.fragmentShader = kha.graphics4.FragmentShader.fromSource(raw.fragment_shader);
