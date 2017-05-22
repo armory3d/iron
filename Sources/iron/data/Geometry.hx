@@ -272,6 +272,7 @@ class Geometry {
 		indexBuffers = [];
 		indices = [];
 		for (id in ids) {
+			if (id.length == 0) continue; // Material has no faces assigned, discard
 			// TODO: duplicate storage allocated in IB
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
