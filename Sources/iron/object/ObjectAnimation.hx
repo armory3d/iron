@@ -104,10 +104,10 @@ class ObjectAnimation extends Animation {
 
 		if (player.dirty) {
 			player.dirty = false;
-			player.animTime = player.current.start * player.ft;
+			player.animTime = player.current.start * player.frameTime;
 			player.timeIndex = 0;
 			var track = anim.tracks[0];
-			while (player.animTime > track.times[player.timeIndex] + player.ft) {
+			while (player.animTime > track.times[player.timeIndex] + player.frameTime) {
 				player.timeIndex++;
 			}
 		}
@@ -122,8 +122,8 @@ class ObjectAnimation extends Animation {
 
 			// End of track
 			if (player.animTime > total || player.animTime < 0 ||
-				(player.animTime > player.current.end * player.ft - player.ft && player.dir > 0) ||
-				(player.animTime < player.current.start * player.ft + player.ft && player.dir < 0)
+				(player.animTime > player.current.end * player.frameTime - player.frameTime && player.dir > 0) ||
+				(player.animTime < player.current.start * player.frameTime + player.frameTime && player.dir < 0)
 				) {
 
 				if (!player.current.loop) {

@@ -160,10 +160,10 @@ class Player {
 	public var speed:Float;
 	public var dir:Int;
 
-	public var ft:Float;
+	public var frameTime:Float;
 
 	public function new(setup:TAnimationSetup) {
-		ft = setup.frame_time;
+		frameTime = setup.frame_time;
 		for (i in 0...setup.names.length) {
 			addTrack(setup.names[i], setup.starts[i], setup.ends[i], setup.speeds[i], setup.loops[i], setup.reflects[i]);
 		}
