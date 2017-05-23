@@ -728,6 +728,7 @@ class Uniforms {
 		case "vec2": g.setFloat2(location, matc.vec2[0], matc.vec2[1]);
 		case "float": g.setFloat(location, matc.float);
 		case "bool": g.setBool(location, matc.bool);
+		case "int": g.setInt(location, matc.int);
 		}
 	}
 }

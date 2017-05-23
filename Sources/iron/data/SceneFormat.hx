@@ -115,6 +115,7 @@ typedef TBindConstant = {
 	@:optional var vec2:kha.arrays.Float32Array;
 	@:optional var float:Float;
 	@:optional var bool:Bool;
+	@:optional var int:Int;
 }
 
 typedef TBindTexture = {
@@ -181,8 +182,10 @@ typedef TShaderConstant = {
 	@:optional var link:String;
 	@:optional var vec4:kha.arrays.Float32Array;
 	@:optional var vec3:kha.arrays.Float32Array;
+	@:optional var vec2:kha.arrays.Float32Array;
 	@:optional var float:Float;
 	@:optional var bool:Bool;
+	@:optional var int:Int;
 }
 
 typedef TTextureUnit = {
