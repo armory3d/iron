@@ -38,22 +38,18 @@ class ShaderData extends Data {
 		parseVertexStructure();
 
 		for (c in raw.contexts) {
-			// Render path might not use all shaders contexts, skip context if shader is not found
-			var fragName = StringTools.replace(c.fragment_shader, ".", "_");
-			if (Reflect.field(kha.Shaders, fragName) == null) {
-				continue;
-			}
-
 			var struct = structure;
 			var inst = instancing;
 			if (c.name == "rect") {
 				struct = getStructureRect();
 				inst = false;
 			}
-			contexts.push(new ShaderContext(c, struct, inst, overrideContext));
-		}
 
-		done(this);
+			new ShaderContext(c, struct, inst, overrideContext, function(con:ShaderContext) {
+				contexts.push(con);
+				if (contexts.length == raw.contexts.length) done(this);
+			});
+		}
 	}
 
 	static function getStructureRect() {
@@ -119,15 +115,15 @@ class ShaderContext {
 	var inst:Bool;
 	var overrideContext:TShaderOverride;
 
-	public function new(raw:TShaderContext, structure:VertexStructure, inst = false, overrideContext:TShaderOverride = null) {
+	public function new(raw:TShaderContext, structure:VertexStructure, inst:Bool, overrideContext:TShaderOverride, done:ShaderContext->Void) {
 		this.raw = raw;
 		this.structure = structure;
 		this.inst = inst;
 		this.overrideContext = overrideContext;
-		compile();
+		compile(done);
 	}
 
-	public function compile() {
+	public function compile(done:ShaderContext->Void) {
 		if (pipeState != null) pipeState.delete();
 		pipeState = new PipelineState();
 		constants = [];
@@ -206,8 +202,50 @@ class ShaderContext {
 			// if (raw.tesseval_shader != null) {
 				// pipeState.tessellationEvaluationShader = kha.graphics4.TessellationEvaluationShader.fromSource(raw.tesseval_shader);
 			// }
+			finishCompile(done);
 		}
 		else {
+
+			#if arm_debug
+			// Load shaders manually
+
+			var shadersLoaded = 0;
+			var numShaders = 2;
+			if (raw.geometry_shader != null) numShaders++;
+			if (raw.tesscontrol_shader != null) numShaders++;
+			if (raw.tesseval_shader != null) numShaders++;
+
+			function loadShader(file:String, type:Int) {
+
+				#if kha_webgl
+				var ext = kha.SystemImpl.gl2 ? '-webgl2' : '';
+				var ar = file.split('.');
+				file = ar[0] + ext + '.' + ar[1];
+				var path = '../html5-resources/' + file + '.essl';
+				#else
+				// TODO: assuming krom & glsl
+				var path = '../krom-resources/' + file + '.glsl';
+				#end
+				Data.getBlob(path, function(b:kha.Blob) {
+					if (type == 0) pipeState.vertexShader = new kha.graphics4.VertexShader([b], [file]);
+					else if (type == 1) pipeState.fragmentShader = new kha.graphics4.FragmentShader([b], [file]);
+					#if !kha_webgl
+					else if (type == 2) pipeState.geometryShader = new kha.graphics4.GeometryShader([b], [file]);
+					else if (type == 3) pipeState.tessellationControlShader = new kha.graphics4.TessellationControlShader([b], [file]);
+					else if (type == 4) pipeState.tessellationEvaluationShader = new kha.graphics4.TessellationEvaluationShader([b], [file]);
+					#end
+					shadersLoaded++;
+					if (shadersLoaded >= numShaders) finishCompile(done);
+				});
+			}
+			loadShader(raw.vertex_shader, 0);
+			loadShader(raw.fragment_shader, 1);
+			if (raw.geometry_shader != null) loadShader(raw.geometry_shader, 2);
+			if (raw.tesscontrol_shader != null) loadShader(raw.tesscontrol_shader, 3);
+			if (raw.tesseval_shader != null) loadShader(raw.tesseval_shader, 4);
+
+			#else
+
 			pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(raw.fragment_shader, ".", "_"));
 			pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(raw.vertex_shader, ".", "_"));
 
@@ -220,8 +258,13 @@ class ShaderContext {
 			if (raw.tesseval_shader != null) {
 				pipeState.tessellationEvaluationShader = Reflect.field(kha.Shaders, StringTools.replace(raw.tesseval_shader, ".", "_"));
 			}
-		}
+			finishCompile(done);
 
+			#end
+		}
+	}
+
+	function finishCompile(done:ShaderContext->Void) {
 		// Override specified values
 		if (overrideContext != null) {
 			if (overrideContext.cull_mode != null) {
@@ -238,6 +281,8 @@ class ShaderContext {
 		if (raw.texture_units != null) {
 			for (tu in raw.texture_units) addTexture(tu);
 		}
+
+		done(this);
 	}
 
 	inline function deleteShader(shader:Dynamic) {
