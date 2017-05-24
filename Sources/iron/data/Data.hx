@@ -64,7 +64,7 @@ class Data {
 		cachedParticles = new Map();
 		cachedWorlds = new Map();
 		// cachedGreasePencils = new Map();
-		// cachedShaders = new Map(); // Slow
+		cachedShaders = new Map(); // Slow
 		cachedBlobs = new Map();
 	}
 

@@ -95,15 +95,18 @@ class Scene {
 
 	// Reload scene for now
 	public static function patch() {
+		#if arm_debug
 		var cameraTransform = Scene.active.camera.transform;
 		Data.clearSceneData();
 		Scene.setActive(Scene.active.raw.name, function(o:Object) {
 			Scene.active.camera.transform = cameraTransform;
+			Scene.active.root.addTrait(new armory.trait.internal.SpaceArmory());
 		});
+		#end
 	}
 
 	public function remove() {
-		meshBatch.remove();
+		if (meshBatch != null) meshBatch.remove();
 		for (o in meshes) o.remove();
 		for (o in lamps) o.remove();
 		for (o in cameras) o.remove();
