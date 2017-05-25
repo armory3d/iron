@@ -14,8 +14,6 @@ class Geometry {
 	public var vertexBuffers:Array<VertexBuffer>;
 #else
 	public var vertexBuffer:VertexBuffer;
-	// public var vertexBufferDepth:VertexBuffer; // Depth pass - pos, bone, weight
-	// public var structLengthDepth:Int;
 #end
 	public var indexBuffers:Array<IndexBuffer>;
 
@@ -27,7 +25,7 @@ class Geometry {
 	public var struct:VertexStructure;
 	public var structLength:Int;
 
-	public var instancedVertexBuffers:Array<VertexBuffer>;
+	public var instancedVB:VertexBuffer = null;
 	public var instanced = false;
 	public var instanceCount = 0;
 
@@ -94,7 +92,7 @@ class Geometry {
 
 	public function delete() {
 #if arm_deinterleaved
-		for (buf in vertexBuffers) buf.delete();
+		for (buf in vertexBuffers) if (buf != null) buf.delete();
 #else
 		vertexBuffer.delete();
 #end
@@ -127,18 +125,10 @@ class Geometry {
 		var structure = new VertexStructure();
 		structure.add("off", kha.graphics4.VertexData.Float3);
 
-		var instVB = new VertexBuffer(instanceCount, structure, usage, 1);
-		var vertices = instVB.lock();
+		instancedVB = new VertexBuffer(instanceCount, structure, usage, 1);
+		var vertices = instancedVB.lock();
 		for (i in 0...vertices.length) vertices.set(i, offsets[i]);
-		instVB.unlock();
-
-#if arm_deinterleaved
-		instancedVertexBuffers = [];
-		for (vb in vertexBuffers) instancedVertexBuffers.push(vb);
-		instancedVertexBuffers.push(instVB);
-#else
-		instancedVertexBuffers = [vertexBuffer, instVB];
-#end
+		instancedVB.unlock();
 	}
 
 	public function sortInstanced(camX:Float, camY:Float, camZ:Float) {
@@ -152,7 +142,7 @@ class Geometry {
 			return a.w > b.w ? 1 : -1;
 		});
 
-		var vb = instancedVertexBuffers[instancedVertexBuffers.length - 1];
+		var vb = instancedVB;
 		var vertices = vb.lock();
 		for (i in 0...Std.int(vertices.length / 3)) {
 			vertices.set(i * 3, offsetVecs[i].x);
@@ -236,37 +226,43 @@ class Geometry {
 		return res;
 	}
 
+#if arm_deinterleaved
+	public function getVertexBuffers(vertex_structure:Array<TVertexData>):Array<VertexBuffer> {
+		var vbs = [];
+		for (e in vertex_structure) {
+			if (e.name == 'pos') { if (vertexBuffers[0] != null) vbs.push(vertexBuffers[0]); }
+			else if (e.name == 'nor') { if (vertexBuffers[1] != null) vbs.push(vertexBuffers[1]); }
+			else if (e.name == 'tex') { if (vertexBuffers[2] != null) vbs.push(vertexBuffers[2]); }
+			else if (e.name == 'tex1') { if (vertexBuffers[3] != null) vbs.push(vertexBuffers[3]); }
+			else if (e.name == 'col') { if (vertexBuffers[4] != null) vbs.push(vertexBuffers[4]); }
+			else if (e.name == 'tang') { if (vertexBuffers[5] != null) vbs.push(vertexBuffers[5]); }
+			else if (e.name == 'bone') { if (vertexBuffers[6] != null) vbs.push(vertexBuffers[6]); }
+			else if (e.name == 'weight') { if (vertexBuffers[7] != null) vbs.push(vertexBuffers[7]); }
+			else if (e.name == 'off') { if (instancedVB != null) vbs.push(instancedVB); }
+		}
+		return vbs;
+	}
+#end
+
 	public function build() {
 		if (ready) return;
 
 #if arm_deinterleaved
-		vertexBuffers = [];
-		vertexBuffers.push(makeDeinterleavedVB(positions, "pos", 3));
-		if (normals != null) vertexBuffers.push(makeDeinterleavedVB(normals, "nor", 3));
-		if (uvs != null) vertexBuffers.push(makeDeinterleavedVB(uvs, "tex", 2));
-		if (uvs1 != null) vertexBuffers.push(makeDeinterleavedVB(uvs1, "tex1", 2));
-		if (cols != null) vertexBuffers.push(makeDeinterleavedVB(cols, "col", 3));
-		if (tangents != null) vertexBuffers.push(makeDeinterleavedVB(tangents, "tang", 3));
-		if (bones != null) vertexBuffers.push(makeDeinterleavedVB(bones, "bone", 4));
-		if (weights != null) vertexBuffers.push(makeDeinterleavedVB(weights, "weight", 4));
+		vertexBuffers = [null, null, null, null, null, null, null, null];
+		vertexBuffers[0] = makeDeinterleavedVB(positions, "pos", 3);
+		if (normals != null) vertexBuffers[1] = makeDeinterleavedVB(normals, "nor", 3);
+		if (uvs != null) vertexBuffers[2] = makeDeinterleavedVB(uvs, "tex", 2);
+		if (uvs1 != null) vertexBuffers[3] = makeDeinterleavedVB(uvs1, "tex1", 2);
+		if (cols != null) vertexBuffers[4] = makeDeinterleavedVB(cols, "col", 3);
+		if (tangents != null) vertexBuffers[5] = makeDeinterleavedVB(tangents, "tang", 3);
+		if (bones != null) vertexBuffers[6] = makeDeinterleavedVB(bones, "bone", 4);
+		if (weights != null) vertexBuffers[7] = makeDeinterleavedVB(weights, "weight", 4);
 #else
 
 		vertexBuffer = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
 		vertices = vertexBuffer.lock();
-
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights);
-
 		vertexBuffer.unlock();
-
-		// For depth passes, pos=3, bone=4, weight=4
-	// #if (!arm_no_shadows)
-		// var structDepth = getVertexStructure(positions != null, null, null, null, null, null, bones != null, weights != null);
-		// structLengthDepth = Std.int(struct.byteSize() / 4);
-		// vertexBufferDepth = new VertexBuffer(Std.int(positions.length / 3), structDepth, usage);
-		// var verticesDepth = vertexBufferDepth.lock();
-		// buildVertices(verticesDepth, positions, null, null, null, null, null, bones, weights);
-		// vertexBufferDepth.unlock();
-	// #end
 #end
 
 		indexBuffers = [];

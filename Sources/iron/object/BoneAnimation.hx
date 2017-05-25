@@ -151,8 +151,6 @@ class BoneAnimation extends Animation {
 #else
 		var v = data.geom.vertexBuffer.lock();
 		var l = data.geom.structLength;
-		// var vdepth = data.geom.vertexBufferDepth.lock();
-		// var ldepth = data.geom.structLengthDepth;
 #end
 
 		var index = 0;
@@ -222,16 +220,12 @@ class BoneAnimation extends Animation {
 			vnor.set(i * l + 1, nor.y);
 			vnor.set(i * l + 2, nor.z);
 #else
-			// TODO: use correct vertex structure
 			v.set(i * l, pos.x);
 			v.set(i * l + 1, pos.y);
 			v.set(i * l + 2, pos.z);
 			v.set(i * l + 3, nor.x);
 			v.set(i * l + 4, nor.y);
 			v.set(i * l + 5, nor.z);
-			// vdepth.set(i * ldepth, pos.x);
-			// vdepth.set(i * ldepth + 1, pos.y);
-			// vdepth.set(i * ldepth + 2, pos.z);
 #end
 		}
 
@@ -240,7 +234,6 @@ class BoneAnimation extends Animation {
 		data.geom.vertexBuffers[1].unlock();
 #else
 		data.geom.vertexBuffer.unlock();
-		// data.geom.vertexBufferDepth.unlock();
 #end
 	}
 }

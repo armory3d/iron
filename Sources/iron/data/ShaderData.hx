@@ -20,13 +20,6 @@ class ShaderData extends Data {
 	public var name:String;
 	public var raw:TShaderData;
 
-	public var structure:VertexStructure;
-	public var structureLength = 0;
-	var instancing = false;
-
-	static var structureRect:VertexStructure = null; // For screen-space rectangle
-	static var structureRectLength = 0;
-
 	public var contexts:Array<ShaderContext> = [];
 
 	public function new(raw:TShaderData, overrideContext:TShaderOverride, done:ShaderData->Void) {
@@ -35,30 +28,18 @@ class ShaderData extends Data {
 		this.raw = raw;
 		this.name = raw.name;
 
-		parseVertexStructure();
+		for (c in raw.contexts) contexts.push(null);
+		var contextsLoaded = 0;
 
-		for (c in raw.contexts) {
-			var struct = structure;
-			var inst = instancing;
-			if (c.name == "rect") {
-				struct = getStructureRect();
-				inst = false;
-			}
+		for (i in 0...raw.contexts.length) {
+			var c = raw.contexts[i];
 
-			new ShaderContext(c, struct, inst, overrideContext, function(con:ShaderContext) {
-				contexts.push(con);
-				if (contexts.length == raw.contexts.length) done(this);
+			new ShaderContext(c, overrideContext, function(con:ShaderContext) {
+				contexts[i] = con;
+				contextsLoaded++;
+				if (contextsLoaded == raw.contexts.length) done(this);
 			});
 		}
-	}
-
-	static function getStructureRect() {
-		if (structureRect == null) {
-			structureRect = new VertexStructure();
-			structureRect.add("pos", VertexData.Float2);
-			structureRectLength += 2;
-		}
-		return structureRect;
 	}
 
 	public static function parse(file:String, name:String, overrideContext:TShaderOverride, done:ShaderData->Void) {
@@ -76,30 +57,8 @@ class ShaderData extends Data {
 		for (c in contexts) c.delete();
 	}
 
-	function sizeToVD(size:Int):VertexData {
-		if (size == 1) return VertexData.Float1;
-		else if (size == 2) return VertexData.Float2;
-		else if (size == 3) return VertexData.Float3;
-		else if (size == 4) return VertexData.Float4;
-		return null;
-	}
-	function parseVertexStructure() {
-		structure = new VertexStructure();
-		for (vs in raw.vertex_structure) {
-			if (vs.name == 'off') {
-				instancing = true;
-				continue;
-			}
-
-			structure.add(vs.name, sizeToVD(vs.size));
-			structureLength += vs.size;
-		}
-	}
-
 	public function getContext(name:String):ShaderContext {
-		for (c in contexts) {
-			if (c.raw.name.substr(0, name.length) == name) return c;
-		}
+		for (c in contexts) if (c.raw.name == name) return c;
 		return null;
 	}
 }
@@ -112,14 +71,22 @@ class ShaderContext {
 	public var textureUnits:Array<TextureUnit>;
 
 	var structure:VertexStructure;
-	var inst:Bool;
+	var instancing = false;
 	var overrideContext:TShaderOverride;
+	static var structureRect:VertexStructure = null; // For screen-space rectangle
 
-	public function new(raw:TShaderContext, structure:VertexStructure, inst:Bool, overrideContext:TShaderOverride, done:ShaderContext->Void) {
+	public function new(raw:TShaderContext, overrideContext:TShaderOverride, done:ShaderContext->Void) {
 		this.raw = raw;
-		this.structure = structure;
-		this.inst = inst;
 		this.overrideContext = overrideContext;
+
+		if (raw.name == "rect") {
+			structure = getStructureRect();
+			instancing = false;
+		}
+		else {
+			parseVertexStructure();
+		}
+
 		compile(done);
 	}
 
@@ -130,7 +97,7 @@ class ShaderContext {
 		textureUnits = [];
 
 		// Instancing
-		if (inst) {
+		if (instancing) {
 			var instStruct = new VertexStructure();
 			instStruct.add("off", VertexData.Float3);
 			pipeState.inputLayout = [structure, instStruct];
@@ -283,6 +250,34 @@ class ShaderContext {
 		}
 
 		done(this);
+	}
+
+	function sizeToVD(size:Int):VertexData {
+		if (size == 1) return VertexData.Float1;
+		else if (size == 2) return VertexData.Float2;
+		else if (size == 3) return VertexData.Float3;
+		else if (size == 4) return VertexData.Float4;
+		return null;
+	}
+	
+	function parseVertexStructure() {
+		structure = new VertexStructure();
+		for (vs in raw.vertex_structure) {
+			if (vs.name == 'off') {
+				instancing = true;
+				continue;
+			}
+
+			structure.add(vs.name, sizeToVD(vs.size));
+		}
+	}
+
+	static function getStructureRect() {
+		if (structureRect == null) {
+			structureRect = new VertexStructure();
+			structureRect.add("pos", VertexData.Float2);
+		}
+		return structureRect;
 	}
 
 	inline function deleteShader(shader:Dynamic) {

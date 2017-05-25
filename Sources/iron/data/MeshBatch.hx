@@ -65,7 +65,12 @@ class MeshBatch {
 			if (b.meshes.length > 0 && b.meshes[0].cullMaterial(context, camera)) continue;
 
 			g.setPipeline(b.shader.getContext(context).pipeState);
+			// TODO:
+			// #if arm_deinterleaved
+			// g.setVertexBuffers(b.vertexBuffers);
+			// #else
 			g.setVertexBuffer(b.vertexBuffer);
+			// #end
 			g.setIndexBuffer(b.indexBuffer);
 
 			// Front to back
@@ -142,8 +147,10 @@ class Bucket {
 			}
 		}
 
+		if (mdatas.length == 0) return;
+
 		// Build shared buffers
-		vertexBuffer = new VertexBuffer(vcount, shader.structure, Usage.StaticUsage);
+		vertexBuffer = new VertexBuffer(vcount, mdatas[0].geom.struct, Usage.StaticUsage);
 		var vertices = vertexBuffer.lock();
 		var offset = 0;
 		for (md in mdatas) {
@@ -160,7 +167,7 @@ class Bucket {
 			for (i in 0...md.geom.ids[0].length) {
 				indices[++di] = md.geom.ids[0][i] + offset;
 			}
-			offset += Std.int(md.geom.getVerticesLength() / shader.structureLength); // / md.geom.structLength
+			offset += Std.int(md.geom.getVerticesLength() / md.geom.structLength);
 		}
 		indexBuffer.unlock();
 	}

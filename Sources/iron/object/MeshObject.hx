@@ -203,27 +203,23 @@ class MeshObject extends Object {
 		
 		// Render mesh
 		var ldata = lod.data;
+		#if !arm_deinterleaved
 		if (ldata.geom.instanced) {
-			g.setVertexBuffers(ldata.geom.instancedVertexBuffers);
+			g.setVertexBuffers([ldata.geom.vertexBuffer, ldata.geom.instancedVB]);
 		}
 		else {
-	#if arm_deinterleaved
-			g.setVertexBuffers(ldata.geom.vertexBuffers);
-	#else
-			// var shadowsContext = camera.data.pathdata.raw.shadows_context;
-			// if (context == shadowsContext) { // Hard-coded for now
-				// g.setVertexBuffer(ldata.geom.vertexBufferDepth);
-			// }
-			// else {
-				g.setVertexBuffer(ldata.geom.vertexBuffer);
-			// }
-	#end
+			g.setVertexBuffer(ldata.geom.vertexBuffer);
 		}
+		#end
 
 		for (i in 0...ldata.geom.indexBuffers.length) {
 
 			var mi = ldata.geom.materialIndices[i];
 			if (shaderContexts.length <= mi) continue; 
+
+			#if arm_deinterleaved
+			g.setVertexBuffers(ldata.geom.getVertexBuffers(shaderContexts[mi].raw.vertex_structure));
+			#end
 
 			g.setIndexBuffer(ldata.geom.indexBuffers[i]);
 			g.setPipeline(shaderContexts[mi].pipeState);

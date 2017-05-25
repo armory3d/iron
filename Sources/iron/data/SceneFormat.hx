@@ -135,13 +135,7 @@ typedef TBindTexture = {
 
 typedef TShaderData = {
 	var name:String;
-	var vertex_structure:Array<TVertexData>;
 	var contexts:Array<TShaderContext>;
-}
-
-typedef TVertexData = {
-	var name:String;
-	var size:Int;
 }
 
 typedef TShaderContext = {
@@ -149,6 +143,7 @@ typedef TShaderContext = {
 	var depth_write:Bool;
 	var compare_mode:String;
 	var cull_mode:String;
+	var vertex_structure:Array<TVertexData>;
 	@:optional var blend_source:String;
 	@:optional var blend_destination:String;
 	@:optional var blend_operation:String;
@@ -174,6 +169,11 @@ typedef TShaderContext = {
 	@:optional var tesseval_shader:String;
 	@:optional var constants:Array<TShaderConstant>;
 	@:optional var texture_units:Array<TTextureUnit>;
+}
+
+typedef TVertexData = {
+	var name:String;
+	var size:Int;
 }
 
 typedef TShaderConstant = {

@@ -75,7 +75,7 @@ class ParticleSystem {
 			p.offset.z = p.lifetime * p.velocity.z;
 		}
 		sort();
-		var vb = object.data.geom.instancedVertexBuffers[1];
+		var vb = object.data.geom.instancedVB;
 		var instancedData = vb.lock();
 		for (i in 0...particles.length) {
 			var p = particles[i];

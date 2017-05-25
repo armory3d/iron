@@ -20,7 +20,7 @@ import iron.data.RenderPathData.RenderTarget;
 // Structure for setting shader uniforms
 class Uniforms {
 
-	#if arm_opengl
+	#if (kha_opengl || kha_webgl)
 	static var biasMat = new Mat4(
 		0.5, 0.0, 0.0, 0.5,
 		0.0, 0.5, 0.0, 0.5,
