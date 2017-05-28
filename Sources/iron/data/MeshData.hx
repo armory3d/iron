@@ -31,7 +31,7 @@ class MeshData extends Data {
 		this.name = raw.name;
 
 		// Mesh data
-		var indices:Array<kha.arrays.Uint32Array> = [];
+		var indices:Array<TUint32Array> = [];
 		var materialIndices:Array<Int> = [];
 		for (ind in raw.index_arrays) {
 			indices.push(ind.values);
@@ -54,12 +54,12 @@ class MeshData extends Data {
 		if (raw.dynamic_usage != null && raw.dynamic_usage == true) parsedUsage = Usage.DynamicUsage;
 		var usage = (isSkinned && ForceCpuSkinning) ? Usage.DynamicUsage : parsedUsage;
 
-		var bonea:kha.arrays.Float32Array = null; // Store bone indices and weights per vertex
-		var weighta:kha.arrays.Float32Array = null;
+		var bonea:TFloat32Array = null; // Store bone indices and weights per vertex
+		var weighta:TFloat32Array = null;
 		if (isSkinned && !ForceCpuSkinning) {
 			var l = Std.int(pa.length / 3) * 4;
-			bonea = new kha.arrays.Float32Array(l);
-			weighta = new kha.arrays.Float32Array(l);
+			bonea = new TFloat32Array(l);
+			weighta = new TFloat32Array(l);
 
 			var index = 0;
 			var ai = 0;
@@ -149,7 +149,7 @@ class MeshData extends Data {
 		}
 	}
 
-	function getVertexArrayValues(attrib:String):kha.arrays.Float32Array {
+	function getVertexArrayValues(attrib:String):TFloat32Array {
 		for (va in raw.vertex_arrays) if (va.attrib == attrib) return va.values;
 		return null;
 	}

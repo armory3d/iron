@@ -37,7 +37,7 @@ class Animation {
 		player.animTime += delta * player.speed * player.dir;
 	}	
 
-	inline function checkTimeIndex(player:Player, timeValues:kha.arrays.Float32Array):Bool {
+	inline function checkTimeIndex(player:Player, timeValues:TFloat32Array):Bool {
 		if (player.dir > 0) {
 			return ((player.timeIndex + 1) < timeValues.length && player.animTime > timeValues[player.timeIndex + 1]);
 		}

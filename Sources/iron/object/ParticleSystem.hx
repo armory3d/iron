@@ -40,7 +40,7 @@ class ParticleSystem {
 			}
 
 			// Make mesh data instanced
-			var instancedData = new kha.arrays.Float32Array(particles.length * 3);
+			var instancedData = new TFloat32Array(particles.length * 3);
 			var i = 0;
 			for (p in particles) {
 				instancedData.set(i, p.offset.x);

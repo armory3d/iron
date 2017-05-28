@@ -18,8 +18,8 @@ class Geometry {
 	public var indexBuffers:Array<IndexBuffer>;
 
 	public var ready = false;
-	public var vertices:kha.arrays.Float32Array;
-	public var indices:Array<kha.arrays.Uint32Array>;
+	public var vertices:TFloat32Array;
+	public var indices:Array<TUint32Array>;
 	public var numTris = 0;
 	public var materialIndices:Array<Int>;
 	public var struct:VertexStructure;
@@ -29,18 +29,18 @@ class Geometry {
 	public var instanced = false;
 	public var instanceCount = 0;
 
-	public var ids:Array<kha.arrays.Uint32Array>;
+	public var ids:Array<TUint32Array>;
 	public var usage:Usage;
 
-	public var positions:kha.arrays.Float32Array; // TODO: no need to store these references
-	public var normals:kha.arrays.Float32Array;
-	public var uvs:kha.arrays.Float32Array;
-	public var uvs1:kha.arrays.Float32Array;
-	public var cols:kha.arrays.Float32Array;
-	public var tangents:kha.arrays.Float32Array;
-	public var bones:kha.arrays.Float32Array;
-	public var weights:kha.arrays.Float32Array;
-	public var instanceOffsets:kha.arrays.Float32Array;
+	public var positions:TFloat32Array; // TODO: no need to store these references
+	public var normals:TFloat32Array;
+	public var uvs:TFloat32Array;
+	public var uvs1:TFloat32Array;
+	public var cols:TFloat32Array;
+	public var tangents:TFloat32Array;
+	public var bones:TFloat32Array;
+	public var weights:TFloat32Array;
+	public var instanceOffsets:TFloat32Array;
 	
 	public var offsetVecs:Array<Vec4>; // Used for sorting and culling
 	public var aabb:Vec4 = null;
@@ -48,25 +48,25 @@ class Geometry {
 	// Skinned
 	public var skinTransform:Mat4 = null;
 	public var skinTransformI:Mat4 = null;
-	public var skinBoneCounts:kha.arrays.Uint32Array = null;
-	public var skinBoneIndices:kha.arrays.Uint32Array = null;
-	public var skinBoneWeights:kha.arrays.Float32Array = null;
+	public var skinBoneCounts:TUint32Array = null;
+	public var skinBoneIndices:TUint32Array = null;
+	public var skinBoneWeights:TFloat32Array = null;
 
 	public var skeletonBoneRefs:Array<String> = null;
 	public var skeletonBones:Array<TObj> = null;
 	public var skeletonTransforms:Array<Mat4> = null;
 	public var skeletonTransformsI:Array<Mat4> = null;
 
-	public function new(indices:Array<kha.arrays.Uint32Array>, materialIndices:Array<Int>,
-						positions:kha.arrays.Float32Array,
-						normals:kha.arrays.Float32Array,
-						uvs:kha.arrays.Float32Array,
-						uvs1:kha.arrays.Float32Array,
-						cols:kha.arrays.Float32Array,
-						tangents:kha.arrays.Float32Array = null,
-						bones:kha.arrays.Float32Array = null,
-						weights:kha.arrays.Float32Array = null,
-						usage:Usage = null, instanceOffsets:kha.arrays.Float32Array = null) {
+	public function new(indices:Array<TUint32Array>, materialIndices:Array<Int>,
+						positions:TFloat32Array,
+						normals:TFloat32Array,
+						uvs:TFloat32Array,
+						uvs1:TFloat32Array,
+						cols:TFloat32Array,
+						tangents:TFloat32Array = null,
+						bones:TFloat32Array = null,
+						weights:TFloat32Array = null,
+						usage:Usage = null, instanceOffsets:TFloat32Array = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
 
@@ -112,7 +112,7 @@ class Geometry {
 		return structure;
 	}
 
-	public function setupInstanced(offsets:kha.arrays.Float32Array, usage:Usage) {
+	public function setupInstanced(offsets:TFloat32Array, usage:Usage) {
 		// Store vecs for sorting and culling
 		offsetVecs = [];
 		for (i in 0...Std.int(offsets.length / 3)) {
@@ -157,14 +157,14 @@ class Geometry {
 	}
 
 	static function buildVertices(vertices:kha.arrays.Float32Array,
-								  pa:kha.arrays.Float32Array = null,
-								  na:kha.arrays.Float32Array = null,
-								  uva:kha.arrays.Float32Array = null,
-								  uva1:kha.arrays.Float32Array = null,
-								  ca:kha.arrays.Float32Array = null,
-								  tanga:kha.arrays.Float32Array = null,
-								  bonea:kha.arrays.Float32Array = null,
-								  weighta:kha.arrays.Float32Array = null,
+								  pa:TFloat32Array = null,
+								  na:TFloat32Array = null,
+								  uva:TFloat32Array = null,
+								  uva1:TFloat32Array = null,
+								  ca:TFloat32Array = null,
+								  tanga:TFloat32Array = null,
+								  bonea:TFloat32Array = null,
+								  weighta:TFloat32Array = null,
 								  offset = 0) {
 
 		var numVertices = Std.int(pa.length / 3);
@@ -273,15 +273,22 @@ class Geometry {
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
 			
+			#if cpp
+			var indicesA = indexBuffer.lock();
+			for (i in 0...indicesA.length) indicesA[i] = id[i];
+			#else
 			indexBuffer._data = id;
 			var indicesA = id;
-			// var indicesA = indexBuffer.lock();
-			// for (i in 0...indicesA.length) indicesA[i] = id[i];
+			#end
 			
 			indexBuffer.unlock();
 
 			indexBuffers.push(indexBuffer);
+			#if cpp
+			indices.push(cast indicesA); // TODO: fix cpp compile error
+			#else
 			indices.push(indicesA);
+			#end
 		}
 
 		// Instanced
@@ -291,7 +298,7 @@ class Geometry {
 	}
 
 #if arm_deinterleaved
-	function makeDeinterleavedVB(data:kha.arrays.Float32Array, name:String, structLength:Int) {
+	function makeDeinterleavedVB(data:TFloat32Array, name:String, structLength:Int) {
 		var struct = new VertexStructure();
 		if (structLength == 2) struct.add(name, VertexData.Float2);
 		else if (structLength == 3) struct.add(name, VertexData.Float3);
@@ -300,9 +307,12 @@ class Geometry {
 		// TODO: duplicate storage allocated in VB
 		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
 		
+		#if cpp
+		var vertices = vertexBuffer.lock();
+		for (i in 0...vertices.length) vertices.set(i, data[i]);
+		#else
 		vertexBuffer._data = data;
-		// var vertices = vertexBuffer.lock();
-		// for (i in 0...vertices.length) vertices.set(i, data[i]);
+		#end
 		
 		vertexBuffer.unlock();
 		return vertexBuffer;
@@ -327,7 +337,7 @@ class Geometry {
 		}
 	}
 
-	public function initSkeletonTransforms(transforms:Array<kha.arrays.Float32Array>) {
+	public function initSkeletonTransforms(transforms:Array<TFloat32Array>) {
 		skeletonTransforms = [];
 		skeletonTransformsI = [];
 
@@ -341,7 +351,7 @@ class Geometry {
 		}
 	}
 
-	public function initSkinTransform(t:kha.arrays.Float32Array) {
+	public function initSkinTransform(t:TFloat32Array) {
 		skinTransform = Mat4.fromFloat32Array(t);
 		skinTransformI = Mat4.identity();
 		skinTransformI.getInverse(skinTransform);
