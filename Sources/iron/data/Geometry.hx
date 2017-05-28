@@ -18,7 +18,7 @@ class Geometry {
 	public var indexBuffers:Array<IndexBuffer>;
 
 	public var ready = false;
-	public var vertices:TFloat32Array;
+	public var vertices:kha.arrays.Float32Array;
 	public var indices:Array<TUint32Array>;
 	public var numTris = 0;
 	public var materialIndices:Array<Int>;
@@ -284,11 +284,7 @@ class Geometry {
 			indexBuffer.unlock();
 
 			indexBuffers.push(indexBuffer);
-			#if cpp
-			indices.push(cast indicesA); // TODO: fix cpp compile error
-			#else
-			indices.push(indicesA);
-			#end
+			indices.push(id);
 		}
 
 		// Instanced
