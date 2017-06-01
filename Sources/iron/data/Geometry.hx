@@ -273,7 +273,7 @@ class Geometry {
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
 			
-			#if cpp
+			#if (cpp || arm_json)
 			var indicesA = indexBuffer.lock();
 			for (i in 0...indicesA.length) indicesA[i] = id[i];
 			#else
@@ -303,7 +303,7 @@ class Geometry {
 		// TODO: duplicate storage allocated in VB
 		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
 		
-		#if cpp
+		#if (cpp || arm_json)
 		var vertices = vertexBuffer.lock();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		#else

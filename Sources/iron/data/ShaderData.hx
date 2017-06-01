@@ -173,8 +173,7 @@ class ShaderContext {
 		}
 		else {
 
-			#if arm_debug
-			// Load shaders manually
+			#if arm_shaderload // Load shaders manually
 
 			var shadersLoaded = 0;
 			var numShaders = 2;
@@ -189,8 +188,9 @@ class ShaderContext {
 				var ar = file.split('.');
 				file = ar[0] + ext + '.' + ar[1];
 				var path = '../html5-resources/' + file + '.essl';
-				#else
-				// TODO: assuming krom & glsl
+				// #elseif kha_kore
+				// var path = '../osx-resources/' + file + '.glsl';
+				#else // TODO: assuming krom & glsl
 				var path = '../krom-resources/' + file + '.glsl';
 				#end
 				Data.getBlob(path, function(b:kha.Blob) {
