@@ -24,13 +24,11 @@ class Geometry {
 	public var materialIndices:Array<Int>;
 	public var struct:VertexStructure;
 	public var structLength:Int;
+	public var usage:Usage;
 
 	public var instancedVB:VertexBuffer = null;
 	public var instanced = false;
 	public var instanceCount = 0;
-
-	public var ids:Array<TUint32Array>;
-	public var usage:Usage;
 
 	public var positions:TFloat32Array; // TODO: no need to store these references
 	public var normals:TFloat32Array;
@@ -70,7 +68,7 @@ class Geometry {
 
 		if (usage == null) usage = Usage.StaticUsage;
 
-		this.ids = indices;
+		this.indices = indices;
 		this.materialIndices = materialIndices;
 		this.usage = usage;
 
@@ -266,8 +264,7 @@ class Geometry {
 #end
 
 		indexBuffers = [];
-		indices = [];
-		for (id in ids) {
+		for (id in indices) {
 			if (id.length == 0) continue; // Material has no faces assigned, discard
 			// TODO: duplicate storage allocated in IB
 			var indexBuffer = new IndexBuffer(id.length, usage);
@@ -278,13 +275,11 @@ class Geometry {
 			for (i in 0...indicesA.length) indicesA[i] = id[i];
 			#else
 			indexBuffer._data = id;
-			var indicesA = id;
 			#end
 			
 			indexBuffer.unlock();
 
 			indexBuffers.push(indexBuffer);
-			indices.push(id);
 		}
 
 		// Instanced

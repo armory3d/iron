@@ -15,15 +15,26 @@ class MaterialData extends Data {
 
 	public var contexts:Array<MaterialContext> = null;
 
-	public function new(raw:TMaterialData, done:MaterialData->Void) {
+	public function new(raw:TMaterialData, done:MaterialData->Void, file = "") {
 		super();
 
 		uid = ++uidCounter; // Start from 1
 		this.raw = raw;
 		this.name = raw.name;
 
-		var shaderName:Array<String> = raw.shader.split("/");
-		Data.getShader(shaderName[0], shaderName[1], raw.override_context, function(b:ShaderData) {
+		var ref = raw.shader.split("/");
+		var object_file = "";
+		var data_ref = "";
+		if (ref.length == 2) { // File reference
+			object_file = ref[0];
+			data_ref = ref[1];
+		}
+		else { // Local data
+			object_file = file;
+			data_ref = raw.shader;
+		}
+
+		Data.getShader(object_file, data_ref, raw.override_context, function(b:ShaderData) {
 			shader = b;
 
 			// Contexts have to be in the same order as in raw data for now
@@ -50,7 +61,7 @@ class MaterialData extends Data {
 				trace('Material data "$name" not found!');
 				done(null);
 			}
-			new MaterialData(raw, done);
+			new MaterialData(raw, done, file);
 		});
 	}
 

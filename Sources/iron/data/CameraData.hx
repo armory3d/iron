@@ -9,13 +9,24 @@ class CameraData extends Data {
 	public var pathdata:RenderPathData;
 	public var mirror:kha.Image = null;
 
-	public function new(raw:TCameraData, done:CameraData->Void) {
+	public function new(raw:TCameraData, done:CameraData->Void, file = "") {
 		super();
 		this.raw = raw;
 		this.name = raw.name;
 
-		var pathName:Array<String> = raw.render_path.split("/");
-		Data.getRenderPath(pathName[0], pathName[1], function(b:RenderPathData) {
+		var ref = raw.render_path.split("/");
+		var object_file = "";
+		var data_ref = "";
+		if (ref.length == 2) { // File reference
+			object_file = ref[0];
+			data_ref = ref[1];
+		}
+		else { // Local data
+			object_file = file;
+			data_ref = raw.render_path;
+		}
+
+		Data.getRenderPath(object_file, data_ref, function(b:RenderPathData) {
 			pathdata = b;
 
 			// Render this camera to texture
@@ -37,7 +48,7 @@ class CameraData extends Data {
 				trace('Camera data "$id" not found!');
 				done(null);
 			}
-			new CameraData(raw, done);
+			new CameraData(raw, done, name);
 		});
 	}
 }

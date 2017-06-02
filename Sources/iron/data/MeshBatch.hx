@@ -141,7 +141,7 @@ class Bucket {
 			if (!mdFound) {
 				mdatas.push(m.data);
 				m.data.start = icount;
-				m.data.count = m.data.geom.ids[0].length;
+				m.data.count = m.data.geom.indices[0].length;
 				icount += m.data.count;
 				vcount += m.data.geom.getVerticesLength();
 			}
@@ -164,8 +164,8 @@ class Bucket {
 		var di = -1;
 		var offset = 0;
 		for (md in mdatas) {
-			for (i in 0...md.geom.ids[0].length) {
-				indices[++di] = md.geom.ids[0][i] + offset;
+			for (i in 0...md.geom.indices[0].length) {
+				indices[++di] = md.geom.indices[0][i] + offset;
 			}
 			offset += Std.int(md.geom.getVerticesLength() / md.geom.structLength);
 		}

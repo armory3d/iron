@@ -310,7 +310,7 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
     def write_mesh(self, bobject, fp, o):
         self.output['mesh_datas'].append(o)
 
-    def export_mesh_fast(self, exportMesh, bobject, fp, o, om):
+    def export_mesh_fast(self, exportMesh, bobject, fp, o):
         # Much faster export but produces slightly less efficient data
         exportMesh.calc_normals_split()
         exportMesh.calc_tessface()
@@ -346,37 +346,37 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
                 cdata[i * 3 + 1] = vtx.col[1]
                 cdata[i * 3 + 2] = vtx.col[2]
         # Output
-        om['vertex_arrays'] = []
+        o['vertex_arrays'] = []
         pa = {}
-        pa['attrib'] = "position"
+        pa['attrib'] = "pos"
         pa['size'] = 3
         pa['values'] = vdata
-        om['vertex_arrays'].append(pa)
+        o['vertex_arrays'].append(pa)
         na = {}
-        na['attrib'] = "normal"
+        na['attrib'] = "nor"
         na['size'] = 3
         na['values'] = ndata
-        om['vertex_arrays'].append(na)
+        o['vertex_arrays'].append(na)
         
         if num_uv_layers > 0:
             ta = {}
-            ta['attrib'] = "texcoord"
+            ta['attrib'] = "tex"
             ta['size'] = 2
             ta['values'] = t0data
-            om['vertex_arrays'].append(ta)
+            o['vertex_arrays'].append(ta)
             if num_uv_layers > 1:
                 ta1 = {}
-                ta1['attrib'] = "texcoord1"
+                ta1['attrib'] = "tex1"
                 ta1['size'] = 2
                 ta1['values'] = t1data
-                om['vertex_arrays'].append(ta1)
+                o['vertex_arrays'].append(ta1)
         
         if num_colors > 0:
             ca = {}
-            ca['attrib'] = "color"
+            ca['attrib'] = "col"
             ca['size'] = 3
             ca['values'] = cdata
-            om['vertex_arrays'].append(ca)
+            o['vertex_arrays'].append(ca)
         
         # Indices
         prims = {ma.name if ma else '': [] for ma in exportMesh.materials}
@@ -400,7 +400,7 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
                     prim += (indices[-1], indices[i], indices[i + 1])
         
         # Write indices
-        om['index_arrays'] = []
+        o['index_arrays'] = []
         for mat, prim in prims.items():
             idata = [0] * len(prim)
             for i, v in enumerate(prim):
@@ -416,15 +416,15 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
                        (exportMesh.materials[i] == None and mat == ''): # Default material for empty slots
                         ia['material'] = i
                         break
-            om['index_arrays'].append(ia)
+            o['index_arrays'].append(ia)
         
         # Make tangents
         if num_uv_layers > 0:
             tanga = {}
             tanga['attrib'] = "tangent"
             tanga['size'] = 3
-            tanga['values'] = self.calc_tangents(pa['values'], na['values'], ta['values'], om['index_arrays'][0]['values'])  
-            om['vertex_arrays'].append(tanga)
+            tanga['values'] = self.calc_tangents(pa['values'], na['values'], ta['values'], o['index_arrays'][0]['values'])  
+            o['vertex_arrays'].append(tanga)
 
         return vert_list
 
@@ -486,8 +486,6 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
             shapeKeys.key_blocks[0].value = 1.0
             mesh.update()
 
-        om = {}
-
         armature = bobject.find_armature()
         applyModifiers = not armature
 
@@ -508,7 +506,7 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
             print('Armory Warning: ' + oid + ' exceeds maximum of 2 UV Maps supported')
 
         fp = ''
-        self.export_mesh_fast(exportMesh, bobject, fp, o, om)
+        self.export_mesh_fast(exportMesh, bobject, fp, o)
 
         # Restore the morph state
         if shapeKeys:
@@ -520,7 +518,6 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
 
             mesh.update()
 
-        o['mesh'] = om
         self.write_mesh(bobject, fp, o)
 
     def export_objects(self, scene):
