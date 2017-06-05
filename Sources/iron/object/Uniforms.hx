@@ -125,6 +125,9 @@ class Uniforms {
 				else if (tulink == "_lensTexture") {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('lenstexture.jpg'));
 				}
+				else if (tulink == "_sdfTexture") {
+					g.setTexture(context.textureUnits[j], cast(object, MeshObject).data.sdfTex);
+				}
 				// External
 				else if (externalTextureLinks != null) {
 					for (f in externalTextureLinks) {

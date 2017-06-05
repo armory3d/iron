@@ -37,6 +37,7 @@ typedef TMeshData = {
 	@:optional var dynamic_usage:Null<Bool>;
 	@:optional var skin:TSkin;
 	@:optional var instance_offsets:TFloat32Array;
+	@:optional var sdf_ref:String;
 }
 
 typedef TSkin = {

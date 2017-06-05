@@ -23,6 +23,7 @@ class MeshData extends Data {
 
 	public var isSkinned:Bool;
 	public var bones:Array<TObj> = [];
+	public var sdfTex:kha.Image = null;
 
 	public function new(raw:TMeshData, done:MeshData->Void) {
 		super();
@@ -124,7 +125,15 @@ class MeshData extends Data {
 					dat.geom.initSkeletonBones(dat.bones);
 					dat.geom.initSkeletonTransforms(raw.skin.skeleton.transforms);
 				}
-				done(dat);
+				// Sdf-enabled
+				if (raw.sdf_ref != null && raw.sdf_ref != '') {
+					Data.getBlob(raw.sdf_ref + '.arm', function(blob:kha.Blob) {
+						var res = 50;
+						dat.sdfTex = kha.Image.fromBytes(blob.toBytes(), res * res, res, kha.graphics4.TextureFormat.A16, kha.graphics4.Usage.StaticUsage);
+						done(dat);
+					});
+				}
+				else done(dat);
 			});
 		});
 	}
