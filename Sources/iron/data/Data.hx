@@ -271,7 +271,8 @@ class Data {
 			});
 #else
 			#if arm_json
-			var parsed:TSceneFormat = haxe.Json.parse(b.toString());
+			var s = b.toString();
+			var parsed:TSceneFormat = s.charAt(0) == "{" ? haxe.Json.parse(s) : iron.system.ArmPack.decode(b.toBytes());
 			#else
 			var parsed:TSceneFormat = iron.system.ArmPack.decode(b.toBytes());
 			#end

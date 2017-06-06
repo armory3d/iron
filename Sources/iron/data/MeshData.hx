@@ -23,7 +23,11 @@ class MeshData extends Data {
 
 	public var isSkinned:Bool;
 	public var bones:Array<TObj> = [];
-	public var sdfTex:kha.Image = null;
+	// public var sdfTex:kha.Image = null;
+
+#if arm_sdf
+	public static var sdfTex:kha.Image = null; // Use as global volume for now
+#end
 
 	public function new(raw:TMeshData, done:MeshData->Void) {
 		super();
@@ -126,14 +130,18 @@ class MeshData extends Data {
 					dat.geom.initSkeletonTransforms(raw.skin.skeleton.transforms);
 				}
 				// Sdf-enabled
+				#if arm_sdf
 				if (raw.sdf_ref != null && raw.sdf_ref != '') {
 					Data.getBlob(raw.sdf_ref + '.arm', function(blob:kha.Blob) {
 						var res = 50;
-						dat.sdfTex = kha.Image.fromBytes(blob.toBytes(), res * res, res, kha.graphics4.TextureFormat.A16, kha.graphics4.Usage.StaticUsage);
+						// dat.sdfTex = kha.Image.fromBytes(blob.toBytes(), res * res, res, kha.graphics4.TextureFormat.A16, kha.graphics4.Usage.StaticUsage);
+						sdfTex = kha.Image.fromBytes(blob.toBytes(), res * res, res, kha.graphics4.TextureFormat.A16, kha.graphics4.Usage.StaticUsage);
 						done(dat);
 					});
 				}
-				else done(dat);
+				else
+				#end
+					done(dat);
 			});
 		});
 	}

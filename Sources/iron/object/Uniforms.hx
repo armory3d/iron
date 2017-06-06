@@ -126,7 +126,11 @@ class Uniforms {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('lenstexture.jpg'));
 				}
 				else if (tulink == "_sdfTexture") {
-					g.setTexture(context.textureUnits[j], cast(object, MeshObject).data.sdfTex);
+					#if arm_sdf
+					// g.setTexture(context.textureUnits[j], cast(object, MeshObject).data.sdfTex);
+					g.setTexture(context.textureUnits[j], iron.data.MeshData.sdfTex); // Use as global volume for now
+					// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+					#end
 				}
 				// External
 				else if (externalTextureLinks != null) {
