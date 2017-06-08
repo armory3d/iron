@@ -194,7 +194,7 @@ class Keyboard extends VirutalInput {
 
 	public function new() {
 		reset();
-		kha.input.Keyboard.get().notify(downListener, upListener);
+		kha.input.Keyboard.get().notify(downListener, upListener, pressListener);
 	}
 
 	public function endFrame() {
@@ -229,26 +229,26 @@ class Keyboard extends VirutalInput {
 		return keysReleased.get(key);
 	}
 
-	function keyToString(key: kha.Key, char: String) {
-		if (key == kha.Key.CHAR) return char == " " ? "space" : char.toLowerCase();
-		else if (key == kha.Key.BACKSPACE) return "backspace";
-		else if (key == kha.Key.TAB) return "tab";
-		else if (key == kha.Key.ENTER) return "enter";
-		else if (key == kha.Key.SHIFT) return "shift";
-		else if (key == kha.Key.CTRL) return "ctrl";
-		else if (key == kha.Key.ALT) return "alt";
-		else if (key == kha.Key.ESC) return "esc";
-		else if (key == kha.Key.DEL) return "del";
-		else if (key == kha.Key.UP) return "up";
-		else if (key == kha.Key.DOWN) return "down";
-		else if (key == kha.Key.LEFT) return "left";
-		else if (key == kha.Key.RIGHT) return "right";
-		else if (key == kha.Key.BACK) return "back";
-		return "";
+	function keyToString(key: Int) {
+		if (key == kha.input.KeyCode.Space) return "space";
+		else if (key == kha.input.KeyCode.Backspace) return "backspace";
+		else if (key == kha.input.KeyCode.Tab) return "tab";
+		else if (key == kha.input.KeyCode.Return) return "enter";
+		else if (key == kha.input.KeyCode.Shift) return "shift";
+		else if (key == kha.input.KeyCode.Control) return "ctrl";
+		else if (key == kha.input.KeyCode.Alt) return "alt";
+		else if (key == kha.input.KeyCode.Escape) return "esc";
+		else if (key == kha.input.KeyCode.Delete) return "del";
+		else if (key == kha.input.KeyCode.Up) return "up";
+		else if (key == kha.input.KeyCode.Down) return "down";
+		else if (key == kha.input.KeyCode.Left) return "left";
+		else if (key == kha.input.KeyCode.Right) return "right";
+		else if (key == kha.input.KeyCode.Back) return "back";
+		else return String.fromCharCode(key).toLowerCase();
 	}
 
-	function downListener(key: kha.Key, char: String) {
-		var s = keyToString(key, char);
+	function downListener(code: Int) {
+		var s = keyToString(code);
 		keysFrame.push(s);
 		keysStarted.set(s, true);
 		keysDown.set(s, true);
@@ -256,13 +256,17 @@ class Keyboard extends VirutalInput {
 		downVirtual(s);
 	}
 
-	function upListener(key: kha.Key, char: String) {
-		var s = keyToString(key, char);
+	function upListener(code: Int) {
+		var s = keyToString(code);
 		keysFrame.push(s);
 		keysReleased.set(s, true);
 		keysDown.set(s, false);
 
 		upVirtual(s);
+	}
+
+	function pressListener(char: String) {
+
 	}
 }
 
