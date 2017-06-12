@@ -244,6 +244,16 @@ class Keyboard extends VirutalInput {
 		else if (key == kha.input.KeyCode.Left) return "left";
 		else if (key == kha.input.KeyCode.Right) return "right";
 		else if (key == kha.input.KeyCode.Back) return "back";
+		else if (key == kha.input.KeyCode.Zero) return "0";
+		else if (key == kha.input.KeyCode.One) return "1";
+		else if (key == kha.input.KeyCode.Two) return "2";
+		else if (key == kha.input.KeyCode.Three) return "3";
+		else if (key == kha.input.KeyCode.Four) return "4";
+		else if (key == kha.input.KeyCode.Five) return "5";
+		else if (key == kha.input.KeyCode.Six) return "6";
+		else if (key == kha.input.KeyCode.Seven) return "7";
+		else if (key == kha.input.KeyCode.Eight) return "8";
+		else if (key == kha.input.KeyCode.Nine) return "9";
 		else return String.fromCharCode(key).toLowerCase();
 	}
 

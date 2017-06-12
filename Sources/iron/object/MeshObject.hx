@@ -34,10 +34,14 @@ class MeshObject extends Object {
 	public function new(data:MeshData, materials:Vector<MaterialData>) {
 		super();
 
-		this.data = data;
-		data.refcount++;
+		setData(data);
 		this.materials = materials;	
 		Scene.active.meshes.push(this);
+	}
+
+	public function setData(data:MeshData) {
+		this.data = data;
+		data.refcount++;
 
 		var makeBuffers = true;
 #if arm_batch
