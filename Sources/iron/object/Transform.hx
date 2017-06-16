@@ -114,11 +114,15 @@ class Transform {
 
 	public function setMatrix(mat:Mat4) {
 		matrix.setFrom(mat);
-		matrix.decompose(loc, rot, scale);
+		decompose();
 	}
 
 	public function multMatrix(mat:Mat4) {
 		matrix.multmat2(mat);
+		decompose();
+	}
+
+	public function decompose() {
 		matrix.decompose(loc, rot, scale);
 	}
 
