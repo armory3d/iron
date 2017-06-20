@@ -436,9 +436,6 @@ class RenderPath {
 	}
 
 	public static function sortMeshes(meshes:Array<MeshObject>, camera:CameraObject) {
-		#if ((sys_windows && cpp) || (arm_voxelgi))
-		return; // TODO: hxcpp crashes
-		#end
 		// if (params[1] == "front_to_back") {
 			var camX = camera.transform.absx();
 			var camY = camera.transform.absy();
@@ -447,12 +444,12 @@ class RenderPath {
 				mesh.computeCameraDistance(camX, camY, camZ);
 			}
 			meshes.sort(function(a, b):Int {
-				return a.cameraDistance > b.cameraDistance ? 1 : -1;
+				return a.cameraDistance >= b.cameraDistance ? 1 : -1;
 			});
 		// }
 		// else if (params[1] == "material") {
 			// Scene.active.meshes.sort(function(a, b):Int {
-				// return a.materials[0].name > b.materials[0].name ? 1 : -1;
+				// return a.materials[0].name >= b.materials[0].name ? 1 : -1;
 			// });
 		// }
 	}
