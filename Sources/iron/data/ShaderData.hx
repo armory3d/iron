@@ -93,6 +93,9 @@ class ShaderContext {
 	public function compile(done:ShaderContext->Void) {
 		if (pipeState != null) pipeState.delete();
 		pipeState = new PipelineState();
+		#if arm_deinterleaved
+		pipeState.interleavedLayout = false;
+		#end
 		constants = [];
 		textureUnits = [];
 
