@@ -229,7 +229,7 @@ class Keyboard extends VirutalInput {
 		return keysReleased.get(key);
 	}
 
-	function keyToString(key: Int) {
+	function keyToString(key: kha.input.KeyCode) {
 		if (key == kha.input.KeyCode.Space) return "space";
 		else if (key == kha.input.KeyCode.Backspace) return "backspace";
 		else if (key == kha.input.KeyCode.Tab) return "tab";
@@ -254,10 +254,10 @@ class Keyboard extends VirutalInput {
 		else if (key == kha.input.KeyCode.Seven) return "7";
 		else if (key == kha.input.KeyCode.Eight) return "8";
 		else if (key == kha.input.KeyCode.Nine) return "9";
-		else return String.fromCharCode(key).toLowerCase();
+		else return String.fromCharCode(cast key).toLowerCase();
 	}
 
-	function downListener(code: Int) {
+	function downListener(code: kha.input.KeyCode) {
 		var s = keyToString(code);
 		keysFrame.push(s);
 		keysStarted.set(s, true);
@@ -266,7 +266,7 @@ class Keyboard extends VirutalInput {
 		downVirtual(s);
 	}
 
-	function upListener(code: Int) {
+	function upListener(code: kha.input.KeyCode) {
 		var s = keyToString(code);
 		keysFrame.push(s);
 		keysReleased.set(s, true);
