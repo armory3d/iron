@@ -70,7 +70,7 @@ class RenderPathData extends Data {
 	
 	public function createRenderTarget(t:TRenderPathTarget):RenderTarget {
 		var rt = _createRenderTarget(t);
-		if (t.ping_pong != null && t.ping_pong) rt.pong = createRenderTarget(t);
+		if (t.ping_pong != null && t.ping_pong) rt.pong = _createRenderTarget(t);
 		renderTargets.set(t.name, rt);
 		return rt;
 	}
