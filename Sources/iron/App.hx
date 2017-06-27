@@ -2,8 +2,13 @@ package iron;
 
 class App {
 
+#if arm_render
+	public static inline function w():Int { return Main.projectWidth; }
+	public static inline function h():Int { return Main.projectHeight; }
+#else
 	public static inline function w():Int { return kha.System.windowWidth(); }
 	public static inline function h():Int { return kha.System.windowHeight(); }
+#end
 
 	static var traitInits:Array<Void->Void> = [];
 	static var traitUpdates:Array<Void->Void> = [];
