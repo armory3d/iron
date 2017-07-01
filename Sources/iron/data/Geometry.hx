@@ -270,7 +270,7 @@ class Geometry {
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
 			
-			#if (cpp || arm_json)
+			#if (cpp || arm_json || kha_node)
 			var indicesA = indexBuffer.lock();
 			for (i in 0...indicesA.length) indicesA[i] = id[i];
 			#else
@@ -298,7 +298,7 @@ class Geometry {
 		// TODO: duplicate storage allocated in VB
 		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
 		
-		#if (cpp || arm_json)
+		#if (cpp || arm_json || kha_node)
 		var vertices = vertexBuffer.lock();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		#else

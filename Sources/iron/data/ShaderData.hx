@@ -186,7 +186,7 @@ class ShaderContext {
 
 			function loadShader(file:String, type:Int) {
 
-				#if kha_webgl
+				#if (kha_webgl && !kha_node)
 				var ext = kha.SystemImpl.gl2 ? '-webgl2' : '';
 				var ar = file.split('.');
 				file = ar[0] + ext + '.' + ar[1];
