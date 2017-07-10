@@ -8,4 +8,10 @@ class Vec2 {
 		this.x = x;
 		this.y = y;
 	}
+
+	public static inline function distance2df(v1x:Float, v1y:Float, v2x:Float, v2y:Float):Float {
+		var vx = v1x - v2x;
+		var vy = v1y - v2y;
+		return Math.sqrt(vx * vx + vy * vy);
+	}
 }
