@@ -97,7 +97,7 @@ class Vec4 {
 		return new Vec4(x, y, z, w);
 	}
 
-	public static function lerp(v1:Vec4, v2:Vec4, t:Float) {
+	public static function lerp(v1:Vec4, v2:Vec4, t:Float):Vec4 {
 		var target = new Vec4();
 		target.x = v2.x + (v1.x - v2.x) * t;
 		target.y = v2.y + (v1.y - v2.y) * t;
@@ -106,9 +106,7 @@ class Vec4 {
 	}
 
 	public function applyproj(m:Mat4):Vec4 {
-		var x = this.x;
-		var y = this.y;
-		var z = this.z;
+		var x = this.x; var y = this.y; var z = this.z;
 
 		// Perspective divide
 		var d = 1.0 / (m._03 * x + m._13 * y + m._23 * z + m._33);
@@ -121,9 +119,7 @@ class Vec4 {
 	}
 
 	public function applymat(m:Mat4):Vec4 {
-		var x = this.x;
-		var y = this.y;
-		var z = this.z;
+		var x = this.x; var y = this.y; var z = this.z;
 
 		this.x = m._00 * x + m._10 * y + m._20 * z + m._30;
 		this.y = m._01 * x + m._11 * y + m._21 * z + m._31;
@@ -133,10 +129,7 @@ class Vec4 {
 	}
 
 	public function applymat4(m:Mat4):Vec4 {
-		var x = this.x;
-		var y = this.y;
-		var z = this.z;
-		var w = this.w;
+		var x = this.x; var y = this.y; var z = this.z; var w = this.w;
 
 		this.x = m._00 * x + m._10 * y + m._20 * z + m._30 * w;
 		this.y = m._01 * x + m._11 * y + m._21 * z + m._31 * w;
@@ -146,8 +139,8 @@ class Vec4 {
 		return this;
 	}
 
+	var quat = new Quat();
 	public function applyAxisAngle(axis:Vec4, angle:Float):Vec4 {
-		var quat = new Quat();
 		quat.fromAxisAngle(axis, angle);
 		return applyQuat(quat);
 	}
@@ -175,19 +168,6 @@ class Vec4 {
 		x -= v.x; y -= v.y; z -= v.z;
 		return this;
 	} 
-
-	public function unproject(P:Mat4, V:Mat4):Vec4 {
-		var VPInv = Mat4.identity();
-		var PInv = Mat4.identity();
-		var VInv = Mat4.identity();
-
-		PInv.getInverse(P);
-		VInv.getInverse(V);
-
-		VPInv.multmats(VInv, PInv);
-
-		return this.applyproj(VPInv);
-	}
 
 	public static inline function distance3d(v1:Vec4, v2:Vec4):Float {
 		return distance3df(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);

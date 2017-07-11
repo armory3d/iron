@@ -9,40 +9,38 @@ import iron.math.Ray.Plane;
 class RayCaster {
 
 	public static function getRay(inputX:Float, inputY:Float, camera:CameraObject):Ray {
-
 		var start = new Vec4();
 		var end = new Vec4();
-
 		getDirection(start, end, inputX, inputY, camera);
-
-		return new Ray(start, end);
-	}
-
-
-	public static function getDirection(start:Vec4, end:Vec4, inputX:Float, inputY:Float, camera:CameraObject) {
-		// TODO: return end only
-		// TODO: speed up using http://halogenica.net/ray-casting-and-picking-using-bullet-physics/
-
-		// Get 3D point form screen coords
-		start.x =  (inputX / App.w()) * 2 - 1;
-		start.y = -(inputY / App.h()) * 2 + 1;
-
-		// Set two vectors with opposing z values
-		start.z = -1.0;
-		end.x = start.x;
-		end.y = start.y;
-		end.z = 0.0;
-
-		start.unproject(camera.P, camera.V);
-		end.unproject(camera.P, camera.V);
 
 		// Find direction from start to end
 		end.sub(start);
 		end.normalize();
-
 		end.x *= camera.data.raw.far_plane;
 		end.y *= camera.data.raw.far_plane;
 		end.z *= camera.data.raw.far_plane;
+
+		return new Ray(start, end);
+	}
+
+	static var VPInv = Mat4.identity();
+	static var PInv = Mat4.identity();
+	static var VInv = Mat4.identity();
+	public static function getDirection(start:Vec4, end:Vec4, inputX:Float, inputY:Float, camera:CameraObject) {
+		// Get 3D point form screen coords
+		// Set two vectors with opposing z values
+		start.x = (inputX / App.w()) * 2.0 - 1.0;
+		start.y = -((inputY / App.h()) * 2.0 - 1.0);
+		start.z = -1.0;
+		end.x = start.x;
+		end.y = start.y;
+		end.z = 1.0;
+
+		PInv.getInverse(camera.P);
+		VInv.getInverse(camera.V);
+		VPInv.multmats(VInv, PInv);
+		start.applyproj(VPInv);
+		end.applyproj(VPInv);
 	}
 
 	public static function boxIntersect(transform:Transform, inputX:Float, inputY:Float, camera:CameraObject):Vec4 {
