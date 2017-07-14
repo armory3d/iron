@@ -13,7 +13,7 @@ class Transform {
 
 	// Decomposed local matrix
 	public var loc:Vec4;
-	public var abs:Vec4;
+	public var world:Vec4;
 	public var rot:Quat;
 	public var scale:Vec4;
 	
@@ -33,7 +33,7 @@ class Transform {
 		matrix = Mat4.identity();
 		local = Mat4.identity();
 		loc = new Vec4();
-		abs = new Vec4();
+		world = new Vec4();
 		rot = new Quat();
 		scale = new Vec4(1.0, 1.0, 1.0);
 		size = new Vec4();
@@ -95,7 +95,7 @@ class Transform {
 			n.transform.buildMatrix();
 		}
 
-		abs.set(matrix._30, matrix._31, matrix._32);
+		world.set(matrix._30, matrix._31, matrix._32);
 	}
 
 	public function set(x = 0.0, y = 0.0, z = 0.0, rX = 0.0, rY = 0.0, rZ = 0.0, sX = 1.0, sY = 1.0, sZ = 1.0) {
@@ -159,7 +159,7 @@ class Transform {
 	public inline function right():Vec4 { return matrix.right(); }
 	public inline function up():Vec4 { return matrix.up(); }
 
-	public inline function absx():Float { return matrix._30; }
-	public inline function absy():Float { return matrix._31; }
-	public inline function absz():Float { return matrix._32; }
+	public inline function worldx():Float { return matrix._30; }
+	public inline function worldy():Float { return matrix._31; }
+	public inline function worldz():Float { return matrix._32; }
 }

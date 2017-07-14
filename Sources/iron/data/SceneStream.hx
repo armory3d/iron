@@ -68,9 +68,9 @@ class SceneStream {
 			if (checkPos >= sec.handles.length) checkPos = 0;
 			
 			// Check radius in sector
-			var camX = camera.transform.absx();
-			var camY = camera.transform.absy();
-			var camZ = camera.transform.absz();
+			var camX = camera.transform.worldx();
+			var camY = camera.transform.worldy();
+			var camZ = camera.transform.worldz();
 			var hx = h.obj.transform.values[3];
 			var hy = h.obj.transform.values[7];
 			var hz = h.obj.transform.values[11];

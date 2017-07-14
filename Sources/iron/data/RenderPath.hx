@@ -469,9 +469,9 @@ class RenderPath {
 
 	public static function sortMeshes(meshes:Array<MeshObject>, camera:CameraObject) {
 		// if (params[1] == "front_to_back") {
-			var camX = camera.transform.absx();
-			var camY = camera.transform.absy();
-			var camZ = camera.transform.absz();
+			var camX = camera.transform.worldx();
+			var camY = camera.transform.worldy();
+			var camZ = camera.transform.worldz();
 			for (mesh in meshes) {
 				mesh.computeCameraDistance(camX, camY, camZ);
 			}
@@ -557,7 +557,7 @@ class RenderPath {
 			for (i in 0...mats.length) {
 				var mat = mats[i];
 				if (mat == m.materials[0]) {
-					var loc = new Vec4(m.transform.absx(), m.transform.absy(), m.transform.absz());
+					var loc = new Vec4(m.transform.worldx(), m.transform.worldy(), m.transform.worldz());
 					var dim = m.transform.size;
 					var min = volumesMin[i];
 					var max = volumesMax[i];
@@ -572,7 +572,7 @@ class RenderPath {
 				}
 			}
 			if (found) continue;
-			var loc = new Vec4(m.transform.absx(), m.transform.absy(), m.transform.absz());
+			var loc = new Vec4(m.transform.worldx(), m.transform.worldy(), m.transform.worldz());
 			var dim = m.transform.size;
 			volumesMin.push(new Vec4(loc.x - dim.x / 2.0, loc.y - dim.y / 2.0, loc.z - dim.z / 2.0));
 			volumesMax.push(new Vec4(loc.x + dim.x / 2.0, loc.y + dim.y / 2.0, loc.z + dim.z / 2.0));

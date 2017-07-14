@@ -249,7 +249,7 @@ class CameraObject extends Object {
 		// Use scale when radius is changing
 		var radius = t.radius * radiusScale;
 		for (plane in frustumPlanes) {	
-			sphereCenter.set(t.absx() + offsetX, t.absy() + offsetY, t.absz() + offsetZ);
+			sphereCenter.set(t.worldx() + offsetX, t.worldy() + offsetY, t.worldz() + offsetZ);
 			// Outside the frustum
 			if (plane.distanceToSphere(sphereCenter, radius) + radius * 2 < 0) {
 				return false;
@@ -273,9 +273,9 @@ class CameraObject extends Object {
 	public inline function right():Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }
 	public inline function up():Vec4 { return new Vec4(transform.local._10, transform.local._11, transform.local._12); }
 	public inline function look():Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
-	public inline function rightAbs():Vec4 { return new Vec4(transform.matrix._00, transform.matrix._01, transform.matrix._02); }
-	public inline function upAbs():Vec4 { return new Vec4(transform.matrix._10, transform.matrix._11, transform.matrix._12); }
-	public inline function lookAbs():Vec4 { return new Vec4(-transform.matrix._20, -transform.matrix._21, -transform.matrix._22); }
+	public inline function rightWorld():Vec4 { return new Vec4(transform.matrix._00, transform.matrix._01, transform.matrix._02); }
+	public inline function upWorld():Vec4 { return new Vec4(transform.matrix._10, transform.matrix._11, transform.matrix._12); }
+	public inline function lookWorld():Vec4 { return new Vec4(-transform.matrix._20, -transform.matrix._21, -transform.matrix._22); }
 
 	public override function toString():String { return "Camera Object " + name; }
 }

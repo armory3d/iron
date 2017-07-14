@@ -129,9 +129,9 @@ class MeshObject extends Object {
 				if (!instanceInFrustum) return setCulled(shadowsContext, true);
 
 				// Sort - always front to back for now
-				var camX = camera.transform.absx();
-				var camY = camera.transform.absy();
-				var camZ = camera.transform.absz();
+				var camX = camera.transform.worldx();
+				var camY = camera.transform.worldy();
+				var camZ = camera.transform.worldz();
 				data.geom.sortInstanced(camX, camY, camZ);
 			}
 			// Non-instanced
@@ -306,7 +306,7 @@ class MeshObject extends Object {
 
 	public inline function computeCameraDistance(camX:Float, camY:Float, camZ:Float) {
 		// Render path mesh sorting
-		cameraDistance = iron.math.Vec4.distance3df(camX, camY, camZ, transform.absx(), transform.absy(), transform.absz());
+		cameraDistance = iron.math.Vec4.distance3df(camX, camY, camZ, transform.worldx(), transform.worldy(), transform.worldz());
 	}
 
 	public inline function computeScreenSize(camera:CameraObject) {

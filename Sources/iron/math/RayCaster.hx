@@ -47,7 +47,7 @@ class RayCaster {
 		var ray = getRay(inputX, inputY, camera);
 
 		var t = transform;
-		var c = new Vec4(t.absx(), t.absy(), t.absz());
+		var c = new Vec4(t.worldx(), t.worldy(), t.worldz());
 		var s = new Vec4(t.size.x, t.size.y, t.size.z);
 		return ray.intersectBox(c, s);
 	}
@@ -106,7 +106,7 @@ class RayCaster {
 		nor.normalize();
 	
 		// Plane intersection
-		loc.set(obj.transform.absx(), obj.transform.absy(), obj.transform.absz());
+		loc.set(obj.transform.worldx(), obj.transform.worldy(), obj.transform.worldz());
 		var hit = RayCaster.planeIntersect(nor, loc, screenX, screenY, camera);
 		
 		// Convert to uv

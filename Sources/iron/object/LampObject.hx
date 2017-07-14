@@ -161,7 +161,7 @@ class LampObject extends Object {
 	static var p3 = new Vec4();
 	public function setCubeFace(face:Int, camera:CameraObject) {
 		// Set matrix to match cubemap face
-		p1.set(transform.absx(), transform.absy(), transform.absz());
+		p1.set(transform.worldx(), transform.worldy(), transform.worldz());
 		p2.setFrom(p1);
 
 		switch (face) {

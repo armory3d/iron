@@ -337,18 +337,18 @@ class Uniforms {
 						// helpMat2.setFrom(tr.matrix);
 						// helpMat2.toRotation();
 						// helpMat.multmat2(helpMat2);
-						// helpMat.translate(tr.absx(), tr.absy(), tr.absz());
-						helpVec.set(tr.absx(), tr.absy(), tr.absz());
+						// helpMat.translate(tr.worldx(), tr.worldy(), tr.worldz());
+						helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
 						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * 2.0, lamp.data.raw.far_plane * 2.0);
 						helpMat.compose(helpVec, helpQuat, helpVec2);
 					}
 					else if (type == "point" || type == "area") { // Sphere
-						helpVec.set(tr.absx(), tr.absy(), tr.absz());
+						helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
 						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * 2.0, lamp.data.raw.far_plane * 2.0);
 						helpMat.compose(helpVec, helpQuat, helpVec2);
 					}
 					// else { // sun - uses fs quad instead of volume
-						// helpVec.set(tr.absx(), tr.absy(), tr.absz());
+						// helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
 						// helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane, lamp.data.raw.far_plane);
 						// helpMat.compose(helpVec, helpQuat, helpVec2);
 					// }
@@ -360,8 +360,8 @@ class Uniforms {
 			}
 			else if (c.link == "_skydomeMatrix") {
 				var tr = camera.transform;
-				// helpVec.set(tr.absx(), tr.absy(), tr.absz() + 3.0); // Envtex
-				helpVec.set(tr.absx(), tr.absy(), tr.absz() - 3.5); // Sky
+				// helpVec.set(tr.worldx(), tr.worldy(), tr.worldz() + 3.0); // Envtex
+				helpVec.set(tr.worldx(), tr.worldy(), tr.worldz() - 3.5); // Sky
 				var bounds = camera.farPlane * 0.95;
 				helpVec2.set(bounds, bounds, bounds);
 				helpMat.compose(helpVec, helpQuat, helpVec2);
@@ -430,7 +430,7 @@ class Uniforms {
 			var v:Vec4 = null;
 			helpVec.set(0, 0, 0);
 			if (c.link == "_lampPosition") {
-				if (lamp != null) helpVec.set(lamp.transform.absx(), lamp.transform.absy(), lamp.transform.absz());
+				if (lamp != null) helpVec.set(lamp.transform.worldx(), lamp.transform.worldy(), lamp.transform.worldz());
 				v = helpVec;
 			}
 			else if (c.link == "_lampDirection") {
@@ -481,11 +481,11 @@ class Uniforms {
 				}
 			}
 			else if (c.link == "_cameraPosition") {
-				helpVec.set(camera.transform.absx(), camera.transform.absy(), camera.transform.absz());
+				helpVec.set(camera.transform.worldx(), camera.transform.worldy(), camera.transform.worldz());
 				v = helpVec;
 			}
 			else if (c.link == "_cameraLook") {
-				helpVec = camera.lookAbs();
+				helpVec = camera.lookWorld();
 				v = helpVec;
 			}
 			else if (c.link == "_backgroundCol") {

@@ -77,9 +77,9 @@ class WorldData extends Data {
 	
 	var vec = new Vec4();
 	public function getProbeID(t:Transform):Int {
-		vec.x = t.absx();
-		vec.y = t.absy();
-		vec.z = t.absz();
+		vec.x = t.worldx();
+		vec.y = t.worldy();
+		vec.z = t.worldz();
 		var size = t.size;
 		for (i in 1...probes.length) {
 			var p = probes[i];
