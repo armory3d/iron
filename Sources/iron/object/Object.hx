@@ -37,6 +37,7 @@ class Object {
 	public function addChild(o:Object) {
 		children.push(o);
 		o.parent = this;
+		// o.transform.update();
 	}
 
 	public function remove() {
