@@ -6,17 +6,14 @@ import iron.math.Quat;
 
 @:allow(iron.object.Animation)
 class Transform {
-	public var matrix:Mat4;
-	public var local:Mat4;
-	public var localOnly:Bool = false;
-	public var dirty:Bool;
-
-	// Decomposed local matrix
-	public var loc:Vec4;
-	public var world:Vec4;
+	public var world:Mat4; // Read only
+	public var localOnly = false;
+	public var local:Mat4; // Call decompose()
+	public var loc:Vec4; // Decomposed local matrix
 	public var rot:Quat;
 	public var scale:Vec4;
 	
+	public var dirty:Bool;
 	public var object:Object;
 	public var size:Vec4;
 	public var radius:Float;
@@ -30,10 +27,9 @@ class Transform {
 	}
 
 	public function reset() {
-		matrix = Mat4.identity();
+		world = Mat4.identity();
 		local = Mat4.identity();
 		loc = new Vec4();
-		world = new Vec4();
 		rot = new Quat();
 		scale = new Vec4(1.0, 1.0, 1.0);
 		size = new Vec4();
@@ -81,10 +77,10 @@ class Transform {
 		if (appendMats != null) for (m in appendMats) local.multmat2(m);
 
 		if (!localOnly && object.parent != null) {
-			matrix.multmat3x4(local, object.parent.transform.matrix);
+			world.multmat3x4(local, object.parent.transform.world);
 		}
 		else {
-			matrix = local;
+			world.setFrom(local);
 		}
 
 		// Constraints
@@ -94,8 +90,6 @@ class Transform {
 		for (n in object.children) {
 			n.transform.buildMatrix();
 		}
-
-		world.set(matrix._30, matrix._31, matrix._32);
 	}
 
 	public function set(x = 0.0, y = 0.0, z = 0.0, rX = 0.0, rY = 0.0, rZ = 0.0, sX = 1.0, sY = 1.0, sZ = 1.0) {
@@ -113,17 +107,17 @@ class Transform {
 	}
 
 	public function setMatrix(mat:Mat4) {
-		matrix.setFrom(mat);
+		local.setFrom(mat);
 		decompose();
 	}
 
 	public function multMatrix(mat:Mat4) {
-		matrix.multmat2(mat);
+		local.multmat2(mat);
 		decompose();
 	}
 
 	public function decompose() {
-		matrix.decompose(loc, rot, scale);
+		local.decompose(loc, rot, scale);
 	}
 
 	public function rotate(axis:Vec4, f:Float) {
@@ -155,11 +149,11 @@ class Transform {
 	var _eulerY:Float;
 	var _eulerZ:Float;
 
-	public inline function look():Vec4 { return matrix.look(); }
-	public inline function right():Vec4 { return matrix.right(); }
-	public inline function up():Vec4 { return matrix.up(); }
+	public inline function look():Vec4 { return world.look(); }
+	public inline function right():Vec4 { return world.right(); }
+	public inline function up():Vec4 { return world.up(); }
 
-	public inline function worldx():Float { return matrix._30; }
-	public inline function worldy():Float { return matrix._31; }
-	public inline function worldz():Float { return matrix._32; }
+	public inline function worldx():Float { return world._30; }
+	public inline function worldy():Float { return world._31; }
+	public inline function worldz():Float { return world._32; }
 }

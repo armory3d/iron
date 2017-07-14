@@ -16,16 +16,16 @@ class Constraint {
 		
 		if (raw.type == "COPY_LOCATION") {
 			if (raw.use_x) {
-				transform.matrix._30 = target.loc.x;
-				if (raw.use_offset) transform.matrix._30 += transform.loc.x;
+				transform.world._30 = target.loc.x;
+				if (raw.use_offset) transform.world._30 += transform.loc.x;
 			}
 			if (raw.use_y) {
-				transform.matrix._31 = target.loc.y;
-				if (raw.use_offset) transform.matrix._31 += transform.loc.y;
+				transform.world._31 = target.loc.y;
+				if (raw.use_offset) transform.world._31 += transform.loc.y;
 			}
 			if (raw.use_z) {
-				transform.matrix._32 = target.loc.z;
-				if (raw.use_offset) transform.matrix._32 += transform.loc.z;
+				transform.world._32 = target.loc.z;
+				if (raw.use_offset) transform.world._32 += transform.loc.z;
 			}
 		}
 	}

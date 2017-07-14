@@ -155,11 +155,11 @@ class CameraObject extends Object {
 
 		// Prevent camera matrix scaling
 		// TODO: discards position affected by scaled camera parent
-		var sc = transform.matrix.getScale();
+		var sc = transform.world.getScale();
 		temp.set(1.0 / sc.x, 1.0 / sc.y, 1.0 / sc.z);
-		transform.matrix.scale(temp);
+		transform.world.scale(temp);
 
-		V.getInverse(transform.matrix);
+		V.getInverse(transform.world);
 
 		#if arm_vr
 		var vr = kha.vr.VrInterface.instance;
@@ -173,8 +173,8 @@ class CameraObject extends Object {
 			rightV.multmat2(helpMat);
 
 			// var tr = camera.transform;
-			// tr.matrix.getInverse(camera.V);
-			// tr.matrix.decompose(tr.loc, tr.rot, tr.scale);
+			// tr.world.getInverse(camera.V);
+			// tr.world.decompose(tr.loc, tr.rot, tr.scale);
 		}
 		else {
 			leftV.setFrom(V);
@@ -273,9 +273,9 @@ class CameraObject extends Object {
 	public inline function right():Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }
 	public inline function up():Vec4 { return new Vec4(transform.local._10, transform.local._11, transform.local._12); }
 	public inline function look():Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
-	public inline function rightWorld():Vec4 { return new Vec4(transform.matrix._00, transform.matrix._01, transform.matrix._02); }
-	public inline function upWorld():Vec4 { return new Vec4(transform.matrix._10, transform.matrix._11, transform.matrix._12); }
-	public inline function lookWorld():Vec4 { return new Vec4(-transform.matrix._20, -transform.matrix._21, -transform.matrix._22); }
+	public inline function rightWorld():Vec4 { return new Vec4(transform.world._00, transform.world._01, transform.world._02); }
+	public inline function upWorld():Vec4 { return new Vec4(transform.world._10, transform.world._11, transform.world._12); }
+	public inline function lookWorld():Vec4 { return new Vec4(-transform.world._20, -transform.world._21, -transform.world._22); }
 
 	public override function toString():String { return "Camera Object " + name; }
 }

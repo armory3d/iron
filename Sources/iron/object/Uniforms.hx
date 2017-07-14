@@ -193,15 +193,15 @@ class Uniforms {
 		if (c.type == "mat4") {
 			var m:Mat4 = null;
 			if (c.link == "_worldMatrix") {
-				m = object.transform.matrix;
+				m = object.transform.world;
 			}
 			else if (c.link == "_inverseWorldMatrix") {
-				helpMat.getInverse(object.transform.matrix);
+				helpMat.getInverse(object.transform.world);
 				m = helpMat;
 			}
 			// else if (c.link == "_normalMatrix") {
 			// 	helpMat.setIdentity();
-			// 	helpMat.multmat2(object.transform.matrix);
+			// 	helpMat.multmat2(object.transform.world);
 			// 	// Non uniform anisotropic scaling, calculate normal matrix
 			// 	//if (!(object.transform.scale.x == object.transform.scale.y && object.transform.scale.x == object.transform.scale.z)) {
 			// 		helpMat.getInverse(helpMat);
@@ -211,7 +211,7 @@ class Uniforms {
 			// }
 			// else if (c.link == "_viewNormalMatrix") {
 			// 	helpMat.setIdentity();
-			// 	helpMat.multmat2(object.transform.matrix);
+			// 	helpMat.multmat2(object.transform.world);
 			// 	helpMat.multmat2(camera.V); // View space
 			// 	helpMat.getInverse(helpMat);
 			// 	helpMat.transpose3x3();
@@ -253,14 +253,14 @@ class Uniforms {
 			}
 			else if (c.link == "_worldViewProjectionMatrix") {
 				helpMat.setIdentity();
-				helpMat.multmat2(object.transform.matrix);
+				helpMat.multmat2(object.transform.world);
 				helpMat.multmat2(camera.V);
 				helpMat.multmat2(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewMatrix") {
 				helpMat.setIdentity();
-				helpMat.multmat2(object.transform.matrix);
+				helpMat.multmat2(object.transform.world);
 				helpMat.multmat2(camera.V);
 				m = helpMat;
 			}
@@ -292,7 +292,7 @@ class Uniforms {
 			else if (c.link == "_lampWorldViewProjectionMatrix") {
 				if (lamp != null) {
 					helpMat.setIdentity();
-					if (object != null) helpMat.multmat2(object.transform.matrix); // object is null for DrawQuad
+					if (object != null) helpMat.multmat2(object.transform.world); // object is null for DrawQuad
 					helpMat.multmat2(lamp.V);
 					helpMat.multmat2(lamp.P);
 					m = helpMat;
@@ -301,7 +301,7 @@ class Uniforms {
 			else if (c.link == "_biasLampWorldViewProjectionMatrix") {
 				if (lamp != null)  {
 					helpMat.setIdentity();
-					if (object != null) helpMat.multmat2(object.transform.matrix); // object is null for DrawQuad
+					if (object != null) helpMat.multmat2(object.transform.world); // object is null for DrawQuad
 					helpMat.multmat2(lamp.V);
 					helpMat.multmat2(lamp.P);
 					helpMat.multmat2(biasMat);
@@ -334,7 +334,7 @@ class Uniforms {
 						// var f = lamp.data.raw.spot_size * lamp.data.raw.far_plane * 1.05;
 						// helpVec2.set(f, f, lamp.data.raw.far_plane);
 						// helpMat.scale(helpVec2);
-						// helpMat2.setFrom(tr.matrix);
+						// helpMat2.setFrom(tr.world);
 						// helpMat2.toRotation();
 						// helpMat.multmat2(helpMat2);
 						// helpMat.translate(tr.worldx(), tr.worldy(), tr.worldz());
@@ -395,7 +395,7 @@ class Uniforms {
 			var m:Mat3 = null;
 			if (c.link == "_normalMatrix") {
 				helpMat.setIdentity();
-				helpMat.multmat2(object.transform.matrix);
+				helpMat.multmat2(object.transform.world);
 				// Non uniform anisotropic scaling, calculate normal matrix
 				//if (!(object.transform.scale.x == object.transform.scale.y && object.transform.scale.x == object.transform.scale.z)) {
 					helpMat.getInverse(helpMat);
@@ -449,7 +449,7 @@ class Uniforms {
 					var sx = lamp.data.raw.size / 2;
 					var sy = lamp.data.raw.size_y / 2;
 					helpVec.set(-sx, sy, 0.0);
-					helpVec.applymat(lamp.transform.matrix);
+					helpVec.applymat(lamp.transform.world);
 					v = helpVec;
 				}
 			}
@@ -458,7 +458,7 @@ class Uniforms {
 					var sx = lamp.data.raw.size / 2;
 					var sy = lamp.data.raw.size_y / 2;
 					helpVec.set(sx, sy, 0.0);
-					helpVec.applymat(lamp.transform.matrix);
+					helpVec.applymat(lamp.transform.world);
 					v = helpVec;
 				}
 			}
@@ -467,7 +467,7 @@ class Uniforms {
 					var sx = lamp.data.raw.size / 2;
 					var sy = lamp.data.raw.size_y / 2;
 					helpVec.set(sx, -sy, 0.0);
-					helpVec.applymat(lamp.transform.matrix);
+					helpVec.applymat(lamp.transform.world);
 					v = helpVec;
 				}
 			}
@@ -476,7 +476,7 @@ class Uniforms {
 					var sx = lamp.data.raw.size / 2;
 					var sy = lamp.data.raw.size_y / 2;
 					helpVec.set(-sx, -sy, 0.0);
-					helpVec.applymat(lamp.transform.matrix);
+					helpVec.applymat(lamp.transform.world);
 					v = helpVec;
 				}
 			}

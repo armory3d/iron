@@ -81,7 +81,7 @@ class LampObject extends Object {
 			// m.multmat2(camera.P);
 			m.multmat2(camSlicedP);
 			m.getInverse(m);
-			V.setFrom(transform.matrix);
+			V.setFrom(transform.world);
 			V.toRotation();
 			V.getInverse(V);
 			m.multmat2(V);
@@ -136,7 +136,7 @@ class LampObject extends Object {
 			P = Mat4.orthogonal(-hx, hx, -hy, hy, -hz * 4, hz); // TODO: * 4 - include shadow casters out of view frustum
 		}
 		else { // Point, spot, area
-			V.getInverse(transform.matrix);
+			V.getInverse(transform.world);
 		}
 
 		updateViewFrustum(camera);

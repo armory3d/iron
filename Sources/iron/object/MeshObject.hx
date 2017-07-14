@@ -251,14 +251,14 @@ class MeshObject extends Object {
 #end
 
 #if arm_veloc
-		prevMatrix.setFrom(transform.matrix);
+		prevMatrix.setFrom(transform.world);
 #end
 
 		// Mesh-only groups for now
 		if (group != null) {
 			for (o in group) {
 				if (Std.is(o, MeshObject)) {
-					o.transform.appendMatrix(transform.matrix);
+					o.transform.appendMatrix(transform.world);
 					o.transform.buildMatrix();
 					cast(o, MeshObject).render(g, context, camera, lamp, bindParams);
 					o.transform.popAppendMatrix();
@@ -296,7 +296,7 @@ class MeshObject extends Object {
 #end
 
 #if arm_veloc
-		prevMatrix.setFrom(transform.matrix);
+		prevMatrix.setFrom(transform.world);
 #end
 	}
 

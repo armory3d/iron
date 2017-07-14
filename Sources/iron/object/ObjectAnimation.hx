@@ -66,9 +66,9 @@ class ObjectAnimation extends Animation {
 
 	function updateObjectAnim() {
 		if (isSampled) {
-			updateAnimSampled(object.raw.animation, object.transform.matrix, setObjectAnimFrame);
+			updateAnimSampled(object.raw.animation, object.transform.world, setObjectAnimFrame);
 			// Decompose manually on every update for now
-			object.transform.matrix.decompose(object.transform.loc, object.transform.rot, object.transform.scale);
+			object.transform.world.decompose(object.transform.loc, object.transform.rot, object.transform.scale);
 		}
 		else {
 			updateAnimNonSampled(object.raw.animation, object.transform);
@@ -81,7 +81,7 @@ class ObjectAnimation extends Animation {
 		if (objectAnim != null) {
 			var track = objectAnim.tracks[0];
 			var m1 = Mat4.fromFloat32Array(track.values, frame * 16);
-			object.transform.matrix = m1;
+			object.transform.world = m1;
 		}
 	}
 

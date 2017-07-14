@@ -97,7 +97,7 @@ class RayCaster {
 		nor.set(normals[0], normals[1], normals[2]);
 		
 		// Rotate by world rotation matrix
-		m.setFrom(obj.transform.matrix);
+		m.setFrom(obj.transform.world);
 		// m.toRotation();
 		m.getInverse(m);
 		m.transpose3x3();
