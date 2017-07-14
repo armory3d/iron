@@ -41,6 +41,7 @@ class Scene {
 	public var cameras:Array<CameraObject>;
 	public var speakers:Array<SpeakerObject>;
 	public var decals:Array<DecalObject>;
+	public var empties:Array<Object>;
 	public var animations:Array<Animation>;
 
 	public var embedded:Map<String, kha.Image>;
@@ -61,6 +62,7 @@ class Scene {
 		cameras = [];
 		speakers = [];
 		decals = [];
+		empties = [];
 		animations = [];
 		embedded = new Map();
 		root = new Object();
@@ -151,6 +153,8 @@ class Scene {
 	public function renderFrame(g:kha.graphics4.Graphics) {
 		if (!ready) return;
 
+		for (e in empties) if (e != null && e.parent != null) e.transform.update();
+
 		var activeCamera = camera;
 		// Render active mirrors
 		for (cam in cameras) {
@@ -192,6 +196,11 @@ class Scene {
 
 	public function getSpeaker(name:String):SpeakerObject {
 		for (s in speakers) if (s.name == name) return s;
+		return null;
+	}
+
+	public function getEmpty(name:String):Object {
+		for (e in empties) if (e.name == name) return e;
 		return null;
 	}
 
@@ -408,6 +417,7 @@ class Scene {
 		else if (o.type == "object") {
 			var object = addObject(parent);
 			returnObject(object, o, done);
+			empties.push(object);
 		}
 		else done(null);
 	}
