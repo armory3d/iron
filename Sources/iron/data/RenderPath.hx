@@ -270,8 +270,16 @@ class RenderPath {
 		return lamps.length > 0 ? lamps[index] : null;
 	}
 
+	var lastW = 0;
+	var lastH = 0;
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
 		if (!ready) return;
+
+// #if arm_resizable
+		if (lastW > 0 && (lastW != iron.App.w() || lastH != iron.App.h())) data.pathdata.resize();
+		lastW = iron.App.w();
+		lastH = iron.App.h();
+// #end
 
 #if arm_profile
 		drawCalls = 0;

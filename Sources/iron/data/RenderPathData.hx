@@ -20,12 +20,6 @@ class RenderPathData extends Data {
 		this.name = raw.name;
 
 		if (raw.render_targets != null && raw.render_targets.length > 0) {
-			// renderTargets = new Map();
-			
-			// if (raw.depth_buffers != null && raw.depth_buffers.length > 0) {
-				// depthToRenderTarget = new Map();
-			// }
-
 			for (t in raw.render_targets) {
 				createRenderTarget(t);
 			}
@@ -67,6 +61,18 @@ class RenderPathData extends Data {
 			new RenderPathData(raw, done);
 		});
 	}
+
+	public function resize() {
+		for (rt in renderTargets) {
+			if (rt.raw.width == 0) {
+				rt.image.unload();
+				rt.image = createImage(rt.raw, rt.depthStencil);
+				if (rt.depthStencilFrom != "") {
+					rt.image.setDepthStencilFrom(depthToRenderTarget.get(rt.depthStencilFrom).image);
+				}
+			}
+		}
+	}
 	
 	public function createRenderTarget(t:TRenderPathTarget):RenderTarget {
 		var rt = _createRenderTarget(t);
@@ -76,7 +82,7 @@ class RenderPathData extends Data {
 	}
 
 	function _createRenderTarget(t:TRenderPathTarget):RenderTarget {
-		var rt = new RenderTarget();
+		var rt = new RenderTarget(t);
 		// With depth buffer
 		if (t.depth_buffer != null) {
 			rt.hasDepth = true;
@@ -87,14 +93,17 @@ class RenderPathData extends Data {
 				for (db in raw.depth_buffers) {
 					if (db.name == t.depth_buffer) {
 						depthToRenderTarget.set(db.name, rt);
-						rt.image = createImage(t, getDepthStencilFormat(db.format));
+						rt.depthStencil = getDepthStencilFormat(db.format);
+						rt.image = createImage(t, rt.depthStencil);
 						break;
 					}
 				}
 			}
 			// Reuse
 			else {
-				rt.image = createImage(t, DepthStencilFormat.NoDepthAndStencil);
+				rt.depthStencil = DepthStencilFormat.NoDepthAndStencil;
+				rt.depthStencilFrom = t.depth_buffer;
+				rt.image = createImage(t, rt.depthStencil);
 				rt.image.setDepthStencilFrom(depthTarget.image);
 			}
 		}
@@ -104,10 +113,12 @@ class RenderPathData extends Data {
 			if (t.depth != null && t.depth > 1) rt.is3D = true;
 			if (t.is_cubemap) {
 				rt.isCubeMap = true;
-				rt.cubeMap = createCubeMap(t, DepthStencilFormat.NoDepthAndStencil);
+				rt.depthStencil = DepthStencilFormat.NoDepthAndStencil;
+				rt.cubeMap = createCubeMap(t, rt.depthStencil);
 			}
 			else {
-				rt.image = createImage(t, DepthStencilFormat.NoDepthAndStencil);
+				rt.depthStencil = DepthStencilFormat.NoDepthAndStencil;
+				rt.image = createImage(t, rt.depthStencil);
 			}
 		}
 		
@@ -174,6 +185,9 @@ class RenderPathData extends Data {
 }
 
 class RenderTarget {
+	public var raw:TRenderPathTarget;
+	public var depthStencil:DepthStencilFormat;
+	public var depthStencilFrom = "";
 	public var image:Image = null; // RT or image
 	public var cubeMap:CubeMap = null;
 	public var hasDepth = false;
@@ -181,7 +195,7 @@ class RenderTarget {
 	public var pong:RenderTarget = null;
 	public var is3D = false; // sampler2D / sampler3D
 	public var isCubeMap = false;
-	public function new() {}
+	public function new(raw:TRenderPathTarget) { this.raw = raw; }
 	public function unload() {
 		if (image != null) image.unload();
 		if (cubeMap != null) cubeMap.unload();
