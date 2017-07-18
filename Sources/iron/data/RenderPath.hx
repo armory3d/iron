@@ -339,6 +339,10 @@ class RenderPath {
 			currentRenderTargetFace = -1;
 			if (frameScissor) setFrameScissor();
 			begin(currentRenderTarget);
+			#if arm_appwh
+			setCurrentViewport(iron.App.w(), iron.App.h());
+			setCurrentScissor(iron.App.w(), iron.App.h());
+			#end
 		}
 		else { // Render target
 			var rt = data.pathdata.renderTargets.get(target);

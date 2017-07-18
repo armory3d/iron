@@ -38,16 +38,12 @@ class CameraObject extends Object {
 		super();
 
 		this.data = data;
-
 		renderPath = new RenderPath(this);
-
 		nearPlane = data.raw.near_plane;
 		farPlane = data.raw.far_plane;
 
-		var fov = data.raw.fov;
-
+		#if arm_vr
 		if (data.raw.type == "perspective") {
-#if arm_vr
 			var vrImage:kha.Image = Scene.active.embedded.get('vr.png');
 
 			function vrDownListener(index:Int, x:Float, y:Float) {
@@ -75,15 +71,10 @@ class CameraObject extends Object {
 			if (vr != null && vr.IsVrEnabled()) {
 				vr.onVRRequestPresent();
 			}
-#end
-			
-			var w:Float = iron.App.w();
-			var h:Float = iron.App.h();
-			P = Mat4.perspective(fov, w / h, nearPlane, farPlane);
 		}
-		else if (data.raw.type == "orthographic") {
-			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane);
-		}
+		#end
+
+		buildProjection();
 
 // #if arm_veloc
 		// prevP = Mat4.identity();
@@ -104,6 +95,15 @@ class CameraObject extends Object {
 		}
 
 		Scene.active.cameras.push(this);
+	}
+
+	public function buildProjection() {
+		if (data.raw.type == "perspective") {
+			P = Mat4.perspective(data.raw.fov, iron.App.w() / iron.App.h(), nearPlane, farPlane);
+		}
+		else if (data.raw.type == "orthographic") {
+			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane);
+		}
 	}
 
 	public override function remove() {

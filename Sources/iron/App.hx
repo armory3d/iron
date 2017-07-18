@@ -5,6 +5,9 @@ class App {
 #if arm_render
 	public static inline function w():Int { return Main.projectWidth; }
 	public static inline function h():Int { return Main.projectHeight; }
+#elseif arm_appwh
+	public static inline function w():Int { return arm.App.w(); }
+	public static inline function h():Int { return arm.App.h(); }
 #else
 	public static inline function w():Int { return kha.System.windowWidth(); }
 	public static inline function h():Int { return kha.System.windowHeight(); }
