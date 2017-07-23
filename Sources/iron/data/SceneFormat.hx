@@ -393,7 +393,8 @@ typedef TParticleReference = {
 typedef TTrait = {
 	var type:String;
 	var class_name:String;
-	@:optional var parameters:Array<String>;
+	@:optional var parameters:Array<String>; // constructor params
+	@:optional var props:Array<String>; // name - value list
 }
 
 typedef TTransform = {
