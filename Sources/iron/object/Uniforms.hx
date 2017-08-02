@@ -127,9 +127,11 @@ class Uniforms {
 				}
 				else if (tulink == "_sdfTexture") {
 					#if arm_sdf
+					// g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
+					g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+
 					// g.setTexture(context.textureUnits[j], cast(object, MeshObject).data.sdfTex);
 					g.setTexture(context.textureUnits[j], iron.data.MeshData.sdfTex); // Use as global volume for now
-					// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 					#end
 				}
 				// External

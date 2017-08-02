@@ -134,8 +134,9 @@ class MeshData extends Data {
 				if (raw.sdf_ref != null && raw.sdf_ref != '') {
 					Data.getBlob(raw.sdf_ref + '.arm', function(blob:kha.Blob) {
 						var res = 50;
-						// dat.sdfTex = kha.Image.fromBytes(blob.toBytes(), res * res, res, kha.graphics4.TextureFormat.A16, kha.graphics4.Usage.StaticUsage);
-						sdfTex = kha.Image.fromBytes(blob.toBytes(), res * res, res, kha.graphics4.TextureFormat.A16, kha.graphics4.Usage.StaticUsage);
+						sdfTex = kha.Image.fromBytes3D(blob.toBytes(), res, res, res, kha.graphics4.TextureFormat.A16, kha.graphics4.Usage.StaticUsage); // RS/AO
+						// sdfTex = kha.Image.fromBytes3D(blob.toBytes(), res, res, res, kha.graphics4.TextureFormat.RGBA64, kha.graphics4.Usage.StaticUsage); // GI
+						// sdfTex.generateMipmaps(16);
 						done(dat);
 					});
 				}
