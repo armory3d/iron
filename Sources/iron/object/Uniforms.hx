@@ -446,6 +446,14 @@ class Uniforms {
 				}
 				v = helpVec;
 			}
+			else if (c.link == "_lampColorVoxel") {
+				if (lamp != null) {
+					var str = lamp.data.raw.strength; // Merge with strength
+					if (lamp.data.raw.type == 'sun') str *= 100;
+					helpVec.set(lamp.data.raw.color[0] * str, lamp.data.raw.color[1] * str, lamp.data.raw.color[2] * str);
+				}
+				v = helpVec;
+			}
 			else if (c.link == "_lampArea0") {
 				if (lamp != null && lamp.data.raw.size != null) {
 					var sx = lamp.data.raw.size / 2;
