@@ -94,9 +94,13 @@ class RenderPath {
 	}
 
 	static var voxelized = 0;
+	static inline var voxelizeFrame = 2;
 	public static function voxelize(rp:RenderPath) {
 		#if arm_voxelgi_revox
-		return true;
+		// return true;
+		voxelized++;
+		if (voxelized >= voxelizeFrame) { voxelized = 0; return true; }
+		return false;
 		#else
 		return ++voxelized > 2 ? false : true;
 		#end
