@@ -268,10 +268,10 @@ class Scene {
 		});
 	}
 
-	function getObjectsCount(objects:Array<TObj>):Int {
+	function getObjectsCount(objects:Array<TObj>, discardNoSpawn = true):Int {
 		var result = objects.length;
 		for (o in objects) {
-			if (o.spawn != null && o.spawn == false) continue; // Do not count children of non-spawned objects
+			if (discardNoSpawn && o.spawn != null && o.spawn == false) continue; // Do not count children of non-spawned objects
 			if (o.children != null) result += getObjectsCount(o.children);
 		}
 		return result;
@@ -298,8 +298,11 @@ class Scene {
 		}
 	}
 	
-	public function spawnObject(name:String, parent:Object, done:Object->Void) {
-		createObject(getObj(raw, name), raw, parent, null, done);
+	public function spawnObject(name:String, parent:Object, done:Object->Void, spawnChildren = true) {
+		objectsTraversed = 0;
+		var obj = getObj(raw, name);
+		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
+		spawnObjectTree(obj, parent, done, spawnChildren, objectsCount);
 	}
 
 	public function parseObject(sceneName:String, objectName:String, parent:Object, done:Object->Void) {
@@ -307,6 +310,16 @@ class Scene {
 			var o:TObj = getObj(format, objectName);
 			if (o == null) done(null);
 			createObject(o, format, parent, null, done);
+		});
+	}
+
+	function spawnObjectTree(obj:TObj, parent:Object, done:Object->Void, spawnChildren:Bool, objectsCount:Int) {
+		createObject(obj, raw, parent, null, function(object:Object) {
+			if (spawnChildren && obj.children != null) {
+				for (child in obj.children) spawnObjectTree(child, object, done, spawnChildren, objectsCount);
+			}
+			objectsTraversed++;
+			if (objectsTraversed == objectsCount) done(object);
 		});
 	}
 
