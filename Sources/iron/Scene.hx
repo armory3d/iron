@@ -81,7 +81,7 @@ class Scene {
 			active.addScene(format.name, null, function(sceneObject:Object) {
 
 				if (active.cameras.length == 0) {
-					trace('No camera found for scene "$format.name"!');
+					trace('No camera found for scene "' + format.name + '"!');
 					done(null);
 				}
 

@@ -98,8 +98,11 @@ class Uniforms {
 				var tuid = context.raw.texture_units[j].name;
 
 				if (tulink == "_envmapRadiance") {
-					g.setTexture(context.textureUnits[j], Scene.active.world.getGlobalProbe().radiance);
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+					var w = Scene.active.world;
+					if (w != null) {
+						g.setTexture(context.textureUnits[j], w.getGlobalProbe().radiance);
+						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+					}
 				}
 				else if (tulink == "_envmapBrdf") {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('brdf.png'));
@@ -681,11 +684,13 @@ class Uniforms {
 				}
 			}
 			else if (c.link == "_envmapNumMipmaps") {
-				i = Scene.active.world.getGlobalProbe().raw.radiance_mipmaps + 1; // Include basecolor
+				var w = Scene.active.world;
+				i = w != null ? w.getGlobalProbe().raw.radiance_mipmaps + 1 : 1; // Include basecolor
 			}
-			else if (c.link == "_probeID") { // Local probes
-				i = Scene.active.world.getProbeID(object.transform);
-			}
+			// else if (c.link == "_probeID") { // Local probes
+				// var w = Scene.active.world;
+				// i = w != null ? w.getProbeID(object.transform) : 0;
+			// }
 			// External
 			else if (externalIntLinks != null) {
 				for (fn in externalIntLinks) {
