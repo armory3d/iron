@@ -253,19 +253,6 @@ class MeshObject extends Object {
 #if arm_veloc
 		prevMatrix.setFrom(transform.world);
 #end
-
-		// Mesh-only groups for now
-		if (group != null) {
-			for (o in group) {
-				if (Std.is(o, MeshObject)) {
-					o.transform.appendMatrix(transform.world);
-					o.transform.buildMatrix();
-					cast(o, MeshObject).render(g, context, camera, lamp, bindParams);
-					o.transform.popAppendMatrix();
-					o.transform.buildMatrix();
-				}
-			}
-		}
 	}
 
 	public function renderBatch(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>, start = 0, count = -1) {

@@ -264,9 +264,7 @@ class Scene {
 				}
 
 				objectsTraversed = 0;
-				var withGroup:Array<Object> = [];
-				traverseObjects(format, parent, format.objects, null, withGroup, function() { // Scene objects
-					for (object in withGroup) setupGroup(object, format);
+				traverseObjects(format, parent, format.objects, null, function() { // Scene objects
 					done(parent);
 				}, getObjectsCount(format.objects));
 			});
@@ -283,28 +281,25 @@ class Scene {
 	}
 
 	var objectsTraversed:Int;
-	function traverseObjects(format:TSceneFormat, parent:Object, objects:Array<TObj>, parentObject:TObj, withGroup:Array<Object>, done:Void->Void, objectsCount:Int) {
+	function traverseObjects(format:TSceneFormat, parent:Object, objects:Array<TObj>, parentObject:TObj, done:Void->Void, objectsCount:Int) {
 		if (objects == null) return;
 		for (i in 0...objects.length) {
 			var o = objects[i];
 			if (o.spawn != null && o.spawn == false) {
-				objectsTraversed++;
-				if (objectsTraversed == objectsCount) done();
+				if (++objectsTraversed == objectsCount) done();
 				continue; // Do not auto-create this object
 			}
 			
 			createObject(o, format, parent, parentObject, function(object:Object) {
-				if (o.group_ref != null) withGroup.push(object);
-				if (object != null) traverseObjects(format, object, o.children, o, withGroup, done, objectsCount);
-
-				objectsTraversed++;
-				if (objectsTraversed == objectsCount) done();
+				if (object != null) traverseObjects(format, object, o.children, o, done, objectsCount);
+				if (++objectsTraversed == objectsCount) done();
 			});
 		}
 	}
 	
+	var objectsTraversed2:Int;
 	public function spawnObject(name:String, parent:Object, done:Object->Void, spawnChildren = true) {
-		objectsTraversed = 0;
+		objectsTraversed2 = 0;
 		var obj = getObj(raw, name);
 		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
 		spawnObjectTree(obj, parent, done, spawnChildren, objectsCount);
@@ -323,8 +318,7 @@ class Scene {
 			if (spawnChildren && obj.children != null) {
 				for (child in obj.children) spawnObjectTree(child, object, done, spawnChildren, objectsCount);
 			}
-			objectsTraversed++;
-			if (objectsTraversed == objectsCount) done(object);
+			if (++objectsTraversed2 == objectsCount) done(object);
 		});
 	}
 
@@ -434,10 +428,26 @@ class Scene {
 		}
 		else if (o.type == "object") {
 			var object = addObject(parent);
-			returnObject(object, o, done);
 			empties.push(object);
+			returnObject(object, o, function(ro:Object){
+				if (o.group_ref != null) { // Instantiate group objects
+					var spawned = 0;
+					var object_refs = getGroupObjectRefs(o.group_ref);
+					for (s in object_refs) {
+						spawnObject(s, ro, function(so:Object) {
+							if (++spawned == object_refs.length) done(ro);
+						});
+					}
+				}
+				else done(ro);
+			});
 		}
 		else done(null);
+	}
+
+	function getGroupObjectRefs(group_ref:String):Array<String> {
+		for (g in raw.groups) if (g.name == group_ref) return g.object_refs;
+		return null;
 	}
 
 #if arm_stream
@@ -489,19 +499,6 @@ class Scene {
 		// Whether to apply parent matrix
 		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;
 		if (transform.object.parent != null) transform.update();
-	}
-
-	function setupGroup(object:Object, raw:TSceneFormat) {
-		var o = object.raw;
-		if (o.group_ref == null) return;
-		for (g in raw.groups) {
-			// Store referenced group objects
-			if (g.name == o.group_ref) {
-				object.group = [];
-				for (s in g.object_refs) object.group.push(getChild(s));
-				break;
-			}
-		}
 	}
 
 	static function setupAnimation(setup:TAnimationSetup, object:Object) {
