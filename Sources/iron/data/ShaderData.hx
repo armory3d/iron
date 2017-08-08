@@ -176,7 +176,7 @@ class ShaderContext {
 		}
 		else {
 
-			#if arm_shaderload // Load shaders manually
+			#if (arm_shaderload && !kha_debug_html5) // Load shaders manually
 
 			var shadersLoaded = 0;
 			var numShaders = 2;

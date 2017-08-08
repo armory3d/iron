@@ -129,10 +129,14 @@ class Scene {
 		for (o in cameras) o.remove();
 		for (o in speakers) o.remove();
 		for (o in decals) o.remove();
+		for (o in empties) o.remove();
 		root.remove();
 	}
 
+	static var framePassed = true;
 	public static function setActive(sceneName:String, done:Object->Void = null) {
+		if (!framePassed) return;
+		framePassed = false;
 		if (Scene.active != null) Scene.active.remove();
 		iron.data.Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			Scene.create(format, function(o:Object) {
@@ -152,6 +156,7 @@ class Scene {
 
 	public function renderFrame(g:kha.graphics4.Graphics) {
 		if (!ready) return;
+		framePassed = true;
 
 		for (e in empties) if (e != null && e.parent != null) e.transform.update();
 
