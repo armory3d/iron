@@ -121,6 +121,7 @@ class Geometry {
 		instanceCount = Std.int(offsets.length / 3);
 
 		var structure = new VertexStructure();
+		structure.instanced = true;
 		structure.add("off", kha.graphics4.VertexData.Float3);
 
 		instancedVB = new VertexBuffer(instanceCount, structure, usage, 1);
