@@ -23,7 +23,6 @@ import iron.math.Mat4;
 
 typedef TStageCommand = Array<String>->Object->Void;
 
-@:keep
 class RenderPath {
 
 	var camera:CameraObject;
@@ -86,15 +85,18 @@ class RenderPath {
 #end
 
 	// Used by render path nodes for branch functions
+	@:keep
 	public static function lampCastShadow(rp:RenderPath) {
 		return rp.getLamp(rp.currentLampIndex).data.raw.cast_shadow;
 	}
+	@:keep
 	public static function lampIsSun(rp:RenderPath) {
 		return rp.getLamp(rp.currentLampIndex).data.raw.type == "sun";
 	}
 
 	static var voxelized = 0;
 	static inline var voxelizeFrame = 2;
+	@:keep
 	public static function voxelize(rp:RenderPath) {
 		#if arm_voxelgi_revox
 		// return true;
