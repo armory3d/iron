@@ -97,6 +97,7 @@ typedef TCameraData = {
 	@:optional var is_mirror:Bool; // Render camera output to texture
 	@:optional var mirror_resolution_x:Int;
 	@:optional var mirror_resolution_y:Int;
+	@:optional var projection:TFloat32Array; // Feed projection matrix
 }
 
 typedef TMaterialData = {
