@@ -167,6 +167,9 @@ class RenderPathData extends Data {
 		case "A32": return TextureFormat.A32; // Single channels are non-renderable on webgl
 		case "A16": return TextureFormat.A16;
 		case "A8": return TextureFormat.L8;
+		case "R32": return TextureFormat.A32;
+		case "R16": return TextureFormat.A16;
+		case "R8": return TextureFormat.L8;
 		default: return TextureFormat.RGBA32;
 		}
 	}
