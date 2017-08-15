@@ -25,7 +25,7 @@ class SpeakerObject extends Object {
 
 	public function play() {
 		if (sound == null) return;
-		iron.system.Audio.playSound(sound, data.loop);
+		iron.system.Audio.play(sound, data.loop);
 	}
 
 	public override function remove() {

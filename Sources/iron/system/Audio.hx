@@ -8,7 +8,7 @@ class Audio {
 
 	}
 
-	public static function playSound(sound:Sound, loop = false) {
+	public static function play(sound:Sound, loop = false) {
 		kha.audio1.Audio.play(sound, loop);
 	}
 }
