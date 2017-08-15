@@ -5,42 +5,34 @@ import kha.StorageFile;
 class Storage {
 	
 	static var file:StorageFile = null;
-	static var data:Array<Dynamic>;
+	public static var data(get, set):Dynamic;
+	static var _data:Dynamic = null;
 
 	static function init() {
 		file = kha.Storage.defaultFile();
 		if (file != null) {
-			data = file.readObject();
-
-			if (data == null) data = [];
+			_data = file.readObject();
+			if (_data == null) _data = {};
 			save();
 		}
 	}
 	
 	public static function save() {
-		file.writeObject(data);
+		if (file != null) {
+			file.writeObject(_data);
+		}
 	}
 
 	public static function clear() {
-		data = [];
-		save();
+		_data = {};
 	}
 
-	public static function setValue(pos:EnumValue, value:Dynamic) {
+	public static function set_data(d:Dynamic):Dynamic {
+		return _data = d;
+	}
+
+	public static function get_data():Dynamic {
 		if (file == null) init();
-
-		// Get index
-		var p = Type.enumIndex(pos);
-
-		// Extend array
-		while (p > data.length) data.push("");
-
-		// Set value
-		data[p] = value;
-		save();
-	}
-
-	public static function getValue(pos:EnumValue):Dynamic {
-		return data[Type.enumIndex(pos)];
+		return _data;
 	}
 }
