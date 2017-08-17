@@ -128,6 +128,10 @@ class Uniforms {
 				else if (tulink == "_lensTexture") {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('lenstexture.jpg'));
 				}
+				else if (tulink == "_iesTexture") {
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('iestexture.png'));
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+				}
 				else if (tulink == "_sdfTexture") {
 					#if arm_sdf
 					// g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
