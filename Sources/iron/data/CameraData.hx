@@ -29,10 +29,9 @@ class CameraData extends Data {
 		Data.getRenderPath(object_file, data_ref, function(b:RenderPathData) {
 			pathdata = b;
 
-			// Render this camera to texture
-			if (raw.is_mirror) {
+			if (raw.render_to_texture) {
 				mirror = kha.Image.createRenderTarget(
-					raw.mirror_resolution_x, raw.mirror_resolution_y,
+					raw.resolution_x, raw.resolution_y,
 					kha.graphics4.TextureFormat.RGBA32,
 					kha.graphics4.DepthStencilFormat.NoDepthAndStencil);
 			}

@@ -94,9 +94,9 @@ typedef TCameraData = {
 	var render_path:String;
 	var type:String;
 	@:optional var frustum_culling:Bool;
-	@:optional var is_mirror:Bool; // Render camera output to texture
-	@:optional var mirror_resolution_x:Int;
-	@:optional var mirror_resolution_y:Int;
+	@:optional var render_to_texture:Bool;
+	@:optional var resolution_x:Int;
+	@:optional var resolution_y:Int;
 	@:optional var projection:TFloat32Array; // Feed projection matrix
 }
 
