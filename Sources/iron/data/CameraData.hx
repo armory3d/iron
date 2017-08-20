@@ -31,7 +31,7 @@ class CameraData extends Data {
 
 			if (raw.render_to_texture) {
 				mirror = kha.Image.createRenderTarget(
-					raw.resolution_x, raw.resolution_y,
+					raw.texture_resolution_x, raw.texture_resolution_y,
 					kha.graphics4.TextureFormat.RGBA32,
 					kha.graphics4.DepthStencilFormat.NoDepthAndStencil);
 			}
