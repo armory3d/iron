@@ -66,6 +66,7 @@ class Scene {
 		animations = [];
 		embedded = new Map();
 		root = new Object();
+		root.name = "Root";
 		traitInits = [];
 	}
 
@@ -240,7 +241,11 @@ class Scene {
 	}
 
 	public function addScene(sceneName:String, parent:Object, done:Object->Void) {
-		if (parent == null) parent = addObject();
+		if (parent == null) {
+			// parent = addObject();
+			// parent.name = sceneName;
+			parent = root;
+		}
 		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			createTraits(format.traits, parent); // Scene traits
 			loadEmbeddedData(format.embedded_datas, function() { // Additional scene assets
