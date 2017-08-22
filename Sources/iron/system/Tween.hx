@@ -4,7 +4,6 @@ class Tween {
 	static var eases:Array<Float->Float> = [easeLinear, easeExpoOut];
 	static var anims:Array<TAnim> = [];
 	static var map:haxe.ds.ObjectMap<Dynamic, TAnim> = new haxe.ds.ObjectMap();
-	static var comps = ['x', 'y', 'z', 'w'];
 
 	public static function to(anim:TAnim) {
 		anim._time = 0;
@@ -12,7 +11,7 @@ class Tween {
 		
 		if (anim.target != null && anim.props != null) {
 
-			anim._comps = []; anim._x = []; anim._y = []; anim._z = []; anim._w = [];
+			anim._comps = []; anim._x = []; anim._y = []; anim._z = []; anim._w = []; anim._normalize = [];
 			for (p in Reflect.fields(anim.props)) {
 				var val:Dynamic = Reflect.getProperty(anim.target, p);
 				if (Std.is(val, iron.math.Vec4) || Std.is(val, iron.math.Quat)) {
@@ -21,6 +20,7 @@ class Tween {
 					anim._y.push(val.y);
 					anim._z.push(val.z);
 					anim._w.push(val.w);
+					anim._normalize.push(Std.is(val, iron.math.Quat));
 				}
 				else {
 					anim._comps.push(1);
@@ -80,15 +80,34 @@ class Tween {
 						var val:Float = fromVal + (toVal - fromVal) * eases[a.ease](k);
 						Reflect.setProperty(a.target, p, val);
 					}
-					else {
-						for (j in 0...a._comps[i]) {
-							var fromVal:Float = j == 0 ? a._x[i] : j == 1 ? a._y[i] : j == 2 ? a._z[i] : a._w[i];
-							var obj = Reflect.getProperty(a.props, p);
-							var toVal:Float = Reflect.getProperty(obj, comps[j]);
-							var val:Float = fromVal + (toVal - fromVal) * eases[a.ease](k);
-							var t = Reflect.getProperty(a.target, p);
-							Reflect.setProperty(t, comps[j], val);
+					else { // _comps[i] == 4
+						var obj = Reflect.getProperty(a.props, p);
+						var toX:Float = Reflect.getProperty(obj, "x");
+						var toY:Float = Reflect.getProperty(obj, "y");
+						var toZ:Float = Reflect.getProperty(obj, "z");
+						var toW:Float = Reflect.getProperty(obj, "w");
+						if (a._normalize[i]) {
+							var qdot = (a._x[i] * toX) + (a._y[i] * toY) + (a._z[i] * toZ) + (a._w[i] * toW);
+							if (qdot < 0.0) {
+								toX = -toX; toY = -toY; toZ = -toZ; toW = -toW;
+							}
 						}
+						var x:Float = a._x[i] + (toX - a._x[i]) * eases[a.ease](k);
+						var y:Float = a._y[i] + (toY - a._y[i]) * eases[a.ease](k);
+						var z:Float = a._z[i] + (toZ - a._z[i]) * eases[a.ease](k);
+						var w:Float = a._w[i] + (toW - a._w[i]) * eases[a.ease](k);
+						if (a._normalize[i]) {
+							var l = Math.sqrt(x * x + y * y + z * z + w * w);
+							if (l > 0.0) {
+								l = 1.0 / l;
+								x *= l; y *= l; z *= l; w *= l;
+							}
+						}
+						var t = Reflect.getProperty(a.target, p);
+						Reflect.setProperty(t, "x", x);
+						Reflect.setProperty(t, "y", y);
+						Reflect.setProperty(t, "z", z);
+						Reflect.setProperty(t, "w", w);
 					}
 				}
 			}
@@ -113,15 +132,16 @@ typedef TAnim = {
 	var duration:Float;
 	@:optional var done:Void->Void;
 	@:optional var tick:Void->Void;
-	@:optional var delay:Float;
-	@:optional var ease:Ease;
+	@:optional var delay:Null<Float>;
+	@:optional var ease:Null<Ease>;
 	// Internal
-	@:optional var _time:Float;
+	@:optional var _time:Null<Float>;
 	@:optional var _comps:Array<Int>;
 	@:optional var _x:Array<Float>;
 	@:optional var _y:Array<Float>;
 	@:optional var _z:Array<Float>;
 	@:optional var _w:Array<Float>;
+	@:optional var _normalize:Array<Bool>;
 }
 
 @:enum abstract Ease(Int) from Int to Int {
