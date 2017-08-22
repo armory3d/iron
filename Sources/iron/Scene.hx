@@ -353,7 +353,7 @@ class Scene {
 			});
 		}
 		else if (o.type == "mesh_object") {
-			if (o.material_refs.length == 0) {
+			if (o.material_refs == null || o.material_refs.length == 0) {
 				// No material, create empty object
 				var object = addObject(parent);
 				if (o.dimensions != null) object.transform.setDimensions(o.dimensions[0], o.dimensions[1], o.dimensions[2]);

@@ -327,7 +327,7 @@ typedef TObj = {
 	var name:String;
 	var data_ref:String;
 	var transform:TTransform;
-	var material_refs:Array<String>;
+	@:optional var material_refs:Array<String>;
 	@:optional var particle_refs:Array<TParticleReference>;
 	@:optional var children:Array<TObj>;
 	@:optional var group_ref:String;
