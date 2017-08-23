@@ -45,7 +45,7 @@ class LampObject extends Object {
 	}
 
 	public override function remove() {
-		Scene.active.lamps.remove(this);
+		if (Scene.active != null) Scene.active.lamps.remove(this);
 		super.remove();
 	}
 

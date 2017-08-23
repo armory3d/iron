@@ -32,7 +32,7 @@ class MeshBatch {
 
 	public static function isBatchable(m:MeshObject):Bool {
 		// Batch only basic meshes for now
-		return !(m.data.isSkinned || m.materials.length > 1 || isLod(m) || m.data.geom.instanced);
+		return !(m.data.isSkinned || m.materials == null || m.materials.length > 1 || isLod(m) || m.data.geom.instanced);
 	}
 
 	public function addMesh(m:MeshObject) {

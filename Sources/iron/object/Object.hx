@@ -26,11 +26,14 @@ class Object {
 	public var culledMesh = false;
 	public var culledShadow = false;
 	public var properties:Map<String, Dynamic> = null;
+	var isEmpty = false;
 
 	public function new() {
 		uid = uidCounter++;
 		urandom = seededRandom(); //Math.random();
 		transform = new Transform(this);
+		isEmpty = Type.getClass(this) == Object;
+		if (isEmpty && Scene.active != null) Scene.active.empties.push(this);
 	}
 	
 	public function addChild(o:Object) {
@@ -40,6 +43,7 @@ class Object {
 	}
 
 	public function remove() {
+		if (isEmpty && Scene.active != null) Scene.active.empties.remove(this);
 		if (animation != null) animation.remove();
 		while (children.length > 0) children[0].remove();
 		while (traits.length > 0) traits[0].remove();

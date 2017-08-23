@@ -9,6 +9,9 @@ class Audio {
 	}
 
 	public static function play(sound:Sound, loop = false) {
+	#if kha_krom // TODO: Krom sound
+		return;
+	#end
 		kha.audio1.Audio.play(sound, loop);
 	}
 }

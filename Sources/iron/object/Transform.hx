@@ -109,6 +109,7 @@ class Transform {
 	public function setMatrix(mat:Mat4) {
 		local.setFrom(mat);
 		decompose();
+		dirty = true;
 	}
 
 	public function multMatrix(mat:Mat4) {

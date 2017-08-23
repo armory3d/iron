@@ -242,9 +242,8 @@ class Scene {
 
 	public function addScene(sceneName:String, parent:Object, done:Object->Void) {
 		if (parent == null) {
-			// parent = addObject();
-			// parent.name = sceneName;
-			parent = root;
+			parent = addObject();
+			parent.name = sceneName;
 		}
 		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			createTraits(format.traits, parent); // Scene traits
@@ -433,7 +432,6 @@ class Scene {
 		}
 		else if (o.type == "object") {
 			var object = addObject(parent);
-			empties.push(object);
 			returnObject(object, o, function(ro:Object){
 				if (o.group_ref != null) { // Instantiate group objects
 					var spawned = 0;
@@ -531,7 +529,7 @@ class Scene {
 					for (i in 0...Std.int(t.props.length / 2)) {
 						var pname = t.props[i * 2];
 						var pval = t.props[i * 2 + 1];
-						Reflect.setProperty(traitInst, pname, parseArg(pval));
+						if (pval != "") Reflect.setProperty(traitInst, pname, parseArg(pval));
 					}
 				}
 				object.addTrait(traitInst);

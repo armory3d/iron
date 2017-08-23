@@ -29,7 +29,7 @@ class SpeakerObject extends Object {
 	}
 
 	public override function remove() {
-		Scene.active.speakers.remove(this);
+		if (Scene.active != null) Scene.active.speakers.remove(this);
 		super.remove();
 	}
 }

@@ -18,7 +18,7 @@ class DecalObject extends Object {
 	}
 
 	public override function remove() {
-		Scene.active.decals.remove(this);
+		if (Scene.active != null) Scene.active.decals.remove(this);
 		super.remove();
 	}
 	

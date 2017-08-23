@@ -55,7 +55,7 @@ class MeshObject extends Object {
 #if arm_batch
 		Scene.active.meshBatch.removeMesh(this);
 #end
-		Scene.active.meshes.remove(this);
+		if (Scene.active != null) Scene.active.meshes.remove(this);
 		data.refcount--;
 		super.remove();
 	}
