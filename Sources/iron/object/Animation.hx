@@ -8,10 +8,9 @@ import iron.data.SceneFormat;
 
 class Animation {
 
-	public var player:Player = null;
-
 	public var isSkinned:Bool;
 	public var isSampled:Bool;
+	public var action = '';
 
 	// Lerp
 	static var m1 = Mat4.identity();
@@ -23,9 +22,27 @@ class Animation {
 	static var q1 = new Quat();
 	static var q2 = new Quat();
 
-	function new(setup:TAnimationSetup) {
-		player = new Player(setup);
+	public var animTime:Float = 0;
+	public var timeIndex:Int = 0; // TODO: use boneTimeIndices
+	public var dirty:Bool = false;
+	public var onActionComplete:Void->Void = null;
+	public var paused = false;
+	public var frameTime = 1 / 24;
+
+	public function play(action = '', onActionComplete:Void->Void = null) {
+		this.action = action;
+		this.onActionComplete = onActionComplete;
+		dirty = true;
+		paused = false;
+	}
+
+	public function pause() {
+		paused = true;
+	}
+
+	function new() {
 		Scene.active.animations.push(this);
+		play();
 	}
 
 	public function remove() {
@@ -33,80 +50,56 @@ class Animation {
 	}
 
 	public function update(delta:Float) {
-		if (player.paused) return;
-		player.animTime += delta * player.speed * player.dir;
+		if (paused) return;
+		animTime += delta;
 	}	
 
-	inline function checkTimeIndex(player:Player, timeValues:TFloat32Array):Bool {
-		if (player.dir > 0) {
-			return ((player.timeIndex + 1) < timeValues.length && player.animTime > timeValues[player.timeIndex + 1]);
-		}
-		else {
-			return ((player.timeIndex - 1) > 0 && player.animTime < timeValues[player.timeIndex - 1]);
-		}
-	}
-
-	inline function checkTrackEnd(player:Player, track:TTrack):Bool {
-		if (player.dir > 0) {
-			return (player.timeIndex >= track.times.length - 1 || player.timeIndex >= player.current.end);
-		}
-		else {
-			return (player.timeIndex <= 1 || player.timeIndex <= player.current.start);
-		}
+	inline function checkTimeIndex(timeValues:TFloat32Array):Bool {
+		return ((timeIndex + 1) < timeValues.length && animTime > timeValues[timeIndex + 1]);
 	}
 
 	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4, setFrame:Int->Void) {
-		if (anim == null || player.current == null) return;
+		if (anim == null) return;
 		var track = anim.tracks[0];
 
 		// Current track has been changed
-		if (player.dirty) {
-			player.dirty = false;
-			// Single frame - set skin and pause
-			if (player.current.frames == 0) {
-				player.paused = true;
-				setFrame(player.current.start);
-				return;
-			}
+		if (dirty) {
+			dirty = false;
+			
 			// Animation - loop frames
-			else {
-				if (player.current.reflect) player.dir *= -1;
-
-				player.timeIndex = player.dir > 0 ? player.current.start : player.current.end;
-				player.animTime = track.times[player.timeIndex];
-			}
+			timeIndex = 0;
+			animTime = 0;
 		}
 
 		// Move keyframe
 		//var timeIndex = boneTimeIndices.get(b);
-		while (checkTimeIndex(player, track.times)) {
-			player.timeIndex += 1 * player.dir;
+		while (checkTimeIndex(track.times)) {
+			timeIndex += 1;
 		}
 		// Safe check, remove
-		if (player.timeIndex >= track.times.length) player.timeIndex = track.times.length - 1;
+		if (timeIndex >= track.times.length) timeIndex = track.times.length - 1;
 		//boneTimeIndices.set(b, timeIndex);
 
 		// End of track
-		if (checkTrackEnd(player, track)) {
-			if (player.current.loop) player.dirty = true; // Rewind
-			else player.paused = true;
+		if (timeIndex == track.times.length - 1) {
+			dirty = true; // Rewind
 
 			// Give chance to change current track
-			if (player.onTrackComplete != null) player.onTrackComplete();
+			if (onActionComplete != null) onActionComplete();
 
-			//boneTimeIndices.set(b, player.timeIndex);
+			//boneTimeIndices.set(b, timeIndex);
 			//continue;
 			return;
 		}
 
-		var t = player.animTime;
-		var ti = player.timeIndex;
+		var t = animTime;
+		var ti = timeIndex;
 		var t1 = track.times[ti];
-		var t2 = track.times[ti + 1 * player.dir];
+		var t2 = track.times[ti + 1];
 		var s = (t - t1) / (t2 - t1); // Linear
 
 		m1.setF32(track.values, ti * 16); // Offset to 4x4 matrix array
-		m2.setF32(track.values, (ti + 1 * player.dir) * 16);
+		m2.setF32(track.values, (ti + 1) * 16);
 
 		// Decompose
 		m1.decompose(vpos, q1, vscl);
@@ -131,83 +124,8 @@ class Animation {
 #if arm_profile
 	public static var animTime = 0.0;
 	static var startTime = 0.0;
-
-	static function beginProfile() {
-		startTime = kha.Scheduler.realTime();
-	}
-
-	static function endProfile() {
-		animTime += kha.Scheduler.realTime() - startTime;
-	}
-
-	public static function endFrame() {
-		animTime = 0;
-	}
+	static function beginProfile() { startTime = kha.Scheduler.realTime(); }
+	static function endProfile() { animTime += kha.Scheduler.realTime() - startTime; }
+	public static function endFrame() { animTime = 0; }
 #end
-}
-
-class Player {
-
-	public var animTime:Float = 0;
-	public var timeIndex:Int = 0; // TODO: use boneTimeIndices
-	public var dirty:Bool = false;
-
-	public var current:Track = null;
-	var tracks:Map<String, Track> = new Map();
-	public var onTrackComplete:Void->Void = null;
-
-	public var paused = false;
-	public var speed:Float;
-	public var dir:Int;
-
-	public var frameTime:Float;
-
-	public function new(setup:TAnimationSetup) {
-		frameTime = setup.frame_time;
-		for (i in 0...setup.names.length) {
-			addTrack(setup.names[i], setup.starts[i], setup.ends[i], setup.speeds[i], setup.loops[i], setup.reflects[i]);
-		}
-
-		play(setup.start_track);
-	}
-
-	public function play(name:String, onTrackComplete:Void->Void = null) {
-		current = tracks.get(name);
-		if (current == null) return; // Track not found
-		this.onTrackComplete = onTrackComplete;
-		dirty = true;
-		paused = false;
-		dir = current.speed >= 0 ? 1 : -1;
-		if (current.reflect) dir *= -1; // Start at correct dir for reflect
-		speed = Math.abs(current.speed);
-	}
-
-	public function pause() {
-		paused = true;
-	}
-
-	function addTrack(name:String, start:Int, end:Int, speed:Float, loop:Bool, reflect:Bool) {
-		var t = new Track(name, start, end, speed, loop, reflect);
-		tracks.set(name, t);
-	}
-}
-
-class Track {
-	public var name:String;
-	public var start:Int;
-	public var end:Int;
-	public var frames:Int;
-	public var speed:Float;
-	public var loop:Bool;
-	public var reflect:Bool;
-
-	public function new(name:String, start:Int, end:Int, speed:Float, loop:Bool, reflect:Bool) {
-		this.name = name;
-		this.start = start;
-		this.end = end;
-		frames = end - start;
-		this.speed = speed;
-		this.loop = loop;
-		this.reflect = reflect;
-	}
 }

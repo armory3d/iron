@@ -50,10 +50,13 @@ class Geometry {
 	public var skinBoneIndices:TUint32Array = null;
 	public var skinBoneWeights:TFloat32Array = null;
 
-	public var skeletonBoneRefs:Array<String> = null;
-	public var skeletonBones:Array<TObj> = null;
 	public var skeletonTransforms:Array<Mat4> = null;
 	public var skeletonTransformsI:Array<Mat4> = null;
+	public var skeletonBoneRefs:Array<String> = null;
+	public var skeletonBones:Array<TObj> = null;
+	public var skeletonMats:Map<TObj, Mat4> = null;
+	public var actions:Map<String, Array<TObj>> = null;
+	public var mats:Map<String, Map<TObj, Mat4>> = null;
 
 	public function new(indices:Array<TUint32Array>, materialIndices:Array<Int>,
 						positions:TFloat32Array,
@@ -316,17 +319,39 @@ class Geometry {
 	}
 
 	// Skinned
-	public function initSkeletonBones(bones:Array<TObj>) {
-		skeletonBones = [];
+	public function addAction(bones:Array<TObj>, name:String) {
+		if (actions == null) {
+			actions = new Map();
+			mats = new Map();
+		}
+		var actionBones:Array<TObj> = [];
 
 		// Set bone references
 		for (s in skeletonBoneRefs) {
 			for (b in bones) {
 				if (b.name == s) {
-					skeletonBones.push(b);
+					actionBones.push(b);
 				}
 			}
 		}
+		actions.set(name, actionBones);
+
+		var actionMats = new Map<TObj, Mat4>();
+		for (b in actionBones) {
+			actionMats.set(b, Mat4.fromFloat32Array(b.transform.values));
+			// boneTimeIndices.set(b, 0);
+		}
+		mats.set(name, actionMats);
+
+		if (skeletonBones == null) {
+			skeletonBones = actionBones;
+			skeletonMats = actionMats;
+		}
+	}
+
+	public function setAction(action:String) {
+		skeletonBones = actions.get(action);
+		skeletonMats = mats.get(action);
 	}
 
 	public function initSkeletonTransforms(transforms:Array<TFloat32Array>) {

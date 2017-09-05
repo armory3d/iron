@@ -390,16 +390,21 @@ class Scene {
 							}
 
 							// Bone objects are stored in armature parent
-							if (parentObject != null && parentObject.bones_ref != null) {
-								Data.getSceneRaw(parentObject.bones_ref, function(boneformat:TSceneFormat) {
-									var boneObjects:Array<TObj> = boneformat.objects;
-									#if arm_stream
-									streamMeshObject(
-									#else
-									returnMeshObject(
-									#end
-										object_file, data_ref, sceneName, boneObjects, materials, parent, o, done);
-								});
+							if (parentObject != null && parentObject.action_refs != null) {
+								var actions:Array<TSceneFormat> = [];
+								for (ref in parentObject.action_refs) {
+									Data.getSceneRaw(ref, function(action:TSceneFormat) {
+										actions.push(action);
+										if (actions.length == parentObject.action_refs.length) {
+											#if arm_stream
+											streamMeshObject(
+											#else
+											returnMeshObject(
+											#end
+												object_file, data_ref, sceneName, actions, materials, parent, o, done);
+										}
+									});
+								}
 							}
 							else {
 								#if arm_stream
@@ -454,8 +459,8 @@ class Scene {
 	}
 
 #if arm_stream
-	function streamMeshObject(object_file:String, data_ref:String, sceneName:String, boneObjects:Array<TObj>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
-		sceneStream.add(object_file, data_ref, sceneName, boneObjects, materials, parent, o);
+	function streamMeshObject(object_file:String, data_ref:String, sceneName:String, actions:Array<TSceneFormat>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
+		sceneStream.add(object_file, data_ref, sceneName, actions, materials, parent, o);
 		// TODO: Increase objectsTraversed by full children count
 		if (o.children != null) objectsTraversed += o.children.length;
 		// Return immediately and stream progressively
@@ -463,8 +468,8 @@ class Scene {
 	}
 #end
 
-	public function returnMeshObject(object_file:String, data_ref:String, sceneName:String, boneObjects:Array<TObj>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
-		Data.getMesh(object_file, data_ref, boneObjects, function(mesh:MeshData) {
+	public function returnMeshObject(object_file:String, data_ref:String, sceneName:String, actions:Array<TSceneFormat>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
+		Data.getMesh(object_file, data_ref, actions, function(mesh:MeshData) {
 			var object = addMeshObject(mesh, materials, parent);
 		
 			// Attach particle system
@@ -486,7 +491,7 @@ class Scene {
 			if (o.visible_shadow != null) object.visibleShadow = o.visible_shadow;
 			createConstraints(o.constraints, object);
 			generateTranform(o, object.transform);
-			setupAnimation(o.animation_setup, object);
+			object.setupAnimation();
 			if (o.dimensions == null) { // Assume 2x2x2 dimensions
 				var sc = object.transform.scale;
 				object.transform.setDimensions(2.0 * sc.x, 2.0 * sc.y, 2.0 * sc.z);
@@ -502,11 +507,6 @@ class Scene {
 		// Whether to apply parent matrix
 		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;
 		if (transform.object.parent != null) transform.update();
-	}
-
-	static function setupAnimation(setup:TAnimationSetup, object:Object) {
-		if (setup == null) return;
-		object.setupAnimation(setup);
 	}
 
 	static function createTraits(traits:Array<TTrait>, object:Object) {

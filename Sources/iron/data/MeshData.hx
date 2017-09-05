@@ -22,7 +22,6 @@ class MeshData extends Data {
 #end
 
 	public var isSkinned:Bool;
-	public var bones:Array<TObj> = [];
 	// public var sdfTex:kha.Image = null;
 
 #if arm_sdf
@@ -100,7 +99,7 @@ class MeshData extends Data {
 		geom.delete();
 	}
 
-	public static function parse(name:String, id:String, boneObjects:Array<TObj>, done:MeshData->Void) {
+	public static function parse(name:String, id:String, actions:Array<TSceneFormat>, done:MeshData->Void) {
 		Data.getSceneRaw(name, function(format:TSceneFormat) {
 			var raw:TMeshData = Data.getMeshRawByName(format.mesh_datas, id);
 			if (raw == null) {
@@ -111,23 +110,18 @@ class MeshData extends Data {
 			new MeshData(raw, function(dat:MeshData) {
 				// Skinned
 				if (raw.skin != null) {
-					var objects = boneObjects != null ? boneObjects : format.objects;
-					if (objects != null) { // Wrong data
-						for (o in objects) setParents(o);
-						traverseObjects(objects, function(object:TObj) {
-							if (object.type == "bone_object") {
-								dat.bones.push(object);
-							}
-						});
-					}
-
 					dat.geom.initSkinTransform(raw.skin.transform.values);
 					dat.geom.skinBoneCounts = raw.skin.bone_count_array;
 					dat.geom.skinBoneIndices = raw.skin.bone_index_array;
 					dat.geom.skinBoneWeights = raw.skin.bone_weight_array;
 					dat.geom.skeletonBoneRefs = raw.skin.skeleton.bone_ref_array;
-					dat.geom.initSkeletonBones(dat.bones);
 					dat.geom.initSkeletonTransforms(raw.skin.skeleton.transforms);
+					if (actions != null) {
+						for (action in actions) dat.addAction(action.objects, action.name);
+					}
+					else {
+						dat.addAction(format.objects, 'none');
+					}
 				}
 				// Sdf-enabled
 				#if arm_sdf
@@ -145,6 +139,16 @@ class MeshData extends Data {
 					done(dat);
 			});
 		});
+	}
+
+	public function addAction(objects:Array<TObj>, name:String) {
+		if (objects == null) return;
+		for (o in objects) setParents(o);
+		var bones:Array<TObj> = [];
+		traverseObjects(objects, function(object:TObj) {
+			if (object.type == "bone_object") bones.push(object);
+		});
+		geom.addAction(bones, name);
 	}
 
 	static function setParents(object:TObj) {

@@ -336,9 +336,9 @@ typedef TObj = {
 	@:optional var traits:Array<TTrait>;
 	@:optional var constraints:Array<TConstraint>;
 	@:optional var dimensions:TFloat32Array; // Geometry objects
-	@:optional var animation:TAnimation;
+	@:optional var animation:TAnimation; // Object
 	@:optional var animation_transforms:Array<TAnimationTransform>;
-	@:optional var bones_ref:String;
+	@:optional var action_refs:Array<String>; // Bone
 	@:optional var parent:TObj;
 	@:optional var visible:Null<Bool>;
 	@:optional var visible_mesh:Null<Bool>;
@@ -346,7 +346,6 @@ typedef TObj = {
 	@:optional var mobile:Null<Bool>;
 	@:optional var spawn:Null<Bool>; // Auto add object when creating scene
 	@:optional var local_transform_only:Null<Bool>; // No parent matrix applied
-	@:optional var animation_setup:TAnimationSetup;
 }
 
 typedef TGroup = {
@@ -357,18 +356,6 @@ typedef TGroup = {
 typedef TLod = {
 	var object_ref:String; // Empty when limiting draw distance
 	var screen_size:Float; // (0-1) size compared to lod0
-}
-
-typedef TAnimationSetup = {
-	var start_track:String;
-	var frame_time:Float;
-	var names:Array<String>;
-	var starts:TUint32Array;
-	var ends:TUint32Array;
-	var speeds:TFloat32Array;
-	var loops:Array<Bool>;
-	var reflects:Array<Bool>;
-	var max_bones:Int;
 }
 
 typedef TConstraint = {

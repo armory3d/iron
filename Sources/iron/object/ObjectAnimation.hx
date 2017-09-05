@@ -10,8 +10,8 @@ class ObjectAnimation extends Animation {
 
 	public var object:Object;
 
-	public function new(object:Object, setup:TAnimationSetup) {
-		super(setup);
+	public function new(object:Object) {
+		super();
 		this.isSkinned = false;
 		this.object = object;
 
@@ -53,7 +53,7 @@ class ObjectAnimation extends Animation {
 #end
 
 		super.update(delta);
-		if (player.paused) return;
+		if (paused) return;
 
 		if (!isSkinned) {
 			updateObjectAnim();
@@ -96,74 +96,50 @@ class ObjectAnimation extends Animation {
 	inline function interpolateTcb() {}
 
 	function updateAnimNonSampled(anim:TAnimation, transform:Transform) {
-		if (anim == null || player.current == null) return;
+		if (anim == null) return;
 		
-		var begin = anim.begin;
-		var end = anim.end;
-		var total = end - begin;
+		var total = anim.end - anim.begin;
 
-		if (player.dirty) {
-			player.dirty = false;
-			player.animTime = player.current.start * player.frameTime;
-			player.timeIndex = 0;
+		if (dirty) {
+			dirty = false;
+			animTime = 0;
+			timeIndex = 0;
 			var track = anim.tracks[0];
-			while (player.animTime > track.times[player.timeIndex] + player.frameTime) {
-				player.timeIndex++;
+			while (animTime > track.times[timeIndex] + frameTime) {
+				timeIndex++;
 			}
 		}
-
-		// Track with no frames - keep idle
-		if (player.current.frames == 0) return;
 
 		for (track in anim.tracks) {
 
 			// No data for this track at current time
-			if (player.timeIndex >= track.times.length) continue;
+			if (timeIndex >= track.times.length) continue;
 
 			// End of track
-			if (player.animTime > total || player.animTime < 0 ||
-				(player.animTime > player.current.end * player.frameTime - player.frameTime && player.dir > 0) ||
-				(player.animTime < player.current.start * player.frameTime + player.frameTime && player.dir < 0)
-				) {
-
-				if (!player.current.loop) {
-					player.paused = true;
-					return;
-				}
-
-				if (player.current.reflect) player.dir *= -1; // Reflect
-				
-				player.animTime = player.dir > 0 ? 0 : total; // Rewind
-				player.timeIndex = player.dir > 0 ? 0 : track.times.length - 1;
+			if (animTime > total) {
+				animTime = 0; // Rewind
+				timeIndex = 0;
 			}
 
 			// End of current time range
-			var t = player.animTime + begin;
-			if (player.dir > 0) {
-				while (player.timeIndex < track.times.length - 2 && t > track.times[player.timeIndex + 1]) {
-					player.timeIndex++;
-				}
-			}
-			// Reversed
-			else {
-				while (player.timeIndex > 1 && t < track.times[player.timeIndex - 1]) {
-					player.timeIndex--;
-				}
+			var t = animTime + anim.begin;
+			while (timeIndex < track.times.length - 2 && t > track.times[timeIndex + 1]) {
+				timeIndex++;
 			}
 
-			var ti = player.timeIndex;
+			var ti = timeIndex;
 			var t1 = track.times[ti];
-			var t2 = track.times[ti + 1 * player.dir];
+			var t2 = track.times[ti + 1];
 			var interpolate = interpolateLinear;
 			switch (track.curve) {
 			case "linear": interpolate = interpolateLinear;
 			case "bezier": interpolate = interpolateBezier;
 			// case "tcb": interpolate = interpolateTcb;
 			}
-			var s = player.dir > 0 ? interpolate(t, t1, t2) : interpolate(t1 - (t - t2), t2, t1);
+			var s = interpolate(t, t1, t2);
 			var invs = 1.0 - s;
 			var v1 = track.values[ti];
-			var v2 = track.values[ti + 1 * player.dir];
+			var v2 = track.values[ti + 1];
 			var v = v1 * invs + v2 * s;
 
 			switch (track.target) {

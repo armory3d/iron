@@ -13,7 +13,7 @@ typedef TMeshHandle = {
 	var object_file:String;
 	var data_ref:String;
 	var sceneName:String;
-	var boneObjects:Array<TObj>;
+	var actions:Array<TSceneFormat>;
 	var materials:Vector<MaterialData>;
 	var parent:Object;
 	var obj:TObj;
@@ -45,8 +45,8 @@ class SceneStream {
 		sectors = [new StreamSector()];
 	}
 
-	public function add(object_file:String, data_ref:String, sceneName:String, boneObjects:Array<TObj>, materials:Vector<MaterialData>, parent:Object, obj:TObj) {
-		sectors[0].handles.push({object_file: object_file, data_ref: data_ref, sceneName: sceneName, boneObjects: boneObjects, materials: materials, parent: parent, obj: obj, object: null, loading: false});
+	public function add(object_file:String, data_ref:String, sceneName:String, actions:Array<TSceneFormat>, materials:Vector<MaterialData>, parent:Object, obj:TObj) {
+		sectors[0].handles.push({object_file: object_file, data_ref: data_ref, sceneName: sceneName, actions: actions, materials: materials, parent: parent, obj: obj, object: null, loading: false});
 	}
 
 	function setup(camera:CameraObject) {
@@ -88,7 +88,7 @@ class SceneStream {
 			if (cameraDistance < loadDistance && h.object == null && !h.loading) {
 				h.loading = true;
 				loading++;
-				iron.Scene.active.returnMeshObject(h.object_file, h.data_ref, h.sceneName, h.boneObjects, h.materials, h.parent, h.obj, function(object:Object) {
+				iron.Scene.active.returnMeshObject(h.object_file, h.data_ref, h.sceneName, h.actions, h.materials, h.parent, h.obj, function(object:Object) {
 					h.object = cast(object, MeshObject);
 					h.loading = false;
 					loading--;

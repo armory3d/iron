@@ -8,12 +8,13 @@ import iron.data.SceneFormat;
 
 class BoneAnimation extends Animation {
 
+	public static var skinMaxBones = 50;
+
 	// Skinning
 	public var object:MeshObject;
 	public var data:MeshData;
 	public var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
-	public var boneMats = new Map<TObj, Mat4>();
-	public var boneTimeIndices = new Map<TObj, Int>();
+	// public var boneTimeIndices = new Map<TObj, Int>();
 
 	var m = Mat4.identity(); // Skinning matrix
 	var bm = Mat4.identity(); // Absolute bone matrix
@@ -27,8 +28,8 @@ class BoneAnimation extends Animation {
 	static var q1 = new Quat();
 	static var q2 = new Quat();
 
-	public function new(mo:MeshObject, setup:TAnimationSetup) {
-		super(setup);
+	public function new(mo:MeshObject) {
+		super();
 		this.object = mo;
 		this.data = mo.data;
 		this.isSkinned = data.isSkinned;
@@ -36,14 +37,17 @@ class BoneAnimation extends Animation {
 
 		if (this.isSkinned) {
 			if (!MeshData.ForceCpuSkinning) {
-				this.skinBuffer = new haxe.ds.Vector(setup.max_bones * 8); // Dual quat // * 12 for matrices
+				this.skinBuffer = new haxe.ds.Vector(skinMaxBones * 8); // Dual quat // * 12 for matrices
 				for (i in 0...this.skinBuffer.length) this.skinBuffer[i] = 0;
 			}
+		}
+	}
 
-			for (b in data.geom.skeletonBones) {
-				this.boneMats.set(b, Mat4.fromFloat32Array(b.transform.values));
-				this.boneTimeIndices.set(b, 0);
-			}
+	override public function play(action = '', onActionComplete:Void->Void = null) {
+		super.play(onActionComplete);
+		if (action != '') {
+			dirty = true;
+			object.data.geom.setAction(action);
 		}
 	}
 
@@ -55,7 +59,7 @@ class BoneAnimation extends Animation {
 #end
 
 		super.update(delta);
-		if (player.paused) return;
+		if (paused) return;
 
 		if (isSkinned) {
 			updateBoneAnim();
@@ -69,7 +73,7 @@ class BoneAnimation extends Animation {
 
 	function updateBoneAnim() {
 		for (b in data.geom.skeletonBones) {
-			updateAnimSampled(b.animation, boneMats.get(b), setBoneAnimFrame);
+			updateAnimSampled(b.animation, data.geom.skeletonMats.get(b), setBoneAnimFrame);
 		}
 	}
 
@@ -79,7 +83,7 @@ class BoneAnimation extends Animation {
 			if (boneAnim != null) {
 				var track = boneAnim.tracks[0];
 				var m1 = Mat4.fromFloat32Array(track.values, frame * 16); // Offset to 4x4 matrix array
-				boneMats.set(b, m1);
+				data.geom.skeletonMats.set(b, m1);
 			}
 		}
 		updateSkin();
@@ -98,10 +102,10 @@ class BoneAnimation extends Animation {
 			
 			bm.setFrom(data.geom.skinTransform);
 			bm.multmat2(data.geom.skeletonTransformsI[i]);
-			m.setFrom(boneMats.get(bones[i]));
+			m.setFrom(data.geom.skeletonMats.get(bones[i]));
 			var p = bones[i].parent;
 			while (p != null) { // TODO: store absolute transforms per bone
-				var pm = boneMats.get(p);
+				var pm = data.geom.skeletonMats.get(p);
 				if (pm == null) pm = Mat4.fromFloat32Array(p.transform.values);
 				m.multmat2(pm);
 				p = p.parent;
@@ -182,10 +186,10 @@ class BoneAnimation extends Animation {
 
 				m.multmat2(data.geom.skeletonTransformsI[boneIndex]);
 
-				bm.setFrom(boneMats.get(bone));
+				bm.setFrom(data.geom.skeletonMats.get(bone));
 				var p = bone.parent;
 				while (p != null) { // TODO: store absolute transforms per bone
-					var pm = boneMats.get(p);
+					var pm = data.geom.skeletonMats.get(p);
 					if (pm == null) pm = Mat4.fromFloat32Array(p.transform.values);
 					bm.multmat2(pm);
 					p = p.parent;

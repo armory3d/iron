@@ -118,8 +118,9 @@ class Object {
 		return null;
 	}
 
-	public function setupAnimation(setup:TAnimationSetup) {
-		animation = new ObjectAnimation(this, setup);
+	public function setupAnimation() {
+		if (raw.animation == null) return;
+		animation = new ObjectAnimation(this);
 	}
 
 	static var seed = 1; // cpp / js not consistent
