@@ -440,12 +440,14 @@ class Data {
 	static var loadingSounds:Map<String, Array<kha.Sound->Void>> = new Map();
 	public static function getSound(file:String, done:kha.Sound->Void) {
 
-		#if kha_krom // TODO: Krom sound
-		done(null);
-		return;
+		// TODO: Krom sound freezes on MacOS
+		#if kha_krom
+		if (kha.System.systemId == 'OSX') { done(null); return; }
 		#end
 
+		#if arm_soundcompress
 		if (StringTools.endsWith(file, '.wav')) file = file.substring(0, file.length - 4) + '.ogg';
+		#end
 
 		var cached = cachedSounds.get(file);
 		if (cached != null) { done(cached); return; }
