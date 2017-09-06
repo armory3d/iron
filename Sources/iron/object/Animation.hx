@@ -56,6 +56,7 @@ class Animation {
 
 	inline function checkTimeIndex(timeValues:TFloat32Array):Bool {
 		return ((timeIndex + 1) < timeValues.length && animTime > timeValues[timeIndex + 1]);
+		// return ((timeIndex + 1) < timeValues.length && animTime > (timeIndex + 1) * (frameTime));
 	}
 
 	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4, setFrame:Int->Void) {
@@ -68,7 +69,7 @@ class Animation {
 			
 			// Animation - loop frames
 			timeIndex = 0;
-			animTime = 0;
+			animTime = track.times[0];
 		}
 
 		// Move keyframe
