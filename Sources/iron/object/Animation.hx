@@ -123,10 +123,10 @@ class Animation {
 	}
 
 #if arm_profile
-	public static var animTime = 0.0;
+	public static var animationTime = 0.0;
 	static var startTime = 0.0;
 	static function beginProfile() { startTime = kha.Scheduler.realTime(); }
-	static function endProfile() { animTime += kha.Scheduler.realTime() - startTime; }
-	public static function endFrame() { animTime = 0; }
+	static function endProfile() { animationTime += kha.Scheduler.realTime() - startTime; }
+	public static function endFrame() { animationTime = 0; }
 #end
 }

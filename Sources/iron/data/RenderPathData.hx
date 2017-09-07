@@ -129,6 +129,16 @@ class RenderPathData extends Data {
 		var width = t.width == 0 ? iron.App.w() : t.width;
 		var height = t.height == 0 ? iron.App.h() : t.height;
 		var depth = t.depth != null ? t.depth : 0;
+		if (t.displayp != null) { // 1080p/..
+			if (width > height) {
+				height = Std.int(height * (t.displayp / width));
+				width = t.displayp;
+			}
+			else {
+				width = Std.int(width * (t.displayp / height));
+				height = t.displayp;
+			}
+		}
 		if (t.scale != null) {
 			width = Std.int(width * t.scale);
 			height = Std.int(height * t.scale);

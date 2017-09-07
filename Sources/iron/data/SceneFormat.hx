@@ -220,6 +220,7 @@ typedef TRenderPathTarget = {
 	var height:Int;
 	@:optional var format:String;
 	@:optional var scale:Null<Float>;
+	@:optional var displayp:Null<Int>; // Set to 1080p/...
 	// 2D texture
 	@:optional var depth_buffer:String;
 	@:optional var ping_pong:Null<Bool>;
