@@ -111,8 +111,8 @@ class Mouse extends VirutalInput {
 	public var movementX(default, null) = 0.0;
 	public var movementY(default, null) = 0.0;
 	public var wheelDelta(default, null) = 0;
-	// var lastX = 0.0;
-	// var lastY = 0.0;
+	var lastX = 0.0;
+	var lastY = 0.0;
 
 	public function new() {
 		kha.input.Mouse.get().notify(downListener, upListener, moveListener, wheelListener);
@@ -167,12 +167,12 @@ class Mouse extends VirutalInput {
 	}
 	
 	function moveListener(x:Int, y:Int, movementX:Int, movementY:Int) {
-		this.movementX = movementX;
-		this.movementY = movementY;
-		// movementX = x - lastX;
-		// movementY = y - lastY;
-		// lastX = x;
-		// lastY = y;
+		// this.movementX = movementX;
+		// this.movementY = movementY;
+		this.movementX = x - lastX;
+		this.movementY = y - lastY;
+		lastX = x;
+		lastY = y;
 		this.x = x;
 		this.y = y;
 		moved = true;
