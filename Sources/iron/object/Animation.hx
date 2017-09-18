@@ -66,30 +66,23 @@ class Animation {
 		// Current track has been changed
 		if (dirty) {
 			dirty = false;
-			
-			// Animation - loop frames
 			timeIndex = 0;
 			animTime = track.times[0];
 		}
 
 		// Move keyframe
 		//var timeIndex = boneTimeIndices.get(b);
-		while (checkTimeIndex(track.times)) {
-			timeIndex += 1;
-		}
-		// Safe check, remove
-		if (timeIndex >= track.times.length) timeIndex = track.times.length - 1;
+		while (checkTimeIndex(track.times)) timeIndex++;
 		//boneTimeIndices.set(b, timeIndex);
 
 		// End of track
-		if (timeIndex == track.times.length - 1) {
+		if (timeIndex >= track.times.length - 1) {
 			dirty = true; // Rewind
 
-			// Give chance to change current track
 			if (onActionComplete != null) onActionComplete();
-
 			//boneTimeIndices.set(b, timeIndex);
-			//continue;
+
+			// Give chance to change current track
 			return;
 		}
 
@@ -108,9 +101,8 @@ class Animation {
 
 		// Lerp
 		var fp = Vec4.lerp(vpos, vpos2, 1.0 - s);
-		// var fp = Vec4.lerp(p1, p2, s);
+		var fs = Vec4.lerp(vscl, vscl2, 1.0 - s);
 		var fq = Quat.lerp(q1, q2, s);
-		var fs = Vec4.lerp(vscl, vscl2, s);
 
 		// Compose
 		var m = targetMatrix;
