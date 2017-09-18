@@ -185,6 +185,10 @@ class Scene {
 		return root.getChild(name);
 	}
 
+	public function getTrait(c:Class<Trait>):Dynamic {
+		return root.children.length > 0 ? root.children[0].getTrait(c) : null;
+	}
+
 	public function getMesh(name:String):MeshObject {
 		for (m in meshes) if (m.name == name) return m;
 		return null;
