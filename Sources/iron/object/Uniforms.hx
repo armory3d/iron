@@ -689,7 +689,7 @@ class Uniforms {
 			}
 			else if (c.link == "_envmapNumMipmaps") {
 				var w = Scene.active.world;
-				i = w != null ? w.getGlobalProbe().raw.radiance_mipmaps + 1 : 1; // Include basecolor
+				i = w != null ? w.getGlobalProbe().raw.radiance_mipmaps + 1 - 2 : 1; // Include basecolor and exclude 2 scaled mips
 			}
 			// else if (c.link == "_probeID") { // Local probes
 				// var w = Scene.active.world;
