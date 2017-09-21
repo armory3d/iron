@@ -13,9 +13,9 @@ class Tilesheet {
 	var ready:Bool;
 
 	var paused = false;
-
 	var frame = 0;
 	var time = 0.0;
+	var onActionComplete:Void->Void = null;
 
 	public function new(sceneName:String, tilesheet_ref:String, tilesheet_action_ref:String) {
 		ready = false;
@@ -31,9 +31,11 @@ class Tilesheet {
 		});
 	}
 
-	public function play(action_ref:String) {
+	public function play(action_ref:String, onActionComplete:Void->Void = null) {
+		this.onActionComplete = onActionComplete;
 		for (a in raw.actions) if (a.name == action_ref) { action = a; break; }
 		setFrame(action.start);
+		paused = false;
 	}
 
 	public function remove() {
@@ -41,7 +43,7 @@ class Tilesheet {
 	}
 
 	public function update() {
-		if (!ready || paused) return;
+		if (!ready || paused || action.start >= action.end) return;
 
 		time += Time.delta;
 
@@ -62,6 +64,7 @@ class Tilesheet {
 
 		// Action end
 		if (frame >= action.end && action.start < action.end) {
+			if (onActionComplete != null) onActionComplete();
 			if (action.loop) setFrame(action.start);
 			else paused = true;
 		}

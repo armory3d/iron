@@ -327,6 +327,42 @@ class Uniforms {
 					m = helpMat;
 				}
 			}
+			else if (c.link == "_lampWorldViewProjectionMatrixSphere") {
+				if (lamp != null) {
+					helpMat.setIdentity();
+					helpMat.multmat2(object.transform.world);
+					
+					// Align to camera..
+					helpMat.multmat2(camera.V);
+					helpMat._00 = 1.0; helpMat._10 = 0.0; helpMat._20 = 0.0;
+					helpMat._01 = 0.0; helpMat._11 = 1.0; helpMat._21 = 0.0;
+					helpMat._02 = 0.0; helpMat._12 = 0.0; helpMat._22 = 1.0;
+					helpMat2.getInverse(camera.V);
+					helpMat.multmat2(helpMat2);
+
+					helpMat.multmat2(lamp.V);
+					helpMat.multmat2(lamp.P);
+					m = helpMat;
+				}
+			}
+			else if (c.link == "_lampWorldViewProjectionMatrixCylinder") {
+				if (lamp != null) {
+					helpMat.setIdentity();
+					helpMat.multmat2(object.transform.world);
+					
+					// Align to camera..
+					helpMat.multmat2(camera.V);
+					helpMat._00 = 1.0;  helpMat._20 = 0.0;
+					helpMat._01 = 0.0;  helpMat._21 = 0.0;
+					helpMat._02 = 0.0;  helpMat._22 = 1.0;
+					helpMat2.getInverse(camera.V);
+					helpMat.multmat2(helpMat2);
+
+					helpMat.multmat2(lamp.V);
+					helpMat.multmat2(lamp.P);
+					m = helpMat;
+				}
+			}
 			else if (c.link == "_biasLampWorldViewProjectionMatrix") {
 				if (lamp != null)  {
 					helpMat.setIdentity();
