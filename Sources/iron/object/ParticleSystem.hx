@@ -8,38 +8,39 @@ import iron.system.Time;
 import iron.math.Vec4;
 
 class ParticleSystem {
-
-	var name:String;
-	var data:ParticleData;
-	var seed:Int;
-
-	var object:MeshObject;
-
+	public var data:ParticleData;
 	var particles:Array<Particle>;
-
 	var ready:Bool;
+	var frameRate = 60;
+	var lifetime = 0.0;
 
-	public function new(object:MeshObject, sceneName:String, pref:TParticleReference) {
-		this.object = object;
-		name = pref.name;
+	public function new(sceneName:String, pref:TParticleReference) {
 		seed = pref.seed;
 		particles = [];
 
 		ready = false;
 		Data.getParticle(sceneName, pref.particle, function(b:ParticleData) {
 			data = b;
-
 			var r = data.raw;
+			lifetime = r.lifetime / frameRate;
 			for (i in 0...r.count) {
 				var p = new Particle();
 				particles.push(p);
+				p.lifetime = 0.0;
 				p.offset = new Vec4(0.0, 0.0, 0.0);
 				p.velocity = new Vec4(0.0, 0.0, 0.0);
 				setVelocity(p.velocity);
-				p.lifetime = Std.random(Std.int(r.lifetime * 1000)) / 1000;
 			}
+			ready = true;
+		});
+	}
 
-			// Make mesh data instanced
+	public function update(object:MeshObject) {
+		if (!ready) return;
+
+		// Make mesh data instanced
+		if (!object.data.geom.instanced) {
+
 			var instancedData = new TFloat32Array(particles.length * 3);
 			var i = 0;
 			for (p in particles) {
@@ -51,39 +52,33 @@ class ParticleSystem {
 				i++;
 			}
 			object.data.geom.setupInstanced(instancedData, Usage.DynamicUsage);
-
-			ready = true;
-		});
-	}
-
-	public function update() {
-		if (!ready) return;
+		}
 
 		for (p in particles) {
 			p.lifetime += Time.delta;
 
-			if (p.lifetime > data.raw.lifetime) {
+			if (p.lifetime > lifetime) {
 				p.lifetime = 0;
 				setVelocity(p.velocity);
 			}
 
-			// TODO: specify gravity
-			//p.velocity.z -= 9.81 / 10 * Time.delta;
+			//p.velocity.x -= scene.active.raw.gravity[0] / 10
+			//p.velocity.y -= scene.active.raw.gravity[1] / 10
+			//p.velocity.z -= scene.active.raw.gravity[2] / 10
 
 			p.offset.x = p.lifetime * p.velocity.x;
 			p.offset.y = p.lifetime * p.velocity.y;
 			p.offset.z = p.lifetime * p.velocity.z;
 		}
 		sort();
-		var vb = object.data.geom.instancedVB;
-		var instancedData = vb.lock();
+		var instancedData = object.data.geom.instancedVB.lock();
 		for (i in 0...particles.length) {
 			var p = particles[i];
 			instancedData.set(i * 3 + 0, p.offset.x);
 			instancedData.set(i * 3 + 1, p.offset.y);
 			instancedData.set(i * 3 + 2, p.offset.z);
 		}
-		vb.unlock();
+		object.data.geom.instancedVB.unlock();
 	}
 
 	function setVelocity(v:Vec4) {
@@ -111,6 +106,12 @@ class ParticleSystem {
 		    if (p1.cameraDistance < p2.cameraDistance) return 1;
 		    return 0;
 		});
+	}
+
+	static var seed = 1; // cpp / js not consistent
+	static function seededRandom():Float {
+		seed = (seed * 9301 + 49297) % 233280;
+		return seed / 233280.0;
 	}
 }
 

@@ -23,6 +23,8 @@ class MeshObject extends Object {
 	public var data:MeshData = null;
 	public var materials:Vector<MaterialData>;
 	public var particleSystem:ParticleSystem = null;
+	public var particleOwner:MeshObject = null;
+	public var particleChild:MeshObject = null;
 	public var cameraDistance:Float;
 	public var screenSize:Float = 0.0;
 	public var frustumCulling = true;
@@ -68,7 +70,7 @@ class MeshObject extends Object {
 	}
 
 	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {
-		particleSystem = new ParticleSystem(this, sceneName, pref);
+		particleSystem = new ParticleSystem(sceneName, pref);
 	}
 
 	inline function isLodMaterial() {
@@ -175,10 +177,18 @@ class MeshObject extends Object {
 		if (!visible) return; // Skip render if object is hidden
 		if (cullMaterial(context, camera)) return;
 		if (cullMesh(context, camera, lamp)) return;
-
-		var mats = materials;
+		if (raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
+		if (particleSystem != null && particleChild == null) {
+			particleChild = cast iron.Scene.active.getChild(particleSystem.data.raw.dupli_object);
+			if (particleChild != null) {
+				particleChild.particleOwner = this;
+				particleChild.transform = this.transform;
+			}
+		}
+		if (particleOwner != null) particleOwner.particleSystem.update(this);
 
 		// Get lod
+		var mats = materials;
 		var lod = this;
 		if (raw != null && raw.lods != null && raw.lods.length > 0) {
 			computeScreenSize(camera);
@@ -202,9 +212,6 @@ class MeshObject extends Object {
 		var shaderContexts:Array<ShaderContext> = [];
 		getContexts(context, mats, materialContexts, shaderContexts);
 		
-		// TODO: move to update
-		if (lod.particleSystem != null) lod.particleSystem.update();
-
 		transform.update();
 		
 		// Render mesh
@@ -270,8 +277,6 @@ class MeshObject extends Object {
 		var shaderContexts:Array<ShaderContext> = [];
 		getContexts(context, materials, materialContexts, shaderContexts);
 		
-		// TODO: move to update
-		if (lod.particleSystem != null) lod.particleSystem.update();
 		transform.update();
 		
 		// Render mesh

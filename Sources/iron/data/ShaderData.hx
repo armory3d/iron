@@ -100,6 +100,7 @@ class ShaderContext {
 		if (instancing) {
 			var instStruct = new VertexStructure();
 			instStruct.add("off", VertexData.Float3);
+			instStruct.instanced = true;
 			pipeState.inputLayout = [structure, instStruct];
 		}
 		// Regular

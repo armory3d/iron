@@ -38,7 +38,7 @@ class Geometry {
 	public var tangents:TFloat32Array;
 	public var bones:TFloat32Array;
 	public var weights:TFloat32Array;
-	public var instanceOffsets:TFloat32Array;
+	var instanceOffsets:TFloat32Array;
 	
 	public var offsetVecs:Array<Vec4>; // Used for sorting and culling
 	public var aabb:Vec4 = null;

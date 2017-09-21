@@ -321,6 +321,9 @@ typedef TParticleData = {
 	var normal_factor:Float;
 	var object_align_factor:TFloat32Array;
 	var factor_random:Float;
+	var dupli_object:String; // Object reference
+	var particle_size:Float; // Object scale
+	var size_random:Float; // Random scale
 }
 
 typedef TObj = {
@@ -330,6 +333,7 @@ typedef TObj = {
 	var transform:TTransform;
 	@:optional var material_refs:Array<String>;
 	@:optional var particle_refs:Array<TParticleReference>;
+	@:optional var is_particle:Null<Bool>; // This object is used as a particle object
 	@:optional var children:Array<TObj>;
 	@:optional var group_ref:String;
 	@:optional var lods:Array<TLod>;
@@ -377,6 +381,7 @@ typedef TParticleReference = {
 	var name:String;
 	var particle:String;
 	var seed:Int;
+	var type:Int; // emitter, hair
 }
 
 typedef TTrait = {
