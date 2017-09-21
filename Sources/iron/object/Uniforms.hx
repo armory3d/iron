@@ -267,6 +267,26 @@ class Uniforms {
 				helpMat.multmat2(camera.P);
 				m = helpMat;
 			}
+			else if (c.link == "_worldViewProjectionMatrixSphere") { // Billboard
+				helpMat.setIdentity();
+				helpMat.multmat2(object.transform.world);
+				helpMat.multmat2(camera.V);
+				helpMat._00 = 1.0; helpMat._10 = 0.0; helpMat._20 = 0.0;
+				helpMat._01 = 0.0; helpMat._11 = 1.0; helpMat._21 = 0.0;
+				helpMat._02 = 0.0; helpMat._12 = 0.0; helpMat._22 = 1.0;
+				helpMat.multmat2(camera.P);
+				m = helpMat;
+			}
+			else if (c.link == "_worldViewProjectionMatrixCylinder") { // Billboard - x rot 90deg
+				helpMat.setIdentity();
+				helpMat.multmat2(object.transform.world);
+				helpMat.multmat2(camera.V);
+				helpMat._00 = 1.0;  helpMat._20 = 0.0;
+				helpMat._01 = 0.0;  helpMat._21 = 0.0;
+				helpMat._02 = 0.0;  helpMat._22 = 1.0;
+				helpMat.multmat2(camera.P);
+				m = helpMat;
+			}
 			else if (c.link == "_worldViewMatrix") {
 				helpMat.setIdentity();
 				helpMat.multmat2(object.transform.world);
@@ -503,6 +523,14 @@ class Uniforms {
 			}
 			else if (c.link == "_cameraLook") {
 				helpVec = camera.lookWorld();
+				v = helpVec;
+			}
+			else if (c.link == "_cameraUp") {
+				helpVec = camera.upWorld();
+				v = helpVec;
+			}
+			else if (c.link == "_cameraRight") {
+				helpVec = camera.rightWorld();
 				v = helpVec;
 			}
 			else if (c.link == "_backgroundCol") {
