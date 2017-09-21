@@ -603,6 +603,11 @@ class Uniforms {
 				vx = lamp == null ? 0.0 : lamp.data.raw.spot_size;
 				vy = lamp == null ? 0.0 : vx - lamp.data.raw.spot_blend;
 			}
+			else if (c.link == "_tilesheetOffset") {
+				var ts = cast(object, MeshObject).tilesheet;
+				vx = ts.tileX;
+				vy = ts.tileY;
+			}
 			// External
 			else if (externalVec2Links != null) {
 				for (fn in externalVec2Links) {

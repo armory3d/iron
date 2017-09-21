@@ -480,6 +480,10 @@ class Scene {
 			if (o.particle_refs != null && o.particle_refs.length > 0) {
 				cast(object, MeshObject).setupParticleSystem(sceneName, o.particle_refs[0]);
 			}
+			// Attach tilesheet
+			if (o.tilesheet_ref != null) {
+				cast(object, MeshObject).setupTilesheet(sceneName, o.tilesheet_ref, o.tilesheet_action_ref);
+			}
 
 			if (o.dimensions != null) object.transform.setDimensions(o.dimensions[0], o.dimensions[1], o.dimensions[2]);
 			returnObject(object, o, done);

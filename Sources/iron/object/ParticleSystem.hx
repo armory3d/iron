@@ -113,6 +113,10 @@ class ParticleSystem {
 		seed = (seed * 9301 + 49297) % 233280;
 		return seed / 233280.0;
 	}
+
+	public function remove() {
+		
+	}
 }
 
 class Particle {

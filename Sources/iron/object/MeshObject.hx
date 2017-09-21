@@ -28,6 +28,7 @@ class MeshObject extends Object {
 	public var cameraDistance:Float;
 	public var screenSize:Float = 0.0;
 	public var frustumCulling = true;
+	public var tilesheet:Tilesheet = null;
 
 #if arm_veloc
 	public var prevMatrix = Mat4.identity();
@@ -57,6 +58,8 @@ class MeshObject extends Object {
 #if arm_batch
 		Scene.active.meshBatch.removeMesh(this);
 #end
+		if (particleSystem != null) particleSystem.remove();
+		if (tilesheet != null) tilesheet.remove();
 		if (Scene.active != null) Scene.active.meshes.remove(this);
 		data.refcount--;
 		super.remove();
@@ -71,6 +74,10 @@ class MeshObject extends Object {
 
 	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {
 		particleSystem = new ParticleSystem(sceneName, pref);
+	}
+
+	public function setupTilesheet(sceneName:String, tilesheet_ref:String, tilesheet_action_ref:String) {
+		tilesheet = new Tilesheet(sceneName, tilesheet_ref, tilesheet_action_ref);
 	}
 
 	inline function isLodMaterial() {
@@ -186,6 +193,7 @@ class MeshObject extends Object {
 			}
 		}
 		if (particleOwner != null) particleOwner.particleSystem.update(this);
+		if (tilesheet != null) tilesheet.update();
 
 		// Get lod
 		var mats = materials;

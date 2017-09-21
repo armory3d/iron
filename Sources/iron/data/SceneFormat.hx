@@ -23,6 +23,7 @@ typedef TSceneFormat = {
 	@:optional var world_ref:String;
 	@:optional var grease_pencil_datas:Array<TGreasePencilData>;
 	@:optional var grease_pencil_ref:String;
+	@:optional var tilesheet_datas:Array<TTilesheetData>;
 	@:optional var objects:Array<TObj>;
 	@:optional var groups:Array<TGroup>;
 	@:optional var gravity:TFloat32Array;
@@ -269,6 +270,21 @@ typedef TGreasePencilData = {
 	var shader:String;
 }
 
+typedef TTilesheetData = {
+	var name:String;
+	var tilesx:Int;
+	var tilesy:Int;
+	var framerate:Int;
+	var actions:Array<TTilesheetAction>;
+}
+
+typedef TTilesheetAction = {
+	var name:String;
+	var start:Int;
+	var end:Int;
+	var loop:Bool;
+}
+
 typedef TGreasePencilLayer = {
 	var name:String;
 	var opacity:Float;
@@ -351,6 +367,8 @@ typedef TObj = {
 	@:optional var mobile:Null<Bool>;
 	@:optional var spawn:Null<Bool>; // Auto add object when creating scene
 	@:optional var local_transform_only:Null<Bool>; // No parent matrix applied
+	@:optional var tilesheet_ref:String;
+	@:optional var tilesheet_action_ref:String;
 }
 
 typedef TGroup = {
