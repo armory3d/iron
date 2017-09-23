@@ -38,6 +38,10 @@ class Tilesheet {
 		paused = false;
 	}
 
+	public function pause() {
+		paused = true;
+	}
+
 	public function remove() {
 
 	}
