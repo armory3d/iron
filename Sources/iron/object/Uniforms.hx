@@ -440,6 +440,9 @@ class Uniforms {
 			else if (c.link == "_lampProjectionMatrix") {
 				if (lamp != null) m = lamp.P;
 			}
+			else if (c.link == "_particleData") {
+				m = cast(object, MeshObject).particleSystem.getData();
+			}
 #if arm_vr
 			else if (c.link == "_undistortionMatrix") {
 				m = iron.system.VR.getUndistortionMatrix();

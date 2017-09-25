@@ -332,14 +332,31 @@ typedef TIrradiance = { // Blob with spherical harmonics, bands 0,1,2
 
 typedef TParticleData = {
 	var name:String;
+	// Emission
 	var count:Int;
+	var frame_start:Float;
+	var frame_end:Float;
 	var lifetime:Float;
-	var normal_factor:Float;
+	var lifetime_random:Float;
+	var emit_from:Int; // 0 - Vert, Face, 1 - Volume
+	// Velocity
+	// var normal_factor:Float;
 	var object_align_factor:TFloat32Array;
 	var factor_random:Float;
-	var dupli_object:String; // Object reference
-	var particle_size:Float; // Object scale
-	var size_random:Float; // Random scale
+	// Physics
+	var physics_type:Int; // 0 - No, 1 - Newton
+	// Render
+	@:optional var dupli_object:String; // Object reference
+	@:optional var particle_size:Null<Float>; // Object scale
+	@:optional var size_random:Null<Float>; // Random scale
+	@:optional var billboard_object:String; // Billboard object reference
+}
+
+typedef TParticleReference = {
+	var name:String;
+	var particle:String;
+	var seed:Int;
+	var type:Int; // emitter, hair
 }
 
 typedef TObj = {
@@ -393,13 +410,6 @@ typedef TConstraint = {
 	@:optional var invert_z:Bool;
 	@:optional var use_offset:Bool;
 	@:optional var influence:Float;
-}
-
-typedef TParticleReference = {
-	var name:String;
-	var particle:String;
-	var seed:Int;
-	var type:Int; // emitter, hair
 }
 
 typedef TTrait = {

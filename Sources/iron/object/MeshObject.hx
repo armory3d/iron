@@ -192,7 +192,7 @@ class MeshObject extends Object {
 				particleChild.transform = this.transform;
 			}
 		}
-		if (particleOwner != null) particleOwner.particleSystem.update(this);
+		if (particleOwner != null) particleOwner.particleSystem.update(this, particleOwner);
 		if (tilesheet != null) tilesheet.update();
 
 		// Get lod
