@@ -72,6 +72,7 @@ class ShaderContext {
 
 	var structure:VertexStructure;
 	var instancing = false;
+	var particles = false;
 	var overrideContext:TShaderOverride;
 	static var structureRect:VertexStructure = null; // For screen-space rectangle
 
@@ -100,6 +101,12 @@ class ShaderContext {
 		if (instancing) {
 			var instStruct = new VertexStructure();
 			instStruct.add("off", VertexData.Float3);
+			instStruct.instanced = true;
+			pipeState.inputLayout = [structure, instStruct];
+		}
+		else if (particles) {
+			var instStruct = new VertexStructure();
+			instStruct.add("offp", VertexData.Float4);
 			instStruct.instanced = true;
 			pipeState.inputLayout = [structure, instStruct];
 		}
@@ -266,6 +273,10 @@ class ShaderContext {
 		for (vs in raw.vertex_structure) {
 			if (vs.name == 'off') {
 				instancing = true;
+				continue;
+			}
+			else if (vs.name == 'offp') {
+				particles = true;
 				continue;
 			}
 

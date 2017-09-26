@@ -140,10 +140,10 @@ class MeshObject extends Object {
 				if (!instanceInFrustum) return setCulled(shadowsContext, true);
 
 				// Sort - always front to back for now
-				var camX = camera.transform.worldx();
-				var camY = camera.transform.worldy();
-				var camZ = camera.transform.worldz();
-				data.geom.sortInstanced(camX, camY, camZ);
+				// var camX = camera.transform.worldx();
+				// var camY = camera.transform.worldy();
+				// var camZ = camera.transform.worldz();
+				// data.geom.sortInstanced(camX, camY, camZ); // TODO: do not sort particles here
 			}
 			// Non-instanced
 			else {

@@ -441,7 +441,10 @@ class Uniforms {
 				if (lamp != null) m = lamp.P;
 			}
 			else if (c.link == "_particleData") {
-				m = cast(object, MeshObject).particleSystem.getData();
+				var mo = cast(object, MeshObject);
+				if (mo.particleOwner != null) {
+					m = mo.particleOwner.particleSystem.getData();
+				}
 			}
 #if arm_vr
 			else if (c.link == "_undistortionMatrix") {

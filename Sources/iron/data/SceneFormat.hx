@@ -345,11 +345,11 @@ typedef TParticleData = {
 	var factor_random:Float;
 	// Physics
 	var physics_type:Int; // 0 - No, 1 - Newton
+	var particle_size:Null<Float>; // Object scale
+	var size_random:Null<Float>; // Random scale
+	var mass:Null<Float>; // Random scale
 	// Render
-	@:optional var dupli_object:String; // Object reference
-	@:optional var particle_size:Null<Float>; // Object scale
-	@:optional var size_random:Null<Float>; // Random scale
-	@:optional var billboard_object:String; // Billboard object reference
+	var dupli_object:String; // Object reference
 }
 
 typedef TParticleReference = {

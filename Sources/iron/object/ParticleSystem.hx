@@ -14,6 +14,7 @@ class ParticleSystem {
 	var ready:Bool;
 	var frameRate = 24;
 	var lifetime = 0.0;
+	var animtime = 0.0;
 	var time = 0.0;
 	var spawnRate = 0.0;
 	var seed = 0.0;
@@ -36,6 +37,7 @@ class ParticleSystem {
 			gy = iron.Scene.active.raw.gravity[1];
 			gz = iron.Scene.active.raw.gravity[2];
 			lifetime = r.lifetime / frameRate;
+			animtime = (r.frame_end - r.frame_start) / frameRate;
 			spawnRate = ((r.frame_end - r.frame_start) / r.count) / frameRate;
 			for (i in 0...r.count) particles.push(new Particle(i));
 			ready = true;
@@ -45,6 +47,12 @@ class ParticleSystem {
 	// GPU particles
 	var m = iron.math.Mat4.identity();
 	public function getData():iron.math.Mat4 {
+		m._00 = count;
+		m._01 = spawnRate;
+		m._02 = lifetime;
+		m._10 = gx;
+		m._11 = gy;
+		m._12 = gz;
 		return m;
 	}
 
@@ -52,15 +60,59 @@ class ParticleSystem {
 	public function update(object:MeshObject, owner:MeshObject) {
 		if (!ready) return;
 
-		// Make mesh data instanced
-		if (!object.data.geom.instanced) setupGeom(object, owner);
+		#if arm_cpu_particles
+		updateCpu(object, owner);
+		#else
+		updateGpu(object, owner);
+		#end
+	}
+
+	var count = 0;
+	function updateGpu(object:MeshObject, owner:MeshObject) {
+		if (!object.data.geom.instanced) setupGeomGpu(object, owner);
 
 		// Animate
 		time += Time.delta;
-		for (p in particles) computePos(p, object);
+		var l = particles.length;
+		var lap = Std.int(time / animtime);
+		var lapTime = time - lap * animtime;
+		count = Std.int(lapTime / spawnRate);
+	}
+
+	function setupGeomGpu(object:MeshObject, owner:MeshObject) {
+		var instancedData = new TFloat32Array(particles.length * 4);
+		var i = 0;
+		var pa = owner.data.geom.positions;
+		for (p in particles) {
+			var j = Std.int(seeded(i) * (pa.length / 3));
+			instancedData.set(i, pa[j * 3 + 0]); i++;
+			instancedData.set(i, pa[j * 3 + 1]); i++;
+			instancedData.set(i, pa[j * 3 + 2]); i++;
+			instancedData.set(i, p.i); i++;
+		}
+		object.data.geom.setupInstanced(instancedData, Usage.DynamicUsage, true);
+	}
+
+	function updateCpu(object:MeshObject, owner:MeshObject) {
+		// Make mesh data instanced
+		if (!object.data.geom.instanced) setupGeomCpu(object, owner);
+
+		// object.transform.scale.x = r.particle_size;
+		// object.transform.scale.y = r.particle_size;
+		// object.transform.scale.z = r.particle_size;
+		// object.transform.dirty = true;
+
+		// Animate
+		time += Time.delta;
+		var l = particles.length;
+		var lap = Std.int(time / animtime);
+		var lapTime = time - lap * animtime;
+		count = Std.int(lapTime / spawnRate);
+
+		for (p in particles) computePos(p, object, l, lap, count);
 
 		// Upload
-		sort();
+		// sort(); // TODO: breaks particle order
 		var instancedData = object.data.geom.instancedVB.lock();
 		for (i in 0...particles.length) {
 			var p = particles[i];
@@ -79,18 +131,15 @@ class ParticleSystem {
 		object.data.geom.instancedVB.unlock();
 	}
 
-	function computePos(p:Particle, object:MeshObject) {
-		var l = particles.length;
-		var lap = Std.int(time / lifetime);
-		var lapTime = time - lifetime * lap;
-		var count = Std.int(lapTime / spawnRate);
-		var i = Std.int(Math.min(p.i, count)); // Limit to current particle count
-		i += lap * l * l; // Shuffle repeated laps
+	function computePos(p:Particle, object:MeshObject, l:Int, lap:Int, count:Int) {
 
-		var plife = time - lap * lifetime;
-		plife -= plife * seeded(i) * r.lifetime_random;
+		var i = p.i;// + lap * l * l; // Shuffle repeated laps
+		var ptime = (count - p.i) * spawnRate;
+		ptime -= ptime * seeded(i) * r.lifetime_random;
 
-		if (r.physics_type == 1) computeNewton(p, i, plife);
+		if (p.i > count || ptime < 0 || ptime > lifetime) { p.x = p.y = p.z = -99999; return; } // Limit to current particle count
+
+		if (r.physics_type == 1) computeNewton(p, i, ptime);
 
 		if (r.emit_from == 1) { // Volume
 			p.x += (seeded(i + 0 * l) * 2.0 - 1.0) * (object.transform.size.x / 2.0);
@@ -99,27 +148,28 @@ class ParticleSystem {
 		}
 	}
 
-	function computeNewton(p:Particle, i:Int, plife:Float) {
+	function computeNewton(p:Particle, i:Int, ptime:Float) {
 
-		var vx = r.object_align_factor[0];
-		var vy = r.object_align_factor[1];
-		var vz = r.object_align_factor[2];
+		p.x = r.object_align_factor[0] / 2;
+		p.y = r.object_align_factor[1] / 2;
+		p.z = r.object_align_factor[2] / 2;
 
 		var l = particles.length;
-		vx += (seeded(p.i + 0 * l) * Std.int(r.factor_random * 1000)) / 1000 - r.factor_random / 2;
-		vy += (seeded(p.i + 1 * l) * Std.int(r.factor_random * 1000)) / 1000 - r.factor_random / 2;
-		vz += (seeded(p.i + 2 * l) * Std.int(r.factor_random * 1000)) / 1000 - r.factor_random / 2;
+		p.x += (seeded(p.i + 0 * l) * Std.int(r.factor_random * 1000)) / 1000 - r.factor_random / 2;
+		p.y += (seeded(p.i + 1 * l) * Std.int(r.factor_random * 1000)) / 1000 - r.factor_random / 2;
+		p.z += (seeded(p.i + 2 * l) * Std.int(r.factor_random * 1000)) / 1000 - r.factor_random / 2;
 
-		vx += gx / 10;
-		vy += gy / 10;
-		vz += gz / 10;
+		p.x *= ptime;
+		p.y *= ptime;
+		p.z *= ptime;
 
-		p.x = plife * vx;
-		p.y = plife * vy;
-		p.z = plife * vz;
+		// Gravity
+		p.x += gx * ptime * ptime / 5;
+		p.y += gy * ptime * ptime / 5;
+		p.z += gz * ptime * ptime / 5;
 	}
 
-	function setupGeom(object:MeshObject, owner:MeshObject) {
+	function setupGeomCpu(object:MeshObject, owner:MeshObject) {
 		var instancedData = new TFloat32Array(particles.length * 3);
 		var i = 0;
 		for (p in particles) {
@@ -134,10 +184,10 @@ class ParticleSystem {
 			i = 0;
 			var pa = owner.data.geom.positions;
 			for (p in particles) {
-				var r = Std.int(seeded(i) * (pa.length / 3));
-				emitFrom.set(i, pa[r * 3 + 0]); i++;
-				emitFrom.set(i, pa[r * 3 + 1]); i++;
-				emitFrom.set(i, pa[r * 3 + 2]); i++;
+				var j = Std.int(seeded(i) * (pa.length / 3));
+				emitFrom.set(i, pa[j * 3 + 0]); i++;
+				emitFrom.set(i, pa[j * 3 + 1]); i++;
+				emitFrom.set(i, pa[j * 3 + 2]); i++;
 			}
 		}
 	}
