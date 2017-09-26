@@ -3,9 +3,8 @@ package iron.system;
 class Tween {
 	static var eases:Array<Float->Float> = [easeLinear, easeExpoOut];
 	static var anims:Array<TAnim> = [];
-	static var map:haxe.ds.ObjectMap<Dynamic, TAnim> = new haxe.ds.ObjectMap();
 
-	public static function to(anim:TAnim) {
+	public static function to(anim:TAnim):TAnim {
 		anim._time = 0;
 		if (anim.ease == null) anim.ease = Ease.Linear;
 		
@@ -33,21 +32,19 @@ class Tween {
 		}
 
 		anims.push(anim);
-		if (anim.target != null) map.set(anim.target, anim);
+		return anim;
 	}
 
-	public static function timer(delay:Float, done:Void->Void) {
-		to({ target: null, props: null, duration: 0, delay: delay, done: done });
+	public static function timer(delay:Float, done:Void->Void):TAnim {
+		return to({ target: null, props: null, duration: 0, delay: delay, done: done });
 	}
 
-	public static function stop(target:Dynamic) {
-		var anim = map.get(target);
-		if (anim != null) anims.remove(anim);
+	public static function stop(anim:TAnim) {
+		anims.remove(anim);
 	}
 
 	public static function reset() {
 		anims = [];
-		map = new haxe.ds.ObjectMap();
 	}
 
 	public static function update() {
