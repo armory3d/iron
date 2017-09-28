@@ -350,6 +350,7 @@ typedef TParticleData = {
 	var mass:Null<Float>; // Random scale
 	// Render
 	var dupli_object:String; // Object reference
+	var gpu_sim:Null<Bool>; // Simulate on GPU
 }
 
 typedef TParticleReference = {

@@ -443,7 +443,7 @@ class Uniforms {
 			else if (c.link == "_particleData") {
 				var mo = cast(object, MeshObject);
 				if (mo.particleOwner != null) {
-					m = mo.particleOwner.particleSystem.getData();
+					m = mo.particleOwner.particleSystems[mo.particleIndex].getData();
 				}
 			}
 #if arm_vr

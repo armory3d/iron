@@ -113,7 +113,7 @@ class Geometry {
 		return structure;
 	}
 
-	public function setupInstanced(offsets:TFloat32Array, usage:Usage, particlesGpu = false) {
+	public function setupInstanced(offsets:TFloat32Array, usage:Usage) {
 		// Store vecs for sorting and culling
 		offsetVecs = [];
 		for (i in 0...Std.int(offsets.length / 3)) {
@@ -125,8 +125,7 @@ class Geometry {
 
 		var structure = new VertexStructure();
 		structure.instanced = true;
-		if (particlesGpu) structure.add("offp", kha.graphics4.VertexData.Float4);
-		else structure.add("off", kha.graphics4.VertexData.Float3);
+		structure.add("off", kha.graphics4.VertexData.Float3);
 
 		instancedVB = new VertexBuffer(instanceCount, structure, usage, 1);
 		var vertices = instancedVB.lock();
@@ -242,7 +241,6 @@ class Geometry {
 			else if (e.name == 'bone') { if (vertexBuffers[6] != null) vbs.push(vertexBuffers[6]); }
 			else if (e.name == 'weight') { if (vertexBuffers[7] != null) vbs.push(vertexBuffers[7]); }
 			else if (e.name == 'off') { if (instancedVB != null) vbs.push(instancedVB); }
-			else if (e.name == 'offp') { if (instancedVB != null) vbs.push(instancedVB); }
 		}
 		return vbs;
 	}

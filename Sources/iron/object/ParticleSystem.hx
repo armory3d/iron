@@ -26,6 +26,11 @@ class ParticleSystem {
 	var alignx:Float;
 	var aligny:Float;
 	var alignz:Float;
+	var sizex:Float;
+	var sizey:Float;
+	var tilesx:Int;
+	var tilesy:Int;
+	var tilesFramerate:Int;
 
 	var emitFrom:TFloat32Array = null;
 
@@ -65,6 +70,11 @@ class ParticleSystem {
 		m._21 = gy;
 		m._22 = gz;
 		m._23 = r.lifetime_random;
+		// m._30 = sizex;
+		// m._31 = sizey;
+		m._30 = tilesx;
+		m._31 = tilesy;
+		m._32 = 1 / tilesFramerate;
 		return m;
 	}
 
@@ -72,37 +82,30 @@ class ParticleSystem {
 	public function update(object:MeshObject, owner:MeshObject) {
 		if (!ready) return;
 
-		#if arm_cpu_particles
-		updateCpu(object, owner);
-		#else
-		updateGpu(object, owner);
-		#end
-	}
+		sizex = object.transform.size.x;
+		sizey = object.transform.size.y;
 
-	var count = 0;
-	function updateGpu(object:MeshObject, owner:MeshObject) {
-		if (!object.data.geom.instanced) setupGeomGpu(object, owner);
+		if (object.tilesheet != null) {
+			tilesx = object.tilesheet.raw.tilesx;
+			tilesy = object.tilesheet.raw.tilesy;
+			tilesFramerate = object.tilesheet.raw.framerate;
+		}
 
 		// Animate
 		time += Time.delta;
-		var l = particles.length;
-		var lap = Std.int(time / animtime);
+		lap = Std.int(time / animtime);
 		var lapTime = time - lap * animtime;
 		count = Std.int(lapTime / spawnRate);
+
+		r.gpu_sim ? updateGpu(object, owner) : updateCpu(object, owner);
 	}
 
-	function setupGeomGpu(object:MeshObject, owner:MeshObject) {
-		var instancedData = new TFloat32Array(particles.length * 4);
-		var i = 0;
-		var pa = owner.data.geom.positions;
-		for (p in particles) {
-			var j = Std.int(fhash(i) * (pa.length / 3));
-			instancedData.set(i, pa[j * 3 + 0]); i++;
-			instancedData.set(i, pa[j * 3 + 1]); i++;
-			instancedData.set(i, pa[j * 3 + 2]); i++;
-			instancedData.set(i, p.i); i++;
-		}
-		object.data.geom.setupInstanced(instancedData, Usage.DynamicUsage, true);
+	var count = 0;
+	var lap = 0;
+	function updateGpu(object:MeshObject, owner:MeshObject) {
+		if (!object.data.geom.instanced) setupGeomGpu(object, owner);
+
+		// GPU particles transform is attached to owner object
 	}
 
 	function updateCpu(object:MeshObject, owner:MeshObject) {
@@ -114,14 +117,7 @@ class ParticleSystem {
 		// object.transform.scale.z = r.particle_size;
 		// object.transform.dirty = true;
 
-		// Animate
-		time += Time.delta;
-		var l = particles.length;
-		var lap = Std.int(time / animtime);
-		var lapTime = time - lap * animtime;
-		count = Std.int(lapTime / spawnRate);
-
-		for (p in particles) computePos(p, object, l, lap, count);
+		for (p in particles) computePos(p, object, particles.length, lap, count);
 
 		// Upload
 		// sort(); // TODO: breaks particle order
@@ -179,6 +175,19 @@ class ParticleSystem {
 		p.x *= ptime;
 		p.y *= ptime;
 		p.z *= ptime;
+	}
+
+	function setupGeomGpu(object:MeshObject, owner:MeshObject) {
+		var instancedData = new TFloat32Array(particles.length * 3);
+		var i = 0;
+		var pa = owner.data.geom.positions;
+		for (p in particles) {
+			var j = Std.int(fhash(i) * (pa.length / 3));
+			instancedData.set(i, pa[j * 3 + 0]); i++;
+			instancedData.set(i, pa[j * 3 + 1]); i++;
+			instancedData.set(i, pa[j * 3 + 2]); i++;
+		}
+		object.data.geom.setupInstanced(instancedData, Usage.StaticUsage);
 	}
 
 	function setupGeomCpu(object:MeshObject, owner:MeshObject) {

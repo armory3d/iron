@@ -22,11 +22,12 @@ class MeshObject extends Object {
 
 	public var data:MeshData = null;
 	public var materials:Vector<MaterialData>;
-	public var particleSystem:ParticleSystem = null;
-	public var particleOwner:MeshObject = null;
-	public var particleChild:MeshObject = null;
+	public var particleSystems:Array<ParticleSystem> = null; // Particle owner
+	public var particleChildren:Array<MeshObject> = null;
+	public var particleOwner:MeshObject = null; // Particle object
+	public var particleIndex = -1;
 	public var cameraDistance:Float;
-	public var screenSize:Float = 0.0;
+	public var screenSize = 0.0;
 	public var frustumCulling = true;
 	public var tilesheet:Tilesheet = null;
 
@@ -58,7 +59,10 @@ class MeshObject extends Object {
 #if arm_batch
 		Scene.active.meshBatch.removeMesh(this);
 #end
-		if (particleSystem != null) particleSystem.remove();
+		if (particleSystems != null) {
+			for (psys in particleSystems) psys.remove();
+			particleSystems = null;
+		}
 		if (tilesheet != null) tilesheet.remove();
 		if (Scene.active != null) Scene.active.meshes.remove(this);
 		data.refcount--;
@@ -73,7 +77,9 @@ class MeshObject extends Object {
 	}
 
 	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {
-		particleSystem = new ParticleSystem(sceneName, pref);
+		if (particleSystems == null) particleSystems = [];
+		var psys = new ParticleSystem(sceneName, pref);
+		particleSystems.push(psys);
 	}
 
 	public function setupTilesheet(sceneName:String, tilesheet_ref:String, tilesheet_action_ref:String) {
@@ -112,9 +118,10 @@ class MeshObject extends Object {
 
 		if (camera.data.raw.frustum_culling && frustumCulling) {
 			// Scale radius for skinned mesh and particle system
-			// TODO: determine max radius
+			// TODO: ddefine skin bounds
 			var radiusScale = data.isSkinned ? 2.0 : 1.0;
-			if (particleSystem != null) radiusScale *= 100;
+			// TODO: define particle bounds
+			if (particleSystems != null) radiusScale *= 100;
 			if (context == "voxel") radiusScale *= 100;
 			var shadowsContext = context == camera.data.pathdata.raw.shadows_context;
 			var frustumPlanes = shadowsContext ? lamp.frustumPlanes : camera.frustumPlanes;
@@ -185,14 +192,22 @@ class MeshObject extends Object {
 		if (cullMaterial(context, camera)) return;
 		if (cullMesh(context, camera, lamp)) return;
 		if (raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
-		if (particleSystem != null && particleChild == null) {
-			particleChild = cast iron.Scene.active.getChild(particleSystem.data.raw.dupli_object);
-			if (particleChild != null) {
-				particleChild.particleOwner = this;
-				particleChild.transform = this.transform;
+		if (particleSystems != null) {
+			// TODO: all particles have to be added prior to render being called
+			if (particleChildren == null) {
+				particleChildren = [];
+				for (psys in particleSystems) {
+					var c = cast iron.Scene.active.getChild(psys.data.raw.dupli_object);
+					particleChildren.push(c);
+					if (c != null) {
+						c.particleOwner = this;
+						c.particleIndex = particleChildren.length - 1;
+						c.transform = this.transform;
+					}
+				}
 			}
+			for (i in 0...particleSystems.length) particleSystems[i].update(particleChildren[i], this);
 		}
-		if (particleOwner != null) particleOwner.particleSystem.update(this, particleOwner);
 		if (tilesheet != null) tilesheet.update();
 
 		// Get lod

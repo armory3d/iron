@@ -476,9 +476,9 @@ class Scene {
 		Data.getMesh(object_file, data_ref, actions, function(mesh:MeshData) {
 			var object = addMeshObject(mesh, materials, parent);
 		
-			// Attach particle system
-			if (o.particle_refs != null && o.particle_refs.length > 0) {
-				cast(object, MeshObject).setupParticleSystem(sceneName, o.particle_refs[0]);
+			// Attach particle systems
+			if (o.particle_refs != null) {
+				for (ref in o.particle_refs) cast(object, MeshObject).setupParticleSystem(sceneName, ref);
 			}
 			// Attach tilesheet
 			if (o.tilesheet_ref != null) {

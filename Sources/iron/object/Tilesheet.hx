@@ -8,7 +8,7 @@ class Tilesheet {
 	public var tileX = 0.0; // Tile offset on tilesheet texture 0-1
 	public var tileY = 0.0;
 
-	var raw:TTilesheetData;
+	public var raw:TTilesheetData;
 	var action:TTilesheetAction = null;
 	var ready:Bool;
 
@@ -62,7 +62,7 @@ class Tilesheet {
 		time = 0;
 
 		var tx = frame % raw.tilesx;
-		var ty = Std.int(frame / raw.tilesy);
+		var ty = Std.int(frame / raw.tilesx);
 		tileX = tx * (1 / raw.tilesx);
 		tileY = ty * (1 / raw.tilesy);
 
