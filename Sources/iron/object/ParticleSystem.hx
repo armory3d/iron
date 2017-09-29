@@ -32,7 +32,7 @@ class ParticleSystem {
 	var tilesy:Int;
 	var tilesFramerate:Int;
 
-	var emitFrom:TFloat32Array = null;
+	var emitFrom:TFloat32Array = null; // CPU volume/face offset
 
 	public function new(sceneName:String, pref:TParticleReference) {
 		seed = pref.seed;
@@ -148,12 +148,6 @@ class ParticleSystem {
 		if (p.i > count || ptime < 0 || ptime > lifetime) { p.x = p.y = p.z = -99999; return; } // Limit to current particle count
 
 		if (r.physics_type == 1) computeNewton(p, i, ptime);
-
-		if (r.emit_from == 1) { // Volume
-			p.x += (fhash(i + 0 * l) * 2.0 - 1.0) * (object.transform.size.x / 2.0);
-			p.y += (fhash(i + 1 * l) * 2.0 - 1.0) * (object.transform.size.y / 2.0);
-			p.z += (fhash(i + 2 * l) * 2.0 - 1.0) * (object.transform.size.z / 2.0);
-		}
 	}
 
 	function computeNewton(p:Particle, i:Int, ptime:Float) {
@@ -180,12 +174,21 @@ class ParticleSystem {
 	function setupGeomGpu(object:MeshObject, owner:MeshObject) {
 		var instancedData = new TFloat32Array(particles.length * 3);
 		var i = 0;
-		var pa = owner.data.geom.positions;
-		for (p in particles) {
-			var j = Std.int(fhash(i) * (pa.length / 3));
-			instancedData.set(i, pa[j * 3 + 0]); i++;
-			instancedData.set(i, pa[j * 3 + 1]); i++;
-			instancedData.set(i, pa[j * 3 + 2]); i++;
+		if (r.emit_from == 0) { // Vert, Face
+			var pa = owner.data.geom.positions;
+			for (p in particles) {
+				var j = Std.int(fhash(i) * (pa.length / 3));
+				instancedData.set(i, pa[j * 3 + 0]); i++;
+				instancedData.set(i, pa[j * 3 + 1]); i++;
+				instancedData.set(i, pa[j * 3 + 2]); i++;
+			}
+		}
+		else { // Volume
+			for (p in particles) {
+				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.x / 2.0)); i++;
+				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.y / 2.0)); i++;
+				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.z / 2.0)); i++;
+			}
 		}
 		object.data.geom.setupInstanced(instancedData, Usage.StaticUsage);
 	}
@@ -200,15 +203,22 @@ class ParticleSystem {
 		}
 		object.data.geom.setupInstanced(instancedData, Usage.DynamicUsage);
 		
+		emitFrom = new TFloat32Array(particles.length * 3);
+		i = 0;
 		if (r.emit_from == 0) { // Vert, Face
-			emitFrom = new TFloat32Array(particles.length * 3);
-			i = 0;
 			var pa = owner.data.geom.positions;
 			for (p in particles) {
 				var j = Std.int(fhash(i) * (pa.length / 3));
 				emitFrom.set(i, pa[j * 3 + 0]); i++;
 				emitFrom.set(i, pa[j * 3 + 1]); i++;
 				emitFrom.set(i, pa[j * 3 + 2]); i++;
+			}
+		}
+		else { // Volume
+			for (p in particles) {
+				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.x / 2.0)); i++;
+				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.y / 2.0)); i++;
+				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.z / 2.0)); i++;
 			}
 		}
 	}
