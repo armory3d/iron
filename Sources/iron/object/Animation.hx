@@ -27,7 +27,7 @@ class Animation {
 	public var dirty:Bool = false;
 	public var onActionComplete:Void->Void = null;
 	public var paused = false;
-	public var frameTime = 1 / 24;
+	var frameTime:Float;
 
 	public function play(action = '', onActionComplete:Void->Void = null) {
 		this.action = action;
@@ -42,6 +42,7 @@ class Animation {
 
 	function new() {
 		Scene.active.animations.push(this);
+		frameTime = Scene.active.raw.frame_time;
 		play();
 	}
 
@@ -55,8 +56,7 @@ class Animation {
 	}	
 
 	inline function checkTimeIndex(timeValues:TFloat32Array):Bool {
-		return ((timeIndex + 1) < timeValues.length && animTime > timeValues[timeIndex + 1]);
-		// return ((timeIndex + 1) < timeValues.length && animTime > (timeIndex + 1) * (frameTime));
+		return ((timeIndex + 1) < timeValues.length && animTime > timeValues[timeIndex + 1] * frameTime);
 	}
 
 	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4, setFrame:Int->Void) {
@@ -67,7 +67,7 @@ class Animation {
 		if (dirty) {
 			dirty = false;
 			timeIndex = 0;
-			animTime = track.times[0];
+			animTime = track.times[0] * frameTime;
 		}
 
 		// Move keyframe
@@ -88,8 +88,8 @@ class Animation {
 
 		var t = animTime;
 		var ti = timeIndex;
-		var t1 = track.times[ti];
-		var t2 = track.times[ti + 1];
+		var t1 = track.times[ti] * frameTime;
+		var t2 = track.times[ti + 1] * frameTime;
 		var s = (t - t1) / (t2 - t1); // Linear
 
 		m1.setF32(track.values, ti * 16); // Offset to 4x4 matrix array

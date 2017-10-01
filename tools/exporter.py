@@ -53,11 +53,11 @@ axisName = ["x", "y", "z"]
 
 class Vertex:
     # Based on https://github.com/Kupoman/blendergltf/blob/master/blendergltf.py
-    __slots__ = ("co", "normal", "uvs", "col", "loop_indices", "index", "bone_weights", "bone_indices", "bone_count")
+    __slots__ = ("co", "normal", "uvs", "col", "loop_indices", "index", "bone_weights", "bone_indices", "bone_count", "vertex_index")
     def __init__(self, mesh, loop):
-        vert_idx = loop.vertex_index
+        self.vertex_index = loop.vertex_index
         loop_idx = loop.index
-        self.co = mesh.vertices[vert_idx].co[:]
+        self.co = mesh.vertices[self.vertex_index].co[:]
         self.normal = loop.normal[:]
         self.uvs = tuple(layer.data[loop_idx].uv[:] for layer in mesh.uv_layers)
         self.col = [0, 0, 0]
@@ -94,7 +94,7 @@ class Vertex:
         return eq
 
 class ExportVertex:
-    __slots__ = ("hash", "position", "normal", "color", "texcoord0", "texcoord1")
+    __slots__ = ("hash", "vertex_index", "face_index", "position", "normal", "color", "texcoord0", "texcoord1")
 
     def __init__(self):
         self.color = [1.0, 1.0, 1.0]

@@ -29,6 +29,7 @@ typedef TSceneFormat = {
 	@:optional var gravity:TFloat32Array;
 	@:optional var traits:Array<TTrait>; // Scene root traits
 	@:optional var embedded_datas:Array<String>; // Preload for this scene, images only for now
+	@:optional var frame_time:Null<Float>;
 }
 
 typedef TMeshData = {
@@ -434,13 +435,13 @@ typedef TAnimationTransform = {
 
 typedef TAnimation = {
 	var tracks:Array<TTrack>;
-	@:optional var begin:Float; // For non-sampled
+	@:optional var begin:Float; // Frames, for non-sampled
 	@:optional var end:Float;
 }
 
 typedef TTrack = {
 	var target:String;
-	var times:TFloat32Array;
+	var times:TFloat32Array; // Frames
 	var values:TFloat32Array; // sampled - full matrix transforms, non-sampled - values
 	@:optional var curve:String; // bezier, tcb, ...
 	@:optional var times_control_plus:TFloat32Array; // bezier

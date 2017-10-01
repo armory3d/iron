@@ -98,14 +98,14 @@ class ObjectAnimation extends Animation {
 	function updateAnimNonSampled(anim:TAnimation, transform:Transform) {
 		if (anim == null) return;
 		
-		var total = anim.end - anim.begin;
+		var total = anim.end * frameTime - anim.begin * frameTime;
 
 		if (dirty) {
 			dirty = false;
 			animTime = 0;
 			timeIndex = 0;
 			var track = anim.tracks[0];
-			while (animTime > track.times[timeIndex] + frameTime) {
+			while (animTime > track.times[timeIndex] * frameTime + frameTime) {
 				timeIndex++;
 			}
 		}
@@ -122,14 +122,14 @@ class ObjectAnimation extends Animation {
 			}
 
 			// End of current time range
-			var t = animTime + anim.begin;
-			while (timeIndex < track.times.length - 2 && t > track.times[timeIndex + 1]) {
+			var t = animTime + anim.begin * frameTime;
+			while (timeIndex < track.times.length - 2 && t > track.times[timeIndex + 1] * frameTime) {
 				timeIndex++;
 			}
 
 			var ti = timeIndex;
-			var t1 = track.times[ti];
-			var t2 = track.times[ti + 1];
+			var t1 = track.times[ti] * frameTime;
+			var t2 = track.times[ti + 1] * frameTime;
 			var interpolate = interpolateLinear;
 			switch (track.curve) {
 			case "linear": interpolate = interpolateLinear;
