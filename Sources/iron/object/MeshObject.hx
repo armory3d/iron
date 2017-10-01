@@ -192,7 +192,8 @@ class MeshObject extends Object {
 		if (cullMaterial(context, camera)) return;
 		if (cullMesh(context, camera, lamp)) return;
 		if (raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
-		if (particleSystems != null) {
+		var meshContext = camera.data.pathdata.raw.mesh_context == context;
+		if (particleSystems != null && meshContext) {
 			// TODO: all particles have to be added prior to render being called
 			if (particleChildren == null) {
 				particleChildren = [];
@@ -275,7 +276,6 @@ class MeshObject extends Object {
 		}
 
 #if arm_profile
-		var meshContext = camera.data.pathdata.raw.mesh_context == context;
 		var shadowsContext = camera.data.pathdata.raw.shadows_context == context;
 		if (meshContext) RenderPath.numTrisMesh += ldata.geom.numTris;
 		else if (shadowsContext) RenderPath.numTrisShadow += ldata.geom.numTris;
