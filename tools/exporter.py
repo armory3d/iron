@@ -52,20 +52,22 @@ deltaSubscaleName = ["dxscl", "dyscl", "dzscl"]
 axisName = ["x", "y", "z"]
 
 class Vertex:
-    __slots__ = ("co", "normal", "uvs", "col", "loop_indices", "index", "bone_weights", "bone_indices", "bone_count", "vertexIndex")
+    # Based on https://github.com/Kupoman/blendergltf/blob/master/blendergltf.py
+    __slots__ = ("co", "normal", "uvs", "col", "loop_indices", "index", "bone_weights", "bone_indices", "bone_count")
     def __init__(self, mesh, loop):
-        self.vertexIndex = loop.vertex_index
-        i = loop.index
-        self.co = mesh.vertices[self.vertexIndex].co.freeze()
-        self.normal = loop.normal.freeze()
-        self.uvs = tuple(layer.data[i].uv.freeze() for layer in mesh.uv_layers)
+        vert_idx = loop.vertex_index
+        loop_idx = loop.index
+        self.co = mesh.vertices[vert_idx].co[:]
+        self.normal = loop.normal[:]
+        self.uvs = tuple(layer.data[loop_idx].uv[:] for layer in mesh.uv_layers)
         self.col = [0, 0, 0]
         if len(mesh.vertex_colors) > 0:
-            self.col = mesh.vertex_colors[0].data[i].color.freeze()
-        self.loop_indices = [i]
+            self.col = mesh.vertex_colors[0].data[loop_idx].color[:]
+        # self.colors = tuple(layer.data[loop_idx].color[:] for layer in mesh.vertex_colors)
+        self.loop_indices = [loop_idx]
 
         # Take the four most influential groups
-        # groups = sorted(mesh.vertices[self.vertexIndex].groups, key=lambda group: group.weight, reverse=True)
+        # groups = sorted(mesh.vertices[vert_idx].groups, key=lambda group: group.weight, reverse=True)
         # if len(groups) > 4:
             # groups = groups[:4]
 
@@ -92,7 +94,7 @@ class Vertex:
         return eq
 
 class ExportVertex:
-    __slots__ = ("hash", "vertexIndex", "faceIndex", "position", "normal", "color", "texcoord0", "texcoord1")
+    __slots__ = ("hash", "position", "normal", "color", "texcoord0", "texcoord1")
 
     def __init__(self):
         self.color = [1.0, 1.0, 1.0]
