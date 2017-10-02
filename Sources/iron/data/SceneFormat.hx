@@ -95,11 +95,11 @@ typedef TCameraData = {
 	var fov:Float;
 	var render_path:String;
 	var type:String;
+	@:optional var aspect:Null<Float>;
 	@:optional var frustum_culling:Bool;
 	@:optional var render_to_texture:Bool;
 	@:optional var texture_resolution_x:Int;
 	@:optional var texture_resolution_y:Int;
-	@:optional var projection:TFloat32Array; // Feed projection matrix
 }
 
 typedef TMaterialData = {

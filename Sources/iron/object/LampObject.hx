@@ -71,7 +71,8 @@ class LampObject extends Object {
 				var fov = camera.data.raw.fov;
 				var near_plane = data.raw.near_plane;
 				var far_plane = data.raw.far_plane;
-				camSlicedP = Mat4.perspective(fov, iron.App.w() / iron.App.h(), near_plane, far_plane);
+				var aspect = camera.data.raw.aspect != null ? camera.data.raw.aspect : iron.App.w() / iron.App.h();
+				camSlicedP = Mat4.perspective(fov, aspect, near_plane, far_plane);
 			}
 
 			#if arm_vr

@@ -98,11 +98,9 @@ class CameraObject extends Object {
 	}
 
 	public function buildProjection() {
-		if (data.raw.projection != null) {
-			P = Mat4.fromFloat32Array(data.raw.projection);
-		}
-		else if (data.raw.type == "perspective") {
-			P = Mat4.perspective(data.raw.fov, iron.App.w() / iron.App.h(), nearPlane, farPlane);
+		if (data.raw.type == "perspective") {
+			var aspect = data.raw.aspect != null ? data.raw.aspect : iron.App.w() / iron.App.h();
+			P = Mat4.perspective(data.raw.fov, aspect, nearPlane, farPlane);
 		}
 		else if (data.raw.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane);
