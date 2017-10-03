@@ -18,6 +18,7 @@ class App {
 	static var traitLateUpdates:Array<Void->Void> = [];
 	static var traitRenders:Array<kha.graphics4.Graphics->Void> = [];
 	static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
+	public static var pauseUpdates = false;
 
 #if arm_profile
 	static var startTime:Float;
@@ -49,6 +50,8 @@ class App {
 	}
 
 	static function update() {
+		if (pauseUpdates) return;
+		
 #if arm_profile
 		startTime = kha.Scheduler.realTime();
 #end

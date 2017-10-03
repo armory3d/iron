@@ -8,13 +8,9 @@ class Time {
 	static var last = 0.0;
 	public static var realDelta = 0.0;
 
-	public static inline function time():Float {
-		return kha.Scheduler.time();
-	}
+	public static inline function time():Float { return kha.Scheduler.time(); }
 
-	public static inline function realTime():Float {
-		return kha.Scheduler.realTime();
-	}
+	public static inline function realTime():Float { return kha.Scheduler.realTime(); }
 
 	public static function update() {
 		realDelta = realTime() - last;

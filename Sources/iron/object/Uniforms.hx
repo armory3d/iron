@@ -667,7 +667,7 @@ class Uniforms {
 		else if (c.type == "float") {
 			var f = 0.0;
 			if (c.link == "_time") {
-				f = kha.Scheduler.time();
+				f = iron.system.Time.time();
 			}
 			else if (c.link == "_deltaTime") {
 				f = iron.system.Time.delta;
