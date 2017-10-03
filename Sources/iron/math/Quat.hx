@@ -32,10 +32,11 @@ class Quat {
 		y = axis.y * s;
 		z = axis.z * s;
 		w = Math.cos(angle * 0.5);
+		normalize();
 	}
 
 	public function toAxisAngle(axis:Vec4):Float {
-	    this.normalize();
+	    normalize();
 	    var angle = 2 * Math.acos(w);
 	    var s = Math.sqrt(1 - w * w);
 	    if (s < 0.001) {
