@@ -113,6 +113,26 @@ class Geometry {
 		return structure;
 	}
 
+	public function applyScale(sx:Float, sy:Float, sz:Float) {
+		#if arm_deinterleaved
+		var vertices = vertexBuffers[0].lock;
+		for (i in 0...Std.int(vertices.length / 3)) {
+			vertices[i * 3]     *= sx;
+			vertices[i * 3 + 1] *= sy;
+			vertices[i * 3 + 2] *= sz;
+		}
+		vertexBuffers[0].unlock();
+		#else
+		var vertices = vertexBuffer.lock();
+		for (i in 0...Std.int(vertices.length / structLength)) {
+			vertices[i * structLength]     *= sx;
+			vertices[i * structLength + 1] *= sy;
+			vertices[i * structLength + 2] *= sz;
+		}
+		vertexBuffer.unlock();
+		#end
+	}
+
 	public function setupInstanced(offsets:TFloat32Array, usage:Usage) {
 		// Store vecs for sorting and culling
 		offsetVecs = [];

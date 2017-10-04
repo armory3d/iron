@@ -66,9 +66,9 @@ class ParticleSystem {
 		m._11 = aligny;
 		m._12 = alignz;
 		m._13 = r.factor_random;
-		m._20 = gx;
-		m._21 = gy;
-		m._22 = gz;
+		m._20 = gx * r.mass;
+		m._21 = gy * r.mass;
+		m._22 = gz * r.mass;
 		m._23 = r.lifetime_random;
 		// m._30 = sizex;
 		// m._31 = sizey;
@@ -112,12 +112,9 @@ class ParticleSystem {
 		// Make mesh data instanced
 		if (!object.data.geom.instanced) setupGeomCpu(object, owner);
 
-		// object.transform.scale.x = r.particle_size;
-		// object.transform.scale.y = r.particle_size;
-		// object.transform.scale.z = r.particle_size;
-		// object.transform.dirty = true;
-
-		for (p in particles) computePos(p, object, particles.length, lap, count);
+		if (r.type == 0) { // Emitter
+			for (p in particles) computePos(p, object, particles.length, lap, count);
+		}
 
 		// Upload
 		// sort(); // TODO: breaks particle order
@@ -127,11 +124,9 @@ class ParticleSystem {
 			var px = p.x;
 			var py = p.y;
 			var pz = p.z;
-			if (r.emit_from == 0) { // Vert, face
-				px += emitFrom[i * 3 + 0];
-				py += emitFrom[i * 3 + 1];
-				pz += emitFrom[i * 3 + 2];
-			}
+			px += emitFrom[i * 3 + 0];
+			py += emitFrom[i * 3 + 1];
+			pz += emitFrom[i * 3 + 2];
 			instancedData.set(i * 3 + 0, px);
 			instancedData.set(i * 3 + 1, py);
 			instancedData.set(i * 3 + 2, pz);
@@ -162,9 +157,9 @@ class ParticleSystem {
 		p.z += fhash(p.i + 2 * l) * r.factor_random - r.factor_random / 2;
 
 		// Gravity
-		p.x += (gx * ptime) / 5;
-		p.y += (gy * ptime) / 5;
-		p.z += (gz * ptime) / 5;
+		p.x += (gx * r.mass * ptime) / 5;
+		p.y += (gy * r.mass * ptime) / 5;
+		p.z += (gz * r.mass * ptime) / 5;
 
 		p.x *= ptime;
 		p.y *= ptime;
@@ -201,6 +196,7 @@ class ParticleSystem {
 			instancedData.set(i, 0.0); i++;
 			instancedData.set(i, 0.0); i++;
 		}
+		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
 		object.data.geom.setupInstanced(instancedData, Usage.DynamicUsage);
 		
 		emitFrom = new TFloat32Array(particles.length * 3);

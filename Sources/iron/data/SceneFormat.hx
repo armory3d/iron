@@ -334,6 +334,7 @@ typedef TIrradiance = { // Blob with spherical harmonics, bands 0,1,2
 
 typedef TParticleData = {
 	var name:String;
+	var type:Int; // 0 - Emitter, Hair
 	// Emission
 	var count:Int;
 	var frame_start:Float;
@@ -359,7 +360,6 @@ typedef TParticleReference = {
 	var name:String;
 	var particle:String;
 	var seed:Int;
-	var type:Int; // emitter, hair
 }
 
 typedef TObj = {
