@@ -137,15 +137,15 @@ class ParticleSystem {
 	function computePos(p:Particle, object:MeshObject, l:Int, lap:Int, count:Int) {
 
 		var i = p.i;// + lap * l * l; // Shuffle repeated laps
-		var ptime = (count - p.i) * spawnRate;
-		ptime -= ptime * fhash(i) * r.lifetime_random;
+		var age = (count - p.i) * spawnRate;
+		age -= age * fhash(i) * r.lifetime_random;
 
-		if (p.i > count || ptime < 0 || ptime > lifetime) { p.x = p.y = p.z = -99999; return; } // Limit to current particle count
+		if (p.i > count || age < 0 || age > lifetime) { p.x = p.y = p.z = -99999; return; } // Limit to current particle count
 
-		if (r.physics_type == 1) computeNewton(p, i, ptime);
+		if (r.physics_type == 1) computeNewton(p, i, age);
 	}
 
-	function computeNewton(p:Particle, i:Int, ptime:Float) {
+	function computeNewton(p:Particle, i:Int, age:Float) {
 
 		p.x = alignx;
 		p.y = aligny;
@@ -157,13 +157,13 @@ class ParticleSystem {
 		p.z += fhash(p.i + 2 * l) * r.factor_random - r.factor_random / 2;
 
 		// Gravity
-		p.x += (gx * r.mass * ptime) / 5;
-		p.y += (gy * r.mass * ptime) / 5;
-		p.z += (gz * r.mass * ptime) / 5;
+		p.x += (gx * r.mass * age) / 5;
+		p.y += (gy * r.mass * age) / 5;
+		p.z += (gz * r.mass * age) / 5;
 
-		p.x *= ptime;
-		p.y *= ptime;
-		p.z *= ptime;
+		p.x *= age;
+		p.y *= age;
+		p.z *= age;
 	}
 
 	function setupGeomGpu(object:MeshObject, owner:MeshObject) {
@@ -185,6 +185,7 @@ class ParticleSystem {
 				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.z / 2.0)); i++;
 			}
 		}
+		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
 		object.data.geom.setupInstanced(instancedData, Usage.StaticUsage);
 	}
 
