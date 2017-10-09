@@ -66,7 +66,7 @@ class ObjectAnimation extends Animation {
 
 	function updateObjectAnim() {
 		if (isSampled) {
-			updateAnimSampled(object.raw.animation, object.transform.world, setObjectAnimFrame);
+			updateAnimSampled(object.raw.animation, object.transform.world);
 			// Decompose manually on every update for now
 			object.transform.world.decompose(object.transform.loc, object.transform.rot, object.transform.scale);
 		}
@@ -76,14 +76,14 @@ class ObjectAnimation extends Animation {
 		}
 	}
 
-	function setObjectAnimFrame(frame:Int) {
-		var objectAnim = object.raw.animation;
-		if (objectAnim != null) {
-			var track = objectAnim.tracks[0];
-			var m1 = Mat4.fromFloat32Array(track.values, frame * 16);
-			object.transform.world = m1;
-		}
-	}
+	// function setObjectAnimFrame(frame:Int) {
+	// 	var objectAnim = object.raw.animation;
+	// 	if (objectAnim != null) {
+	// 		var track = objectAnim.tracks[0];
+	// 		var m1 = Mat4.fromFloat32Array(track.values, frame * 16);
+	// 		object.transform.world = m1;
+	// 	}
+	// }
 
 	inline function interpolateLinear(t:Float, t1:Float, t2:Float):Float {
 		return (t - t1) / (t2 - t1);
@@ -100,26 +100,13 @@ class ObjectAnimation extends Animation {
 		
 		var total = anim.end * frameTime - anim.begin * frameTime;
 
-		if (dirty) {
-			dirty = false;
-			animTime = 0;
-			timeIndex = 0;
-			var track = anim.tracks[0];
-			while (animTime > track.times[timeIndex] * frameTime + frameTime) {
-				timeIndex++;
-			}
-		}
-
 		for (track in anim.tracks) {
 
 			// No data for this track at current time
 			if (timeIndex >= track.times.length) continue;
 
 			// End of track
-			if (animTime > total) {
-				animTime = 0; // Rewind
-				timeIndex = 0;
-			}
+			if (animTime > total) rewind(track);
 
 			// End of current time range
 			var t = animTime + anim.begin * frameTime;

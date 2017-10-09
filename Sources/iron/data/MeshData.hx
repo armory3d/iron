@@ -15,7 +15,7 @@ class MeshData extends Data {
 	public var refcount = 0; // Number of users
 	public var handle:String; // Handle used to retrieve this object in Data
 
-#if arm_cpu_skin
+#if arm_skin_cpu
 	public static inline var ForceCpuSkinning = true;
 #else
 	public static inline var ForceCpuSkinning = false;

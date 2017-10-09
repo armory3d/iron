@@ -698,7 +698,7 @@ class RenderPath {
 			var frame = layer.frames[layer.currentFrame];
 			if (frame.numVertices > 0) {
 				// Stroke
-#if (js && kha_webgl && !kha_node)
+#if (js && kha_webgl && !kha_node && !kha_html5worker)
 				// TODO: temporary, construct triangulated lines from points instead
 				g.setVertexBuffer(frame.vertexStrokeBuffer);
 				kha.SystemImpl.gl.lineWidth(3);

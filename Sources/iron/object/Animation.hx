@@ -24,15 +24,27 @@ class Animation {
 
 	public var animTime:Float = 0;
 	public var timeIndex:Int = 0; // TODO: use boneTimeIndices
-	public var dirty:Bool = false;
 	public var onActionComplete:Void->Void = null;
 	public var paused = false;
 	var frameTime:Float;
 
+	var blendTime = 0.0;
+	var blendCurrent = 0.0;
+	var blendAction = '';
+
 	public function play(action = '', onActionComplete:Void->Void = null) {
 		this.action = action;
 		this.onActionComplete = onActionComplete;
-		dirty = true;
+		timeIndex = -1; // Rewind
+		paused = false;
+	}
+
+	public function blend(action = '', blendTime = 0.2, onActionComplete:Void->Void = null) {
+		this.blendTime = blendTime;
+		this.blendCurrent = 0.0;
+		this.blendAction = this.action;
+		this.action = action;
+		this.onActionComplete = onActionComplete;
 		paused = false;
 	}
 
@@ -53,22 +65,27 @@ class Animation {
 	public function update(delta:Float) {
 		if (paused) return;
 		animTime += delta;
+
+		if (blendTime > 0) {
+			blendCurrent += delta;
+			if (blendCurrent >= blendTime) blendTime = 0.0;
+		}
 	}	
 
 	inline function checkTimeIndex(timeValues:TFloat32Array):Bool {
 		return ((timeIndex + 1) < timeValues.length && animTime > timeValues[timeIndex + 1] * frameTime);
 	}
 
-	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4, setFrame:Int->Void) {
+	function rewind(track:TTrack) {
+		timeIndex = 0;
+		animTime = track.times[0] * frameTime;
+	}
+
+	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
 		if (anim == null) return;
 		var track = anim.tracks[0];
 
-		// Current track has been changed
-		if (dirty) {
-			dirty = false;
-			timeIndex = 0;
-			animTime = track.times[0] * frameTime;
-		}
+		if (timeIndex == -1) rewind(track);
 
 		// Move keyframe
 		//var timeIndex = boneTimeIndices.get(b);
@@ -77,7 +94,7 @@ class Animation {
 
 		// End of track
 		if (timeIndex >= track.times.length - 1) {
-			dirty = true; // Rewind
+			timeIndex = -1;
 
 			if (onActionComplete != null) onActionComplete();
 			//boneTimeIndices.set(b, timeIndex);
@@ -97,7 +114,7 @@ class Animation {
 
 		// Decompose
 		m1.decompose(vpos, q1, vscl);
-		m2.decompose(vpos2, q2,vscl2);
+		m2.decompose(vpos2, q2, vscl2);
 
 		// Lerp
 		var fp = Vec4.lerp(vpos, vpos2, 1.0 - s);

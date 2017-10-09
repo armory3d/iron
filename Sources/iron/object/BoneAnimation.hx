@@ -17,16 +17,19 @@ class BoneAnimation extends Animation {
 	// public var boneTimeIndices = new Map<TObj, Int>();
 
 	var m = Mat4.identity(); // Skinning matrix
+	var m1 = Mat4.identity(); // Skinning matrix
+	var m2 = Mat4.identity(); // Skinning matrix
 	var bm = Mat4.identity(); // Absolute bone matrix
 	var pos = new Vec4();
 	var nor = new Vec4();
 
 	// Lerp
-	static var m1 = Mat4.identity();
 	static var vpos = new Vec4();
 	static var vscl = new Vec4();
 	static var q1 = new Quat();
 	static var q2 = new Quat();
+	static var vpos2 = new Vec4();
+	static var vscl2 = new Vec4();
 
 	public function new(mo:MeshObject) {
 		super();
@@ -45,13 +48,15 @@ class BoneAnimation extends Animation {
 
 	override public function play(action = '', onActionComplete:Void->Void = null) {
 		super.play(onActionComplete);
-		if (action != '') {
-			dirty = true;
-			object.data.geom.setAction(action);
-		}
+		if (action != '') object.data.geom.setAction(action);
 	}
 
-	public override function update(delta:Float) {
+	override public function blend(action = '', blendTime = 0.2, onActionComplete:Void->Void = null) {
+		super.blend(action, blendTime, onActionComplete);
+		if (action != '') object.data.geom.setActionBlend(action);
+	}
+
+	override public function update(delta:Float) {
 		if (!object.visible || object.culled) return;
 
 #if arm_profile
@@ -73,25 +78,40 @@ class BoneAnimation extends Animation {
 
 	function updateBoneAnim() {
 		for (b in data.geom.skeletonBones) {
-			updateAnimSampled(b.animation, data.geom.skeletonMats.get(b), setBoneAnimFrame);
+			updateAnimSampled(b.animation, data.geom.skeletonMats.get(b));
 		}
-	}
 
-	function setBoneAnimFrame(frame:Int) {
-		for (b in data.geom.skeletonBones) {
-			var boneAnim = b.animation;
-			if (boneAnim != null) {
-				var track = boneAnim.tracks[0];
-				var m1 = Mat4.fromFloat32Array(track.values, frame * 16); // Offset to 4x4 matrix array
-				data.geom.skeletonMats.set(b, m1);
+		if (blendTime > 0) {
+			for (b in data.geom.skeletonBonesBlend) {
+				updateAnimSampled(b.animation, data.geom.skeletonMatsBlend.get(b));
 			}
 		}
-		updateSkin();
 	}
 
+	// function setBoneAnimFrame(frame:Int) {
+	// 	for (b in data.geom.skeletonBones) {
+	// 		var boneAnim = b.animation;
+	// 		if (boneAnim != null) {
+	// 			var track = boneAnim.tracks[0];
+	// 			var m1 = Mat4.fromFloat32Array(track.values, frame * 16); // Offset to 4x4 matrix array
+	// 			data.geom.skeletonMats.set(b, m1);
+	// 		}
+	// 	}
+	// 	updateSkin();
+	// }
+
 	function updateSkin() {
-		if (MeshData.ForceCpuSkinning) updateSkinCpu();
-		else updateSkinGpu();
+		MeshData.ForceCpuSkinning ? updateSkinCpu() : updateSkinGpu();
+	}
+
+	function applyParent(m:Mat4, bone:TObj, mats:Map<TObj, Mat4>) {
+		var p = bone.parent;
+		while (p != null) { // TODO: store absolute transforms per bone
+			var pm = mats.get(p);
+			if (pm == null) pm = Mat4.fromFloat32Array(p.transform.values);
+			m.multmat2(pm);
+			p = p.parent;
+		}
 	}
 
 	// Dual quat skinning
@@ -102,32 +122,55 @@ class BoneAnimation extends Animation {
 			
 			bm.setFrom(data.geom.skinTransform);
 			bm.multmat2(data.geom.skeletonTransformsI[i]);
-			m.setFrom(data.geom.skeletonMats.get(bones[i]));
-			var p = bones[i].parent;
-			while (p != null) { // TODO: store absolute transforms per bone
-				var pm = data.geom.skeletonMats.get(p);
-				if (pm == null) pm = Mat4.fromFloat32Array(p.transform.values);
-				m.multmat2(pm);
-				p = p.parent;
+			if (blendTime > 0) {
+				var bonesBlend = data.geom.skeletonBonesBlend;
+				// Decompose
+				m1.setFrom(data.geom.skeletonMatsBlend.get(bonesBlend[i]));
+				applyParent(m1, bonesBlend[i], data.geom.skeletonMatsBlend);
+
+				m2.setFrom(data.geom.skeletonMats.get(bones[i]));
+				applyParent(m2, bones[i], data.geom.skeletonMats);
+
+				m1.decompose(vpos, q1, vscl);
+				m2.decompose(vpos2, q2,vscl2);
+
+				// Lerp
+				var s = blendCurrent / blendTime;
+				var fp = Vec4.lerp(vpos, vpos2, 1.0 - s);
+				var fs = Vec4.lerp(vscl, vscl2, 1.0 - s);
+				var fq = Quat.lerp(q1, q2, s);
+
+				// Compose
+				fq.toMat(m);
+				m.scale(fs);
+				m._30 = fp.x;
+				m._31 = fp.y;
+				m._32 = fp.z;
+			}
+			else {
+				m.setFrom(data.geom.skeletonMats.get(bones[i]));
+				applyParent(m, bones[i], data.geom.skeletonMats);
 			}
 			bm.multmat2(m);
 
-			// Matrix skinning
-			// bm.transpose2();
-			// skinBuffer[i * 12] = bm._00;
-			// skinBuffer[i * 12 + 1] = bm._01;
-			// skinBuffer[i * 12 + 2] = bm._02;
-			// skinBuffer[i * 12 + 3] = bm._03;
-			// skinBuffer[i * 12 + 4] = bm._10;
-			// skinBuffer[i * 12 + 5] = bm._11;
-			// skinBuffer[i * 12 + 6] = bm._12;
-			// skinBuffer[i * 12 + 7] = bm._13;
-			// skinBuffer[i * 12 + 8] = bm._20;
-			// skinBuffer[i * 12 + 9] = bm._21;
-			// skinBuffer[i * 12 + 10] = bm._22;
-			// skinBuffer[i * 12 + 11] = bm._23;
-
-			// Dual quat skinning
+			#if arm_skin_mat // Matrix skinning
+			
+			bm.transpose();
+			skinBuffer[i * 12] = bm._00;
+			skinBuffer[i * 12 + 1] = bm._01;
+			skinBuffer[i * 12 + 2] = bm._02;
+			skinBuffer[i * 12 + 3] = bm._03;
+			skinBuffer[i * 12 + 4] = bm._10;
+			skinBuffer[i * 12 + 5] = bm._11;
+			skinBuffer[i * 12 + 6] = bm._12;
+			skinBuffer[i * 12 + 7] = bm._13;
+			skinBuffer[i * 12 + 8] = bm._20;
+			skinBuffer[i * 12 + 9] = bm._21;
+			skinBuffer[i * 12 + 10] = bm._22;
+			skinBuffer[i * 12 + 11] = bm._23;
+			
+			#else // Dual quat skinning
+			
 			bm.decompose(vpos, q1, vscl);
 			q1.normalize();
 			q2.set(vpos.x, vpos.y, vpos.z, 0.0);
@@ -143,6 +186,8 @@ class BoneAnimation extends Animation {
 			skinBuffer[i * 8 + 5] = q2.y;
 			skinBuffer[i * 8 + 6] = q2.z;
 			skinBuffer[i * 8 + 7] = q2.w;
+			
+			#end
 		}
 	}
 

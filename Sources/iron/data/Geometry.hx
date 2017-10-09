@@ -55,6 +55,8 @@ class Geometry {
 	public var skeletonBoneRefs:Array<String> = null;
 	public var skeletonBones:Array<TObj> = null;
 	public var skeletonMats:Map<TObj, Mat4> = null;
+	public var skeletonBonesBlend:Array<TObj> = null;
+	public var skeletonMatsBlend:Map<TObj, Mat4> = null;
 	public var actions:Map<String, Array<TObj>> = null;
 	public var mats:Map<String, Map<TObj, Mat4>> = null;
 
@@ -370,6 +372,13 @@ class Geometry {
 	}
 
 	public function setAction(action:String) {
+		skeletonBones = actions.get(action);
+		skeletonMats = mats.get(action);
+	}
+
+	public function setActionBlend(action:String) {
+		skeletonBonesBlend = skeletonBones;
+		skeletonMatsBlend = skeletonMats;
 		skeletonBones = actions.get(action);
 		skeletonMats = mats.get(action);
 	}

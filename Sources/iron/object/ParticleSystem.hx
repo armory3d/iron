@@ -33,6 +33,9 @@ class ParticleSystem {
 	var tilesFramerate:Int;
 
 	var emitFrom:TFloat32Array = null; // CPU volume/face offset
+	var count = 0;
+	var lap = 0;
+	var m = iron.math.Mat4.identity();
 
 	public function new(sceneName:String, pref:TParticleReference) {
 		seed = pref.seed;
@@ -56,7 +59,6 @@ class ParticleSystem {
 	}
 
 	// GPU particles
-	var m = iron.math.Mat4.identity();
 	public function getData():iron.math.Mat4 {
 		m._00 = count;
 		m._01 = spawnRate;
@@ -100,8 +102,6 @@ class ParticleSystem {
 		r.gpu_sim ? updateGpu(object, owner) : updateCpu(object, owner);
 	}
 
-	var count = 0;
-	var lap = 0;
 	function updateGpu(object:MeshObject, owner:MeshObject) {
 		if (!object.data.geom.instanced) setupGeomGpu(object, owner);
 
@@ -139,6 +139,8 @@ class ParticleSystem {
 		var i = p.i;// + lap * l * l; // Shuffle repeated laps
 		var age = (count - p.i) * spawnRate;
 		age -= age * fhash(i) * r.lifetime_random;
+
+		if (age > lifetime) age = age % lifetime;
 
 		if (p.i > count || age < 0 || age > lifetime) { p.x = p.y = p.z = -99999; return; } // Limit to current particle count
 
