@@ -114,7 +114,7 @@ class Geometry {
 
 	public function applyScale(sx:Float, sy:Float, sz:Float) {
 		#if arm_deinterleaved
-		var vertices = vertexBuffers[0].lock;
+		var vertices = vertexBuffers[0].lock();
 		for (i in 0...Std.int(vertices.length / 3)) {
 			vertices[i * 3]     *= sx;
 			vertices[i * 3 + 1] *= sy;
