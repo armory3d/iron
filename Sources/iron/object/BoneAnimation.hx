@@ -56,15 +56,15 @@ class BoneAnimation extends Animation {
 	}
 
 	function setAction(action:String) {
-		skeletonBones = object.data.geom.actions.get(action);
-		skeletonMats = object.data.geom.mats.get(action);
+		skeletonBones = data.geom.actions.get(action);
+		skeletonMats = data.geom.mats.get(action);
 	}
 
 	function setActionBlend(action:String) {
 		skeletonBonesBlend = skeletonBones;
 		skeletonMatsBlend = skeletonMats;
-		skeletonBones = object.data.geom.actions.get(action);
-		skeletonMats = object.data.geom.mats.get(action);
+		skeletonBones = data.geom.actions.get(action);
+		skeletonMats = data.geom.mats.get(action);
 	}
 
 	override public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
@@ -137,8 +137,8 @@ class BoneAnimation extends Animation {
 
 		for (i in 0...bones.length) {
 			
-			bm.setFrom(object.data.geom.skinTransform);
-			bm.multmat2(object.data.geom.skeletonTransformsI[i]);
+			bm.setFrom(data.geom.skinTransform);
+			bm.multmat2(data.geom.skeletonTransformsI[i]);
 			if (blendTime > 0) {
 				var bonesBlend = skeletonBonesBlend;
 				// Decompose
