@@ -46,14 +46,11 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	override public function play(action = '', onActionComplete:Void->Void = null) {
-		super.play(onActionComplete);
-		if (action != '') object.data.geom.setAction(action);
-	}
-
-	override public function blend(action = '', blendTime = 0.2, onActionComplete:Void->Void = null) {
-		super.blend(action, blendTime, onActionComplete);
-		if (action != '') object.data.geom.setActionBlend(action);
+	override public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
+		super.play(action, onActionComplete, blendTime);
+		if (action != '') {
+			blendTime > 0 ? object.data.geom.setActionBlend(action) : object.data.geom.setAction(action);
+		}
 	}
 
 	override public function update(delta:Float) {
@@ -136,6 +133,7 @@ class BoneAnimation extends Animation {
 
 				// Lerp
 				var s = blendCurrent / blendTime;
+				s = s * s * (3.0 - 2.0 * s); // Smoothstep
 				var fp = Vec4.lerp(vpos, vpos2, 1.0 - s);
 				var fs = Vec4.lerp(vscl, vscl2, 1.0 - s);
 				var fq = Quat.lerp(q1, q2, s);

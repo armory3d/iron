@@ -32,17 +32,12 @@ class Animation {
 	var blendCurrent = 0.0;
 	var blendAction = '';
 
-	public function play(action = '', onActionComplete:Void->Void = null) {
-		this.action = action;
-		this.onActionComplete = onActionComplete;
-		timeIndex = -1; // Rewind
-		paused = false;
-	}
-
-	public function blend(action = '', blendTime = 0.2, onActionComplete:Void->Void = null) {
-		this.blendTime = blendTime;
-		this.blendCurrent = 0.0;
-		this.blendAction = this.action;
+	public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
+		if (blendTime > 0) {
+			this.blendTime = blendTime;
+			this.blendCurrent = 0.0;
+			this.blendAction = this.action;
+		}
 		this.action = action;
 		this.onActionComplete = onActionComplete;
 		paused = false;
