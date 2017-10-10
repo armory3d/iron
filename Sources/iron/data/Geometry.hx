@@ -53,10 +53,7 @@ class Geometry {
 	public var skeletonTransforms:Array<Mat4> = null;
 	public var skeletonTransformsI:Array<Mat4> = null;
 	public var skeletonBoneRefs:Array<String> = null;
-	public var skeletonBones:Array<TObj> = null;
-	public var skeletonMats:Map<TObj, Mat4> = null;
-	public var skeletonBonesBlend:Array<TObj> = null;
-	public var skeletonMatsBlend:Map<TObj, Mat4> = null;
+
 	public var actions:Map<String, Array<TObj>> = null;
 	public var mats:Map<String, Map<TObj, Mat4>> = null;
 
@@ -364,23 +361,6 @@ class Geometry {
 			// boneTimeIndices.set(b, 0);
 		}
 		mats.set(name, actionMats);
-
-		if (skeletonBones == null) {
-			skeletonBones = actionBones;
-			skeletonMats = actionMats;
-		}
-	}
-
-	public function setAction(action:String) {
-		skeletonBones = actions.get(action);
-		skeletonMats = mats.get(action);
-	}
-
-	public function setActionBlend(action:String) {
-		skeletonBonesBlend = skeletonBones;
-		skeletonMatsBlend = skeletonMats;
-		skeletonBones = actions.get(action);
-		skeletonMats = mats.get(action);
 	}
 
 	public function initSkeletonTransforms(transforms:Array<TFloat32Array>) {

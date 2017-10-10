@@ -38,6 +38,7 @@ class Animation {
 			this.blendCurrent = 0.0;
 			this.blendAction = this.action;
 		}
+		else timeIndex = -1;
 		this.action = action;
 		this.onActionComplete = onActionComplete;
 		paused = false;
@@ -89,13 +90,13 @@ class Animation {
 
 		// End of track
 		if (timeIndex >= track.times.length - 1) {
-			timeIndex = -1;
+			rewind(track);
 
 			if (onActionComplete != null) onActionComplete();
 			//boneTimeIndices.set(b, timeIndex);
 
 			// Give chance to change current track
-			return;
+			// return;
 		}
 
 		var t = animTime;

@@ -16,6 +16,11 @@ class BoneAnimation extends Animation {
 	public var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
 	// public var boneTimeIndices = new Map<TObj, Int>();
 
+	var skeletonBones:Array<TObj> = null;
+	var skeletonMats:Map<TObj, Mat4> = null;
+	var skeletonBonesBlend:Array<TObj> = null;
+	var skeletonMatsBlend:Map<TObj, Mat4> = null;
+
 	var m = Mat4.identity(); // Skinning matrix
 	var m1 = Mat4.identity(); // Skinning matrix
 	var m2 = Mat4.identity(); // Skinning matrix
@@ -43,63 +48,75 @@ class BoneAnimation extends Animation {
 				this.skinBuffer = new haxe.ds.Vector(skinMaxBones * 8); // Dual quat // * 12 for matrices
 				for (i in 0...this.skinBuffer.length) this.skinBuffer[i] = 0;
 			}
+			var refs = mo.parent.raw.action_refs;
+			if (refs != null && refs.length > 0) {
+				iron.data.Data.getSceneRaw(refs[0], function(action:TSceneFormat) { play(action.name); });
+			}
 		}
+	}
+
+	function setAction(action:String) {
+		skeletonBones = object.data.geom.actions.get(action);
+		skeletonMats = object.data.geom.mats.get(action);
+	}
+
+	function setActionBlend(action:String) {
+		skeletonBonesBlend = skeletonBones;
+		skeletonMatsBlend = skeletonMats;
+		skeletonBones = object.data.geom.actions.get(action);
+		skeletonMats = object.data.geom.mats.get(action);
 	}
 
 	override public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
 		super.play(action, onActionComplete, blendTime);
 		if (action != '') {
-			blendTime > 0 ? object.data.geom.setActionBlend(action) : object.data.geom.setAction(action);
+			blendTime > 0 ? setActionBlend(action) : setAction(action);
 		}
 	}
 
 	override public function update(delta:Float) {
-		if (!object.visible || object.culled) return;
+		if (!object.visible || object.culled || skeletonBones == null) return;
 
-#if arm_profile
+		#if arm_profile
 		Animation.beginProfile();
-#end
+		#end
 
 		super.update(delta);
 		if (paused) return;
 
 		if (isSkinned) {
 			updateBoneAnim();
-			updateSkin();
+			MeshData.ForceCpuSkinning ? updateSkinCpu() : updateSkinGpu();
 		}
 
-#if arm_profile
+		#if arm_profile
 		Animation.endProfile();
-#end
+		#end
 	}
 
 	function updateBoneAnim() {
-		for (b in data.geom.skeletonBones) {
-			updateAnimSampled(b.animation, data.geom.skeletonMats.get(b));
+		for (b in skeletonBones) {
+			updateAnimSampled(b.animation, skeletonMats.get(b));
 		}
 
 		if (blendTime > 0) {
-			for (b in data.geom.skeletonBonesBlend) {
-				updateAnimSampled(b.animation, data.geom.skeletonMatsBlend.get(b));
+			for (b in skeletonBonesBlend) {
+				updateAnimSampled(b.animation, skeletonMatsBlend.get(b));
 			}
 		}
 	}
 
 	// function setBoneAnimFrame(frame:Int) {
-	// 	for (b in data.geom.skeletonBones) {
+	// 	for (b in skeletonBones) {
 	// 		var boneAnim = b.animation;
 	// 		if (boneAnim != null) {
 	// 			var track = boneAnim.tracks[0];
 	// 			var m1 = Mat4.fromFloat32Array(track.values, frame * 16); // Offset to 4x4 matrix array
-	// 			data.geom.skeletonMats.set(b, m1);
+	// 			skeletonMats.set(b, m1);
 	// 		}
 	// 	}
 	// 	updateSkin();
 	// }
-
-	function updateSkin() {
-		MeshData.ForceCpuSkinning ? updateSkinCpu() : updateSkinGpu();
-	}
 
 	function applyParent(m:Mat4, bone:TObj, mats:Map<TObj, Mat4>) {
 		var p = bone.parent;
@@ -113,27 +130,28 @@ class BoneAnimation extends Animation {
 
 	// Dual quat skinning
 	function updateSkinGpu() {
-		var bones = data.geom.skeletonBones;
+		var bones = skeletonBones;
+
+		var s = blendCurrent / blendTime;
+		s = s * s * (3.0 - 2.0 * s); // Smoothstep
 
 		for (i in 0...bones.length) {
 			
-			bm.setFrom(data.geom.skinTransform);
-			bm.multmat2(data.geom.skeletonTransformsI[i]);
+			bm.setFrom(object.data.geom.skinTransform);
+			bm.multmat2(object.data.geom.skeletonTransformsI[i]);
 			if (blendTime > 0) {
-				var bonesBlend = data.geom.skeletonBonesBlend;
+				var bonesBlend = skeletonBonesBlend;
 				// Decompose
-				m1.setFrom(data.geom.skeletonMatsBlend.get(bonesBlend[i]));
-				applyParent(m1, bonesBlend[i], data.geom.skeletonMatsBlend);
+				m1.setFrom(skeletonMatsBlend.get(bonesBlend[i]));
+				applyParent(m1, bonesBlend[i], skeletonMatsBlend);
 
-				m2.setFrom(data.geom.skeletonMats.get(bones[i]));
-				applyParent(m2, bones[i], data.geom.skeletonMats);
+				m2.setFrom(skeletonMats.get(bones[i]));
+				applyParent(m2, bones[i], skeletonMats);
 
 				m1.decompose(vpos, q1, vscl);
 				m2.decompose(vpos2, q2,vscl2);
 
 				// Lerp
-				var s = blendCurrent / blendTime;
-				s = s * s * (3.0 - 2.0 * s); // Smoothstep
 				var fp = Vec4.lerp(vpos, vpos2, 1.0 - s);
 				var fs = Vec4.lerp(vscl, vscl2, 1.0 - s);
 				var fq = Quat.lerp(q1, q2, s);
@@ -146,8 +164,8 @@ class BoneAnimation extends Animation {
 				m._32 = fp.z;
 			}
 			else {
-				m.setFrom(data.geom.skeletonMats.get(bones[i]));
-				applyParent(m, bones[i], data.geom.skeletonMats);
+				m.setFrom(skeletonMats.get(bones[i]));
+				applyParent(m, bones[i], skeletonMats);
 			}
 			bm.multmat2(m);
 
@@ -218,7 +236,7 @@ class BoneAnimation extends Animation {
 			for (j in 0...boneCount) {
 				var boneIndex = boneIndices[j];
 				var boneWeight = boneWeights[j];
-				var bone = data.geom.skeletonBones[boneIndex];
+				var bone = skeletonBones[boneIndex];
 
 				// Position
 				m.initTranslate(data.geom.positions[i * 3],
@@ -229,10 +247,10 @@ class BoneAnimation extends Animation {
 
 				m.multmat2(data.geom.skeletonTransformsI[boneIndex]);
 
-				bm.setFrom(data.geom.skeletonMats.get(bone));
+				bm.setFrom(skeletonMats.get(bone));
 				var p = bone.parent;
 				while (p != null) { // TODO: store absolute transforms per bone
-					var pm = data.geom.skeletonMats.get(p);
+					var pm = skeletonMats.get(p);
 					if (pm == null) pm = Mat4.fromFloat32Array(p.transform.values);
 					bm.multmat2(pm);
 					p = p.parent;
