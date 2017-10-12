@@ -463,6 +463,12 @@ class Scene {
 	}
 
 #if arm_stream
+	function childCount(o:TObj):Int {
+		var i = o.children.length;
+		if (o.children != null) for (c in o.children) i += childCount(c);
+		return i;
+	}
+
 	function streamMeshObject(object_file:String, data_ref:String, sceneName:String, actions:Array<TSceneFormat>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
 		sceneStream.add(object_file, data_ref, sceneName, actions, materials, parent, o);
 		// TODO: Increase objectsTraversed by full children count

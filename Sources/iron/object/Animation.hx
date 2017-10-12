@@ -92,7 +92,7 @@ class Animation {
 		if (timeIndex >= track.times.length - 1) {
 			rewind(track);
 
-			if (onActionComplete != null) onActionComplete();
+			if (onActionComplete != null && blendTime == 0) onActionComplete();
 			//boneTimeIndices.set(b, timeIndex);
 
 			// Give chance to change current track
