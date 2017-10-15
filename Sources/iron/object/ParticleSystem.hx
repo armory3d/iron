@@ -35,6 +35,7 @@ class ParticleSystem {
 	var emitFrom:TFloat32Array = null; // CPU volume/face offset
 	var count = 0;
 	var lap = 0;
+	var lapTime = 0.0;
 	var m = iron.math.Mat4.identity();
 
 	public function new(sceneName:String, pref:TParticleReference) {
@@ -60,7 +61,7 @@ class ParticleSystem {
 
 	// GPU particles
 	public function getData():iron.math.Mat4 {
-		m._00 = count;
+		m._00 = r.loop ? animtime : -animtime;
 		m._01 = spawnRate;
 		m._02 = lifetime;
 		m._03 = particles.length;
@@ -72,11 +73,10 @@ class ParticleSystem {
 		m._21 = gy * r.mass;
 		m._22 = gz * r.mass;
 		m._23 = r.lifetime_random;
-		// m._30 = sizex;
-		// m._31 = sizey;
 		m._30 = tilesx;
 		m._31 = tilesy;
 		m._32 = 1 / tilesFramerate;
+		m._33 = lapTime;
 		return m;
 	}
 
@@ -96,7 +96,7 @@ class ParticleSystem {
 		// Animate
 		time += Time.delta;
 		lap = Std.int(time / animtime);
-		var lapTime = time - lap * animtime;
+		lapTime = time - lap * animtime;
 		count = Std.int(lapTime / spawnRate);
 
 		r.gpu_sim ? updateGpu(object, owner) : updateCpu(object, owner);
@@ -137,8 +137,11 @@ class ParticleSystem {
 	function computePos(p:Particle, object:MeshObject, l:Int, lap:Int, count:Int) {
 
 		var i = p.i;// + lap * l * l; // Shuffle repeated laps
-		var age = (count - p.i) * spawnRate;
+		var age = lapTime - p.i * spawnRate;
 		age -= age * fhash(i) * r.lifetime_random;
+
+		// Loop
+		if (r.loop) while (age < 0) age += animtime;
 
 		if (age > lifetime) age = age % lifetime;
 
