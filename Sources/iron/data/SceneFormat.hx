@@ -348,12 +348,14 @@ typedef TParticleData = {
 	var factor_random:Float;
 	// Physics
 	var physics_type:Int; // 0 - No, 1 - Newton
-	var particle_size:Null<Float>; // Object scale
-	var size_random:Null<Float>; // Random scale
-	var mass:Null<Float>; // Random scale
+	var particle_size:Float; // Object scale
+	var size_random:Float; // Random scale
+	var mass:Float; // Random scale
 	// Render
 	var dupli_object:String; // Object reference
-	var gpu_sim:Null<Bool>; // Simulate on GPU
+	var gpu_sim:Bool; // Simulate on GPU
+	// Field weights
+	var weight_gravity:Float;
 }
 
 typedef TParticleReference = {
