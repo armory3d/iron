@@ -192,8 +192,8 @@ class MeshObject extends Object {
 		if (!visible) return; // Skip render if object is hidden
 		if (cullMaterial(context, camera)) return;
 		if (cullMesh(context, camera, lamp)) return;
-		if (raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
-		var meshContext = camera.data.pathdata.raw.mesh_context == context;
+		if (raw != null && raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
+		var meshContext = raw != null ? camera.data.pathdata.raw.mesh_context == context : false;
 		if (particleSystems != null && meshContext) {
 			// TODO: all particles have to be added prior to render being called
 			if (particleChildren == null) {
