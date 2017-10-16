@@ -143,9 +143,7 @@ class ParticleSystem {
 		// Loop
 		if (r.loop) while (age < 0) age += animtime;
 
-		if (age > lifetime) age = age % lifetime;
-
-		if (p.i > count || age < 0 || age > lifetime) { p.x = p.y = p.z = -99999; return; } // Limit to current particle count
+		if (age < 0 || age > lifetime) { p.x = p.y = p.z = -99999; return; } // Limit to current particle count
 
 		if (r.physics_type == 1) computeNewton(p, i, age);
 	}

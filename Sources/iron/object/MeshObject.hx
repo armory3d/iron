@@ -121,7 +121,8 @@ class MeshObject extends Object {
 			// TODO: ddefine skin bounds
 			var radiusScale = data.isSkinned ? 2.0 : 1.0;
 			// TODO: define particle bounds
-			if (particleSystems != null) radiusScale *= 100;
+			// particleSystems for update, particleOwner for render
+			if (particleSystems != null || particleOwner != null) radiusScale *= 1000;
 			if (context == "voxel") radiusScale *= 100;
 			var shadowsContext = context == camera.data.pathdata.raw.shadows_context;
 			var frustumPlanes = shadowsContext ? lamp.frustumPlanes : camera.frustumPlanes;
