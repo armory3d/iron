@@ -443,10 +443,12 @@ class Data {
 		// TODO: Krom sound freezes on MacOS
 		#if kha_krom
 		if (kha.System.systemId == 'OSX') { done(null); return; }
-		#end
+		#else
 
 		#if arm_soundcompress
 		if (StringTools.endsWith(file, '.wav')) file = file.substring(0, file.length - 4) + '.ogg';
+		#end
+
 		#end
 
 		var cached = cachedSounds.get(file);
