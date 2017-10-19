@@ -364,16 +364,34 @@ class Gamepad extends VirutalInput {
 		return 0;
 	}
 
-	public function down(button:String):Float {
-		return buttonsDown[buttonIndex(button)];
+	public function down(button:Dynamic):Float {
+		if(Std.is(button, String)){
+			return buttonsDown[buttonIndex(button)];
+		} else if (Std.is(button, Int)){
+			return buttonsDown[buttonIndex(buttonsPS[button])];
+		} else {
+			return 0.0;
+		}
 	}
 
-	public function started(button:String):Bool {
-		return buttonsStarted[buttonIndex(button)];
+	public function started(button:Dynamic):Bool {
+		if(Std.is(button, String)){
+			return buttonsStarted[buttonIndex(button)];
+		} else if (Std.is(button, Int)){
+			return buttonsStarted[buttonIndex(buttonsPS[button])];
+		} else {
+			return false;
+		}
 	}
 
-	public function released(button:String):Bool {
-		return buttonsReleased[buttonIndex(button)];
+	public function released(button:Dynamic):Bool {
+		if(Std.is(button, String)){
+			return buttonsReleased[buttonIndex(button)];
+		} else if (Std.is(button, Int)){
+			return buttonsReleased[buttonIndex(buttonsPS[button])];
+		} else {
+			return false;
+		}
 	}
 
 	function axisListener(axis:Int, value:Float) {
