@@ -25,30 +25,30 @@ class ObjectAnimation extends Animation {
 		oaction = getAction(this.action);
 		if (oaction != null) {
 			// Check animation_transforms to determine non-sampled animation
-			isSampled = oaction.transforms == null;
-			if (!isSampled) parseAnimationTransforms(object.transform, oaction.transforms);
+			isSampled = oaction.sampled != null && oaction.sampled; // oaction.transforms == null;
+			// if (!isSampled) parseAnimationTransforms(object.transform, oaction.transforms);
 		}
 	}
 
-	static function parseAnimationTransforms(t:Transform, animation_transforms:Array<TAnimationTransform>) {
-		for (at in animation_transforms) {
-			switch (at.type) {
-			case "translation": t.loc.set(at.values[0], at.values[1], at.values[2]);
-			case "translation_x": t.loc.x = at.value;
-			case "translation_y": t.loc.y = at.value;
-			case "translation_z": t.loc.z = at.value;
-			case "rotation": t.setRotation(at.values[0], at.values[1], at.values[2]);
-			case "rotation_x": t.setRotation(at.value, 0, 0);
-			case "rotation_y": t.setRotation(0, at.value, 0);
-			case "rotation_z": t.setRotation(0, 0, at.value);
-			case "scale": t.scale.set(at.values[0], at.values[1], at.values[2]);
-			case "scale_x": t.scale.x = at.value;
-			case "scale_y": t.scale.y = at.value;
-			case "scale_z": t.scale.z = at.value;
-			}
-		}
-		t.buildMatrix();
-	}
+	// static function parseAnimationTransforms(t:Transform, animation_transforms:Array<TAnimationTransform>) {
+	// 	for (at in animation_transforms) {
+	// 		switch (at.type) {
+	// 		case "translation": t.loc.set(at.values[0], at.values[1], at.values[2]);
+	// 		case "translation_x": t.loc.x = at.value;
+	// 		case "translation_y": t.loc.y = at.value;
+	// 		case "translation_z": t.loc.z = at.value;
+	// 		case "rotation": t.setRotation(at.values[0], at.values[1], at.values[2]);
+	// 		case "rotation_x": t.setRotation(at.value, 0, 0);
+	// 		case "rotation_y": t.setRotation(0, at.value, 0);
+	// 		case "rotation_z": t.setRotation(0, 0, at.value);
+	// 		case "scale": t.scale.set(at.values[0], at.values[1], at.values[2]);
+	// 		case "scale_x": t.scale.x = at.value;
+	// 		case "scale_y": t.scale.y = at.value;
+	// 		case "scale_z": t.scale.z = at.value;
+	// 		}
+	// 	}
+	// 	t.buildMatrix();
+	// }
 
 	public override function update(delta:Float) {
 		if (!object.visible || object.culled) return;
@@ -83,7 +83,9 @@ class ObjectAnimation extends Animation {
 	inline function interpolateBezier(t:Float, t1:Float, t2:Float) {
 		// TODO: proper interpolation
 		var k = interpolateLinear(t, t1, t2);
-		return k == 1 ? 1 : (1 - Math.pow(2, -10 * k));
+		// return k == 1 ? 1 : (1 - Math.pow(2, -10 * k));
+		k = k * k * (3.0 - 2.0 * k); // Smoothstep
+		return k;
 	}
 	inline function interpolateTcb() {}
 
@@ -94,6 +96,12 @@ class ObjectAnimation extends Animation {
 
 		for (track in anim.tracks) {
 
+			if (timeIndex == -1) rewind(track);
+
+			// End of current time range
+			var t = animTime + anim.begin * frameTime;
+			while (timeIndex < track.times.length - 2 && t > track.times[timeIndex + 1] * frameTime) timeIndex++;
+
 			// No data for this track at current time
 			if (timeIndex >= track.times.length) continue;
 
@@ -102,12 +110,6 @@ class ObjectAnimation extends Animation {
 				rewind(track);
 				if (onActionComplete != null) onActionComplete();
 				if (paused) return;
-			}
-
-			// End of current time range
-			var t = animTime + anim.begin * frameTime;
-			while (timeIndex < track.times.length - 2 && t > track.times[timeIndex + 1] * frameTime) {
-				timeIndex++;
 			}
 
 			var ti = timeIndex;

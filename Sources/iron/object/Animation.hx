@@ -91,10 +91,8 @@ class Animation {
 		// End of track
 		if (timeIndex >= track.times.length - 1) {
 			rewind(track);
-
 			if (onActionComplete != null && blendTime == 0) onActionComplete();
 			//boneTimeIndices.set(b, timeIndex);
-
 			if (paused) return;
 		}
 

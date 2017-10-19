@@ -432,8 +432,9 @@ typedef TTransform = {
 
 typedef TObjectAction = {
 	var name:String; // Action name
-	@:optional var transforms:Array<TAnimationTransform>; // Starting transforms for non-sampled
 	var animation:TAnimation; // var animation_ref:String;
+	@:optional var sampled:Null<Bool>;
+	// @:optional var transforms:Array<TAnimationTransform>; // Starting transforms for non-sampled
 }
 
 typedef TAnimation = {
