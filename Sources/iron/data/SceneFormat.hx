@@ -380,9 +380,9 @@ typedef TObj = {
 	@:optional var traits:Array<TTrait>;
 	@:optional var constraints:Array<TConstraint>;
 	@:optional var dimensions:TFloat32Array; // Geometry objects
-	@:optional var animation:TAnimation; // Object
-	@:optional var animation_transforms:Array<TAnimationTransform>;
-	@:optional var action_refs:Array<String>; // Bone
+	@:optional var object_actions:Array<TObjectAction>;
+	@:optional var bone_actions:Array<String>;
+	@:optional var bone:TAnimation; // Bone animation
 	@:optional var parent:TObj;
 	@:optional var visible:Null<Bool>;
 	@:optional var visible_mesh:Null<Bool>;
@@ -430,17 +430,23 @@ typedef TTransform = {
 	var values:TFloat32Array;
 }
 
-typedef TAnimationTransform = {
-	var type:String; // translation, translation_x, ...
-	@:optional var name:String;
-	@:optional var values:TFloat32Array; // translation
-	@:optional var value:Float; // translation_x
+typedef TObjectAction = {
+	var name:String; // Action name
+	@:optional var transforms:Array<TAnimationTransform>; // Starting transforms for non-sampled
+	var animation:TAnimation; // var animation_ref:String;
 }
 
 typedef TAnimation = {
 	var tracks:Array<TTrack>;
 	@:optional var begin:Float; // Frames, for non-sampled
 	@:optional var end:Float;
+}
+
+typedef TAnimationTransform = {
+	var type:String; // translation, translation_x, ...
+	@:optional var name:String;
+	@:optional var values:TFloat32Array; // translation
+	@:optional var value:Float; // translation_x
 }
 
 typedef TTrack = {

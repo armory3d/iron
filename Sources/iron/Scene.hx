@@ -394,12 +394,12 @@ class Scene {
 							}
 
 							// Bone objects are stored in armature parent
-							if (parentObject != null && parentObject.action_refs != null) {
+							if (parentObject != null && parentObject.bone_actions != null) {
 								var actions:Array<TSceneFormat> = [];
-								for (ref in parentObject.action_refs) {
+								for (ref in parentObject.bone_actions) {
 									Data.getSceneRaw(ref, function(action:TSceneFormat) {
 										actions.push(action);
-										if (actions.length == parentObject.action_refs.length) {
+										if (actions.length == parentObject.bone_actions.length) {
 											#if arm_stream
 											streamMeshObject(
 											#else

@@ -70,8 +70,8 @@ class MeshObject extends Object {
 	}
 
 	public override function setupAnimation() {
-		var hasAction = parent != null && parent.raw != null && parent.raw.action_refs != null;
-		if (raw.animation == null && !hasAction) return;
+		var hasAction = parent != null && parent.raw != null && parent.raw.bone_actions != null;
+		if (raw.object_actions == null && !hasAction) return;
 		if (data.isSkinned) animation = new BoneAnimation(this);
 		else super.setupAnimation();
 	}

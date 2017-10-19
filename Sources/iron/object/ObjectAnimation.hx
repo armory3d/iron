@@ -9,19 +9,24 @@ import iron.data.SceneFormat;
 class ObjectAnimation extends Animation {
 
 	public var object:Object;
+	var oaction:TObjectAction;
 
 	public function new(object:Object) {
-		super();
-		this.isSkinned = false;
 		this.object = object;
+		isSkinned = false;
+		super();
+	}
 
-		// Check animation_transforms to determine non-sampled animation
-		if (object.raw.animation_transforms != null) {
-			this.isSampled = false;
-			parseAnimationTransforms(object.transform, object.raw.animation_transforms);
-		}
-		else {
-			this.isSampled = true;
+	function getAction(action:String):TObjectAction { for (a in object.raw.object_actions) { if (a.name == action) return a; } return null; }
+
+	override public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
+		super.play(action, onActionComplete, blendTime);
+		if (this.action == '') this.action = object.raw.object_actions[0].name;
+		oaction = getAction(this.action);
+		if (oaction != null) {
+			// Check animation_transforms to determine non-sampled animation
+			isSampled = oaction.transforms == null;
+			if (!isSampled) parseAnimationTransforms(object.transform, oaction.transforms);
 		}
 	}
 
@@ -48,42 +53,29 @@ class ObjectAnimation extends Animation {
 	public override function update(delta:Float) {
 		if (!object.visible || object.culled) return;
 		
-#if arm_profile
+		#if arm_profile
 		Animation.beginProfile();
-#end
+		#end
 
 		super.update(delta);
 		if (paused) return;
+		if (!isSkinned) updateObjectAnim();
 
-		if (!isSkinned) {
-			updateObjectAnim();
-		}
-
-#if arm_profile
+		#if arm_profile
 		Animation.endProfile();
-#end
+		#end
 	}
 
 	function updateObjectAnim() {
 		if (isSampled) {
-			updateAnimSampled(object.raw.animation, object.transform.world);
-			// Decompose manually on every update for now
+			updateAnimSampled(oaction.animation, object.transform.world);
 			object.transform.world.decompose(object.transform.loc, object.transform.rot, object.transform.scale);
 		}
 		else {
-			updateAnimNonSampled(object.raw.animation, object.transform);
+			updateAnimNonSampled(oaction.animation, object.transform);
 			object.transform.buildMatrix();
 		}
 	}
-
-	// function setObjectAnimFrame(frame:Int) {
-	// 	var objectAnim = object.raw.animation;
-	// 	if (objectAnim != null) {
-	// 		var track = objectAnim.tracks[0];
-	// 		var m1 = Mat4.fromFloat32Array(track.values, frame * 16);
-	// 		object.transform.world = m1;
-	// 	}
-	// }
 
 	inline function interpolateLinear(t:Float, t1:Float, t2:Float):Float {
 		return (t - t1) / (t2 - t1);
@@ -106,7 +98,11 @@ class ObjectAnimation extends Animation {
 			if (timeIndex >= track.times.length) continue;
 
 			// End of track
-			if (animTime > total) rewind(track);
+			if (animTime > total) {
+				rewind(track);
+				if (onActionComplete != null) onActionComplete();
+				if (paused) return;
+			}
 
 			// End of current time range
 			var t = animTime + anim.begin * frameTime;

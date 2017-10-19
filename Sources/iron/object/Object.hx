@@ -118,7 +118,7 @@ class Object {
 	}
 
 	public function setupAnimation() {
-		if (raw.animation == null) return;
+		if (raw.object_actions == null) return;
 		animation = new ObjectAnimation(this);
 	}
 

@@ -32,6 +32,12 @@ class Animation {
 	var blendCurrent = 0.0;
 	var blendAction = '';
 
+	function new() {
+		Scene.active.animations.push(this);
+		frameTime = Scene.active.raw.frame_time;
+		play();
+	}
+
 	public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
 		if (blendTime > 0) {
 			this.blendTime = blendTime;
@@ -46,12 +52,6 @@ class Animation {
 
 	public function pause() {
 		paused = true;
-	}
-
-	function new() {
-		Scene.active.animations.push(this);
-		frameTime = Scene.active.raw.frame_time;
-		play();
 	}
 
 	public function remove() {
@@ -95,8 +95,7 @@ class Animation {
 			if (onActionComplete != null && blendTime == 0) onActionComplete();
 			//boneTimeIndices.set(b, timeIndex);
 
-			// Give chance to change current track
-			// return;
+			if (paused) return;
 		}
 
 		var t = animTime;

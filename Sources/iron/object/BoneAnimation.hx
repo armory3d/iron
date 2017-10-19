@@ -37,7 +37,6 @@ class BoneAnimation extends Animation {
 	static var vscl2 = new Vec4();
 
 	public function new(mo:MeshObject) {
-		super();
 		this.object = mo;
 		this.data = mo.data;
 		this.isSkinned = data.isSkinned;
@@ -48,11 +47,12 @@ class BoneAnimation extends Animation {
 				this.skinBuffer = new haxe.ds.Vector(skinMaxBones * 8); // Dual quat // * 12 for matrices
 				for (i in 0...this.skinBuffer.length) this.skinBuffer[i] = 0;
 			}
-			var refs = mo.parent.raw.action_refs;
+			var refs = mo.parent.raw.bone_actions;
 			if (refs != null && refs.length > 0) {
 				iron.data.Data.getSceneRaw(refs[0], function(action:TSceneFormat) { play(action.name); });
 			}
 		}
+		super();
 	}
 
 	function setAction(action:String) {
@@ -96,27 +96,15 @@ class BoneAnimation extends Animation {
 
 	function updateBoneAnim() {
 		for (b in skeletonBones) {
-			updateAnimSampled(b.animation, skeletonMats.get(b));
+			updateAnimSampled(b.bone, skeletonMats.get(b));
 		}
 
 		if (blendTime > 0) {
 			for (b in skeletonBonesBlend) {
-				updateAnimSampled(b.animation, skeletonMatsBlend.get(b));
+				updateAnimSampled(b.bone, skeletonMatsBlend.get(b));
 			}
 		}
 	}
-
-	// function setBoneAnimFrame(frame:Int) {
-	// 	for (b in skeletonBones) {
-	// 		var boneAnim = b.animation;
-	// 		if (boneAnim != null) {
-	// 			var track = boneAnim.tracks[0];
-	// 			var m1 = Mat4.fromFloat32Array(track.values, frame * 16); // Offset to 4x4 matrix array
-	// 			skeletonMats.set(b, m1);
-	// 		}
-	// 	}
-	// 	updateSkin();
-	// }
 
 	function applyParent(m:Mat4, bone:TObj, mats:Map<TObj, Mat4>) {
 		var p = bone.parent;
