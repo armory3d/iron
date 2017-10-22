@@ -69,11 +69,11 @@ class MeshObject extends Object {
 		super.remove();
 	}
 
-	public override function setupAnimation() {
+	public override function setupAnimation(oactions:Array<TSceneFormat> = null) {
 		var hasAction = parent != null && parent.raw != null && parent.raw.bone_actions != null;
-		if (raw.object_actions == null && !hasAction) return;
+		if (oactions == null && !hasAction) return;
 		if (data.isSkinned) animation = new BoneAnimation(this);
-		else super.setupAnimation();
+		else super.setupAnimation(oactions);
 	}
 
 	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {

@@ -96,12 +96,12 @@ class BoneAnimation extends Animation {
 
 	function updateBoneAnim() {
 		for (b in skeletonBones) {
-			updateAnimSampled(b.bone, skeletonMats.get(b));
+			updateAnimSampled(b.anim, skeletonMats.get(b));
 		}
 
 		if (blendTime > 0) {
 			for (b in skeletonBonesBlend) {
-				updateAnimSampled(b.bone, skeletonMatsBlend.get(b));
+				updateAnimSampled(b.anim, skeletonMatsBlend.get(b));
 			}
 		}
 	}

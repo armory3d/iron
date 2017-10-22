@@ -9,19 +9,21 @@ import iron.data.SceneFormat;
 class ObjectAnimation extends Animation {
 
 	public var object:Object;
-	var oaction:TObjectAction;
+	var oactions:Array<TSceneFormat>;
+	var oaction:TObj;
 
-	public function new(object:Object) {
+	public function new(object:Object, oactions:Array<TSceneFormat>) {
 		this.object = object;
+		this.oactions = oactions;
 		isSkinned = false;
 		super();
 	}
 
-	function getAction(action:String):TObjectAction { for (a in object.raw.object_actions) { if (a.name == action) return a; } return null; }
+	function getAction(action:String):TObj { for (a in oactions) { if (a.objects[0].name == action) return a.objects[0]; } return null; }
 
 	override public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
 		super.play(action, onActionComplete, blendTime);
-		if (this.action == '') this.action = object.raw.object_actions[0].name;
+		if (this.action == '') this.action = oactions[0].objects[0].name;
 		oaction = getAction(this.action);
 		if (oaction != null) {
 			// Check animation_transforms to determine non-sampled animation
@@ -68,11 +70,11 @@ class ObjectAnimation extends Animation {
 
 	function updateObjectAnim() {
 		if (isSampled) {
-			updateAnimSampled(oaction.animation, object.transform.world);
+			updateAnimSampled(oaction.anim, object.transform.world);
 			object.transform.world.decompose(object.transform.loc, object.transform.rot, object.transform.scale);
 		}
 		else {
-			updateAnimNonSampled(oaction.animation, object.transform);
+			updateAnimNonSampled(oaction.anim, object.transform);
 			object.transform.buildMatrix();
 		}
 	}

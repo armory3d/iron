@@ -380,9 +380,9 @@ typedef TObj = {
 	@:optional var traits:Array<TTrait>;
 	@:optional var constraints:Array<TConstraint>;
 	@:optional var dimensions:TFloat32Array; // Geometry objects
-	@:optional var object_actions:Array<TObjectAction>;
+	@:optional var object_actions:Array<String>;
 	@:optional var bone_actions:Array<String>;
-	@:optional var bone:TAnimation; // Bone animation
+	@:optional var anim:TAnimation; // Bone/object animation
 	@:optional var parent:TObj;
 	@:optional var visible:Null<Bool>;
 	@:optional var visible_mesh:Null<Bool>;
@@ -392,6 +392,8 @@ typedef TObj = {
 	@:optional var local_transform_only:Null<Bool>; // No parent matrix applied
 	@:optional var tilesheet_ref:String;
 	@:optional var tilesheet_action_ref:String;
+	@:optional var sampled:Null<Bool>; // Object action
+	// @:optional var transforms:Array<TAnimationTransform>; // Starting transforms for non-sampled
 }
 
 typedef TGroup = {
@@ -428,13 +430,6 @@ typedef TTrait = {
 typedef TTransform = {
 	@:optional var target:String;
 	var values:TFloat32Array;
-}
-
-typedef TObjectAction = {
-	var name:String; // Action name
-	var animation:TAnimation; // var animation_ref:String;
-	@:optional var sampled:Null<Bool>;
-	// @:optional var transforms:Array<TAnimationTransform>; // Starting transforms for non-sampled
 }
 
 typedef TAnimation = {

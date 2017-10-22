@@ -117,9 +117,9 @@ class Object {
 		return null;
 	}
 
-	public function setupAnimation() {
-		if (raw.object_actions == null) return;
-		animation = new ObjectAnimation(this);
+	public function setupAnimation(oactions:Array<TSceneFormat> = null) {
+		if (oactions == null) return;
+		animation = new ObjectAnimation(this, oactions);
 	}
 
 	static var seed = 1; // cpp / js not consistent
