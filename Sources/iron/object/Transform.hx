@@ -64,9 +64,18 @@ class Transform {
 		}
 	}
 
+	function composeDelta() {
+		// Delta transform
+		dloc.addvecs(loc, dloc);
+		dscale.addvecs(dscale, scale);
+		drot.fromEuler(_deulerX, _deulerY, _deulerZ);
+		drot.multquats(rot, drot);
+		local.compose(dloc, drot, dscale);
+	}
+
 	public function buildMatrix() {
-		local.compose(loc, rot, scale);
-		
+		dloc == null ? local.compose(loc, rot, scale) : composeDelta();
+
 		if (prependMats != null) {
 			temp.setIdentity();
 			for (m in prependMats) temp.multmat2(m);
@@ -157,4 +166,12 @@ class Transform {
 	public inline function worldx():Float { return world._30; }
 	public inline function worldy():Float { return world._31; }
 	public inline function worldz():Float { return world._32; }
+
+	// Animated delta transform
+	public var dloc:Vec4 = null;
+	public var drot:Quat = null;
+	public var dscale:Vec4 = null;
+	var _deulerX:Float;
+	var _deulerY:Float;
+	var _deulerZ:Float;
 }

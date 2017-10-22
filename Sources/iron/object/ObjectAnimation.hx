@@ -96,6 +96,14 @@ class ObjectAnimation extends Animation {
 		
 		var total = anim.end * frameTime - anim.begin * frameTime;
 
+		if (anim.has_delta) {
+			var t = transform;
+			if (t.dloc == null) { t.dloc = new Vec4(); t.drot = new Quat(); t.dscale = new Vec4(); }
+			t.dloc.set(0, 0, 0);
+			t.dscale.set(0, 0, 0);
+			t._deulerX = t._deulerY = t._deulerZ = 0.0;
+		}
+
 		for (track in anim.tracks) {
 
 			if (timeIndex == -1) rewind(track);
@@ -139,6 +147,16 @@ class ObjectAnimation extends Animation {
 			case "xscl": transform.scale.x = v;
 			case "yscl": transform.scale.y = v;
 			case "zscl": transform.scale.z = v;
+			// Delta
+			case "dxloc": transform.dloc.x = v;
+			case "dyloc": transform.dloc.y = v;
+			case "dzloc": transform.dloc.z = v;
+			case "dxrot": transform._deulerX = v;
+			case "dyrot": transform._deulerY = v;
+			case "dzrot": transform._deulerZ = v;
+			case "dxscl": transform.dscale.x = v;
+			case "dyscl": transform.dscale.y = v;
+			case "dzscl": transform.dscale.z = v;
 			}
 		}
 	}

@@ -59,13 +59,13 @@ typedef TSkeleton = {
 typedef TVertexArray = {
 	var attrib:String;
 	var values:TFloat32Array;
-	@:optional var size:Int; // 3
+	@:optional var size:Null<Int>; // 3
 }
 
 typedef TIndexArray = {
 	var values:TUint32Array;
 	var material:Int;
-	@:optional var size:Int; // 3
+	@:optional var size:Null<Int>; // 3
 }
 
 typedef TLampData = {
@@ -73,19 +73,19 @@ typedef TLampData = {
 	var type:String; // Sun, point, spot
 	var color:TFloat32Array;
 	var strength:Float;
-	@:optional var cast_shadow:Bool;
-	@:optional var near_plane:Float;
-	@:optional var far_plane:Float;
-	@:optional var fov:Float;
-	@:optional var shadows_bias:Float;
-	@:optional var shadowmap_size:Int;
+	@:optional var cast_shadow:Null<Bool>;
+	@:optional var near_plane:Null<Float>;
+	@:optional var far_plane:Null<Float>;
+	@:optional var fov:Null<Float>;
+	@:optional var shadows_bias:Null<Float>;
+	@:optional var shadowmap_size:Null<Int>;
 	@:optional var shadowmap_cube:Null<Bool>; // Omni shadows for point
 	@:optional var spot_size:Null<Float>;
 	@:optional var spot_blend:Null<Float>;
 	@:optional var lamp_size:Null<Float>; // Shadow soft size
 	@:optional var color_texture:String; // Image reference
-	@:optional var size:Float; // Area lamp
-	@:optional var size_y:Float;
+	@:optional var size:Null<Float>; // Area lamp
+	@:optional var size_y:Null<Float>;
 }
 
 typedef TCameraData = {
@@ -97,10 +97,10 @@ typedef TCameraData = {
 	var render_path:String;
 	var type:String;
 	@:optional var aspect:Null<Float>;
-	@:optional var frustum_culling:Bool;
-	@:optional var render_to_texture:Bool;
-	@:optional var texture_resolution_x:Int;
-	@:optional var texture_resolution_y:Int;
+	@:optional var frustum_culling:Null<Bool>;
+	@:optional var render_to_texture:Null<Bool>;
+	@:optional var texture_resolution_x:Null<Int>;
+	@:optional var texture_resolution_y:Null<Int>;
 }
 
 typedef TMaterialData = {
@@ -126,16 +126,16 @@ typedef TBindConstant = {
 	@:optional var vec4:TFloat32Array;
 	@:optional var vec3:TFloat32Array;
 	@:optional var vec2:TFloat32Array;
-	@:optional var float:Float;
-	@:optional var bool:Bool;
-	@:optional var int:Int;
+	@:optional var float:Null<Float>;
+	@:optional var bool:Null<Bool>;
+	@:optional var int:Null<Int>;
 }
 
 typedef TBindTexture = {
 	var name:String;
 	var file:String;
 	@:optional var format:String; // RGBA32, RGBA64, R8
-	@:optional var generate_mipmaps:Bool;
+	@:optional var generate_mipmaps:Null<Bool>;
 	@:optional var mipmaps:Array<String>; // Reference image names
 	@:optional var u_addressing:String;
 	@:optional var v_addressing:String;
@@ -167,8 +167,8 @@ typedef TShaderContext = {
 	@:optional var stencil_pass:String;
 	@:optional var stencil_fail:String;
 	@:optional var stencil_reference_value:Null<Int>;
-	@:optional var stencil_read_mask:Int;
-	@:optional var stencil_write_mask:Int;
+	@:optional var stencil_read_mask:Null<Int>;
+	@:optional var stencil_write_mask:Null<Int>;
 	@:optional var color_write_red:Null<Bool>;
 	@:optional var color_write_green:Null<Bool>;
 	@:optional var color_write_blue:Null<Bool>;
@@ -196,9 +196,9 @@ typedef TShaderConstant = {
 	@:optional var vec4:TFloat32Array;
 	@:optional var vec3:TFloat32Array;
 	@:optional var vec2:TFloat32Array;
-	@:optional var float:Float;
-	@:optional var bool:Bool;
-	@:optional var int:Int;
+	@:optional var float:Null<Float>;
+	@:optional var bool:Null<Bool>;
+	@:optional var int:Null<Int>;
 }
 
 typedef TTextureUnit = {
@@ -322,10 +322,10 @@ typedef TProbe = {
 	var volume:TFloat32Array;
 	var volume_center:TFloat32Array;
 	@:optional var radiance:String;
-	@:optional var radiance_mipmaps:Int;
+	@:optional var radiance_mipmaps:Null<Int>;
 	@:optional var sun_direction:TFloat32Array; // Sky data
-	@:optional var turbidity:Float;
-	@:optional var ground_albedo:Float;
+	@:optional var turbidity:Null<Float>;
+	@:optional var ground_albedo:Null<Float>;
 }
 
 typedef TIrradiance = { // Blob with spherical harmonics, bands 0,1,2
@@ -410,14 +410,14 @@ typedef TConstraint = {
 	var name:String;
 	var type:String;
 	@:optional var target:String;
-	@:optional var use_x:Bool;
-	@:optional var use_y:Bool;
-	@:optional var use_z:Bool;
-	@:optional var invert_x:Bool;
-	@:optional var invert_y:Bool;
-	@:optional var invert_z:Bool;
-	@:optional var use_offset:Bool;
-	@:optional var influence:Float;
+	@:optional var use_x:Null<Bool>;
+	@:optional var use_y:Null<Bool>;
+	@:optional var use_z:Null<Bool>;
+	@:optional var invert_x:Null<Bool>;
+	@:optional var invert_y:Null<Bool>;
+	@:optional var invert_z:Null<Bool>;
+	@:optional var use_offset:Null<Bool>;
+	@:optional var influence:Null<Float>;
 }
 
 typedef TTrait = {
@@ -434,15 +434,16 @@ typedef TTransform = {
 
 typedef TAnimation = {
 	var tracks:Array<TTrack>;
-	@:optional var begin:Float; // Frames, for non-sampled
-	@:optional var end:Float;
+	@:optional var begin:Null<Float>; // Frames, for non-sampled
+	@:optional var end:Null<Float>;
+	@:optional var has_delta:Null<Bool>; // Delta transform
 }
 
 typedef TAnimationTransform = {
 	var type:String; // translation, translation_x, ...
 	@:optional var name:String;
 	@:optional var values:TFloat32Array; // translation
-	@:optional var value:Float; // translation_x
+	@:optional var value:Null<Float>; // translation_x
 }
 
 typedef TTrack = {
