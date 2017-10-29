@@ -338,6 +338,12 @@ class Geometry {
 	}
 
 	// Skinned
+	public function setArmature(armature:Armature) {
+		for (i in 0...armature.actions.length) {
+			addAction(armature.actions[i], armature.actionNames[i]);
+		}
+	}
+
 	public function addAction(bones:Array<TObj>, name:String) {
 		if (actions == null) {
 			actions = new Map();

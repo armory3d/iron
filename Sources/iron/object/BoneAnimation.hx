@@ -5,6 +5,7 @@ import iron.math.Mat4;
 import iron.math.Quat;
 import iron.data.MeshData;
 import iron.data.SceneFormat;
+import iron.data.Armature;
 
 class BoneAnimation extends Animation {
 
@@ -21,6 +22,8 @@ class BoneAnimation extends Animation {
 	var skeletonBonesBlend:Array<TObj> = null;
 	var skeletonMatsBlend:Map<TObj, Mat4> = null;
 
+	var boneChildren:Map<String, Array<Object>> = null; // Parented to bone
+
 	var m = Mat4.identity(); // Skinning matrix
 	var m1 = Mat4.identity(); // Skinning matrix
 	var m2 = Mat4.identity(); // Skinning matrix
@@ -36,12 +39,21 @@ class BoneAnimation extends Animation {
 	static var vpos2 = new Vec4();
 	static var vscl2 = new Vec4();
 
-	public function new(mo:MeshObject) {
-		this.object = mo;
-		this.data = mo.data;
-		this.isSkinned = data.isSkinned;
+	public function new(armatureName = '') {
+		super();
 		this.isSampled = false;
+		for (a in iron.Scene.active.armatures) {
+			if (a.name == armatureName) {
+				this.armature = a;
+				break;
+			}
+		}
+	}
 
+	public function setSkin(mo:MeshObject) {
+		this.object = mo;
+		this.data = mo != null ? mo.data : null;
+		this.isSkinned = data != null ? data.isSkinned : false;
 		if (this.isSkinned) {
 			if (!MeshData.ForceCpuSkinning) {
 				this.skinBuffer = new haxe.ds.Vector(skinMaxBones * 8); // Dual quat // * 12 for matrices
@@ -52,19 +64,57 @@ class BoneAnimation extends Animation {
 				iron.data.Data.getSceneRaw(refs[0], function(action:TSceneFormat) { play(action.name); });
 			}
 		}
-		super();
+	}
+
+	public function addBoneChild(bone:String, mo:MeshObject) {
+		if (boneChildren == null) boneChildren = new Map();
+		var ar:Array<Object> = boneChildren.get(bone);
+		if (ar == null) { ar = []; boneChildren.set(bone, ar); }
+		ar.push(mo);
+	}
+
+	function updateBoneChildren(bone:TObj, bm:Mat4) {
+		var ar = boneChildren.get(bone.name);
+		if (ar == null) return;
+		for (o in ar) {
+			var t = o.transform;
+			if (t.boneParent == null) t.boneParent = Mat4.identity();
+			if (o.raw.root_bone_tail != null) {
+				var v = o.raw.root_bone_tail;
+				t.boneParent.initTranslate(v[0], v[1], v[2]);
+			}
+			else {
+				t.boneParent.setIdentity();
+			}
+			t.boneParent.multmat2(bm);
+			t.dirty = true;
+		}
 	}
 
 	function setAction(action:String) {
-		skeletonBones = data.geom.actions.get(action);
-		skeletonMats = data.geom.mats.get(action);
+		if (isSkinned) {
+			skeletonBones = data.geom.actions.get(action);
+			skeletonMats = data.geom.mats.get(action);
+		}
+		else {
+			armature.initMats();
+			skeletonBones = armature.getAction(action);
+			skeletonMats = armature.actionMats;
+		}
 	}
 
 	function setActionBlend(action:String) {
-		skeletonBonesBlend = skeletonBones;
-		skeletonMatsBlend = skeletonMats;
-		skeletonBones = data.geom.actions.get(action);
-		skeletonMats = data.geom.mats.get(action);
+		if (isSkinned) {
+			skeletonBonesBlend = skeletonBones;
+			skeletonMatsBlend = skeletonMats;
+			skeletonBones = data.geom.actions.get(action);
+			skeletonMats = data.geom.mats.get(action);
+		}
+		else {
+			armature.initMats();
+			skeletonBones = armature.getAction(action);
+			skeletonMats = armature.actionMats;
+		}
 	}
 
 	override public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
@@ -75,7 +125,9 @@ class BoneAnimation extends Animation {
 	}
 
 	override public function update(delta:Float) {
-		if (!object.visible || object.culled || skeletonBones == null) return;
+		if (!isSkinned && skeletonBones == null) setAction(armature.actionNames[0]);
+		if (object != null && (!object.visible || object.culled)) return;
+		if (skeletonBones == null) return;
 
 		#if arm_profile
 		Animation.beginProfile();
@@ -84,17 +136,17 @@ class BoneAnimation extends Animation {
 		super.update(delta);
 		if (paused) return;
 
-		if (isSkinned) {
-			updateBoneAnim();
-			MeshData.ForceCpuSkinning ? updateSkinCpu() : updateSkinGpu();
-		}
+		updateAnim();
+
+		if (isSkinned) MeshData.ForceCpuSkinning ? updateSkinCpu() : updateSkinGpu();
+		else updateBonesOnly();
 
 		#if arm_profile
 		Animation.endProfile();
 		#end
 	}
 
-	function updateBoneAnim() {
+	function updateAnim() {
 		for (b in skeletonBones) {
 			updateAnimSampled(b.anim, skeletonMats.get(b));
 		}
@@ -106,11 +158,24 @@ class BoneAnimation extends Animation {
 		}
 	}
 
+	function updateBonesOnly() {
+		var bones = skeletonBones;
+		for (i in 0...bones.length) {
+			// TODO: blendTime > 0
+			m.setFrom(skeletonMats.get(bones[i]));
+			applyParent(m, bones[i], skeletonMats);
+			if (boneChildren != null) updateBoneChildren(bones[i], m);
+		}
+	}
+
 	function applyParent(m:Mat4, bone:TObj, mats:Map<TObj, Mat4>) {
 		var p = bone.parent;
 		while (p != null) { // TODO: store absolute transforms per bone
 			var pm = mats.get(p);
-			if (pm == null) pm = Mat4.fromFloat32Array(p.transform.values);
+			if (pm == null) {
+				pm = Mat4.fromFloat32Array(p.transform.values);
+				mats.set(p, pm);
+			}
 			m.multmat2(pm);
 			p = p.parent;
 		}
@@ -156,6 +221,8 @@ class BoneAnimation extends Animation {
 				applyParent(m, bones[i], skeletonMats);
 			}
 			bm.multmat2(m);
+
+			if (boneChildren != null) updateBoneChildren(bones[i], m);
 
 			#if arm_skin_mat // Matrix skinning
 			
@@ -236,14 +303,10 @@ class BoneAnimation extends Animation {
 				m.multmat2(data.geom.skeletonTransformsI[boneIndex]);
 
 				bm.setFrom(skeletonMats.get(bone));
-				var p = bone.parent;
-				while (p != null) { // TODO: store absolute transforms per bone
-					var pm = skeletonMats.get(p);
-					if (pm == null) pm = Mat4.fromFloat32Array(p.transform.values);
-					bm.multmat2(pm);
-					p = p.parent;
-				}
+				applyParent(bm, bone, skeletonMats);
 				m.multmat2(bm);
+
+				if (boneChildren != null) updateBoneChildren(bone, bm);
 
 				m.mult(boneWeight);
 				

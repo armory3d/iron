@@ -5,12 +5,14 @@ import iron.math.Mat4;
 import iron.math.Quat;
 import iron.data.MeshData;
 import iron.data.SceneFormat;
+import iron.data.Armature;
 
 class Animation {
 
 	public var isSkinned:Bool;
 	public var isSampled:Bool;
 	public var action = '';
+	public var armature:Armature; // Bone
 
 	// Lerp
 	static var m1 = Mat4.identity();

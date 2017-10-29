@@ -13,6 +13,7 @@ import iron.object.CameraObject;
 import iron.object.SpeakerObject;
 import iron.object.DecalObject;
 import iron.object.Animation;
+import iron.data.Armature;
 import iron.data.SceneFormat;
 import iron.data.Data;
 import iron.data.MeshData;
@@ -43,6 +44,7 @@ class Scene {
 	public var decals:Array<DecalObject>;
 	public var empties:Array<Object>;
 	public var animations:Array<Animation>;
+	public var armatures:Array<Armature>;
 
 	public var embedded:Map<String, kha.Image>;
 
@@ -64,6 +66,7 @@ class Scene {
 		decals = [];
 		empties = [];
 		animations = [];
+		armatures = [];
 		embedded = new Map();
 		root = new Object();
 		root.name = "Root";
@@ -400,12 +403,14 @@ class Scene {
 									Data.getSceneRaw(ref, function(action:TSceneFormat) {
 										bactions.push(action);
 										if (bactions.length == parentObject.bone_actions.length) {
+											var armature = new Armature(parentObject.name, bactions);
+											armatures.push(armature);
 											#if arm_stream
 											streamMeshObject(
 											#else
 											returnMeshObject(
 											#end
-												object_file, data_ref, sceneName, bactions, materials, parent, o, done);
+												object_file, data_ref, sceneName, armature, materials, parent, o, done);
 										}
 									});
 								}
@@ -469,8 +474,8 @@ class Scene {
 		return i;
 	}
 
-	function streamMeshObject(object_file:String, data_ref:String, sceneName:String, bactions:Array<TSceneFormat>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
-		sceneStream.add(object_file, data_ref, sceneName, bactions, materials, parent, o);
+	function streamMeshObject(object_file:String, data_ref:String, sceneName:String, armature:Armature, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
+		sceneStream.add(object_file, data_ref, sceneName, armature, materials, parent, o);
 		// TODO: Increase objectsTraversed by full children count
 		if (o.children != null) objectsTraversed += o.children.length;
 		// Return immediately and stream progressively
@@ -478,8 +483,8 @@ class Scene {
 	}
 #end
 
-	public function returnMeshObject(object_file:String, data_ref:String, sceneName:String, bactions:Array<TSceneFormat>, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
-		Data.getMesh(object_file, data_ref, bactions, function(mesh:MeshData) {
+	public function returnMeshObject(object_file:String, data_ref:String, sceneName:String, armature:Armature, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
+		Data.getMesh(object_file, data_ref, armature, function(mesh:MeshData) {
 			var object = addMeshObject(mesh, materials, parent);
 		
 			// Attach particle systems

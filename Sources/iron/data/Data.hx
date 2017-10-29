@@ -69,8 +69,7 @@ class Data {
 	}
 
 	static var loadingMeshes:Map<String, Array<MeshData->Void>> = new Map();
-	public static function getMesh(file:String, name:String, actions:Array<TSceneFormat>, done:MeshData->Void) {
-		// actions - used when data is parsed from separate file
+	public static function getMesh(file:String, name:String, armature:Armature, done:MeshData->Void) {
 		var handle = file + name;
 		var cached = cachedMeshes.get(handle);
 		if (cached != null) { done(cached); return; }
@@ -80,7 +79,7 @@ class Data {
 
 		loadingMeshes.set(file + name, [done]);
 
-		MeshData.parse(file, name, actions, function(b:MeshData) {
+		MeshData.parse(file, name, armature, function(b:MeshData) {
 			cachedMeshes.set(file + name, b);
 			b.handle = handle;
 			for (f in loadingMeshes.get(file + name)) f(b);

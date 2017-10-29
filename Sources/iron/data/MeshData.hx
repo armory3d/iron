@@ -99,7 +99,7 @@ class MeshData extends Data {
 		geom.delete();
 	}
 
-	public static function parse(name:String, id:String, actions:Array<TSceneFormat>, done:MeshData->Void) {
+	public static function parse(name:String, id:String, armature:Armature, done:MeshData->Void) {
 		Data.getSceneRaw(name, function(format:TSceneFormat) {
 			var raw:TMeshData = Data.getMeshRawByName(format.mesh_datas, id);
 			if (raw == null) {
@@ -116,12 +116,8 @@ class MeshData extends Data {
 					dat.geom.skinBoneWeights = raw.skin.bone_weight_array;
 					dat.geom.skeletonBoneRefs = raw.skin.skeleton.bone_ref_array;
 					dat.geom.initSkeletonTransforms(raw.skin.skeleton.transforms);
-					if (actions != null) {
-						for (action in actions) dat.addAction(action.objects, action.name);
-					}
-					else {
-						dat.addAction(format.objects, 'none');
-					}
+					if (armature != null) dat.geom.setArmature(armature);
+					else dat.geom.addAction(format.objects, 'none');
 				}
 				// Sdf-enabled
 				#if arm_sdf
@@ -139,36 +135,6 @@ class MeshData extends Data {
 					done(dat);
 			});
 		});
-	}
-
-	public function addAction(objects:Array<TObj>, name:String) {
-		if (objects == null) return;
-		for (o in objects) setParents(o);
-		var bones:Array<TObj> = [];
-		traverseObjects(objects, function(object:TObj) {
-			if (object.type == "bone_object") bones.push(object);
-		});
-		geom.addAction(bones, name);
-	}
-
-	static function setParents(object:TObj) {
-		if (object.children == null) return;
-		for (o in object.children) {
-			o.parent = object;
-			setParents(o);
-		}
-	}
-	static function traverseObjects(objects:Array<TObj>, callback:TObj->Void) {
-		for (i in 0...objects.length) {
-			traverseObjectsStep(objects[i], callback);
-		}
-	}
-	static function traverseObjectsStep(object:TObj, callback:TObj->Void) {
-		callback(object);
-		if (object.children == null) return;
-		for (i in 0...object.children.length) {
-			traverseObjectsStep(object.children[i], callback);
-		}
 	}
 
 	function getVertexArrayValues(attrib:String):TFloat32Array {

@@ -20,6 +20,7 @@ class Transform {
 	static var temp = Mat4.identity();
 	var prependMats:Array<Mat4> = null;
 	var appendMats:Array<Mat4> = null;
+	public var boneParent:Mat4 = null;
 
 	public function new(object:Object) {
 		this.object = object;
@@ -85,7 +86,8 @@ class Transform {
 		
 		if (appendMats != null) for (m in appendMats) local.multmat2(m);
 
-		if (!localOnly && object.parent != null) {
+		if (boneParent != null) local.multmats(boneParent, local);
+		if (object.parent != null && !localOnly) {
 			world.multmat3x4(local, object.parent.transform.world);
 		}
 		else {

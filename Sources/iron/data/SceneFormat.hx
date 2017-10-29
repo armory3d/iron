@@ -384,6 +384,8 @@ typedef TObj = {
 	@:optional var bone_actions:Array<String>;
 	@:optional var anim:TAnimation; // Bone/object animation
 	@:optional var parent:TObj;
+	@:optional var parent_bone:String;
+	@:optional var root_bone_tail:Array<Float>;
 	@:optional var visible:Null<Bool>;
 	@:optional var visible_mesh:Null<Bool>;
 	@:optional var visible_shadow:Null<Bool>;
