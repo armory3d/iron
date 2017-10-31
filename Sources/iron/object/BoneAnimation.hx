@@ -117,8 +117,8 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	override public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
-		super.play(action, onActionComplete, blendTime);
+	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0) {
+		super.play(action, onComplete, blendTime);
 		if (action != '') {
 			blendTime > 0 ? setActionBlend(action) : setAction(action);
 		}
@@ -127,7 +127,7 @@ class BoneAnimation extends Animation {
 	override public function update(delta:Float) {
 		if (!isSkinned && skeletonBones == null) setAction(armature.actionNames[0]);
 		if (object != null && (!object.visible || object.culled)) return;
-		if (skeletonBones == null) return;
+		if (skeletonBones == null || skeletonBones.length == 0) return;
 
 		#if arm_profile
 		Animation.beginProfile();
@@ -148,10 +148,15 @@ class BoneAnimation extends Animation {
 
 	function updateAnim() {
 		for (b in skeletonBones) {
+			if (b.anim != null) { updateTrack(b.anim); break; }
+		}
+		for (b in skeletonBones) {
 			updateAnimSampled(b.anim, skeletonMats.get(b));
 		}
-
 		if (blendTime > 0) {
+			for (b in skeletonBonesBlend) {
+				if (b.anim != null) { updateTrack(b.anim); break; }
+			}
 			for (b in skeletonBonesBlend) {
 				updateAnimSampled(b.anim, skeletonMatsBlend.get(b));
 			}

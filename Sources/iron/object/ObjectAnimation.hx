@@ -21,8 +21,8 @@ class ObjectAnimation extends Animation {
 
 	function getAction(action:String):TObj { for (a in oactions) { if (a.objects[0].name == action) return a.objects[0]; } return null; }
 
-	override public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
-		super.play(action, onActionComplete, blendTime);
+	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0) {
+		super.play(action, onComplete, blendTime);
 		if (this.action == '') this.action = oactions[0].objects[0].name;
 		oaction = getAction(this.action);
 		if (oaction != null) {
@@ -70,6 +70,7 @@ class ObjectAnimation extends Animation {
 
 	function updateObjectAnim() {
 		if (isSampled) {
+			updateTrack(oaction.anim);
 			updateAnimSampled(oaction.anim, object.transform.world);
 			object.transform.world.decompose(object.transform.loc, object.transform.rot, object.transform.scale);
 		}
@@ -118,7 +119,7 @@ class ObjectAnimation extends Animation {
 			// End of track
 			if (animTime > total) {
 				rewind(track);
-				if (onActionComplete != null) onActionComplete();
+				if (onComplete != null) onComplete();
 				if (paused) return;
 			}
 

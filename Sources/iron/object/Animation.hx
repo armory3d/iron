@@ -26,7 +26,7 @@ class Animation {
 
 	public var animTime:Float = 0;
 	public var timeIndex:Int = 0; // TODO: use boneTimeIndices
-	public var onActionComplete:Void->Void = null;
+	public var onComplete:Void->Void = null;
 	public var paused = false;
 	var frameTime:Float;
 
@@ -40,7 +40,7 @@ class Animation {
 		play();
 	}
 
-	public function play(action = '', onActionComplete:Void->Void = null, blendTime = 0.0) {
+	public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0) {
 		if (blendTime > 0) {
 			this.blendTime = blendTime;
 			this.blendCurrent = 0.0;
@@ -48,7 +48,7 @@ class Animation {
 		}
 		else timeIndex = -1;
 		this.action = action;
-		this.onActionComplete = onActionComplete;
+		this.onComplete = onComplete;
 		paused = false;
 	}
 
@@ -79,7 +79,7 @@ class Animation {
 		animTime = track.times[0] * frameTime;
 	}
 
-	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
+	function updateTrack(anim:TAnimation) {
 		if (anim == null) return;
 		var track = anim.tracks[0];
 
@@ -92,11 +92,15 @@ class Animation {
 
 		// End of track
 		if (timeIndex >= track.times.length - 1) {
+			if (onComplete != null && blendTime == 0) onComplete();
 			rewind(track);
-			if (onActionComplete != null && blendTime == 0) onActionComplete();
 			//boneTimeIndices.set(b, timeIndex);
-			if (paused) return;
 		}
+	}
+
+	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
+		if (anim == null) return;
+		var track = anim.tracks[0];
 
 		var t = animTime;
 		var ti = timeIndex;
