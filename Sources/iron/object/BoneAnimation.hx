@@ -98,8 +98,9 @@ class BoneAnimation extends Animation {
 		}
 		else {
 			armature.initMats();
-			skeletonBones = armature.getAction(action);
-			skeletonMats = armature.actionMats;
+			var a = armature.getAction(action);
+			skeletonBones = a.bones;
+			skeletonMats = a.mats;
 		}
 	}
 
@@ -112,8 +113,9 @@ class BoneAnimation extends Animation {
 		}
 		else {
 			armature.initMats();
-			skeletonBones = armature.getAction(action);
-			skeletonMats = armature.actionMats;
+			var a = armature.getAction(action);
+			skeletonBones = a.bones;
+			skeletonMats = a.mats;
 		}
 	}
 
@@ -125,7 +127,7 @@ class BoneAnimation extends Animation {
 	}
 
 	override public function update(delta:Float) {
-		if (!isSkinned && skeletonBones == null) setAction(armature.actionNames[0]);
+		if (!isSkinned && skeletonBones == null) setAction(armature.actions[0].name);
 		if (object != null && (!object.visible || object.culled)) return;
 		if (skeletonBones == null || skeletonBones.length == 0) return;
 
@@ -137,9 +139,6 @@ class BoneAnimation extends Animation {
 		if (paused) return;
 
 		updateAnim();
-
-		if (isSkinned) MeshData.ForceCpuSkinning ? updateSkinCpu() : updateSkinGpu();
-		else updateBonesOnly();
 
 		#if arm_profile
 		Animation.endProfile();
@@ -161,15 +160,17 @@ class BoneAnimation extends Animation {
 				updateAnimSampled(b.anim, skeletonMatsBlend.get(b));
 			}
 		}
+
+		if (isSkinned) MeshData.ForceCpuSkinning ? updateSkinCpu() : updateSkinGpu();
+		else updateBonesOnly();
 	}
 
 	function updateBonesOnly() {
-		var bones = skeletonBones;
-		for (i in 0...bones.length) {
+		for (b in skeletonBones) {
 			// TODO: blendTime > 0
-			m.setFrom(skeletonMats.get(bones[i]));
-			applyParent(m, bones[i], skeletonMats);
-			if (boneChildren != null) updateBoneChildren(bones[i], m);
+			m.setFrom(skeletonMats.get(b));
+			applyParent(m, b, skeletonMats);
+			if (boneChildren != null) updateBoneChildren(b, m);
 		}
 	}
 

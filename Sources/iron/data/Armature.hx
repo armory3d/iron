@@ -4,11 +4,9 @@ import iron.data.SceneFormat;
 import iron.math.Mat4;
 
 class Armature {
-
 	public var name:String;
-	public var actions:Array<Array<TObj>> = [];
-	public var actionNames:Array<String> = [];
-	public var actionMats:Map<TObj, Mat4> = null;
+	public var actions:Array<TAction> = [];
+	var matsReady = false;
 
 	public function new(name:String, actions:Array<TSceneFormat>) {
 		this.name = name;
@@ -17,22 +15,25 @@ class Armature {
 			for (o in a.objects) setParents(o);
 			var bones:Array<TObj> = [];
 			traverseBones(a.objects, function(object:TObj) { bones.push(object); });
-			this.actions.push(bones);
-			this.actionNames.push(a.name);
+			this.actions.push({ name: a.name, bones: bones, mats: null });
 		}
 	}
 
 	public function initMats() {
-		if (actionMats != null) return;
-		actionMats = new Map();
-		for (b in actions[0]) {
-			// trace(b.name);
-			actionMats.set(b, Mat4.fromFloat32Array(b.transform.values));
+		if (matsReady) return;
+		matsReady = true;
+
+		for (a in actions) {
+			if (a.mats != null) continue;
+			a.mats = new Map();
+			for (b in a.bones) {
+				a.mats.set(b, Mat4.fromFloat32Array(b.transform.values));
+			}
 		}
 	}
 
-	public function getAction(name:String):Array<TObj> {
-		for (i in 0...actions.length) if (actionNames[i] == name) return actions[i];
+	public function getAction(name:String):TAction {
+		for (a in actions) if (a.name == name) return a;
 		return null;
 	}
 
@@ -57,4 +58,11 @@ class Armature {
 			traverseBonesStep(object.children[i], callback);
 		}
 	}
+}
+
+// @:structInit class TAction {
+typedef TAction = {
+	public var name:String;
+	public var bones:Array<TObj>;
+	public var mats:Map<TObj, Mat4>;
 }

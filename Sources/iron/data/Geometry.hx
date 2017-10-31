@@ -339,8 +339,8 @@ class Geometry {
 
 	// Skinned
 	public function setArmature(armature:Armature) {
-		for (i in 0...armature.actions.length) {
-			addAction(armature.actions[i], armature.actionNames[i]);
+		for (a in armature.actions) {
+			addAction(a.bones, a.name);
 		}
 	}
 
