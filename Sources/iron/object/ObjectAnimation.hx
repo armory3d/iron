@@ -118,8 +118,8 @@ class ObjectAnimation extends Animation {
 
 			// End of track
 			if (animTime > total) {
-				rewind(track);
 				if (onComplete != null) onComplete();
+				rewind(track);
 				if (paused) return;
 			}
 
