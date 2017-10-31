@@ -580,6 +580,7 @@ class Scene {
 		if (str == "true") return true;
 		else if (str == "false") return false;
 		else if (str.charAt(0) == "'") return StringTools.replace(str, "'", "");
+		else if (str.charAt(0) == '"') return StringTools.replace(str, '"', "");
 		else if (str.charAt(0) == "[") { // Array
 			// Remove [] and recursively parse into array,
 			// then append into parent

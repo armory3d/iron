@@ -71,18 +71,18 @@ class MeshObject extends Object {
 
 	public override function setupAnimation(oactions:Array<TSceneFormat> = null) {
 		var hasAction = parent != null && parent.raw != null && parent.raw.bone_actions != null;
-		if (oactions == null && !hasAction) return;
-		
-		var armatureName = parent.name;
-		for (a in Scene.active.animations) if (a.armature.name == armatureName) { animation = a; break; }
-		if (animation == null) animation = new BoneAnimation(armatureName);
+		if (hasAction) {
+			var armatureName = parent.name;
+			for (a in Scene.active.animations) if (a.armature != null && a.armature.name == armatureName) { animation = a; break; }
+			if (animation == null) animation = new BoneAnimation(armatureName);
 
-		var banimation = cast(animation, BoneAnimation);
-		if (data.isSkinned) banimation.setSkin(this);
-		// This object is parented to bone
-		// TODO: allow non-mesh object to be parented to bone
-		else if (raw.parent_bone != null) banimation.addBoneChild(raw.parent_bone, this);
-		else super.setupAnimation(oactions);
+			var banimation = cast(animation, BoneAnimation);
+			if (data.isSkinned) banimation.setSkin(this);
+			// This object is parented to bone
+			// TODO: allow non-mesh object to be parented to bone
+			else if (raw.parent_bone != null) banimation.addBoneChild(raw.parent_bone, this);
+		}
+		super.setupAnimation(oactions);
 	}
 
 	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {
