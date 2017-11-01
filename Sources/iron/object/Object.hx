@@ -36,10 +36,11 @@ class Object {
 		if (isEmpty && Scene.active != null) Scene.active.empties.push(this);
 	}
 	
-	public function addChild(o:Object) {
+	public function addChild(o:Object, parentInverse = false) {
+		if (o.parent == this) return;
 		children.push(o);
 		o.parent = this;
-		// o.transform.update();
+		if (parentInverse) o.transform.applyParentInverse();
 	}
 
 	public function remove() {
