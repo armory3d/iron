@@ -43,6 +43,11 @@ class Object {
 		if (parentInverse) o.transform.applyParentInverse();
 	}
 
+	public function removeChild(o:Object) {
+		children.remove(o);
+		o.parent = null;
+	}
+
 	public function remove() {
 		if (isEmpty && Scene.active != null) Scene.active.empties.remove(this);
 		if (animation != null) animation.remove();
