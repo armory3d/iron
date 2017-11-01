@@ -165,6 +165,12 @@ class Transform {
 		this.buildMatrix();
 	}
 
+	public function applyParent() {
+		var pt = object.parent.transform;
+		this.local.multmat2(pt.world);
+		this.decompose();
+	}
+
 	// Wrong order returned from getEuler(), store last state for animation
 	var _eulerX:Float;
 	var _eulerY:Float;

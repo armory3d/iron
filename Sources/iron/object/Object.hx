@@ -43,9 +43,11 @@ class Object {
 		if (parentInverse) o.transform.applyParentInverse();
 	}
 
-	public function removeChild(o:Object) {
-		children.remove(o);
+	public function removeChild(o:Object, keepTransform = false) {
+		if (keepTransform) o.transform.applyParent();
 		o.parent = null;
+		o.transform.buildMatrix();
+		children.remove(o);
 	}
 
 	public function remove() {
