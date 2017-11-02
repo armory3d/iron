@@ -156,13 +156,12 @@ class Scene {
 		sceneStream.update(active.camera);
 		#end
 		for (anim in animations) anim.update(iron.system.Time.delta);
+		for (e in empties) if (e != null && e.parent != null) e.transform.update();
 	}
 
 	public function renderFrame(g:kha.graphics4.Graphics) {
 		if (!ready) return;
 		framePassed = true;
-
-		for (e in empties) if (e != null && e.parent != null) e.transform.update();
 
 		var activeCamera = camera;
 		// Render active mirrors

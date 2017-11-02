@@ -87,7 +87,7 @@ class BoneAnimation extends Animation {
 				t.boneParent.setIdentity();
 			}
 			t.boneParent.multmat2(bm);
-			t.dirty = true;
+			t.buildMatrix();
 		}
 	}
 
