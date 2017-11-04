@@ -645,6 +645,12 @@ class Uniforms {
 				vx = camera.data.raw.near_plane;
 				vy = camera.data.raw.far_plane;
 			}
+			else if (c.link == "_cameraPlaneProj") {
+				var near = camera.data.raw.near_plane;
+				var far = camera.data.raw.far_plane;
+				vx = far / (far - near);
+				vy = (-far * near) / (far - near);
+			}
 			else if (c.link == "_lampPlane") {
 				vx = lamp == null ? 0.0 : lamp.data.raw.near_plane;
 				vy = lamp == null ? 0.0 : lamp.data.raw.far_plane;
