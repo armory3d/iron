@@ -578,6 +578,7 @@ class Scene {
  	static function parseArg(str:String):Dynamic {
 		if (str == "true") return true;
 		else if (str == "false") return false;
+		else if (str == "null") return null;
 		else if (str.charAt(0) == "'") return StringTools.replace(str, "'", "");
 		else if (str.charAt(0) == '"') return StringTools.replace(str, '"', "");
 		else if (str.charAt(0) == "[") { // Array
