@@ -28,6 +28,7 @@ import iron.math.Mat4;
 class Scene {
 
 	public static var active:Scene = null;
+	public static var global:Object = null;
 	
 	public var raw:TSceneFormat;
 	public var root:Object;
@@ -71,6 +72,7 @@ class Scene {
 		root = new Object();
 		root.name = "Root";
 		traitInits = [];
+		if (global == null) global = new Object();
 	}
 
 	public static function create(format:TSceneFormat, done:Object->Void) {
