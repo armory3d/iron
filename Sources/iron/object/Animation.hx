@@ -56,6 +56,10 @@ class Animation {
 		paused = true;
 	}
 
+	public function resume() {
+		paused = false;
+	}
+
 	public function remove() {
 		Scene.active.animations.remove(this);
 	}

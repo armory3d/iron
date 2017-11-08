@@ -42,6 +42,10 @@ class Tilesheet {
 		paused = true;
 	}
 
+	public function resume() {
+		paused = false;
+	}
+
 	public function remove() {
 
 	}
