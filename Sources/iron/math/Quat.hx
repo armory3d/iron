@@ -217,6 +217,31 @@ class Quat {
 		return c;
 	}
 
+	public static function slerp(q1:Quat, q2:Quat, v:Float):Quat {
+		// Based on https://github.com/HeapsIO/heaps/blob/master/h3d/Quat.hx
+		var c = new Quat();
+		var cosHalfTheta = q1.dot(q2);
+		if (Math.abs(cosHalfTheta) >= 1) {
+			c.x = q1.x;
+			c.y = q1.y;
+			c.z = q1.z;
+			c.w = q1.w;
+			return c;
+		}
+		var halfTheta = Math.acos(cosHalfTheta);
+		var invSinHalfTheta = 1 / Math.sqrt(1 - cosHalfTheta * cosHalfTheta);
+		if (Math.abs(invSinHalfTheta) > 1e3) {
+			return Quat.lerp(q1, q2, 0.5);
+		}
+		var a = Math.sin((1 - v) * halfTheta) * invSinHalfTheta;
+		var b = Math.sin(v * halfTheta) * invSinHalfTheta * (cosHalfTheta < 0 ? -1 : 1);
+		c.x = q1.x * a + q2.x * b;
+		c.y = q1.y * a + q2.y * b;
+		c.z = q1.z * a + q2.z * b;
+		c.w = q1.w * a + q2.w * b;
+		return c;
+	}
+
 	public function dot(q:Quat):Float {
 		return (x * q.x) + (y * q.y) + (z * q.z) + (w * q.w);
 	}
