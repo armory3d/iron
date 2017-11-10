@@ -21,8 +21,8 @@ class ObjectAnimation extends Animation {
 
 	function getAction(action:String):TObj { for (a in oactions) { if (a.objects[0].name == action) return a.objects[0]; } return null; }
 
-	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0) {
-		super.play(action, onComplete, blendTime);
+	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0, animSpeed = 1.0) {
+		super.play(action, onComplete, blendTime, animSpeed);
 		if (this.action == '') this.action = oactions[0].objects[0].name;
 		oaction = getAction(this.action);
 		if (oaction != null) {
