@@ -25,6 +25,7 @@ class Animation {
 	static var q2 = new Quat();
 
 	public var animTime:Float = 0;
+	public var animSpeed:Float = 1.0;
 	public var timeIndex:Int = 0; // TODO: use boneTimeIndices
 	public var onComplete:Void->Void = null;
 	public var paused = false;
@@ -40,7 +41,7 @@ class Animation {
 		play();
 	}
 
-	public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0) {
+	public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0, animSpeed = 1.0) {
 		if (blendTime > 0) {
 			this.blendTime = blendTime;
 			this.blendCurrent = 0.0;
@@ -49,6 +50,11 @@ class Animation {
 		else timeIndex = -1;
 		this.action = action;
 		this.onComplete = onComplete;
+		if(animSpeed < 0.0){ // animation freaks out with negative value
+			this.animSpeed = 0.0;
+		} else {
+			this.animSpeed = animSpeed;
+		}
 		paused = false;
 	}
 
@@ -65,8 +71,9 @@ class Animation {
 	}
 
 	public function update(delta:Float) {
-		if (paused) return;
-		animTime += delta;
+		if(paused) return;
+		if(animSpeed < 0.0) animSpeed = 0.0; // animation freaks out with negative value
+		animTime += (delta * animSpeed);
 
 		if (blendTime > 0) {
 			blendCurrent += delta;
