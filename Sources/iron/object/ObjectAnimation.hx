@@ -73,6 +73,7 @@ class ObjectAnimation extends Animation {
 			updateTrack(oaction.anim);
 			updateAnimSampled(oaction.anim, object.transform.world);
 			object.transform.world.decompose(object.transform.loc, object.transform.rot, object.transform.scale);
+			for (c in object.children) c.transform.buildMatrix();
 		}
 		else {
 			updateAnimNonSampled(oaction.anim, object.transform);
