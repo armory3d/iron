@@ -119,8 +119,8 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0, animSpeed = 1.0) {
-		super.play(action, onComplete, blendTime, animSpeed);
+	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0, speed = 1.0, loop = true) {
+		super.play(action, onComplete, blendTime, speed, loop);
 		if (action != '') {
 			blendTime > 0 ? setActionBlend(action) : setAction(action);
 		}

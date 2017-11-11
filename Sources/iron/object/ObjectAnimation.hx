@@ -21,8 +21,8 @@ class ObjectAnimation extends Animation {
 
 	function getAction(action:String):TObj { for (a in oactions) { if (a.objects[0].name == action) return a.objects[0]; } return null; }
 
-	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0, animSpeed = 1.0) {
-		super.play(action, onComplete, blendTime, animSpeed);
+	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0, speed = 1.0, loop = true) {
+		super.play(action, onComplete, blendTime, speed, loop);
 		if (this.action == '') this.action = oactions[0].objects[0].name;
 		oaction = getAction(this.action);
 		if (oaction != null) {
@@ -111,14 +111,14 @@ class ObjectAnimation extends Animation {
 			if (timeIndex == -1) rewind(track);
 
 			// End of current time range
-			var t = animTime + anim.begin * frameTime;
+			var t = time + anim.begin * frameTime;
 			while (timeIndex < track.times.length - 2 && t > track.times[timeIndex + 1] * frameTime) timeIndex++;
 
 			// No data for this track at current time
 			if (timeIndex >= track.times.length) continue;
 
 			// End of track
-			if (animTime > total) {
+			if (time > total) {
 				if (onComplete != null) onComplete();
 				rewind(track);
 				if (paused) return;
