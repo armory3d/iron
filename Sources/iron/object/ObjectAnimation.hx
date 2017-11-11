@@ -93,6 +93,12 @@ class ObjectAnimation extends Animation {
 	}
 	inline function interpolateTcb() {}
 
+	inline function checkFrameIndexT(frameValues:TUint32Array, t:Float):Bool {
+		return speed > 0 ?
+			frameIndex < frameValues.length - 2 && t > frameValues[frameIndex + 1] * frameTime :
+			frameIndex > 1 && t > frameValues[frameIndex - 1] * frameTime;
+	}
+
 	function updateAnimNonSampled(anim:TAnimation, transform:Transform) {
 		if (anim == null) return;
 		
@@ -109,10 +115,11 @@ class ObjectAnimation extends Animation {
 		for (track in anim.tracks) {
 
 			if (frameIndex == -1) rewind(track);
+			var sign = speed > 0 ? 1 : -1;
 
 			// End of current time range
 			var t = time + anim.begin * frameTime;
-			while (frameIndex < track.frames.length - 2 && t > track.frames[frameIndex + 1] * frameTime) frameIndex++;
+			while (checkFrameIndexT(track.frames, t)) frameIndex += sign;
 
 			// No data for this track at current time
 			if (frameIndex >= track.frames.length) continue;
@@ -126,7 +133,7 @@ class ObjectAnimation extends Animation {
 
 			var ti = frameIndex;
 			var t1 = track.frames[ti] * frameTime;
-			var t2 = track.frames[ti + 1] * frameTime;
+			var t2 = track.frames[ti + sign] * frameTime;
 			var interpolate = interpolateLinear;
 			switch (track.curve) {
 			case "linear": interpolate = interpolateLinear;
@@ -136,7 +143,7 @@ class ObjectAnimation extends Animation {
 			var s = interpolate(t, t1, t2);
 			var invs = 1.0 - s;
 			var v1 = track.values[ti];
-			var v2 = track.values[ti + 1];
+			var v2 = track.values[ti + sign];
 			var v = v1 * invs + v2 * s;
 
 			switch (track.target) {

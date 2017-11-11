@@ -76,15 +76,23 @@ class Animation {
 			blendCurrent += delta;
 			if (blendCurrent >= blendTime) blendTime = 0.0;
 		}
-	}	
+	}
+
+	inline function isTrackEnd(track:TTrack):Bool {
+		return speed > 0 ?
+			frameIndex >= track.frames.length - 1 :
+			frameIndex <= 0;
+	}
 
 	inline function checkFrameIndex(frameValues:TUint32Array):Bool {
-		return ((frameIndex + 1) < frameValues.length && time > frameValues[frameIndex + 1] * frameTime);
+		return speed > 0 ?
+			((frameIndex + 1) < frameValues.length && time > frameValues[frameIndex + 1] * frameTime) :
+			((frameIndex - 1) > -1 && time < frameValues[frameIndex - 1] * frameTime);
 	}
 
 	function rewind(track:TTrack) {
-		frameIndex = 0;
-		time = track.frames[0] * frameTime;
+		frameIndex = speed > 0 ? 0 : track.frames.length - 1;
+		time = track.frames[frameIndex] * frameTime;
 	}
 
 	function updateTrack(anim:TAnimation) {
@@ -95,37 +103,37 @@ class Animation {
 
 		// Move keyframe
 		//var frameIndex = boneTimeIndices.get(b);
-		while (checkFrameIndex(track.frames)) frameIndex++;
+		var sign = speed > 0 ? 1 : -1;
+		while (checkFrameIndex(track.frames)) frameIndex += sign;
 		//boneTimeIndices.set(b, frameIndex);
 
 		// End of track
-		if (frameIndex >= track.frames.length - 1) {
+		if (isTrackEnd(track)) {
 			if (onComplete != null && blendTime == 0) onComplete();
 			if (loop || blendTime > 0) {
 				rewind(track);
 			}
 			else {
-				frameIndex--;
+				frameIndex -= sign;
 				paused = true;
 			}
 			//boneTimeIndices.set(b, frameIndex);
 		}
-
-		trace(totalFrames());
 	}
 
 	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
 		if (anim == null) return;
 		var track = anim.tracks[0];
+		var sign = speed > 0 ? 1 : -1;
 
 		var t = time;
 		var ti = frameIndex;
 		var t1 = track.frames[ti] * frameTime;
-		var t2 = track.frames[ti + 1] * frameTime;
+		var t2 = track.frames[ti + sign] * frameTime;
 		var s = (t - t1) / (t2 - t1); // Linear
 
 		m1.setF32(track.values, ti * 16); // Offset to 4x4 matrix array
-		m2.setF32(track.values, (ti + 1) * 16);
+		m2.setF32(track.values, (ti + sign) * 16);
 
 		// Decompose
 		m1.decompose(vpos, q1, vscl);
