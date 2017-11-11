@@ -439,6 +439,8 @@ typedef TAnimation = {
 	@:optional var begin:Null<Int>; // Frames, for non-sampled
 	@:optional var end:Null<Int>;
 	@:optional var has_delta:Null<Bool>; // Delta transform
+	@:optional var marker_frames:Array<Int>;
+	@:optional var marker_names:Array<String>;
 }
 
 typedef TAnimationTransform = {

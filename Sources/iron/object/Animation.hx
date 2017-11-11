@@ -97,6 +97,7 @@ class Animation {
 
 	function updateTrack(anim:TAnimation) {
 		if (anim == null) return;
+
 		var track = anim.tracks[0];
 
 		if (frameIndex == -1) rewind(track);
@@ -106,6 +107,17 @@ class Animation {
 		var sign = speed > 0 ? 1 : -1;
 		while (checkFrameIndex(track.frames)) frameIndex += sign;
 		//boneTimeIndices.set(b, frameIndex);
+
+		// Marker events
+		if (markerEvents != null && anim.marker_names != null && frameIndex != lastFrameIndex) {
+			for (i in 0...anim.marker_frames.length) {
+				if (frameIndex == anim.marker_frames[i]) {
+					var ar = markerEvents.get(anim.marker_names[i]);
+					for (f in ar) f();
+				}
+			}
+			lastFrameIndex = frameIndex;
+		}
 
 		// End of track
 		if (isTrackEnd(track)) {
@@ -152,6 +164,20 @@ class Animation {
 		m._31 = fp.y;
 		m._32 = fp.z;
 		// boneMats.set(b, m);
+	}
+
+	var lastFrameIndex = -1;
+	var markerEvents:Map<String, Array<Void->Void>> = null;
+	
+	public function notifyOnMarker(name:String, onMarker:Void->Void) {
+		if (markerEvents == null) markerEvents = new Map();
+		var ar = markerEvents.get(name);
+		if (ar == null) { ar = []; markerEvents.set(name, ar); }
+		ar.push(onMarker);
+	}
+
+	public function removeMarker(name:String, onMarker:Void->Void) {
+		markerEvents.get(name).remove(onMarker);
 	}
 
 	public function currentFrame():Int { return Std.int(time / frameTime); }
