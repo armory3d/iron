@@ -111,9 +111,9 @@ class MeshObject extends Object {
 	public function cullMaterial(context:String, camera:CameraObject):Bool {
 		// Skip render if material does not contain current context
 		var mats = materials;
-		var shadowsContext = context == camera.data.pathdata.raw.shadows_context;
-		if (!isLodMaterial() && !validContext(mats[0], context)) return setCulled(shadowsContext, true);
+		if (!isLodMaterial() && !validContext(mats[0], context)) return true;
 
+		var shadowsContext = context == camera.data.pathdata.raw.shadows_context;
 		if (!visibleMesh && !shadowsContext) return setCulled(shadowsContext, true);
 		if (!visibleShadow && shadowsContext) return setCulled(shadowsContext, true);
 
@@ -170,7 +170,8 @@ class MeshObject extends Object {
 			}
 		}
 
-		culled = false; return culled;
+		culled = false;
+		return culled;
 	}
 
 	function skipContext(context:String):Bool {
