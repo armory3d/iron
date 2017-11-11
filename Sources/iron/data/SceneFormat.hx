@@ -436,8 +436,8 @@ typedef TTransform = {
 
 typedef TAnimation = {
 	var tracks:Array<TTrack>;
-	@:optional var begin:Null<Float>; // Frames, for non-sampled
-	@:optional var end:Null<Float>;
+	@:optional var begin:Null<Int>; // Frames, for non-sampled
+	@:optional var end:Null<Int>;
 	@:optional var has_delta:Null<Bool>; // Delta transform
 }
 
@@ -450,11 +450,11 @@ typedef TAnimationTransform = {
 
 typedef TTrack = {
 	var target:String;
-	var times:TFloat32Array; // Frames
+	var frames:TUint32Array;
 	var values:TFloat32Array; // sampled - full matrix transforms, non-sampled - values
 	@:optional var curve:String; // bezier, tcb, ...
-	@:optional var times_control_plus:TFloat32Array; // bezier
-	@:optional var times_control_minus:TFloat32Array;
+	@:optional var frames_control_plus:TFloat32Array; // bezier
+	@:optional var frames_control_minus:TFloat32Array;
 	@:optional var values_control_plus:TFloat32Array;
 	@:optional var values_control_minus:TFloat32Array;
 	// @:optional var tension:TFloat32Array; // tcb

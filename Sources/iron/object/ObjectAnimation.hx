@@ -108,14 +108,14 @@ class ObjectAnimation extends Animation {
 
 		for (track in anim.tracks) {
 
-			if (timeIndex == -1) rewind(track);
+			if (frameIndex == -1) rewind(track);
 
 			// End of current time range
 			var t = time + anim.begin * frameTime;
-			while (timeIndex < track.times.length - 2 && t > track.times[timeIndex + 1] * frameTime) timeIndex++;
+			while (frameIndex < track.frames.length - 2 && t > track.frames[frameIndex + 1] * frameTime) frameIndex++;
 
 			// No data for this track at current time
-			if (timeIndex >= track.times.length) continue;
+			if (frameIndex >= track.frames.length) continue;
 
 			// End of track
 			if (time > total) {
@@ -124,9 +124,9 @@ class ObjectAnimation extends Animation {
 				if (paused) return;
 			}
 
-			var ti = timeIndex;
-			var t1 = track.times[ti] * frameTime;
-			var t2 = track.times[ti + 1] * frameTime;
+			var ti = frameIndex;
+			var t1 = track.frames[ti] * frameTime;
+			var t2 = track.frames[ti + 1] * frameTime;
 			var interpolate = interpolateLinear;
 			switch (track.curve) {
 			case "linear": interpolate = interpolateLinear;
@@ -161,5 +161,10 @@ class ObjectAnimation extends Animation {
 			case "dzscl": transform.dscale.z = v;
 			}
 		}
+	}
+
+	public override function totalFrames():Int { 
+		if (oaction == null || oaction.anim == null) return 0;
+		return oaction.anim.end - oaction.anim.begin;
 	}
 }

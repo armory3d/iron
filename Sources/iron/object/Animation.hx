@@ -24,10 +24,10 @@ class Animation {
 	static var q1 = new Quat();
 	static var q2 = new Quat();
 
-	public var time:Float = 0;
-	public var speed(default, set):Float = 1.0;
+	public var time = 0.0;
+	public var speed = 1.0;
 	public var loop = true;
-	public var timeIndex:Int = 0; // TODO: use boneTimeIndices
+	public var frameIndex = 0; // TODO: use boneTimeIndices
 	public var onComplete:Void->Void = null;
 	public var paused = false;
 	var frameTime:Float;
@@ -48,7 +48,7 @@ class Animation {
 			this.blendCurrent = 0.0;
 			this.blendAction = this.action;
 		}
-		else timeIndex = -1;
+		else frameIndex = -1;
 		this.action = action;
 		this.onComplete = onComplete;
 		this.speed = speed;
@@ -69,7 +69,7 @@ class Animation {
 	}
 
 	public function update(delta:Float) {
-		if(paused) return;
+		if (paused) return;
 		time += delta * speed;
 
 		if (blendTime > 0) {
@@ -78,38 +78,40 @@ class Animation {
 		}
 	}	
 
-	inline function checkTimeIndex(timeValues:TFloat32Array):Bool {
-		return ((timeIndex + 1) < timeValues.length && time > timeValues[timeIndex + 1] * frameTime);
+	inline function checkFrameIndex(frameValues:TUint32Array):Bool {
+		return ((frameIndex + 1) < frameValues.length && time > frameValues[frameIndex + 1] * frameTime);
 	}
 
 	function rewind(track:TTrack) {
-		timeIndex = 0;
-		time = track.times[0] * frameTime;
+		frameIndex = 0;
+		time = track.frames[0] * frameTime;
 	}
 
 	function updateTrack(anim:TAnimation) {
 		if (anim == null) return;
 		var track = anim.tracks[0];
 
-		if (timeIndex == -1) rewind(track);
+		if (frameIndex == -1) rewind(track);
 
 		// Move keyframe
-		//var timeIndex = boneTimeIndices.get(b);
-		while (checkTimeIndex(track.times)) timeIndex++;
-		//boneTimeIndices.set(b, timeIndex);
+		//var frameIndex = boneTimeIndices.get(b);
+		while (checkFrameIndex(track.frames)) frameIndex++;
+		//boneTimeIndices.set(b, frameIndex);
 
 		// End of track
-		if (timeIndex >= track.times.length - 1) {
+		if (frameIndex >= track.frames.length - 1) {
 			if (onComplete != null && blendTime == 0) onComplete();
 			if (loop || blendTime > 0) {
 				rewind(track);
 			}
 			else {
-				timeIndex--;
+				frameIndex--;
 				paused = true;
 			}
-			//boneTimeIndices.set(b, timeIndex);
+			//boneTimeIndices.set(b, frameIndex);
 		}
+
+		trace(totalFrames());
 	}
 
 	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
@@ -117,9 +119,9 @@ class Animation {
 		var track = anim.tracks[0];
 
 		var t = time;
-		var ti = timeIndex;
-		var t1 = track.times[ti] * frameTime;
-		var t2 = track.times[ti + 1] * frameTime;
+		var ti = frameIndex;
+		var t1 = track.frames[ti] * frameTime;
+		var t2 = track.frames[ti + 1] * frameTime;
 		var s = (t - t1) / (t2 - t1); // Linear
 
 		m1.setF32(track.values, ti * 16); // Offset to 4x4 matrix array
@@ -144,7 +146,8 @@ class Animation {
 		// boneMats.set(b, m);
 	}
 
-	function set_speed(f:Float):Float { return speed = f > 0.0 ? f : 0.0; }
+	public function currentFrame():Int { return Std.int(time / frameTime); }
+	public function totalFrames():Int { return 0; }
 
 #if arm_profile
 	public static var animationTime = 0.0;

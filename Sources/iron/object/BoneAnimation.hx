@@ -358,4 +358,10 @@ class BoneAnimation extends Animation {
 		data.geom.vertexBuffer.unlock();
 #end
 	}
+
+	public override function totalFrames():Int { 
+		if (skeletonBones == null) return 0;
+		var track = skeletonBones[0].anim.tracks[0];
+		return Std.int(track.frames[track.frames.length - 1] - track.frames[0]);
+	}
 }
