@@ -20,7 +20,7 @@ class App {
 	static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
 	public static var pauseUpdates = false;
 
-#if arm_profile
+#if arm_debug
 	static var startTime:Float;
 	public static var updateTime:Float;
 	public static var renderPathTime:Float;
@@ -52,7 +52,7 @@ class App {
 	static function update() {
 		if (pauseUpdates) return;
 		
-#if arm_profile
+#if arm_debug
 		startTime = kha.Scheduler.realTime();
 #end
 
@@ -71,7 +71,7 @@ class App {
 
 		iron.system.Input.endFrame();
 
-#if arm_profile
+#if arm_debug
 		iron.object.Animation.endFrame();
 		updateTime = kha.Scheduler.realTime() - startTime;
 #end
@@ -79,7 +79,7 @@ class App {
 
 	static function render(frame:kha.Framebuffer) {
 
-#if arm_profile
+#if arm_debug
 		startTime = kha.Scheduler.realTime();
 #end
 
@@ -96,7 +96,7 @@ class App {
 		for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
 		frame.g2.end();
 
-#if arm_profile
+#if arm_debug
 		renderPathTime = kha.Scheduler.realTime() - startTime;
 #end
 	}

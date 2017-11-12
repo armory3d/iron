@@ -78,19 +78,19 @@ class MeshBatch {
 
 			for (m in b.meshes) {
 				m.renderBatch(g, context, camera, lamp, bindParams, m.data.start, m.data.count);
-#if arm_profile
+#if arm_debug
 				RenderPath.batchCalls++;
 #end
 			}
 
-#if arm_profile
+#if arm_debug
 				RenderPath.batchBuckets++;
 #end
 		}
 
 		for (m in nonBatched) {
 			m.render(g, context, camera, lamp, bindParams);
-#if arm_profile
+#if arm_debug
 			if (m.culled) RenderPath.culled++;
 #end
 		}

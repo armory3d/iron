@@ -102,7 +102,7 @@ class MeshObject extends Object {
 	function setCulled(shadowsContext:Bool, b:Bool):Bool {
 		shadowsContext ? culledShadow = b : culledMesh = b;
 		culled = culledMesh && culledShadow;
-		#if arm_profile
+		#if arm_debug
 		if (b) RenderPath.culled++;
 		#end
 		return b;
@@ -237,7 +237,7 @@ class MeshObject extends Object {
 			}
 			if (lod == null) return; // Empty object
 		}
-		#if arm_profile
+		#if arm_debug
 		else computeScreenSize(camera);
 		#end
 		if (isLodMaterial() && !validContext(mats[0], context)) return;
@@ -286,7 +286,7 @@ class MeshObject extends Object {
 			}
 		}
 
-#if arm_profile
+#if arm_debug
 		var shadowsContext = camera.data.pathdata.raw.shadows_context == context;
 		if (meshContext) RenderPath.numTrisMesh += ldata.geom.numTris;
 		else if (shadowsContext) RenderPath.numTrisShadow += ldata.geom.numTris;
@@ -319,7 +319,7 @@ class MeshObject extends Object {
 
 		g.drawIndexedVertices(start, count);
 
-#if arm_profile
+#if arm_debug
 		RenderPath.drawCalls++;
 #end
 

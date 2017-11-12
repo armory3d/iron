@@ -75,7 +75,7 @@ class RenderPath {
 	// Quad and decals contexts
 	var cachedShaderContexts:Map<String, CachedShaderContext> = new Map();
 	
-#if arm_profile
+#if arm_debug
 	public static var drawCalls = 0;
 	public static var batchBuckets = 0;
 	public static var batchCalls = 0;
@@ -287,7 +287,7 @@ class RenderPath {
 		lastH = iron.App.h();
 // #end
 
-#if arm_profile
+#if arm_debug
 		drawCalls = 0;
 		batchBuckets = 0;
 		batchCalls = 0;
@@ -520,10 +520,10 @@ class RenderPath {
 		if (currentRenderTargetFace >= 0 && lamp != null) lamp.setCubeFace(5 - currentRenderTargetFace, camera); // TODO: draw first cube-face last, otherwise some opengl drivers expose glitch
 
 		var g = currentRenderTarget;
-#if arm_batch
+		
+		#if arm_batch
 		Scene.active.meshBatch.render(g, context, camera, lamp, bindParams);
-#else
-
+		#else
 		if (!meshesSorted) { // Order max one per frame for now
 			sortMeshes(Scene.active.meshes, camera);
 			meshesSorted = true;
@@ -532,7 +532,13 @@ class RenderPath {
 		for (m in Scene.active.meshes) {
 			m.render(g, context, camera, lamp, bindParams);
 		}
-#end
+		#end
+
+		#if arm_debug
+		var ar = contextEvents.get(context);
+		if (ar != null) for (i in 0...ar.length) ar[i](g, i, ar.length);
+		#end
+
 		end(g);
 
 		// TODO: render all cubemap faces
@@ -544,6 +550,16 @@ class RenderPath {
 			// lamp.buildMatrices(camera); // Restore light matrix
 		}
 	}
+
+#if arm_debug
+	static var contextEvents:Map<String, Array<Graphics->Int->Int->Void>> = null;
+	public static function notifyOnContext(name:String, onContext:Graphics->Int->Int->Void) {
+		if (contextEvents == null) contextEvents = new Map();
+		var ar = contextEvents.get(name);
+		if (ar == null) { ar = []; contextEvents.set(name, ar); }
+		ar.push(onContext);
+	}
+#end
 
 	function getRectContexts(mat:MaterialData, context:String, materialContexts:Array<MaterialContext>, shaderContexts:Array<ShaderContext>) {
 		for (i in 0...mat.raw.contexts.length) {

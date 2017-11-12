@@ -55,7 +55,7 @@ class ObjectAnimation extends Animation {
 	public override function update(delta:Float) {
 		if (!object.visible || object.culled) return;
 		
-		#if arm_profile
+		#if arm_debug
 		Animation.beginProfile();
 		#end
 
@@ -63,7 +63,7 @@ class ObjectAnimation extends Animation {
 		if (paused) return;
 		if (!isSkinned) updateObjectAnim();
 
-		#if arm_profile
+		#if arm_debug
 		Animation.endProfile();
 		#end
 	}

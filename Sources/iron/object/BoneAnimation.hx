@@ -131,7 +131,7 @@ class BoneAnimation extends Animation {
 		if (object != null && (!object.visible || object.culled)) return;
 		if (skeletonBones == null || skeletonBones.length == 0) return;
 
-		#if arm_profile
+		#if arm_debug
 		Animation.beginProfile();
 		#end
 
@@ -140,7 +140,7 @@ class BoneAnimation extends Animation {
 
 		updateAnim();
 
-		#if arm_profile
+		#if arm_debug
 		Animation.endProfile();
 		#end
 	}

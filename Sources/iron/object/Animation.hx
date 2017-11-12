@@ -183,7 +183,7 @@ class Animation {
 	public function currentFrame():Int { return Std.int(time / frameTime); }
 	public function totalFrames():Int { return 0; }
 
-#if arm_profile
+#if arm_debug
 	public static var animationTime = 0.0;
 	static var startTime = 0.0;
 	static function beginProfile() { startTime = kha.Scheduler.realTime(); }
