@@ -9,6 +9,8 @@ import iron.Scene;
 
 class LampObject extends Object {
 
+	public static var shadowmapCascades = 1;
+
 	public var data:LampData;
 
 	// Shadow map matrices
@@ -67,21 +69,27 @@ class LampObject extends Object {
 
 		if (data.raw.type == "sun") { // Cover camera frustum
 
-			if (camSlicedP == null) { // Move in far plane for now
+			#if (!arm_csm)
+			// Use lamp far plane
+			if (camSlicedP == null) {
 				var fov = camera.data.raw.fov;
 				var near_plane = data.raw.near_plane;
 				var far_plane = data.raw.far_plane;
 				var aspect = camera.data.raw.aspect != null ? camera.data.raw.aspect : iron.App.w() / iron.App.h();
 				camSlicedP = Mat4.perspective(fov, aspect, near_plane, far_plane);
 			}
+			var _P = camSlicedP;
+			#else
+			var _P = camera.P;
+			#end
 
 			#if arm_vr
 			m.setFrom(camera.leftV);
 			#else
 			m.setFrom(camera.V);
 			#end
-			// m.multmat2(camera.P);
-			m.multmat2(camSlicedP);
+			
+			m.multmat2(_P);
 			m.getInverse(m);
 			V.setFrom(transform.world);
 			V.toRotation();

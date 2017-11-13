@@ -205,30 +205,11 @@ class Uniforms {
 				helpMat.getInverse(object.transform.world);
 				m = helpMat;
 			}
-			// else if (c.link == "_normalMatrix") {
-			// 	helpMat.setIdentity();
-			// 	helpMat.multmat2(object.transform.world);
-			// 	// Non uniform anisotropic scaling, calculate normal matrix
-			// 	//if (!(object.transform.scale.x == object.transform.scale.y && object.transform.scale.x == object.transform.scale.z)) {
-			// 		helpMat.getInverse(helpMat);
-			// 		helpMat.transpose3x3();
-			// 	//}
-			// 	m = helpMat;
-			// }
-			// else if (c.link == "_viewNormalMatrix") {
-			// 	helpMat.setIdentity();
-			// 	helpMat.multmat2(object.transform.world);
-			// 	helpMat.multmat2(camera.V); // View space
-			// 	helpMat.getInverse(helpMat);
-			// 	helpMat.transpose3x3();
-			// 	m = helpMat;
-			// }
 			else if (c.link == "_viewMatrix") {
 				m = camera.V;
 			}
 			else if (c.link == "_transposeInverseViewMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(camera.V);
+				helpMat.setFrom(camera.V);
 				helpMat.getInverse(helpMat);
 				helpMat.transpose();
 				m = helpMat;
@@ -238,8 +219,7 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_transposeViewMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(camera.V);
+				helpMat.setFrom(camera.V);
 				helpMat.transpose3x3();
 				m = helpMat;
 			}
@@ -251,22 +231,19 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_inverseViewProjectionMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(camera.V);
+				helpMat.setFrom(camera.V);
 				helpMat.multmat2(camera.P);
 				helpMat.getInverse(helpMat);
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(object.transform.world);
+				helpMat.setFrom(object.transform.world);
 				helpMat.multmat2(camera.V);
 				helpMat.multmat2(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrixSphere") { // Billboard
-				helpMat.setIdentity();
-				helpMat.multmat2(object.transform.world);
+				helpMat.setFrom(object.transform.world);
 				helpMat.multmat2(camera.V);
 				helpMat._00 = 1.0; helpMat._10 = 0.0; helpMat._20 = 0.0;
 				helpMat._01 = 0.0; helpMat._11 = 1.0; helpMat._21 = 0.0;
@@ -275,8 +252,7 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrixCylinder") { // Billboard - x rot 90deg
-				helpMat.setIdentity();
-				helpMat.multmat2(object.transform.world);
+				helpMat.setFrom(object.transform.world);
 				helpMat.multmat2(camera.V);
 				helpMat._00 = 1.0;  helpMat._20 = 0.0;
 				helpMat._01 = 0.0;  helpMat._21 = 0.0;
@@ -285,27 +261,23 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(object.transform.world);
+				helpMat.setFrom(object.transform.world);
 				helpMat.multmat2(camera.V);
 				m = helpMat;
 			}
 			else if (c.link == "_viewProjectionMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(camera.V);
+				helpMat.setFrom(camera.V);
 				helpMat.multmat2(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_prevViewProjectionMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(camera.prevV);
+				helpMat.setFrom(camera.prevV);
 				helpMat.multmat2(camera.P);
 				m = helpMat;
 			}
 #if arm_veloc
 			else if (c.link == "_prevWorldViewProjectionMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(cast(object, MeshObject).prevMatrix);
+				helpMat.setFrom(cast(object, MeshObject).prevMatrix);
 				helpMat.multmat2(camera.prevV);
 				// helpMat.multmat2(camera.prevP);
 				helpMat.multmat2(camera.P);
@@ -326,8 +298,7 @@ class Uniforms {
 			}
 			else if (c.link == "_lampWorldViewProjectionMatrixSphere") {
 				if (lamp != null) {
-					helpMat.setIdentity();
-					helpMat.multmat2(object.transform.world);
+					helpMat.setFrom(object.transform.world);
 					
 					// Align to camera..
 					helpMat.multmat2(camera.V);
@@ -344,8 +315,7 @@ class Uniforms {
 			}
 			else if (c.link == "_lampWorldViewProjectionMatrixCylinder") {
 				if (lamp != null) {
-					helpMat.setIdentity();
-					helpMat.multmat2(object.transform.world);
+					helpMat.setFrom(object.transform.world);
 					
 					// Align to camera..
 					helpMat.multmat2(camera.V);
@@ -372,16 +342,14 @@ class Uniforms {
 			}
 			else if (c.link == "_lampViewProjectionMatrix") {
 				if (lamp != null) {
-					helpMat.setIdentity();
-					helpMat.multmat2(lamp.V);
+					helpMat.setFrom(lamp.V);
 					helpMat.multmat2(lamp.P);
 					m = helpMat;
 				}
 			}
 			else if (c.link == "_biasLampViewProjectionMatrix") {
 				if (lamp != null) {
-					helpMat.setIdentity();
-					helpMat.multmat2(lamp.V);
+					helpMat.setFrom(lamp.V);
 					helpMat.multmat2(lamp.P);
 					helpMat.multmat2(biasMat);
 					m = helpMat;
@@ -462,8 +430,7 @@ class Uniforms {
 		else if (c.type == "mat3") {
 			var m:Mat3 = null;
 			if (c.link == "_normalMatrix") {
-				helpMat.setIdentity();
-				helpMat.multmat2(object.transform.world);
+				helpMat.setFrom(object.transform.world);
 				// Non uniform anisotropic scaling, calculate normal matrix
 				//if (!(object.transform.scale.x == object.transform.scale.y && object.transform.scale.x == object.transform.scale.z)) {
 					helpMat.getInverse(helpMat);

@@ -82,11 +82,11 @@ class BoneAnimation extends Animation {
 			if (o.raw.parent_bone_tail != null) {
 				var v = o.raw.parent_bone_tail;
 				t.boneParent.initTranslate(v[0], v[1], v[2]);
+				t.boneParent.multmat2(bm);
 			}
 			else {
-				t.boneParent.setIdentity();
+				t.boneParent.setFrom(bm);
 			}
-			t.boneParent.multmat2(bm);
 			t.buildMatrix();
 		}
 	}
