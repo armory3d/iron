@@ -535,8 +535,11 @@ class RenderPath {
 		#end
 
 		#if arm_debug
-		var ar = contextEvents.get(context);
-		if (ar != null) for (i in 0...ar.length) ar[i](g, i, ar.length);
+		// Callbacks to specific context
+		if (contextEvents != null) {
+			var ar = contextEvents.get(context);
+			if (ar != null) for (i in 0...ar.length) ar[i](g, i, ar.length);
+		}
 		#end
 
 		end(g);
