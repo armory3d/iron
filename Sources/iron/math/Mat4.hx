@@ -513,6 +513,25 @@ class Mat4 {
 		_33 = 1.0;
 		return this;
 	}
+
+	public function write(ar:haxe.ds.Vector<kha.FastFloat>, offset = 0) {
+		ar[offset + 0] = _00;
+		ar[offset + 1] = _01;
+		ar[offset + 2] = _02;
+		ar[offset + 3] = _03;
+		ar[offset + 4] = _10;
+		ar[offset + 5] = _11;
+		ar[offset + 6] = _12;
+		ar[offset + 7] = _13;
+		ar[offset + 8] = _20;
+		ar[offset + 9] = _21;
+		ar[offset + 10] = _22;
+		ar[offset + 11] = _23;
+		ar[offset + 12] = _30;
+		ar[offset + 13] = _31;
+		ar[offset + 14] = _32;
+		ar[offset + 15] = _33;
+	}
 	
 	public static function lookAt(eye:Vec4, center:Vec4, up:Vec4):Mat4 {
 		return Mat4.identity().setLookAt(eye, center, up);

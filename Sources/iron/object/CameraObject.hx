@@ -180,14 +180,12 @@ class CameraObject extends Object {
 		else {
 			leftV.setFrom(V);
 		}
+		VP.multmats(P, leftV);
+		#else
+		VP.multmats(P, V);
 		#end
 
 		if (data.raw.frustum_culling) {
-			#if arm_vr
-			VP.multmats(P, leftV);
-			#else
-			VP.multmats(P, V);
-			#end
 			buildViewFrustum(VP, frustumPlanes);
 		}
 	}

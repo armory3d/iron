@@ -21,13 +21,13 @@ import iron.data.RenderPathData.RenderTarget;
 class Uniforms {
 
 	#if (kha_opengl || kha_webgl)
-	static var biasMat = new Mat4(
+	public static var biasMat = new Mat4(
 		0.5, 0.0, 0.0, 0.5,
 		0.0, 0.5, 0.0, 0.5,
 		0.0, 0.0, 0.5, 0.5,
 		0.0, 0.0, 0.0, 1.0);
 	#else // d3d
-	static var biasMat = new Mat4(
+	public static var biasMat = new Mat4(
 		0.5, 0.0, 0.0, 0.5,
 		0.0, -0.5, 0.0, 0.5,
 		0.0, 0.0, 0.5, 0.5,
@@ -266,9 +266,7 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_viewProjectionMatrix") {
-				helpMat.setFrom(camera.V);
-				helpMat.multmat2(camera.P);
-				m = helpMat;
+				m = camera.VP;
 			}
 			else if (c.link == "_prevViewProjectionMatrix") {
 				helpMat.setFrom(camera.prevV);
@@ -289,10 +287,9 @@ class Uniforms {
 #end
 			else if (c.link == "_lampWorldViewProjectionMatrix") {
 				if (lamp != null) {
-					helpMat.setIdentity();
-					if (object != null) helpMat.multmat2(object.transform.world); // object is null for DrawQuad
-					helpMat.multmat2(lamp.V);
-					helpMat.multmat2(lamp.P);
+					// object is null for DrawQuad
+					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.world);
+					helpMat.multmat2(lamp.VP);
 					m = helpMat;
 				}
 			}
@@ -308,8 +305,7 @@ class Uniforms {
 					helpMat2.getInverse(camera.V);
 					helpMat.multmat2(helpMat2);
 
-					helpMat.multmat2(lamp.V);
-					helpMat.multmat2(lamp.P);
+					helpMat.multmat2(lamp.VP);
 					m = helpMat;
 				}
 			}
@@ -325,32 +321,27 @@ class Uniforms {
 					helpMat2.getInverse(camera.V);
 					helpMat.multmat2(helpMat2);
 
-					helpMat.multmat2(lamp.V);
-					helpMat.multmat2(lamp.P);
+					helpMat.multmat2(lamp.VP);
 					m = helpMat;
 				}
 			}
 			else if (c.link == "_biasLampWorldViewProjectionMatrix") {
 				if (lamp != null)  {
-					helpMat.setIdentity();
-					if (object != null) helpMat.multmat2(object.transform.world); // object is null for DrawQuad
-					helpMat.multmat2(lamp.V);
-					helpMat.multmat2(lamp.P);
+					// object is null for DrawQuad
+					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.world);
+					helpMat.multmat2(lamp.VP);
 					helpMat.multmat2(biasMat);
 					m = helpMat;
 				}
 			}
 			else if (c.link == "_lampViewProjectionMatrix") {
 				if (lamp != null) {
-					helpMat.setFrom(lamp.V);
-					helpMat.multmat2(lamp.P);
-					m = helpMat;
+					m = lamp.VP;
 				}
 			}
 			else if (c.link == "_biasLampViewProjectionMatrix") {
 				if (lamp != null) {
-					helpMat.setFrom(lamp.V);
-					helpMat.multmat2(lamp.P);
+					helpMat.setFrom(lamp.VP);
 					helpMat.multmat2(biasMat);
 					m = helpMat;
 				}
@@ -718,6 +709,11 @@ class Uniforms {
 				if (Scene.active.world == null) fa = WorldData.getEmptyIrradiance();
 				else fa = Scene.active.world.getSHIrradiance();
 			}
+			#if arm_csm
+			if (c.link == "_cascadeData") {
+				if (lamp != null) fa = lamp.getCascadeData();
+			}
+			#end
 			// External
 			else if (externalFloatsLinks != null) {
 				for (fn in externalFloatsLinks) {

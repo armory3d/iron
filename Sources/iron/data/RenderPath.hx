@@ -358,8 +358,8 @@ class RenderPath {
 				// Switch to cubemap
 				rt = data.pathdata.renderTargets.get(target + "Cube");
 				if (rt == null) {
-					// Cubemap size - assume sm / 2
-					var size = Std.int(getLamp(currentLampIndex).data.raw.shadowmap_size / 2);
+					// Cubemap size
+					var size = Std.int(getLamp(currentLampIndex).data.raw.shadowmap_size);
 					var t:TRenderPathTarget = {
 						name: target + "Cube",
 						width: size,
@@ -371,11 +371,15 @@ class RenderPath {
 				}
 			}
 			if (target == "shadowMap" && rt == null) { // Non-cube sm
-				var size = getLamp(currentLampIndex).data.raw.shadowmap_size;
+				var sizew = getLamp(currentLampIndex).data.raw.shadowmap_size;
+				var sizeh = sizew;
+				#if arm_csm // Cascades - atlas on x axis
+				sizew = sizeh * LampObject.shadowmapCascades;
+				#end
 				var t:TRenderPathTarget = {
 					name: target,
-					width: size,
-					height: size,
+					width: sizew,
+					height: sizeh,
 					format: "DEPTH16"
 				};
 				rt = data.pathdata.createRenderTarget(t);
@@ -512,27 +516,31 @@ class RenderPath {
 			if (currentLampIndex > 0) return;
 		}
 
-		// Disabled shadow casting for this lamp
-		if (context == data.pathdata.raw.shadows_context) {
+		var shadowsContext = context == data.pathdata.raw.shadows_context;
+		if (shadowsContext) {
+			// Disabled shadow casting for this lamp
 			if (lamp == null || !lamp.data.raw.cast_shadow) return;
 		}
 		// Single face attached
 		if (currentRenderTargetFace >= 0 && lamp != null) lamp.setCubeFace(5 - currentRenderTargetFace, camera); // TODO: draw first cube-face last, otherwise some opengl drivers expose glitch
-
-		var g = currentRenderTarget;
 		
-		#if arm_batch
-		Scene.active.meshBatch.render(g, context, camera, lamp, bindParams);
-		#else
-		if (!meshesSorted) { // Order max one per frame for now
-			sortMeshes(Scene.active.meshes, camera);
-			meshesSorted = true;
-		}
+		var g = currentRenderTarget;
+		var drawn = false;
 
-		for (m in Scene.active.meshes) {
-			m.render(g, context, camera, lamp, bindParams);
+		#if arm_csm
+		if (shadowsContext && lamp.data.raw.type == "sun") {
+			var step = currentRenderTargetH; // Atlas with tiles on x axis
+			for (i in 0...LampObject.shadowmapCascades) {
+				lamp.setCascade(camera, i);
+				// g.viewport(0, currentRenderTargetH - (i + 1) * step, step, step);
+				g.viewport(i * step, 0, step, step);
+				submitDraw(context);
+			}
+			drawn = true;
 		}
 		#end
+
+		if (!drawn) submitDraw(context);
 
 		#if arm_debug
 		// Callbacks to specific context
@@ -552,6 +560,23 @@ class RenderPath {
 			currentRenderTargetFace = -1;
 			// lamp.buildMatrices(camera); // Restore light matrix
 		}
+	}
+
+	function submitDraw(context:String) {
+		var lamp = getLamp(currentLampIndex);
+		var g = currentRenderTarget;
+
+		#if arm_batch
+		Scene.active.meshBatch.render(g, context, camera, lamp, bindParams);
+		#else
+		if (!meshesSorted) { // Order max one per frame for now
+			sortMeshes(Scene.active.meshes, camera);
+			meshesSorted = true;
+		}
+		for (m in Scene.active.meshes) {
+			m.render(g, context, camera, lamp, bindParams);
+		}
+		#end
 	}
 
 #if arm_debug
