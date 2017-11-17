@@ -9,7 +9,8 @@ import iron.Scene;
 
 class LampObject extends Object {
 
-	public static var shadowmapCascades = 1;
+	public static var cascadeCount = 1;
+	public static var cascadeSplitFactor = 0.8;
 	#if arm_csm
 	var cascadeData:haxe.ds.Vector<kha.FastFloat> = null;
 	var cascadeVP:Array<Mat4>;
@@ -84,6 +85,8 @@ class LampObject extends Object {
 		}
 	}
 
+	static function mix(a:Float, b:Float, f:Float):Float { return a * (1 - f) + b * f; }
+
 	public function setCascade(camera:CameraObject, cascade:Int) {
 
 		#if arm_vr
@@ -95,17 +98,20 @@ class LampObject extends Object {
 		#if arm_csm
 		if (camSlicedP == null) {
 			camSlicedP = [];
+			cascadeSplit = [];
 			var aspect = camera.data.raw.aspect != null ? camera.data.raw.aspect : iron.App.w() / iron.App.h();
 			var fov = camera.data.raw.fov;
 			var near = camera.data.raw.near_plane;
 			var far = camera.data.raw.far_plane;
-			var step = far / shadowmapCascades;
-			if (shadowmapCascades == 4) cascadeSplit = [near, step * 0.5, step * 1, step * 2, step * 4];
-			else cascadeSplit = [near, step * 1, step * 2, step * 3, step * 4];
-			for (i in 0...shadowmapCascades) {
-				// near = cascadeSplit[i];
-				far = cascadeSplit[i + 1];
-				camSlicedP.push(Mat4.perspective(fov, aspect, near, far));
+			var factor = cascadeCount > 2 ? cascadeSplitFactor : cascadeSplitFactor * 0.25;
+			for (i in 0...cascadeCount) {
+				var f = i + 1.0;
+				var cfar = mix(
+					near + (f / cascadeCount) * (far - near),
+					near * Math.pow(far / near, f / cascadeCount),
+					factor);
+				cascadeSplit.push(cfar);
+				camSlicedP.push(Mat4.perspective(fov, aspect, near, cfar));
 			}
 		}
 		m.multmat2(camSlicedP[cascade]);
@@ -184,7 +190,7 @@ class LampObject extends Object {
 		#if arm_csm
 		if (cascadeVP == null) {
 			cascadeVP = [];
-			for (i in 0...shadowmapCascades) {
+			for (i in 0...cascadeCount) {
 				cascadeVP.push(Mat4.identity());
 			}
 		}
@@ -243,24 +249,24 @@ class LampObject extends Object {
 	public function getCascadeData():haxe.ds.Vector<kha.FastFloat> {
 		// Cascade mats + split distances
 		if (cascadeData == null) {
-			cascadeData = new haxe.ds.Vector(shadowmapCascades * 16 + 4);
+			cascadeData = new haxe.ds.Vector(cascadeCount * 16 + 4);
 		}
 		if (cascadeVP == null) return cascadeData;
 
 		// 4 cascade mats + split distances
-		for (i in 0...shadowmapCascades) {
+		for (i in 0...cascadeCount) {
 			m.setFrom(cascadeVP[i]);
 			bias.setFrom(Uniforms.biasMat);
-			bias._00 /= shadowmapCascades; // Atlas offset
-			bias._30 /= shadowmapCascades;
-			bias._30 += i * (1 / shadowmapCascades);
+			bias._00 /= cascadeCount; // Atlas offset
+			bias._30 /= cascadeCount;
+			bias._30 += i * (1 / cascadeCount);
 			m.multmat2(bias);
 			m.write(cascadeData, i * 16);
 		}
-		cascadeData[shadowmapCascades * 16 + 0] = cascadeSplit[1];
-		cascadeData[shadowmapCascades * 16 + 1] = cascadeSplit[2];
-		cascadeData[shadowmapCascades * 16 + 2] = cascadeSplit[3];
-		cascadeData[shadowmapCascades * 16 + 3] = cascadeSplit[4];
+		cascadeData[cascadeCount * 16 + 0] = cascadeSplit[0];
+		cascadeData[cascadeCount * 16 + 1] = cascadeSplit[1];
+		cascadeData[cascadeCount * 16 + 2] = cascadeSplit[2];
+		cascadeData[cascadeCount * 16 + 3] = cascadeSplit[3];
 		return cascadeData;
 	}
 	#end

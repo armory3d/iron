@@ -374,7 +374,7 @@ class RenderPath {
 				var sizew = getLamp(currentLampIndex).data.raw.shadowmap_size;
 				var sizeh = sizew;
 				#if arm_csm // Cascades - atlas on x axis
-				sizew = sizeh * LampObject.shadowmapCascades;
+				sizew = sizeh * LampObject.cascadeCount;
 				#end
 				var t:TRenderPathTarget = {
 					name: target,
@@ -530,7 +530,7 @@ class RenderPath {
 		#if arm_csm
 		if (shadowsContext && lamp.data.raw.type == "sun") {
 			var step = currentRenderTargetH; // Atlas with tiles on x axis
-			for (i in 0...LampObject.shadowmapCascades) {
+			for (i in 0...LampObject.cascadeCount) {
 				lamp.setCascade(camera, i);
 				// g.viewport(0, currentRenderTargetH - (i + 1) * step, step, step);
 				g.viewport(i * step, 0, step, step);
