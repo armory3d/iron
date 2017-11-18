@@ -227,6 +227,7 @@ typedef TRenderPathTarget = {
 	// 2D texture
 	@:optional var depth_buffer:String;
 	@:optional var ping_pong:Null<Bool>;
+	@:optional var mipmaps:Null<Bool>;
 	// 3D texture
 	@:optional var depth:Null<Int>;
 	// Image

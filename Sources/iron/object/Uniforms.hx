@@ -182,6 +182,10 @@ class Uniforms {
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
 					}
 
+					if (rt.raw.mipmaps && tus[j].params_set == null) {
+						tus[j].params_set = true;
+						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+					}
 					// No filtering when sampling render targets
 					// if (tus[j].params_set == null) {
 						// tus[j].params_set = true;
