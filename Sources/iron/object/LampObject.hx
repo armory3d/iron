@@ -22,7 +22,6 @@ class LampObject extends Object {
 
 	public var data:LampData;
 
-	// Shadow map matrices
 	public var V:Mat4 = Mat4.identity();
 	public var P:Mat4 = null;
 	public var VP:Mat4 = Mat4.identity();
@@ -85,7 +84,7 @@ class LampObject extends Object {
 		}
 	}
 
-	static function mix(a:Float, b:Float, f:Float):Float { return a * (1 - f) + b * f; }
+	static inline function mix(a:Float, b:Float, f:Float):Float { return a * (1 - f) + b * f; }
 
 	public function setCascade(camera:CameraObject, cascade:Int) {
 

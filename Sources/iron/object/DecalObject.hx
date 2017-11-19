@@ -11,9 +11,7 @@ class DecalObject extends Object {
 
 	public function new(material:MaterialData) {
 		super();
-		
 		this.material = material;
-
 		Scene.active.decals.push(this);
 	}
 

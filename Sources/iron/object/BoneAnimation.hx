@@ -269,15 +269,15 @@ class BoneAnimation extends Animation {
 	}
 
 	function updateSkinCpu() {
-#if arm_deinterleaved
+		#if arm_deinterleaved
 		// Assume position=0, normal=1 storage
 		var v = data.geom.vertexBuffers[0].lock();
 		var vnor = data.geom.vertexBuffers[1].lock();
 		var l = 3;
-#else
+		#else
 		var v = data.geom.vertexBuffer.lock();
 		var l = data.geom.structLength;
-#end
+		#end
 
 		var index = 0;
 
@@ -334,29 +334,29 @@ class BoneAnimation extends Animation {
 				nor.add(m.getLoc());
 			}
 
-#if arm_deinterleaved
+			#if arm_deinterleaved
 			v.set(i * l, pos.x);
 			v.set(i * l + 1, pos.y);
 			v.set(i * l + 2, pos.z);
 			vnor.set(i * l, nor.x);
 			vnor.set(i * l + 1, nor.y);
 			vnor.set(i * l + 2, nor.z);
-#else
+			#else
 			v.set(i * l, pos.x);
 			v.set(i * l + 1, pos.y);
 			v.set(i * l + 2, pos.z);
 			v.set(i * l + 3, nor.x);
 			v.set(i * l + 4, nor.y);
 			v.set(i * l + 5, nor.z);
-#end
+			#end
 		}
 
-#if arm_deinterleaved
+		#if arm_deinterleaved
 		data.geom.vertexBuffers[0].unlock();
 		data.geom.vertexBuffers[1].unlock();
-#else
+		#else
 		data.geom.vertexBuffer.unlock();
-#end
+		#end
 	}
 
 	public override function totalFrames():Int { 

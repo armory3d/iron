@@ -20,13 +20,11 @@
 // THE SOFTWARE.
 package iron.system;
 
-// import haxe.Int64;
 import haxe.io.Bytes;
 import haxe.io.BytesInput;
 import haxe.io.Eof;
 import iron.data.SceneFormat;
 
-//@:expose
 class ArmPack {
 
 	public static inline function decode(b:Bytes):Dynamic {

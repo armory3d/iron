@@ -30,7 +30,7 @@ class Geometry {
 	public var instanced = false;
 	public var instanceCount = 0;
 
-	public var positions:TFloat32Array; // TODO: no need to store these references
+	public var positions:TFloat32Array;
 	public var normals:TFloat32Array;
 	public var uvs:TFloat32Array;
 	public var uvs1:TFloat32Array;
@@ -84,7 +84,6 @@ class Geometry {
 		this.weights = weights;
 		this.instanceOffsets = instanceOffsets;
 
-		// TODO: Mandatory vertex data names and sizes
 		// pos=3, tex=2, nor=3, col=4, tang=3, bone=4, weight=4
 		struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
 		structLength = Std.int(struct.byteSize() / 4);

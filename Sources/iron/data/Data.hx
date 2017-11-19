@@ -6,7 +6,6 @@ import iron.data.SceneFormat;
 // Global data list and asynchronous data loading
 class Data {
 
-	// TODO: get rid of maps..
 	static var cachedSceneRaws:Map<String, TSceneFormat> = new Map();
 	static var cachedMeshes:Map<String, MeshData> = new Map();
 	static var cachedLamps:Map<String, LampData> = new Map();

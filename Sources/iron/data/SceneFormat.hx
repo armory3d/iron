@@ -157,6 +157,13 @@ typedef TShaderContext = {
 	var compare_mode:String;
 	var cull_mode:String;
 	var vertex_structure:Array<TVertexData>;
+	var vertex_shader:String;
+	var fragment_shader:String;
+	@:optional var geometry_shader:String;
+	@:optional var tesscontrol_shader:String;
+	@:optional var tesseval_shader:String;
+	@:optional var constants:Array<TShaderConstant>;
+	@:optional var texture_units:Array<TTextureUnit>;
 	@:optional var blend_source:String;
 	@:optional var blend_destination:String;
 	@:optional var blend_operation:String;
@@ -175,13 +182,6 @@ typedef TShaderContext = {
 	@:optional var color_write_alpha:Null<Bool>;
 	@:optional var conservative_raster:Null<Bool>;
 	@:optional var shader_from_source:Null<Bool>; // Build shader at runtime using fromSource()
-	var vertex_shader:String;
-	var fragment_shader:String;
-	@:optional var geometry_shader:String;
-	@:optional var tesscontrol_shader:String;
-	@:optional var tesseval_shader:String;
-	@:optional var constants:Array<TShaderConstant>;
-	@:optional var texture_units:Array<TTextureUnit>;
 }
 
 typedef TVertexData = {
@@ -269,7 +269,6 @@ typedef TWorldData = {
 typedef TGreasePencilData = {
 	var name:String;
 	var layers:Array<TGreasePencilLayer>;
-	// var palettes:Array<TGreasePencilPalette>;
 	var shader:String;
 }
 
@@ -396,7 +395,6 @@ typedef TObj = {
 	@:optional var tilesheet_ref:String;
 	@:optional var tilesheet_action_ref:String;
 	@:optional var sampled:Null<Bool>; // Object action
-	// @:optional var transforms:Array<TAnimationTransform>; // Starting transforms for non-sampled
 }
 
 typedef TGroup = {

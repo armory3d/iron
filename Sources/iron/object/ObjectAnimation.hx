@@ -26,31 +26,9 @@ class ObjectAnimation extends Animation {
 		if (this.action == '') this.action = oactions[0].objects[0].name;
 		oaction = getAction(this.action);
 		if (oaction != null) {
-			// Check animation_transforms to determine non-sampled animation
-			isSampled = oaction.sampled != null && oaction.sampled; // oaction.transforms == null;
-			// if (!isSampled) parseAnimationTransforms(object.transform, oaction.transforms);
+			isSampled = oaction.sampled != null && oaction.sampled;
 		}
 	}
-
-	// static function parseAnimationTransforms(t:Transform, animation_transforms:Array<TAnimationTransform>) {
-	// 	for (at in animation_transforms) {
-	// 		switch (at.type) {
-	// 		case "translation": t.loc.set(at.values[0], at.values[1], at.values[2]);
-	// 		case "translation_x": t.loc.x = at.value;
-	// 		case "translation_y": t.loc.y = at.value;
-	// 		case "translation_z": t.loc.z = at.value;
-	// 		case "rotation": t.setRotation(at.values[0], at.values[1], at.values[2]);
-	// 		case "rotation_x": t.setRotation(at.value, 0, 0);
-	// 		case "rotation_y": t.setRotation(0, at.value, 0);
-	// 		case "rotation_z": t.setRotation(0, 0, at.value);
-	// 		case "scale": t.scale.set(at.values[0], at.values[1], at.values[2]);
-	// 		case "scale_x": t.scale.x = at.value;
-	// 		case "scale_y": t.scale.y = at.value;
-	// 		case "scale_z": t.scale.z = at.value;
-	// 		}
-	// 	}
-	// 	t.buildMatrix();
-	// }
 
 	public override function update(delta:Float) {
 		if (!object.visible || object.culled) return;
@@ -99,6 +77,7 @@ class ObjectAnimation extends Animation {
 			frameIndex > 1 && t > frameValues[frameIndex - 1] * frameTime;
 	}
 
+	@:access(iron.object.Transform)
 	function updateAnimNonSampled(anim:TAnimation, transform:Transform) {
 		if (anim == null) return;
 		

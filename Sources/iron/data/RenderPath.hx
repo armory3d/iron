@@ -5,11 +5,8 @@ import kha.Scheduler;
 import kha.graphics4.Graphics;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
-import kha.graphics4.Usage;
-import kha.graphics4.VertexStructure;
-import kha.graphics4.VertexData;
 import iron.data.SceneFormat;
-import iron.data.RenderPathData.RenderTarget; // Ping-pong
+import iron.data.RenderPathData.RenderTarget;
 import iron.data.MaterialData.MaterialContext;
 import iron.data.ShaderData.ShaderContext;
 import iron.Scene;
@@ -45,23 +42,6 @@ class RenderPath {
 	var bindParams:Array<String>;
 	var helpMat = Mat4.identity();
 
-	static var screenAlignedVB:VertexBuffer = null;
-	static var screenAlignedIB:IndexBuffer = null;
-	static var rectVB:VertexBuffer = null;
-	static var rectIB:IndexBuffer = null;
-	static var boxVB:VertexBuffer = null;
-	static var boxIB:IndexBuffer = null;
-	#if arm_deinterleaved
-	static var skydomeVB:Array<VertexBuffer> = null;
-	#else
-	static var skydomeVB:VertexBuffer = null;
-	#end
-	static var skydomeIB:IndexBuffer = null;
-	static var sphereVB:VertexBuffer = null;
-	static var sphereIB:IndexBuffer = null;
-	static var coneVB:VertexBuffer = null;
-	static var coneIB:IndexBuffer = null;
-
 	var currentStages:Array<TRenderPathStage> = null;
 	var currentStageIndex = 0;
 	var currentStageIndexOffset = 0;
@@ -75,14 +55,14 @@ class RenderPath {
 	// Quad and decals contexts
 	var cachedShaderContexts:Map<String, CachedShaderContext> = new Map();
 	
-#if arm_debug
+	#if arm_debug
 	public static var drawCalls = 0;
 	public static var batchBuckets = 0;
 	public static var batchCalls = 0;
 	public static var culled = 0;
 	public static var numTrisMesh = 0;
 	public static var numTrisShadow = 0;
-#end
+	#end
 
 	// Used by render path nodes for branch functions
 	@:keep
@@ -115,186 +95,29 @@ class RenderPath {
 		loadStageCommands(data.pathdata.raw.stages, function() { ready = true; });
 	}
 
-	public function unload() {
-		data.pathdata.unload();
-	}
+	public function unload() { data.pathdata.unload(); }
 
-	static function createScreenAlignedData() {
-		// Quad
-		// var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];
-		// var indices = [0, 1, 2, 0, 2, 3];
-		// Over-sized triangle
-		var data = [-1.0, -1.0, 3.0, -1.0, -1.0, 3.0];
-		var indices = [0, 1, 2];
-
-		// Mandatory vertex data names and sizes
-		var structure = new VertexStructure();
-		structure.add("pos", VertexData.Float2);
-		screenAlignedVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
-		var vertices = screenAlignedVB.lock();
-		for (i in 0...vertices.length) vertices.set(i, data[i]);
-		screenAlignedVB.unlock();
-
-		screenAlignedIB = new IndexBuffer(indices.length, Usage.StaticUsage);
-		var id = screenAlignedIB.lock();
-		for (i in 0...id.length) id[i] = indices[i];
-		screenAlignedIB.unlock();
-	}
-
-	static function createRectData() {
-		// Quad
-		var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];
-		var indices = [0, 1, 2, 0, 2, 3];
-
-		// Mandatory vertex data names and sizes
-		var structure = new VertexStructure();
-		structure.add("pos", VertexData.Float2);
-		rectVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
-		var vertices = rectVB.lock();
-		for (i in 0...vertices.length) vertices.set(i, data[i]);
-		rectVB.unlock();
-
-		rectIB = new IndexBuffer(indices.length, Usage.StaticUsage);
-		var id = rectIB.lock();
-		for (i in 0...id.length) id[i] = indices[i];
-		rectIB.unlock();
-	}
-	
-	static function createBoxData() {
-		var data = [
-			-1.0,1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,1.0,-1.0,1.0,1.0,-1.0,
-			1.0,1.0,1.0,1.0,1.0,1.0,1.0,-1.0,-1.0,1.0,-1.0,1.0,1.0,1.0,1.0,-1.0,
-			1.0,1.0,-1.0,-1.0,1.0,1.0,-1.0,-1.0,-1.0,-1.0,1.0,-1.0,-1.0,1.0,-1.0,
-			1.0,-1.0,-1.0,1.0,-1.0,-1.0,-1.0,-1.0,1.0,-1.0,1.0,1.0,-1.0,1.0,-1.0,
-			-1.0,1.0,-1.0,1.0,1.0,1.0,1.0,-1.0,1.0,1.0,-1.0,-1.0,1.0
-		];
-		var indices = [
-			0,1,2,0,2,3,4,5,6,4,6,7,8,9,10,8,10,11,12,13,14,12,14,15,16,17,18,16,
-			18,19,20,21,22,20,22,23
-		];
-
-		var structure = new VertexStructure();
-		structure.add("pos", VertexData.Float3);
-		boxVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
-		var vertices = boxVB.lock();
-		for (i in 0...vertices.length) vertices.set(i, data[i]);
-		boxVB.unlock();
-
-		boxIB = new IndexBuffer(indices.length, Usage.StaticUsage);
-		var id = boxIB.lock();
-		for (i in 0...id.length) id[i] = indices[i];
-		boxIB.unlock();
-	}
-
-	static function createSkydomeData() {
-		#if arm_deinterleaved
-		var structure = new VertexStructure();
-		structure.add("pos", VertexData.Float3);
-		var structLength = Std.int(structure.byteSize() / 4);
-		var pos = iron.data.ConstData.skydomePos;
-		skydomeVB = [];
-		skydomeVB[0] = new VertexBuffer(Std.int(pos.length / 3), structure, Usage.StaticUsage);
-		var vertices = skydomeVB[0].lock();
-		for (i in 0...Std.int(vertices.length / structLength)) {
-			vertices.set(i * structLength, pos[i * 3]);
-			vertices.set(i * structLength + 1, pos[i * 3 + 1]);
-			vertices.set(i * structLength + 2, pos[i * 3 + 2]);
-		}
-		skydomeVB[0].unlock();
-		structure = new VertexStructure();
-		structure.add("nor", VertexData.Float3);
-		structLength = Std.int(structure.byteSize() / 4);
-		var nor = iron.data.ConstData.skydomeNor;
-		skydomeVB[1] = new VertexBuffer(Std.int(pos.length / 3), structure, Usage.StaticUsage);
-		var vertices = skydomeVB[1].lock();
-		for (i in 0...Std.int(vertices.length / structLength)) {
-			vertices.set(i * structLength, -nor[i * 3]); // Flip to match quad
-			vertices.set(i * structLength + 1, -nor[i * 3 + 1]);
-			vertices.set(i * structLength + 2, -nor[i * 3 + 2]);
-		}
-		skydomeVB[1].unlock();
-		#else
-		var structure = new VertexStructure();
-		structure.add("pos", VertexData.Float3);
-		structure.add("nor", VertexData.Float3);
-		var structLength = Std.int(structure.byteSize() / 4);
-		var pos = iron.data.ConstData.skydomePos;
-		var nor = iron.data.ConstData.skydomeNor;
-		skydomeVB = new VertexBuffer(Std.int(pos.length / 3), structure, Usage.StaticUsage);
-		var vertices = skydomeVB.lock();
-		for (i in 0...Std.int(vertices.length / structLength)) {
-			vertices.set(i * structLength, pos[i * 3]);
-			vertices.set(i * structLength + 1, pos[i * 3 + 1]);
-			vertices.set(i * structLength + 2, pos[i * 3 + 2]);
-			vertices.set(i * structLength + 3, -nor[i * 3]); // Flip to match quad
-			vertices.set(i * structLength + 4, -nor[i * 3 + 1]);
-			vertices.set(i * structLength + 5, -nor[i * 3 + 2]);
-		}
-		skydomeVB.unlock();
-		#end
-		
-		var indices = iron.data.ConstData.skydomeIndices;
-		skydomeIB = new IndexBuffer(indices.length, Usage.StaticUsage);
-		var id = skydomeIB.lock();
-		for (i in 0...id.length) id[i] = indices[i];
-		skydomeIB.unlock();
-	}
-
-	static function createSphereData() {
-		var structure = new VertexStructure();
-		structure.add("pos", VertexData.Float3);
-		var data = iron.data.ConstData.spherePos;
-		sphereVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
-		var vertices = sphereVB.lock();
-		for (i in 0...vertices.length) vertices.set(i, data[i]);
-		sphereVB.unlock();
-
-		var indices = iron.data.ConstData.sphereIndices;
-		sphereIB = new IndexBuffer(indices.length, Usage.StaticUsage);
-		var id = sphereIB.lock();
-		for (i in 0...id.length) id[i] = indices[i];
-		sphereIB.unlock();
-	}
-
-	static function createConeData() {
-		var structure = new VertexStructure();
-		structure.add("pos", VertexData.Float3);
-		var data = iron.data.ConstData.conePos;
-		coneVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
-		var vertices = coneVB.lock();
-		for (i in 0...vertices.length) vertices.set(i, data[i]);
-		coneVB.unlock();
-
-		var indices = iron.data.ConstData.coneIndices;
-		coneIB = new IndexBuffer(indices.length, Usage.StaticUsage);
-		var id = coneIB.lock();
-		for (i in 0...id.length) id[i] = indices[i];
-		coneIB.unlock();
-	}
-
-	inline function getLamp(index:Int) {
-		return lamps.length > 0 ? lamps[index] : null;
-	}
+	inline function getLamp(index:Int) { return lamps.length > 0 ? lamps[index] : null; }
 
 	var lastW = 0;
 	var lastH = 0;
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
 		if (!ready) return;
 
-// #if arm_resizable
+		// #if arm_resizable
 		if (lastW > 0 && (lastW != iron.App.w() || lastH != iron.App.h())) data.pathdata.resize();
 		lastW = iron.App.w();
 		lastH = iron.App.h();
-// #end
+		// #end
 
-#if arm_debug
+		#if arm_debug
 		drawCalls = 0;
 		batchBuckets = 0;
 		batchCalls = 0;
 		culled = 0;
 		numTrisMesh = 0;
 		numTrisShadow = 0;
-#end
+		#end
 		
 		frameRenderTarget = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture
 		currentRenderTarget = frameRenderTarget;
@@ -552,9 +375,10 @@ class RenderPath {
 
 		end(g);
 
-		// TODO: render all cubemap faces
+		// Render all cubemap faces
 		if (currentRenderTargetFace >= 0 && currentRenderTargetFace < 5) {
-			currentStageIndexOffset = -3; // Move back draw meshes and clear, back to set target
+			// Move back draw meshes and clear, back to set target
+			currentStageIndexOffset = -3;
 		}
 		else {
 			currentRenderTargetFace = -1;
@@ -579,7 +403,7 @@ class RenderPath {
 		#end
 	}
 
-#if arm_debug
+	#if arm_debug
 	static var contextEvents:Map<String, Array<Graphics->Int->Int->Void>> = null;
 	public static function notifyOnContext(name:String, onContext:Graphics->Int->Int->Void) {
 		if (contextEvents == null) contextEvents = new Map();
@@ -587,7 +411,7 @@ class RenderPath {
 		if (ar == null) { ar = []; contextEvents.set(name, ar); }
 		ar.push(onContext);
 	}
-#end
+	#end
 
 	function getRectContexts(mat:MaterialData, context:String, materialContexts:Array<MaterialContext>, shaderContexts:Array<ShaderContext>) {
 		for (i in 0...mat.raw.contexts.length) {
@@ -599,13 +423,11 @@ class RenderPath {
 		}
 	}
 
-	inline function clampRect(f:Float):Float {
-		return f < -1.0 ? -1.0 : (f > 1.0 ? 1.0 : f);
-	}
+	inline function clampRect(f:Float):Float { return f < -1.0 ? -1.0 : (f > 1.0 ? 1.0 : f); }
 
 	public var currentMaterial:MaterialData = null; // Temp
 	function drawRects(params:Array<String>, root:Object) {
-		if (rectVB == null) createRectData();
+		if (ConstData.rectVB == null) ConstData.createRectData();
 		var g = currentRenderTarget;
 		var context = params[0];
 		var lamp = getLamp(currentLampIndex);
@@ -675,7 +497,7 @@ class RenderPath {
 			rectBounds.push(b);
 		}
 
-		g.setIndexBuffer(rectIB);
+		g.setIndexBuffer(ConstData.rectIB);
 		
 		// Screen-space rect per material
 		for (i in 0...mats.length) {
@@ -683,7 +505,7 @@ class RenderPath {
 			var b = rectBounds[i];
 			var dx = b.z - b.x;
 			var dy = b.w - b.y;
-			var v = rectVB.lock();
+			var v = ConstData.rectVB.lock();
 			v.set(0, clampRect(b.x));
 			v.set(1, clampRect(b.y));
 			v.set(2, clampRect(b.x + dx));
@@ -692,8 +514,8 @@ class RenderPath {
 			v.set(5, clampRect(b.y + dy));
 			v.set(6, clampRect(b.x));
 			v.set(7, clampRect(b.y + dy));
-			rectVB.unlock();
-			g.setVertexBuffer(rectVB);
+			ConstData.rectVB.unlock();
+			g.setVertexBuffer(ConstData.rectVB);
 
 			currentMaterial = mat;
 			var materialContexts:Array<MaterialContext> = [];
@@ -711,14 +533,14 @@ class RenderPath {
 	}
 	
 	function drawDecals(params:Array<String>, root:Object) {
-		if (boxVB == null) createBoxData();
+		if (ConstData.boxVB == null) ConstData.createBoxData();
 		var context = params[0];
 		var g = currentRenderTarget;
 		var lamp = getLamp(currentLampIndex);
 		for (decal in Scene.active.decals) {
 			decal.render(g, context, camera, lamp, bindParams);
-			g.setVertexBuffer(boxVB);
-			g.setIndexBuffer(boxIB);
+			g.setVertexBuffer(ConstData.boxVB);
+			g.setIndexBuffer(ConstData.boxIB);
 			g.drawIndexedVertices();
 		}
 		end(g);
@@ -742,7 +564,7 @@ class RenderPath {
 			var frame = layer.frames[layer.currentFrame];
 			if (frame.numVertices > 0) {
 				// Stroke
-#if (js && kha_webgl && !kha_node && !kha_html5worker)
+				#if (js && kha_webgl && !kha_node && !kha_html5worker)
 				// TODO: temporary, construct triangulated lines from points instead
 				g.setVertexBuffer(frame.vertexStrokeBuffer);
 				kha.SystemImpl.gl.lineWidth(3);
@@ -751,7 +573,7 @@ class RenderPath {
 					kha.SystemImpl.gl.drawArrays(js.html.webgl.GL.LINE_STRIP, start, i);
 					start += i;
 				}
-#end
+				#end
 				// Fill
 				g.setVertexBuffer(frame.vertexBuffer);
 				g.setIndexBuffer(frame.indexBuffer);
@@ -773,7 +595,7 @@ class RenderPath {
 	}
 
 	function drawSkydome(params:Array<String>, root:Object) {
-		if (skydomeVB == null) createSkydomeData();
+		if (ConstData.skydomeVB == null) ConstData.createSkydomeData();
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc.context == null) return; // World data not specified
@@ -785,11 +607,11 @@ class RenderPath {
 			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
 		#if arm_deinterleaved
-		g.setVertexBuffers(skydomeVB);
+		g.setVertexBuffers(ConstData.skydomeVB);
 		#else
-		g.setVertexBuffer(skydomeVB);
+		g.setVertexBuffer(ConstData.skydomeVB);
 		#end
-		g.setIndexBuffer(skydomeIB);
+		g.setIndexBuffer(ConstData.skydomeIB);
 		g.drawIndexedVertices();
 		end(g);
 	}
@@ -799,23 +621,18 @@ class RenderPath {
 		var ib:IndexBuffer = null;
 		var lamp = getLamp(currentLampIndex);
 		var type = lamp.data.raw.type;
-		// if (type == "sun") { // Draw fs quad
-			// if (boxVB == null) createBoxData();
-			// vb = boxVB;
-			// ib = boxIB;
-		// }
-		/*else*/ if (type == "point" || type == "area") { // Sphere
-			if (sphereVB == null) createSphereData();
-			vb = sphereVB;
-			ib = sphereIB;
+		if (type == "point" || type == "area") { // Sphere
+			if (ConstData.sphereVB == null) ConstData.createSphereData();
+			vb = ConstData.sphereVB;
+			ib = ConstData.sphereIB;
 		}
 		else if (type == "spot") { // Oriented cone
-			// if (coneVB == null) createConeData();
-			// vb = coneVB;
-			// ib = coneIB;
-			if (sphereVB == null) createSphereData();
-			vb = sphereVB;
-			ib = sphereIB;
+			// if (ConstData.coneVB == null) ConstData.createConeData();
+			// vb = ConstData.coneVB;
+			// ib = ConstData.coneIB;
+			if (ConstData.sphereVB == null) ConstData.createSphereData();
+			vb = ConstData.sphereVB;
+			ib = ConstData.sphereIB;
 		}
 		
 		var handle = params[0];
@@ -850,7 +667,7 @@ class RenderPath {
 	}
 
 	function drawQuad(cc:CachedShaderContext, root:Object) {
-		if (screenAlignedVB == null) createScreenAlignedData();
+		if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
 		var g = currentRenderTarget;		
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);
@@ -860,8 +677,8 @@ class RenderPath {
 			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
 
-		g.setVertexBuffer(screenAlignedVB);
-		g.setIndexBuffer(screenAlignedIB);
+		g.setVertexBuffer(ConstData.screenAlignedVB);
+		g.setIndexBuffer(ConstData.screenAlignedIB);
 		g.drawIndexedVertices();
 		
 		end(g);
@@ -911,7 +728,7 @@ class RenderPath {
 		currentStages = parentStages;
 	}
 
-#if arm_vr
+	#if arm_vr
 	function drawStereo(params:Array<String>, root:Object) {
 		var nestedStages = currentStages[currentStageIndex].returns_true;
 		var parentStages = currentStages;
@@ -961,7 +778,7 @@ class RenderPath {
 		loopFinished--;
 		currentStages = parentStages;
 	}
-#end
+	#end
 
 	function loadStageCommands(stages:Array<TRenderPathStage>, done:Void->Void) {
 		var stagesLoaded = 0;
@@ -991,9 +808,9 @@ class RenderPath {
 			case "draw_grease_pencil": drawGreasePencil;
 			case "call_function": callFunction;
 			case "loop_lamps": loopLamps;
-#if arm_vr
+			#if arm_vr
 			case "draw_stereo": drawStereo;
-#end
+			#end
 			default: null;
 		}
 	}
@@ -1007,9 +824,9 @@ class RenderPath {
 			case "draw_material_quad": cacheMaterialQuad(handle, done);
 			case "call_function": cacheReturnsBoth(stage, done);
 			case "loop_lamps": cacheReturnsTrue(stage, done);
-#if arm_vr
+			#if arm_vr
 			case "draw_stereo": cacheReturnsTrue(stage, done);
-#end
+			#end
 			default: done();
 		}
 	}

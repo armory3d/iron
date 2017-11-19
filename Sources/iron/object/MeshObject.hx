@@ -31,9 +31,9 @@ class MeshObject extends Object {
 	public var frustumCulling = true;
 	public var tilesheet:Tilesheet = null;
 
-#if arm_veloc
+	#if arm_veloc
 	public var prevMatrix = Mat4.identity();
-#end
+	#end
 
 	public function new(data:MeshData, materials:Vector<MaterialData>) {
 		super();
@@ -48,17 +48,17 @@ class MeshObject extends Object {
 		data.refcount++;
 
 		var makeBuffers = true;
-#if arm_batch
+		#if arm_batch
 		if (MeshBatch.isBatchable(this)) makeBuffers = false; // Batch data instead
 		Scene.active.meshBatch.addMesh(this);
-#end
+		#end
 		if (makeBuffers) data.geom.build();
 	}
 
 	public override function remove() {
-#if arm_batch
+		#if arm_batch
 		Scene.active.meshBatch.removeMesh(this);
-#end
+		#end
 		if (particleSystems != null) {
 			for (psys in particleSystems) psys.remove();
 			particleSystems = null;
@@ -127,9 +127,8 @@ class MeshObject extends Object {
 
 		if (camera.data.raw.frustum_culling && frustumCulling) {
 			// Scale radius for skinned mesh and particle system
-			// TODO: ddefine skin bounds
+			// TODO: define skin & particle bounds
 			var radiusScale = data.isSkinned ? 2.0 : 1.0;
-			// TODO: define particle bounds
 			// particleSystems for update, particleOwner for render
 			if (particleSystems != null || particleOwner != null) radiusScale *= 1000;
 			if (context == "voxel") radiusScale *= 100;
@@ -286,16 +285,16 @@ class MeshObject extends Object {
 			}
 		}
 
-#if arm_debug
+		#if arm_debug
 		var shadowsContext = camera.data.pathdata.raw.shadows_context == context;
 		if (meshContext) RenderPath.numTrisMesh += ldata.geom.numTris;
 		else if (shadowsContext) RenderPath.numTrisShadow += ldata.geom.numTris;
 		RenderPath.drawCalls++;
-#end
+		#end
 
-#if arm_veloc
+		#if arm_veloc
 		prevMatrix.setFrom(transform.world);
-#end
+		#end
 	}
 
 	public function renderBatch(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>, start = 0, count = -1) {
@@ -319,13 +318,13 @@ class MeshObject extends Object {
 
 		g.drawIndexedVertices(start, count);
 
-#if arm_debug
+		#if arm_debug
 		RenderPath.drawCalls++;
-#end
+		#end
 
-#if arm_veloc
+		#if arm_veloc
 		prevMatrix.setFrom(transform.world);
-#end
+		#end
 	}
 
 	inline function validContext(mat:MaterialData, context:String):Bool {

@@ -80,6 +80,7 @@ class Object {
 		return null;
 	}
 
+	@:access(iron.Trait)
 	public function addTrait(t:Trait) {
 		traits.push(t);
 		t.object = this;
@@ -90,6 +91,7 @@ class Object {
 		}
 	}
 
+	@:access(iron.Trait)
 	public function removeTrait(t:Trait) {
 		if (t._init != null) {
 			for (f in t._init) App.removeInit(f);

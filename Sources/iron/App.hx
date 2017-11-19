@@ -2,16 +2,16 @@ package iron;
 
 class App {
 
-#if arm_render
+	#if arm_render
 	public static inline function w():Int { return Main.projectWidth; }
 	public static inline function h():Int { return Main.projectHeight; }
-#elseif arm_appwh
+	#elseif arm_appwh
 	public static inline function w():Int { return arm.App.w(); }
 	public static inline function h():Int { return arm.App.h(); }
-#else
+	#else
 	public static inline function w():Int { return kha.System.windowWidth(); }
 	public static inline function h():Int { return kha.System.windowHeight(); }
-#end
+	#end
 
 	static var traitInits:Array<Void->Void> = [];
 	static var traitUpdates:Array<Void->Void> = [];
@@ -20,11 +20,11 @@ class App {
 	static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
 	public static var pauseUpdates = false;
 
-#if arm_debug
+	#if arm_debug
 	static var startTime:Float;
 	public static var updateTime:Float;
 	public static var renderPathTime:Float;
-#end
+	#end
 
 	public static function init(_appReady:Void->Void) {
 		new App(_appReady);
@@ -35,7 +35,6 @@ class App {
 
 		kha.System.notifyOnRender(render);
 		kha.Scheduler.addTimeTask(update, 0, iron.system.Time.delta);
-		// kha.Scheduler.addTimeTask(update, 0, 1 / 60);
 	}
 
 	public static function reset() {
@@ -52,9 +51,9 @@ class App {
 	static function update() {
 		if (pauseUpdates) return;
 		
-#if arm_debug
+		#if arm_debug
 		startTime = kha.Scheduler.realTime();
-#end
+		#end
 
 		iron.system.Tween.update();
 		iron.system.Time.update();
@@ -71,17 +70,17 @@ class App {
 
 		iron.system.Input.endFrame();
 
-#if arm_debug
+		#if arm_debug
 		iron.object.Animation.endFrame();
 		updateTime = kha.Scheduler.realTime() - startTime;
-#end
+		#end
 	}
 
 	static function render(frame:kha.Framebuffer) {
 
-#if arm_debug
+		#if arm_debug
 		startTime = kha.Scheduler.realTime();
-#end
+		#end
 
 		if (traitInits.length > 0) {
 			for (f in traitInits) { if (traitInits.length == 0) break; f(); f = null; }
@@ -96,9 +95,9 @@ class App {
 		for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
 		frame.g2.end();
 
-#if arm_debug
+		#if arm_debug
 		renderPathTime = kha.Scheduler.realTime() - startTime;
-#end
+		#end
 	}
 
 	// Hooks

@@ -282,9 +282,9 @@ class ShaderContext {
 	}
 
 	inline function deleteShader(shader:Dynamic) {
-#if sys_krom
+		#if sys_krom
 		if (shader.shader == null) return;
-#end	
+		#end	
 		shader.delete();
 	}
 

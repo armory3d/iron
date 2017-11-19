@@ -2,7 +2,6 @@ package iron;
 
 import iron.object.Object;
 
-@:allow(iron.object.Object)
 class Trait {
 
 	public var name:String = "";

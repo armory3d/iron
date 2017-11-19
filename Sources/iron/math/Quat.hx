@@ -1,6 +1,5 @@
 package iron.math;
 
-// https://github.com/mrdoob/three.js/
 class Quat {
 
 	public var x:Float;
@@ -12,6 +11,7 @@ class Quat {
 	static var helpVec1 = new Vec4();
 	static var helpVec2 = new Vec4();
 
+	// Basde on https://github.com/mrdoob/three.js/
 	public function new(x = 0.0, y = 0.0, z = 0.0, w = 1.0) {
 		this.x = x;
 		this.y = y;

@@ -22,7 +22,6 @@ class MeshData extends Data {
 #end
 
 	public var isSkinned:Bool;
-	// public var sdfTex:kha.Image = null;
 
 #if arm_sdf
 	public static var sdfTex:kha.Image = null; // Use as global volume for now
@@ -125,7 +124,6 @@ class MeshData extends Data {
 					Data.getBlob(raw.sdf_ref + '.arm', function(blob:kha.Blob) {
 						var res = 50;
 						sdfTex = kha.Image.fromBytes3D(blob.toBytes(), res, res, res, kha.graphics4.TextureFormat.A16, kha.graphics4.Usage.StaticUsage); // RS/AO
-						// sdfTex = kha.Image.fromBytes3D(blob.toBytes(), res, res, res, kha.graphics4.TextureFormat.RGBA64, kha.graphics4.Usage.StaticUsage); // GI
 						// sdfTex.generateMipmaps(16);
 						done(dat);
 					});

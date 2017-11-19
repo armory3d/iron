@@ -20,9 +20,7 @@ class RenderPathData extends Data {
 		this.name = raw.name;
 
 		if (raw.render_targets != null && raw.render_targets.length > 0) {
-			for (t in raw.render_targets) {
-				createRenderTarget(t);
-			}
+			for (t in raw.render_targets) createRenderTarget(t);
 		}
 
 		#if kha_webgl

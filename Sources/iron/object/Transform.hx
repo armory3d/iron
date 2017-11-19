@@ -4,7 +4,6 @@ import iron.math.Mat4;
 import iron.math.Vec4;
 import iron.math.Quat;
 
-@:allow(iron.object.Animation)
 class Transform {
 	public var world:Mat4; // Read only
 	public var localOnly = false;
@@ -103,13 +102,6 @@ class Transform {
 		}
 	}
 
-	public function set(x = 0.0, y = 0.0, z = 0.0, rX = 0.0, rY = 0.0, rZ = 0.0, sX = 1.0, sY = 1.0, sZ = 1.0) {
-		loc.set(x, y, z);
-		setRotation(rX, rY, rZ);
-		scale.set(sX, sY, sZ);
-		buildMatrix();
-	}
-
 	public function translate(x:Float, y:Float, z:Float) {
 		loc.x += x;
 		loc.y += y;
@@ -148,7 +140,7 @@ class Transform {
 	}
 
 	public function computeRadius() {
-		radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);// / 2;
+		radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);
 	}
 
 	public function setDimensions(x:Float, y:Float, z:Float) {

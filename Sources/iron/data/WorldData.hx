@@ -177,11 +177,11 @@ class Probe {
 		else {
 			iron.data.Data.getBlob(raw.irradiance + '.arm', function(b:kha.Blob) {
 				var irradianceData = b;
-#if arm_json
+				#if arm_json
 				var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData.toString());
-#else
+				#else
 				var irradianceParsed:TIrradiance = iron.system.ArmPack.decode(irradianceData.toBytes());
-#end
+				#end
 				var irr = new haxe.ds.Vector(28); // Align to mult of 4 - 27->28
 				for (i in 0...27) irr.set(i, irradianceParsed.irradiance[i]); 
 				irr.set(27, 0.0);

@@ -7,4 +7,4 @@ iron
 
 [Manual](http://armory3d.org/iron/) - [Examples](https://github.com/armory3d/iron_examples) - [Forums](http://forums.armory3d.org)
 
-Iron is a library for building ultra-portable 3D tools using [Kha](https://github.com/Kode/Kha) and [Haxe](https://github.com/HaxeFoundation/haxe). Based on deployment requirements, JavaScript/C++ can be used. It is powering [Armory](http://armory3d.org), but is structured to run stand-alone.
+Iron is a library for building ultra-portable 3D tools using [Kha](https://github.com/Kode/Kha) and [Haxe](https://github.com/HaxeFoundation/haxe). Powering [Armory](http://armory3d.org).

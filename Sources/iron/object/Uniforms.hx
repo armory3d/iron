@@ -48,7 +48,6 @@ class Uniforms {
 	public static var externalFloatLinks:Array<String->Null<Float>> = null;
 	public static var externalFloatsLinks:Array<String->haxe.ds.Vector<kha.FastFloat>> = null;
 	public static var externalIntLinks:Array<String->Null<Int>> = null;
-	// public static var externalBoolLinks:Array<String->Null<Bool>> = null;
 
 	public static function setConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 
@@ -163,7 +162,7 @@ class Uniforms {
 			for (j in 0...tus.length) { // Set texture
 				if (samplerID == tus[j].name) {						
 					if (tus[j].is_image != null && tus[j].is_image) {
-#if arm_voxelgi
+						#if arm_voxelgi
 						g.setImageTexture(context.textureUnits[j], rt.image); // image2D
 
 						if (tus[j].params_set == null) {
@@ -171,7 +170,7 @@ class Uniforms {
 							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
 							rt.image.generateMipmaps(16);
 						}
-#end
+						#end
 					}
 					else if (rt.isCubeMap) {
 						if (attachDepth) g.setCubeMapDepth(context.textureUnits[j], rt.cubeMap); // samplerCube
@@ -277,7 +276,7 @@ class Uniforms {
 				helpMat.multmat2(camera.P);
 				m = helpMat;
 			}
-#if arm_veloc
+			#if arm_veloc
 			else if (c.link == "_prevWorldViewProjectionMatrix") {
 				helpMat.setFrom(cast(object, MeshObject).prevMatrix);
 				helpMat.multmat2(camera.prevV);
@@ -288,7 +287,7 @@ class Uniforms {
 			else if (c.link == "_prevWorldMatrix") {
 				m = cast(object, MeshObject).prevMatrix;
 			}
-#end
+			#end
 			else if (c.link == "_lampWorldViewProjectionMatrix") {
 				if (lamp != null) {
 					// object is null for DrawQuad
@@ -372,11 +371,6 @@ class Uniforms {
 						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * 2.0, lamp.data.raw.far_plane * 2.0);
 						helpMat.compose(helpVec, helpQuat, helpVec2);
 					}
-					// else { // sun - uses fs quad instead of volume
-						// helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
-						// helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane, lamp.data.raw.far_plane);
-						// helpMat.compose(helpVec, helpQuat, helpVec2);
-					// }
 					
 					helpMat.multmat2(camera.V);
 					helpMat.multmat2(camera.P);
@@ -406,11 +400,11 @@ class Uniforms {
 					m = mo.particleOwner.particleSystems[mo.particleIndex].getData();
 				}
 			}
-#if arm_vr
+			#if arm_vr
 			else if (c.link == "_undistortionMatrix") {
 				m = iron.system.VR.getUndistortionMatrix();
 			}
-#end
+			#end
 			// External
 			else if (externalMat4Links != null) {
 				for (fn in externalMat4Links) {
@@ -477,7 +471,6 @@ class Uniforms {
 			else if (c.link == "_lampColorVoxel") {
 				if (lamp != null) {
 					var str = lamp.data.raw.strength; // Merge with strength
-					// if (lamp.data.raw.type == 'sun') str *= 100;
 					helpVec.set(lamp.data.raw.color[0] * str, lamp.data.raw.color[1] * str, lamp.data.raw.color[2] * str);
 				}
 				v = helpVec;
@@ -697,11 +690,11 @@ class Uniforms {
 			else if (c.link == "_objectInfoRandom") {
 				f = object.urandom;
 			}
-#if arm_vr
+			#if arm_vr
 			else if (c.link == "_maxRadiusSq") {
 				f = iron.system.VR.getMaxRadiusSq();
 			}
-#end
+			#end
 			// External
 			else if (externalFloatLinks != null) {
 				for (fn in externalFloatLinks) {
@@ -782,7 +775,6 @@ class Uniforms {
 		if (materialContext.raw.bind_constants != null) {
 			for (i in 0...materialContext.raw.bind_constants.length) {
 				var matc = materialContext.raw.bind_constants[i];
-				// TODO: cache
 				var pos = -1;
 				for (i in 0...context.raw.constants.length) {
 					if (context.raw.constants[i].name == matc.name) {

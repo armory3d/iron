@@ -13,13 +13,13 @@ class CameraObject extends Object {
 	public var data:CameraData;
 	public var renderPath:RenderPath;
 
-	public var P:Mat4; // Matrices
-// #if arm_veloc
+	public var P:Mat4;
+	// #if arm_veloc
 	// public var prevP:Mat4;
-// #end
-#if arm_taa
+	// #end
+	#if arm_taa
 	public var noJitterP:Mat4;
-#end
+	#end
 	public var V:Mat4;
 	public var prevV:Mat4 = null;
 	public var VP:Mat4;
@@ -28,11 +28,11 @@ class CameraObject extends Object {
 	public var farPlane:Float;
 	static var temp = new Vec4();
 
-#if arm_vr
+	#if arm_vr
 	var helpMat = Mat4.identity();
 	public var leftV = Mat4.identity();
 	public var rightV = Mat4.identity();
-#end
+	#end
 
 	public function new(data:CameraData) {
 		super();
@@ -43,48 +43,20 @@ class CameraObject extends Object {
 		farPlane = data.raw.far_plane;
 
 		#if arm_vr
-		if (data.raw.type == "perspective") {
-			var vrImage:kha.Image = Scene.active.embedded.get('vr.png');
-
-			function vrDownListener(index:Int, x:Float, y:Float) {
-				var vr = kha.vr.VrInterface.instance;
-				if (vr == null || !vr.IsVrEnabled() || vr.IsPresenting()) return;
-				var w:Float = iron.App.w();
-				var h:Float = iron.App.h();
-				if (x < w - 150 || y < h - 150) return;
-				vr.onVRRequestPresent();
-			}		
-
-			function vrRender2D(g:kha.graphics2.Graphics) {
-				var vr = kha.vr.VrInterface.instance;
-				if (vr == null || !vr.IsVrEnabled() || vr.IsPresenting()) return;
-				var w:Float = iron.App.w();
-				var h:Float = iron.App.h();
-				g.color = 0xffffffff;
-				g.drawImage(vrImage, w - 150, h - 150);
-			}
-
-			kha.input.Mouse.get().notify(vrDownListener, null, null, null);
-			iron.App.notifyOnRender2D(vrRender2D);
-
-			var vr = kha.vr.VrInterface.instance; // Straight to VR (Oculus Carmel)
-			if (vr != null && vr.IsVrEnabled()) {
-				vr.onVRRequestPresent();
-			}
-		}
+		iron.system.VR.initButton();
 		#end
 
 		buildProjection();
 
-// #if arm_veloc
+		// #if arm_veloc
 		// prevP = Mat4.identity();
 		// prevP.setFrom(P);
-// #end
+		// #end
 
-#if arm_taa
+		#if arm_taa
 		noJitterP = Mat4.identity();
 		noJitterP.setFrom(P);
-#end
+		#end
 
 		V = Mat4.identity();
 		VP = Mat4.identity();
@@ -114,11 +86,11 @@ class CameraObject extends Object {
 
 	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
 
-#if arm_taa
+		#if arm_taa
 		projectionJitter();
-#end
+		#end
 
-		buildMatrix(); // TODO: only when dirty
+		buildMatrix();
 
 		// First time setting up previous V, prevents first frame flicker
 		if (prevV == null) {
@@ -129,12 +101,12 @@ class CameraObject extends Object {
 		renderPath.renderFrame(g, root, lamps);
 	
 		prevV.setFrom(V);
-// #if (arm_veloc && arm_taa)
+		// #if (arm_veloc && arm_taa)
 		// prevP.setFrom(P);
-// #end
+		// #end
 	}
 
-#if arm_taa
+	#if arm_taa
 	var frame = 0;
 	function projectionJitter() {
 		var w = renderPath.currentRenderTargetW;
@@ -142,14 +114,13 @@ class CameraObject extends Object {
 		P.setFrom(noJitterP);
 		var x = 0.0;
 		var y = 0.0;
-		// Alternate only 2 frames for now
 		if (frame % 2 == 0) { x = 0.25; y = 0.25; }
 		else if (frame % 2 == 1) { x = -0.25; y = -0.25; }
 		P._20 += x / w;
 		P._21 += y / h;
 		frame++;
 	}
-#end
+	#end
 
 	public function buildMatrix() {
 		transform.buildMatrix();
@@ -192,53 +163,17 @@ class CameraObject extends Object {
 
 	public static function buildViewFrustum(VP:Mat4, frustumPlanes:Array<FrustumPlane>) {
 		// Left plane
-		frustumPlanes[0].setComponents(
-			VP._03 + VP._00,
-			VP._13 + VP._10,
-			VP._23 + VP._20,
-			VP._33 + VP._30
-		);
-	 
+		frustumPlanes[0].setComponents(VP._03 + VP._00, VP._13 + VP._10, VP._23 + VP._20, VP._33 + VP._30);
 		// Right plane
-		frustumPlanes[1].setComponents(
-			VP._03 - VP._00,
-			VP._13 - VP._10,
-			VP._23 - VP._20,
-			VP._33 - VP._30
-		);
-	 
+		frustumPlanes[1].setComponents(VP._03 - VP._00, VP._13 - VP._10, VP._23 - VP._20, VP._33 - VP._30);
 		// Top plane
-		frustumPlanes[2].setComponents(
-			VP._03 - VP._01,
-			VP._13 - VP._11,
-			VP._23 - VP._21,
-			VP._33 - VP._31
-		);
-	 
+		frustumPlanes[2].setComponents(VP._03 - VP._01, VP._13 - VP._11, VP._23 - VP._21, VP._33 - VP._31);
 		// Bottom plane
-		frustumPlanes[3].setComponents(
-			VP._03 + VP._01,
-			VP._13 + VP._11,
-			VP._23 + VP._21,
-			VP._33 + VP._31
-		);
-	 
+		frustumPlanes[3].setComponents(VP._03 + VP._01, VP._13 + VP._11, VP._23 + VP._21, VP._33 + VP._31);
 		// Near plane
-		frustumPlanes[4].setComponents(
-			VP._02,
-			VP._12,
-			VP._22,
-			VP._32
-		);
-	 
+		frustumPlanes[4].setComponents(VP._02, VP._12, VP._22, VP._32);
 		// Far plane
-		frustumPlanes[5].setComponents(
-			VP._03 - VP._02,
-			VP._13 - VP._12,
-			VP._23 - VP._22,
-			VP._33 - VP._32
-		);
-	 
+		frustumPlanes[5].setComponents(VP._03 - VP._02, VP._13 - VP._12, VP._23 - VP._22, VP._33 - VP._32);
 		// Normalize planes
 		for (plane in frustumPlanes) plane.normalize();
 	}
