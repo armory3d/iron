@@ -21,8 +21,8 @@ typedef TSceneFormat = {
 	@:optional var speaker_datas:Array<TSpeakerData>;
 	@:optional var world_datas:Array<TWorldData>;
 	@:optional var world_ref:String;
-	@:optional var grease_pencil_datas:Array<TGreasePencilData>;
-	@:optional var grease_pencil_ref:String;
+	// @:optional var grease_pencil_datas:Array<TGreasePencilData>;
+	// @:optional var grease_pencil_ref:String;
 	@:optional var tilesheet_datas:Array<TTilesheetData>;
 	@:optional var objects:Array<TObj>;
 	@:optional var groups:Array<TGroup>;
@@ -266,11 +266,39 @@ typedef TWorldData = {
 	var probes:Array<TProbe>;
 }
 
-typedef TGreasePencilData = {
-	var name:String;
-	var layers:Array<TGreasePencilLayer>;
-	var shader:String;
-}
+// typedef TGreasePencilData = {
+// 	var name:String;
+// 	var layers:Array<TGreasePencilLayer>;
+// 	var shader:String;
+// }
+
+// typedef TGreasePencilLayer = {
+// 	var name:String;
+// 	var opacity:Float;
+// 	var frames:Array<TGreasePencilFrame>;
+// }
+
+// typedef TGreasePencilFrame = {
+// 	var frame_number:Int;
+// 	var vertex_array:TVertexArray;
+// 	var col_array:TVertexArray; // TODO: Use array instead
+// 	var colfill_array:TVertexArray;
+// 	var index_array:TIndexArray;
+// 	var num_stroke_points:TUint32Array;
+// }
+
+// typedef TGreasePencilPalette = {
+// 	var name:String;
+// 	var colors:Array<TGreasePencilPaletteColor>;
+// }
+
+// typedef TGreasePencilPaletteColor = {
+// 	var name:String;
+// 	var color:TFloat32Array;
+// 	var alpha:Float;
+// 	var fill_color:TFloat32Array;
+// 	var fill_alpha:Float;
+// }
 
 typedef TTilesheetData = {
 	var name:String;
@@ -285,34 +313,6 @@ typedef TTilesheetAction = {
 	var start:Int;
 	var end:Int;
 	var loop:Bool;
-}
-
-typedef TGreasePencilLayer = {
-	var name:String;
-	var opacity:Float;
-	var frames:Array<TGreasePencilFrame>;
-}
-
-typedef TGreasePencilFrame = {
-	var frame_number:Int;
-	var vertex_array:TVertexArray;
-	var col_array:TVertexArray; // TODO: Use array instead
-	var colfill_array:TVertexArray;
-	var index_array:TIndexArray;
-	var num_stroke_points:TUint32Array;
-}
-
-typedef TGreasePencilPalette = {
-	var name:String;
-	var colors:Array<TGreasePencilPaletteColor>;
-}
-
-typedef TGreasePencilPaletteColor = {
-	var name:String;
-	var color:TFloat32Array;
-	var alpha:Float;
-	var fill_color:TFloat32Array;
-	var fill_alpha:Float;
 }
 
 typedef TProbe = {

@@ -14,7 +14,7 @@ class Data {
 	static var cachedMaterials:Map<String, MaterialData> = new Map();
 	static var cachedParticles:Map<String, ParticleData> = new Map();
 	static var cachedWorlds:Map<String, WorldData> = new Map();
-	static var cachedGreasePencils:Map<String, GreasePencilData> = new Map();
+	// static var cachedGreasePencils:Map<String, GreasePencilData> = new Map();
 	static var cachedShaders:Map<String, ShaderData> = new Map();
 
 	static var cachedBlobs:Map<String, kha.Blob> = new Map();
@@ -38,7 +38,7 @@ class Data {
 		cachedMaterials = new Map();
 		cachedParticles = new Map();
 		cachedWorlds = new Map();
-		cachedGreasePencils = new Map();
+		// cachedGreasePencils = new Map();
 
 		for (c in cachedBlobs) c.unload();
 		cachedBlobs = new Map();
@@ -198,22 +198,22 @@ class Data {
 		});
 	}
 
-	static var loadingGreasePencils:Map<String, Array<GreasePencilData->Void>> = new Map();
-	public static function getGreasePencil(file:String, name:String, done:GreasePencilData->Void) {
-		var cached = cachedGreasePencils.get(file + name);
-		if (cached != null) { done(cached); return; }
+	// static var loadingGreasePencils:Map<String, Array<GreasePencilData->Void>> = new Map();
+	// public static function getGreasePencil(file:String, name:String, done:GreasePencilData->Void) {
+	// 	var cached = cachedGreasePencils.get(file + name);
+	// 	if (cached != null) { done(cached); return; }
 
-		var loading = loadingGreasePencils.get(file + name);
-		if (loading != null) { loading.push(done); return; }
+	// 	var loading = loadingGreasePencils.get(file + name);
+	// 	if (loading != null) { loading.push(done); return; }
 
-		loadingGreasePencils.set(file + name, [done]);
+	// 	loadingGreasePencils.set(file + name, [done]);
 
-		GreasePencilData.parse(file, name, function(b:GreasePencilData) {
-			cachedGreasePencils.set(file + name, b);
-			for (f in loadingGreasePencils.get(file + name)) f(b);
-			loadingGreasePencils.remove(file + name);
-		});
-	}
+	// 	GreasePencilData.parse(file, name, function(b:GreasePencilData) {
+	// 		cachedGreasePencils.set(file + name, b);
+	// 		for (f in loadingGreasePencils.get(file + name)) f(b);
+	// 		loadingGreasePencils.remove(file + name);
+	// 	});
+	// }
 
 	static var loadingShaders:Map<String, Array<ShaderData->Void>> = new Map();
 	public static function getShader(file:String, name:String, overrideContext:TShaderOverride, done:ShaderData->Void) {
@@ -371,11 +371,11 @@ class Data {
 		return null;
 	}
 
-	public static function getGreasePencilRawByName(datas:Array<TGreasePencilData>, name:String):TGreasePencilData {
-		if (name == "") return datas[0];
-		for (dat in datas) if (dat.name == name) return dat;
-		return null;
-	}
+	// public static function getGreasePencilRawByName(datas:Array<TGreasePencilData>, name:String):TGreasePencilData {
+	// 	if (name == "") return datas[0];
+	// 	for (dat in datas) if (dat.name == name) return dat;
+	// 	return null;
+	// }
 
 	public static function getShaderRawByName(datas:Array<TShaderData>, name:String):TShaderData {
 		if (name == "") return datas[0];

@@ -22,7 +22,7 @@ import iron.data.CameraData;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.WorldData;
-import iron.data.GreasePencilData;
+// import iron.data.GreasePencilData;
 import iron.math.Mat4;
 
 class Scene {
@@ -34,7 +34,7 @@ class Scene {
 	public var root:Object;
 	public var camera:CameraObject;
 	public var world:WorldData;
-	public var greasePencil:GreasePencilData = null;
+	// public var greasePencil:GreasePencilData = null;
 
 	public var meshBatch:MeshBatch = null;
 	public var sceneStream:SceneStream = null;
@@ -257,23 +257,22 @@ class Scene {
 			createTraits(format.traits, parent); // Scene traits
 			loadEmbeddedData(format.embedded_datas, function() { // Additional scene assets
 
-				// GP
-				if (format.grease_pencil_ref != null) {
-					var ref = format.grease_pencil_ref.split('/');
-					var object_file = '';
-					var data_ref = '';
-					if (ref.length == 2) { // File reference
-						object_file = ref[0];
-						data_ref = ref[1];
-					}
-					else { // Local GP data
-						object_file = sceneName;
-						data_ref = format.grease_pencil_ref;
-					}
-					Data.getGreasePencil(object_file, data_ref, function(gp:GreasePencilData) {
-						greasePencil = gp;
-					});
-				}
+				// if (format.grease_pencil_ref != null) {
+				// 	var ref = format.grease_pencil_ref.split('/');
+				// 	var object_file = '';
+				// 	var data_ref = '';
+				// 	if (ref.length == 2) { // File reference
+				// 		object_file = ref[0];
+				// 		data_ref = ref[1];
+				// 	}
+				// 	else { // Local GP data
+				// 		object_file = sceneName;
+				// 		data_ref = format.grease_pencil_ref;
+				// 	}
+				// 	Data.getGreasePencil(object_file, data_ref, function(gp:GreasePencilData) {
+				// 		greasePencil = gp;
+				// 	});
+				// }
 
 				objectsTraversed = 0;
 				traverseObjects(format, parent, format.objects, null, function() { // Scene objects
