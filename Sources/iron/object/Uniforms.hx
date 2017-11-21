@@ -564,15 +564,15 @@ class Uniforms {
 			var vx:Float = 0;
 			var vy:Float = 0;
 			if (c.link == "_vec2x") vx = 1.0;
-			else if (c.link == "_vec2xInv") vx = 1.0 / camera.renderPath.currentRenderTargetW;
+			else if (c.link == "_vec2xInv") vx = 1.0 / camera.renderPath.currentW;
 			else if (c.link == "_vec2x2") vx = 2.0;
-			else if (c.link == "_vec2x2Inv") vx = 2.0 / camera.renderPath.currentRenderTargetW;
+			else if (c.link == "_vec2x2Inv") vx = 2.0 / camera.renderPath.currentW;
 			else if (c.link == "_vec2y") vy = 1.0;
-			else if (c.link == "_vec2yInv") vy = 1.0 / camera.renderPath.currentRenderTargetH;
+			else if (c.link == "_vec2yInv") vy = 1.0 / camera.renderPath.currentH;
 			else if (c.link == "_vec2y2") vy = 2.0;
-			else if (c.link == "_vec2y2Inv") vy = 2.0 / camera.renderPath.currentRenderTargetH;
+			else if (c.link == "_vec2y2Inv") vy = 2.0 / camera.renderPath.currentH;
 			else if (c.link == "_vec2y3") vy = 3.0;
-			else if (c.link == "_vec2y3Inv") vy = 3.0 / camera.renderPath.currentRenderTargetH;
+			else if (c.link == "_vec2y3Inv") vy = 3.0 / camera.renderPath.currentH;
 
 			else if (c.link == "_windowSize") {
 				vx = App.w();
@@ -583,16 +583,16 @@ class Uniforms {
 				vy = 1.0 / App.h();
 			}
 			else if (c.link == "_screenSize") {
-				vx = camera.renderPath.currentRenderTargetW;
-				vy = camera.renderPath.currentRenderTargetH;
+				vx = camera.renderPath.currentW;
+				vy = camera.renderPath.currentH;
 			}
 			else if (c.link == "_screenSizeInv") {
-				vx = 1.0 / camera.renderPath.currentRenderTargetW;
-				vy = 1.0 / camera.renderPath.currentRenderTargetH;
+				vx = 1.0 / camera.renderPath.currentW;
+				vy = 1.0 / camera.renderPath.currentH;
 			}
 			else if (c.link == "_aspectRatio") {
-				vx = camera.renderPath.currentRenderTargetH / camera.renderPath.currentRenderTargetW;
-				vy = camera.renderPath.currentRenderTargetW / camera.renderPath.currentRenderTargetH;
+				vx = camera.renderPath.currentH / camera.renderPath.currentW;
+				vy = camera.renderPath.currentW / camera.renderPath.currentH;
 				vx = vx > 1.0 ? 1.0 : vx;
 				vy = vy > 1.0 ? 1.0 : vy;
 			}
@@ -676,7 +676,7 @@ class Uniforms {
 				f = Scene.active.world.getProbeBlending(object.transform);
 			}
 			else if (c.link == "_aspectRatioF") {
-				f = camera.renderPath.currentRenderTargetW / camera.renderPath.currentRenderTargetH;
+				f = camera.renderPath.currentW / camera.renderPath.currentH;
 			}
 			else if (c.link == "_aspectRatioWindowF") {
 				f = iron.App.w() / iron.App.h();

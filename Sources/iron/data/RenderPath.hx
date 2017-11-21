@@ -25,7 +25,7 @@ class RenderPath {
 	var camera:CameraObject;
 	public var data:CameraData;
 
-	var frameRenderTarget:Graphics;
+	var frameG:Graphics;
 	public var frameScissor = false;
 	public var frameScissorX = 0;
 	public var frameScissorY = 0;
@@ -33,12 +33,12 @@ class RenderPath {
 	public var frameScissorH = 0;
 	var scissorSet = false;
 	var viewportScaled = false;
-	var currentRenderTarget:Graphics;
-	public var currentRenderTargetW:Int;
-	public var currentRenderTargetH:Int;
-	public var currentRenderTargetD:Int;
-	public var currentRenderTargetCube:Bool;
-	public var currentRenderTargetFace:Int;
+	var currentG:Graphics;
+	public var currentW:Int;
+	public var currentH:Int;
+	public var currentD:Int;
+	public var currentCube:Bool;
+	public var currentFace:Int;
 	var bindParams:Array<String>;
 	var helpMat = Mat4.identity();
 
@@ -119,13 +119,13 @@ class RenderPath {
 		numTrisShadow = 0;
 		#end
 		
-		frameRenderTarget = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture
-		currentRenderTarget = frameRenderTarget;
-		currentRenderTargetW = iron.App.w();
-		currentRenderTargetH = iron.App.h();
-		currentRenderTargetD = 1;
-		currentRenderTargetCube = false;
-		currentRenderTargetFace = -1;
+		frameG = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture
+		currentG = frameG;
+		currentW = iron.App.w();
+		currentH = iron.App.h();
+		currentD = 1;
+		currentCube = false;
+		currentFace = -1;
 		meshesSorted = false;
 
 		this.lamps = lamps;
@@ -160,14 +160,14 @@ class RenderPath {
 		
 		var target = params[1];
 		if (target == "") { // Framebuffer
-			currentRenderTarget = frameRenderTarget;
-			currentRenderTargetW = iron.App.w();
-			currentRenderTargetH = iron.App.h();
-			currentRenderTargetD = 1;
-			currentRenderTargetCube = false;
-			currentRenderTargetFace = -1;
+			currentG = frameG;
+			currentW = iron.App.w();
+			currentH = iron.App.h();
+			currentD = 1;
+			currentCube = false;
+			currentFace = -1;
 			if (frameScissor) setFrameScissor();
-			begin(currentRenderTarget);
+			begin(currentG);
 			#if arm_appwh
 			setCurrentViewport(iron.App.w(), iron.App.h());
 			setCurrentScissor(iron.App.w(), iron.App.h());
@@ -222,27 +222,27 @@ class RenderPath {
 				if (rt.pongState) rt = rt.pong;
 			}
 			
-			currentRenderTarget = rt.isCubeMap ? rt.cubeMap.g4 : rt.image.g4;
-			currentRenderTargetW = rt.isCubeMap ? rt.cubeMap.width : rt.image.width;
-			currentRenderTargetH = rt.isCubeMap ? rt.cubeMap.height : rt.image.height;
-			if (rt.is3D) currentRenderTargetD = rt.image.depth;
-			currentRenderTargetCube = rt.isCubeMap;
-			if (currentRenderTargetFace >= 0) currentRenderTargetFace++; // Already drawing to faces
-			else currentRenderTargetFace = rt.isCubeMap ? 0 : -1;
-			begin(currentRenderTarget, additionalImages, currentRenderTargetFace);
+			currentG = rt.isCubeMap ? rt.cubeMap.g4 : rt.image.g4;
+			currentW = rt.isCubeMap ? rt.cubeMap.width : rt.image.width;
+			currentH = rt.isCubeMap ? rt.cubeMap.height : rt.image.height;
+			if (rt.is3D) currentD = rt.image.depth;
+			currentCube = rt.isCubeMap;
+			if (currentFace >= 0) currentFace++; // Already drawing to faces
+			else currentFace = rt.isCubeMap ? 0 : -1;
+			begin(currentG, additionalImages, currentFace);
 		}
 		var viewportScale = Std.parseFloat(params[0]);
 		if (viewportScale != 1.0) {
 			viewportScaled = true;
-			var viewW = Std.int(currentRenderTargetW * viewportScale);
-			var viewH = Std.int(currentRenderTargetH * viewportScale);
-			currentRenderTarget.viewport(0, viewH, viewW, viewH);
-			currentRenderTarget.scissor(0, viewH, viewW, viewH);
+			var viewW = Std.int(currentW * viewportScale);
+			var viewH = Std.int(currentH * viewportScale);
+			currentG.viewport(0, viewH, viewW, viewH);
+			currentG.scissor(0, viewH, viewW, viewH);
 		}
 		else if (viewportScaled) { // Reset viewport
 			viewportScaled = false;
-			setCurrentViewport(currentRenderTargetW, currentRenderTargetH);
-			setCurrentScissor(currentRenderTargetW, currentRenderTargetH);
+			setCurrentViewport(currentW, currentH);
+			setCurrentScissor(currentW, currentH);
 		}
 		bindParams = null;
 	}
@@ -262,16 +262,16 @@ class RenderPath {
 	}
 
 	public function setCurrentViewport(viewW:Int, viewH:Int) {
-		currentRenderTarget.viewport(0, currentRenderTargetH - viewH, viewW, viewH);
+		currentG.viewport(0, currentH - viewH, viewW, viewH);
 	}
 
 	public function setCurrentScissor(viewW:Int, viewH:Int) {
-		currentRenderTarget.scissor(0, currentRenderTargetH - viewH, viewW, viewH);
+		currentG.scissor(0, currentH - viewH, viewW, viewH);
 		scissorSet = true;
 	}
 
 	public function setFrameScissor() {
-		frameRenderTarget.scissor(frameScissorX, currentRenderTargetH - (frameScissorH - frameScissorY), frameScissorW, frameScissorH);
+		frameG.scissor(frameScissorX, currentH - (frameScissorH - frameScissorY), frameScissorW, frameScissorH);
 	}
 
 	function setViewport(params:Array<String>, root:Object) {
@@ -296,7 +296,7 @@ class RenderPath {
 			}
 			// else if (params[pos] == "stencil") {}
 		}
-		currentRenderTarget.clear(colorFlag, depthFlag, null);
+		currentG.clear(colorFlag, depthFlag, null);
 	}
 
 	function clearImage(params:Array<String>, root:Object) {
@@ -345,17 +345,17 @@ class RenderPath {
 			if (lamp == null || !lamp.data.raw.cast_shadow) return;
 		}
 		// Single face attached
-		if (currentRenderTargetFace >= 0 && lamp != null) lamp.setCubeFace(5 - currentRenderTargetFace, camera); // TODO: draw first cube-face last, otherwise some opengl drivers expose glitch
+		if (currentFace >= 0 && lamp != null) lamp.setCubeFace(5 - currentFace, camera); // TODO: draw first cube-face last, otherwise some opengl drivers expose glitch
 		
-		var g = currentRenderTarget;
+		var g = currentG;
 		var drawn = false;
 
 		#if arm_csm
 		if (shadowsContext && lamp.data.raw.type == "sun") {
-			var step = currentRenderTargetH; // Atlas with tiles on x axis
+			var step = currentH; // Atlas with tiles on x axis
 			for (i in 0...LampObject.cascadeCount) {
 				lamp.setCascade(camera, i);
-				// g.viewport(0, currentRenderTargetH - (i + 1) * step, step, step);
+				// g.viewport(0, currentH - (i + 1) * step, step, step);
 				g.viewport(i * step, 0, step, step);
 				submitDraw(context);
 			}
@@ -376,19 +376,19 @@ class RenderPath {
 		end(g);
 
 		// Render all cubemap faces
-		if (currentRenderTargetFace >= 0 && currentRenderTargetFace < 5) {
+		if (currentFace >= 0 && currentFace < 5) {
 			// Move back draw meshes and clear, back to set target
 			currentStageIndexOffset = -3;
 		}
 		else {
-			currentRenderTargetFace = -1;
+			currentFace = -1;
 			// lamp.buildMatrices(camera); // Restore light matrix
 		}
 	}
 
 	function submitDraw(context:String) {
 		var lamp = getLamp(currentLampIndex);
-		var g = currentRenderTarget;
+		var g = currentG;
 
 		#if arm_batch
 		Scene.active.meshBatch.render(g, context, camera, lamp, bindParams);
@@ -428,7 +428,7 @@ class RenderPath {
 	public var currentMaterial:MaterialData = null; // Temp
 	function drawRects(params:Array<String>, root:Object) {
 		if (ConstData.rectVB == null) ConstData.createRectData();
-		var g = currentRenderTarget;
+		var g = currentG;
 		var context = params[0];
 		var lamp = getLamp(currentLampIndex);
 
@@ -535,7 +535,7 @@ class RenderPath {
 	function drawDecals(params:Array<String>, root:Object) {
 		if (ConstData.boxVB == null) ConstData.createBoxData();
 		var context = params[0];
-		var g = currentRenderTarget;
+		var g = currentG;
 		var lamp = getLamp(currentLampIndex);
 		for (decal in Scene.active.decals) {
 			decal.render(g, context, camera, lamp, bindParams);
@@ -550,7 +550,7 @@ class RenderPath {
 	// function drawGreasePencil(params:Array<String>, root:Object) {
 	// 	var gp = Scene.active.greasePencil;
 	// 	if (gp == null) return;
-	// 	var g = currentRenderTarget;
+	// 	var g = currentG;
 	// 	var lamp = getLamp(currentLampIndex);
 	// 	var context = GreasePencilData.getContext(params[0]);
 	// 	g.setPipeline(context.pipeState);
@@ -599,7 +599,7 @@ class RenderPath {
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc.context == null) return; // World data not specified
-		var g = currentRenderTarget;
+		var g = currentG;
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);
 		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
@@ -637,7 +637,7 @@ class RenderPath {
 		
 		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		var g = currentRenderTarget;		
+		var g = currentG;		
 		g.setPipeline(cc.context.pipeState);
 		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
 		if (cc.materialContext != null) {
@@ -668,7 +668,7 @@ class RenderPath {
 
 	function drawQuad(cc:CachedShaderContext, root:Object) {
 		if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
-		var g = currentRenderTarget;		
+		var g = currentG;		
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);
 
@@ -735,7 +735,7 @@ class RenderPath {
 		currentStages = nestedStages;
 
 		loopFinished++;
-		var g = currentRenderTarget;
+		var g = currentG;
 
 		var vr = kha.vr.VrInterface.instance;
 		if (vr != null && vr.IsPresenting()) {
