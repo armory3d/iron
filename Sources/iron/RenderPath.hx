@@ -181,8 +181,6 @@ class RenderPath {
 			currentH = rt.isCubeMap ? rt.cubeMap.height : rt.image.height;
 			if (rt.is3D) currentD = rt.image.depth;
 			currentCube = rt.isCubeMap;
-			if (currentFace >= 0) currentFace++; // Already drawing to faces
-			else currentFace = rt.isCubeMap ? 0 : -1;
 			begin(currentG, additionalImages, currentFace);
 		}
 		if (viewportScale != 1.0) {
