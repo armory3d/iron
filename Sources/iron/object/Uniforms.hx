@@ -6,6 +6,7 @@ import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
 import iron.Scene;
+import iron.RenderPath;
 import iron.math.Vec4;
 import iron.math.Quat;
 import iron.math.Mat3;
@@ -15,7 +16,6 @@ import iron.data.LampData;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.SceneFormat;
-import iron.data.RenderPathData.RenderTarget;
 
 // Structure for setting shader uniforms
 class Uniforms {
@@ -64,7 +64,6 @@ class Uniforms {
 				var rtID = bindParams[pos];
 				var samplerID = bindParams[pos + 1];
 
-				var pathdata = camera.data.pathdata;
 				var attachDepth = false; // Attach texture depth if '_' is prepended
 				var char = rtID.charAt(0);
 				if (char == "_") attachDepth = true;
@@ -72,7 +71,7 @@ class Uniforms {
 				if (rtID == "shadowMap" && lamp != null && lamp.data.raw.shadowmap_cube) {
 					#if kha_webgl
 					// Bind empty map to non-cubemap sampler to keep webgl happy
-					bindRenderTarget(g, pathdata.renderTargets.get("arm_empty"), context, samplerID, attachDepth);
+					bindRenderTarget(g, RenderPath.active.renderTargets.get("arm_empty"), context, samplerID, attachDepth);
 					#end
 					rtID += "Cube"; // Bind cubemap instead
 					samplerID += "Cube";
@@ -80,11 +79,11 @@ class Uniforms {
 				#if kha_webgl
 				else {
 					// Bind empty map to cubemap sampler
-					bindRenderTarget(g, pathdata.renderTargets.get("arm_empty_cube"), context, samplerID + "Cube", attachDepth);
+					bindRenderTarget(g, RenderPath.active.renderTargets.get("arm_empty_cube"), context, samplerID + "Cube", attachDepth);
 				}
 				#end
 
-				var rt = attachDepth ? pathdata.depthToRenderTarget.get(rtID) : pathdata.renderTargets.get(rtID);
+				var rt = attachDepth ? RenderPath.active.depthToRenderTarget.get(rtID) : RenderPath.active.renderTargets.get(rtID);
 				bindRenderTarget(g, rt, context, samplerID, attachDepth);
 			}
 		}
@@ -155,9 +154,6 @@ class Uniforms {
 	static function bindRenderTarget(g:Graphics, rt:RenderTarget, context:ShaderContext, samplerID:String, attachDepth:Bool) {
 		if (rt != null) {
 			var tus = context.raw.texture_units;
-
-			// Ping-pong
-			if (rt.pong != null && !rt.pongState) rt = rt.pong;
 
 			for (j in 0...tus.length) { // Set texture
 				if (samplerID == tus[j].name) {						
@@ -564,15 +560,15 @@ class Uniforms {
 			var vx:Float = 0;
 			var vy:Float = 0;
 			if (c.link == "_vec2x") vx = 1.0;
-			else if (c.link == "_vec2xInv") vx = 1.0 / camera.renderPath.currentW;
+			else if (c.link == "_vec2xInv") vx = 1.0 / RenderPath.active.currentW;
 			else if (c.link == "_vec2x2") vx = 2.0;
-			else if (c.link == "_vec2x2Inv") vx = 2.0 / camera.renderPath.currentW;
+			else if (c.link == "_vec2x2Inv") vx = 2.0 / RenderPath.active.currentW;
 			else if (c.link == "_vec2y") vy = 1.0;
-			else if (c.link == "_vec2yInv") vy = 1.0 / camera.renderPath.currentH;
+			else if (c.link == "_vec2yInv") vy = 1.0 / RenderPath.active.currentH;
 			else if (c.link == "_vec2y2") vy = 2.0;
-			else if (c.link == "_vec2y2Inv") vy = 2.0 / camera.renderPath.currentH;
+			else if (c.link == "_vec2y2Inv") vy = 2.0 / RenderPath.active.currentH;
 			else if (c.link == "_vec2y3") vy = 3.0;
-			else if (c.link == "_vec2y3Inv") vy = 3.0 / camera.renderPath.currentH;
+			else if (c.link == "_vec2y3Inv") vy = 3.0 / RenderPath.active.currentH;
 
 			else if (c.link == "_windowSize") {
 				vx = App.w();
@@ -583,16 +579,16 @@ class Uniforms {
 				vy = 1.0 / App.h();
 			}
 			else if (c.link == "_screenSize") {
-				vx = camera.renderPath.currentW;
-				vy = camera.renderPath.currentH;
+				vx = RenderPath.active.currentW;
+				vy = RenderPath.active.currentH;
 			}
 			else if (c.link == "_screenSizeInv") {
-				vx = 1.0 / camera.renderPath.currentW;
-				vy = 1.0 / camera.renderPath.currentH;
+				vx = 1.0 / RenderPath.active.currentW;
+				vy = 1.0 / RenderPath.active.currentH;
 			}
 			else if (c.link == "_aspectRatio") {
-				vx = camera.renderPath.currentH / camera.renderPath.currentW;
-				vy = camera.renderPath.currentW / camera.renderPath.currentH;
+				vx = RenderPath.active.currentH / RenderPath.active.currentW;
+				vy = RenderPath.active.currentW / RenderPath.active.currentH;
 				vx = vx > 1.0 ? 1.0 : vx;
 				vy = vy > 1.0 ? 1.0 : vy;
 			}
@@ -676,7 +672,7 @@ class Uniforms {
 				f = Scene.active.world.getProbeBlending(object.transform);
 			}
 			else if (c.link == "_aspectRatioF") {
-				f = camera.renderPath.currentW / camera.renderPath.currentH;
+				f = RenderPath.active.currentW / RenderPath.active.currentH;
 			}
 			else if (c.link == "_aspectRatioWindowF") {
 				f = iron.App.w() / iron.App.h();
@@ -685,7 +681,7 @@ class Uniforms {
 				f = object.uid;
 			}
 			else if (c.link == "_objectInfoMaterialIndex") {
-				f = camera.renderPath.currentMaterial != null ? camera.renderPath.currentMaterial.uid : cast(object, MeshObject).materials[0].uid; // TODO: Move to material constants
+				f = RenderPath.active.currentMaterial != null ? RenderPath.active.currentMaterial.uid : cast(object, MeshObject).materials[0].uid; // TODO: Move to material constants
 			}
 			else if (c.link == "_objectInfoRandom") {
 				f = object.urandom;
@@ -741,7 +737,7 @@ class Uniforms {
 				i = lamp == null ? 0 : LampData.typeToInt(lamp.data.raw.type);
 			}
 			else if (c.link == "_lampIndex") {
-				i = camera.renderPath.currentLampIndex;
+				i = RenderPath.active.currentLampIndex;
 			}
 			else if (c.link == "_lampCastShadow") {
 				if (lamp != null && lamp.data.raw.cast_shadow) {

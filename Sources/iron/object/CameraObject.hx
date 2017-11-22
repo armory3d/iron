@@ -2,16 +2,13 @@ package iron.object;
 
 import kha.graphics4.Graphics;
 import iron.Scene;
-import iron.math.Mat4;
-import iron.math.Vec4;
-import iron.math.Quat;
+import iron.RenderPath;
+import iron.math.*;
 import iron.data.CameraData;
-import iron.data.RenderPath;
 
 class CameraObject extends Object {
 
 	public var data:CameraData;
-	public var renderPath:RenderPath;
 
 	public var P:Mat4;
 	// #if arm_veloc
@@ -38,7 +35,6 @@ class CameraObject extends Object {
 		super();
 
 		this.data = data;
-		renderPath = new RenderPath(this);
 		nearPlane = data.raw.near_plane;
 		farPlane = data.raw.far_plane;
 
@@ -84,7 +80,7 @@ class CameraObject extends Object {
 		super.remove();
 	}
 
-	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
+	public function renderFrame(g:Graphics) {
 
 		#if arm_taa
 		projectionJitter();
@@ -98,7 +94,7 @@ class CameraObject extends Object {
 			prevV.setFrom(V);
 		}
 
-		renderPath.renderFrame(g, root, lamps);
+		RenderPath.active.renderFrame(g);
 	
 		prevV.setFrom(V);
 		// #if (arm_veloc && arm_taa)
@@ -109,8 +105,8 @@ class CameraObject extends Object {
 	#if arm_taa
 	var frame = 0;
 	function projectionJitter() {
-		var w = renderPath.currentRenderTargetW;
-		var h = renderPath.currentRenderTargetH;
+		var w = RenderPath.active.currentW;
+		var h = RenderPath.active.currentH;
 		P.setFrom(noJitterP);
 		var x = 0.0;
 		var y = 0.0;

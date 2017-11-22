@@ -10,7 +10,6 @@ class Data {
 	static var cachedMeshes:Map<String, MeshData> = new Map();
 	static var cachedLamps:Map<String, LampData> = new Map();
 	static var cachedCameras:Map<String, CameraData> = new Map();
-	static var cachedRenderPaths:Map<String, RenderPathData> = new Map();
 	static var cachedMaterials:Map<String, MaterialData> = new Map();
 	static var cachedParticles:Map<String, ParticleData> = new Map();
 	static var cachedWorlds:Map<String, WorldData> = new Map();
@@ -33,8 +32,6 @@ class Data {
 		cachedSceneRaws = new Map();
 		cachedLamps = new Map();
 		cachedCameras = new Map();
-		for (c in cachedRenderPaths) c.unload();
-		cachedRenderPaths = new Map();
 		cachedMaterials = new Map();
 		cachedParticles = new Map();
 		cachedWorlds = new Map();
@@ -58,7 +55,6 @@ class Data {
 		cachedMeshes = new Map(); // Delete data
 		cachedLamps = new Map();
 		cachedMaterials = new Map();
-		cachedRenderPaths = new Map();
 		cachedCameras = new Map();
 		cachedParticles = new Map();
 		cachedWorlds = new Map();
@@ -125,23 +121,6 @@ class Data {
 			cachedCameras.set(file + name, b);
 			for (f in loadingCameras.get(file + name)) f(b);
 			loadingCameras.remove(file + name);
-		});
-	}
-
-	static var loadingRenderPaths:Map<String, Array<RenderPathData->Void>> = new Map();
-	public static function getRenderPath(file:String, name:String, done:RenderPathData->Void) {
-		var cached = cachedRenderPaths.get(file + name);
-		if (cached != null) { done(cached); return; }
-
-		var loading = loadingRenderPaths.get(file + name);
-		if (loading != null) { loading.push(done); return; }
-
-		loadingRenderPaths.set(file + name, [done]);
-
-		RenderPathData.parse(file, name, function(b:RenderPathData) {
-			cachedRenderPaths.set(file + name, b);
-			for (f in loadingRenderPaths.get(file + name)) f(b);
-			loadingRenderPaths.remove(file + name);
 		});
 	}
 
@@ -342,12 +321,6 @@ class Data {
 	}
 
 	public static function getCameraRawByName(datas:Array<TCameraData>, name:String):TCameraData {
-		if (name == "") return datas[0];
-		for (dat in datas) if (dat.name == name) return dat;
-		return null;
-	}
-
-	public static function getRenderPathRawByName(datas:Array<TRenderPathData>, name:String):TRenderPathData {
 		if (name == "") return datas[0];
 		for (dat in datas) if (dat.name == name) return dat;
 		return null;

@@ -23,7 +23,7 @@ class VR {
 		return 0.0;
 	}
 
-	function initButton() {
+	public static function initButton() {
 		var vrImage:kha.Image = iron.Scene.active.embedded.get('vr.png');
 
 		function vrDownListener(index:Int, x:Float, y:Float) {

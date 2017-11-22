@@ -162,7 +162,7 @@ class Scene {
 	}
 
 	public function renderFrame(g:kha.graphics4.Graphics) {
-		if (!ready) return;
+		if (!ready || RenderPath.active == null) return;
 		framePassed = true;
 
 		var activeCamera = camera;
@@ -170,12 +170,12 @@ class Scene {
 		for (cam in cameras) {
 			if (cam.data.mirror != null) {
 				camera = cam;
-				camera.renderFrame(g, root, lamps);
+				camera.renderFrame(g);
 			}
 		}
 		// Render active camera
 		camera = activeCamera;
-		camera.renderFrame(g, root, lamps);
+		camera.renderFrame(g);
 	}
 
 	// Objects

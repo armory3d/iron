@@ -1,29 +1,19 @@
-package iron.data;
+package iron;
 
+import kha.Image;
 import kha.Color;
 import kha.Scheduler;
-import kha.graphics4.Graphics;
-import kha.graphics4.VertexBuffer;
-import kha.graphics4.IndexBuffer;
+import kha.graphics4.*;
+import iron.math.*;
+import iron.object.*;
+import iron.data.*;
 import iron.data.SceneFormat;
-import iron.data.RenderPathData.RenderTarget;
-import iron.data.MaterialData.MaterialContext;
-import iron.data.ShaderData.ShaderContext;
-import iron.Scene;
-import iron.object.Object;
-import iron.object.CameraObject;
-import iron.object.MeshObject;
-import iron.object.LampObject;
-import iron.object.Uniforms;
-import iron.math.Vec4;
-import iron.math.Mat4;
-
-typedef TStageCommand = Array<String>->Object->Void;
+import iron.data.MaterialData;
+import iron.data.ShaderData;
 
 class RenderPath {
 
-	var camera:CameraObject;
-	public var data:CameraData;
+	public static var active:RenderPath;
 
 	var frameG:Graphics;
 	public var frameScissor = false;
@@ -37,75 +27,71 @@ class RenderPath {
 	public var currentW:Int;
 	public var currentH:Int;
 	public var currentD:Int;
+	var lastW = 0;
+	var lastH = 0;
 	public var currentCube:Bool;
 	public var currentFace:Int;
-	var bindParams:Array<String>;
-	var helpMat = Mat4.identity();
-
-	var currentStages:Array<TRenderPathStage> = null;
-	var currentStageIndex = 0;
-	var currentStageIndexOffset = 0;
-	
-	var meshesSorted:Bool;
-	public var ready:Bool;
-	
-	var lamps:Array<LampObject>;
 	public var currentLampIndex = 0;
-
-	// Quad and decals contexts
-	var cachedShaderContexts:Map<String, CachedShaderContext> = new Map();
+	var bindParams:Array<String>;
+	var meshesSorted:Bool;
 	
-	#if arm_debug
-	public static var drawCalls = 0;
-	public static var batchBuckets = 0;
-	public static var batchCalls = 0;
-	public static var culled = 0;
-	public static var numTrisMesh = 0;
-	public static var numTrisShadow = 0;
-	#end
+	public var ready(get, null):Bool;
+	function get_ready():Bool { return loading == 0; }
+	var loading = 0;
+	var cachedShaderContexts:Map<String, CachedShaderContext> = new Map();
+
+	public var commands:Void->Void = null;
+	public var renderTargets:Map<String, RenderTarget> = new Map();
+	public var depthToRenderTarget:Map<String, RenderTarget> = new Map();
 
 	// Used by render path nodes for branch functions
-	@:keep
-	public static function lampCastShadow(rp:RenderPath) {
-		return rp.getLamp(rp.currentLampIndex).data.raw.cast_shadow;
-	}
-	@:keep
-	public static function lampIsSun(rp:RenderPath) {
-		return rp.getLamp(rp.currentLampIndex).data.raw.type == "sun";
+	public function lampCastShadow() {
+		return getLamp(currentLampIndex).data.raw.cast_shadow;
 	}
 
-	static var voxelized = 0;
-	static inline var voxelizeFrameFreq = 1;
-	@:keep
-	public static function voxelize(rp:RenderPath) {
+	public function lampIsSun() {
+		return getLamp(currentLampIndex).data.raw.type == "sun";
+	}
+
+	var voxelized = 0;
+	public function voxelize() {
 		#if arm_voxelgi_revox
-		// return true;
-		voxelized++;
-		if (voxelized >= voxelizeFrameFreq) { voxelized = 0; return true; }
-		return false;
+		return true;
 		#else
 		return ++voxelized > 2 ? false : true;
 		#end
 	}
 
-	public function new(camera:CameraObject) {
-		this.camera = camera;
-		data = camera.data;
-		ready = false;
-		loadStageCommands(data.pathdata.raw.stages, function() { ready = true; });
+	public static function setActive(renderPath:RenderPath) { 
+		active = renderPath;
 	}
 
-	public function unload() { data.pathdata.unload(); }
+	public function new() {
+		#if kha_webgl
+		// Bind empty when requested target is not found
+		var tempty = new RenderTargetRaw();
+		tempty.name = "arm_empty";
+		tempty.width = 1;
+		tempty.height = 1;
+		tempty.format = "DEPTH16";
+		createRenderTarget(tempty);
+		var temptyCube = new RenderTargetRaw();
+		temptyCube.name = "arm_empty_cube";
+		temptyCube.width = 1;
+		temptyCube.height = 1;
+		temptyCube.format = "DEPTH16";
+		temptyCube.is_cubemap = true;
+		createRenderTarget(temptyCube);
+		#end
+	}
 
-	inline function getLamp(index:Int) { return lamps.length > 0 ? lamps[index] : null; }
+	inline public function getLamp(index:Int) { return Scene.active.lamps.length > 0 ? Scene.active.lamps[index] : null; }
 
-	var lastW = 0;
-	var lastH = 0;
-	public function renderFrame(g:Graphics, root:Object, lamps:Array<LampObject>) {
+	public function renderFrame(g:Graphics) {
 		if (!ready) return;
 
 		// #if arm_resizable
-		if (lastW > 0 && (lastW != iron.App.w() || lastH != iron.App.h())) data.pathdata.resize();
+		if (lastW > 0 && (lastW != iron.App.w() || lastH != iron.App.h())) resize();
 		lastW = iron.App.w();
 		lastH = iron.App.h();
 		// #end
@@ -119,7 +105,7 @@ class RenderPath {
 		numTrisShadow = 0;
 		#end
 		
-		frameG = camera.data.mirror == null ? g : camera.data.mirror.g4; // Render to screen or camera texture
+		frameG = Scene.active.camera.data.mirror == null ? g : Scene.active.camera.data.mirror.g4; // Render to screen or camera texture
 		currentG = frameG;
 		currentW = iron.App.w();
 		currentH = iron.App.h();
@@ -128,37 +114,13 @@ class RenderPath {
 		currentFace = -1;
 		meshesSorted = false;
 
-		this.lamps = lamps;
 		currentLampIndex = 0;
-		for (l in lamps) if (l.visible) l.buildMatrices(camera);
+		for (l in Scene.active.lamps) if (l.visible) l.buildMatrices(Scene.active.camera);
 
-		currentStages = data.pathdata.raw.stages;
-		callCurrentStages(root);
+		commands();
 	}
 
-	function callCurrentStages(root:Object) {
-		var i = 0;
-		while (i < currentStages.length) {
-			currentStageIndex = i;
-			var f = commandToFunction(currentStages[i].command);
-			f(currentStages[i].params, root);
-			i += 1 + currentStageIndexOffset; // To repeat cubemap faces
-			currentStageIndexOffset = 0;
-		}
-	}
-
-	public static var lastPongRT:RenderTarget;
-	var loopFinished = 0;
-	var drawPerformed = false;
-	function setTarget(params:Array<String>, root:Object) {
-		// Ping-pong
-		if (lastPongRT != null && drawPerformed && loopFinished == 0) { // Drawing to pong texture has been done, switch state
-			lastPongRT.pongState = !lastPongRT.pongState;
-			lastPongRT = null;
-		}
-		drawPerformed = false;
-		
-		var target = params[1];
+	public function setTarget(target:String, additional:Array<String> = null, viewportScale = 1.0) {
 		if (target == "") { // Framebuffer
 			currentG = frameG;
 			currentW = iron.App.w();
@@ -174,23 +136,22 @@ class RenderPath {
 			#end
 		}
 		else { // Render target
-			var rt = data.pathdata.renderTargets.get(target);
+			var rt = renderTargets.get(target);
 			// TODO: Handle shadowMap target properly
 			// Create shadowmap on the fly
 			if (target == "shadowMap" && getLamp(currentLampIndex).data.raw.shadowmap_cube) {
 				// Switch to cubemap
-				rt = data.pathdata.renderTargets.get(target + "Cube");
+				rt = renderTargets.get(target + "Cube");
 				if (rt == null) {
 					// Cubemap size
 					var size = Std.int(getLamp(currentLampIndex).data.raw.shadowmap_size);
-					var t:TRenderPathTarget = {
-						name: target + "Cube",
-						width: size,
-						height: size,
-						format: "DEPTH16",
-						is_cubemap: true
-					};
-					rt = data.pathdata.createRenderTarget(t);
+					var t = new RenderTargetRaw();
+					t.name = target + "Cube";
+					t.width = size;
+					t.height = size;
+					t.format = "DEPTH16";
+					t.is_cubemap = true;
+					rt = createRenderTarget(t);
 				}
 			}
 			if (target == "shadowMap" && rt == null) { // Non-cube sm
@@ -199,27 +160,20 @@ class RenderPath {
 				#if arm_csm // Cascades - atlas on x axis
 				sizew = sizeh * LampObject.cascadeCount;
 				#end
-				var t:TRenderPathTarget = {
-					name: target,
-					width: sizew,
-					height: sizeh,
-					format: "DEPTH16"
-				};
-				rt = data.pathdata.createRenderTarget(t);
+				var t = new RenderTargetRaw();
+				t.name = target;
+				t.width = sizew;
+				t.height = sizeh;
+				t.format = "DEPTH16";
+				rt = createRenderTarget(t);
 			}
 			var additionalImages:Array<kha.Canvas> = null;
-			if (params.length > 2) {
+			if (additional != null) {
 				additionalImages = [];
-				for (i in 2...params.length) {
-					var t = data.pathdata.renderTargets.get(params[i]);
+				for (s in additional) {
+					var t = renderTargets.get(s);
 					additionalImages.push(t.image);
 				}
-			}
-			
-			// Ping-pong
-			if (rt.pong != null) {
-				lastPongRT = rt;
-				if (rt.pongState) rt = rt.pong;
 			}
 			
 			currentG = rt.isCubeMap ? rt.cubeMap.g4 : rt.image.g4;
@@ -231,7 +185,6 @@ class RenderPath {
 			else currentFace = rt.isCubeMap ? 0 : -1;
 			begin(currentG, additionalImages, currentFace);
 		}
-		var viewportScale = Std.parseFloat(params[0]);
 		if (viewportScale != 1.0) {
 			viewportScaled = true;
 			var viewW = Std.int(currentW * viewportScale);
@@ -248,17 +201,14 @@ class RenderPath {
 	}
 
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null, face = -1) {
-		face >= 0 ? g.beginFace(5 - face) : g.begin(additionalRenderTargets); // TODO: draw first cube-face last, otherwise some opengl drivers expose glitch
+		// TODO: draw first cube-face last, otherwise some opengl drivers glitch
+		face >= 0 ? g.beginFace(5 - face) : g.begin(additionalRenderTargets);
 	}
 
 	inline function end(g:Graphics) {
 		g.end();
-		if (scissorSet) {
-			g.disableScissor();
-			scissorSet = false;
-		}
-		bindParams = null; // Remove, cleared at begin
-		drawPerformed = true;
+		if (scissorSet) { g.disableScissor(); scissorSet = false; }
+		bindParams = null;
 	}
 
 	public function setCurrentViewport(viewW:Int, viewH:Int) {
@@ -274,41 +224,23 @@ class RenderPath {
 		frameG.scissor(frameScissorX, currentH - (frameScissorH - frameScissorY), frameScissorW, frameScissorH);
 	}
 
-	function setViewport(params:Array<String>, root:Object) {
-		var viewW = Std.int(Std.parseFloat(params[0]));
-		var viewH = Std.int(Std.parseFloat(params[1]));
+	public function setViewport(viewW:Int, viewH:Int) {
 		setCurrentViewport(viewW, viewH);
 		setCurrentScissor(viewW, viewH);
 	}
 
-	function clearTarget(params:Array<String>, root:Object) {
-		var colorFlag:Null<Int> = null;
-		var depthFlag:Null<Float> = null;
-		for (i in 0...Std.int(params.length / 2)) {
-			var pos = i * 2;
-			var val = pos + 1;
-			if (params[pos] == "color") {
-				colorFlag = params[val] == '-1' ? Scene.active.world.raw.background_color : Color.fromString(params[val]);
-			}
-			else if (params[pos] == "depth") {
-				if (params[val] == "1.0") depthFlag = 1.0;
-				else depthFlag = 0.0;
-			}
-			// else if (params[pos] == "stencil") {}
-		}
+	public function clearTarget(colorFlag:Null<Int> = null, depthFlag:Null<Float> = null) {
+		if (colorFlag == -1) colorFlag = Scene.active.world.raw.background_color;
 		currentG.clear(colorFlag, depthFlag, null);
 	}
 
-	function clearImage(params:Array<String>, root:Object) {
-		var target = params[0];
-		var color = Color.fromString(params[1]);
-		var rt = data.pathdata.renderTargets.get(target);
+	public function clearImage(target:String, color:Int) {
+		var rt = renderTargets.get(target);
 		rt.image.clear(0, 0, 0, rt.image.width, rt.image.height, rt.image.depth, color);
 	}
 
-	function generateMipmaps(params:Array<String>, root:Object) {
-		var target = params[0];
-		var rt = data.pathdata.renderTargets.get(target);
+	public function generateMipmaps(target:String) {
+		var rt = renderTargets.get(target);
 		rt.image.generateMipmaps(1000);
 	}
 
@@ -331,30 +263,30 @@ class RenderPath {
 		// }
 	}
 
-	function drawMeshes(params:Array<String>, root:Object) {
-		var context = params[0];
+	public function drawMeshes(context:String) {
 		var lamp = getLamp(currentLampIndex);
 		if (lamp != null && !lamp.visible) {
 			// Pass draw atleast once to fill geometry buffers
 			if (currentLampIndex > 0) return;
 		}
 
-		var shadowsContext = context == data.pathdata.raw.shadows_context;
-		if (shadowsContext) {
+		var isShadows = context == shadowsContext;
+		if (isShadows) {
 			// Disabled shadow casting for this lamp
 			if (lamp == null || !lamp.data.raw.cast_shadow) return;
 		}
 		// Single face attached
-		if (currentFace >= 0 && lamp != null) lamp.setCubeFace(5 - currentFace, camera); // TODO: draw first cube-face last, otherwise some opengl drivers expose glitch
+		// TODO: draw first cube-face last, otherwise some opengl drivers glitch
+		if (currentFace >= 0 && lamp != null) lamp.setCubeFace(5 - currentFace, Scene.active.camera);
 		
 		var g = currentG;
 		var drawn = false;
 
 		#if arm_csm
-		if (shadowsContext && lamp.data.raw.type == "sun") {
+		if (isShadows && lamp.data.raw.type == "sun") {
 			var step = currentH; // Atlas with tiles on x axis
 			for (i in 0...LampObject.cascadeCount) {
-				lamp.setCascade(camera, i);
+				lamp.setCascade(Scene.active.camera, i);
 				// g.viewport(0, currentH - (i + 1) * step, step, step);
 				g.viewport(i * step, 0, step, step);
 				submitDraw(context);
@@ -374,16 +306,6 @@ class RenderPath {
 		#end
 
 		end(g);
-
-		// Render all cubemap faces
-		if (currentFace >= 0 && currentFace < 5) {
-			// Move back draw meshes and clear, back to set target
-			currentStageIndexOffset = -3;
-		}
-		else {
-			currentFace = -1;
-			// lamp.buildMatrices(camera); // Restore light matrix
-		}
 	}
 
 	function submitDraw(context:String) {
@@ -391,14 +313,14 @@ class RenderPath {
 		var g = currentG;
 
 		#if arm_batch
-		Scene.active.meshBatch.render(g, context, camera, lamp, bindParams);
+		Scene.active.meshBatch.render(g, context, Scene.active.camera, lamp, bindParams);
 		#else
 		if (!meshesSorted) { // Order max one per frame for now
-			sortMeshes(Scene.active.meshes, camera);
+			sortMeshes(Scene.active.meshes, Scene.active.camera);
 			meshesSorted = true;
 		}
 		for (m in Scene.active.meshes) {
-			m.render(g, context, camera, lamp, bindParams);
+			m.render(g, context, Scene.active.camera, lamp, bindParams);
 		}
 		#end
 	}
@@ -426,10 +348,10 @@ class RenderPath {
 	inline function clampRect(f:Float):Float { return f < -1.0 ? -1.0 : (f > 1.0 ? 1.0 : f); }
 
 	public var currentMaterial:MaterialData = null; // Temp
-	function drawRects(params:Array<String>, root:Object) {
+	static var helpMat = Mat4.identity();
+	public function drawRects(context:String) {
 		if (ConstData.rectVB == null) ConstData.createRectData();
 		var g = currentG;
-		var context = params[0];
 		var lamp = getLamp(currentLampIndex);
 
 		// Unique materials
@@ -478,8 +400,8 @@ class RenderPath {
 			ps.push(new Vec4(min.x, min.y + dy, min.z + dz));
 			ps.push(new Vec4(min.x + dx, min.y, min.z + dz));
 			ps.push(new Vec4(min.x + dx, min.y + dy, min.z + dz));
-			helpMat.setFrom(camera.V);
-			helpMat.multmat2(camera.P);
+			helpMat.setFrom(Scene.active.camera.V);
+			helpMat.multmat2(Scene.active.camera.P);
 			var b:Vec4 = null;
 			for (v in ps) {
 				v.applymat4(helpMat);
@@ -523,7 +445,7 @@ class RenderPath {
 			getRectContexts(mat, context, materialContexts, shaderContexts);
 			
 			g.setPipeline(mat.shader.getContext(context).pipeState);
-			Uniforms.setConstants(g, shaderContexts[0], null, camera, lamp, bindParams);
+			Uniforms.setConstants(g, shaderContexts[0], null, Scene.active.camera, lamp, bindParams);
 			Uniforms.setMaterialConstants(g, shaderContexts[0], materialContexts[0]);
 			g.drawIndexedVertices();
 		}
@@ -532,13 +454,12 @@ class RenderPath {
 		end(g);
 	}
 	
-	function drawDecals(params:Array<String>, root:Object) {
+	public function drawDecals(context:String) {
 		if (ConstData.boxVB == null) ConstData.createBoxData();
-		var context = params[0];
 		var g = currentG;
 		var lamp = getLamp(currentLampIndex);
 		for (decal in Scene.active.decals) {
-			decal.render(g, context, camera, lamp, bindParams);
+			decal.render(g, context, Scene.active.camera, lamp, bindParams);
 			g.setVertexBuffer(ConstData.boxVB);
 			g.setIndexBuffer(ConstData.boxIB);
 			g.drawIndexedVertices();
@@ -547,14 +468,14 @@ class RenderPath {
 	}
 
 	// static var gpFrame = 0;
-	// function drawGreasePencil(params:Array<String>, root:Object) {
+	// public function drawGreasePencil(con:String) {
 	// 	var gp = Scene.active.greasePencil;
 	// 	if (gp == null) return;
 	// 	var g = currentG;
 	// 	var lamp = getLamp(currentLampIndex);
-	// 	var context = GreasePencilData.getContext(params[0]);
+	// 	var context = GreasePencilData.getContext(con);
 	// 	g.setPipeline(context.pipeState);
-	// 	Uniforms.setConstants(g, context, null, camera, lamp, null);
+	// 	Uniforms.setConstants(g, context, null, Scene.active.camera, lamp, null);
 	// 	// Draw layers
 	// 	for (layer in gp.layers) {
 	// 		// Next frame
@@ -594,15 +515,14 @@ class RenderPath {
 		return null;
 	}
 
-	function drawSkydome(params:Array<String>, root:Object) {
+	public function drawSkydome(handle:String) {
 		if (ConstData.skydomeVB == null) ConstData.createSkydomeData();
-		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc.context == null) return; // World data not specified
 		var g = currentG;
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);
-		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
+		Uniforms.setConstants(g, cc.context, null, Scene.active.camera, lamp, bindParams);
 		if (cc.materialContext != null) {
 			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
@@ -616,7 +536,7 @@ class RenderPath {
 		end(g);
 	}
 
-	function drawLampVolume(params:Array<String>, root:Object) {
+	public function drawLampVolume(handle:String) {
 		var vb:VertexBuffer = null;
 		var ib:IndexBuffer = null;
 		var lamp = getLamp(currentLampIndex);
@@ -635,11 +555,10 @@ class RenderPath {
 			ib = ConstData.sphereIB;
 		}
 		
-		var handle = params[0];
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		var g = currentG;		
 		g.setPipeline(cc.context.pipeState);
-		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
+		Uniforms.setConstants(g, cc.context, null, Scene.active.camera, lamp, bindParams);
 		if (cc.materialContext != null) {
 			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
@@ -649,30 +568,29 @@ class RenderPath {
 		end(g);
 	}
 
-	function bindTarget(params:Array<String>, root:Object) {
-		if (bindParams != null) for (p in params) bindParams.push(p); // Multiple binds, append params
-		else bindParams = params;
+	public function bindTarget(target:String, uniform:String) {
+		if (bindParams != null) { bindParams.push(target); bindParams.push(uniform); }
+		else bindParams = [target, uniform];
 	}
 	
-	function drawShaderQuad(params:Array<String>, root:Object) {
-		var handle = params[0];
+	// Full-screen triangle
+	public function drawShader(handle:String) {
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		drawQuad(cc, root);
+		drawQuad(cc);
 	}
 	
-	function drawMaterialQuad(params:Array<String>, root:Object) {
-		var handle = params[0];
+	public function drawMaterial(handle:String) {
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		drawQuad(cc, root);
+		drawQuad(cc);
 	}
 
-	function drawQuad(cc:CachedShaderContext, root:Object) {
+	public function drawQuad(cc:CachedShaderContext) {
 		if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
 		var g = currentG;		
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);
 
-		Uniforms.setConstants(g, cc.context, null, camera, lamp, bindParams);
+		Uniforms.setConstants(g, cc.context, null, Scene.active.camera, lamp, bindParams);
 		if (cc.materialContext != null) {
 			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
 		}
@@ -684,180 +602,52 @@ class RenderPath {
 		end(g);
 	}
 
-	function callFunction(params:Array<String>, root:Object) {
-		var path = params[0];
-		var dotIndex = path.lastIndexOf(".");
-		var classPath = path.substr(0, dotIndex);
-		var classType = Type.resolveClass(classPath);
-		var funName = path.substr(dotIndex + 1);
-		var stage = currentStages[currentStageIndex];
-		// Call function
-		if (stage.returns_true == null && stage.returns_false == null) {
-			Reflect.callMethod(classType, Reflect.field(classType, funName), [this]);
-		}
-		// Branch function
-		else {
-			var result:Bool = Reflect.callMethod(classType, Reflect.field(classType, funName), [this]);
-			// Nested commands
-			var nestedStages = result ? stage.returns_true : stage.returns_false;
-			if (nestedStages != null) { // Null when only single branch is populated with commands
-				var parentStages = currentStages;
-				currentStages = nestedStages;
-				callCurrentStages(root);
-				currentStages = parentStages;
-			}
-		}
-	}
-	
-	function loopLamps(params:Array<String>, root:Object) {
-		var nestedStages = currentStages[currentStageIndex].returns_true;
-		var parentStages = currentStages;
-		currentStages = nestedStages;
-		currentLampIndex = 0;
-		loopFinished++;
-
-		for (i in 0...lamps.length) {
-			var l = lamps[i];
-			if (!l.visible) continue;
-			currentLampIndex = i;
-			callCurrentStages(root);
-		}
-
-		currentLampIndex = 0;
-		loopFinished--;
-		currentStages = parentStages;
-	}
-
 	#if arm_vr
-	function drawStereo(params:Array<String>, root:Object) {
-		var nestedStages = currentStages[currentStageIndex].returns_true;
-		var parentStages = currentStages;
-		currentStages = nestedStages;
-
-		loopFinished++;
-		var g = currentG;
-
+	public function drawStereo(drawMeshes:Void->Void) {
 		var vr = kha.vr.VrInterface.instance;
+		var g = currentG;
 		if (vr != null && vr.IsPresenting()) {
 			var appw = iron.App.w();
 			var apph = iron.App.h();
 			var halfw = Std.int(appw / 2);
 
 			// Left eye
-			camera.V.setFrom(camera.leftV);
-			camera.P.self = vr.GetProjectionMatrix(0);
+			Scene.active.camera.V.setFrom(Scene.active.camera.leftV);
+			Scene.active.camera.P.self = vr.GetProjectionMatrix(0);
 			g.viewport(0, 0, halfw, apph);
-			callCurrentStages(root);
+			drawMeshes();
 
 			// Right eye
-			camera.V.setFrom(camera.rightV);
-			camera.P.self = vr.GetProjectionMatrix(1);
+			Scene.active.camera.V.setFrom(Scene.active.camera.rightV);
+			Scene.active.camera.P.self = vr.GetProjectionMatrix(1);
 			g.viewport(halfw, 0, halfw, apph);
-			callCurrentStages(root);
+			drawMeshes();
 		}
 		else {
-			callCurrentStages(root);
 			// Emulate
 			// var appw = iron.App.w();
 			// var apph = iron.App.h();
 			// var halfw = Std.int(appw / 2);
 			// 	// Left eye
 			// 	g.viewport(0, 0, halfw, apph);
-			// 	callCurrentStages(root);
+			// 	callCurrentStages();
 
 			// 	// Right eye
-			// 	camera.move(camera.right(), 0.032);
-			// 	camera.buildMatrix();
+			// 	Scene.active.camera.move(Scene.active.camera.right(), 0.032);
+			// 	Scene.active.camera.buildMatrix();
 			// 	g.viewport(halfw, 0, halfw, apph);
-			// 	callCurrentStages(root);
+			// 	callCurrentStages();
 
-			// 	camera.move(camera.right(), -0.032);
-			// 	camera.buildMatrix();
+			// 	Scene.active.camera.move(Scene.active.camera.right(), -0.032);
+			// 	Scene.active.camera.buildMatrix();
 		}
-
-		loopFinished--;
-		currentStages = parentStages;
 	}
 	#end
 
-	function loadStageCommands(stages:Array<TRenderPathStage>, done:Void->Void) {
-		var stagesLoaded = 0;
-		for (i in 0...stages.length) {
-			loadCommand(stages[i], function() {				
-				stagesLoaded++;
-				if (stagesLoaded == stages.length) done();
-			});
-		}
-	}
-	
-	function commandToFunction(command:String):TStageCommand {
-		return switch (command) {
-			case "set_target": setTarget;
-			case "set_viewport": setViewport;
-			case "clear_target": clearTarget;
-			case "clear_image": clearImage;
-			case "generate_mipmaps": generateMipmaps;
-			case "draw_meshes": drawMeshes;
-			case "draw_rects": drawRects; // Screen-space rectangle enclosing mesh bounds
-			case "draw_decals": drawDecals;
-			case "draw_skydome": drawSkydome;
-			case "draw_lamp_volume": drawLampVolume;
-			case "bind_target": bindTarget;
-			case "draw_shader_quad": drawShaderQuad;
-			case "draw_material_quad": drawMaterialQuad;
-			// case "draw_grease_pencil": drawGreasePencil;
-			case "call_function": callFunction;
-			case "loop_lamps": loopLamps;
-			#if arm_vr
-			case "draw_stereo": drawStereo;
-			#end
-			default: null;
-		}
-	}
-
-	function loadCommand(stage:TRenderPathStage, done:Void->Void) {
-		var handle = stage.params.length > 0 ? stage.params[0] : '';
-		switch (stage.command) {
-			case "draw_skydome": cacheMaterialQuad(handle, done);
-			case "draw_lamp_volume": cacheShaderQuad(handle, done);
-			case "draw_shader_quad": cacheShaderQuad(handle, done);
-			case "draw_material_quad": cacheMaterialQuad(handle, done);
-			case "call_function": cacheReturnsBoth(stage, done);
-			case "loop_lamps": cacheReturnsTrue(stage, done);
-			#if arm_vr
-			case "draw_stereo": cacheReturnsTrue(stage, done);
-			#end
-			default: done();
-		}
-	}
-
-	function cacheReturnsBoth(stage:TRenderPathStage, done:Void->Void) {
-		var cached = 0;
-		var cacheTo = 0;
-		if (stage.returns_true != null && stage.returns_true.length > 0) cacheTo++;
-		if (stage.returns_false != null && stage.returns_false.length > 0) cacheTo++;
-		if (cacheTo == 0) done();
-
-		if (stage.returns_true != null && stage.returns_true.length > 0) {
-			loadStageCommands(stage.returns_true, function() { cached++; if (cached == cacheTo) done(); });
-		}
-
-		if (stage.returns_false != null && stage.returns_false.length > 0) {
-			loadStageCommands(stage.returns_false, function() { cached++; if (cached == cacheTo) done(); });
-		}
-
-	}
-
-	function cacheReturnsTrue(stage:TRenderPathStage, done:Void->Void) {
-		if (stage.returns_true != null) {
-			loadStageCommands(stage.returns_true, done);
-		}
-		else done();
-	}
-
-	function cacheMaterialQuad(handle:String, done:Void->Void) {
+	public function loadMaterial(handle:String) {
+		loading++;
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		if (cc != null) { done(); return; }
+		if (cc != null) { loading--; return; }
 
 		cc = new CachedShaderContext();
 		cachedShaderContexts.set(handle, cc);
@@ -865,18 +655,19 @@ class RenderPath {
 		var matPath:Array<String> = null;
 		if (handle.charAt(0) == '_') matPath = parseMaterialLink(handle);
 		else matPath = handle.split('/');
-		if (matPath == null) { done(); return; } // World material not specified
+		if (matPath == null) { loading--; return; } // World material not specified
 
 		Data.getMaterial(matPath[0], matPath[1], function(res:MaterialData) {
 			cc.materialContext = res.getContext(matPath[2]);
 			cc.context = res.shader.getContext(matPath[2]);
-			done();
+			loading--;
 		});
 	}
 
-	function cacheShaderQuad(handle:String, done:Void->Void) {
+	public function loadShader(handle:String) {
+		loading++;
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		if (cc != null) { done(); return; }
+		if (cc != null) { loading--; return; }
 
 		cc = new CachedShaderContext();
 		cachedShaderContexts.set(handle, cc);
@@ -886,8 +677,191 @@ class RenderPath {
 		Data.getShader(shaderPath[0], shaderPath[1], null, function(res:ShaderData) {
 			cc.materialContext = null;
 			cc.context = res.getContext(shaderPath[2]);
-			done();
+			loading--;
 		});
+	}
+
+	public function unload() { for (rt in renderTargets) rt.unload(); }
+
+	public function resize() {
+		for (rt in renderTargets) {
+			if (rt.raw.width == 0) {
+				rt.image.unload();
+				rt.image = createImage(rt.raw, rt.depthStencil);
+				if (rt.depthStencilFrom != "") {
+					rt.image.setDepthStencilFrom(depthToRenderTarget.get(rt.depthStencilFrom).image);
+				}
+			}
+		}
+	}
+	
+	public function createRenderTarget(t:RenderTargetRaw):RenderTarget {
+		var rt = createTarget(t);
+		renderTargets.set(t.name, rt);
+		return rt;
+	}
+
+	var depthBuffers:Array<{name:String, format:String}> = [];
+	public function createDepthBuffer(name:String, format:String = null) {
+		depthBuffers.push({name: name, format: format});
+	}
+
+	function createTarget(t:RenderTargetRaw):RenderTarget {
+		var rt = new RenderTarget(t);
+		// With depth buffer
+		if (t.depth_buffer != null) {
+			rt.hasDepth = true;
+			var depthTarget = depthToRenderTarget.get(t.depth_buffer);
+			
+			// Create new one
+			if (depthTarget == null) {
+				for (db in depthBuffers) {
+					if (db.name == t.depth_buffer) {
+						depthToRenderTarget.set(db.name, rt);
+						rt.depthStencil = getDepthStencilFormat(db.format);
+						rt.image = createImage(t, rt.depthStencil);
+						break;
+					}
+				}
+			}
+			// Reuse
+			else {
+				rt.depthStencil = DepthStencilFormat.NoDepthAndStencil;
+				rt.depthStencilFrom = t.depth_buffer;
+				rt.image = createImage(t, rt.depthStencil);
+				rt.image.setDepthStencilFrom(depthTarget.image);
+			}
+		}
+		// No depth buffer
+		else {
+			rt.hasDepth = false;
+			if (t.depth != null && t.depth > 1) rt.is3D = true;
+			if (t.is_cubemap) {
+				rt.isCubeMap = true;
+				rt.depthStencil = DepthStencilFormat.NoDepthAndStencil;
+				rt.cubeMap = createCubeMap(t, rt.depthStencil);
+			}
+			else {
+				rt.depthStencil = DepthStencilFormat.NoDepthAndStencil;
+				rt.image = createImage(t, rt.depthStencil);
+			}
+		}
+		
+		return rt;
+	}
+
+	function createImage(t:RenderTargetRaw, depthStencil:DepthStencilFormat):Image {
+		var width = t.width == 0 ? iron.App.w() : t.width;
+		var height = t.height == 0 ? iron.App.h() : t.height;
+		var depth = t.depth != null ? t.depth : 0;
+		if (t.displayp != null) { // 1080p/..
+			if (width > height) {
+				height = Std.int(height * (t.displayp / width));
+				width = t.displayp;
+			}
+			else {
+				width = Std.int(width * (t.displayp / height));
+				height = t.displayp;
+			}
+		}
+		if (t.scale != null) {
+			width = Std.int(width * t.scale);
+			height = Std.int(height * t.scale);
+			depth = Std.int(depth * t.scale);
+		}
+		if (t.depth != null && t.depth > 1) { // 3D texture
+			// Image only
+			return Image.create3D(width, height, depth,
+				t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
+		}
+		else { // 2D texture
+			if (t.is_image != null && t.is_image) { // Image
+				return Image.create(width, height,
+					t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
+			}
+			else { // Render target
+				return Image.createRenderTarget(width, height,
+					t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
+					depthStencil);
+			}
+		}
+	}
+
+	function createCubeMap(t:RenderTargetRaw, depthStencil:DepthStencilFormat):CubeMap {
+		return CubeMap.createRenderTarget(t.width,
+			t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
+			depthStencil);
+	}
+
+	inline function getTextureFormat(s:String):TextureFormat {
+		switch (s) {
+		case "RGBA32": return TextureFormat.RGBA32;
+		case "RGBA64": return TextureFormat.RGBA64;
+		case "RGBA128": return TextureFormat.RGBA128;
+		case "DEPTH16": return TextureFormat.DEPTH16;
+		case "A32": return TextureFormat.A32;
+		case "A16": return TextureFormat.A16;
+		case "A8": return TextureFormat.L8;
+		case "R32": return TextureFormat.A32;
+		case "R16": return TextureFormat.A16;
+		case "R8": return TextureFormat.L8;
+		default: return TextureFormat.RGBA32;
+		}
+	}
+	
+	inline function getDepthStencilFormat(s:String):DepthStencilFormat {
+		// if (depth && stencil) return DepthStencilFormat.Depth24Stencil8;
+		// else if (depth) return DepthStencilFormat.DepthOnly;
+		// else return DepthStencilFormat.NoDepthAndStencil; 
+		if (s == null || s == "") return DepthStencilFormat.DepthOnly;
+		switch (s) {
+		case "DEPTH24": return DepthStencilFormat.DepthOnly; // Depth32Stencil8
+		case "DEPTH16": return DepthStencilFormat.Depth16;
+		default: return DepthStencilFormat.DepthOnly;
+		}
+	}
+
+	public static inline var meshContext = "mesh";
+	public static inline var shadowsContext = "shadowmap";
+
+	#if arm_debug
+	public static var drawCalls = 0;
+	public static var batchBuckets = 0;
+	public static var batchCalls = 0;
+	public static var culled = 0;
+	public static var numTrisMesh = 0;
+	public static var numTrisShadow = 0;
+	#end
+}
+
+class RenderTargetRaw {
+	public var name:String;
+	public var width:Int;
+	public var height:Int;
+	public var format:String = null;
+	public var scale:Null<Float> = null;
+	public var displayp:Null<Int> = null; // Set to 1080p/...
+	public var depth_buffer:String = null; // 2D texture
+	public var mipmaps:Null<Bool> = null;
+	public var depth:Null<Int> = null; // 3D texture
+	public var is_image:Null<Bool> = null; // Image
+	public var is_cubemap:Null<Bool> = null; // Cubemap
+	public function new() {}
+}
+
+class RenderTarget {
+	public var raw:RenderTargetRaw;
+	public var depthStencil:DepthStencilFormat;
+	public var depthStencilFrom = "";
+	public var image:Image = null; // RT or image
+	public var cubeMap:CubeMap = null;
+	public var hasDepth = false;
+	public var is3D = false; // sampler2D / sampler3D
+	public var isCubeMap = false;
+	public function new(raw:RenderTargetRaw) { this.raw = raw; }
+	public function unload() {
+		if (image != null) image.unload();
+		if (cubeMap != null) cubeMap.unload();
 	}
 }
 

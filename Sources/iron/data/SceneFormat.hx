@@ -17,7 +17,6 @@ typedef TSceneFormat = {
 	@:optional var material_datas:Array<TMaterialData>;
 	@:optional var particle_datas:Array<TParticleData>;
 	@:optional var shader_datas:Array<TShaderData>;
-	@:optional var renderpath_datas:Array<TRenderPathData>;
 	@:optional var speaker_datas:Array<TSpeakerData>;
 	@:optional var world_datas:Array<TWorldData>;
 	@:optional var world_ref:String;
@@ -94,7 +93,6 @@ typedef TCameraData = {
 	var near_plane:Float;
 	var far_plane:Float;
 	var fov:Float;
-	var render_path:String;
 	var type:String;
 	@:optional var aspect:Null<Float>;
 	@:optional var frustum_culling:Null<Bool>;
@@ -206,46 +204,6 @@ typedef TTextureUnit = {
 	@:optional var is_image:Null<Bool>; // image2D
 	@:optional var link:String;
 	@:optional var params_set:Null<Bool>; // Prevents setting texture params
-}
-
-typedef TRenderPathData = {
-	var name:String;
-	var stages:Array<TRenderPathStage>;
-	@:optional var render_targets:Array<TRenderPathTarget>;
-	@:optional var depth_buffers:Array<TRenderPathDepthBuffer>;
-	@:optional var mesh_context:String; // Main mesh context
-	@:optional var shadows_context:String; // Lamp depth context
-}
-
-typedef TRenderPathTarget = {
-	var name:String;
-	var width:Int;
-	var height:Int;
-	@:optional var format:String;
-	@:optional var scale:Null<Float>;
-	@:optional var displayp:Null<Int>; // Set to 1080p/...
-	// 2D texture
-	@:optional var depth_buffer:String;
-	@:optional var ping_pong:Null<Bool>;
-	@:optional var mipmaps:Null<Bool>;
-	// 3D texture
-	@:optional var depth:Null<Int>;
-	// Image
-	@:optional var is_image:Null<Bool>;
-	// Cubemap
-	@:optional var is_cubemap:Null<Bool>;
-}
-
-typedef TRenderPathDepthBuffer = {
-	var name:String;
-	@:optional var format:String;
-}
-
-typedef TRenderPathStage = {
-	var command:String;
-	@:optional var params:Array<String>;
-	@:optional var returns_true:Array<TRenderPathStage>; // Nested commands
-	@:optional var returns_false:Array<TRenderPathStage>;
 }
 
 typedef TSpeakerData = {

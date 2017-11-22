@@ -7,16 +7,12 @@ import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
 import iron.Scene;
-import iron.math.Vec4;
-import iron.math.Quat;
-import iron.math.Mat4;
-import iron.data.MeshBatch;
-import iron.data.MeshData;
-import iron.data.LampData;
+import iron.RenderPath;
+import iron.math.*;
+import iron.data.*;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.SceneFormat;
-import iron.data.RenderPath;
 
 class MeshObject extends Object {
 
@@ -113,7 +109,7 @@ class MeshObject extends Object {
 		var mats = materials;
 		if (!isLodMaterial() && !validContext(mats[0], context)) return true;
 
-		var shadowsContext = context == camera.data.pathdata.raw.shadows_context;
+		var shadowsContext = context == RenderPath.shadowsContext;
 		if (!visibleMesh && !shadowsContext) return setCulled(shadowsContext, true);
 		if (!visibleShadow && shadowsContext) return setCulled(shadowsContext, true);
 
@@ -132,7 +128,7 @@ class MeshObject extends Object {
 			// particleSystems for update, particleOwner for render
 			if (particleSystems != null || particleOwner != null) radiusScale *= 1000;
 			if (context == "voxel") radiusScale *= 100;
-			var shadowsContext = context == camera.data.pathdata.raw.shadows_context;
+			var shadowsContext = context == RenderPath.shadowsContext;
 			var frustumPlanes = shadowsContext ? lamp.frustumPlanes : camera.frustumPlanes;
 
 			if (shadowsContext && lamp.data.raw.type != "sun") { // Non-sun lamp bounds intersect camera frustum
@@ -202,7 +198,7 @@ class MeshObject extends Object {
 		if (cullMaterial(context, camera)) return;
 		if (cullMesh(context, camera, lamp)) return;
 		if (raw != null && raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
-		var meshContext = raw != null ? camera.data.pathdata.raw.mesh_context == context : false;
+		var meshContext = raw != null ? RenderPath.meshContext == context : false;
 		if (particleSystems != null && meshContext) {
 			// TODO: all particles have to be added prior to render being called
 			if (particleChildren == null) {
@@ -286,7 +282,7 @@ class MeshObject extends Object {
 		}
 
 		#if arm_debug
-		var shadowsContext = camera.data.pathdata.raw.shadows_context == context;
+		var shadowsContext = RenderPath.shadowsContext == context;
 		if (meshContext) RenderPath.numTrisMesh += ldata.geom.numTris;
 		else if (shadowsContext) RenderPath.numTrisShadow += ldata.geom.numTris;
 		RenderPath.drawCalls++;
@@ -339,7 +335,7 @@ class MeshObject extends Object {
 	public inline function computeScreenSize(camera:CameraObject) {
 		// Approx..
 		// var rp = camera.renderPath;
-		// var screenVolume = rp.currentRenderTargetW * rp.currentRenderTargetH;
+		// var screenVolume = rp.currentW * rp.currentH;
 		var tr = transform;
 		var volume = tr.size.x * tr.scale.x * tr.size.y * tr.scale.y * tr.size.z * tr.scale.z;
 		screenSize = volume * (1.0 / cameraDistance);
