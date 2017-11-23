@@ -450,10 +450,13 @@ class Scene {
 				if (o.group_ref != null) { // Instantiate group objects
 					var spawned = 0;
 					var object_refs = getGroupObjectRefs(o.group_ref);
-					for (s in object_refs) {
-						spawnObject(s, ro, function(so:Object) {
-							if (++spawned == object_refs.length) done(ro);
-						});
+					if (object_refs.length == 0) done(ro);
+					else {
+						for (s in object_refs) {
+							spawnObject(s, ro, function(so:Object) {
+								if (++spawned == object_refs.length) done(ro);
+							});
+						}
 					}
 				}
 				else done(ro);
