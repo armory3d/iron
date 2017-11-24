@@ -248,6 +248,9 @@ class Scene {
 		return object;
 	}
 
+	#if arm_stream
+	var objectsTraversed = 0;
+	#end
 	public function addScene(sceneName:String, parent:Object, done:Object->Void) {
 		if (parent == null) {
 			parent = addObject();
@@ -274,10 +277,31 @@ class Scene {
 				// 	});
 				// }
 
+				#if arm_stream
+				var objectsTraversed = 0;
+				#else
 				objectsTraversed = 0;
-				traverseObjects(format, parent, format.objects, null, function() { // Scene objects
+				#end
+				var objectsCount = getObjectsCount(format.objects);
+				function traverseObjects(parent:Object, objects:Array<TObj>, parentObject:TObj, done:Void->Void) {
+					if (objects == null) return;
+					for (i in 0...objects.length) {
+						var o = objects[i];
+						if (o.spawn != null && o.spawn == false) {
+							if (++objectsTraversed == objectsCount) done();
+							continue; // Do not auto-create this object
+						}
+						
+						createObject(o, format, parent, parentObject, function(object:Object) {
+							if (object != null) traverseObjects(object, o.children, o, done);
+							if (++objectsTraversed == objectsCount) done();
+						});
+					}
+				}
+
+				traverseObjects(parent, format.objects, null, function() { // Scene objects
 					done(parent);
-				}, getObjectsCount(format.objects));
+				});
 			});
 		});
 	}
@@ -290,26 +314,9 @@ class Scene {
 		}
 		return result;
 	}
-
-	var objectsTraversed:Int;
-	function traverseObjects(format:TSceneFormat, parent:Object, objects:Array<TObj>, parentObject:TObj, done:Void->Void, objectsCount:Int) {
-		if (objects == null) return;
-		for (i in 0...objects.length) {
-			var o = objects[i];
-			if (o.spawn != null && o.spawn == false) {
-				if (++objectsTraversed == objectsCount) done();
-				continue; // Do not auto-create this object
-			}
-			
-			createObject(o, format, parent, parentObject, function(object:Object) {
-				if (object != null) traverseObjects(format, object, o.children, o, done, objectsCount);
-				if (++objectsTraversed == objectsCount) done();
-			});
-		}
-	}
 	
 	public function spawnObject(name:String, parent:Object, done:Object->Void, spawnChildren = true) {
-		var objectsSpawned = 0;
+		var objectsTraversed = 0;
 		var obj = getObj(raw, name);
 		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
 		function spawnObjectTree(obj:TObj, parent:Object, done:Object->Void) {
@@ -317,7 +324,7 @@ class Scene {
 				if (spawnChildren && obj.children != null) {
 					for (child in obj.children) spawnObjectTree(child, object, done);
 				}
-				if (++objectsSpawned == objectsCount) done(object);
+				if (++objectsTraversed == objectsCount) done(object);
 			});
 		}
 		spawnObjectTree(obj, parent, done);
