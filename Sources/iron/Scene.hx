@@ -308,12 +308,19 @@ class Scene {
 		}
 	}
 	
-	var objectsTraversed2:Int;
 	public function spawnObject(name:String, parent:Object, done:Object->Void, spawnChildren = true) {
-		objectsTraversed2 = 0;
+		var objectsSpawned = 0;
 		var obj = getObj(raw, name);
 		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
-		spawnObjectTree(obj, parent, done, spawnChildren, objectsCount);
+		function spawnObjectTree(obj:TObj, parent:Object, done:Object->Void) {
+			createObject(obj, raw, parent, null, function(object:Object) {
+				if (spawnChildren && obj.children != null) {
+					for (child in obj.children) spawnObjectTree(child, object, done);
+				}
+				if (++objectsSpawned == objectsCount) done(object);
+			});
+		}
+		spawnObjectTree(obj, parent, done);
 	}
 
 	public function parseObject(sceneName:String, objectName:String, parent:Object, done:Object->Void) {
@@ -321,15 +328,6 @@ class Scene {
 			var o:TObj = getObj(format, objectName);
 			if (o == null) done(null);
 			createObject(o, format, parent, null, done);
-		});
-	}
-
-	function spawnObjectTree(obj:TObj, parent:Object, done:Object->Void, spawnChildren:Bool, objectsCount:Int) {
-		createObject(obj, raw, parent, null, function(object:Object) {
-			if (spawnChildren && obj.children != null) {
-				for (child in obj.children) spawnObjectTree(child, object, done, spawnChildren, objectsCount);
-			}
-			if (++objectsTraversed2 == objectsCount) done(object);
 		});
 	}
 
