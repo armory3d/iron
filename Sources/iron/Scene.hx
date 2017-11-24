@@ -278,9 +278,9 @@ class Scene {
 				// }
 
 				#if arm_stream
-				var objectsTraversed = 0;
-				#else
 				objectsTraversed = 0;
+				#else
+				var objectsTraversed = 0;
 				#end
 				var objectsCount = getObjectsCount(format.objects);
 				function traverseObjects(parent:Object, objects:Array<TObj>, parentObject:TObj, done:Void->Void) {
