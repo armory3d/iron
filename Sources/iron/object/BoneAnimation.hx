@@ -152,7 +152,7 @@ class BoneAnimation extends Animation {
 		for (b in skeletonBones) {
 			updateAnimSampled(b.anim, skeletonMats.get(b));
 		}
-		if (blendTime > 0) {
+		if (blendTime > 0 && skeletonBonesBlend != null) {
 			for (b in skeletonBonesBlend) {
 				if (b.anim != null) { updateTrack(b.anim); break; }
 			}
