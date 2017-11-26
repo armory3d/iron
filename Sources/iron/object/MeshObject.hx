@@ -337,7 +337,7 @@ class MeshObject extends Object {
 		// var rp = camera.renderPath;
 		// var screenVolume = rp.currentW * rp.currentH;
 		var tr = transform;
-		var volume = tr.size.x * tr.scale.x * tr.size.y * tr.scale.y * tr.size.z * tr.scale.z;
+		var volume = tr.dim.x * tr.scale.x * tr.dim.y * tr.scale.y * tr.dim.z * tr.scale.z;
 		screenSize = volume * (1.0 / cameraDistance);
 		screenSize = screenSize > 1.0 ? 1.0 : screenSize;
 	}

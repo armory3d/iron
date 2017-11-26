@@ -48,7 +48,7 @@ class RayCaster {
 
 		var t = transform;
 		var c = new Vec4(t.worldx(), t.worldy(), t.worldz());
-		var s = new Vec4(t.size.x, t.size.y, t.size.z);
+		var s = new Vec4(t.dim.x, t.dim.y, t.dim.z);
 		return ray.intersectBox(c, s);
 	}
 
@@ -124,10 +124,10 @@ class RayCaster {
 			var uCoord = u.dot(hit);
 			var vCoord = v.dot(hit);
 			
-			var size = obj.transform.size;
-			var hx = size.x / 2;
-			// TODO: depends on plane facing normal, do not use size of lenght 0
-			var hy = size.z > size.y ? size.z / 2 : size.y / 2;
+			var dim = obj.transform.dim;
+			var hx = dim.x / 2;
+			// TODO: depends on plane facing normal, do not use dim of lenght 0
+			var hy = dim.z > dim.y ? dim.z / 2 : dim.y / 2;
 			
 			// Screen spance
 			var ix = uCoord / hx * (-1) * 0.5 + 0.5;

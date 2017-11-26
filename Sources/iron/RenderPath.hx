@@ -362,7 +362,7 @@ class RenderPath {
 				var mat = mats[i];
 				if (mat == m.materials[0]) {
 					var loc = new Vec4(m.transform.worldx(), m.transform.worldy(), m.transform.worldz());
-					var dim = m.transform.size;
+					var dim = m.transform.dim;
 					var min = volumesMin[i];
 					var max = volumesMax[i];
 					if (min.x > loc.x - dim.x / 2.0) min.x = loc.x - dim.x / 2.0;
@@ -377,7 +377,7 @@ class RenderPath {
 			}
 			if (found) continue;
 			var loc = new Vec4(m.transform.worldx(), m.transform.worldy(), m.transform.worldz());
-			var dim = m.transform.size;
+			var dim = m.transform.dim;
 			volumesMin.push(new Vec4(loc.x - dim.x / 2.0, loc.y - dim.y / 2.0, loc.z - dim.z / 2.0));
 			volumesMax.push(new Vec4(loc.x + dim.x / 2.0, loc.y + dim.y / 2.0, loc.z + dim.z / 2.0));
 			mats.push(m.materials[0]);

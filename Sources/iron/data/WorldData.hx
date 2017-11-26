@@ -80,13 +80,13 @@ class WorldData extends Data {
 		vec.x = t.worldx();
 		vec.y = t.worldy();
 		vec.z = t.worldz();
-		var size = t.size;
+		var dim = t.dim;
 		for (i in 1...probes.length) {
 			var p = probes[i];
 			// Transform not in volume
-			if (vec.x + size.x / 2 < p.volumeMin.x || vec.x - size.x / 2 > p.volumeMax.x ||
-				vec.y + size.y / 2 < p.volumeMin.y || vec.y - size.y / 2 > p.volumeMax.y ||
-				vec.z + size.z / 2 < p.volumeMin.z || vec.z - size.z / 2 > p.volumeMax.z) {
+			if (vec.x + dim.x / 2 < p.volumeMin.x || vec.x - dim.x / 2 > p.volumeMax.x ||
+				vec.y + dim.y / 2 < p.volumeMin.y || vec.y - dim.y / 2 > p.volumeMax.y ||
+				vec.z + dim.z / 2 < p.volumeMin.z || vec.z - dim.z / 2 > p.volumeMax.z) {
 				continue;
 			}
 			// Transform intersects volume

@@ -26,8 +26,8 @@ class ParticleSystem {
 	var alignx:Float;
 	var aligny:Float;
 	var alignz:Float;
-	var sizex:Float;
-	var sizey:Float;
+	var dimx:Float;
+	var dimy:Float;
 	var tilesx:Int;
 	var tilesy:Int;
 	var tilesFramerate:Int;
@@ -84,8 +84,8 @@ class ParticleSystem {
 	public function update(object:MeshObject, owner:MeshObject) {
 		if (!ready) return;
 
-		sizex = object.transform.size.x;
-		sizey = object.transform.size.y;
+		dimx = object.transform.dim.x;
+		dimy = object.transform.dim.y;
 
 		if (object.tilesheet != null) {
 			tilesx = object.tilesheet.raw.tilesx;
@@ -183,9 +183,9 @@ class ParticleSystem {
 		}
 		else { // Volume
 			for (p in particles) {
-				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.x / 2.0)); i++;
-				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.y / 2.0)); i++;
-				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.z / 2.0)); i++;
+				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0)); i++;
+				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0)); i++;
+				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
 			}
 		}
 		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
@@ -216,9 +216,9 @@ class ParticleSystem {
 		}
 		else { // Volume
 			for (p in particles) {
-				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.x / 2.0)); i++;
-				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.y / 2.0)); i++;
-				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.size.z / 2.0)); i++;
+				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0)); i++;
+				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0)); i++;
+				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
 			}
 		}
 	}

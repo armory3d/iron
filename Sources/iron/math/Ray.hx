@@ -69,17 +69,17 @@ class Ray {
 		return this.at(t);
 	}
 	
-	public function intersectsBox(center:Vec4, size:Vec4):Bool {
-		return this.intersectBox(center, size) != null;
+	public function intersectsBox(center:Vec4, dim:Vec4):Bool {
+		return this.intersectBox(center, dim) != null;
 	}
 	
-	public function intersectBox(center:Vec4, size:Vec4):Vec4 {
+	public function intersectBox(center:Vec4, dim:Vec4):Vec4 {
 		// http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
 		var tmin, tmax, tymin, tymax, tzmin, tzmax;
 
-		var halfX = size.x / 2;
-		var halfY = size.x / 2;
-		var halfZ = size.x / 2;
+		var halfX = dim.x / 2;
+		var halfY = dim.x / 2;
+		var halfZ = dim.x / 2;
 		var boxMinX = center.x - halfX;
 		var boxMinY = center.y - halfY;
 		var boxMinZ = center.z - halfZ;

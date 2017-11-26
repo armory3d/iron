@@ -14,7 +14,7 @@ class Transform {
 	
 	public var dirty:Bool;
 	public var object:Object;
-	public var size:Vec4;
+	public var dim:Vec4;
 	public var radius:Float;
 	static var temp = Mat4.identity();
 	var prependMats:Array<Mat4> = null;
@@ -32,7 +32,7 @@ class Transform {
 		loc = new Vec4();
 		rot = new Quat();
 		scale = new Vec4(1.0, 1.0, 1.0);
-		size = new Vec4();
+		dim = new Vec4();
 		dirty = true;
 	}
 
@@ -140,11 +140,11 @@ class Transform {
 	}
 
 	public function computeRadius() {
-		radius = Math.sqrt(size.x * size.x + size.y * size.y + size.z * size.z);
+		radius = Math.sqrt(dim.x * dim.x + dim.y * dim.y + dim.z * dim.z);
 	}
 
 	public function setDimensions(x:Float, y:Float, z:Float) {
-		size.set(x, y, z);
+		dim.set(x, y, z);
 		computeRadius();
 	}
 
