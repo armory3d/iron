@@ -32,7 +32,7 @@ class Transform {
 		loc = new Vec4();
 		rot = new Quat();
 		scale = new Vec4(1.0, 1.0, 1.0);
-		dim = new Vec4();
+		dim = new Vec4(2.0, 2.0, 2.0);
 		dirty = true;
 	}
 
@@ -96,6 +96,8 @@ class Transform {
 		// Constraints
 		if (object.constraints != null) for (c in object.constraints) c.apply(this);
 
+		computeDim();
+
 		// Update children
 		for (n in object.children) {
 			n.transform.buildMatrix();
@@ -139,12 +141,14 @@ class Transform {
 		_eulerZ = z;
 	}
 
-	public function computeRadius() {
+	function computeRadius() {
 		radius = Math.sqrt(dim.x * dim.x + dim.y * dim.y + dim.z * dim.z);
 	}
 
-	public function setDimensions(x:Float, y:Float, z:Float) {
-		dim.set(x, y, z);
+	function computeDim() {
+		if (object.raw == null || object.raw.dimensions == null) return;
+		var d = object.raw.dimensions;
+		dim.set(d[0] * scale.x, d[1] * scale.y, d[2] * scale.z);
 		computeRadius();
 	}
 

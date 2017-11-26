@@ -372,7 +372,6 @@ class Scene {
 			if (o.material_refs == null || o.material_refs.length == 0) {
 				// No material, create empty object
 				var object = addObject(parent);
-				if (o.dimensions != null) object.transform.setDimensions(o.dimensions[0], o.dimensions[1], o.dimensions[2]);
 				returnObject(object, o, done);
 			}
 			else {
@@ -503,8 +502,6 @@ class Scene {
 			if (o.tilesheet_ref != null) {
 				cast(object, MeshObject).setupTilesheet(sceneName, o.tilesheet_ref, o.tilesheet_action_ref);
 			}
-
-			if (o.dimensions != null) object.transform.setDimensions(o.dimensions[0], o.dimensions[1], o.dimensions[2]);
 			returnObject(object, o, done);
 		});
 	}
@@ -539,10 +536,6 @@ class Scene {
 			createConstraints(o.constraints, object);
 			generateTranform(o, object.transform);
 			object.setupAnimation(oactions);
-			if (o.dimensions == null) { // Assume 2x2x2 dimensions
-				var sc = object.transform.scale;
-				object.transform.setDimensions(2.0 * sc.x, 2.0 * sc.y, 2.0 * sc.z);
-			}
 			createTraits(o.traits, object);
 		}
 		done(object);
