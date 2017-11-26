@@ -61,12 +61,24 @@ class App {
 		if (Scene.active != null) Scene.active.updateFrame();
 		
 		if (traitInits.length > 0) {
-			for (f in traitInits) { if (traitInits.length == 0) break; f(); f = null; }
+			for (f in traitInits) { if (traitInits.length == 0) break; f(); }
 			traitInits.splice(0, traitInits.length);     
 		}
 
-		for (f in traitUpdates) { if (traitUpdates.length == 0) break; f(); }
-		for (f in traitLateUpdates) { if (traitLateUpdates.length == 0) break; f(); }
+		// Account for removed traits
+		var i = 0;
+		var l = traitUpdates.length;
+		while (i < l) {
+			traitUpdates[i]();
+			l == traitUpdates.length ? i++ : l = traitUpdates.length;
+		}
+
+		i = 0;
+		l = traitLateUpdates.length;
+		while (i < l) {
+			traitLateUpdates[i]();
+			l == traitLateUpdates.length ? i++ : l = traitLateUpdates.length;
+		}
 
 		iron.system.Input.endFrame();
 
@@ -83,7 +95,7 @@ class App {
 		#end
 
 		if (traitInits.length > 0) {
-			for (f in traitInits) { if (traitInits.length == 0) break; f(); f = null; }
+			for (f in traitInits) { if (traitInits.length == 0) break; f(); }
 			traitInits.splice(0, traitInits.length);     
 		}
 
