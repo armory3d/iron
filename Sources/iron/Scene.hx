@@ -46,6 +46,7 @@ class Scene {
 	public var empties:Array<Object>;
 	public var animations:Array<Animation>;
 	public var armatures:Array<Armature>;
+	public var groups:Map<String, Array<Object>> = null;
 
 	public var embedded:Map<String, kha.Image>;
 
@@ -136,6 +137,7 @@ class Scene {
 		for (o in speakers) o.remove();
 		for (o in decals) o.remove();
 		for (o in empties) o.remove();
+		groups = null;
 		root.remove();
 	}
 
@@ -536,6 +538,14 @@ class Scene {
 			createConstraints(o.constraints, object);
 			generateTranform(o, object.transform);
 			object.setupAnimation(oactions);
+			if (o.groups != null) {
+				if (groups == null) groups = new Map();
+				for (gname in o.groups) {
+					var g = groups.get(gname);
+					if (g == null) { g = []; groups.set(gname, g); }
+					g.push(object);
+				}
+			}
 			createTraits(o.traits, object);
 		}
 		done(object);
