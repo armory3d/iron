@@ -103,9 +103,11 @@ class App {
 
 		for (f in traitRenders) { if (traitRenders.length == 0) break; f(frame.g4); }
 
-		frame.g2.begin(false);
-		for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
-		frame.g2.end();
+		if (traitRenders2D.length > 0) {
+			frame.g2.begin(false);
+			for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
+			frame.g2.end();
+		}
 
 		#if arm_debug
 		renderPathTime = kha.Scheduler.realTime() - startTime;
