@@ -232,7 +232,7 @@ class Keyboard extends VirutalInput {
 		return keysReleased.get(key);
 	}
 
-	function keyToString(key: kha.input.KeyCode) {
+	public function keyToString(key: kha.input.KeyCode) {
 		if (key == kha.input.KeyCode.Space) return "space";
 		else if (key == kha.input.KeyCode.Backspace) return "backspace";
 		else if (key == kha.input.KeyCode.Tab) return "tab";
@@ -359,7 +359,7 @@ class Gamepad extends VirutalInput {
 		endFrame();
 	}
 
-	function buttonIndex(button:String):Int {
+	public function buttonIndex(button:String):Int {
 		for (i in 0...buttonsPS.length) if (buttonsPS[i] == button) return i;
 		return 0;
 	}
