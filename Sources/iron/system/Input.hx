@@ -296,8 +296,9 @@ class GamepadStick {
 
 class Gamepad extends VirutalInput {
 
-	static var buttonsPS = ['cross', 'circle', 'square', 'triangle', 'l1', 'r1', 'l2', 'r2', 'share', 'options', 'l3', 'r3', 'up', 'down', 'left', 'right', 'home', 'touchpad'];
-	// static var buttonsXBOX = ['a', 'b', 'x', 'y', 'l1', 'r1', 'l2', 'r2', 'share', 'options', 'l3', 'r3', 'up', 'down', 'left', 'right', 'home', 'touchpad'];
+	public static var buttonsPS = ['cross', 'circle', 'square', 'triangle', 'l1', 'r1', 'l2', 'r2', 'share', 'options', 'l3', 'r3', 'up', 'down', 'left', 'right', 'home', 'touchpad'];
+	public static var buttonsXBOX = ['a', 'b', 'x', 'y', 'l1', 'r1', 'l2', 'r2', 'share', 'options', 'l3', 'r3', 'up', 'down', 'left', 'right', 'home', 'touchpad'];
+	public static var buttons = buttonsPS;
 
 	var buttonsDown:Array<Float> = []; // Intensity 0 - 1
 	var buttonsStarted:Array<Bool> = [];
@@ -312,7 +313,7 @@ class Gamepad extends VirutalInput {
 	var num = 0;
 
 	public function new(i:Int) {
-		for (s in buttonsPS) {
+		for (s in buttons) {
 			buttonsDown.push(0.0);
 			buttonsStarted.push(false);
 			buttonsReleased.push(false);
@@ -360,11 +361,11 @@ class Gamepad extends VirutalInput {
 	}
 
 	public function keyCode(button:Int):String {
-		return buttonsPS[button];
+		return buttons[button];
 	}
 
 	function buttonIndex(button:String):Int {
-		for (i in 0...buttonsPS.length) if (buttonsPS[i] == button) return i;
+		for (i in 0...buttons.length) if (buttons[i] == button) return i;
 		return 0;
 	}
 
@@ -407,8 +408,8 @@ class Gamepad extends VirutalInput {
 		if (value > 0) buttonsStarted[button] = true; // Will trigger L2/R2 multiple times..
 		else buttonsReleased[button] = true;
 
-		if (value == 0.0) upVirtual(buttonsPS[button]);
-		else if (value == 1.0) downVirtual(buttonsPS[button]);
+		if (value == 0.0) upVirtual(buttons[button]);
+		else if (value == 1.0) downVirtual(buttons[button]);
 	}
 }
 
