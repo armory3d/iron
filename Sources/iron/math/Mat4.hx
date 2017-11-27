@@ -391,20 +391,20 @@ class Mat4 {
 
 	public function getQuat():Quat {
 		// Assumes the upper 3x3 is a pure rotation matrix
-		var m = clone();
-		m.toRotation();
-				
+		helpMat.setFrom(this);
+		helpMat.toRotation();
+
 		var q:Quat = new Quat();
 
-		var m11 = _00;
-		var m12 = _10;
-		var m13 = _20;
-		var m21 = _01;
-		var m22 = _11;
-		var m23 = _21;
-		var m31 = _02;
-		var m32 = _12;
-		var m33 = _22;
+		var m11 = helpMat._00;
+		var m12 = helpMat._10;
+		var m13 = helpMat._20;
+		var m21 = helpMat._01;
+		var m22 = helpMat._11;
+		var m23 = helpMat._21;
+		var m31 = helpMat._02;
+		var m32 = helpMat._12;
+		var m33 = helpMat._22;
 
 		var ftrace = m11 + m22 + m33;
 		var s = 0.0;
