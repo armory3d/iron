@@ -232,7 +232,7 @@ class Keyboard extends VirutalInput {
 		return keysReleased.get(key);
 	}
 
-	public function keyToString(key: kha.input.KeyCode) {
+	public function keyCode(key: kha.input.KeyCode):String {
 		if (key == kha.input.KeyCode.Space) return "space";
 		else if (key == kha.input.KeyCode.Backspace) return "backspace";
 		else if (key == kha.input.KeyCode.Tab) return "tab";
@@ -261,7 +261,7 @@ class Keyboard extends VirutalInput {
 	}
 
 	function downListener(code: kha.input.KeyCode) {
-		var s = keyToString(code);
+		var s = keyCode(code);
 		keysFrame.push(s);
 		keysStarted.set(s, true);
 		keysDown.set(s, true);
@@ -270,7 +270,7 @@ class Keyboard extends VirutalInput {
 	}
 
 	function upListener(code: kha.input.KeyCode) {
-		var s = keyToString(code);
+		var s = keyCode(code);
 		keysFrame.push(s);
 		keysReleased.set(s, true);
 		keysDown.set(s, false);
@@ -359,7 +359,11 @@ class Gamepad extends VirutalInput {
 		endFrame();
 	}
 
-	public function buttonIndex(button:String):Int {
+	public function keyCode(button:Int):String {
+		return buttonsPS[button];
+	}
+
+	function buttonIndex(button:String):Int {
 		for (i in 0...buttonsPS.length) if (buttonsPS[i] == button) return i;
 		return 0;
 	}
