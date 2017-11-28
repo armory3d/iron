@@ -1,7 +1,13 @@
 package iron.system;
 
 class Tween {
-	static var eases:Array<Float->Float> = [easeLinear, easeExpoOut];
+	static inline var DEFAULT_OVERSHOOT:Float = 1.70158;
+
+	static var eases:Array<Float->Float> = [easeLinear, easeSineIn, easeSineOut, easeSineInOut, easeQuadIn,
+											easeQuadOut, easeQuadInOut, easeCubicIn, easeCubicOut, easeCubicInOut,
+											easeQuartIn, easeQuartOut, easeQuartInOut, easeQuintIn, easeQuintOut,
+											easeQuintInOut, easeExpoIn, easeExpoOut, easeExpoInOut, easeCircIn,
+											easeCircOut, easeCircInOut, easeBackIn, easeBackOut, easeBackInOut];
 	static var anims:Array<TAnim> = [];
 
 	public static function to(anim:TAnim):TAnim {
@@ -120,7 +126,32 @@ class Tween {
 	}
 
 	static function easeLinear(k:Float):Float { return k; }
+	static function easeSineIn(k:Float):Float { if(k == 0){ return 0; } else if(k == 1){ return 1; } else { return 1 - Math.cos(k * Math.PI / 2); } }
+	static function easeSineOut(k:Float):Float { if(k == 0){ return 0; } else if(k == 1){ return 1; } else { return Math.sin(k * (Math.PI * 0.5)); } }
+	static function easeSineInOut(k:Float):Float { if(k == 0){ return 0; } else if(k == 1){ return 1; } else { return -0.5 * (Math.cos(Math.PI * k) - 1); } }
+	static function easeQuadIn(k:Float):Float { return k * k; }
+	static function easeQuadOut(k:Float):Float { return -k * (k - 2); }
+	static function easeQuadInOut(k:Float):Float { return (k < 0.5) ? 2 * k * k : -2 * ((k -= 1) * k) + 1; }
+	static function easeCubicIn(k:Float):Float { return k * k * k; }
+	static function easeCubicOut(k:Float):Float { return (k = k - 1) * k * k + 1; }
+	static function easeCubicInOut(k:Float):Float { return ((k *= 2) < 1) ? 0.5 * k * k * k : 0.5 * ((k -= 2) * k * k + 2); }
+	static function easeQuartIn(k:Float):Float { return (k *= k) * k; }
+	static function easeQuartOut(k:Float):Float { return 1 - (k = (k = k - 1) * k) * k; }
+	static function easeQuartInOut(k:Float):Float { return ((k *= 2) < 1) ? 0.5 * (k *= k) * k : -0.5 * ((k = (k -= 2) * k) * k - 2); }
+	static function easeQuintIn(k:Float):Float { return k * (k *= k) * k; }
+	static function easeQuintOut(k:Float):Float { return (k = k - 1) * (k *= k) * k + 1; }
+	static function easeQuintInOut(k:Float):Float { return ((k *= 2) < 1) ? 0.5 * k * (k *= k) * k : 0.5 * (k -= 2) * (k *= k) * k + 1; }
+	static function easeExpoIn(k:Float):Float { return k == 0 ? 0 : Math.pow(2, 10 * (k - 1)); }
 	static function easeExpoOut(k:Float):Float { return k == 1 ? 1 : (1 - Math.pow(2, -10 * k)); }
+	static function easeExpoInOut(k:Float):Float { if (k == 0) { return 0; } if (k == 1) { return 1; } if ((k /= 1 / 2.0) < 1.0) { return 0.5 * Math.pow(2, 10 * (k - 1)); } return 0.5 * (2 - Math.pow(2, -10 * --k)); }
+	static function easeCircIn(k:Float):Float { return -(Math.sqrt(1 - k * k) - 1); }
+	static function easeCircOut(k:Float):Float { return Math.sqrt(1 - (k - 1) * (k - 1)); }
+	static function easeCircInOut(k:Float):Float { return k <= .5 ? (Math.sqrt(1 - k * k * 4) - 1) / -2 : (Math.sqrt(1 - (k * 2 - 2) * (k * 2 - 2)) + 1) / 2; }
+	static function easeBackIn(k:Float):Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return k * k * ((DEFAULT_OVERSHOOT + 1) * k - DEFAULT_OVERSHOOT); } }
+	static function easeBackOut(k:Float):Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return ((k = k - 1) * k * ((DEFAULT_OVERSHOOT + 1) * k + DEFAULT_OVERSHOOT) + 1); } }
+	static function easeBackInOut(k:Float):Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else if ((k *= 2) < 1) { return (0.5 * (k * k * (((DEFAULT_OVERSHOOT * 1.525) + 1) * k - DEFAULT_OVERSHOOT * 1.525))); } else { return (0.5 * ((k -= 2) * k * (((DEFAULT_OVERSHOOT * 1.525) + 1) * k + DEFAULT_OVERSHOOT * 1.525) + 2)); } }
+	// elastic todo
+	// bounce todo
 }
 
 typedef TAnim = {
@@ -143,5 +174,29 @@ typedef TAnim = {
 
 @:enum abstract Ease(Int) from Int to Int {
 	var Linear = 0;
-	var ExpoOut = 1;
+	var SineIn = 1;
+	var SineOut = 2;
+	var SineInOut = 3;
+	var QuadIn = 4;
+	var QuadOut = 5;
+	var QuadInOut = 6;
+	var CubicIn = 7;
+	var CubicOut = 8;
+	var CubicInOut = 9;
+	var QuartIn = 10;
+	var QuartOut = 11;
+	var QuartInOut = 12;
+	var QuintIn = 13;
+	var QuintOut = 14;
+	var QuintInOut = 15;
+	var ExpoIn = 16;
+	var ExpoOut = 17;
+	var ExpoInOut = 18;
+	var CircIn = 19;
+	var CircOut = 20;
+	var CircInOut = 21;
+	var BackIn = 22;
+	var BackOut = 23;
+	var BackInOut = 24;
 }
+
