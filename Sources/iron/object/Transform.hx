@@ -146,9 +146,10 @@ class Transform {
 	}
 
 	function computeDim() {
-		if (object.raw == null || object.raw.dimensions == null) return;
+		if (object.raw == null) return;
 		var d = object.raw.dimensions;
-		dim.set(d[0] * scale.x, d[1] * scale.y, d[2] * scale.z);
+		if (d == null) dim.set(2 * scale.x, 2 * scale.y, 2 * scale.z);
+		else dim.set(d[0] * scale.x, d[1] * scale.y, d[2] * scale.z);
 		computeRadius();
 	}
 
