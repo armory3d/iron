@@ -326,7 +326,7 @@ class Scene {
 				if (spawnChildren && obj.children != null) {
 					for (child in obj.children) spawnObjectTree(child, object, done);
 				}
-				if (++objectsTraversed == objectsCount) done(object);
+				if (++objectsTraversed == objectsCount && done != null) done(object);
 			});
 		}
 		spawnObjectTree(obj, parent, done);
