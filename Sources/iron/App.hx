@@ -70,14 +70,14 @@ class App {
 		var l = traitUpdates.length;
 		while (i < l) {
 			traitUpdates[i]();
-			l == traitUpdates.length ? i++ : l = traitUpdates.length;
+			l <= traitUpdates.length ? i++ : l = traitUpdates.length;
 		}
 
 		i = 0;
 		l = traitLateUpdates.length;
 		while (i < l) {
 			traitLateUpdates[i]();
-			l == traitLateUpdates.length ? i++ : l = traitLateUpdates.length;
+			l <= traitLateUpdates.length ? i++ : l = traitLateUpdates.length;
 		}
 
 		iron.system.Input.endFrame();
