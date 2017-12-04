@@ -606,7 +606,7 @@ class Uniforms {
 				vx = lamp == null ? 0.0 : lamp.data.raw.near_plane;
 				vy = lamp == null ? 0.0 : lamp.data.raw.far_plane;
 			}
-			else if (c.link == "_lampPlaneProj") {
+			else if (c.link == "_lampPlaneProj") { // shadowCube
 				if (lamp != null) {
 					var near = lamp.data.raw.near_plane;
 					var far = lamp.data.raw.far_plane;

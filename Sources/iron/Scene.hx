@@ -516,6 +516,7 @@ class Scene {
 			var actionsLoaded = 0;
 			for (i in 0...o.object_actions.length) {
 				var ref = o.object_actions[i];
+				if (ref == "null") { actionsLoaded++; continue; } // No startup action set
 				Data.getSceneRaw(ref, function(action:TSceneFormat) {
 					oactions[i] = action;
 					actionsLoaded++;

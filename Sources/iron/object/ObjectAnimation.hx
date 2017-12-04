@@ -19,11 +19,14 @@ class ObjectAnimation extends Animation {
 		super();
 	}
 
-	function getAction(action:String):TObj { for (a in oactions) { if (a.objects[0].name == action) return a.objects[0]; } return null; }
+	function getAction(action:String):TObj {
+		for (a in oactions) if (a != null && a.objects[0].name == action) return a.objects[0];
+		return null;
+	}
 
 	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0, speed = 1.0, loop = true) {
 		super.play(action, onComplete, blendTime, speed, loop);
-		if (this.action == '') this.action = oactions[0].objects[0].name;
+		if (this.action == '' && oactions[0] != null) this.action = oactions[0].objects[0].name;
 		oaction = getAction(this.action);
 		if (oaction != null) {
 			isSampled = oaction.sampled != null && oaction.sampled;
@@ -31,7 +34,7 @@ class ObjectAnimation extends Animation {
 	}
 
 	public override function update(delta:Float) {
-		if (!object.visible || object.culled) return;
+		if (!object.visible || object.culled || oaction == null) return;
 		
 		#if arm_debug
 		Animation.beginProfile();
