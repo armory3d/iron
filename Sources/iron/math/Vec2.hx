@@ -14,4 +14,8 @@ class Vec2 {
 		var vy = v1y - v2y;
 		return Math.sqrt(vx * vx + vy * vy);
 	}
+
+	public inline function length() {
+		return Math.sqrt(x * x + y * y);
+	}
 }

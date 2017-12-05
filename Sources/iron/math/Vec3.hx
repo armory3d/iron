@@ -10,4 +10,8 @@ class Vec3 {
 		this.y = y;
 		this.z = z;
 	}
+
+	public inline function length() {
+		return Math.sqrt(x * x + y * y + z * z);
+	}
 }
