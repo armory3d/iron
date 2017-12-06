@@ -21,6 +21,7 @@ class BoneAnimation extends Animation {
 	var skeletonMats:Map<TObj, Mat4> = null;
 	var skeletonBonesBlend:Array<TObj> = null;
 	var skeletonMatsBlend:Map<TObj, Mat4> = null;
+	var movedBones:Array<Mat4> = null; // Prepend matrix to skeleton bone
 
 	var boneChildren:Map<String, Array<Object>> = null; // Parented to bone
 
@@ -149,8 +150,10 @@ class BoneAnimation extends Animation {
 		for (b in skeletonBones) {
 			if (b.anim != null) { updateTrack(b.anim); break; }
 		}
-		for (b in skeletonBones) {
-			updateAnimSampled(b.anim, skeletonMats.get(b));
+		for (i in 0...skeletonBones.length) {
+			var b = skeletonBones[i];
+			var mb = movedBones != null ? movedBones[i] : null;
+			updateAnimSampled(b.anim, skeletonMats.get(b), mb);
 		}
 		if (blendTime > 0 && skeletonBonesBlend != null) {
 			for (b in skeletonBonesBlend) {
@@ -363,5 +366,24 @@ class BoneAnimation extends Animation {
 		if (skeletonBones == null) return 0;
 		var track = skeletonBones[0].anim.tracks[0];
 		return Std.int(track.frames[track.frames.length - 1] - track.frames[0]);
+	}
+
+	public function getBone(name:String):TObj {
+		if (skeletonBones == null) return null;
+		for (b in skeletonBones) if (b.name == name) return b;
+		return null;
+	}
+
+	public function getBoneMat(name:String):Mat4 {
+		var bones = skeletonBones;
+		if (bones == null) return null;
+		if (movedBones == null) { movedBones = []; for (b in bones) movedBones.push(null); }
+		for (i in 0...bones.length) {
+			if (bones[i].name == name) {
+				if (movedBones[i] == null) movedBones[i] = Mat4.identity();
+				return movedBones[i];
+			}
+		}
+		return null;
 	}
 }
