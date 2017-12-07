@@ -21,7 +21,7 @@ class Quat {
 		this.w = w;
 	}
 
-	public function set(x:Float, y:Float, z:Float, w:Float) {
+	public inline function set(x:Float, y:Float, z:Float, w:Float) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -38,20 +38,20 @@ class Quat {
 	}
 
 	public function toAxisAngle(axis:Vec4):Float {
-	    normalize();
-	    var angle = 2 * Math.acos(w);
-	    var s = Math.sqrt(1 - w * w);
-	    if (s < 0.001) {
-	        axis.x = this.x;
-	        axis.y = this.y;
-	        axis.z = this.z;
-	    }
-	    else {
-	        axis.x = this.x / s;
-	        axis.y = this.y / s;
-	        axis.z = this.z / s;
-	    }
-	    return angle;
+		normalize();
+		var angle = 2 * Math.acos(w);
+		var s = Math.sqrt(1 - w * w);
+		if (s < 0.001) {
+			axis.x = this.x;
+			axis.y = this.y;
+			axis.z = this.z;
+		}
+		else {
+			axis.x = this.x / s;
+			axis.y = this.y / s;
+			axis.z = this.z / s;
+		}
+		return angle;
 	};
 
 	public function fromRotationMat(m:Mat4) {
@@ -246,6 +246,26 @@ class Quat {
 
 	public function dot(q:Quat):Float {
 		return (x * q.x) + (y * q.y) + (z * q.z) + (w * q.w);
+	}
+
+	public function rotationTo(v1:Vec4, v2:Vec4) {
+		// Rotation formed by 2 vectors
+		var a = helpVec0;
+		var dot = v1.dot(v2);
+		if (dot < -0.999999) {
+			a.crossvecs(Vec4.xAxis(), v1);
+			if (a.length() < 0.000001) a.crossvecs(Vec4.yAxis(), v1);
+			a.normalize();
+			fromAxisAngle(a, Math.PI);
+		}
+		else if (dot > 0.999999) {
+			set(0, 0, 0, 1);
+		}
+		else {
+			a.crossvecs(v1, v2);
+			set(a.x, a.z, a.y, 1 + dot);
+			normalize();
+		}
 	}
 
 	public function toString():String {
