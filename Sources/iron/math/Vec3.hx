@@ -155,6 +155,16 @@ class Vec3 {
 	public static function xAxis():Vec3 { return new Vec3(1.0, 0.0, 0.0); }
 	public static function yAxis():Vec3 { return new Vec3(0.0, 1.0, 0.0); }
 	public static function zAxis():Vec3 { return new Vec3(0.0, 0.0, 1.0); }
+	public static function one():Vec3 { return new Vec3(1.0, 1.0, 1.0); }
+	public static function zero():Vec3 { return new Vec3(0.0, 0.0, 0.0); }
+	public static function back():Vec3 { return new Vec3(0.0, -1.0, 0.0); }
+	public static function forward():Vec3 { return new Vec3(0.0, 1.0, 0.0); }
+	public static function down():Vec3 { return new Vec3(0.0, 0.0, -1.0); }
+	public static function up():Vec3 { return new Vec3(0.0, 0.0, 1.0); }
+	public static function left():Vec3 { return new Vec3(-1.0, 0.0, 0.0); }
+	public static function right():Vec3 { return new Vec3(1.0, 0.0, 0.0); }
+	public static function negativeInfinity():Vec3 { return new Vec3(Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY); }
+	public static function positiveInfinity():Vec3 { return new Vec3(Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY); }
 
 	public function toString():String {
 		return "(" + this.x + ", " + this.y + ", " + this.z + ")";

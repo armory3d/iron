@@ -106,9 +106,17 @@ class Vec2 {
 	public function distanceTo(p:Vec2):Float {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y));
 	}
-	
+
 	public static function xAxis():Vec2 { return new Vec2(1.0, 0.0); }
 	public static function yAxis():Vec2 { return new Vec2(0.0, 1.0); }
+	public static function one():Vec2 { return new Vec2(1.0, 1.0); }
+	public static function zero():Vec2 { return new Vec2(0.0, 0.0); }
+	public static function back():Vec2 { return new Vec2(0.0, -1.0); }
+	public static function forward():Vec2 { return new Vec2(0.0, 1.0); }
+	public static function left():Vec2 { return new Vec2(-1.0, 0.0); }
+	public static function right():Vec2 { return new Vec2(1.0, 0.0); }
+	public static function negativeInfinity():Vec2 { return new Vec2(Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY); }
+	public static function positiveInfinity():Vec2 { return new Vec2(Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY); }
 
 	public function toString():String {
 		return "(" + this.x + ", " + this.y + ")";
