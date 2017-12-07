@@ -11,6 +11,8 @@ class Quat {
 	static var helpVec1 = new Vec4();
 	static var helpVec2 = new Vec4();
 
+	public static function identity():Quat { return new Quat(0.0, 0.0, 0.0, 1.0); }
+
 	// Basde on https://github.com/mrdoob/three.js/
 	public function new(x = 0.0, y = 0.0, z = 0.0, w = 1.0) {
 		this.x = x;
