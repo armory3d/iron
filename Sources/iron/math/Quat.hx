@@ -248,7 +248,7 @@ class Quat {
 		return (x * q.x) + (y * q.y) + (z * q.z) + (w * q.w);
 	}
 
-	public function rotationTo(v1:Vec4, v2:Vec4) {
+	public function fromTo(v1:Vec4, v2:Vec4) {
 		// Rotation formed by 2 vectors
 		var a = helpVec0;
 		var dot = v1.dot(v2);
