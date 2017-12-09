@@ -263,7 +263,7 @@ class Quat {
 		}
 		else {
 			a.crossvecs(v1, v2);
-			set(a.x, a.z, a.y, 1 + dot);
+			set(a.x, a.y, a.z, 1 + dot);
 			normalize();
 		}
 	}

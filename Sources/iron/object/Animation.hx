@@ -133,7 +133,7 @@ class Animation {
 		}
 	}
 
-	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4, movedBone:Mat4 = null) {
+	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
 		if (anim == null) return;
 		var track = anim.tracks[0];
 		var sign = speed > 0 ? 1 : -1;
@@ -164,8 +164,6 @@ class Animation {
 		m._31 = fp.y;
 		m._32 = fp.z;
 		// boneMats.set(b, m);
-
-		if (movedBone != null) m.multmat2(movedBone);
 	}
 
 	var lastFrameIndex = -1;

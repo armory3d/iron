@@ -18,10 +18,9 @@ class BoneAnimation extends Animation {
 	// public var boneTimeIndices = new Map<TObj, Int>();
 
 	var skeletonBones:Array<TObj> = null;
-	var skeletonMats:Map<TObj, Mat4> = null;
+	var skeletonMats:Array<Mat4> = null;
 	var skeletonBonesBlend:Array<TObj> = null;
-	var skeletonMatsBlend:Map<TObj, Mat4> = null;
-	var movedBones:Array<Mat4> = null; // Prepend matrix to skeleton bone
+	var skeletonMatsBlend:Array<Mat4> = null;
 
 	var boneChildren:Map<String, Array<Object>> = null; // Parented to bone
 
@@ -56,10 +55,15 @@ class BoneAnimation extends Animation {
 		this.data = mo != null ? mo.data : null;
 		this.isSkinned = data != null ? data.isSkinned : false;
 		if (this.isSkinned) {
-			if (!MeshData.ForceCpuSkinning) {
-				this.skinBuffer = new haxe.ds.Vector(skinMaxBones * 8); // Dual quat // * 12 for matrices
+			#if (!arm_skin_cpu)
+				#if arm_skin_mat
+				var boneSize = 12; // Matrix skinning
+				#else
+				var boneSize = 8; // Dual-quat skinning
+				#end
+				this.skinBuffer = new haxe.ds.Vector(skinMaxBones * boneSize);
 				for (i in 0...this.skinBuffer.length) this.skinBuffer[i] = 0;
-			}
+			#end
 			var refs = mo.parent.raw.bone_actions;
 			if (refs != null && refs.length > 0) {
 				iron.data.Data.getSceneRaw(refs[0], function(action:TSceneFormat) { play(action.name); });
@@ -151,46 +155,59 @@ class BoneAnimation extends Animation {
 			if (b.anim != null) { updateTrack(b.anim); break; }
 		}
 		for (i in 0...skeletonBones.length) {
-			var b = skeletonBones[i];
-			var mb = movedBones != null ? movedBones[i] : null;
-			updateAnimSampled(b.anim, skeletonMats.get(b), mb);
+			updateAnimSampled(skeletonBones[i].anim, skeletonMats[i]);
 		}
 		if (blendTime > 0 && skeletonBonesBlend != null) {
 			for (b in skeletonBonesBlend) {
 				if (b.anim != null) { updateTrack(b.anim); break; }
 			}
-			for (b in skeletonBonesBlend) {
-				updateAnimSampled(b.anim, skeletonMatsBlend.get(b));
+			for (i in 0...skeletonBonesBlend.length) {
+				updateAnimSampled(skeletonBonesBlend[i].anim, skeletonMatsBlend[i]);
 			}
 		}
 
-		if (isSkinned) MeshData.ForceCpuSkinning ? updateSkinCpu() : updateSkinGpu();
+		// Do inverse kinematics here
+		if (onUpdate != null) onUpdate();
+
+		if (isSkinned) {
+			#if arm_skin_cpu
+			updateSkinCpu();
+			#else
+			updateSkinGpu();
+			#end
+		}
 		else updateBonesOnly();
 	}
 
+	// Do inverse kinematics here
+	var onUpdate:Void->Void = null;
+	public function notifyOnUpdate(f:Void->Void) {
+		onUpdate = f;
+	}
+
 	function updateBonesOnly() {
-		for (b in skeletonBones) {
+		for (i in 0...skeletonBones.length) {
 			// TODO: blendTime > 0
-			m.setFrom(skeletonMats.get(b));
-			applyParent(m, b, skeletonMats);
+			var b = skeletonBones[i];
+			m.setFrom(skeletonMats[i]);
+			applyParent(m, b, skeletonMats, skeletonBones);
 			if (boneChildren != null) updateBoneChildren(b, m);
 		}
 	}
 
-	function applyParent(m:Mat4, bone:TObj, mats:Map<TObj, Mat4>) {
+	function applyParent(m:Mat4, bone:TObj, mats:Array<Mat4>, bones:Array<TObj>) {
 		var p = bone.parent;
 		while (p != null) { // TODO: store absolute transforms per bone
-			var pm = mats.get(p);
-			if (pm == null) {
-				pm = Mat4.fromFloat32Array(p.transform.values);
-				mats.set(p, pm);
-			}
+			var boneIndex = getBoneIndex(p, bones);
+			if (boneIndex == -1) continue;
+			var pm = mats[boneIndex];
 			m.multmat2(pm);
 			p = p.parent;
 		}
 	}
 
 	// Dual quat skinning
+	#if (!arm_skin_cpu)
 	function updateSkinGpu() {
 		var bones = skeletonBones;
 
@@ -199,19 +216,20 @@ class BoneAnimation extends Animation {
 
 		for (i in 0...bones.length) {
 			
-			bm.setFrom(data.geom.skinTransform);
-			bm.multmat2(data.geom.skeletonTransformsI[i]);
+			// m.setFrom(data.geom.skinTransform);
+			m.setFrom(data.geom.skeletonTransformsI[i]);
+
 			if (blendTime > 0) {
 				var bonesBlend = skeletonBonesBlend;
 				// Decompose
-				m1.setFrom(skeletonMatsBlend.get(bonesBlend[i]));
-				applyParent(m1, bonesBlend[i], skeletonMatsBlend);
+				m1.setFrom(skeletonMatsBlend[i]);
+				applyParent(m1, bonesBlend[i], skeletonMatsBlend, skeletonBonesBlend);
 
-				m2.setFrom(skeletonMats.get(bones[i]));
-				applyParent(m2, bones[i], skeletonMats);
+				m2.setFrom(skeletonMats[i]);
+				applyParent(m2, bones[i], skeletonMats, skeletonBones);
 
 				m1.decompose(vpos, q1, vscl);
-				m2.decompose(vpos2, q2,vscl2);
+				m2.decompose(vpos2, q2, vscl2);
 
 				// Lerp
 				var fp = Vec4.lerp(vpos, vpos2, 1.0 - s);
@@ -219,39 +237,39 @@ class BoneAnimation extends Animation {
 				var fq = Quat.lerp(q1, q2, s);
 
 				// Compose
-				fq.toMat(m);
-				m.scale(fs);
-				m._30 = fp.x;
-				m._31 = fp.y;
-				m._32 = fp.z;
+				fq.toMat(m1);
+				m1.scale(fs);
+				m1._30 = fp.x;
+				m1._31 = fp.y;
+				m1._32 = fp.z;
+				m.multmat2(m1);
 			}
 			else {
-				m.setFrom(skeletonMats.get(bones[i]));
-				applyParent(m, bones[i], skeletonMats);
+				m.multmat2(skeletonMats[i]);
+				applyParent(m, bones[i], skeletonMats, skeletonBones);
 			}
-			bm.multmat2(m);
 
 			if (boneChildren != null) updateBoneChildren(bones[i], m);
 
 			#if arm_skin_mat // Matrix skinning
 			
-			bm.transpose();
-			skinBuffer[i * 12] = bm._00;
-			skinBuffer[i * 12 + 1] = bm._01;
-			skinBuffer[i * 12 + 2] = bm._02;
-			skinBuffer[i * 12 + 3] = bm._03;
-			skinBuffer[i * 12 + 4] = bm._10;
-			skinBuffer[i * 12 + 5] = bm._11;
-			skinBuffer[i * 12 + 6] = bm._12;
-			skinBuffer[i * 12 + 7] = bm._13;
-			skinBuffer[i * 12 + 8] = bm._20;
-			skinBuffer[i * 12 + 9] = bm._21;
-			skinBuffer[i * 12 + 10] = bm._22;
-			skinBuffer[i * 12 + 11] = bm._23;
+			m.transpose();
+			skinBuffer[i * 12] = m._00;
+			skinBuffer[i * 12 + 1] = m._01;
+			skinBuffer[i * 12 + 2] = m._02;
+			skinBuffer[i * 12 + 3] = m._03;
+			skinBuffer[i * 12 + 4] = m._10;
+			skinBuffer[i * 12 + 5] = m._11;
+			skinBuffer[i * 12 + 6] = m._12;
+			skinBuffer[i * 12 + 7] = m._13;
+			skinBuffer[i * 12 + 8] = m._20;
+			skinBuffer[i * 12 + 9] = m._21;
+			skinBuffer[i * 12 + 10] = m._22;
+			skinBuffer[i * 12 + 11] = m._23;
 			
 			#else // Dual quat skinning
 			
-			bm.decompose(vpos, q1, vscl);
+			m.decompose(vpos, q1, vscl);
 			q1.normalize();
 			q2.set(vpos.x, vpos.y, vpos.z, 0.0);
 			q2.multquats(q2, q1);
@@ -270,7 +288,9 @@ class BoneAnimation extends Animation {
 			#end
 		}
 	}
+	#end
 
+	#if arm_skin_cpu
 	function updateSkinCpu() {
 		#if arm_deinterleaved
 		// Assume position=0, normal=1 storage
@@ -311,8 +331,8 @@ class BoneAnimation extends Animation {
 
 				m.multmat2(data.geom.skeletonTransformsI[boneIndex]);
 
-				bm.setFrom(skeletonMats.get(bone));
-				applyParent(bm, bone, skeletonMats);
+				bm.setFrom(skeletonMats[boneIndex]);
+				applyParent(bm, bone, skeletonMats, skeletonBones);
 				m.multmat2(bm);
 
 				if (boneChildren != null) updateBoneChildren(bone, bm);
@@ -361,6 +381,7 @@ class BoneAnimation extends Animation {
 		data.geom.vertexBuffer.unlock();
 		#end
 	}
+	#end
 
 	public override function totalFrames():Int { 
 		if (skeletonBones == null) return 0;
@@ -374,16 +395,86 @@ class BoneAnimation extends Animation {
 		return null;
 	}
 
-	public function getBoneMat(name:String):Mat4 {
-		var bones = skeletonBones;
-		if (bones == null) return null;
-		if (movedBones == null) { movedBones = []; for (b in bones) movedBones.push(null); }
-		for (i in 0...bones.length) {
-			if (bones[i].name == name) {
-				if (movedBones[i] == null) movedBones[i] = Mat4.identity();
-				return movedBones[i];
-			}
+	function getBoneIndex(bone:TObj, bones:Array<TObj> = null):Int {
+		if (bones == null) bones = skeletonBones;
+		if (bones == null) return -1;
+		for (i in 0...bones.length) if (bones[i] == bone) return i;
+		return -1;
+	}
+
+	public function getBoneMat(bone:TObj):Mat4 {
+		return skeletonMats != null ? skeletonMats[getBoneIndex(bone)] : null;
+	}
+
+	static var v1 = new Vec4();
+	static var v2 = new Vec4();
+	function boneLoc(bone:TObj):Vec4 {
+		var sc = object.parent.transform.scale; // Armature scale
+		var m = getBoneMat(bone);
+		v1.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
+		return v1;
+	}
+
+	function boneDist(bone1:TObj, bone2:TObj):Float {
+		var sc = object.parent.transform.scale; // Armature scale
+		var m = getBoneMat(bone1);
+		v1.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
+		m = getBoneMat(bone2);
+		v2.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
+		return Vec4.distance3d(v1, v2);
+	}
+
+	public function solveIK(effector:TObj, goal:Vec4, precission = 1.0, maxIterations = 10) {
+		// FABRIK - Forward and backward reaching inverse kinematics solver
+		var bones:Array<TObj> = [];
+		var lengths:Array<Float> = [];
+		var startLocs:Array<Vec4> = [];
+		var prevLocs:Array<Vec4> = [];
+
+		// Traverse bone tree
+		var start = effector;
+		while (start.parent != null) {
+			bones.push(start);
+			lengths.push(boneDist(start, start.parent));
+			start = start.parent;
 		}
-		return null;
+
+		// Distance to goal
+		var v = boneLoc(start);
+		var dist = Vec4.distance3d(goal, v);
+
+		// Bones length
+		var x = 0.0;
+		for (l in lengths) x += l;
+
+		// Unreachable distance
+		if (dist > x) {
+			// Direction to goal
+			var b = bones[bones.length - 1];
+			var m = skeletonMats[getBoneIndex(b)];
+			var q = new Quat();
+			var loc = new Vec4(0, 0, 0);
+			var rot = new Quat();
+			var sc = new Vec4(1, 1, 1);
+			m.decompose(loc, q, sc);
+
+			// q.fromAxisAngle(new Vec4(0,0,1), angle);
+
+			// var vv = new Vec4();
+			// vv.setFrom(goal);
+			// vv.sub(v);
+			// q.fromTo(m.look(), vv);
+
+			m.compose(loc, q, sc);
+			
+			for (i in 0...bones.length - 1) {
+				// Cancel child bone rotation
+				var b = bones[i];
+				var m = skeletonMats[getBoneIndex(b)];
+				m.decompose(loc, q, sc);
+				m.compose(loc, new Quat(), sc);
+			}
+			return;
+		}
 	}
 }

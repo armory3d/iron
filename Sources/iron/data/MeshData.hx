@@ -15,12 +15,6 @@ class MeshData extends Data {
 	public var refcount = 0; // Number of users
 	public var handle:String; // Handle used to retrieve this object in Data
 
-#if arm_skin_cpu
-	public static inline var ForceCpuSkinning = true;
-#else
-	public static inline var ForceCpuSkinning = false;
-#end
-
 	public var isSkinned:Bool;
 
 #if arm_sdf
@@ -55,11 +49,16 @@ class MeshData extends Data {
 		// Usage, also used for instanced data
 		var parsedUsage = Usage.StaticUsage;
 		if (raw.dynamic_usage != null && raw.dynamic_usage == true) parsedUsage = Usage.DynamicUsage;
-		var usage = (isSkinned && ForceCpuSkinning) ? Usage.DynamicUsage : parsedUsage;
+		#if arm_skin_cpu
+		var usage = isSkinned ? Usage.DynamicUsage : Usage.StaticUsage;
+		#else
+		var usage = parsedUsage;
+		#end
 
 		var bonea:TFloat32Array = null; // Store bone indices and weights per vertex
 		var weighta:TFloat32Array = null;
-		if (isSkinned && !ForceCpuSkinning) {
+		#if (!arm_skin_cpu)
+		if (isSkinned) {
 			var l = Std.int(pa.length / 3) * 4;
 			bonea = new TFloat32Array(l);
 			weighta = new TFloat32Array(l);
@@ -82,6 +81,7 @@ class MeshData extends Data {
 				index += boneCount;
 			}
 		}
+		#end
 		
 		// Make vertex buffers
 		geom = new Geometry(indices, materialIndices, pa, na, uva, uva1, ca, tanga, bonea, weighta, usage, raw.instance_offsets);
@@ -109,12 +109,14 @@ class MeshData extends Data {
 			new MeshData(raw, function(dat:MeshData) {
 				// Skinned
 				if (raw.skin != null) {
+					#if arm_skin_cpu
 					dat.geom.initSkinTransform(raw.skin.transform.values);
+					#end
 					dat.geom.skinBoneCounts = raw.skin.bone_count_array;
 					dat.geom.skinBoneIndices = raw.skin.bone_index_array;
 					dat.geom.skinBoneWeights = raw.skin.bone_weight_array;
 					dat.geom.skeletonBoneRefs = raw.skin.skeleton.bone_ref_array;
-					dat.geom.initSkeletonTransforms(raw.skin.skeleton.transforms);
+					dat.geom.initSkeletonTransforms(raw.skin.skeleton.transformsI);
 					if (armature != null) dat.geom.setArmature(armature);
 					else dat.geom.addAction(format.objects, 'none');
 				}

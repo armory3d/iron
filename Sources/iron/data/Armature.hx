@@ -25,9 +25,9 @@ class Armature {
 
 		for (a in actions) {
 			if (a.mats != null) continue;
-			a.mats = new Map();
+			a.mats = [];
 			for (b in a.bones) {
-				a.mats.set(b, Mat4.fromFloat32Array(b.transform.values));
+				a.mats.push(Mat4.fromFloat32Array(b.transform.values));
 			}
 		}
 	}
@@ -64,5 +64,5 @@ class Armature {
 typedef TAction = {
 	public var name:String;
 	public var bones:Array<TObj>;
-	public var mats:Map<TObj, Mat4>;
+	public var mats:Array<Mat4>;
 }

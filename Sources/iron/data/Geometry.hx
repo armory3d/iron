@@ -44,18 +44,20 @@ class Geometry {
 	public var aabb:Vec4 = null;
 
 	// Skinned
+	#if arm_skin_cpu
 	public var skinTransform:Mat4 = null;
 	public var skinTransformI:Mat4 = null;
+	public var skeletonTransforms:Array<Mat4> = null;
+	#end
 	public var skinBoneCounts:TUint32Array = null;
 	public var skinBoneIndices:TUint32Array = null;
 	public var skinBoneWeights:TFloat32Array = null;
 
-	public var skeletonTransforms:Array<Mat4> = null;
 	public var skeletonTransformsI:Array<Mat4> = null;
 	public var skeletonBoneRefs:Array<String> = null;
 
 	public var actions:Map<String, Array<TObj>> = null;
-	public var mats:Map<String, Map<TObj, Mat4>> = null;
+	public var mats:Map<String, Array<Mat4>> = null;
 
 	public function new(indices:Array<TUint32Array>, materialIndices:Array<Int>,
 						positions:TFloat32Array,
@@ -360,33 +362,40 @@ class Geometry {
 		}
 		actions.set(name, actionBones);
 
-		var actionMats = new Map<TObj, Mat4>();
+		var actionMats:Array<Mat4> = [];
 		for (b in actionBones) {
-			actionMats.set(b, Mat4.fromFloat32Array(b.transform.values));
+			actionMats.push(Mat4.fromFloat32Array(b.transform.values));
 			// boneTimeIndices.set(b, 0);
 		}
 		mats.set(name, actionMats);
 	}
 
-	public function initSkeletonTransforms(transforms:Array<TFloat32Array>) {
-		skeletonTransforms = [];
+	public function initSkeletonTransforms(transformsI:Array<TFloat32Array>) {
 		skeletonTransformsI = [];
+		#if arm_skin_cpu
+		skeletonTransforms = [];
+		#end
 
-		for (t in transforms) {
-			var m = Mat4.fromFloat32Array(t);
-			skeletonTransforms.push(m);
-			
-			var mi = Mat4.identity();
-			mi.getInverse(m);
+		for (t in transformsI) {
+			var mi = Mat4.fromFloat32Array(t);
 			skeletonTransformsI.push(mi);
 		}
+		#if arm_skin_cpu
+			for (mi in skeletonTransformsI) {
+				var m = Mat4.identity();
+				m.getInverse(mi);
+				skeletonTransforms.push(m);
+			}
+		#end
 	}
 
+	#if arm_skin_cpu
 	public function initSkinTransform(t:TFloat32Array) {
 		skinTransform = Mat4.fromFloat32Array(t);
 		skinTransformI = Mat4.identity();
 		skinTransformI.getInverse(skinTransform);
 	}
+	#end
 
 	public function calculateAABB() {
 		var aabbMin = new Vec4(-0.01, -0.01, -0.01);

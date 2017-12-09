@@ -52,7 +52,7 @@ typedef TSkin = {
 
 typedef TSkeleton = {
 	var bone_ref_array:Array<String>;
-	var transforms:Array<TFloat32Array>; // size = 16
+	var transformsI:Array<TFloat32Array>; // size = 16, with skin.transform, pre-inverted
 }
 
 typedef TVertexArray = {
