@@ -65,7 +65,7 @@ class VirtualButton {
 	public function new() {}
 }
 
-class VirutalInput {
+class VirtualInput {
 	var virtualButtons:Map<String, VirtualButton> = null; // Button id
 
 	public function setVirtual(virtual:String, button:String) {
@@ -98,7 +98,7 @@ class VirutalInput {
 
 typedef Surface = Mouse;
 
-class Mouse extends VirutalInput {
+class Mouse extends VirtualInput {
 
 	static var buttons = ['left', 'right', 'middle'];
 	var buttonsDown = [false, false, false];
@@ -186,7 +186,7 @@ class Mouse extends VirutalInput {
 	}
 }
 
-class Keyboard extends VirutalInput {
+class Keyboard extends VirtualInput {
 
 	static var keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', ',', 'space', 'backspace', 'tab', 'enter', 'shift', 'ctrl', 'alt', 'esc', 'del', 'back', 'up', 'right', 'left', 'down'];
 	var keysDown = new Map<String, Bool>();
@@ -294,7 +294,7 @@ class GamepadStick {
 	public function new() {}
 }
 
-class Gamepad extends VirutalInput {
+class Gamepad extends VirtualInput {
 
 	public static var buttonsPS = ['cross', 'circle', 'square', 'triangle', 'l1', 'r1', 'l2', 'r2', 'share', 'options', 'l3', 'r3', 'up', 'down', 'left', 'right', 'home', 'touchpad'];
 	public static var buttonsXBOX = ['a', 'b', 'x', 'y', 'l1', 'r1', 'l2', 'r2', 'share', 'options', 'l3', 'r3', 'up', 'down', 'left', 'right', 'home', 'touchpad'];
