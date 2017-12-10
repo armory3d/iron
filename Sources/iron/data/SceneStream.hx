@@ -74,7 +74,7 @@ class SceneStream {
 			var hx = h.obj.transform.values[3];
 			var hy = h.obj.transform.values[7];
 			var hz = h.obj.transform.values[11];
-			var cameraDistance = Vec4.distance3df(camX, camY, camZ, hx, hy, hz);
+			var cameraDistance = Vec4.distancef(camX, camY, camZ, hx, hy, hz);
 			var dim = h.obj.dimensions;
 			if (dim != null) {
 				var r = dim[0];

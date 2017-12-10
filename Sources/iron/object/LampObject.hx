@@ -151,7 +151,7 @@ class LampObject extends Object {
 		}
 
 		// Adjust frustum size by longest diagonal - fix rotation swim
-		var diag0 = Vec4.distance3d(corners[0], corners[7]);
+		var diag0 = Vec4.distance(corners[0], corners[7]);
 		var offx = (diag0 - (maxx - minx)) * 0.5;
 		var offy = (diag0 - (maxy - miny)) * 0.5;
 		minx -= offx;

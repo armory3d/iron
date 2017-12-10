@@ -84,7 +84,7 @@ class Vec2 {
 		return x == v.x && y == v.y;
 	}
 
-	public inline function length() {
+	public inline function length():Float {
 		return Math.sqrt(x * x + y * y);
 	}
 
@@ -93,11 +93,11 @@ class Vec2 {
 		return this;
 	}
 
-	public static inline function distance2d(v1:Vec2, v2:Vec2):Float {
-		return distance2df(v1.x, v1.y, v2.x, v2.y);
+	public static inline function distance(v1:Vec2, v2:Vec2):Float {
+		return distancef(v1.x, v1.y, v2.x, v2.y);
 	}
 
-	public static inline function distance2df(v1x:Float, v1y:Float, v2x:Float, v2y:Float):Float {
+	public static inline function distancef(v1x:Float, v1y:Float, v2x:Float, v2y:Float):Float {
 		var vx = v1x - v2x;
 		var vy = v1y - v2y;
 		return Math.sqrt(vx * vx + vy * vy);

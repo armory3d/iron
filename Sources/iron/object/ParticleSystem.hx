@@ -228,7 +228,7 @@ class ParticleSystem {
 		var l = camera.transform.loc;
 
 		for (p in particles) { // TODO: check particle systems located at non-origin location
-			p.cameraDistance = Vec4.distance3df(p.x, p.y, p.z, l.x, l.y, l.z);
+			p.cameraDistance = Vec4.distancef(p.x, p.y, p.z, l.x, l.y, l.z);
 		}
 
 		particles.sort(function(p1:Particle, p2:Particle):Int {

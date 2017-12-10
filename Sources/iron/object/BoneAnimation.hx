@@ -421,7 +421,7 @@ class BoneAnimation extends Animation {
 		v1.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
 		m = getBoneMat(bone2);
 		v2.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
-		return Vec4.distance3d(v1, v2);
+		return Vec4.distance(v1, v2);
 	}
 
 	public function solveIK(effector:TObj, goal:Vec4, precission = 1.0, maxIterations = 10) {
@@ -441,7 +441,7 @@ class BoneAnimation extends Animation {
 
 		// Distance to goal
 		var v = boneLoc(start);
-		var dist = Vec4.distance3d(goal, v);
+		var dist = Vec4.distance(goal, v);
 
 		// Bones length
 		var x = 0.0;

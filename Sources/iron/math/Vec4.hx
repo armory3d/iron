@@ -160,7 +160,7 @@ class Vec4 {
 		return x == v.x && y == v.y && z == v.z;
 	}
 
-	public inline function length() {
+	public inline function length():Float {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
 
@@ -170,10 +170,15 @@ class Vec4 {
 	} 
 
 	public static inline function distance3d(v1:Vec4, v2:Vec4):Float {
-		return distance3df(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+		// Deprecated, use Vec4.distance
+		return distance(v1, v2);
 	}
 
-	public static inline function distance3df(v1x:Float, v1y:Float, v1z:Float, v2x:Float, v2y:Float, v2z:Float):Float {
+	public static inline function distance(v1:Vec4, v2:Vec4):Float {
+		return distancef(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+	}
+
+	public static inline function distancef(v1x:Float, v1y:Float, v1z:Float, v2x:Float, v2y:Float, v2z:Float):Float {
 		var vx = v1x - v2x;
 		var vy = v1y - v2y;
 		var vz = v1z - v2z;

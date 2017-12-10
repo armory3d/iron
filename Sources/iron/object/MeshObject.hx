@@ -329,7 +329,7 @@ class MeshObject extends Object {
 
 	public inline function computeCameraDistance(camX:Float, camY:Float, camZ:Float) {
 		// Render path mesh sorting
-		cameraDistance = iron.math.Vec4.distance3df(camX, camY, camZ, transform.worldx(), transform.worldy(), transform.worldz());
+		cameraDistance = iron.math.Vec4.distancef(camX, camY, camZ, transform.worldx(), transform.worldy(), transform.worldz());
 	}
 
 	public inline function computeScreenSize(camera:CameraObject) {

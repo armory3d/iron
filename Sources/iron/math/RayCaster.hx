@@ -68,7 +68,7 @@ class RayCaster {
 		var closest:Transform = null;
 		var minDist:Float = std.Math.POSITIVE_INFINITY;
 		for (t in intersects) {
-			var dist = Vec4.distance3d(t.loc, camera.transform.loc);
+			var dist = Vec4.distance(t.loc, camera.transform.loc);
 			if (dist < minDist) {
 				minDist = dist;
 				closest = t;

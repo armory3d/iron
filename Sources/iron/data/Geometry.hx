@@ -157,7 +157,7 @@ class Geometry {
 		// Use W component to store distance to camera
 		for (v in offsetVecs) {
 			// TODO: include parent transform
-			v.w  = iron.math.Vec4.distance3df(camX, camY, camZ, v.x, v.y, v.z);
+			v.w  = iron.math.Vec4.distancef(camX, camY, camZ, v.x, v.y, v.z);
 		}
 		
 		offsetVecs.sort(function(a, b):Int {
