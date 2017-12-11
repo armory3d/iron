@@ -25,6 +25,10 @@ class App {
 	public static var updateTime:Float;
 	public static var renderPathTime:Float;
 	#end
+	#if kha_webgl
+	static var lastw = -1;
+	static var lasth = -1;
+	#end
 
 	public static function init(_appReady:Void->Void) {
 		new App(_appReady);
@@ -85,6 +89,18 @@ class App {
 		#if arm_debug
 		iron.object.Animation.endFrame();
 		updateTime = kha.Scheduler.realTime() - startTime;
+		#end
+
+		#if kha_webgl
+		// Rebuild projection on canvas size change
+		if (lastw == -1) { lastw = App.w(); lasth = App.h(); }
+		if (lastw != App.w() || lasth != App.h()) {
+			if (iron.Scene.active != null && iron.Scene.active.camera != null) {
+				iron.Scene.active.camera.buildProjection();
+			}
+		}
+		lastw = App.w();
+		lasth = App.h();
 		#end
 	}
 
