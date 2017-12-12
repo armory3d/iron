@@ -102,6 +102,10 @@ class Uniforms {
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 					}
 				}
+				else if (tulink == "_envmap") {
+					var w = Scene.active.world;
+					if (w != null) g.setTexture(context.textureUnits[j], w.envmap);
+				}
 				else if (tulink == "_envmapBrdf") {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('brdf.png'));
 				}
@@ -544,6 +548,13 @@ class Uniforms {
 			}
 			else if (c.link == "_probeVolumeSize") {
 				v = Scene.active.world.getProbeVolumeSize(object.transform);
+			}
+			else if (c.link == "_sunDirection") {
+				var w = Scene.active.world;
+				if (w != null) {
+					helpVec.set(w.raw.sun_direction[0], w.raw.sun_direction[1], w.raw.sun_direction[2]);
+					v = helpVec;
+				}
 			}
 			// External
 			else if (externalVec3Links != null) {

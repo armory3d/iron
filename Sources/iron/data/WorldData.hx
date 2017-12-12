@@ -9,6 +9,7 @@ class WorldData extends Data {
 
 	public var name:String;
 	public var raw:TWorldData;
+	public var envmap:Image;
 	
 	var probes:Array<Probe>; 
 
@@ -26,9 +27,19 @@ class WorldData extends Data {
 			for (p in raw.probes) {
 				new Probe(p, function(self:Probe) {
 					probes.push(self);
-					if (probes.length == raw.probes.length) done(this);
+					if (probes.length == raw.probes.length) loadEnvmap(done);
 				});
 			}
+		}
+		else loadEnvmap(done);
+	}
+
+	function loadEnvmap(done:WorldData->Void) {
+		if (raw.envmap != null) {
+			iron.data.Data.getImage(raw.envmap, function(image:kha.Image) {
+				envmap = image;
+				done(this);
+			});
 		}
 		else done(this);
 	}

@@ -508,11 +508,6 @@ class RenderPath {
 	// 	end(g);
 	// }
 
-	function parseMaterialLink(handle:String):Array<String> {
-		if (handle == '_worldMaterial' && Scene.active.world != null) return Scene.active.world.raw.material_ref.split('/');
-		return null;
-	}
-
 	public function drawSkydome(handle:String) {
 		if (ConstData.skydomeVB == null) ConstData.createSkydomeData();
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
@@ -521,9 +516,6 @@ class RenderPath {
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);
 		Uniforms.setConstants(g, cc.context, null, Scene.active.camera, lamp, bindParams);
-		if (cc.materialContext != null) {
-			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
-		}
 		#if arm_deinterleaved
 		g.setVertexBuffers(ConstData.skydomeVB);
 		#else
@@ -557,9 +549,6 @@ class RenderPath {
 		var g = currentG;		
 		g.setPipeline(cc.context.pipeState);
 		Uniforms.setConstants(g, cc.context, null, Scene.active.camera, lamp, bindParams);
-		if (cc.materialContext != null) {
-			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
-		}
 		g.setVertexBuffer(vb);
 		g.setIndexBuffer(ib);
 		g.drawIndexedVertices();
@@ -574,25 +563,11 @@ class RenderPath {
 	// Full-screen triangle
 	public function drawShader(handle:String) {
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		drawQuad(cc);
-	}
-	
-	public function drawMaterial(handle:String) {
-		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		drawQuad(cc);
-	}
-
-	public function drawQuad(cc:CachedShaderContext) {
 		if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
 		var g = currentG;		
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);
-
 		Uniforms.setConstants(g, cc.context, null, Scene.active.camera, lamp, bindParams);
-		if (cc.materialContext != null) {
-			Uniforms.setMaterialConstants(g, cc.context, cc.materialContext);
-		}
-
 		g.setVertexBuffer(ConstData.screenAlignedVB);
 		g.setIndexBuffer(ConstData.screenAlignedIB);
 		g.drawIndexedVertices();
@@ -642,26 +617,6 @@ class RenderPath {
 	}
 	#end
 
-	public function loadMaterial(handle:String) {
-		loading++;
-		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		if (cc != null) { loading--; return; }
-
-		cc = new CachedShaderContext();
-		cachedShaderContexts.set(handle, cc);
-
-		var matPath:Array<String> = null;
-		if (handle.charAt(0) == '_') matPath = parseMaterialLink(handle);
-		else matPath = handle.split('/');
-		if (matPath == null) { loading--; return; } // World material not specified
-
-		Data.getMaterial(matPath[0], matPath[1], function(res:MaterialData) {
-			cc.materialContext = res.getContext(matPath[2]);
-			cc.context = res.shader.getContext(matPath[2]);
-			loading--;
-		});
-	}
-
 	public function loadShader(handle:String) {
 		loading++;
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
@@ -673,7 +628,6 @@ class RenderPath {
 		var shaderPath = handle.split("/");
 
 		Data.getShader(shaderPath[0], shaderPath[1], null, function(res:ShaderData) {
-			cc.materialContext = null;
 			cc.context = res.getContext(shaderPath[2]);
 			loading--;
 		});
@@ -864,7 +818,6 @@ class RenderTarget {
 }
 
 class CachedShaderContext {
-	public var materialContext:MaterialContext;
 	public var context:ShaderContext;
 	public function new() {}
 }

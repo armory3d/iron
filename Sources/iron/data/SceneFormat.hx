@@ -219,9 +219,22 @@ typedef TSpeakerData = {
 
 typedef TWorldData = {
 	var name:String;
-	var material_ref:String;
 	var background_color:Int;
 	var probes:Array<TProbe>;
+	@:optional var sun_direction:TFloat32Array; // Sky data
+	@:optional var turbidity:Null<Float>;
+	@:optional var ground_albedo:Null<Float>;
+	@:optional var envmap:String;
+}
+
+typedef TProbe = {
+	var irradiance:String; // Reference to TIrradiance blob
+	var strength:Float;
+	var blending:Float;
+	var volume:TFloat32Array;
+	var volume_center:TFloat32Array;
+	@:optional var radiance:String;
+	@:optional var radiance_mipmaps:Null<Int>;
 }
 
 // typedef TGreasePencilData = {
@@ -271,19 +284,6 @@ typedef TTilesheetAction = {
 	var start:Int;
 	var end:Int;
 	var loop:Bool;
-}
-
-typedef TProbe = {
-	var irradiance:String; // Reference to TIrradiance blob
-	var strength:Float;
-	var blending:Float;
-	var volume:TFloat32Array;
-	var volume_center:TFloat32Array;
-	@:optional var radiance:String;
-	@:optional var radiance_mipmaps:Null<Int>;
-	@:optional var sun_direction:TFloat32Array; // Sky data
-	@:optional var turbidity:Null<Float>;
-	@:optional var ground_albedo:Null<Float>;
 }
 
 typedef TIrradiance = { // Blob with spherical harmonics, bands 0,1,2
