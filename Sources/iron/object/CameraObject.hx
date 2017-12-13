@@ -15,7 +15,7 @@ class CameraObject extends Object {
 	// public var prevP:Mat4;
 	// #end
 	#if arm_taa
-	public var noJitterP:Mat4;
+	public var noJitterP = Mat4.identity();
 	#end
 	public var V:Mat4;
 	public var prevV:Mat4 = null;
@@ -49,11 +49,6 @@ class CameraObject extends Object {
 		// prevP.setFrom(P);
 		// #end
 
-		#if arm_taa
-		noJitterP = Mat4.identity();
-		noJitterP.setFrom(P);
-		#end
-
 		V = Mat4.identity();
 		VP = Mat4.identity();
 
@@ -73,6 +68,9 @@ class CameraObject extends Object {
 		else if (data.raw.type == "orthographic") {
 			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane);
 		}
+		#if arm_taa
+		noJitterP.setFrom(P);
+		#end
 	}
 
 	public override function remove() {
