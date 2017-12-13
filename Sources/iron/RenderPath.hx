@@ -562,6 +562,7 @@ class RenderPath {
 	
 	// Full-screen triangle
 	public function drawShader(handle:String) {
+		// file/data_name/context
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
 		var g = currentG;		
@@ -625,6 +626,7 @@ class RenderPath {
 		cc = new CachedShaderContext();
 		cachedShaderContexts.set(handle, cc);
 
+		// file/data_name/context
 		var shaderPath = handle.split("/");
 
 		Data.getShader(shaderPath[0], shaderPath[1], null, function(res:ShaderData) {
