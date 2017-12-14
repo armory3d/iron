@@ -111,11 +111,17 @@ class Mouse extends VirtualInput {
 	public var movementX(default, null) = 0.0;
 	public var movementY(default, null) = 0.0;
 	public var wheelDelta(default, null) = 0;
+	public var locked(default, null) = false;
 	var lastX = -1.0;
 	var lastY = -1.0;
 
 	public function new() {
 		kha.input.Mouse.get().notify(downListener, upListener, moveListener, wheelListener);
+		// #if cpp
+		// kha.SystemImpl.notifyOfMouseLockChange(function(id:Int) { locked = kha.SystemImpl.isMouseLocked(); }, function() {});
+		// #else
+		// kha.SystemImpl.notifyOfMouseLockChange(function() { locked = kha.SystemImpl.isMouseLocked(); }, function() {});
+		// #end
 	}
 
 	public function endFrame() {
@@ -147,6 +153,23 @@ class Mouse extends VirtualInput {
 	public function released(button:String = "left"):Bool {
 		return buttonsReleased[buttonIndex(button)];
 	}
+
+	public function lock() {
+		#if (!arm_viewport)
+		if (kha.SystemImpl.canLockMouse()) {
+			kha.SystemImpl.lockMouse();
+			locked = true;
+		}
+		#end
+	}
+	public function unlock() {
+		#if (!arm_viewport)
+		if (kha.SystemImpl.canLockMouse()) {
+			kha.SystemImpl.unlockMouse();
+			locked = false;
+		}
+		#end
+	}
 	
 	function downListener(index:Int, x:Float, y:Float) {
 		buttonsDown[index] = true;
@@ -171,10 +194,14 @@ class Mouse extends VirtualInput {
 	
 	function moveListener(x:Int, y:Int, movementX:Int, movementY:Int) {
 		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
-		// this.movementX = movementX;
-		// this.movementY = movementY;
-		this.movementX = x - lastX;
-		this.movementY = y - lastY;
+		if (locked) {
+			this.movementX = movementX;
+			this.movementY = movementY;
+		}
+		else {
+			this.movementX = x - lastX;
+			this.movementY = y - lastY;
+		}
 		lastX = x;
 		lastY = y;
 		this.x = x;
