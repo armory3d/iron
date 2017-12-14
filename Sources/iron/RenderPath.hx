@@ -88,7 +88,7 @@ class RenderPath {
 	inline public function getLamp(index:Int) { return Scene.active.lamps.length > 0 ? Scene.active.lamps[index] : null; }
 
 	public function renderFrame(g:Graphics) {
-		if (!ready) return;
+		if (!ready || iron.App.w() == 0 || iron.App.h() == 0) return;
 
 		// #if arm_resizable
 		if (lastW > 0 && (lastW != iron.App.w() || lastH != iron.App.h())) resize();
