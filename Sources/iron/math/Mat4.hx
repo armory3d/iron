@@ -514,6 +514,11 @@ class Mat4 {
 		return this;
 	}
 
+	public function applyQuat(q:Quat) {
+		q.toMat(helpMat);
+		multmat2(helpMat);
+	}
+
 	public function write(ar:haxe.ds.Vector<kha.FastFloat>, offset = 0) {
 		ar[offset + 0] = _00;
 		ar[offset + 1] = _01;
