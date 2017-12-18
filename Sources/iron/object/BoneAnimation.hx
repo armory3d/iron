@@ -84,7 +84,7 @@ class BoneAnimation extends Animation {
 		for (o in ar) {
 			var t = o.transform;
 			if (t.boneParent == null) t.boneParent = Mat4.identity();
-			if (o.raw.parent_bone_tail != null) {
+			if (o.raw.parent_bone_tail != null && !isSkinned) {
 				var v = o.raw.parent_bone_tail;
 				t.boneParent.initTranslate(v[0], v[1], v[2]);
 				t.boneParent.multmat2(bm);
@@ -217,7 +217,7 @@ class BoneAnimation extends Animation {
 		for (i in 0...bones.length) {
 			
 			// m.setFrom(data.geom.skinTransform);
-			m.setFrom(data.geom.skeletonTransformsI[i]);
+			// m.setFrom(data.geom.skeletonTransformsI[i]);
 
 			if (blendTime > 0) {
 				var bonesBlend = skeletonBonesBlend;
@@ -242,14 +242,16 @@ class BoneAnimation extends Animation {
 				m1._30 = fp.x;
 				m1._31 = fp.y;
 				m1._32 = fp.z;
-				m.multmat2(m1);
+				m.setFrom(m1);
 			}
 			else {
-				m.multmat2(skeletonMats[i]);
+				m.setFrom(skeletonMats[i]);
 				applyParent(m, bones[i], skeletonMats, skeletonBones);
 			}
 
 			if (boneChildren != null) updateBoneChildren(bones[i], m);
+
+			m.multmats(m, data.geom.skeletonTransformsI[i]);
 
 			#if arm_skin_mat // Matrix skinning
 			

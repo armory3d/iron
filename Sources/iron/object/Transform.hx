@@ -82,10 +82,10 @@ class Transform {
 			temp.multmat2(local);
 			local.setFrom(temp);
 		}
-		
 		if (appendMats != null) for (m in appendMats) local.multmat2(m);
 
 		if (boneParent != null) local.multmats(boneParent, local);
+		
 		if (object.parent != null && !localOnly) {
 			world.multmat3x4(local, object.parent.transform.world);
 		}
