@@ -19,6 +19,7 @@ class BoneAnimation extends Animation {
 
 	var skeletonBones:Array<TObj> = null;
 	var skeletonMats:Array<Mat4> = null;
+	var absMats:Array<Mat4> = null;
 	var skeletonBonesBlend:Array<TObj> = null;
 	var skeletonMatsBlend:Array<Mat4> = null;
 
@@ -249,6 +250,8 @@ class BoneAnimation extends Animation {
 				applyParent(m, bones[i], skeletonMats, skeletonBones);
 			}
 
+			if (absMats != null && i < absMats.length) absMats[i].setFrom(m);
+
 			if (boneChildren != null) updateBoneChildren(bones[i], m);
 
 			m.multmats(m, data.geom.skeletonTransformsI[i]);
@@ -406,6 +409,15 @@ class BoneAnimation extends Animation {
 
 	public function getBoneMat(bone:TObj):Mat4 {
 		return skeletonMats != null ? skeletonMats[getBoneIndex(bone)] : null;
+	}
+
+	public function getAbsMat(bone:TObj):Mat4 {
+		if (skeletonMats == null) return null;
+		if (absMats == null) {
+			absMats = [];
+			while (absMats.length < skeletonMats.length) absMats.push(Mat4.identity());
+		}
+		return absMats[getBoneIndex(bone)];
 	}
 
 	static var v1 = new Vec4();
