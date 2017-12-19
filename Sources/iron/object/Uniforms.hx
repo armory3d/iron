@@ -160,16 +160,16 @@ class Uniforms {
 			var tus = context.raw.texture_units;
 
 			for (j in 0...tus.length) { // Set texture
-				if (samplerID == tus[j].name) {						
-					if (tus[j].is_image != null && tus[j].is_image) {
+				if (samplerID == tus[j].name) {
+					var isImage = tus[j].is_image != null && tus[j].is_image;				
+					if (isImage) {
 						#if arm_voxelgi
 						g.setImageTexture(context.textureUnits[j], rt.image); // image2D
 
-						if (tus[j].params_set == null) {
-							tus[j].params_set = true;
+						// if (tus[j].params_set == null) { // TODO: store params_set per context.textureUnits[j], with tus[j] params are shared and not set for all samplers
+							// tus[j].params_set = true;
 							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
-							rt.image.generateMipmaps(16);
-						}
+						// }
 						#end
 					}
 					else if (rt.isCubeMap) {
@@ -181,8 +181,9 @@ class Uniforms {
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
 					}
 
-					if (rt.raw.mipmaps && tus[j].params_set == null) {
-						tus[j].params_set = true;
+					// if (rt.raw.mipmaps && tus[j].params_set == null) {
+					if (rt.raw.mipmaps && !isImage) {
+						// tus[j].params_set = true;
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 					}
 					// No filtering when sampling render targets
@@ -700,6 +701,12 @@ class Uniforms {
 			#if arm_vr
 			else if (c.link == "_maxRadiusSq") {
 				f = iron.system.VR.getMaxRadiusSq();
+			}
+			#end
+			#if arm_voxelgi
+			else if (c.link == "_voxelBlend") { // Blend current and last voxels
+				var freq = armory.renderpath.RenderPathCreator.voxelFreq;
+				f = (armory.renderpath.RenderPathCreator.voxelFrame % freq) / freq;
 			}
 			#end
 			// External
