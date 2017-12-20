@@ -239,7 +239,11 @@ class RenderPath {
 
 	public function generateMipmaps(target:String) {
 		var rt = renderTargets.get(target);
+		#if arm_viewport // TODO: Deprecated
+		if (rt.image.texture_ != null) untyped Krom.generateMipmaps(rt.image.texture_, 1000);
+		#else
 		rt.image.generateMipmaps(1000);
+		#end
 	}
 
 	public static function sortMeshes(meshes:Array<MeshObject>, camera:CameraObject) {
@@ -727,7 +731,11 @@ class RenderPath {
 			// Image only
 			var img = Image.create3D(width, height, depth,
 				t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
+			#if arm_viewport // TODO: Deprecated
+			if (t.mipmaps && img.texture_ != null) untyped Krom.generateMipmaps(img.texture_, 1000);
+			#else
 			if (t.mipmaps) img.generateMipmaps(1000); // Allocate mipmaps
+			#end
 			return img;
 		}
 		else { // 2D texture
