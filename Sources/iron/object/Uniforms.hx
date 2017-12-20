@@ -161,6 +161,13 @@ class Uniforms {
 
 			for (j in 0...tus.length) { // Set texture
 				if (samplerID == tus[j].name) {
+					
+					// No filtering when sampling render targets
+					// if (tus[j].params_set == null) {
+						// tus[j].params_set = true;
+						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+					// }
+
 					var isImage = tus[j].is_image != null && tus[j].is_image;				
 					if (isImage) {
 						#if arm_voxelgi
@@ -184,13 +191,8 @@ class Uniforms {
 					// if (rt.raw.mipmaps && tus[j].params_set == null) {
 					if (rt.raw.mipmaps && !isImage) {
 						// tus[j].params_set = true;
-						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 					}
-					// No filtering when sampling render targets
-					// if (tus[j].params_set == null) {
-						// tus[j].params_set = true;
-						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-					// }
 				}
 			}
 		}
