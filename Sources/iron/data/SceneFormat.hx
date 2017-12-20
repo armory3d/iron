@@ -443,11 +443,6 @@ typedef TRawContext = {
 	@:optional var geometry_shader:String;
 	@:optional var tesscontrol_shader:String;
 	@:optional var tesseval_shader:String;
-	@:optional var vertex_shader_path:String; // Load shader from this path
-	@:optional var fragment_shader_path:String;
-	@:optional var geometry_shader_path:String;
-	@:optional var tesscontrol_shader_path:String;
-	@:optional var tesseval_shader_path:String;
 }
 
 typedef TRawParam = {
