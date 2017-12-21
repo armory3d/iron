@@ -125,7 +125,7 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0, speed = 1.0, loop = true) {
+	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.2, speed = 1.0, loop = true) {
 		super.play(action, onComplete, blendTime, speed, loop);
 		if (action != '') {
 			blendTime > 0 ? setActionBlend(action) : setAction(action);
@@ -409,6 +409,10 @@ class BoneAnimation extends Animation {
 
 	public function getBoneMat(bone:TObj):Mat4 {
 		return skeletonMats != null ? skeletonMats[getBoneIndex(bone)] : null;
+	}
+
+	public function getBoneMatBlend(bone:TObj):Mat4 {
+		return skeletonMatsBlend != null ? skeletonMatsBlend[getBoneIndex(bone)] : null;
 	}
 
 	public function getAbsMat(bone:TObj):Mat4 {
