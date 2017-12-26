@@ -700,6 +700,10 @@ class Uniforms {
 			else if (c.link == "_objectInfoRandom") {
 				f = object.urandom;
 			}
+			else if (c.link == "_frameScale") {
+				f = RenderPath.active.frameTime / iron.system.Time.delta;
+				trace(f);
+			}
 			#if arm_vr
 			else if (c.link == "_maxRadiusSq") {
 				f = iron.system.VR.getMaxRadiusSq();

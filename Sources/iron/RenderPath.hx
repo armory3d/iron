@@ -15,25 +15,27 @@ class RenderPath {
 
 	public static var active:RenderPath;
 
-	var frameG:Graphics;
 	public var frameScissor = false;
 	public var frameScissorX = 0;
 	public var frameScissorY = 0;
 	public var frameScissorW = 0;
 	public var frameScissorH = 0;
-	var scissorSet = false;
-	var viewportScaled = false;
-	var currentG:Graphics;
+	public var frameTime = 0.0;
+	public var currentCube:Bool;
+	public var currentFace:Int;
+	public var currentLampIndex = 0;
 	public var currentW:Int;
 	public var currentH:Int;
 	public var currentD:Int;
 	var lastW = 0;
 	var lastH = 0;
-	public var currentCube:Bool;
-	public var currentFace:Int;
-	public var currentLampIndex = 0;
 	var bindParams:Array<String>;
 	var meshesSorted:Bool;
+	var scissorSet = false;
+	var viewportScaled = false;
+	var currentG:Graphics;
+	var frameG:Graphics;
+	var lastFrameTime = 0.0;
 	
 	public var ready(get, null):Bool;
 	function get_ready():Bool { return loading == 0; }
@@ -95,6 +97,9 @@ class RenderPath {
 		lastW = iron.App.w();
 		lastH = iron.App.h();
 		// #end
+
+		frameTime = iron.system.Time.time() - lastFrameTime;
+		lastFrameTime = iron.system.Time.time();
 
 		#if arm_debug
 		drawCalls = 0;
