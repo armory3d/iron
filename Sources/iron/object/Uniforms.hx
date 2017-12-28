@@ -63,26 +63,12 @@ class Uniforms {
 				var pos = i * 2; // bind params = [texture, samplerID]
 				var rtID = bindParams[pos];
 				var samplerID = bindParams[pos + 1];
-
 				var attachDepth = false; // Attach texture depth if '_' is prepended
 				var char = rtID.charAt(0);
-				if (char == "_") attachDepth = true;
-				if (attachDepth) rtID = rtID.substr(1);
-				if (rtID == "shadowMap" && lamp != null && lamp.data.raw.shadowmap_cube) {
-					#if kha_webgl
-					// Bind empty map to non-cubemap sampler to keep webgl happy
-					bindRenderTarget(g, RenderPath.active.renderTargets.get("arm_empty"), context, samplerID, attachDepth);
-					#end
-					rtID += "Cube"; // Bind cubemap instead
-					samplerID += "Cube";
+				if (char == "_") {
+					attachDepth = true;
+					rtID = rtID.substr(1);
 				}
-				#if kha_webgl
-				else {
-					// Bind empty map to cubemap sampler
-					bindRenderTarget(g, RenderPath.active.renderTargets.get("arm_empty_cube"), context, samplerID + "Cube", attachDepth);
-				}
-				#end
-
 				var rt = attachDepth ? RenderPath.active.depthToRenderTarget.get(rtID) : RenderPath.active.renderTargets.get(rtID);
 				bindRenderTarget(g, rt, context, samplerID, attachDepth);
 			}
@@ -702,7 +688,6 @@ class Uniforms {
 			}
 			else if (c.link == "_frameScale") {
 				f = RenderPath.active.frameTime / iron.system.Time.delta;
-				trace(f);
 			}
 			#if arm_vr
 			else if (c.link == "_maxRadiusSq") {

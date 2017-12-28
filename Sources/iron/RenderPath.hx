@@ -68,24 +68,7 @@ class RenderPath {
 		active = renderPath;
 	}
 
-	public function new() {
-		#if kha_webgl
-		// Bind empty when requested target is not found
-		var tempty = new RenderTargetRaw();
-		tempty.name = "arm_empty";
-		tempty.width = 1;
-		tempty.height = 1;
-		tempty.format = "DEPTH16";
-		createRenderTarget(tempty);
-		var temptyCube = new RenderTargetRaw();
-		temptyCube.name = "arm_empty_cube";
-		temptyCube.width = 1;
-		temptyCube.height = 1;
-		temptyCube.format = "DEPTH16";
-		temptyCube.is_cubemap = true;
-		createRenderTarget(temptyCube);
-		#end
-	}
+	public function new() {}
 
 	inline public function getLamp(index:Int) { return Scene.active.lamps.length > 0 ? Scene.active.lamps[index] : null; }
 
@@ -142,36 +125,6 @@ class RenderPath {
 		}
 		else { // Render target
 			var rt = renderTargets.get(target);
-			// TODO: Handle shadowMap target properly
-			// Create shadowmap on the fly
-			if (target == "shadowMap" && getLamp(currentLampIndex).data.raw.shadowmap_cube) {
-				// Switch to cubemap
-				rt = renderTargets.get(target + "Cube");
-				if (rt == null) {
-					// Cubemap size
-					var size = Std.int(getLamp(currentLampIndex).data.raw.shadowmap_size);
-					var t = new RenderTargetRaw();
-					t.name = target + "Cube";
-					t.width = size;
-					t.height = size;
-					t.format = "DEPTH16";
-					t.is_cubemap = true;
-					rt = createRenderTarget(t);
-				}
-			}
-			if (target == "shadowMap" && rt == null) { // Non-cube sm
-				var sizew = getLamp(currentLampIndex).data.raw.shadowmap_size;
-				var sizeh = sizew;
-				#if arm_csm // Cascades - atlas on x axis
-				sizew = sizeh * LampObject.cascadeCount;
-				#end
-				var t = new RenderTargetRaw();
-				t.name = target;
-				t.width = sizew;
-				t.height = sizeh;
-				t.format = "DEPTH16";
-				rt = createRenderTarget(t);
-			}
 			var additionalImages:Array<kha.Canvas> = null;
 			if (additional != null) {
 				additionalImages = [];
@@ -180,7 +133,6 @@ class RenderPath {
 					additionalImages.push(t.image);
 				}
 			}
-			
 			currentG = rt.isCubeMap ? rt.cubeMap.g4 : rt.image.g4;
 			currentW = rt.isCubeMap ? rt.cubeMap.width : rt.image.width;
 			currentH = rt.isCubeMap ? rt.cubeMap.height : rt.image.height;
