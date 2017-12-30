@@ -65,6 +65,7 @@ class Tween {
 			}
 
 			a._time += d; // Tween
+			a.isPlaying = true;
 
 			if (a.target != null) {
 
@@ -120,6 +121,7 @@ class Tween {
 			if (a._time >= a.duration) { // Complete
 				anims.splice(i, 1);
 				i--;
+				a.isPlaying = false;
 				if (a.done != null) a.done();
 			}
 		}
@@ -158,6 +160,7 @@ typedef TAnim = {
 	var target:Dynamic;
 	var props:Dynamic;
 	var duration:Float;
+	@:optional var isPlaying:Bool;
 	@:optional var done:Void->Void;
 	@:optional var tick:Void->Void;
 	@:optional var delay:Null<Float>;
