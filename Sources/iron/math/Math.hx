@@ -126,7 +126,7 @@ class Math {
 		Four-quadrant inverse tangent
 	*/
 	public static inline function atan2(y:Float, x:Float):Float {
-		return std.Math.atan2(x, y);
+		return std.Math.atan2(y, x);
 	};
 	
 	/*
