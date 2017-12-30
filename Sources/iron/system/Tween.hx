@@ -115,14 +115,14 @@ class Tween {
 					}
 				}
 			}
-
-			if (a.tick != null) a.tick();
-			
+		
 			if (a._time >= a.duration) { // Complete
 				anims.splice(i, 1);
 				i--;
 				a.isPlaying = false;
 				if (a.done != null) a.done();
+			} else {
+				if (a.tick != null) a.tick();
 			}
 		}
 	}
