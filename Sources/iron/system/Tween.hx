@@ -12,6 +12,7 @@ class Tween {
 
 	public static function to(anim:TAnim):TAnim {
 		anim._time = 0;
+		anim.isPlaying = false;
 		if (anim.ease == null) anim.ease = Ease.Linear;
 		
 		if (anim.target != null && anim.props != null) {
