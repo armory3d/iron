@@ -47,6 +47,7 @@ class Tween {
 	}
 
 	public static function stop(anim:TAnim) {
+		anim.isPlaying = false;
 		anims.remove(anim);
 	}
 
