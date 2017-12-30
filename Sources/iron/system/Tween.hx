@@ -12,7 +12,12 @@ class Tween {
 
 	public static function to(anim:TAnim):TAnim {
 		anim._time = 0;
-		anim.isPlaying = false;
+		if(anim.delay != null && anim.delay > 0.0){
+			anim.isPlaying = false;
+		} else {
+			anim.isPlaying = true;
+		}
+		
 		if (anim.ease == null) anim.ease = Ease.Linear;
 		
 		if (anim.target != null && anim.props != null) {
@@ -63,6 +68,7 @@ class Tween {
 
 			if (a.delay > 0) { // Delay
 				a.delay -= d;
+				a.isPlaying = false;
 				if (a.delay > 0) continue;
 			}
 
@@ -118,12 +124,12 @@ class Tween {
 				}
 			}
 		
-			if (a._time >= a.duration) { // Complete
+			if (a._time >= a.duration) { // If complete
 				anims.splice(i, 1);
 				i--;
 				a.isPlaying = false;
 				if (a.done != null) a.done();
-			} else {
+			} else { // else is still playing
 				if (a.tick != null) a.tick();
 			}
 		}
