@@ -223,12 +223,18 @@ class MeshObject extends Object {
 		if (raw != null && raw.lods != null && raw.lods.length > 0) {
 			computeScreenSize(camera);
 			initLods();
-			// Select lod
-			for (i in 0...raw.lods.length) {
-				// Lod found
-				if (screenSize > raw.lods[i].screen_size) break;
-				lod = cast lods[i];
-				if (isLodMaterial()) mats = lod.materials;
+			if (context == "voxel") {
+				// Voxelize using the lowest lod
+				lod = cast lods[lods.length - 1];
+			}
+			else {
+				// Select lod
+				for (i in 0...raw.lods.length) {
+					// Lod found
+					if (screenSize > raw.lods[i].screen_size) break;
+					lod = cast lods[i];
+					if (isLodMaterial()) mats = lod.materials;
+				}
 			}
 			if (lod == null) return; // Empty object
 		}
