@@ -215,6 +215,7 @@ typedef TSpeakerData = {
 	var volume:Float;
 	var pitch:Float;
 	var attenuation:Float;
+	var play_on_start:Bool;
 }
 
 typedef TWorldData = {
