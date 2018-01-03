@@ -19,8 +19,12 @@ class SpeakerObject extends Object {
 		
 		iron.data.Data.getSound(data.sound, function(sound:kha.Sound) {
 			this.sound = sound;
-			if (visible && data.play_on_start) Scene.active.notifyOnInit(play);
+			Scene.active.notifyOnInit(init);
 		});
+	}
+
+	function init():Void {
+		if (visible && data.play_on_start) play();
 	}
 
 	public function play() {
