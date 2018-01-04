@@ -93,11 +93,12 @@ class Scene {
 				}
 
 				active.camera = active.getCamera(format.camera_ref);
-				done(sceneObject);
+				active.ready = true;
 
-				// Hooks
 				for (f in active.traitInits) f();
 				active.traitInits = [];
+
+				done(sceneObject);
 			});
 		});
 	}
@@ -149,7 +150,6 @@ class Scene {
 		iron.data.Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			Scene.create(format, function(o:Object) {
 				if (done != null) done(o);
-				Scene.active.ready = true;
 			});
 		});
 	}

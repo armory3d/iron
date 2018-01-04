@@ -53,6 +53,7 @@ class App {
 	}
 
 	static function update() {
+		if (Scene.active == null || !Scene.active.ready) return;
 		if (pauseUpdates) return;
 		
 		#if arm_debug
@@ -105,6 +106,7 @@ class App {
 	}
 
 	static function render(frame:kha.Framebuffer) {
+		if (Scene.active == null || !Scene.active.ready) return;
 
 		#if arm_debug
 		startTime = kha.Scheduler.realTime();
