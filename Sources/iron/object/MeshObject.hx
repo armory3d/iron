@@ -195,7 +195,6 @@ class MeshObject extends Object {
 
 		if (data == null || !data.geom.ready) return; // Data not yet streamed
 		if (!visible) return; // Skip render if object is hidden
-		if (cullMaterial(context, camera)) return;
 		if (cullMesh(context, camera, lamp)) return;
 		if (raw != null && raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
 		var meshContext = raw != null ? RenderPath.meshContext == context : false;
@@ -216,6 +215,7 @@ class MeshObject extends Object {
 			for (i in 0...particleSystems.length) particleSystems[i].update(particleChildren[i], this);
 		}
 		if (tilesheet != null) tilesheet.update();
+		if (cullMaterial(context, camera)) return;
 
 		// Get lod
 		var mats = materials;

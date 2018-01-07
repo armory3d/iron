@@ -220,7 +220,7 @@ class BoneAnimation extends Animation {
 			// m.setFrom(data.geom.skinTransform);
 			// m.setFrom(data.geom.skeletonTransformsI[i]);
 
-			if (blendTime > 0) {
+			if (blendTime > 0 && skeletonBonesBlend != null) {
 				var bonesBlend = skeletonBonesBlend;
 				// Decompose
 				m1.setFrom(skeletonMatsBlend[i]);
