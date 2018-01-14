@@ -255,11 +255,19 @@ class Math {
 		return std.Math.isNaN(f);
 	}
 
+
 	/*
-		Round float with precision (default two digits).
+		Round float with precision (default two digits)
 	*/
-	public static function roundfp(f:Float, ?precision=2):Float {
+	public static function roundfp(f:Float, precision = 2):Float {
     	f *= std.Math.pow(10, precision);
     	return std.Math.round(f) / std.Math.pow(10, precision);
+	}
+
+	/*
+		clamp float to interval
+	 */
+	public static function clamp(f:Float, min:Float, max:Float):Float {
+		return f < min ? min : f > max ? max : f;
 	}
 }
