@@ -671,12 +671,12 @@ class RenderPath {
 		var depth = t.depth != null ? t.depth : 0;
 		if (t.displayp != null) { // 1080p/..
 			if (width > height) {
-				height = Std.int(height * (t.displayp / width));
-				width = t.displayp;
-			}
-			else {
 				width = Std.int(width * (t.displayp / height));
 				height = t.displayp;
+			}
+			else {
+				height = Std.int(height * (t.displayp / width));
+				width = t.displayp;
 			}
 		}
 		if (t.scale != null) {
