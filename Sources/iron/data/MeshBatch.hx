@@ -54,6 +54,7 @@ class MeshBatch {
 		var shader = m.materials[0].shader;
 		var b = buckets.get(shader);
 		if (b != null) b.removeMesh(m);
+		else nonBatched.remove(m);
 	}
 
 	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {

@@ -34,8 +34,8 @@ class MeshObject extends Object {
 	public function new(data:MeshData, materials:Vector<MaterialData>) {
 		super();
 
-		setData(data);
 		this.materials = materials;	
+		setData(data);
 		Scene.active.meshes.push(this);
 	}
 
