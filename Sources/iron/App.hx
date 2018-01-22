@@ -63,7 +63,7 @@ class App {
 		iron.system.Tween.update();
 		iron.system.Time.update();
 
-		if (Scene.active != null) Scene.active.updateFrame();
+		Scene.active.updateFrame();
 		
 		if (traitInits.length > 0) {
 			for (f in traitInits) { if (traitInits.length == 0) break; f(); }
@@ -106,7 +106,10 @@ class App {
 	}
 
 	static function render(frame:kha.Framebuffer) {
-		if (Scene.active == null || !Scene.active.ready) return;
+		if (Scene.active == null || !Scene.active.ready) {
+			render2D(frame);
+			return;
+		}
 
 		#if arm_debug
 		startTime = kha.Scheduler.realTime();
@@ -117,19 +120,23 @@ class App {
 			traitInits.splice(0, traitInits.length);     
 		}
 
-		if (Scene.active != null) Scene.active.renderFrame(frame.g4);
+		Scene.active.renderFrame(frame.g4);
 
 		for (f in traitRenders) { if (traitRenders.length == 0) break; f(frame.g4); }
 
+		render2D(frame);
+
+		#if arm_debug
+		renderPathTime = kha.Scheduler.realTime() - startTime;
+		#end
+	}
+
+	static function render2D(frame:kha.Framebuffer) {
 		if (traitRenders2D.length > 0) {
 			frame.g2.begin(false);
 			for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
 			frame.g2.end();
 		}
-
-		#if arm_debug
-		renderPathTime = kha.Scheduler.realTime() - startTime;
-		#end
 	}
 
 	// Hooks
