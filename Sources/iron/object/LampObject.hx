@@ -45,10 +45,10 @@ class LampObject extends Object {
 			P = Mat4.identity();
 		}
 		else if (type == "point" || type == "area") {
-			P = Mat4.perspective(fov, 1, data.raw.near_plane, data.raw.far_plane);
+			P = Mat4.persp(fov, 1, data.raw.near_plane, data.raw.far_plane);
 		}
 		else if (type == "spot") {
-			P = Mat4.perspective(fov, 1, data.raw.near_plane, data.raw.far_plane);
+			P = Mat4.persp(fov, 1, data.raw.near_plane, data.raw.far_plane);
 		}
 
 		Scene.active.lamps.push(this);
@@ -110,7 +110,7 @@ class LampObject extends Object {
 					near * Math.pow(far / near, f / cascadeCount),
 					factor);
 				cascadeSplit.push(cfar);
-				camSlicedP.push(Mat4.perspective(fov, aspect, near, cfar));
+				camSlicedP.push(Mat4.persp(fov, aspect, near, cfar));
 			}
 		}
 		m.multmat2(camSlicedP[cascade]);
@@ -120,7 +120,7 @@ class LampObject extends Object {
 			var near = data.raw.near_plane;
 			var far = data.raw.far_plane;
 			var aspect = camera.data.raw.aspect != null ? camera.data.raw.aspect : iron.App.w() / iron.App.h();
-			camSlicedP = Mat4.perspective(fov, aspect, near, far);
+			camSlicedP = Mat4.persp(fov, aspect, near, far);
 		}
 		m.multmat2(camSlicedP);
 		#end
@@ -181,7 +181,7 @@ class LampObject extends Object {
 		V._31 = -(miny + hy);
 		V._32 = -(minz + hz);
 
-		m = Mat4.orthogonal(-hx, hx, -hy, hy, -hz * 4, hz); // TODO: * 4 - include shadow casters out of view frustum
+		m = Mat4.ortho(-hx, hx, -hy, hy, -hz * 4, hz); // TODO: * 4 - include shadow casters out of view frustum
 		P.setFrom(m);
 
 		updateViewFrustum(camera);

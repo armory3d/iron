@@ -61,12 +61,13 @@ class CameraObject extends Object {
 	}
 
 	public function buildProjection() {
-		if (data.raw.type == "perspective") {
-			var aspect = data.raw.aspect != null ? data.raw.aspect : iron.App.w() / iron.App.h();
-			P = Mat4.perspective(data.raw.fov, aspect, nearPlane, farPlane);
+		var aspect = data.raw.aspect != null ? data.raw.aspect : iron.App.w() / iron.App.h();
+		if (data.raw.ortho_scale != null) {
+			var sc = data.raw.ortho_scale;
+			P = Mat4.ortho(-aspect * sc, aspect * sc, -1 * sc, 1 * sc, -farPlane, farPlane);
 		}
-		else if (data.raw.type == "orthographic") {
-			P = Mat4.orthogonal(-10, 10, -6, 6, -farPlane, farPlane);
+		else {
+			P = Mat4.persp(data.raw.fov, aspect, nearPlane, farPlane);
 		}
 		#if arm_taa
 		noJitterP.setFrom(P);

@@ -443,7 +443,7 @@ class Mat4 {
 		return q;
 	}
 
-	public static function perspective(fovY:Float, aspect:Float, zn:Float, zf:Float):Mat4 {
+	public static function persp(fovY:Float, aspect:Float, zn:Float, zf:Float):Mat4 {
 		var uh = 1.0 / Math.tan(fovY / 2);
 		var uw = uh / aspect;
 		return new Mat4(
@@ -454,20 +454,18 @@ class Mat4 {
 		);
 	}
 
-	public static function orthogonal(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float, orthoScale:Float = 2):Mat4 {
-		var w = right - left;
-		var h = top - bottom;
-		var p = far - near;
-
-		var x = (right + left) / w;
-		var y = (top + bottom) / h;
-		var z = (far + near) / p;
-
+	public static function ortho(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float):Mat4 {
+		var rl = right - left;
+		var tb = top - bottom;
+		var fn = far - near;
+		var tx = -(right + left) / (rl);
+		var ty = -(top + bottom) / (tb);
+		var tz = -(far + near) / (fn);
 		return new Mat4(
-			orthoScale / w,	0,				0,				-x,
-			0,				orthoScale / h,	0,				-y,
-			0,				0,				-orthoScale / p,-z,
-			0,				0,				0,				1
+			2 / rl,	0,		0,		 tx,
+			0,		2 / tb,	0,		 ty,
+			0,		0,		-2 / fn, tz,
+			0,		0,		0,		 1
 		);
 	}
 
