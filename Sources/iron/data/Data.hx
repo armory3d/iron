@@ -226,7 +226,8 @@ class Data {
 
 		// If no extension specified, set to .arm
 		var compressed = StringTools.endsWith(file, '.zip');
-		var ext = (compressed || StringTools.endsWith(file, '.arm')) ? '' : '.arm';
+		var isJson = StringTools.endsWith(file, '.json');
+		var ext = (compressed || isJson || StringTools.endsWith(file, '.arm')) ? '' : '.arm';
 
 		getBlob(file + ext, function(b:kha.Blob) {
 
@@ -246,12 +247,20 @@ class Data {
 				returnSceneRaw(file, parsed);
 			});
 #else
+
 			#if arm_json
-			var s = b.toString();
-			var parsed:TSceneFormat = s.charAt(0) == "{" ? haxe.Json.parse(s) : iron.system.ArmPack.decode(b.toBytes());
-			#else
-			var parsed:TSceneFormat = iron.system.ArmPack.decode(b.toBytes());
+			isJson = true;
 			#end
+
+			var parsed:TSceneFormat = null;
+			if (isJson) {
+				var s = b.toString();
+				parsed = s.charAt(0) == "{" ? haxe.Json.parse(s) : iron.system.ArmPack.decode(b.toBytes());
+			}
+			else {
+				parsed = iron.system.ArmPack.decode(b.toBytes());
+			}
+
 			returnSceneRaw(file, parsed);
 #end
 		});
