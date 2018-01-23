@@ -295,6 +295,7 @@ typedef TParticleData = {
 	var name:String;
 	var type:Int; // 0 - Emitter, Hair
 	var loop:Bool;
+	var render_emitter:Bool;
 	// Emission
 	var count:Int;
 	var frame_start:Float;
