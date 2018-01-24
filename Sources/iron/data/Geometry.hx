@@ -346,6 +346,7 @@ class Geometry {
 	}
 
 	public function addAction(bones:Array<TObj>, name:String) {
+		if (bones == null) return;
 		if (actions == null) {
 			actions = new Map();
 			mats = new Map();

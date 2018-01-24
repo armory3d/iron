@@ -111,6 +111,7 @@ class ParticleSystem {
 	function updateCpu(object:MeshObject, owner:MeshObject) {
 		// Make mesh data instanced
 		if (!object.data.geom.instanced) setupGeomCpu(object, owner);
+		if (emitFrom == null) return;
 
 		if (r.type == 0) { // Emitter
 			for (p in particles) computePos(p, object, particles.length, lap, count);
