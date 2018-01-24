@@ -340,7 +340,7 @@ class Gamepad extends VirtualInput {
 	public var connected = false;
 	var num = 0;
 
-	public function new(i:Int) {
+	public function new(i:Int, virtual = false) {
 		for (s in buttons) {
 			buttonsDown.push(0.0);
 			buttonsStarted.push(false);
@@ -348,7 +348,7 @@ class Gamepad extends VirtualInput {
 		}
 		num = i;
 		reset();
-		connect();
+		virtual ? connected = true : connect();
 	}
 
 	var connects = 0;

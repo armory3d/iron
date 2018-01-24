@@ -476,14 +476,19 @@ class BoneAnimation extends Animation {
 			var sc = new Vec4(1, 1, 1);
 			m.decompose(loc, q, sc);
 
-			// q.fromAxisAngle(new Vec4(0,0,1), angle);
+			// var a1 = getAbsMat(b);
+			// m1.getInverse(a1);
 
 			// var vv = new Vec4();
 			// vv.setFrom(goal);
 			// vv.sub(v);
-			// q.fromTo(m.look(), vv);
+			// q.fromTo(m1.look(), vv);
+
+			q.fromTo(v, goal);
 
 			m.compose(loc, q, sc);
+
+			// m.multmat2(m1);
 			
 			for (i in 0...bones.length - 1) {
 				// Cancel child bone rotation
@@ -494,5 +499,7 @@ class BoneAnimation extends Animation {
 			}
 			return;
 		}
+
+
 	}
 }
