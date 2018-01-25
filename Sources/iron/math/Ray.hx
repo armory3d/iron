@@ -78,8 +78,8 @@ class Ray {
 		var tmin, tmax, tymin, tymax, tzmin, tzmax;
 
 		var halfX = dim.x / 2;
-		var halfY = dim.x / 2;
-		var halfZ = dim.x / 2;
+		var halfY = dim.y / 2;
+		var halfZ = dim.z / 2;
 		var boxMinX = center.x - halfX;
 		var boxMinY = center.y - halfY;
 		var boxMinZ = center.z - halfZ;
