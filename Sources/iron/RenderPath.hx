@@ -37,6 +37,7 @@ class RenderPath {
 	var frameG:Graphics;
 	var lastFrameTime = 0.0;
 	
+	public var paused = false;
 	public var ready(get, null):Bool;
 	function get_ready():Bool { return loading == 0; }
 	var loading = 0;
@@ -75,7 +76,7 @@ class RenderPath {
 	inline public function getLamp(index:Int) { return Scene.active.lamps.length > 0 ? Scene.active.lamps[index] : null; }
 
 	public function renderFrame(g:Graphics) {
-		if (!ready || iron.App.w() == 0 || iron.App.h() == 0) return;
+		if (!ready || paused || iron.App.w() == 0 || iron.App.h() == 0) return;
 
 		// #if arm_resizable
 		if (lastW > 0 && (lastW != iron.App.w() || lastH != iron.App.h())) resize();
