@@ -52,7 +52,7 @@ class RayCaster {
 		return ray.intersectBox(c, s);
 	}
 
-	public static function getClosestBoxIntersect(transforms:Array<Transform>, inputX:Float, inputY:Float, camera:CameraObject):Transform {
+	public static function closestBoxIntersect(transforms:Array<Transform>, inputX:Float, inputY:Float, camera:CameraObject):Transform {
 		var intersects:Array<Transform> = [];
 
 		// Get intersects

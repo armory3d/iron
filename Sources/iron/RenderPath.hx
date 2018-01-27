@@ -56,7 +56,9 @@ class RenderPath {
 	}
 
 	var voxelized = 0;
+	public var onVoxelize:Void->Bool = null;
 	public function voxelize() {
+		if (onVoxelize != null) return onVoxelize();
 		#if arm_voxelgi_revox
 		return true;
 		#else
