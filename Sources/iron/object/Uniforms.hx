@@ -103,6 +103,10 @@ class Uniforms {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise64.png'));
 					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 				}
+				else if (tulink == "_blueNoise64") {
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('blue_noise64.png'));
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+				}
 				else if (tulink == "_noise256") {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise256.png'));
 					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
