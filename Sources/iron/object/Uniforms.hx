@@ -153,9 +153,9 @@ class Uniforms {
 				if (samplerID == tus[j].name) {
 					
 					// No filtering when sampling render targets
-					// if (tus[j].params_set == null) {
-						// tus[j].params_set = true;
+					// if (!context.paramsSet[j]) {
 						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+						// context.paramsSet[j] = true;
 					// }
 
 					var isImage = tus[j].is_image != null && tus[j].is_image;				
@@ -163,10 +163,10 @@ class Uniforms {
 						#if arm_voxelgi
 						g.setImageTexture(context.textureUnits[j], rt.image); // image2D
 
-						// if (tus[j].params_set == null) { // TODO: store params_set per context.textureUnits[j], with tus[j] params are shared and not set for all samplers
-							// tus[j].params_set = true;
+						if (!context.paramsSet[j]) {
 							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
-						// }
+							context.paramsSet[j] = true;
+						}
 						#end
 					}
 					else if (rt.isCubeMap) {
@@ -178,10 +178,9 @@ class Uniforms {
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
 					}
 
-					// if (rt.raw.mipmaps && tus[j].params_set == null) {
-					if (rt.raw.mipmaps && !isImage) {
-						// tus[j].params_set = true;
+					if (rt.raw.mipmaps != null && !isImage && !context.paramsSet[j]) {
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+						context.paramsSet[j] = true;
 					}
 				}
 			}

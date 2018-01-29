@@ -149,10 +149,9 @@ class MaterialContext {
 	
 	public function setTextureParameters(g:kha.graphics4.Graphics, textureIndex:Int, context:ShaderContext, unitIndex:Int) {
 		// This function is called by MeshObject for samplers set using material context
-		var tex = raw.bind_textures[textureIndex];
-		if (tex.params_set == null) {
-			context.setTextureParameters(g, unitIndex, tex);
-			tex.params_set = true;
+		if (!context.paramsSet[unitIndex]) {
+			context.setTextureParameters(g, unitIndex, raw.bind_textures[textureIndex]);
+			context.paramsSet[unitIndex] = true;
 		}
 	}
 }

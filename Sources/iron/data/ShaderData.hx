@@ -69,6 +69,7 @@ class ShaderContext {
 	public var pipeState:PipelineState;
 	public var constants:Array<ConstantLocation>;
 	public var textureUnits:Array<TextureUnit>;
+	public var paramsSet:Array<Bool>;
 
 	var structure:VertexStructure;
 	var instancing = false;
@@ -95,6 +96,7 @@ class ShaderContext {
 		pipeState = new PipelineState();
 		constants = [];
 		textureUnits = [];
+		paramsSet = [];
 
 		// Instancing
 		if (instancing) {
@@ -377,6 +379,7 @@ class ShaderContext {
 	function addTexture(tu:TTextureUnit) {
 		var unit = pipeState.getTextureUnit(tu.name);
 		textureUnits.push(unit);
+		paramsSet.push(false);
 	}
 	
 	public function setTextureParameters(g:kha.graphics4.Graphics, unitIndex:Int, tex:TBindTexture) {

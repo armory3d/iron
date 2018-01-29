@@ -140,7 +140,6 @@ typedef TBindTexture = {
 	@:optional var min_filter:String;
 	@:optional var mag_filter:String;
 	@:optional var mipmap_filter:String;
-	@:optional var params_set:Null<Bool>; // Prevents setting texture params
 	@:optional var source:String; // file, movie 
 }
 
@@ -203,7 +202,6 @@ typedef TTextureUnit = {
 	var name:String;
 	@:optional var is_image:Null<Bool>; // image2D
 	@:optional var link:String;
-	@:optional var params_set:Null<Bool>; // Prevents setting texture params
 }
 
 typedef TSpeakerData = {
