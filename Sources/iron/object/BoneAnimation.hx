@@ -64,6 +64,9 @@ class BoneAnimation extends Animation {
 				#end
 				this.skinBuffer = new haxe.ds.Vector(skinMaxBones * boneSize);
 				for (i in 0...this.skinBuffer.length) this.skinBuffer[i] = 0;
+				// Rotation is already applied to skin at export
+				object.transform.rot.set(0, 0, 0, 1);
+				object.transform.buildMatrix();
 			#end
 			var refs = mo.parent.raw.bone_actions;
 			if (refs != null && refs.length > 0) {
