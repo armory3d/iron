@@ -88,14 +88,12 @@ class BoneAnimation extends Animation {
 		for (o in ar) {
 			var t = o.transform;
 			if (t.boneParent == null) t.boneParent = Mat4.identity();
-			if (o.raw.parent_bone_tail != null && !isSkinned) {
+			if (o.raw.parent_bone_tail != null) { // && !isSkinned) {
 				var v = o.raw.parent_bone_tail;
 				t.boneParent.initTranslate(v[0], v[1], v[2]);
 				t.boneParent.multmat2(bm);
 			}
-			else {
-				t.boneParent.setFrom(bm);
-			}
+			else t.boneParent.setFrom(bm);
 			t.buildMatrix();
 		}
 	}
