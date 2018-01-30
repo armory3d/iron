@@ -151,7 +151,6 @@ class Uniforms {
 
 			for (j in 0...tus.length) { // Set texture
 				if (samplerID == tus[j].name) {
-
 					var isImage = tus[j].is_image != null && tus[j].is_image;
 					if (isImage) {
 						#if arm_voxelgi
@@ -173,11 +172,25 @@ class Uniforms {
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
 					}
 
-					if (rt.raw.mipmaps != null && !isImage && !context.paramsSet[j]) {
+
+					if (!context.paramsSet[j] && rt.raw.mipmaps != null && !isImage) {
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 						context.paramsSet[j] = true;
 					}
-					
+
+					#if kha_webgl
+					if (!context.paramsSet[j]) {
+						// if (samplerID == "shadowMap" || samplerID == "shadowMapCube" || attachDepth) {
+						if (samplerID == "shadowMap" || attachDepth) {
+							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+							context.paramsSet[j] = true;
+						}
+						if (samplerID == "shadowMapCube") {
+							context.paramsSet[j] = true;
+						}
+					}
+					#end
+
 					if (!context.paramsSet[j]) {
 						// No filtering when sampling render targets
 						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
