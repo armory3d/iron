@@ -544,11 +544,11 @@ class RenderPath {
 	public function drawStereo(drawMeshes:Void->Void) {
 		var vr = kha.vr.VrInterface.instance;
 		var g = currentG;
-		if (vr != null && vr.IsPresenting()) {
-			var appw = iron.App.w();
-			var apph = iron.App.h();
-			var halfw = Std.int(appw / 2);
+		var appw = iron.App.w();
+		var apph = iron.App.h();
+		var halfw = Std.int(appw / 2);
 
+		if (vr != null && vr.IsPresenting()) {
 			// Left eye
 			Scene.active.camera.V.setFrom(Scene.active.camera.leftV);
 			Scene.active.camera.P.self = vr.GetProjectionMatrix(0);
@@ -561,23 +561,19 @@ class RenderPath {
 			g.viewport(halfw, 0, halfw, apph);
 			drawMeshes();
 		}
-		else {
-			// Emulate
-			// var appw = iron.App.w();
-			// var apph = iron.App.h();
-			// var halfw = Std.int(appw / 2);
-			// 	// Left eye
-			// 	g.viewport(0, 0, halfw, apph);
-			// 	callCurrentStages();
+		else { // Emulate
+			// Left eye
+			g.viewport(0, 0, halfw, apph);
+			drawMeshes();
 
-			// 	// Right eye
-			// 	Scene.active.camera.move(Scene.active.camera.right(), 0.032);
-			// 	Scene.active.camera.buildMatrix();
-			// 	g.viewport(halfw, 0, halfw, apph);
-			// 	callCurrentStages();
+			// Right eye
+			Scene.active.camera.move(Scene.active.camera.right(), 0.032);
+			Scene.active.camera.buildMatrix();
+			g.viewport(halfw, 0, halfw, apph);
+			drawMeshes();
 
-			// 	Scene.active.camera.move(Scene.active.camera.right(), -0.032);
-			// 	Scene.active.camera.buildMatrix();
+			Scene.active.camera.move(Scene.active.camera.right(), -0.032);
+			Scene.active.camera.buildMatrix();
 		}
 	}
 	#end
