@@ -157,10 +157,11 @@ class Uniforms {
 						#if arm_voxelgi
 						g.setImageTexture(context.textureUnits[j], rt.image); // image2D/3D
 
-						if (!context.paramsSet[j]) {
+						// Multiple voxel volumes, always set params
+						// if (!context.paramsSet[j]) {
 							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
 							context.paramsSet[j] = true;
-						}
+						// }
 						#end
 					}
 					else if (rt.isCubeMap) {

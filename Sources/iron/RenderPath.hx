@@ -561,7 +561,7 @@ class RenderPath {
 			g.viewport(halfw, 0, halfw, apph);
 			drawMeshes();
 		}
-		else { // Emulate
+		else { // Simulate
 			// Left eye
 			g.viewport(0, 0, halfw, apph);
 			drawMeshes();
