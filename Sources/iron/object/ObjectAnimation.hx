@@ -110,7 +110,7 @@ class ObjectAnimation extends Animation {
 			if (time > total) {
 				if (onComplete != null) onComplete();
 				rewind(track);
-				if (paused) return;
+				return;
 			}
 
 			var ti = frameIndex;
