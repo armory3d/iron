@@ -152,6 +152,12 @@ class Uniforms {
 			for (j in 0...tus.length) { // Set texture
 				if (samplerID == tus[j].name) {
 					var isImage = tus[j].is_image != null && tus[j].is_image;
+
+					if (rt.raw.depth > 1) { // sampler3D
+						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
+						context.paramsSet[j] = true;
+					}
+
 					if (isImage) {
 						#if arm_voxelgi
 						g.setImageTexture(context.textureUnits[j], rt.image); // image2D/3D
@@ -160,6 +166,7 @@ class Uniforms {
 						// if (!context.paramsSet[j]) {
 							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
 							context.paramsSet[j] = true;
+
 						// }
 						#end
 					}
