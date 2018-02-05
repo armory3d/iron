@@ -422,9 +422,6 @@ class RenderPath {
 		var lamp = getLamp(currentLampIndex);
 		for (decal in Scene.active.decals) {
 			decal.render(g, context, Scene.active.camera, lamp, bindParams);
-			g.setVertexBuffer(ConstData.boxVB);
-			g.setIndexBuffer(ConstData.boxIB);
-			g.drawIndexedVertices();
 		}
 		end(g);
 	}

@@ -2,6 +2,7 @@ package iron.object;
 
 import kha.graphics4.Graphics;
 import iron.data.MaterialData;
+import iron.data.ConstData;
 import iron.object.Uniforms;
 import iron.Scene;
 
@@ -22,12 +23,14 @@ class DecalObject extends Object {
 	
 	// Called before rendering decal in render path
 	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
-		
+
 		// Check context skip
 		if (material.raw.skip_context != null &&
 			material.raw.skip_context == context) {
 			return;
 		}
+
+		transform.update();
 
 		var materialContext:MaterialContext = null;
 		for (i in 0...material.raw.contexts.length) {
@@ -42,5 +45,9 @@ class DecalObject extends Object {
 		
 		Uniforms.setConstants(g, shaderContext, this, camera, lamp, bindParams);			
 		Uniforms.setMaterialConstants(g, shaderContext, materialContext);
+
+		g.setVertexBuffer(ConstData.boxVB);
+		g.setIndexBuffer(ConstData.boxIB);
+		g.drawIndexedVertices();
 	}
 }
