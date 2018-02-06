@@ -180,7 +180,7 @@ class Uniforms {
 					}
 
 
-					if (!context.paramsSet[j] && rt.raw.mipmaps != null && !isImage) {
+					if (!context.paramsSet[j] && rt.raw.mipmaps != null && rt.raw.mipmaps == true && !isImage) {
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 						context.paramsSet[j] = true;
 					}
