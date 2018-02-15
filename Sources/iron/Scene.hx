@@ -53,6 +53,7 @@ class Scene {
 	public var ready:Bool; // Async in progress
 
 	public var traitInits:Array<Void->Void> = [];
+	public var traitRemoves:Array<Void->Void> = [];
 
 	public function new() {
 		#if arm_batch
@@ -73,6 +74,7 @@ class Scene {
 		root = new Object();
 		root.name = "Root";
 		traitInits = [];
+		traitRemoves = [];
 		if (global == null) global = new Object();
 	}
 
@@ -131,6 +133,7 @@ class Scene {
 	}
 
 	public function remove() {
+		for (f in traitRemoves) f();
 		if (meshBatch != null) meshBatch.remove();
 		for (o in meshes) o.remove();
 		for (o in lamps) o.remove();
@@ -649,6 +652,10 @@ class Scene {
 
 	public function removeInit(f:Void->Void) {
 		traitInits.remove(f);
+	}
+
+	public function notifyOnRemove(f:Void->Void) {
+		traitRemoves.push(f);
 	}
 
 	public function toString():String {
