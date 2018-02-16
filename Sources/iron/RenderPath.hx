@@ -537,6 +537,10 @@ class RenderPath {
 		end(g);
 	}
 
+	public function getComputeShader(handle:String):kha.compute.Shader {
+		return Reflect.field(kha.Shaders, handle + "_comp");
+	}
+
 	#if arm_vr
 	public function drawStereo(drawMeshes:Void->Void) {
 		var vr = kha.vr.VrInterface.instance;
