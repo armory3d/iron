@@ -115,8 +115,8 @@ class MeshData extends Data {
 					dat.geom.skinBoneCounts = raw.skin.bone_count_array;
 					dat.geom.skinBoneIndices = raw.skin.bone_index_array;
 					dat.geom.skinBoneWeights = raw.skin.bone_weight_array;
-					dat.geom.skeletonBoneRefs = raw.skin.skeleton.bone_ref_array;
-					dat.geom.initSkeletonTransforms(raw.skin.skeleton.transformsI);
+					dat.geom.skeletonBoneRefs = raw.skin.bone_ref_array;
+					dat.geom.initSkeletonTransforms(raw.skin.transformsI);
 					if (armature != null) dat.geom.setArmature(armature);
 					else dat.geom.addAction(format.objects, 'none');
 				}

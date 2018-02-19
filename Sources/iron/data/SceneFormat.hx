@@ -44,15 +44,12 @@ typedef TMeshData = {
 
 typedef TSkin = {
 	var transform:TTransform;
-	var skeleton:TSkeleton;
+	var bone_ref_array:Array<String>;
+	var transformsI:Array<TFloat32Array>; // per-bone, size = 16, with skin.transform, pre-inverted
 	var bone_count_array:TUint32Array;
 	var bone_index_array:TUint32Array;
 	var bone_weight_array:TFloat32Array;
-}
-
-typedef TSkeleton = {
-	var bone_ref_array:Array<String>;
-	var transformsI:Array<TFloat32Array>; // size = 16, with skin.transform, pre-inverted
+	var constraints:Array<TConstraint>;
 }
 
 typedef TVertexArray = {
@@ -369,6 +366,7 @@ typedef TLod = {
 typedef TConstraint = {
 	var name:String;
 	var type:String;
+	@:optional var bone:String; // Bone constraint
 	@:optional var target:String;
 	@:optional var use_x:Null<Bool>;
 	@:optional var use_y:Null<Bool>;

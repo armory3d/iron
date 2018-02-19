@@ -25,6 +25,9 @@ class BoneAnimation extends Animation {
 
 	var boneChildren:Map<String, Array<Object>> = null; // Parented to bone
 
+	var constraintTargets:Array<Object> = null;
+	var constraintMats:Map<TObj, Mat4> = null;
+
 	var m = Mat4.identity(); // Skinning matrix
 	var m1 = Mat4.identity(); // Skinning matrix
 	var m2 = Mat4.identity(); // Skinning matrix
@@ -168,6 +171,8 @@ class BoneAnimation extends Animation {
 			}
 		}
 
+		updateConstraints();
+
 		// Do inverse kinematics here
 		if (onUpdate != null) onUpdate();
 
@@ -179,6 +184,32 @@ class BoneAnimation extends Animation {
 			#end
 		}
 		else updateBonesOnly();
+	}
+
+	function updateConstraints() {
+		var cs = data.raw.skin.constraints;
+		if (cs == null) return;
+		if (constraintTargets == null) {
+			constraintTargets = [];
+			for (c in cs) constraintTargets.push(iron.Scene.active.getChild(c.target));
+			constraintMats = new Map();
+		}
+		for (i in 0...cs.length) {
+			var c = cs[i];
+			var bone = getBone(c.bone);
+			if (bone == null) continue;
+			var o = constraintTargets[i];
+			if (o == null) continue;
+			if (c.type == "CHILD_OF") {
+				var m = constraintMats.get(bone);
+				if (m == null) { m = Mat4.identity(); constraintMats.set(bone, m); }
+				var v = o.raw.transform.values;
+				m.initTranslate(-v[3], -v[7], -v[11]); // Append matrix diff to bone
+				m.applyQuat(o.transform.world.getQuat());
+				var l = o.transform.world.getLoc();
+				m.translate(l.x, l.y, l.z);
+			}
+		}
 	}
 
 	// Do inverse kinematics here
@@ -218,8 +249,10 @@ class BoneAnimation extends Animation {
 
 		for (i in 0...bones.length) {
 			
-			// m.setFrom(data.geom.skinTransform);
-			// m.setFrom(data.geom.skeletonTransformsI[i]);
+			if (constraintMats != null) {
+				var m = constraintMats.get(bones[i]);
+				if (m != null) { updateSkinBuffer(m, i); continue; }
+			}
 
 			if (blendTime > 0 && skeletonBonesBlend != null) {
 				var bonesBlend = skeletonBonesBlend;
@@ -257,42 +290,46 @@ class BoneAnimation extends Animation {
 
 			m.multmats(m, data.geom.skeletonTransformsI[i]);
 
-			#if arm_skin_mat // Matrix skinning
-			
-			m.transpose();
-			skinBuffer[i * 12] = m._00;
-			skinBuffer[i * 12 + 1] = m._01;
-			skinBuffer[i * 12 + 2] = m._02;
-			skinBuffer[i * 12 + 3] = m._03;
-			skinBuffer[i * 12 + 4] = m._10;
-			skinBuffer[i * 12 + 5] = m._11;
-			skinBuffer[i * 12 + 6] = m._12;
-			skinBuffer[i * 12 + 7] = m._13;
-			skinBuffer[i * 12 + 8] = m._20;
-			skinBuffer[i * 12 + 9] = m._21;
-			skinBuffer[i * 12 + 10] = m._22;
-			skinBuffer[i * 12 + 11] = m._23;
-			
-			#else // Dual quat skinning
-			
-			m.decompose(vpos, q1, vscl);
-			q1.normalize();
-			q2.set(vpos.x, vpos.y, vpos.z, 0.0);
-			q2.multquats(q2, q1);
-			q2.x *= 0.5; q2.y *= 0.5; q2.z *= 0.5; q2.w *= 0.5;
-			// q1.set(0, 0, 0, 1); // No skin
-			// q2.set(0, 0, 0, 1);
-			skinBuffer[i * 8] = q1.x; // Real
-			skinBuffer[i * 8 + 1] = q1.y;
-			skinBuffer[i * 8 + 2] = q1.z;
-			skinBuffer[i * 8 + 3] = q1.w;
-			skinBuffer[i * 8 + 4] = q2.x; // Dual
-			skinBuffer[i * 8 + 5] = q2.y;
-			skinBuffer[i * 8 + 6] = q2.z;
-			skinBuffer[i * 8 + 7] = q2.w;
-			
-			#end
+			updateSkinBuffer(m, i);
 		}
+	}
+
+	function updateSkinBuffer(m:Mat4, i:Int) {
+		#if arm_skin_mat // Matrix skinning
+		
+		m.transpose();
+		skinBuffer[i * 12] = m._00;
+		skinBuffer[i * 12 + 1] = m._01;
+		skinBuffer[i * 12 + 2] = m._02;
+		skinBuffer[i * 12 + 3] = m._03;
+		skinBuffer[i * 12 + 4] = m._10;
+		skinBuffer[i * 12 + 5] = m._11;
+		skinBuffer[i * 12 + 6] = m._12;
+		skinBuffer[i * 12 + 7] = m._13;
+		skinBuffer[i * 12 + 8] = m._20;
+		skinBuffer[i * 12 + 9] = m._21;
+		skinBuffer[i * 12 + 10] = m._22;
+		skinBuffer[i * 12 + 11] = m._23;
+		
+		#else // Dual quat skinning
+		
+		m.decompose(vpos, q1, vscl);
+		q1.normalize();
+		q2.set(vpos.x, vpos.y, vpos.z, 0.0);
+		q2.multquats(q2, q1);
+		q2.x *= 0.5; q2.y *= 0.5; q2.z *= 0.5; q2.w *= 0.5;
+		// q1.set(0, 0, 0, 1); // No skin
+		// q2.set(0, 0, 0, 1);
+		skinBuffer[i * 8] = q1.x; // Real
+		skinBuffer[i * 8 + 1] = q1.y;
+		skinBuffer[i * 8 + 2] = q1.z;
+		skinBuffer[i * 8 + 3] = q1.w;
+		skinBuffer[i * 8 + 4] = q2.x; // Dual
+		skinBuffer[i * 8 + 5] = q2.y;
+		skinBuffer[i * 8 + 6] = q2.z;
+		skinBuffer[i * 8 + 7] = q2.w;
+		
+		#end
 	}
 	#end
 
