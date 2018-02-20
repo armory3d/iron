@@ -26,6 +26,7 @@ class BoneAnimation extends Animation {
 	var boneChildren:Map<String, Array<Object>> = null; // Parented to bone
 
 	var constraintTargets:Array<Object> = null;
+	var constraintTargetsI:Array<Mat4> = null;
 	var constraintMats:Map<TObj, Mat4> = null;
 
 	var m = Mat4.identity(); // Skinning matrix
@@ -189,11 +190,23 @@ class BoneAnimation extends Animation {
 	function updateConstraints() {
 		var cs = data.raw.skin.constraints;
 		if (cs == null) return;
+		// Init constraints
 		if (constraintTargets == null) {
 			constraintTargets = [];
-			for (c in cs) constraintTargets.push(iron.Scene.active.getChild(c.target));
+			constraintTargetsI = [];
+			for (c in cs) {
+				var o = iron.Scene.active.getChild(c.target);
+				constraintTargets.push(o);
+				var m:Mat4 = null;
+				if (o != null) {
+					m = Mat4.fromFloat32Array(o.raw.transform.values);
+					m.getInverse(m);
+				}
+				constraintTargetsI.push(m);
+			}
 			constraintMats = new Map();
 		}
+		// Update matrices
 		for (i in 0...cs.length) {
 			var c = cs[i];
 			var bone = getBone(c.bone);
@@ -203,11 +216,11 @@ class BoneAnimation extends Animation {
 			if (c.type == "CHILD_OF") {
 				var m = constraintMats.get(bone);
 				if (m == null) { m = Mat4.identity(); constraintMats.set(bone, m); }
-				var v = o.raw.transform.values;
-				m.initTranslate(-v[3], -v[7], -v[11]); // Append matrix diff to bone
-				m.applyQuat(o.transform.world.getQuat());
-				var l = o.transform.world.getLoc();
-				m.translate(l.x, l.y, l.z);
+				m.setFrom(object.parent.transform.world); // Armature transform
+				m.multmat2(constraintTargetsI[i]); // Roll back initial hitbox transform
+				m.multmat2(o.transform.world); // Current hitbox transform
+				m1.getInverse(object.parent.transform.world); // Roll back armature transform
+				m.multmat2(m1);
 			}
 		}
 	}
