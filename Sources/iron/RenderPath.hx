@@ -96,7 +96,7 @@ class RenderPath {
 		numTrisShadow = 0;
 		#end
 		
-		frameG = Scene.active.camera.data.mirror == null ? g : Scene.active.camera.data.mirror.g4; // Render to screen or camera texture
+		frameG = Scene.active.camera.data.renderTarget == null ? g : Scene.active.camera.data.renderTarget.g4; // Render to screen or camera texture
 		currentG = frameG;
 		currentW = iron.App.w();
 		currentH = iron.App.h();

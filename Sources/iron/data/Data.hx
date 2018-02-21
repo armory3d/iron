@@ -445,7 +445,9 @@ class Data {
 
 	static var loadingVideos:Map<String, Array<kha.Video->Void>> = new Map();
 	public static function getVideo(file:String, done:kha.Video->Void) {
-		// TODO: fix extension
+#if cpp
+		file = file.substring(0, file.length - 4) + '.avi';
+#end
 		var cached = cachedVideos.get(file);
 		if (cached != null) { done(cached); return; }
 

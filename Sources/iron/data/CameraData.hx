@@ -6,7 +6,7 @@ class CameraData extends Data {
 
 	public var name:String;
 	public var raw:TCameraData;
-	public var mirror:kha.Image = null;
+	public var renderTarget:kha.Image = null;
 
 	public function new(raw:TCameraData, done:CameraData->Void, file = "") {
 		super();
@@ -14,7 +14,7 @@ class CameraData extends Data {
 		this.name = raw.name;
 
 		if (raw.render_to_texture) {
-			mirror = kha.Image.createRenderTarget(
+			renderTarget = kha.Image.createRenderTarget(
 				raw.texture_resolution_x, raw.texture_resolution_y,
 				kha.graphics4.TextureFormat.RGBA32,
 				kha.graphics4.DepthStencilFormat.NoDepthAndStencil);

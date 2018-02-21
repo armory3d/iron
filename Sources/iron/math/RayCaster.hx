@@ -82,7 +82,7 @@ class RayCaster {
 		var ray = getRay(inputX, inputY, camera);
 
 		var plane = new Plane();
-		plane.setFromNormalAndCoplanarPoint(normal, a);
+		plane.set(normal, a);
 
 		return ray.intersectPlane(plane);
 	}

@@ -189,6 +189,14 @@ class Vec4 {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
 	}
 
+	public function reflect(n:Vec4):Vec4 {
+		var d = this.dot(n);
+		x = x - 2.0 * d * n.x;
+		y = y - 2.0 * d * n.y;
+		z = z - 2.0 * d * n.z;
+		return this;
+	}
+
 	public static function xAxis():Vec4 { return new Vec4(1.0, 0.0, 0.0); }
 	public static function yAxis():Vec4 { return new Vec4(0.0, 1.0, 0.0); }
 	public static function zAxis():Vec4 { return new Vec4(0.0, 0.0, 1.0); }

@@ -171,9 +171,29 @@ class Scene {
 		framePassed = true;
 
 		var activeCamera = camera;
-		// Render active mirrors
+		// Render probes
 		for (cam in cameras) {
-			if (cam.data.mirror != null) {
+			if (cam.data.renderTarget != null) {
+
+				// Reflection probe
+				// var mo = cast(iron.Scene.active.getChild("CameraPlane"), MeshObject);
+				// var nors = mo.data.geom.normals;
+				// var nor = new iron.math.Vec4(nors[0], nors[1], nors[2]);
+				// // nor.applyproj(mo.transform.world);
+				// var a = mo.transform.world.getLoc();
+				// var plane = new iron.math.Ray.Plane();
+				// plane.set(nor, a);
+				// var start = activeCamera.transform.world.getLoc();
+				// nor.mult(-1);
+				// var end = nor;
+				// var ray = new iron.math.Ray(start, end);
+				// var hit = ray.intersectPlane(plane);
+				// if (hit != null) {
+				// 	cam.transform.loc.setFrom(hit);
+				// 	nor.mult(-1);
+				// 	cam.transform.rot = hit.reflect(nor);
+				// }
+
 				camera = cam;
 				camera.renderFrame(g);
 			}

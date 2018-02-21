@@ -210,7 +210,7 @@ class Plane {
 		return normal.dot(point) + constant;
 	}
 
-	public function setFromNormalAndCoplanarPoint(normal:Vec4, point:Vec4):Plane {
+	public function set(normal:Vec4, point:Vec4):Plane {
 		this.normal.setFrom(normal);
 		constant = -point.dot(this.normal);
 		return this;
