@@ -69,14 +69,9 @@ class MeshObject extends Object {
 		var hasAction = parent != null && parent.raw != null && parent.raw.bone_actions != null;
 		if (hasAction) {
 			var armatureName = parent.name;
-			for (a in Scene.active.animations) if (a.armature != null && a.armature.name == armatureName) { animation = a; break; }
+			animation = getArmature(armatureName);
 			if (animation == null) animation = new BoneAnimation(armatureName);
-
-			var banimation = cast(animation, BoneAnimation);
-			if (data.isSkinned) banimation.setSkin(this);
-			// This object is parented to bone
-			// TODO: allow non-mesh object to be parented to bone
-			else if (raw.parent_bone != null) banimation.addBoneChild(raw.parent_bone, this);
+			if (data.isSkinned) cast(animation, BoneAnimation).setSkin(this);
 		}
 		super.setupAnimation(oactions);
 	}

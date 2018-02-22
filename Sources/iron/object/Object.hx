@@ -127,7 +127,18 @@ class Object {
 		return null;
 	}
 
+	function getArmature(name:String):BoneAnimation {
+		for (a in Scene.active.animations) if (a.armature != null && a.armature.name == name) return cast a;
+		return null;
+	}
+
 	public function setupAnimation(oactions:Array<TSceneFormat> = null) {
+		// Parented to bone
+		if (raw.parent_bone != null) {
+			var banim = getArmature(parent.name);
+			if (banim != null) banim.addBoneChild(raw.parent_bone, this);
+		}
+		// Object actions
 		if (oactions == null) return;
 		animation = new ObjectAnimation(this, oactions);
 	}

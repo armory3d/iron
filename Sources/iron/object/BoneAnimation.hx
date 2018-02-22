@@ -79,11 +79,11 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	public function addBoneChild(bone:String, mo:MeshObject) {
+	public function addBoneChild(bone:String, o:Object) {
 		if (boneChildren == null) boneChildren = new Map();
 		var ar:Array<Object> = boneChildren.get(bone);
 		if (ar == null) { ar = []; boneChildren.set(bone, ar); }
-		ar.push(mo);
+		ar.push(o);
 	}
 
 	function updateBoneChildren(bone:TObj, bm:Mat4) {
