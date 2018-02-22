@@ -8,10 +8,10 @@ class Audio {
 
 	}
 
-	public static function play(sound:Sound, loop = false) {
+	public static function play(sound:Sound, loop = false):kha.audio1.AudioChannel {
 		#if arm_no_audio
-		return;
+		return null;
 		#end
-		kha.audio1.Audio.play(sound, loop);
+		return kha.audio1.Audio.play(sound, loop);
 	}
 }

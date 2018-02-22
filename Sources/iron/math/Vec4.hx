@@ -169,11 +169,6 @@ class Vec4 {
 		return this;
 	} 
 
-	public static inline function distance3d(v1:Vec4, v2:Vec4):Float {
-		// Deprecated, use Vec4.distance
-		return distance(v1, v2);
-	}
-
 	public static inline function distance(v1:Vec4, v2:Vec4):Float {
 		return distancef(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 	}
