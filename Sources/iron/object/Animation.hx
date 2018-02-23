@@ -121,14 +121,9 @@ class Animation {
 
 		// End of track
 		if (isTrackEnd(track)) {
+			if (loop || blendTime > 0) rewind(track);
+			else { frameIndex -= sign; paused = true; }
 			if (onComplete != null && blendTime == 0) onComplete();
-			if (loop || blendTime > 0) {
-				rewind(track);
-			}
-			else {
-				frameIndex -= sign;
-				paused = true;
-			}
 			//boneTimeIndices.set(b, frameIndex);
 		}
 	}

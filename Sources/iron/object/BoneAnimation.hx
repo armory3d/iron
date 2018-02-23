@@ -106,6 +106,8 @@ class BoneAnimation extends Animation {
 		if (isSkinned) {
 			skeletonBones = data.geom.actions.get(action);
 			skeletonMats = data.geom.mats.get(action);
+			skeletonBonesBlend = null;
+			skeletonMatsBlend = null;
 		}
 		else {
 			armature.initMats();
@@ -157,9 +159,12 @@ class BoneAnimation extends Animation {
 	}
 
 	function updateAnim() {
+		var lastBones = skeletonBones;
 		for (b in skeletonBones) {
 			if (b.anim != null) { updateTrack(b.anim); break; }
 		}
+		// Action has been changed by onComplete
+		if (lastBones != skeletonBones) return;
 		for (i in 0...skeletonBones.length) {
 			updateAnimSampled(skeletonBones[i].anim, skeletonMats[i]);
 		}
