@@ -522,18 +522,6 @@ class Uniforms {
 				helpVec.set(camera.transform.worldx(), camera.transform.worldy(), camera.transform.worldz());
 				v = helpVec;
 			}
-			else if (c.link == "_cameraPositionSnap") {
-				#if arm_voxelgi
-				helpVec.set(camera.transform.worldx(), camera.transform.worldy(), camera.transform.worldz());
-				var l = camera.lookWorld();
-				var e = Main.voxelgiHalfExtents;
-				helpVec.x += l.x * e * 0.9;
-				helpVec.y += l.y * e * 0.9;
-				var f = Main.voxelgiVoxelSize * 8; // Snaps to 3 mip-maps range
-				helpVec.set(Math.floor(helpVec.x / f) * f, Math.floor(helpVec.y / f) * f, Math.floor(helpVec.z / f) * f);
-				v = helpVec;
-				#end
-			}
 			else if (c.link == "_cameraLook") {
 				helpVec = camera.lookWorld();
 				v = helpVec;
