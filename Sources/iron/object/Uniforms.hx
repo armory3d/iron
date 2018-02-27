@@ -159,7 +159,6 @@ class Uniforms {
 					}
 
 					if (isImage) {
-						#if arm_voxelgi
 						g.setImageTexture(context.textureUnits[j], rt.image); // image2D/3D
 
 						// Multiple voxel volumes, always set params
@@ -168,7 +167,6 @@ class Uniforms {
 							context.paramsSet[j] = true;
 
 						// }
-						#end
 					}
 					else if (rt.isCubeMap) {
 						if (attachDepth) g.setCubeMapDepth(context.textureUnits[j], rt.cubeMap); // samplerCube
