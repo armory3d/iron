@@ -135,8 +135,10 @@ class Object {
 	public function setupAnimation(oactions:Array<TSceneFormat> = null) {
 		// Parented to bone
 		if (raw.parent_bone != null) {
-			var banim = getParentArmature(parent.name);
-			if (banim != null) banim.addBoneChild(raw.parent_bone, this);
+			Scene.active.notifyOnInit(function() {
+				var banim = getParentArmature(parent.name);
+				if (banim != null) banim.addBoneChild(raw.parent_bone, this);
+			});
 		}
 		// Object actions
 		if (oactions == null) return;
