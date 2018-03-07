@@ -122,8 +122,8 @@ class Object {
 		t.object = null;
 	}
 
-	public function getTrait(c:Class<Trait>):Dynamic {
-		for (t in traits) if (Type.getClass(t) == c) return t;
+	public function getTrait<T:Trait>(c:Class<T>):T {
+		for (t in traits) if (Type.getClass(t) == cast c) return cast t;
 		return null;
 	}
 
