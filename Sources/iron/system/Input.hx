@@ -4,6 +4,7 @@ class Input {
 
 	public static var occupied = false;
 	static var mouse:Mouse = null;
+	static var pen:Pen = null;
 	static var keyboard:Keyboard = null;
 	static var gamepads:Array<Gamepad> = [];
 	static var sensor:Sensor = null;
@@ -12,12 +13,14 @@ class Input {
 	public static function reset() {
 		occupied = false;
 		if (mouse != null) mouse.reset();
+		if (pen != null) pen.reset();
 		if (keyboard != null) keyboard.reset();
 		for (gamepad in gamepads) gamepad.reset();
 	}
 
 	public static function endFrame() {
 		if (mouse != null) mouse.endFrame();
+		if (pen != null) pen.endFrame();
 		if (keyboard != null) keyboard.endFrame();
 		for (gamepad in gamepads) gamepad.endFrame();
 
@@ -29,6 +32,11 @@ class Input {
 	public static function getMouse():Mouse {
 		if (mouse == null) mouse = new Mouse();
 		return mouse;
+	}
+
+	public static function getPen():Pen {
+		if (pen == null) pen = new Pen();
+		return pen;
 	}
 
 	public static function getSurface():Surface {
@@ -211,6 +219,79 @@ class Mouse extends VirtualInput {
 
 	function wheelListener(delta:Int) {
 		wheelDelta = delta;
+	}
+}
+
+class Pen extends VirtualInput {
+
+	static var buttons = ['tip'];
+	var buttonsDown = [false];
+	var buttonsStarted = [false];
+	var buttonsReleased = [false];
+
+	public var x(default, null) = 0.0;
+	public var y(default, null) = 0.0;
+	public var moved(default, null) = false;
+	public var movementX(default, null) = 0.0;
+	public var movementY(default, null) = 0.0;
+	public var pressure(default, null) = 0.0;
+	var lastX = -1.0;
+	var lastY = -1.0;
+	var lastPressure = 0.0;
+
+	public function new() {
+		#if cpp
+		kha.input.Pen.get().notify(downListener, upListener, moveListener);
+		#end
+	}
+
+	public function endFrame() {
+		buttonsStarted[0] = false;
+		buttonsReleased[0] = false;
+		moved = false;
+		movementX = 0;
+		movementY = 0;
+	}
+
+	public function reset() {
+		buttonsDown[0] = false;
+		endFrame();
+	}
+
+	function buttonIndex(button:String) {
+		return 0;
+		// return button == "tip" ? 0 : 0;
+	}
+
+	public function down(button:String = "tip"):Bool {
+		return buttonsDown[buttonIndex(button)];
+	}
+
+	public function started(button:String = "tip"):Bool {
+		return buttonsStarted[buttonIndex(button)];
+	}
+
+	public function released(button:String = "tip"):Bool {
+		return buttonsReleased[buttonIndex(button)];
+	}
+	
+	function downListener(x:Float, y:Float, pressure:Float) {} // Detected from pressure
+
+	function upListener(x:Float, y:Float, pressure:Float) {}
+	
+	function moveListener(x:Int, y:Int, pressure:Float) {
+		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; lastPressure = pressure; } // First frame init
+		this.movementX = x - lastX;
+		this.movementY = y - lastY;
+		lastX = x;
+		lastY = y;
+		this.x = x;
+		this.y = y;
+		moved = true;
+		this.pressure = pressure;
+		if (pressure > 0 && lastPressure == 0.0) { buttonsDown[0] = true; buttonsStarted[0] = true; }
+		if (pressure == 0 && lastPressure > 0) { buttonsDown[0] = false; buttonsReleased[0] = true; }
+		lastPressure = pressure;
 	}
 }
 
