@@ -95,10 +95,10 @@ class RayCaster {
 		// Get normal from data
 		var normals = obj.data.geom.normals;
 		nor.set(normals[0], normals[1], normals[2]);
+		// nor = obj.transform.look();
 		
 		// Rotate by world rotation matrix
 		m.setFrom(obj.transform.world);
-		// m.toRotation();
 		m.getInverse(m);
 		m.transpose3x3();
 		m._30 = m._31 = m._32 = 0;
@@ -129,7 +129,7 @@ class RayCaster {
 			// TODO: depends on plane facing normal, do not use dim of lenght 0
 			var hy = dim.z > dim.y ? dim.z / 2 : dim.y / 2;
 			
-			// Screen spance
+			// Screen space
 			var ix = uCoord / hx * (-1) * 0.5 + 0.5;
 			var iy = vCoord / hy * 0.5 + 0.5;
 			

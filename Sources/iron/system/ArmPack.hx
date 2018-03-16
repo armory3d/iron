@@ -103,7 +103,6 @@ class ArmPack {
 		if (b == 0xca) {
 			i.position++;
 			var a = new TFloat32Array(length);
-			// var a = new js.html.Float32Array(length);
 			for (x in 0...length) a[x] = i.readFloat();
 			return a;
 		}
@@ -111,7 +110,6 @@ class ArmPack {
 		else if (b == 0xd2) {
 			i.position++;
 			var a = new TUint32Array(length);
-			// var a = new js.html.Uint32Array(length);
 			for (x in 0...length) a[x] = i.readInt32();
 			return a;
 		}

@@ -19,7 +19,7 @@ class BoneAnimation extends Animation {
 
 	var skeletonBones:Array<TObj> = null;
 	var skeletonMats:Array<Mat4> = null;
-	var absMats:Array<Mat4> = null;
+	var localMats:Array<Mat4> = null;
 	var skeletonBonesBlend:Array<TObj> = null;
 	var skeletonMatsBlend:Array<Mat4> = null;
 
@@ -180,6 +180,7 @@ class BoneAnimation extends Animation {
 		updateConstraints();
 
 		// Do inverse kinematics here
+		if (localMats != null) for (i in 0...localMats.length) localMats[i].setFrom(skeletonMats[i]);
 		if (onUpdate != null) onUpdate();
 
 		if (isSkinned) {
@@ -302,12 +303,8 @@ class BoneAnimation extends Animation {
 				applyParent(m, bones[i], skeletonMats, skeletonBones);
 			}
 
-			if (absMats != null && i < absMats.length) absMats[i].setFrom(m);
-
 			if (boneChildren != null) updateBoneChildren(bones[i], m);
-
 			m.multmats(m, data.geom.skeletonTransformsI[i]);
-
 			updateSkinBuffer(m, i);
 		}
 	}
@@ -471,29 +468,33 @@ class BoneAnimation extends Animation {
 		return skeletonMatsBlend != null ? skeletonMatsBlend[getBoneIndex(bone)] : null;
 	}
 
-	public function getAbsMat(bone:TObj):Mat4 {
+	static var wm = Mat4.identity();
+	public function getWorldMat(bone:TObj):Mat4 {
 		if (skeletonMats == null) return null;
-		if (absMats == null) {
-			absMats = [];
-			while (absMats.length < skeletonMats.length) absMats.push(Mat4.identity());
+		if (localMats == null) {
+			localMats = [];
+			while (localMats.length < skeletonMats.length) localMats.push(Mat4.identity());
 		}
-		return absMats[getBoneIndex(bone)];
+		var i = getBoneIndex(bone);
+		wm.setFrom(localMats[i]);
+		applyParent(wm, skeletonBones[i], localMats, skeletonBones);
+		return wm;
 	}
 
 	static var v1 = new Vec4();
 	static var v2 = new Vec4();
 	function boneLoc(bone:TObj):Vec4 {
 		var sc = object.parent.transform.scale; // Armature scale
-		var m = getBoneMat(bone);
+		var m = getWorldMat(bone);
 		v1.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
 		return v1;
 	}
 
 	function boneDist(bone1:TObj, bone2:TObj):Float {
 		var sc = object.parent.transform.scale; // Armature scale
-		var m = getBoneMat(bone1);
+		var m = getWorldMat(bone1);
 		v1.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
-		m = getBoneMat(bone2);
+		m = getWorldMat(bone2);
 		v2.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
 		return Vec4.distance(v1, v2);
 	}
@@ -525,26 +526,22 @@ class BoneAnimation extends Animation {
 		if (dist > x) {
 			// Direction to goal
 			var b = bones[bones.length - 1];
-			var m = skeletonMats[getBoneIndex(b)];
+			var m = getBoneMat(b);
+			var w = getWorldMat(b);
+			var iw = Mat4.identity();
+			iw.getInverse(w);
 			var q = new Quat();
 			var loc = new Vec4(0, 0, 0);
-			var rot = new Quat();
 			var sc = new Vec4(1, 1, 1);
+
+			var v1 = new Vec4(0, 1, 0);
+			var v2 = new Vec4().setFrom(goal).sub(v).normalize();
+
+			m.setFrom(w);
 			m.decompose(loc, q, sc);
-
-			// var a1 = getAbsMat(b);
-			// m1.getInverse(a1);
-
-			// var vv = new Vec4();
-			// vv.setFrom(goal);
-			// vv.sub(v);
-			// q.fromTo(m1.look(), vv);
-
-			q.fromTo(v, goal);
-
+			q.fromTo(v1, v2);
 			m.compose(loc, q, sc);
-
-			// m.multmat2(m1);
+			m.multmat2(iw);
 			
 			for (i in 0...bones.length - 1) {
 				// Cancel child bone rotation
