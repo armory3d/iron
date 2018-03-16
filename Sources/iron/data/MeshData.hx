@@ -9,6 +9,7 @@ class MeshData extends Data {
 
 	public var name:String;
 	public var raw:TMeshData;
+	public var format:TSceneFormat;
 	public var geom:Geometry;
 	public var start = 0; // Batched
 	public var count = -1;
@@ -98,7 +99,7 @@ class MeshData extends Data {
 		geom.delete();
 	}
 
-	public static function parse(name:String, id:String, armature:Armature, done:MeshData->Void) {
+	public static function parse(name:String, id:String, done:MeshData->Void) {
 		Data.getSceneRaw(name, function(format:TSceneFormat) {
 			var raw:TMeshData = Data.getMeshRawByName(format.mesh_datas, id);
 			if (raw == null) {
@@ -107,6 +108,7 @@ class MeshData extends Data {
 			}
 
 			new MeshData(raw, function(dat:MeshData) {
+				dat.format = format;
 				// Skinned
 				if (raw.skin != null) {
 					#if arm_skin_cpu
@@ -117,8 +119,6 @@ class MeshData extends Data {
 					dat.geom.skinBoneWeights = raw.skin.bone_weight_array;
 					dat.geom.skeletonBoneRefs = raw.skin.bone_ref_array;
 					dat.geom.initSkeletonTransforms(raw.skin.transformsI);
-					if (armature != null) dat.geom.setArmature(armature);
-					else dat.geom.addAction(format.objects, 'none');
 				}
 				// Sdf-enabled
 				#if arm_sdf

@@ -516,7 +516,11 @@ class Scene {
 #end
 
 	public function returnMeshObject(object_file:String, data_ref:String, sceneName:String, armature:Armature, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
-		Data.getMesh(object_file, data_ref, armature, function(mesh:MeshData) {
+		Data.getMesh(object_file, data_ref, function(mesh:MeshData) {
+			if (mesh.isSkinned) {
+				var g = mesh.geom;
+				armature != null ? g.addArmature(armature) : g.addAction(mesh.format.objects, 'none');
+			}
 			var object = addMeshObject(mesh, materials, parent);
 		
 			// Attach particle systems

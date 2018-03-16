@@ -289,7 +289,11 @@ class Geometry {
 
 		indexBuffers = [];
 		for (id in indices) {
-			if (id.length == 0) continue; // Material has no faces assigned, discard
+			if (id.length == 0) {
+				// Exporter should prevent this
+				// trace('Geometry contains material with no face assigned!');
+				continue;
+			}
 			// TODO: duplicate storage allocated in IB
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
@@ -339,7 +343,7 @@ class Geometry {
 	}
 
 	// Skinned
-	public function setArmature(armature:Armature) {
+	public function addArmature(armature:Armature) {
 		for (a in armature.actions) {
 			addAction(a.bones, a.name);
 		}
@@ -351,6 +355,7 @@ class Geometry {
 			actions = new Map();
 			mats = new Map();
 		}
+		if (actions.get(name) != null) return;
 		var actionBones:Array<TObj> = [];
 
 		// Set bone references
