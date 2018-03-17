@@ -343,11 +343,12 @@ class Mat4 {
 		_03 = a[12 + offset]; _13 = a[13 + offset]; _23 = a[14 + offset]; _33 = a[15 + offset];
 	}
 
-	public function setFrom(m:Mat4) {		
-		_00 = m._00; _01 = m._01; _02 = m._02; _03 = m._03;		
-		_10 = m._10; _11 = m._11; _12 = m._12; _13 = m._13;		
-		_20 = m._20; _21 = m._21; _22 = m._22; _23 = m._23;		
-		_30 = m._30; _31 = m._31; _32 = m._32; _33 = m._33;		
+	public function setFrom(m:Mat4) {
+		_00 = m._00; _01 = m._01; _02 = m._02; _03 = m._03;
+		_10 = m._10; _11 = m._11; _12 = m._12; _13 = m._13;
+		_20 = m._20; _21 = m._21; _22 = m._22; _23 = m._23;
+		_30 = m._30; _31 = m._31; _32 = m._32; _33 = m._33;
+		return this;
 	}
 
 	public inline function getLoc():Vec4 {
@@ -390,7 +391,6 @@ class Mat4 {
 	}
 
 	public function getQuat():Quat {
-		// Assumes the upper 3x3 is a pure rotation matrix
 		helpMat.setFrom(this);
 		helpMat.toRotation();
 
@@ -518,7 +518,7 @@ class Mat4 {
 	}
 
 	public function write(ar:haxe.ds.Vector<kha.FastFloat>, offset = 0) {
-		ar[offset + 0] = _00;
+		ar[offset] = _00;
 		ar[offset + 1] = _01;
 		ar[offset + 2] = _02;
 		ar[offset + 3] = _03;
