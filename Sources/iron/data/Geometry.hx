@@ -55,6 +55,7 @@ class Geometry {
 
 	public var skeletonTransformsI:Array<Mat4> = null;
 	public var skeletonBoneRefs:Array<String> = null;
+	public var skeletonBoneLens:TFloat32Array = null;
 
 	public var actions:Map<String, Array<TObj>> = null;
 	public var mats:Map<String, Array<Mat4>> = null;

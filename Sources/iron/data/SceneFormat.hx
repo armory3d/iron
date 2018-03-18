@@ -1,6 +1,8 @@
 package iron.data;
 
 #if cpp
+// Migrate to kha.arrays
+// Can not assign null to kha.arrays.Float32Array
 typedef TFloat32Array = haxe.ds.Vector<kha.FastFloat>;
 typedef TUint32Array = haxe.ds.Vector<Int>;
 #else
@@ -45,6 +47,7 @@ typedef TMeshData = {
 typedef TSkin = {
 	var transform:TTransform;
 	var bone_ref_array:Array<String>;
+	var bone_len_array:TFloat32Array;
 	var transformsI:Array<TFloat32Array>; // per-bone, size = 16, with skin.transform, pre-inverted
 	var bone_count_array:TUint32Array;
 	var bone_index_array:TUint32Array;
@@ -59,9 +62,8 @@ typedef TVertexArray = {
 }
 
 typedef TIndexArray = {
-	var values:TUint32Array;
+	var values:TUint32Array; // size = 3
 	var material:Int;
-	@:optional var size:Null<Int>; // 3
 }
 
 typedef TLampData = {

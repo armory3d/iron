@@ -118,6 +118,7 @@ class MeshData extends Data {
 					dat.geom.skinBoneIndices = raw.skin.bone_index_array;
 					dat.geom.skinBoneWeights = raw.skin.bone_weight_array;
 					dat.geom.skeletonBoneRefs = raw.skin.bone_ref_array;
+					dat.geom.skeletonBoneLens = raw.skin.bone_len_array;
 					dat.geom.initSkeletonTransforms(raw.skin.transformsI);
 				}
 				// Sdf-enabled

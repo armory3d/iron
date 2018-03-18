@@ -19,9 +19,9 @@ class BoneAnimation extends Animation {
 
 	var skeletonBones:Array<TObj> = null;
 	var skeletonMats:Array<Mat4> = null;
-	var localMats:Array<Mat4> = null;
 	var skeletonBonesBlend:Array<TObj> = null;
 	var skeletonMatsBlend:Array<Mat4> = null;
+	var applyParent:Array<Bool> = null;
 
 	var boneChildren:Map<String, Array<Object>> = null; // Parented to bone
 
@@ -180,7 +180,6 @@ class BoneAnimation extends Animation {
 		updateConstraints();
 
 		// Do inverse kinematics here
-		if (localMats != null) for (i in 0...localMats.length) localMats[i].setFrom(skeletonMats[i]);
 		if (onUpdate != null) onUpdate();
 
 		if (isSkinned) {
@@ -242,12 +241,12 @@ class BoneAnimation extends Animation {
 			// TODO: blendTime > 0
 			var b = skeletonBones[i];
 			m.setFrom(skeletonMats[i]);
-			applyParent(m, b, skeletonMats, skeletonBones);
+			multParent(m, b, skeletonMats, skeletonBones);
 			if (boneChildren != null) updateBoneChildren(b, m);
 		}
 	}
 
-	function applyParent(m:Mat4, bone:TObj, mats:Array<Mat4>, bones:Array<TObj>) {
+	function multParent(m:Mat4, bone:TObj, mats:Array<Mat4>, bones:Array<TObj>) {
 		var p = bone.parent;
 		while (p != null) { // TODO: store absolute transforms per bone
 			var boneIndex = getBoneIndex(p, bones);
@@ -255,6 +254,18 @@ class BoneAnimation extends Animation {
 			var pm = mats[boneIndex];
 			m.multmat2(pm);
 			p = p.parent;
+		}
+	}
+
+	function multParent2(m:Mat4, bone:TObj, mats:Array<Mat4>, bones:Array<TObj>) {
+		var p = bone.parent;
+		while (p != null) { // TODO: store absolute transforms per bone
+			var boneIndex = getBoneIndex(p, bones);
+			if (boneIndex == -1) continue;
+			var pm = mats[boneIndex];
+			m.multmat2(pm);
+			p = p.parent;
+			if (applyParent != null && !applyParent[boneIndex]) break;
 		}
 	}
 
@@ -277,10 +288,10 @@ class BoneAnimation extends Animation {
 				var bonesBlend = skeletonBonesBlend;
 				// Decompose
 				m1.setFrom(skeletonMatsBlend[i]);
-				applyParent(m1, bonesBlend[i], skeletonMatsBlend, skeletonBonesBlend);
+				multParent(m1, bonesBlend[i], skeletonMatsBlend, skeletonBonesBlend);
 
 				m2.setFrom(skeletonMats[i]);
-				applyParent(m2, bones[i], skeletonMats, skeletonBones);
+				multParent(m2, bones[i], skeletonMats, skeletonBones);
 
 				m1.decompose(vpos, q1, vscl);
 				m2.decompose(vpos2, q2, vscl2);
@@ -300,7 +311,8 @@ class BoneAnimation extends Animation {
 			}
 			else {
 				m.setFrom(skeletonMats[i]);
-				applyParent(m, bones[i], skeletonMats, skeletonBones);
+				var r = applyParent == null || applyParent[i];
+				if (r) multParent2(m, bones[i], skeletonMats, skeletonBones);
 			}
 
 			if (boneChildren != null) updateBoneChildren(bones[i], m);
@@ -390,7 +402,7 @@ class BoneAnimation extends Animation {
 				m.multmat2(data.geom.skeletonTransformsI[boneIndex]);
 
 				bm.setFrom(skeletonMats[boneIndex]);
-				applyParent(bm, bone, skeletonMats, skeletonBones);
+				multParent(bm, bone, skeletonMats, skeletonBones);
 				m.multmat2(bm);
 
 				if (boneChildren != null) updateBoneChildren(bone, bm);
@@ -471,74 +483,60 @@ class BoneAnimation extends Animation {
 	static var wm = Mat4.identity();
 	public function getWorldMat(bone:TObj):Mat4 {
 		if (skeletonMats == null) return null;
-		if (localMats == null) {
-			localMats = [];
-			while (localMats.length < skeletonMats.length) localMats.push(Mat4.identity());
-		}
+		if (applyParent == null) { applyParent = []; for (m in skeletonMats) applyParent.push(true); }
 		var i = getBoneIndex(bone);
-		wm.setFrom(localMats[i]);
-		applyParent(wm, skeletonBones[i], localMats, skeletonBones);
+		wm.setFrom(skeletonMats[i]);
+		multParent(wm, skeletonBones[i], skeletonMats, skeletonBones);
 		return wm;
 	}
 
-	static var v1 = new Vec4();
-	static var v2 = new Vec4();
-	function boneLoc(bone:TObj):Vec4 {
-		var sc = object.parent.transform.scale; // Armature scale
-		var m = getWorldMat(bone);
-		v1.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
-		return v1;
+	public function getBoneLen(bone:TObj):Float {
+		var refs = data.geom.skeletonBoneRefs;
+		var lens = data.geom.skeletonBoneLens;
+		for (i in 0...refs.length) if (refs[i] == bone.name) return lens[i];
+		return 0.0;
 	}
 
-	function boneDist(bone1:TObj, bone2:TObj):Float {
-		var sc = object.parent.transform.scale; // Armature scale
-		var m = getWorldMat(bone1);
-		v1.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
-		m = getWorldMat(bone2);
-		v2.set(m._30 * sc.x, m._31 * sc.y, m._32 * sc.z);
-		return Vec4.distance(v1, v2);
-	}
-
-	public function solveIK(effector:TObj, goal:Vec4, precission = 1.0, maxIterations = 10) {
+	public function solveIK(effector:TObj, goal:Vec4, precission = 0.1, maxIterations = 6) {
 		// FABRIK - Forward and backward reaching inverse kinematics solver
 		var bones:Array<TObj> = [];
 		var lengths:Array<Float> = [];
-		var startLocs:Array<Vec4> = [];
-		var prevLocs:Array<Vec4> = [];
-
-		// Traverse bone tree
 		var start = effector;
 		while (start.parent != null) {
 			bones.push(start);
-			lengths.push(boneDist(start, start.parent));
+			lengths.push(getBoneLen(start));
 			start = start.parent;
 		}
+		start = bones[bones.length - 1];
 
 		// Distance to goal
-		var v = boneLoc(start);
-		var dist = Vec4.distance(goal, v);
+		var armsc = object.parent.transform.scale; // Transform goal to armature space
+		goal.x *= 1 / armsc.x; goal.y *= 1 / armsc.y; goal.z *= 1 / armsc.z;
+		var startLoc = getWorldMat(start).getLoc();
+		startLoc.z -= getBoneLen(start.parent); // Fix this
+		var dist = Vec4.distance(goal, startLoc);
 
 		// Bones length
 		var x = 0.0;
 		for (l in lengths) x += l;
 
+		var q = new Quat();
+		var loc = new Vec4(0, 0, 0);
+		var sc = new Vec4(1, 1, 1);
+		var v1 = new Vec4(0, 1, 0);
+		var v2 = new Vec4();
+
 		// Unreachable distance
 		if (dist > x) {
-			// Direction to goal
-			var b = bones[bones.length - 1];
-			var m = getBoneMat(b);
-			var w = getWorldMat(b);
+			// Point to goal
+			var m = getBoneMat(start);
+			var w = getWorldMat(start);
 			var iw = Mat4.identity();
 			iw.getInverse(w);
-			var q = new Quat();
-			var loc = new Vec4(0, 0, 0);
-			var sc = new Vec4(1, 1, 1);
-
-			var v1 = new Vec4(0, 1, 0);
-			var v2 = new Vec4().setFrom(goal).sub(v).normalize();
 
 			m.setFrom(w);
 			m.decompose(loc, q, sc);
+			v2.setFrom(goal).sub(startLoc).normalize();
 			q.fromTo(v1, v2);
 			m.compose(loc, q, sc);
 			m.multmat2(iw);
@@ -550,9 +548,59 @@ class BoneAnimation extends Animation {
 				m.decompose(loc, q, sc);
 				m.compose(loc, new Quat(), sc);
 			}
+
+			// Restore apply parent
+			for (b in bones) applyParent[getBoneIndex(b)] = true;
+
 			return;
 		}
 
+		// Solve IK
+		var vec = new Vec4();
+		var locs:Array<Vec4> = [];
+		for (b in bones) locs.push(getWorldMat(b).getLoc());
 
+		for (i in 0...maxIterations) {
+			// Backward
+			vec.setFrom(goal);
+			vec.sub(locs[0]);
+			vec.normalize();
+			vec.mult(lengths[0]);
+			locs[0].setFrom(goal);
+			locs[0].sub(vec);
+			for (j in 1...locs.length) {
+				vec.setFrom(locs[j]);
+				vec.sub(locs[j - 1]);
+				vec.normalize();
+				vec.mult(lengths[j]);
+				locs[j].setFrom(locs[j - 1]);
+				locs[j].add(vec);
+			}
+			// Forward 
+			locs[locs.length - 1].setFrom(startLoc);
+			var l = locs.length;
+			for (j in 1...l) {
+				vec.setFrom(locs[l - j - 1]);
+				vec.sub(locs[l - j]);
+				vec.normalize();
+				vec.mult(lengths[l - j]);
+				locs[l - j - 1].setFrom(locs[l - j]);
+				locs[l - j - 1].add(vec);
+			}
+			if (Vec4.distance(locs[0], goal) <= precission) break;
+		}
+
+		for (b in bones) applyParent[getBoneIndex(b)] = false;
+
+		for (i in 0...bones.length) {
+			var m = getBoneMat(bones[i]);
+			m.decompose(loc, q, sc);
+			var l1 = i == 0 ? locs[i] : locs[i - 1];
+			var l2 = i == 0 ? locs[i + 1] : locs[i];
+			v2.setFrom(l1).sub(l2).normalize();
+			q.fromTo(v1, v2);
+			vec.setFrom(locs[i]);
+			m.compose(vec, q, sc);
+		}
 	}
 }
