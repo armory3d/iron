@@ -74,7 +74,7 @@ class ObjectAnimation extends Animation {
 	}
 	inline function interpolateTcb() {}
 
-	inline function checkFrameIndexT(frameValues:TUint32Array, t:Float):Bool {
+	inline function checkFrameIndexT(frameValues:kha.arrays.Uint32Array, t:Float):Bool {
 		return speed > 0 ?
 			frameIndex < frameValues.length - 2 && t > frameValues[frameIndex + 1] * frameTime :
 			frameIndex > 1 && t > frameValues[frameIndex - 1] * frameTime;

@@ -125,11 +125,6 @@ class Mouse extends VirtualInput {
 
 	public function new() {
 		kha.input.Mouse.get().notify(downListener, upListener, moveListener, wheelListener);
-		// #if cpp
-		// kha.SystemImpl.notifyOfMouseLockChange(function(id:Int) { locked = kha.SystemImpl.isMouseLocked(); }, function() {});
-		// #else
-		// kha.SystemImpl.notifyOfMouseLockChange(function() { locked = kha.SystemImpl.isMouseLocked(); }, function() {});
-		// #end
 	}
 
 	public function endFrame() {
@@ -164,16 +159,16 @@ class Mouse extends VirtualInput {
 
 	public function lock() {
 		#if (!arm_viewport)
-		if (kha.SystemImpl.canLockMouse()) {
-			kha.SystemImpl.lockMouse();
+		if (kha.input.Mouse.get().canLock()) {
+			kha.input.Mouse.get().lock();
 			locked = true;
 		}
 		#end
 	}
 	public function unlock() {
 		#if (!arm_viewport)
-		if (kha.SystemImpl.canLockMouse()) {
-			kha.SystemImpl.unlockMouse();
+		if (kha.input.Mouse.get().canLock()) {
+			kha.input.Mouse.get().unlock();
 			locked = false;
 		}
 		#end

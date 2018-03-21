@@ -32,7 +32,7 @@ class ParticleSystem {
 	var tilesy:Int;
 	var tilesFramerate:Int;
 
-	var emitFrom:TFloat32Array = null; // CPU volume/face offset
+	var emitFrom:kha.arrays.Float32Array = null; // CPU volume/face offset
 	var count = 0;
 	var lap = 0;
 	var lapTime = 0.0;
@@ -171,7 +171,7 @@ class ParticleSystem {
 	}
 
 	function setupGeomGpu(object:MeshObject, owner:MeshObject) {
-		var instancedData = new TFloat32Array(particles.length * 3);
+		var instancedData = new kha.arrays.Float32Array(particles.length * 3);
 		var i = 0;
 		if (r.emit_from == 0) { // Vert, Face
 			var pa = owner.data.geom.positions;
@@ -194,7 +194,7 @@ class ParticleSystem {
 	}
 
 	function setupGeomCpu(object:MeshObject, owner:MeshObject) {
-		var instancedData = new TFloat32Array(particles.length * 3);
+		var instancedData = new kha.arrays.Float32Array(particles.length * 3);
 		var i = 0;
 		for (p in particles) {
 			instancedData.set(i, 0.0); i++;
@@ -204,7 +204,7 @@ class ParticleSystem {
 		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
 		object.data.geom.setupInstanced(instancedData, Usage.DynamicUsage);
 		
-		emitFrom = new TFloat32Array(particles.length * 3);
+		emitFrom = new kha.arrays.Float32Array(particles.length * 3);
 		i = 0;
 		if (r.emit_from == 0) { // Vert, Face
 			var pa = owner.data.geom.positions;

@@ -112,7 +112,7 @@ class Mat4 {
 		);
 	}
 
-	public static function fromFloat32Array(a:TFloat32Array, offset = 0):Mat4 {
+	public static function fromFloat32Array(a:kha.arrays.Float32Array, offset = 0):Mat4 {
 		return new Mat4(
 			a[0 + offset], a[1 + offset], a[2 + offset], a[3 + offset],
 			a[4 + offset], a[5 + offset], a[6 + offset], a[7 + offset],
@@ -336,14 +336,14 @@ class Mat4 {
 		_03 = a[12 + offset]; _13 = a[13 + offset]; _23 = a[14 + offset]; _33 = a[15 + offset];
 	}
 
-	public function setF32(a:TFloat32Array, offset = 0) {
+	public function setF32(a:kha.arrays.Float32Array, offset = 0) {
 		_00 = a[0 + offset]; _10 = a[1 + offset]; _20 = a[2 + offset]; _30 = a[3 + offset];
 		_01 = a[4 + offset]; _11 = a[5 + offset]; _21 = a[6 + offset]; _31 = a[7 + offset];
 		_02 = a[8 + offset]; _12 = a[9 + offset]; _22 = a[10 + offset];_32 = a[11 + offset];
 		_03 = a[12 + offset]; _13 = a[13 + offset]; _23 = a[14 + offset]; _33 = a[15 + offset];
 	}
 
-	public function setFrom(m:Mat4) {
+	public function setFrom(m:Mat4):Mat4 {
 		_00 = m._00; _01 = m._01; _02 = m._02; _03 = m._03;
 		_10 = m._10; _11 = m._11; _12 = m._12; _13 = m._13;
 		_20 = m._20; _21 = m._21; _22 = m._22; _23 = m._23;
@@ -517,7 +517,7 @@ class Mat4 {
 		multmat2(helpMat);
 	}
 
-	public function write(ar:haxe.ds.Vector<kha.FastFloat>, offset = 0) {
+	public function write(ar:kha.arrays.Float32Array, offset = 0) {
 		ar[offset] = _00;
 		ar[offset + 1] = _01;
 		ar[offset + 2] = _02;

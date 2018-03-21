@@ -102,14 +102,14 @@ class ArmPack {
 		// Typed float32
 		if (b == 0xca) {
 			i.position++;
-			var a = new TFloat32Array(length);
+			var a = new kha.arrays.Float32Array(length);
 			for (x in 0...length) a[x] = i.readFloat();
 			return a;
 		}
 		// Typed int32
 		else if (b == 0xd2) {
 			i.position++;
-			var a = new TUint32Array(length);
+			var a = new kha.arrays.Uint32Array(length);
 			for (x in 0...length) a[x] = i.readInt32();
 			return a;
 		}

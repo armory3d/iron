@@ -12,7 +12,7 @@ class LampObject extends Object {
 	public static var cascadeCount = 1;
 	public static var cascadeSplitFactor = 0.8;
 	#if arm_csm
-	var cascadeData:haxe.ds.Vector<kha.FastFloat> = null;
+	var cascadeData:kha.arrays.Float32Array = null;
 	var cascadeVP:Array<Mat4>;
 	var camSlicedP:Array<Mat4> = null;
 	var cascadeSplit:Array<Float>;
@@ -245,10 +245,10 @@ class LampObject extends Object {
 
 	#if arm_csm
 	var bias = Mat4.identity();
-	public function getCascadeData():haxe.ds.Vector<kha.FastFloat> {
+	public function getCascadeData():kha.arrays.Float32Array {
 		// Cascade mats + split distances
 		if (cascadeData == null) {
-			cascadeData = new haxe.ds.Vector(cascadeCount * 16 + 4);
+			cascadeData = new kha.arrays.Float32Array(cascadeCount * 16 + 4);
 		}
 		if (cascadeVP == null) return cascadeData;
 

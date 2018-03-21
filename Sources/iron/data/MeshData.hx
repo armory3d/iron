@@ -3,6 +3,8 @@ package iron.data;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
+import kha.arrays.Float32Array;
+import kha.arrays.Uint32Array;
 import iron.data.SceneFormat;
 
 class MeshData extends Data {
@@ -29,7 +31,7 @@ class MeshData extends Data {
 		this.name = raw.name;
 
 		// Mesh data
-		var indices:Array<TUint32Array> = [];
+		var indices:Array<Uint32Array> = [];
 		var materialIndices:Array<Int> = [];
 		for (ind in raw.index_arrays) {
 			indices.push(ind.values);
@@ -56,13 +58,13 @@ class MeshData extends Data {
 		var usage = parsedUsage;
 		#end
 
-		var bonea:TFloat32Array = null; // Store bone indices and weights per vertex
-		var weighta:TFloat32Array = null;
+		var bonea:Float32Array = null; // Store bone indices and weights per vertex
+		var weighta:Float32Array = null;
 		#if (!arm_skin_cpu)
 		if (isSkinned) {
 			var l = Std.int(pa.length / 3) * 4;
-			bonea = new TFloat32Array(l);
-			weighta = new TFloat32Array(l);
+			bonea = new Float32Array(l);
+			weighta = new Float32Array(l);
 
 			var index = 0;
 			var ai = 0;
@@ -138,7 +140,7 @@ class MeshData extends Data {
 		});
 	}
 
-	function getVertexArrayValues(attrib:String):TFloat32Array {
+	function getVertexArrayValues(attrib:String):Float32Array {
 		for (va in raw.vertex_arrays) if (va.attrib == attrib) return va.values;
 		return null;
 	}

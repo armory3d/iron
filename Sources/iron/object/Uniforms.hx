@@ -46,7 +46,7 @@ class Uniforms {
 	public static var externalVec3Links:Array<String->Vec4> = null;
 	public static var externalVec2Links:Array<String->Vec4> = null;
 	public static var externalFloatLinks:Array<String->Null<Float>> = null;
-	public static var externalFloatsLinks:Array<String->haxe.ds.Vector<kha.FastFloat>> = null;
+	public static var externalFloatsLinks:Array<String->kha.arrays.Float32Array> = null;
 	public static var externalIntLinks:Array<String->Null<Int>> = null;
 
 	public static function setConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
@@ -718,7 +718,7 @@ class Uniforms {
 			g.setFloat(location, f);
 		}
 		else if (c.type == "floats") {
-			var fa:haxe.ds.Vector<kha.FastFloat> = null;
+			var fa:kha.arrays.Float32Array = null;
 			if (c.link == "_skinBones") {
 				if (object.animation != null) fa = cast(object.animation, BoneAnimation).skinBuffer;
 			}

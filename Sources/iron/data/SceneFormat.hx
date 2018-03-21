@@ -1,14 +1,7 @@
 package iron.data;
 
-#if cpp
-// Migrate to kha.arrays
-// Can not assign null to kha.arrays.Float32Array
-typedef TFloat32Array = haxe.ds.Vector<kha.FastFloat>;
-typedef TUint32Array = haxe.ds.Vector<Int>;
-#else
-typedef TFloat32Array = kha.arrays.Float32Array;
-typedef TUint32Array = kha.arrays.Uint32Array;
-#end
+import kha.arrays.Float32Array;
+import kha.arrays.Uint32Array;
 
 typedef TSceneFormat = {
 	@:optional var name:String;
@@ -27,7 +20,7 @@ typedef TSceneFormat = {
 	@:optional var tilesheet_datas:Array<TTilesheetData>;
 	@:optional var objects:Array<TObj>;
 	@:optional var groups:Array<TGroup>;
-	@:optional var gravity:TFloat32Array;
+	@:optional var gravity:Float32Array;
 	@:optional var traits:Array<TTrait>; // Scene root traits
 	@:optional var embedded_datas:Array<String>; // Preload for this scene, images only for now
 	@:optional var frame_time:Null<Float>;
@@ -40,36 +33,36 @@ typedef TMeshData = {
 	var index_arrays:Array<TIndexArray>;
 	@:optional var dynamic_usage:Null<Bool>;
 	@:optional var skin:TSkin;
-	@:optional var instance_offsets:TFloat32Array;
+	@:optional var instance_offsets:Float32Array;
 	@:optional var sdf_ref:String;
 }
 
 typedef TSkin = {
 	var transform:TTransform;
 	var bone_ref_array:Array<String>;
-	var bone_len_array:TFloat32Array;
-	var transformsI:Array<TFloat32Array>; // per-bone, size = 16, with skin.transform, pre-inverted
-	var bone_count_array:TUint32Array;
-	var bone_index_array:TUint32Array;
-	var bone_weight_array:TFloat32Array;
+	var bone_len_array:Float32Array;
+	var transformsI:Array<Float32Array>; // per-bone, size = 16, with skin.transform, pre-inverted
+	var bone_count_array:Uint32Array;
+	var bone_index_array:Uint32Array;
+	var bone_weight_array:Float32Array;
 	var constraints:Array<TConstraint>;
 }
 
 typedef TVertexArray = {
 	var attrib:String;
-	var values:TFloat32Array;
+	var values:Float32Array;
 	@:optional var size:Null<Int>; // 3
 }
 
 typedef TIndexArray = {
-	var values:TUint32Array; // size = 3
+	var values:Uint32Array; // size = 3
 	var material:Int;
 }
 
 typedef TLampData = {
 	var name:String;
 	var type:String; // Sun, point, spot
-	var color:TFloat32Array;
+	var color:Float32Array;
 	var strength:Float;
 	@:optional var cast_shadow:Null<Bool>;
 	@:optional var near_plane:Null<Float>;
@@ -88,7 +81,7 @@ typedef TLampData = {
 
 typedef TCameraData = {
 	var name:String;
-	var clear_color:TFloat32Array;
+	var clear_color:Float32Array;
 	var near_plane:Float;
 	var far_plane:Float;
 	var fov:Float;
@@ -120,9 +113,9 @@ typedef TMaterialContext = {
 
 typedef TBindConstant = {
 	var name:String;
-	@:optional var vec4:TFloat32Array;
-	@:optional var vec3:TFloat32Array;
-	@:optional var vec2:TFloat32Array;
+	@:optional var vec4:Float32Array;
+	@:optional var vec3:Float32Array;
+	@:optional var vec2:Float32Array;
 	@:optional var float:Null<Float>;
 	@:optional var bool:Null<Bool>;
 	@:optional var int:Null<Int>;
@@ -189,9 +182,9 @@ typedef TShaderConstant = {
 	var name:String;
 	var type:String;
 	@:optional var link:String;
-	@:optional var vec4:TFloat32Array;
-	@:optional var vec3:TFloat32Array;
-	@:optional var vec2:TFloat32Array;
+	@:optional var vec4:Float32Array;
+	@:optional var vec3:Float32Array;
+	@:optional var vec2:Float32Array;
 	@:optional var float:Null<Float>;
 	@:optional var bool:Null<Bool>;
 	@:optional var int:Null<Int>;
@@ -219,7 +212,7 @@ typedef TWorldData = {
 	var name:String;
 	var background_color:Int;
 	var probes:Array<TProbe>;
-	@:optional var sun_direction:TFloat32Array; // Sky data
+	@:optional var sun_direction:Float32Array; // Sky data
 	@:optional var turbidity:Null<Float>;
 	@:optional var ground_albedo:Null<Float>;
 	@:optional var envmap:String;
@@ -229,8 +222,8 @@ typedef TProbe = {
 	var irradiance:String; // Reference to TIrradiance blob
 	var strength:Float;
 	var blending:Float;
-	var volume:TFloat32Array;
-	var volume_center:TFloat32Array;
+	var volume:Float32Array;
+	var volume_center:Float32Array;
 	@:optional var radiance:String;
 	@:optional var radiance_mipmaps:Null<Int>;
 }
@@ -253,7 +246,7 @@ typedef TProbe = {
 // 	var col_array:TVertexArray; // TODO: Use array instead
 // 	var colfill_array:TVertexArray;
 // 	var index_array:TIndexArray;
-// 	var num_stroke_points:TUint32Array;
+// 	var num_stroke_points:Uint32Array;
 // }
 
 // typedef TGreasePencilPalette = {
@@ -263,9 +256,9 @@ typedef TProbe = {
 
 // typedef TGreasePencilPaletteColor = {
 // 	var name:String;
-// 	var color:TFloat32Array;
+// 	var color:Float32Array;
 // 	var alpha:Float;
-// 	var fill_color:TFloat32Array;
+// 	var fill_color:Float32Array;
 // 	var fill_alpha:Float;
 // }
 
@@ -285,7 +278,7 @@ typedef TTilesheetAction = {
 }
 
 typedef TIrradiance = { // Blob with spherical harmonics, bands 0,1,2
-	var irradiance:TFloat32Array;
+	var irradiance:Float32Array;
 }
 
 typedef TParticleData = {
@@ -302,7 +295,7 @@ typedef TParticleData = {
 	var emit_from:Int; // 0 - Vert, Face, 1 - Volume
 	// Velocity
 	// var normal_factor:Float;
-	var object_align_factor:TFloat32Array;
+	var object_align_factor:Float32Array;
 	var factor_random:Float;
 	// Physics
 	var physics_type:Int; // 0 - No, 1 - Newton
@@ -337,7 +330,7 @@ typedef TObj = {
 	@:optional var lod_material:Null<Bool>;
 	@:optional var traits:Array<TTrait>;
 	@:optional var constraints:Array<TConstraint>;
-	@:optional var dimensions:TFloat32Array; // Geometry objects
+	@:optional var dimensions:Float32Array; // Geometry objects
 	@:optional var object_actions:Array<String>;
 	@:optional var bone_actions:Array<String>;
 	@:optional var anim:TAnimation; // Bone/object animation
@@ -389,7 +382,7 @@ typedef TTrait = {
 
 typedef TTransform = {
 	@:optional var target:String;
-	var values:TFloat32Array;
+	var values:Float32Array;
 }
 
 typedef TAnimation = {
@@ -397,29 +390,29 @@ typedef TAnimation = {
 	@:optional var begin:Null<Int>; // Frames, for non-sampled
 	@:optional var end:Null<Int>;
 	@:optional var has_delta:Null<Bool>; // Delta transform
-	@:optional var marker_frames:Array<Int>;
+	@:optional var marker_frames:Uint32Array;
 	@:optional var marker_names:Array<String>;
 }
 
 typedef TAnimationTransform = {
 	var type:String; // translation, translation_x, ...
 	@:optional var name:String;
-	@:optional var values:TFloat32Array; // translation
+	@:optional var values:Float32Array; // translation
 	@:optional var value:Null<Float>; // translation_x
 }
 
 typedef TTrack = {
 	var target:String;
-	var frames:TUint32Array;
-	var values:TFloat32Array; // sampled - full matrix transforms, non-sampled - values
+	var frames:Uint32Array;
+	var values:Float32Array; // sampled - full matrix transforms, non-sampled - values
 	@:optional var curve:String; // bezier, tcb, ...
-	@:optional var frames_control_plus:TFloat32Array; // bezier
-	@:optional var frames_control_minus:TFloat32Array;
-	@:optional var values_control_plus:TFloat32Array;
-	@:optional var values_control_minus:TFloat32Array;
-	// @:optional var tension:TFloat32Array; // tcb
-	// @:optional var continuity:TFloat32Array;
-	// @:optional var bias:TFloat32Array;
+	@:optional var frames_control_plus:Float32Array; // bezier
+	@:optional var frames_control_minus:Float32Array;
+	@:optional var values_control_plus:Float32Array;
+	@:optional var values_control_minus:Float32Array;
+	// @:optional var tension:Float32Array; // tcb
+	// @:optional var continuity:Float32Array;
+	// @:optional var bias:Float32Array;
 }
 
 typedef TRenderCaptureInfo = {

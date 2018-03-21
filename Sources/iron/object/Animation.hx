@@ -84,7 +84,7 @@ class Animation {
 			frameIndex <= 0;
 	}
 
-	inline function checkFrameIndex(frameValues:TUint32Array):Bool {
+	inline function checkFrameIndex(frameValues:kha.arrays.Uint32Array):Bool {
 		return speed > 0 ?
 			((frameIndex + 1) < frameValues.length && time > frameValues[frameIndex + 1] * frameTime) :
 			((frameIndex - 1) > -1 && time < frameValues[frameIndex - 1] * frameTime);

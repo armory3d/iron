@@ -14,13 +14,14 @@ class BoneAnimation extends Animation {
 	// Skinning
 	public var object:MeshObject;
 	public var data:MeshData;
-	public var skinBuffer:haxe.ds.Vector<kha.FastFloat>;
+	public var skinBuffer:kha.arrays.Float32Array;
 	// public var boneTimeIndices = new Map<TObj, Int>();
 
 	var skeletonBones:Array<TObj> = null;
 	var skeletonMats:Array<Mat4> = null;
 	var skeletonBonesBlend:Array<TObj> = null;
 	var skeletonMatsBlend:Array<Mat4> = null;
+	var absMats:Array<Mat4> = null;
 	var applyParent:Array<Bool> = null;
 
 	var boneChildren:Map<String, Array<Object>> = null; // Parented to bone
@@ -66,7 +67,7 @@ class BoneAnimation extends Animation {
 				#else
 				var boneSize = 8; // Dual-quat skinning
 				#end
-				this.skinBuffer = new haxe.ds.Vector(skinMaxBones * boneSize);
+				this.skinBuffer = new kha.arrays.Float32Array(skinMaxBones * boneSize);
 				for (i in 0...this.skinBuffer.length) this.skinBuffer[i] = 0;
 				// Rotation is already applied to skin at export
 				object.transform.rot.set(0, 0, 0, 1);
@@ -315,6 +316,8 @@ class BoneAnimation extends Animation {
 				if (r) multParent2(m, bones[i], skeletonMats, skeletonBones);
 			}
 
+			if (absMats != null && i < absMats.length) absMats[i].setFrom(m);
+
 			if (boneChildren != null) updateBoneChildren(bones[i], m);
 			m.multmats(m, data.geom.skeletonTransformsI[i]);
 			updateSkinBuffer(m, i);
@@ -478,6 +481,15 @@ class BoneAnimation extends Animation {
 
 	public function getBoneMatBlend(bone:TObj):Mat4 {
 		return skeletonMatsBlend != null ? skeletonMatsBlend[getBoneIndex(bone)] : null;
+	}
+
+	public function getAbsMat(bone:TObj):Mat4 {
+		if (skeletonMats == null) return null;
+		if (absMats == null) {
+			absMats = [];
+			while (absMats.length < skeletonMats.length) absMats.push(Mat4.identity());
+		}
+		return absMats[getBoneIndex(bone)];
 	}
 
 	static var wm = Mat4.identity();

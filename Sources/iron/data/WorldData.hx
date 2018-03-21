@@ -13,7 +13,7 @@ class WorldData extends Data {
 	
 	var probes:Array<Probe>; 
 
-	static var emptyIrr:haxe.ds.Vector<kha.FastFloat> = null;
+	static var emptyIrr:kha.arrays.Float32Array = null;
 	
 	public function new(raw:TWorldData, done:WorldData->Void) {
 		super();
@@ -55,9 +55,9 @@ class WorldData extends Data {
 		});
 	}
 
-	public static function getEmptyIrradiance():haxe.ds.Vector<kha.FastFloat> {
+	public static function getEmptyIrradiance():kha.arrays.Float32Array {
 		if (emptyIrr == null) {
-			emptyIrr = new haxe.ds.Vector<kha.FastFloat>(28);
+			emptyIrr = new kha.arrays.Float32Array(28);
 			for (i in 0...emptyIrr.length) emptyIrr.set(i, 0.0);
 		}
 		return emptyIrr;
@@ -71,11 +71,11 @@ class WorldData extends Data {
 		return i < probes.length ? probes[i] : null;
 	}
 	
-	var shirr:haxe.ds.Vector<kha.FastFloat> = null;
-	public function getSHIrradiance():haxe.ds.Vector<kha.FastFloat> {
+	var shirr:kha.arrays.Float32Array = null;
+	public function getSHIrradiance():kha.arrays.Float32Array {
 		// Fetch spherical harmonics from probe
 		if (shirr == null) {
-			shirr = new haxe.ds.Vector(28);
+			shirr = new kha.arrays.Float32Array(28);
 			// for (i in 0...probes.length) {
 				var p = probes[0];
 				for (j in 0...p.irradiance.length) {
@@ -127,7 +127,7 @@ class Probe {
 	
 	public var raw:TProbe;
 	public var radiance:Image;
-	public var irradiance:haxe.ds.Vector<kha.FastFloat>;
+	public var irradiance:kha.arrays.Float32Array;
 	public var volume:Vec4;
 	public var volumeCenter:Vec4;
 	public var volumeMin:Vec4;
@@ -136,7 +136,7 @@ class Probe {
 	public function new(raw:TProbe, done:Probe->Void) {
 		this.raw = raw;
 		
-		setIrradiance(function(irr:haxe.ds.Vector<kha.FastFloat>) {
+		setIrradiance(function(irr:kha.arrays.Float32Array) {
 			irradiance = irr;
 		
 			if (raw.radiance != null) {
@@ -178,12 +178,14 @@ class Probe {
 		done(this);
 	}
 
-	function setIrradiance(done:haxe.ds.Vector<kha.FastFloat>->Void) {
+	function setIrradiance(done:kha.arrays.Float32Array->Void) {
 		// Parse probe data
 		if (raw.irradiance == '') {
 			// Use default if no data provided
-			var ar:Array<kha.FastFloat> = [0.7759665994411109, 1.1676103577251633, 1.498638725994038, 0.1336947481217397, 0.2152815237067897, 0.05665912629858376, -0.02226816760879319, -0.019376587567080147, -0.010651384270937897, 0.000279290102432495, 0.0001858273851672515, 6.33030727032015e-05, -6.78543609893525e-05, -0.0003936997772915445, -0.0007750453454300294, 0.010973699524451886, 0.02726825295855786, 0.04391820633315139, 0.08526796789315332, 0.07367063541652231, 0.03887702349408202, -1.34621815948975e-05, -3.9675084850967e-05, -3.7799572176155e-05, 0.13517727692935497, 0.11561459222778457, 0.06079408647605916];
-			done(haxe.ds.Vector.fromData(ar));
+			var ar:Array<kha.FastFloat> = [0.775966, 1.167610, 1.498638, 0.133694, 0.215281, 0.056659, -0.022268, -0.019376, -0.010651, 0.000279, 0.000185, 0.0, 0.0, -0.000393, -0.000775, 0.010973, 0.027268, 0.043918, 0.085267, 0.073670, 0.038877, 0.0, 0.0, 0.0, 0.135177, 0.115614, 0.060794];
+			var far = new kha.arrays.Float32Array(ar.length);
+			for (i in 0...far.length) far[i] = ar[i];
+			done(far);
 		}
 		else {
 			iron.data.Data.getBlob(raw.irradiance + '.arm', function(b:kha.Blob) {
@@ -193,9 +195,9 @@ class Probe {
 				#else
 				var irradianceParsed:TIrradiance = iron.system.ArmPack.decode(irradianceData.toBytes());
 				#end
-				var irr = new haxe.ds.Vector(28); // Align to mult of 4 - 27->28
-				for (i in 0...27) irr.set(i, irradianceParsed.irradiance[i]); 
-				irr.set(27, 0.0);
+				var irr = new kha.arrays.Float32Array(28); // Align to mult of 4 - 27->28
+				for (i in 0...27) irr[i] = irradianceParsed.irradiance[i];
+				irr[27] = 0.0;
 				done(irr);
 			});
 		}
