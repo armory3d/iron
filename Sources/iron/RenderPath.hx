@@ -190,7 +190,7 @@ class RenderPath {
 	}
 
 	public function clearTarget(colorFlag:Null<Int> = null, depthFlag:Null<Float> = null) {
-		if (colorFlag == -1) colorFlag = Scene.active.world.raw.background_color;
+		if (colorFlag == -1 && Scene.active.world != null) colorFlag = Scene.active.world.raw.background_color;
 		currentG.clear(colorFlag, depthFlag, null);
 	}
 
