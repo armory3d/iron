@@ -56,6 +56,7 @@ class RenderPath {
 		return getLamp(currentLampIndex).data.raw.type == "sun";
 	}
 
+	#if (rp_gi != "Off")
 	var voxelized = 0;
 	public var onVoxelize:Void->Bool = null;
 	public function voxelize() {
@@ -66,6 +67,7 @@ class RenderPath {
 		return ++voxelized > 2 ? false : true;
 		#end
 	}
+	#end
 
 	public static function setActive(renderPath:RenderPath) { 
 		active = renderPath;
