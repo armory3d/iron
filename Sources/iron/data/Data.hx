@@ -384,8 +384,7 @@ class Data {
 
 		loadingBlobs.set(file, [done]); // Start loading
 
-		var description = { files: [file] };
-		kha.LoaderImpl.loadBlobFromDescription(description, function(b:kha.Blob) {
+		kha.Assets.loadBlobFromPath(file, function(b:kha.Blob) {
 			cachedBlobs.set(file, b);
 			for (f in loadingBlobs.get(file)) f(b);
 			loadingBlobs.remove(file);
@@ -408,8 +407,7 @@ class Data {
 		loadingImages.set(file, [done]);
 
 		// TODO: process format in Kha
-		var description = { files: [file], readable: readable, format: format };
-		kha.LoaderImpl.loadImageFromDescription(description, function(b:kha.Image) {
+		kha.Assets.loadImageFromPath(file, readable, function(b:kha.Image) {
 			cachedImages.set(file, b);
 			for (f in loadingImages.get(file)) f(b);
 			loadingImages.remove(file);
@@ -432,8 +430,7 @@ class Data {
 
 		loadingSounds.set(file, [done]);
 
-		var description = { files: [file] };
-		kha.LoaderImpl.loadSoundFromDescription(description, function(b:kha.Sound) {
+		kha.Assets.loadSoundFromPath(file, function(b:kha.Sound) {
 			b.uncompress(function () {
 				cachedSounds.set(file, b);
 				for (f in loadingSounds.get(file)) f(b);
@@ -456,8 +453,7 @@ class Data {
 
 		loadingVideos.set(file, [done]);
 
-		var description = { files: [file] };
-		kha.LoaderImpl.loadVideoFromDescription(description, function(b:kha.Video) {
+		kha.Assets.loadVideoFromPath(file, function(b:kha.Video) {
 			cachedVideos.set(file, b);
 			for (f in loadingVideos.get(file)) f(b);
 			loadingVideos.remove(file);
@@ -475,8 +471,7 @@ class Data {
 
 		loadingFonts.set(file, [done]);
 
-		var description = { files: [file] };
-		kha.LoaderImpl.loadFontFromDescription(description, function(b:kha.Font) {
+		kha.Assets.loadFontFromPath(file, function(b:kha.Font) {
 			cachedFonts.set(file, b);
 			for (f in loadingFonts.get(file)) f(b);
 			loadingFonts.remove(file);
