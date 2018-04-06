@@ -232,6 +232,7 @@ class Data {
 		getBlob(file + ext, function(b:kha.Blob) {
 
 			if (compressed) {
+#if (!kha_hl) // TODO: korehl - unresolved external symbol _fmt_inflate_buffer
 				var input = new BytesInput(b.toBytes());
 				var entry = Reader.readZip(input).first();
 				if (entry == null) {
@@ -240,6 +241,7 @@ class Data {
 				}
 				if (entry.compressed) b = kha.Blob.fromBytes(Reader.unzip(entry));
 				else b = kha.Blob.fromBytes(entry.data);
+#end
 			}
 
 #if (arm_stream && kha_webgl)
@@ -394,7 +396,7 @@ class Data {
 
 	static var loadingImages:Map<String, Array<kha.Image->Void>> = new Map();
 	public static function getImage(file:String, done:kha.Image->Void, readable = false, format = 'RGBA32') {
-#if cpp
+#if (cpp || kha_hl)
 		file = file.substring(0, file.length - 4) + '.k';
 #end
 
@@ -442,7 +444,7 @@ class Data {
 
 	static var loadingVideos:Map<String, Array<kha.Video->Void>> = new Map();
 	public static function getVideo(file:String, done:kha.Video->Void) {
-#if cpp
+#if (cpp || kha_hl)
 		file = file.substring(0, file.length - 4) + '.avi';
 #end
 		var cached = cachedVideos.get(file);

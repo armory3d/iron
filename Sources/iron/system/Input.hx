@@ -235,9 +235,7 @@ class Pen extends VirtualInput {
 	var lastPressure = 0.0;
 
 	public function new() {
-		#if cpp
 		kha.input.Pen.get().notify(downListener, upListener, moveListener);
-		#end
 	}
 
 	public function endFrame() {
