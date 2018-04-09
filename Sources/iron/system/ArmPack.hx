@@ -51,7 +51,7 @@ class ArmPack {
 
 				// floating point
 				case 0xca: return i.readFloat();
-				case 0xcb: return i.readDouble();
+				// case 0xcb: return i.readDouble(); // armpack.py forces 32bit floats
 				
 				// unsigned int
 				case 0xcc: return i.readByte();

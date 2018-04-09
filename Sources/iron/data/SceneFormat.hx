@@ -1,5 +1,6 @@
 package iron.data;
 
+import kha.FastFloat;
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
 
@@ -23,7 +24,7 @@ typedef TSceneFormat = {
 	@:optional var gravity:Float32Array;
 	@:optional var traits:Array<TTrait>; // Scene root traits
 	@:optional var embedded_datas:Array<String>; // Preload for this scene, images only for now
-	@:optional var frame_time:Null<Float>;
+	@:optional var frame_time:Null<FastFloat>;
 	@:optional var capture_info:TRenderCaptureInfo;
 }
 
@@ -63,34 +64,34 @@ typedef TLampData = {
 	var name:String;
 	var type:String; // Sun, point, spot
 	var color:Float32Array;
-	var strength:Float;
+	var strength:FastFloat;
 	@:optional var cast_shadow:Null<Bool>;
-	@:optional var near_plane:Null<Float>;
-	@:optional var far_plane:Null<Float>;
-	@:optional var fov:Null<Float>;
-	@:optional var shadows_bias:Null<Float>;
+	@:optional var near_plane:Null<FastFloat>;
+	@:optional var far_plane:Null<FastFloat>;
+	@:optional var fov:Null<FastFloat>;
+	@:optional var shadows_bias:Null<FastFloat>;
 	@:optional var shadowmap_size:Null<Int>;
 	@:optional var shadowmap_cube:Null<Bool>; // Omni shadows for point
-	@:optional var spot_size:Null<Float>;
-	@:optional var spot_blend:Null<Float>;
-	@:optional var lamp_size:Null<Float>; // Shadow soft size
+	@:optional var spot_size:Null<FastFloat>;
+	@:optional var spot_blend:Null<FastFloat>;
+	@:optional var lamp_size:Null<FastFloat>; // Shadow soft size
 	@:optional var color_texture:String; // Image reference
-	@:optional var size:Null<Float>; // Area lamp
-	@:optional var size_y:Null<Float>;
+	@:optional var size:Null<FastFloat>; // Area lamp
+	@:optional var size_y:Null<FastFloat>;
 }
 
 typedef TCameraData = {
 	var name:String;
 	var clear_color:Float32Array;
-	var near_plane:Float;
-	var far_plane:Float;
-	var fov:Float;
-	@:optional var aspect:Null<Float>;
+	var near_plane:FastFloat;
+	var far_plane:FastFloat;
+	var fov:FastFloat;
+	@:optional var aspect:Null<FastFloat>;
 	@:optional var frustum_culling:Null<Bool>;
 	@:optional var render_to_texture:Null<Bool>;
 	@:optional var texture_resolution_x:Null<Int>;
 	@:optional var texture_resolution_y:Null<Int>;
-	@:optional var ortho_scale:Null<Float>; // Indicates ortho camera
+	@:optional var ortho_scale:Null<FastFloat>; // Indicates ortho camera
 }
 
 typedef TMaterialData = {
@@ -116,7 +117,7 @@ typedef TBindConstant = {
 	@:optional var vec4:Float32Array;
 	@:optional var vec3:Float32Array;
 	@:optional var vec2:Float32Array;
-	@:optional var float:Null<Float>;
+	@:optional var float:Null<FastFloat>;
 	@:optional var bool:Null<Bool>;
 	@:optional var int:Null<Int>;
 }
@@ -185,7 +186,7 @@ typedef TShaderConstant = {
 	@:optional var vec4:Float32Array;
 	@:optional var vec3:Float32Array;
 	@:optional var vec2:Float32Array;
-	@:optional var float:Null<Float>;
+	@:optional var float:Null<FastFloat>;
 	@:optional var bool:Null<Bool>;
 	@:optional var int:Null<Int>;
 }
@@ -202,9 +203,9 @@ typedef TSpeakerData = {
 	var muted:Bool;
 	var loop:Bool;
 	var stream:Bool;
-	var volume:Float;
-	var pitch:Float;
-	var attenuation:Float;
+	var volume:FastFloat;
+	var pitch:FastFloat;
+	var attenuation:FastFloat;
 	var play_on_start:Bool;
 }
 
@@ -213,15 +214,15 @@ typedef TWorldData = {
 	var background_color:Int;
 	var probes:Array<TProbe>;
 	@:optional var sun_direction:Float32Array; // Sky data
-	@:optional var turbidity:Null<Float>;
-	@:optional var ground_albedo:Null<Float>;
+	@:optional var turbidity:Null<FastFloat>;
+	@:optional var ground_albedo:Null<FastFloat>;
 	@:optional var envmap:String;
 }
 
 typedef TProbe = {
 	var irradiance:String; // Reference to TIrradiance blob
-	var strength:Float;
-	var blending:Float;
+	var strength:FastFloat;
+	var blending:FastFloat;
 	var volume:Float32Array;
 	var volume_center:Float32Array;
 	@:optional var radiance:String;
@@ -236,7 +237,7 @@ typedef TProbe = {
 
 // typedef TGreasePencilLayer = {
 // 	var name:String;
-// 	var opacity:Float;
+// 	var opacity:FastFloat;
 // 	var frames:Array<TGreasePencilFrame>;
 // }
 
@@ -257,9 +258,9 @@ typedef TProbe = {
 // typedef TGreasePencilPaletteColor = {
 // 	var name:String;
 // 	var color:Float32Array;
-// 	var alpha:Float;
+// 	var alpha:FastFloat;
 // 	var fill_color:Float32Array;
-// 	var fill_alpha:Float;
+// 	var fill_alpha:FastFloat;
 // }
 
 typedef TTilesheetData = {
@@ -288,25 +289,25 @@ typedef TParticleData = {
 	var render_emitter:Bool;
 	// Emission
 	var count:Int;
-	var frame_start:Float;
-	var frame_end:Float;
-	var lifetime:Float;
-	var lifetime_random:Float;
+	var frame_start:FastFloat;
+	var frame_end:FastFloat;
+	var lifetime:FastFloat;
+	var lifetime_random:FastFloat;
 	var emit_from:Int; // 0 - Vert, Face, 1 - Volume
 	// Velocity
-	// var normal_factor:Float;
+	// var normal_factor:FastFloat;
 	var object_align_factor:Float32Array;
-	var factor_random:Float;
+	var factor_random:FastFloat;
 	// Physics
 	var physics_type:Int; // 0 - No, 1 - Newton
-	var particle_size:Float; // Object scale
-	var size_random:Float; // Random scale
-	var mass:Float; // Random scale
+	var particle_size:FastFloat; // Object scale
+	var size_random:FastFloat; // Random scale
+	var mass:FastFloat; // Random scale
 	// Render
 	var dupli_object:String; // Object reference
 	var gpu_sim:Bool; // Simulate on GPU
 	// Field weights
-	var weight_gravity:Float;
+	var weight_gravity:FastFloat;
 }
 
 typedef TParticleReference = {
@@ -355,7 +356,7 @@ typedef TGroup = {
 
 typedef TLod = {
 	var object_ref:String; // Empty when limiting draw distance
-	var screen_size:Float; // (0-1) size compared to lod0
+	var screen_size:FastFloat; // (0-1) size compared to lod0
 }
 
 typedef TConstraint = {
@@ -370,7 +371,7 @@ typedef TConstraint = {
 	@:optional var invert_y:Null<Bool>;
 	@:optional var invert_z:Null<Bool>;
 	@:optional var use_offset:Null<Bool>;
-	@:optional var influence:Null<Float>;
+	@:optional var influence:Null<FastFloat>;
 }
 
 typedef TTrait = {
@@ -398,7 +399,7 @@ typedef TAnimationTransform = {
 	var type:String; // translation, translation_x, ...
 	@:optional var name:String;
 	@:optional var values:Float32Array; // translation
-	@:optional var value:Null<Float>; // translation_x
+	@:optional var value:Null<FastFloat>; // translation_x
 }
 
 typedef TTrack = {

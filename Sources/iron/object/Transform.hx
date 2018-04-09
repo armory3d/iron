@@ -15,7 +15,7 @@ class Transform {
 	public var dirty:Bool;
 	public var object:Object;
 	public var dim:Vec4;
-	public var radius:Float;
+	public var radius:kha.FastFloat;
 	static var temp = Mat4.identity();
 	var prependMats:Array<Mat4> = null;
 	var appendMats:Array<Mat4> = null;
@@ -106,7 +106,7 @@ class Transform {
 		dirty = false;
 	}
 
-	public function translate(x:Float, y:Float, z:Float) {
+	public function translate(x:kha.FastFloat, y:kha.FastFloat, z:kha.FastFloat) {
 		loc.x += x;
 		loc.y += y;
 		loc.z += z;
@@ -128,14 +128,14 @@ class Transform {
 		local.decompose(loc, rot, scale);
 	}
 
-	public function rotate(axis:Vec4, f:Float) {
+	public function rotate(axis:Vec4, f:kha.FastFloat) {
 		var q = new Quat();
 		q.fromAxisAngle(axis, f);
 		rot.multquats(q, rot);
 		dirty = true;
 	}
 
-	public function setRotation(x:Float, y:Float, z:Float) {
+	public function setRotation(x:kha.FastFloat, y:kha.FastFloat, z:kha.FastFloat) {
 		rot.fromEuler(x, y, z);
 		dirty = true;
 		_eulerX = x;
@@ -184,23 +184,23 @@ class Transform {
 	}
 
 	// Wrong order returned from getEuler(), store last state for animation
-	var _eulerX:Float;
-	var _eulerY:Float;
-	var _eulerZ:Float;
+	var _eulerX:kha.FastFloat;
+	var _eulerY:kha.FastFloat;
+	var _eulerZ:kha.FastFloat;
 
 	public inline function look():Vec4 { return world.look(); }
 	public inline function right():Vec4 { return world.right(); }
 	public inline function up():Vec4 { return world.up(); }
 
-	public inline function worldx():Float { return world._30; }
-	public inline function worldy():Float { return world._31; }
-	public inline function worldz():Float { return world._32; }
+	public inline function worldx():kha.FastFloat { return world._30; }
+	public inline function worldy():kha.FastFloat { return world._31; }
+	public inline function worldz():kha.FastFloat { return world._32; }
 
 	// Animated delta transform
 	public var dloc:Vec4 = null;
 	public var drot:Quat = null;
 	public var dscale:Vec4 = null;
-	var _deulerX:Float;
-	var _deulerY:Float;
-	var _deulerZ:Float;
+	var _deulerX:kha.FastFloat;
+	var _deulerY:kha.FastFloat;
+	var _deulerZ:kha.FastFloat;
 }

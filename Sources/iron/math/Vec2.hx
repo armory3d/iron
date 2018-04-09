@@ -1,19 +1,21 @@
 package iron.math;
 
-class Vec2 {
-	public var x:Float;
-	public var y:Float;
+import kha.FastFloat;
 
-	public function new(x:Float = 0.0, y:Float = 0.0) {
+class Vec2 {
+	public var x:FastFloat;
+	public var y:FastFloat;
+
+	public function new(x:FastFloat = 0.0, y:FastFloat = 0.0) {
 		this.x = x;
 		this.y = y;
 	}
 
-	public function cross(v:Vec2):Float {
+	public function cross(v:Vec2):FastFloat {
 		return x * v.y - y * v.x;
 	}
 	
-	public function set(x:Float, y:Float):Vec2{
+	public function set(x:FastFloat, y:FastFloat):Vec2{
 		this.x = x;
 		this.y = y;
 		return this;
@@ -25,7 +27,7 @@ class Vec2 {
 		return this;
 	}
 
-	public function addf(x:Float, y:Float):Vec2 {
+	public function addf(x:FastFloat, y:FastFloat):Vec2 {
 		this.x += x;
 		this.y += y;
 		return this;
@@ -55,12 +57,12 @@ class Vec2 {
         return this;
 	}
 
-	public function mult(f:Float):Vec2 {
+	public function mult(f:FastFloat):Vec2 {
 		x *= f; y *= f;
 		return this;
 	}
 
-	public function dot(v:Vec2):Float {
+	public function dot(v:Vec2):FastFloat {
 		return x * v.x + y * v.y;
 	}
 	
@@ -73,7 +75,7 @@ class Vec2 {
 		return new Vec2(x, y);
 	}
 	
-	public static function lerp(v1:Vec2, v2:Vec2, t:Float):Vec2 {
+	public static function lerp(v1:Vec2, v2:Vec2, t:FastFloat):Vec2 {
 		var target = new Vec2();
 		target.x = v2.x + (v1.x - v2.x) * t;
 		target.y = v2.y + (v1.y - v2.y) * t;
@@ -84,7 +86,7 @@ class Vec2 {
 		return x == v.x && y == v.y;
 	}
 
-	public inline function length():Float {
+	public inline function length():FastFloat {
 		return Math.sqrt(x * x + y * y);
 	}
 
@@ -93,17 +95,17 @@ class Vec2 {
 		return this;
 	}
 
-	public static inline function distance(v1:Vec2, v2:Vec2):Float {
+	public static inline function distance(v1:Vec2, v2:Vec2):FastFloat {
 		return distancef(v1.x, v1.y, v2.x, v2.y);
 	}
 
-	public static inline function distancef(v1x:Float, v1y:Float, v2x:Float, v2y:Float):Float {
+	public static inline function distancef(v1x:FastFloat, v1y:FastFloat, v2x:FastFloat, v2y:FastFloat):FastFloat {
 		var vx = v1x - v2x;
 		var vy = v1y - v2y;
 		return Math.sqrt(vx * vx + vy * vy);
 	}
 
-	public function distanceTo(p:Vec2):Float {
+	public function distanceTo(p:Vec2):FastFloat {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y));
 	}
 

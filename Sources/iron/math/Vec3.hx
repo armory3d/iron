@@ -1,11 +1,13 @@
 package iron.math;
 
-class Vec3 {
-	public var x:Float;
-	public var y:Float;
-	public var z:Float;
+import kha.FastFloat;
 
-	public function new(x:Float = 0.0, y:Float = 0.0, z:Float = 0.0) {
+class Vec3 {
+	public var x:FastFloat;
+	public var y:FastFloat;
+	public var z:FastFloat;
+
+	public function new(x:FastFloat = 0.0, y:FastFloat = 0.0, z:FastFloat = 0.0) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -31,7 +33,7 @@ class Vec3 {
 		return this;
 	}
 
-	public function set(x:Float, y:Float, z:Float):Vec3{
+	public function set(x:FastFloat, y:FastFloat, z:FastFloat):Vec3{
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -45,7 +47,7 @@ class Vec3 {
 		return this;
 	}
 
-	public function addf(x:Float, y:Float, z:Float):Vec3 {
+	public function addf(x:FastFloat, y:FastFloat, z:FastFloat):Vec3 {
 		this.x += x;
 		this.y += y;
 		this.z += z;
@@ -75,12 +77,12 @@ class Vec3 {
 		return this;
 	}
 
-	public function mult(f:Float):Vec3 {
+	public function mult(f:FastFloat):Vec3 {
 		x *= f; y *= f; z *= f;
 		return this;
 	}
 
-	public function dot(v:Vec3):Float {
+	public function dot(v:Vec3):FastFloat {
 		return x * v.x + y * v.y + z * v.z;
 	}
 
@@ -93,7 +95,7 @@ class Vec3 {
 		return new Vec3(x, y, z);
 	}
 
-	public static function lerp(v1:Vec3, v2:Vec3, t:Float):Vec3 {
+	public static function lerp(v1:Vec3, v2:Vec3, t:FastFloat):Vec3 {
 		var target = new Vec3();
 		target.x = v2.x + (v1.x - v2.x) * t;
 		target.y = v2.y + (v1.y - v2.y) * t;
@@ -128,7 +130,7 @@ class Vec3 {
 		return x == v.x && y == v.y && z == v.z;
 	}
 
-	public inline function length():Float {
+	public inline function length():FastFloat {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
 
@@ -137,18 +139,18 @@ class Vec3 {
 		return this;
 	}
 
-	public static inline function distance(v1:Vec3, v2:Vec3):Float {
+	public static inline function distance(v1:Vec3, v2:Vec3):FastFloat {
 		return distancef(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 	}
 
-	public static inline function distancef(v1x:Float, v1y:Float, v1z:Float, v2x:Float, v2y:Float, v2z:Float):Float {
+	public static inline function distancef(v1x:FastFloat, v1y:FastFloat, v1z:FastFloat, v2x:FastFloat, v2y:FastFloat, v2z:FastFloat):FastFloat {
 		var vx = v1x - v2x;
 		var vy = v1y - v2y;
 		var vz = v1z - v2z;
 		return Math.sqrt(vx * vx + vy * vy + vz * vz);
 	}
 
-	public function distanceTo(p:Vec3):Float {
+	public function distanceTo(p:Vec3):FastFloat {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
 	}
 

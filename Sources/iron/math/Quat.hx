@@ -1,11 +1,13 @@
 package iron.math;
 
+import kha.FastFloat;
+
 class Quat {
 
-	public var x:Float;
-	public var y:Float;
-	public var z:Float;
-	public var w:Float;
+	public var x:FastFloat;
+	public var y:FastFloat;
+	public var z:FastFloat;
+	public var w:FastFloat;
 
 	static var helpVec0 = new Vec4();
 	static var helpVec1 = new Vec4();
@@ -21,15 +23,15 @@ class Quat {
 		this.w = w;
 	}
 
-	public inline function set(x:Float, y:Float, z:Float, w:Float) {
+	public inline function set(x:FastFloat, y:FastFloat, z:FastFloat, w:FastFloat) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.w = w;
 	}
 
-	public function fromAxisAngle(axis:Vec4, angle:Float) {
-		var s:Float = Math.sin(angle * 0.5);
+	public function fromAxisAngle(axis:Vec4, angle:FastFloat) {
+		var s:FastFloat = Math.sin(angle * 0.5);
 		x = axis.x * s;
 		y = axis.y * s;
 		z = axis.z * s;
@@ -37,7 +39,7 @@ class Quat {
 		normalize();
 	}
 
-	public function toAxisAngle(axis:Vec4):Float {
+	public function toAxisAngle(axis:Vec4):FastFloat {
 		normalize();
 		var angle = 2 * Math.acos(w);
 		var s = Math.sqrt(1 - w * w);
@@ -161,7 +163,7 @@ class Quat {
 		return new Vec4(pitch, roll, yaw);
 	}
 
-	public function fromEuler(x:Float, y:Float, z:Float) {
+	public function fromEuler(x:FastFloat, y:FastFloat, z:FastFloat) {
 		var c1 = Math.cos(x / 2);
 		var c2 = Math.cos(y / 2);
 		var c3 = Math.cos(z / 2);
@@ -200,11 +202,11 @@ class Quat {
 		return m;
 	}
 
-	public static function lerp(q1:Quat, q2:Quat, ratio:Float):Quat {
+	public static function lerp(q1:Quat, q2:Quat, ratio:FastFloat):Quat {
 		var c = new Quat();
 		var ca = new Quat();
 		ca.setFrom(q1);
-		var dot:Float = q1.dot(q2);
+		var dot:FastFloat = q1.dot(q2);
 		if (dot < 0.0) {
 			ca.w = -ca.w;
 			ca.x = -ca.x;
@@ -219,7 +221,7 @@ class Quat {
 		return c;
 	}
 
-	public static function slerp(q1:Quat, q2:Quat, v:Float):Quat {
+	public static function slerp(q1:Quat, q2:Quat, v:FastFloat):Quat {
 		// Based on https://github.com/HeapsIO/heaps/blob/master/h3d/Quat.hx
 		var c = new Quat();
 		var cosHalfTheta = q1.dot(q2);
@@ -244,7 +246,7 @@ class Quat {
 		return c;
 	}
 
-	public function dot(q:Quat):Float {
+	public function dot(q:Quat):FastFloat {
 		return (x * q.x) + (y * q.y) + (z * q.z) + (w * q.w);
 	}
 

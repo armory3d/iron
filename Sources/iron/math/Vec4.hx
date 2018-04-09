@@ -1,11 +1,13 @@
 package iron.math;
 
+import kha.FastFloat;
+
 class Vec4 {
 
-	public var x:Float;
-	public var y:Float;
-	public var z:Float;
-	public var w:Float;
+	public var x:FastFloat;
+	public var y:FastFloat;
+	public var z:FastFloat;
+	public var w:FastFloat;
 
 	public function new(x = 0.0, y = 0.0, z = 0.0, w = 1.0) {
 		this.x = x;
@@ -34,7 +36,7 @@ class Vec4 {
 		return this;
 	}
 
-	public function set(x:Float, y:Float, z:Float, w = 1.0):Vec4{
+	public function set(x:FastFloat, y:FastFloat, z:FastFloat, w = 1.0):Vec4{
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -49,7 +51,7 @@ class Vec4 {
 		return this;
 	}
 
-	public function addf(x:Float, y:Float, z:Float):Vec4 {
+	public function addf(x:FastFloat, y:FastFloat, z:FastFloat):Vec4 {
 		this.x += x;
 		this.y += y;
 		this.z += z;
@@ -79,12 +81,12 @@ class Vec4 {
 		return this;
 	}
 
-	public function mult(f:Float):Vec4 {
+	public function mult(f:FastFloat):Vec4 {
 		x *= f; y *= f; z *= f;
 		return this;
 	}
 
-	public function dot(v:Vec4):Float {
+	public function dot(v:Vec4):FastFloat {
 		return x * v.x + y * v.y + z * v.z;
 	}
 
@@ -97,7 +99,7 @@ class Vec4 {
 		return new Vec4(x, y, z, w);
 	}
 
-	public static function lerp(v1:Vec4, v2:Vec4, t:Float):Vec4 {
+	public static function lerp(v1:Vec4, v2:Vec4, t:FastFloat):Vec4 {
 		var target = new Vec4();
 		target.x = v2.x + (v1.x - v2.x) * t;
 		target.y = v2.y + (v1.y - v2.y) * t;
@@ -140,7 +142,7 @@ class Vec4 {
 	}
 
 	var quat = new Quat();
-	public function applyAxisAngle(axis:Vec4, angle:Float):Vec4 {
+	public function applyAxisAngle(axis:Vec4, angle:FastFloat):Vec4 {
 		quat.fromAxisAngle(axis, angle);
 		return applyQuat(quat);
 	}
@@ -160,7 +162,7 @@ class Vec4 {
 		return x == v.x && y == v.y && z == v.z;
 	}
 
-	public inline function length():Float {
+	public inline function length():FastFloat {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
 
@@ -169,18 +171,18 @@ class Vec4 {
 		return this;
 	} 
 
-	public static inline function distance(v1:Vec4, v2:Vec4):Float {
+	public static inline function distance(v1:Vec4, v2:Vec4):FastFloat {
 		return distancef(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 	}
 
-	public static inline function distancef(v1x:Float, v1y:Float, v1z:Float, v2x:Float, v2y:Float, v2z:Float):Float {
+	public static inline function distancef(v1x:FastFloat, v1y:FastFloat, v1z:FastFloat, v2x:FastFloat, v2y:FastFloat, v2z:FastFloat):FastFloat {
 		var vx = v1x - v2x;
 		var vy = v1y - v2y;
 		var vz = v1z - v2z;
 		return Math.sqrt(vx * vx + vy * vy + vz * vz);
 	}
 
-	public function distanceTo(p:Vec4):Float {
+	public function distanceTo(p:Vec4):FastFloat {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
 	}
 

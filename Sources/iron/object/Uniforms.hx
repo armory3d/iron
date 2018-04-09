@@ -45,7 +45,7 @@ class Uniforms {
 	public static var externalVec4Links:Array<String->Vec4> = null;
 	public static var externalVec3Links:Array<String->Vec4> = null;
 	public static var externalVec2Links:Array<String->Vec4> = null;
-	public static var externalFloatLinks:Array<String->Null<Float>> = null;
+	public static var externalFloatLinks:Array<String->Null<kha.FastFloat>> = null;
 	public static var externalFloatsLinks:Array<String->kha.arrays.Float32Array> = null;
 	public static var externalIntLinks:Array<String->Null<Int>> = null;
 
@@ -375,12 +375,14 @@ class Uniforms {
 						// helpMat.multmat2(helpMat2);
 						// helpMat.translate(tr.worldx(), tr.worldy(), tr.worldz());
 						helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
-						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * 2.0, lamp.data.raw.far_plane * 2.0);
+						var f2:kha.FastFloat = 2.0;
+						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * f2, lamp.data.raw.far_plane * f2);
 						helpMat.compose(helpVec, helpQuat, helpVec2);
 					}
 					else if (type == "point" || type == "area") { // Sphere
 						helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
-						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * 2.0, lamp.data.raw.far_plane * 2.0);
+						var f2:kha.FastFloat = 2.0;
+						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * f2, lamp.data.raw.far_plane * f2);
 						helpMat.compose(helpVec, helpQuat, helpVec2);
 					}
 					
@@ -482,8 +484,9 @@ class Uniforms {
 			}
 			else if (c.link == "_lampArea0") {
 				if (lamp != null && lamp.data.raw.size != null) {
-					var sx = lamp.data.raw.size / 2;
-					var sy = lamp.data.raw.size_y / 2;
+					var f2:kha.FastFloat = 0.5;
+					var sx:kha.FastFloat = lamp.data.raw.size * f2;
+					var sy:kha.FastFloat = lamp.data.raw.size_y * f2;
 					helpVec.set(-sx, sy, 0.0);
 					helpVec.applymat(lamp.transform.world);
 					v = helpVec;
@@ -491,8 +494,9 @@ class Uniforms {
 			}
 			else if (c.link == "_lampArea1") {
 				if (lamp != null && lamp.data.raw.size != null) {
-					var sx = lamp.data.raw.size / 2;
-					var sy = lamp.data.raw.size_y / 2;
+					var f2:kha.FastFloat = 0.5;
+					var sx:kha.FastFloat = lamp.data.raw.size * f2;
+					var sy:kha.FastFloat = lamp.data.raw.size_y * f2;
 					helpVec.set(sx, sy, 0.0);
 					helpVec.applymat(lamp.transform.world);
 					v = helpVec;
@@ -500,8 +504,9 @@ class Uniforms {
 			}
 			else if (c.link == "_lampArea2") {
 				if (lamp != null && lamp.data.raw.size != null) {
-					var sx = lamp.data.raw.size / 2;
-					var sy = lamp.data.raw.size_y / 2;
+					var f2:kha.FastFloat = 0.5;
+					var sx:kha.FastFloat = lamp.data.raw.size * f2;
+					var sy:kha.FastFloat = lamp.data.raw.size_y * f2;
 					helpVec.set(sx, -sy, 0.0);
 					helpVec.applymat(lamp.transform.world);
 					v = helpVec;
@@ -509,8 +514,9 @@ class Uniforms {
 			}
 			else if (c.link == "_lampArea3") {
 				if (lamp != null && lamp.data.raw.size != null) {
-					var sx = lamp.data.raw.size / 2;
-					var sy = lamp.data.raw.size_y / 2;
+					var f2:kha.FastFloat = 0.5;
+					var sx:kha.FastFloat = lamp.data.raw.size * f2;
+					var sy:kha.FastFloat = lamp.data.raw.size_y * f2;
 					helpVec.set(-sx, -sy, 0.0);
 					helpVec.applymat(lamp.transform.world);
 					v = helpVec;
@@ -561,8 +567,8 @@ class Uniforms {
 			g.setFloat3(location, v.x, v.y, v.z);
 		}
 		else if (c.type == "vec2") {
-			var vx:Float = 0;
-			var vy:Float = 0;
+			var vx:kha.FastFloat = 0;
+			var vy:kha.FastFloat = 0;
 			if (c.link == "_vec2x") vx = 1.0;
 			else if (c.link == "_vec2xInv") vx = 1.0 / RenderPath.active.currentW;
 			else if (c.link == "_vec2x2") vx = 2.0;
@@ -612,11 +618,12 @@ class Uniforms {
 			}
 			else if (c.link == "_lampPlaneProj") { // shadowCube
 				if (lamp != null) {
-					var near = lamp.data.raw.near_plane;
-					var far = lamp.data.raw.far_plane;
-					var a = far + near;
-					var b = far - near;
-					var c = 2.0 * far * near;
+					var near:kha.FastFloat = lamp.data.raw.near_plane;
+					var far:kha.FastFloat = lamp.data.raw.far_plane;
+					var a:kha.FastFloat = far + near;
+					var b:kha.FastFloat = far - near;
+					var f2:kha.FastFloat = 2.0;
+					var c = f2 * far * near;
 					vx = a / b;
 					vy = c / b;
 				}
@@ -646,7 +653,7 @@ class Uniforms {
 			g.setFloat2(location, vx, vy);
 		}
 		else if (c.type == "float") {
-			var f = 0.0;
+			var f:kha.FastFloat = 0.0;
 			if (c.link == "_time") {
 				f = iron.system.Time.time();
 			}
@@ -662,9 +669,9 @@ class Uniforms {
 			else if (c.link == "_lampSize") {
 				if (lamp != null && lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size;
 			}
-			else if (c.link == "_lampSizeUV") {
-				if (lamp != null && lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size / lamp.data.raw.fov;
-			}
+			// else if (c.link == "_lampSizeUV") {
+				// if (lamp != null && lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size / lamp.data.raw.fov;
+			// }
 			else if (c.link == "_envmapStrength") {
 				if (Scene.active.world == null) f = 0.0;
 				else f = Scene.active.world.getGlobalProbe().raw.strength;
@@ -821,7 +828,7 @@ class Uniforms {
 		case "vec4": g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);
 		case "vec3": g.setFloat3(location, matc.vec3[0], matc.vec3[1], matc.vec3[2]);
 		case "vec2": g.setFloat2(location, matc.vec2[0], matc.vec2[1]);
-		case "float": { var f:Float = matc.float; g.setFloat(location, f); } // TODO: hashlink fix
+		case "float": g.setFloat(location,  matc.float);
 		case "bool": g.setBool(location, matc.bool);
 		case "int": g.setInt(location, matc.int);
 		}

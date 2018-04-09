@@ -294,7 +294,7 @@ class Mat4 {
 	}
 
 	public function transpose() {
-		var tmp:Float;
+		var tmp:FastFloat;
 		tmp = _01; _01 = _10; _10 = tmp;
 		tmp = _02; _02 = _20; _20 = tmp;
 		tmp = _03; _03 = _30; _30 = tmp;
@@ -304,7 +304,7 @@ class Mat4 {
 	}
 	
 	public function transpose3x3() {
-		var tmp:Float;
+		var tmp:FastFloat;
 		tmp = _01; _01 = _10; _10 = tmp;
 		tmp = _02; _02 = _20; _20 = tmp;
 		tmp = _12; _12 = _21; _21 = tmp;
@@ -443,7 +443,7 @@ class Mat4 {
 		return q;
 	}
 
-	public static function persp(fovY:Float, aspect:Float, zn:Float, zf:Float):Mat4 {
+	public static function persp(fovY:FastFloat, aspect:FastFloat, zn:FastFloat, zf:FastFloat):Mat4 {
 		var uh = 1.0 / Math.tan(fovY / 2);
 		var uw = uh / aspect;
 		return new Mat4(
@@ -454,7 +454,7 @@ class Mat4 {
 		);
 	}
 
-	public static function ortho(left:Float, right:Float, bottom:Float, top:Float, near:Float, far:Float):Mat4 {
+	public static function ortho(left:FastFloat, right:FastFloat, bottom:FastFloat, top:FastFloat, near:FastFloat, far:kha.FastFloat):Mat4 {
 		var rl = right - left;
 		var tb = top - bottom;
 		var fn = far - near;

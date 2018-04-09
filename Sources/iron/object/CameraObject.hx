@@ -21,8 +21,8 @@ class CameraObject extends Object {
 	public var prevV:Mat4 = null;
 	public var VP:Mat4;
 	public var frustumPlanes:Array<FrustumPlane> = null;
-	public var nearPlane:Float;
-	public var farPlane:Float;
+	public var nearPlane:kha.FastFloat;
+	public var farPlane:kha.FastFloat;
 	static var temp = new Vec4();
 
 	#if arm_vr
@@ -61,10 +61,10 @@ class CameraObject extends Object {
 	}
 
 	public function buildProjection() {
-		var aspect = data.raw.aspect != null ? data.raw.aspect : iron.App.w() / iron.App.h();
+		var aspect:kha.FastFloat = data.raw.aspect != null ? data.raw.aspect : iron.App.w() / iron.App.h();
 		if (data.raw.ortho_scale != null) {
-			var sc = data.raw.ortho_scale;
-			P = Mat4.ortho(-aspect * sc, aspect * sc, -1 * sc, 1 * sc, -farPlane, farPlane);
+			var sc:kha.FastFloat = data.raw.ortho_scale;
+			P = Mat4.ortho(-1 * aspect * sc, aspect * sc, -1 * sc, 1 * sc, -1 * farPlane, farPlane);
 		}
 		else {
 			P = Mat4.persp(data.raw.fov, aspect, nearPlane, farPlane);

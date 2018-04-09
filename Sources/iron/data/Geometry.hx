@@ -301,7 +301,7 @@ class Geometry {
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
 			
-			#if (cpp || arm_json || kha_node)
+			#if (cpp || hl || arm_json || kha_node)
 			var indicesA = indexBuffer.lock();
 			for (i in 0...indicesA.length) indicesA[i] = id[i];
 			#else

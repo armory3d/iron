@@ -30,7 +30,7 @@ class Animation {
 	public var frameIndex = 0; // TODO: use boneTimeIndices
 	public var onComplete:Void->Void = null;
 	public var paused = false;
-	var frameTime:Float;
+	var frameTime:kha.FastFloat;
 
 	var blendTime = 0.0;
 	var blendCurrent = 0.0;

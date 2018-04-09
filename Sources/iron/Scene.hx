@@ -607,9 +607,9 @@ class Scene {
 					for (i in 0...Std.int(t.props.length / 2)) {
 						var pname = t.props[i * 2];
 						var pval = t.props[i * 2 + 1];
-						#if (!kha_hl) // TODO
-						if (pval != "") Reflect.setProperty(traitInst, pname, parseArg(pval));
-						#end
+						if (pval != "" && Reflect.field(traitInst, pname) != null) { // c/cpp no field?
+							Reflect.setProperty(traitInst, pname, parseArg(pval));
+						}
 					}
 				}
 				object.addTrait(traitInst);
