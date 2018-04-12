@@ -3,7 +3,6 @@ package iron.data;
 import haxe.ds.Vector;
 import iron.data.SceneFormat;
 import iron.data.ShaderData;
-import iron.object.MeshObject;
 
 class MaterialData extends Data {
 
@@ -15,7 +14,7 @@ class MaterialData extends Data {
 
 	public var contexts:Array<MaterialContext> = null;
 
-	public function new(raw:TMaterialData, done:MaterialData->Void, file = "") {
+	public function new(raw:TMaterialData, done:MaterialData->Void, file = "", loadShaderData = true) {
 		super();
 
 		uid = ++uidCounter; // Start from 1
@@ -34,24 +33,29 @@ class MaterialData extends Data {
 			data_ref = raw.shader;
 		}
 
-		Data.getShader(object_file, data_ref, raw.override_context, function(b:ShaderData) {
-			shader = b;
+		if (loadShaderData) {
+			Data.getShader(object_file, data_ref, raw.override_context, function(b:ShaderData) {
+				shader = b;
+				createContexts(done);
+			});
+		}
+	}
 
-			// Contexts have to be in the same order as in raw data for now
-			contexts = [];
-			// contexts = new Vector(raw.contexts.length);
-			while (contexts.length < raw.contexts.length) contexts.push(null);
-			var contextsLoaded = 0;
+	function createContexts(done:MaterialData->Void) {
+		// Contexts have to be in the same order as in raw data for now
+		contexts = [];
+		// contexts = new Vector(raw.contexts.length);
+		while (contexts.length < raw.contexts.length) contexts.push(null);
+		var contextsLoaded = 0;
 
-			for (i in 0...raw.contexts.length) {
-				var c = raw.contexts[i];
-				new MaterialContext(c, function(self:MaterialContext) {
-					contexts[i] = self;
-					contextsLoaded++;
-					if (contextsLoaded == raw.contexts.length) done(this);
-				});
-			}
-		});
+		for (i in 0...raw.contexts.length) {
+			var c = raw.contexts[i];
+			new MaterialContext(c, function(self:MaterialContext) {
+				contexts[i] = self;
+				contextsLoaded++;
+				if (contextsLoaded == raw.contexts.length) done(this);
+			});
+		}
 	}
 
 	public static function parse(file:String, name:String, done:MaterialData->Void) {
@@ -63,6 +67,12 @@ class MaterialData extends Data {
 			}
 			new MaterialData(raw, done, file);
 		});
+	}
+
+	public static function createFromCode(rawmat:TMaterialData, shader:ShaderData, done:MaterialData->Void) {
+		var md = new MaterialData(rawmat, null, '', false);
+		md.shader = shader;
+		md.createContexts(done);
 	}
 
 	public function getContext(name:String):MaterialContext {
@@ -87,7 +97,7 @@ class MaterialContext {
 		id = num++;
 
 		if (raw.bind_textures != null && raw.bind_textures.length > 0) {
-			
+
 			textures = new Vector(raw.bind_textures.length);
 			var texturesLoaded = 0;
 
@@ -140,13 +150,13 @@ class MaterialContext {
 						if (texturesLoaded == raw.bind_textures.length) done(this);
 					}
 					else if (texturesLoaded == raw.bind_textures.length) done(this);
-				
+
 				}, false, tex.format != null ? tex.format : 'RGBA32');
 			}
 		}
 		else done(this);
 	}
-	
+
 	public function setTextureParameters(g:kha.graphics4.Graphics, textureIndex:Int, context:ShaderContext, unitIndex:Int) {
 		// This function is called by MeshObject for samplers set using material context
 		if (!context.paramsSet[unitIndex]) {
