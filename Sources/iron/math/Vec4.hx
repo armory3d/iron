@@ -81,6 +81,12 @@ class Vec4 {
 		return this;
 	}
 
+	public inline function normalizeTo(newLength:FastFloat):Vec4 {
+		var v = normalize();
+		v = mult(newLength);
+		return v;
+	}
+
 	public function mult(f:FastFloat):Vec4 {
 		x *= f; y *= f; z *= f;
 		return this;
@@ -193,6 +199,20 @@ class Vec4 {
 		z = z - 2.0 * d * n.z;
 		return this;
 	}
+
+	public function clamp(fmin:FastFloat, fmax:FastFloat):Vec4 {
+		var n = length();
+		var v = this;
+
+		if (n < fmin) {
+			v = normalizeTo(fmin);
+		}
+		else if (n > fmax) {
+			v = normalizeTo(fmax);
+		}
+		return v;
+	}
+
 
 	public static function xAxis():Vec4 { return new Vec4(1.0, 0.0, 0.0); }
 	public static function yAxis():Vec4 { return new Vec4(0.0, 1.0, 0.0); }

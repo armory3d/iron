@@ -134,6 +134,12 @@ class Vec3 {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
 
+	public inline function normalizeTo(newLength:FastFloat):Vec3 {
+		var v = normalize();
+		v = mult(newLength);
+		return v;
+	}
+
 	public function sub(v:Vec3):Vec3 {
 		x -= v.x; y -= v.y; z -= v.z;
 		return this;
@@ -152,6 +158,19 @@ class Vec3 {
 
 	public function distanceTo(p:Vec3):FastFloat {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
+	}
+
+	public function clamp(fmin:FastFloat, fmax:FastFloat):Vec3 {
+		var n = length();
+		var v = this;
+
+		if (n < fmin) {
+			v = normalizeTo(fmin);
+		}
+		else if (n > fmax) {
+			v = normalizeTo(fmax);
+		}
+		return v;
 	}
 
 	public static function xAxis():Vec3 { return new Vec3(1.0, 0.0, 0.0); }

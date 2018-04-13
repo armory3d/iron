@@ -90,6 +90,12 @@ class Vec2 {
 		return Math.sqrt(x * x + y * y);
 	}
 
+	public inline function normalizeTo(newLength:FastFloat):Vec2 {
+		var v = normalize();
+		v = mult(newLength);
+		return v;
+	}
+
 	public function sub(v:Vec2):Vec2 {
 		x -= v.x; y -= v.y;
 		return this;
@@ -107,6 +113,19 @@ class Vec2 {
 
 	public function distanceTo(p:Vec2):FastFloat {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y));
+	}
+
+	public function clamp(fmin:FastFloat, fmax:FastFloat):Vec2 {
+		var n = length();
+		var v = this;
+
+		if (n < fmin) {
+			v = normalizeTo(fmin);
+		}
+		else if (n > fmax) {
+			v = normalizeTo(fmax);
+		}
+		return v;
 	}
 
 	public static function xAxis():Vec2 { return new Vec2(1.0, 0.0); }
