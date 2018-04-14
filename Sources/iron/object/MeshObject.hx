@@ -99,7 +99,7 @@ class MeshObject extends Object {
 		return b;
 	}
 
-	public function cullMaterial(context:String, camera:CameraObject):Bool {
+	public function cullMaterial(context:String):Bool {
 		// Skip render if material does not contain current context
 		var mats = materials;
 		if (!isLodMaterial() && !validContext(mats[0], context)) return true;
@@ -115,6 +115,7 @@ class MeshObject extends Object {
 	}
 
 	function cullMesh(context:String, camera:CameraObject, lamp:LampObject):Bool {
+		if (camera == null) return false;
 
 		if (camera.data.raw.frustum_culling && frustumCulling) {
 			// Scale radius for skinned mesh and particle system
@@ -211,7 +212,7 @@ class MeshObject extends Object {
 		}
 		if (particleSystems != null && particleSystems.length > 0 && !particleSystems[0].data.raw.render_emitter) return;
 		if (tilesheet != null) tilesheet.update();
-		if (cullMaterial(context, camera)) return;
+		if (cullMaterial(context)) return;
 
 		// Get lod
 		var mats = materials;

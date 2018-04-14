@@ -63,7 +63,7 @@ class MeshBatch {
 
 			if (!b.batched) b.batch();
 
-			if (b.meshes.length > 0 && b.meshes[0].cullMaterial(context, camera)) continue;
+			if (b.meshes.length > 0 && b.meshes[0].cullMaterial(context)) continue;
 
 			g.setPipeline(b.shader.getContext(context).pipeState);
 			// TODO:

@@ -90,8 +90,7 @@ class Scene {
 			active.addScene(format.name, null, function(sceneObject:Object) {
 
 				if (active.cameras.length == 0) {
-					trace('No camera found for scene "' + format.name + '"!');
-					done(null);
+					trace('No camera found for scene "' + format.name + '"');
 				}
 
 				active.camera = active.getCamera(format.camera_ref);
@@ -200,7 +199,7 @@ class Scene {
 		}
 		// Render active camera
 		camera = activeCamera;
-		camera.renderFrame(g);
+		camera != null ? camera.renderFrame(g) : RenderPath.active.renderFrame(g);
 	}
 
 	// Objects
@@ -324,14 +323,20 @@ class Scene {
 					}
 				}
 
-				traverseObjects(parent, format.objects, null, function() { // Scene objects
+				if (format.objects == null || format.objects.length == 0) {
 					done(parent);
-				});
+				}
+				else {
+					traverseObjects(parent, format.objects, null, function() { // Scene objects
+						done(parent);
+					});
+				}
 			});
 		});
 	}
 
 	function getObjectsCount(objects:Array<TObj>, discardNoSpawn = true):Int {
+		if (objects == null) return 0;
 		var result = objects.length;
 		for (o in objects) {
 			if (discardNoSpawn && o.spawn != null && o.spawn == false) continue; // Do not count children of non-spawned objects
