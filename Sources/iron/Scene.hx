@@ -580,7 +580,7 @@ class Scene {
 	}
 
 	static function generateTranform(object:TObj, transform:Transform) {
-		transform.world = Mat4.fromFloat32Array(object.transform.values);
+		transform.world = object.transform != null ? Mat4.fromFloat32Array(object.transform.values) : Mat4.identity();
 		transform.world.decompose(transform.loc, transform.rot, transform.scale);
 		// Whether to apply parent matrix
 		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;

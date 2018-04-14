@@ -539,7 +539,7 @@ class Uniforms {
 				v = helpVec;
 			}
 			else if (c.link == "_backgroundCol") {
-				helpVec.set(camera.data.raw.clear_color[0], camera.data.raw.clear_color[1], camera.data.raw.clear_color[2]);
+				if (camera.data.raw.clear_color != null) helpVec.set(camera.data.raw.clear_color[0], camera.data.raw.clear_color[1], camera.data.raw.clear_color[2]);
 				v = helpVec;
 			}
 			else if (c.link == "_probeVolumeCenter") { // Local probes

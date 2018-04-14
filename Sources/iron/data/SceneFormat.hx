@@ -82,10 +82,10 @@ typedef TLampData = {
 
 typedef TCameraData = {
 	var name:String;
-	var clear_color:Float32Array;
 	var near_plane:FastFloat;
 	var far_plane:FastFloat;
 	var fov:FastFloat;
+	@:optional var clear_color:Float32Array;
 	@:optional var aspect:Null<FastFloat>;
 	@:optional var frustum_culling:Null<Bool>;
 	@:optional var render_to_texture:Null<Bool>;
