@@ -62,7 +62,8 @@ class Geometry {
 	public var actions:Map<String, Array<TObj>> = null;
 	public var mats:Map<String, Array<Mat4>> = null;
 
-	public function new(indices:Array<Uint32Array>, materialIndices:Array<Int>,
+	public function new(indices:Array<Uint32Array>,
+						materialIndices:Array<Int>,
 						positions:Float32Array,
 						normals:Float32Array,
 						uvs:Float32Array,
@@ -71,7 +72,8 @@ class Geometry {
 						tangents:Float32Array = null,
 						bones:Float32Array = null,
 						weights:Float32Array = null,
-						usage:Usage = null, instanceOffsets:Float32Array = null) {
+						usage:Usage = null,
+						instanceOffsets:Float32Array = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
 
@@ -297,15 +299,14 @@ class Geometry {
 				// trace('Geometry contains material with no face assigned!');
 				continue;
 			}
-			// TODO: duplicate storage allocated in IB
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
-			
-			#if (cpp || hl || arm_json || kha_node)
+
+			#if (kha_html5 && !arm_json && arm_fast)
+			indexBuffer._data = id;
+			#else
 			var indicesA = indexBuffer.lock();
 			for (i in 0...indicesA.length) indicesA[i] = id[i];
-			#else
-			indexBuffer._data = id;
 			#end
 			
 			indexBuffer.unlock();
@@ -326,14 +327,13 @@ class Geometry {
 		else if (structLength == 3) struct.add(name, VertexData.Float3);
 		else if (structLength == 4) struct.add(name, VertexData.Float4);
 
-		// TODO: duplicate storage allocated in VB
 		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
 		
-		#if (cpp || arm_json || kha_node)
+		#if (kha_html5 && !arm_json && arm_fast)
+		vertexBuffer._data = data;
+		#else
 		var vertices = vertexBuffer.lock();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
-		#else
-		vertexBuffer._data = data;
 		#end
 		
 		vertexBuffer.unlock();

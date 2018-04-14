@@ -20,9 +20,9 @@ class MeshData extends Data {
 
 	public var isSkinned:Bool;
 
-#if arm_sdf
+	#if arm_sdf
 	public static var sdfTex:kha.Image = null; // Use as global volume for now
-#end
+	#end
 
 	public function new(raw:TMeshData, done:MeshData->Void) {
 		super();

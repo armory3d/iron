@@ -188,13 +188,11 @@ class Probe {
 			done(far);
 		}
 		else {
-			iron.data.Data.getBlob(raw.irradiance + '.arm', function(b:kha.Blob) {
-				var irradianceData = b;
-				#if arm_json
-				var irradianceParsed:TIrradiance = haxe.Json.parse(irradianceData.toString());
-				#else
-				var irradianceParsed:TIrradiance = iron.system.ArmPack.decode(irradianceData.toBytes());
-				#end
+			var ext = StringTools.endsWith(raw.irradiance, '.json') ? '' : '.arm';
+			iron.data.Data.getBlob(raw.irradiance + ext, function(b:kha.Blob) {
+				var irradianceParsed:TIrradiance = ext == '' ?
+					haxe.Json.parse(b.toString()) :
+					iron.system.ArmPack.decode(b.toBytes());
 				var irr = new kha.arrays.Float32Array(28); // Align to mult of 4 - 27->28
 				for (i in 0...27) irr[i] = irradianceParsed.irradiance[i];
 				irr[27] = 0.0;
