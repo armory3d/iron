@@ -6,21 +6,21 @@ import iron.data.SceneFormat;
 // Global data list and asynchronous data loading
 class Data {
 
-	static var cachedSceneRaws:Map<String, TSceneFormat> = new Map();
-	static var cachedMeshes:Map<String, MeshData> = new Map();
-	static var cachedLamps:Map<String, LampData> = new Map();
-	static var cachedCameras:Map<String, CameraData> = new Map();
-	static var cachedMaterials:Map<String, MaterialData> = new Map();
-	static var cachedParticles:Map<String, ParticleData> = new Map();
-	static var cachedWorlds:Map<String, WorldData> = new Map();
-	// static var cachedGreasePencils:Map<String, GreasePencilData> = new Map();
-	static var cachedShaders:Map<String, ShaderData> = new Map();
+	public static var cachedSceneRaws:Map<String, TSceneFormat> = new Map();
+	public static var cachedMeshes:Map<String, MeshData> = new Map();
+	public static var cachedLamps:Map<String, LampData> = new Map();
+	public static var cachedCameras:Map<String, CameraData> = new Map();
+	public static var cachedMaterials:Map<String, MaterialData> = new Map();
+	public static var cachedParticles:Map<String, ParticleData> = new Map();
+	public static var cachedWorlds:Map<String, WorldData> = new Map();
+	// public static var cachedGreasePencils:Map<String, GreasePencilData> = new Map();
+	public static var cachedShaders:Map<String, ShaderData> = new Map();
 
-	static var cachedBlobs:Map<String, kha.Blob> = new Map();
-	static var cachedImages:Map<String, kha.Image> = new Map();
-	static var cachedSounds:Map<String, kha.Sound> = new Map();
-	static var cachedVideos:Map<String, kha.Video> = new Map();
-	static var cachedFonts:Map<String, kha.Font> = new Map();
+	public static var cachedBlobs:Map<String, kha.Blob> = new Map();
+	public static var cachedImages:Map<String, kha.Image> = new Map();
+	public static var cachedSounds:Map<String, kha.Sound> = new Map();
+	public static var cachedVideos:Map<String, kha.Video> = new Map();
+	public static var cachedFonts:Map<String, kha.Font> = new Map();
 
 	public function new() { }
 
