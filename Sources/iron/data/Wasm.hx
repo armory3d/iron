@@ -21,13 +21,23 @@ class Wasm {
 		}
 	}
 
-	var mem:kha.arrays.Float32Array = null;
+	public function getString(i:Int):String { // Retrieve string from memory pointer
+		var mem = getMemory(i, 32);
+		var s = "";
+		for (i in 0...32) mem[i] == 0 ? break : s += String.fromCharCode(mem[i]);
+		return s;
+	}
 
-	public function getMemory(size:Int):kha.arrays.Float32Array {
-		if (mem == null) {
-			untyped __js__('{0} = new Float32Array({1}.memory.buffer, {1}.getMemory(), {2});', mem, exports, size);
-		}
-		return mem;
+	public function getMemory(offset:Int, length:Int):js.html.Uint8Array {
+		return untyped __js__('new Uint8Array({0}.memory.buffer, {1}, {2});', exports, offset, length);
+	}
+
+	public function getMemoryF32(offset:Int, length:Int):kha.arrays.Float32Array {
+		return untyped __js__('new Float32Array({0}.memory.buffer, {1}, {2});', exports, offset, length);
+	}
+
+	public function getMemoryU32(offset:Int, length:Int):kha.arrays.Uint32Array {
+		return untyped __js__('new Uint32Array({0}.memory.buffer, {1}, {2});', exports, offset, length);
 	}
 }
 

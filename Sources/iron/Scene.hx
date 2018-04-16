@@ -2,34 +2,16 @@ package iron;
 
 import haxe.ds.Vector;
 import iron.Trait;
-import iron.object.Constraint;
-import iron.object.Transform;
-import iron.object.Object;
-import iron.data.MeshBatch;
-import iron.data.SceneStream;
-import iron.object.MeshObject;
-import iron.object.LampObject;
-import iron.object.CameraObject;
-import iron.object.SpeakerObject;
-import iron.object.DecalObject;
-import iron.object.Animation;
-import iron.data.Armature;
+import iron.object.*;
+import iron.data.*;
 import iron.data.SceneFormat;
-import iron.data.Data;
-import iron.data.MeshData;
-import iron.data.LampData;
-import iron.data.CameraData;
-import iron.data.MaterialData;
-import iron.data.ShaderData;
-import iron.data.WorldData;
-// import iron.data.GreasePencilData;
-import iron.math.Mat4;
 
 class Scene {
 
 	public static var active:Scene = null;
 	public static var global:Object = null;
-	
+	static var uidCounter = 0;
+	public var uid:Int;
 	public var raw:TSceneFormat;
 	public var root:Object;
 	public var camera:CameraObject;
@@ -56,6 +38,7 @@ class Scene {
 	public var traitRemoves:Array<Void->Void> = [];
 
 	public function new() {
+		uid = uidCounter++;
 		#if arm_batch
 		meshBatch = new MeshBatch();
 		#end
@@ -585,7 +568,7 @@ class Scene {
 	}
 
 	static function generateTranform(object:TObj, transform:Transform) {
-		transform.world = object.transform != null ? Mat4.fromFloat32Array(object.transform.values) : Mat4.identity();
+		transform.world = object.transform != null ? iron.math.Mat4.fromFloat32Array(object.transform.values) : iron.math.Mat4.identity();
 		transform.world.decompose(transform.loc, transform.rot, transform.scale);
 		// Whether to apply parent matrix
 		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;
