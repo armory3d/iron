@@ -521,20 +521,20 @@ class Mat4 {
 
 	public function write(ar:kha.arrays.Float32Array, offset = 0) {
 		ar[offset] = _00;
-		ar[offset + 1] = _01;
-		ar[offset + 2] = _02;
-		ar[offset + 3] = _03;
-		ar[offset + 4] = _10;
+		ar[offset + 1] = _10;
+		ar[offset + 2] = _20;
+		ar[offset + 3] = _30;
+		ar[offset + 4] = _01;
 		ar[offset + 5] = _11;
-		ar[offset + 6] = _12;
-		ar[offset + 7] = _13;
-		ar[offset + 8] = _20;
-		ar[offset + 9] = _21;
+		ar[offset + 6] = _21;
+		ar[offset + 7] = _31;
+		ar[offset + 8] = _02;
+		ar[offset + 9] = _12;
 		ar[offset + 10] = _22;
-		ar[offset + 11] = _23;
-		ar[offset + 12] = _30;
-		ar[offset + 13] = _31;
-		ar[offset + 14] = _32;
+		ar[offset + 11] = _32;
+		ar[offset + 12] = _03;
+		ar[offset + 13] = _13;
+		ar[offset + 14] = _23;
 		ar[offset + 15] = _33;
 	}
 	
