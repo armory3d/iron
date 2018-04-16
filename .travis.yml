@@ -11,3 +11,6 @@ before_script:
 script: 
   - cd iron_examples/cube
   - nodejs_bin/node Kha/make.js krom
+  - nodejs_bin/node Kha/make.js html5
+  - nodejs_bin/node Kha/make.js
+  #- nodejs_bin/node Kha/make.js android
