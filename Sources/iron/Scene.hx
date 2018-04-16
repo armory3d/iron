@@ -552,7 +552,7 @@ class Scene {
 			if (o.visible_mesh != null) object.visibleMesh = o.visible_mesh;
 			if (o.visible_shadow != null) object.visibleShadow = o.visible_shadow;
 			createConstraints(o.constraints, object);
-			generateTranform(o, object.transform);
+			generateTransform(o, object.transform);
 			object.setupAnimation(oactions);
 			if (o.groups != null) {
 				if (groups == null) groups = new Map();
@@ -567,7 +567,7 @@ class Scene {
 		done(object);
 	}
 
-	static function generateTranform(object:TObj, transform:Transform) {
+	static function generateTransform(object:TObj, transform:Transform) {
 		transform.world = object.transform != null ? iron.math.Mat4.fromFloat32Array(object.transform.values) : iron.math.Mat4.identity();
 		transform.world.decompose(transform.loc, transform.rot, transform.scale);
 		// Whether to apply parent matrix
