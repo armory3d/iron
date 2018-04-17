@@ -265,7 +265,22 @@ class LampObject extends Object {
 			bias._30 /= cascadeCount;
 			bias._30 += i * (1 / cascadeCount);
 			m.multmat2(bias);
-			m.write(cascadeData, i * 16);
+			cascadeData[i * 16] = m._00;
+			cascadeData[i * 16 + 1] = m._01;
+			cascadeData[i * 16 + 2] = m._02;
+			cascadeData[i * 16 + 3] = m._03;
+			cascadeData[i * 16 + 4] = m._10;
+			cascadeData[i * 16 + 5] = m._11;
+			cascadeData[i * 16 + 6] = m._12;
+			cascadeData[i * 16 + 7] = m._13;
+			cascadeData[i * 16 + 8] = m._20;
+			cascadeData[i * 16 + 9] = m._21;
+			cascadeData[i * 16 + 10] = m._22;
+			cascadeData[i * 16 + 11] = m._23;
+			cascadeData[i * 16 + 12] = m._30;
+			cascadeData[i * 16 + 13] = m._31;
+			cascadeData[i * 16 + 14] = m._32;
+			cascadeData[i * 16 + 15] = m._33;
 		}
 		cascadeData[cascadeCount * 16 + 0] = cascadeSplit[0];
 		cascadeData[cascadeCount * 16 + 1] = cascadeSplit[1];
