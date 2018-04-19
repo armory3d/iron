@@ -198,8 +198,11 @@ class Uniforms {
 
 					if (!context.paramsSet[j]) {
 						// No filtering when sampling render targets
-						// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+						#if (rp_resolution_filter == "Point")
+						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+						#else
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+						#end
 						context.paramsSet[j] = true;
 					}
 				}
