@@ -90,8 +90,8 @@ class MeshObject extends Object {
 		return (raw != null && raw.lod_material != null && raw.lod_material == true);
 	}
 
-	function setCulled(shadowsContext:Bool, b:Bool):Bool {
-		shadowsContext ? culledShadow = b : culledMesh = b;
+	function setCulled(isShadow:Bool, b:Bool):Bool {
+		isShadow ? culledShadow = b : culledMesh = b;
 		culled = culledMesh && culledShadow;
 		#if arm_debug
 		if (b) RenderPath.culled++;
@@ -104,14 +104,14 @@ class MeshObject extends Object {
 		var mats = materials;
 		if (!isLodMaterial() && !validContext(mats[0], context)) return true;
 
-		var shadowsContext = context == RenderPath.shadowsContext;
-		if (!visibleMesh && !shadowsContext) return setCulled(shadowsContext, true);
-		if (!visibleShadow && shadowsContext) return setCulled(shadowsContext, true);
+		var isShadow = context == RenderPath.shadowsContext;
+		if (!visibleMesh && !isShadow) return setCulled(isShadow, true);
+		if (!visibleShadow && isShadow) return setCulled(isShadow, true);
 
 		// Check context skip
-		if (skipContext(context)) return setCulled(shadowsContext, true);
+		if (skipContext(context)) return setCulled(isShadow, true);
 
-		return setCulled(shadowsContext, false);
+		return setCulled(isShadow, false);
 	}
 
 	function cullMesh(context:String, camera:CameraObject, lamp:LampObject):Bool {
@@ -124,13 +124,13 @@ class MeshObject extends Object {
 			// particleSystems for update, particleOwner for render
 			if (particleSystems != null || particleOwner != null) radiusScale *= 1000;
 			if (context == "voxel") radiusScale *= 100;
-			var shadowsContext = context == RenderPath.shadowsContext;
-			var frustumPlanes = shadowsContext ? lamp.frustumPlanes : camera.frustumPlanes;
+			var isShadow = context == RenderPath.shadowsContext;
+			var frustumPlanes = isShadow ? lamp.frustumPlanes : camera.frustumPlanes;
 
-			if (shadowsContext && lamp.data.raw.type != "sun") { // Non-sun lamp bounds intersect camera frustum
+			if (isShadow && lamp.data.raw.type != "sun") { // Non-sun lamp bounds intersect camera frustum
 				lamp.transform.radius = lamp.data.raw.far_plane;
 				if (!CameraObject.sphereInFrustum(camera.frustumPlanes, lamp.transform)) {
-					return setCulled(shadowsContext, true);
+					return setCulled(isShadow, true);
 				}
 			}
 
@@ -145,7 +145,7 @@ class MeshObject extends Object {
 						break;
 					}
 				}
-				if (!instanceInFrustum) return setCulled(shadowsContext, true);
+				if (!instanceInFrustum) return setCulled(isShadow, true);
 
 				// Sort - always front to back for now
 				// var camX = camera.transform.worldx();
@@ -156,7 +156,7 @@ class MeshObject extends Object {
 			// Non-instanced
 			else {
 				if (!CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale)) {
-					return setCulled(shadowsContext, true);
+					return setCulled(isShadow, true);
 				}
 			}
 		}
@@ -277,17 +277,17 @@ class MeshObject extends Object {
 			}
 
 			if (ldata.geom.instanced) {
-				g.drawIndexedVerticesInstanced(ldata.geom.instanceCount);
+				g.drawIndexedVerticesInstanced(ldata.geom.instanceCount, ldata.geom.start, ldata.geom.count);
 			}
 			else {
-				g.drawIndexedVertices();
+				g.drawIndexedVertices(ldata.geom.start, ldata.geom.count);
 			}
 		}
 
 		#if arm_debug
-		var shadowsContext = RenderPath.shadowsContext == context;
+		var isShadow = RenderPath.shadowsContext == context;
 		if (meshContext) RenderPath.numTrisMesh += ldata.geom.numTris;
-		else if (shadowsContext) RenderPath.numTrisShadow += ldata.geom.numTris;
+		else if (isShadow) RenderPath.numTrisShadow += ldata.geom.numTris;
 		RenderPath.drawCalls++;
 		#end
 

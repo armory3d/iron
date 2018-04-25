@@ -33,6 +33,7 @@ class Transform {
 		rot = new Quat();
 		scale = new Vec4(1.0, 1.0, 1.0);
 		dim = new Vec4(2.0, 2.0, 2.0);
+		radius = 1.0;
 		dirty = true;
 	}
 
@@ -116,12 +117,13 @@ class Transform {
 	public function setMatrix(mat:Mat4) {
 		local.setFrom(mat);
 		decompose();
-		dirty = true;
+		buildMatrix();
 	}
 
 	public function multMatrix(mat:Mat4) {
 		local.multmat2(mat);
 		decompose();
+		buildMatrix();
 	}
 
 	public function decompose() {
@@ -137,10 +139,10 @@ class Transform {
 
 	public function setRotation(x:kha.FastFloat, y:kha.FastFloat, z:kha.FastFloat) {
 		rot.fromEuler(x, y, z);
-		dirty = true;
 		_eulerX = x;
 		_eulerY = y;
 		_eulerZ = z;
+		dirty = true;
 	}
 
 	function computeRadius() {

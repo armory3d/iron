@@ -18,6 +18,8 @@ class Geometry {
 	public var vertexBuffer:VertexBuffer;
 #end
 	public var indexBuffers:Array<IndexBuffer>;
+	public var start = 0; // For drawIndexedVertices
+	public var count = -1;
 
 	public var ready = false;
 	public var vertices:Float32Array;
