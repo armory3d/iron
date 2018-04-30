@@ -120,8 +120,8 @@ class Mouse extends VirtualInput {
 	public var movementY(default, null) = 0.0;
 	public var wheelDelta(default, null) = 0;
 	public var locked(default, null) = false;
-	var lastX = -1.0;
-	var lastY = -1.0;
+	public var lastX = -1.0;
+	public var lastY = -1.0;
 
 	public function new() {
 		kha.input.Mouse.get().notify(downListener, upListener, moveListener, wheelListener);
