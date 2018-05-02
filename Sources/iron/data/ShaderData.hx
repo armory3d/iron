@@ -324,8 +324,8 @@ class ShaderContext {
 	function getBlendingOperation(s:String):BlendingOperation {
 		switch(s) {
 		case "add": return BlendingOperation.Add;
-		case "substract": return BlendingOperation.Subtract;
-		case "reverse_substract": return BlendingOperation.ReverseSubtract;
+		case "subtract": return BlendingOperation.Subtract;
+		case "reverse_subtract": return BlendingOperation.ReverseSubtract;
 		case "min": return BlendingOperation.Min;
 		case "max": return BlendingOperation.Max;
 		default: return BlendingOperation.Add;
