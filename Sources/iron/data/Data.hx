@@ -429,12 +429,16 @@ class Data {
 		loadingSounds.set(file, [done]);
 
 		kha.Assets.loadSoundFromPath(file, function(b:kha.Sound) {
+			#if arm_soundcompress
 			b.uncompress(function () {
+			#end
 				cachedSounds.set(file, b);
 				for (f in loadingSounds.get(file)) f(b);
 				loadingSounds.remove(file);
 				assetsLoaded++;
+			#if arm_soundcompress
 			});
+			#end
 		});
 	}
 

@@ -31,7 +31,7 @@ class SpeakerObject extends Object {
 
 	public function play() {
 		if (sound == null || data.muted) return;
-		var channel = iron.system.Audio.play(sound, data.loop);
+		var channel = iron.system.Audio.play(sound, data.loop, data.stream);
 		channels.push(channel);
 		if (data.attenuation > 0 && channels.length == 1) App.notifyOnUpdate(update);
 	}
