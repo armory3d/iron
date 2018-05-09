@@ -154,7 +154,7 @@ class Geometry {
 		structure.instanced = true;
 		structure.add("off", kha.graphics4.VertexData.Float3);
 
-		instancedVB = new VertexBuffer(instanceCount, structure, usage, 1);
+		instancedVB = new VertexBuffer(instanceCount, structure, usage, true);
 		var vertices = instancedVB.lock();
 		for (i in 0...vertices.length) vertices.set(i, offsets[i]);
 		instancedVB.unlock();
