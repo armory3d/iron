@@ -21,6 +21,7 @@ class RenderPath {
 	public var frameScissorW = 0;
 	public var frameScissorH = 0;
 	public var frameTime = 0.0;
+	public var currentTarget:RenderTarget = null;
 	public var currentCube:Bool;
 	public var currentFace:Int;
 	public var currentLampIndex = 0;
@@ -119,6 +120,7 @@ class RenderPath {
 			currentW = iron.App.w();
 			currentH = iron.App.h();
 			currentD = 1;
+			currentTarget = null;
 			currentCube = false;
 			currentFace = -1;
 			if (frameScissor) setFrameScissor();
@@ -130,6 +132,7 @@ class RenderPath {
 		}
 		else { // Render target
 			var rt = renderTargets.get(target);
+			currentTarget = rt;
 			var additionalImages:Array<kha.Canvas> = null;
 			if (additional != null) {
 				additionalImages = [];
