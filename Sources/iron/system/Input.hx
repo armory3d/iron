@@ -120,6 +120,7 @@ class Mouse extends VirtualInput {
 	public var movementY(default, null) = 0.0;
 	public var wheelDelta(default, null) = 0;
 	public var locked(default, null) = false;
+	public var hidden(default, null) = false;
 	public var lastX = -1.0;
 	public var lastY = -1.0;
 
@@ -162,6 +163,7 @@ class Mouse extends VirtualInput {
 		if (kha.input.Mouse.get().canLock()) {
 			kha.input.Mouse.get().lock();
 			locked = true;
+			hidden = true;
 		}
 		#end
 	}
@@ -170,7 +172,22 @@ class Mouse extends VirtualInput {
 		if (kha.input.Mouse.get().canLock()) {
 			kha.input.Mouse.get().unlock();
 			locked = false;
+			hidden = false;
 		}
+		#end
+	}
+
+	public function hide() {
+		#if (!arm_viewport)
+		kha.input.Mouse.get().hideSystemCursor();
+		hidden = true;
+		#end
+	}
+
+	public function show() {
+		#if (!arm_viewport)
+		kha.input.Mouse.get().showSystemCursor();
+		hidden = false;
 		#end
 	}
 	
