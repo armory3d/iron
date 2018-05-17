@@ -191,7 +191,7 @@ class Mouse extends VirtualInput {
 		#end
 	}
 	
-	function downListener(index:Int, x:Float, y:Float) {
+	function downListener(index:Int, x:Int, y:Int) {
 		buttonsDown[index] = true;
 		buttonsStarted[index] = true;
 		this.x = x;
@@ -203,7 +203,7 @@ class Mouse extends VirtualInput {
 		downVirtual(buttons[index]);
 	}
 	
-	function upListener(index:Int, x:Float, y:Float) {
+	function upListener(index:Int, x:Int, y:Int) {
 		buttonsDown[index] = false;
 		buttonsReleased[index] = true;
 		this.x = x;
