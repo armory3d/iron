@@ -249,22 +249,21 @@ class MeshObject extends Object {
 		
 		// Render mesh
 		var ldata = lod.data;
-		#if !arm_deinterleaved
-		if (ldata.geom.instanced) {
-			g.setVertexBuffers([ldata.geom.vertexBuffer, ldata.geom.instancedVB]);
-		}
-		else {
-			g.setVertexBuffer(ldata.geom.vertexBuffer);
-		}
-		#end
-
 		for (i in 0...ldata.geom.indexBuffers.length) {
 
 			var mi = ldata.geom.materialIndices[i];
 			if (shaderContexts.length <= mi) continue; 
+			var vs = shaderContexts[mi].raw.vertex_structure;
 
 			#if arm_deinterleaved
-			g.setVertexBuffers(ldata.geom.getVertexBuffers(shaderContexts[mi].raw.vertex_structure));
+			g.setVertexBuffers(ldata.geom.get(vs));
+			#else
+			if (ldata.geom.instanced) {
+				g.setVertexBuffers([ldata.geom.get(vs), ldata.geom.instancedVB]);
+			}
+			else {
+				g.setVertexBuffer(ldata.geom.get(vs));
+			}
 			#end
 
 			g.setIndexBuffer(ldata.geom.indexBuffers[i]);

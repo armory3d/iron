@@ -16,6 +16,7 @@ class Geometry {
 	public var vertexBuffers:Array<VertexBuffer>;
 #else
 	public var vertexBuffer:VertexBuffer;
+	public var vertexBufferMap:Map<String, VertexBuffer> = new Map();
 #end
 	public var indexBuffers:Array<IndexBuffer>;
 	public var start = 0; // For drawIndexedVertices
@@ -28,6 +29,7 @@ class Geometry {
 	public var materialIndices:Array<Int>;
 	public var struct:VertexStructure;
 	public var structLength:Int;
+	public var structStr:String;
 	public var usage:Usage;
 
 	public var instancedVB:VertexBuffer = null;
@@ -96,6 +98,8 @@ class Geometry {
 		// pos=3, tex=2, nor=3, col=4, tang=3, bone=4, weight=4
 		struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
 		structLength = Std.int(struct.byteSize() / 4);
+		structStr = '';
+		for (e in struct.elements) structStr += e.name;
 	}
 
 	public function delete() {
@@ -256,9 +260,9 @@ class Geometry {
 	}
 
 #if arm_deinterleaved
-	public function getVertexBuffers(vertex_structure:Array<TVertexData>):Array<VertexBuffer> {
+	public function get(vs:Array<TVertexData>):Array<VertexBuffer> {
 		var vbs = [];
-		for (e in vertex_structure) {
+		for (e in vs) {
 			if (e.name == 'pos') { if (vertexBuffers[0] != null) vbs.push(vertexBuffers[0]); }
 			else if (e.name == 'nor') { if (vertexBuffers[1] != null) vbs.push(vertexBuffers[1]); }
 			else if (e.name == 'tex') { if (vertexBuffers[2] != null) vbs.push(vertexBuffers[2]); }
@@ -270,6 +274,35 @@ class Geometry {
 			else if (e.name == 'off') { if (instancedVB != null) vbs.push(instancedVB); }
 		}
 		return vbs;
+	}
+#else
+	function hasAttrib(s:String, vs:Array<TVertexData>):Bool {
+		for (e in vs) if (e.name == s) return true;
+		return false;
+	}
+
+	public function get(vs:Array<TVertexData>):VertexBuffer {
+		var s = '';
+		for (e in vs) s += e.name;
+		var vb = vertexBufferMap.get(s);
+		if (vb == null) {
+			// Multi-mat mesh with different vertex structures
+			var apos = hasAttrib("pos", vs);
+			var anor = hasAttrib("nor", vs);
+			var atex = hasAttrib("tex", vs);
+			var atex1 = hasAttrib("tex1", vs);
+			var acol = hasAttrib("col", vs);
+			var atang = hasAttrib("tang", vs);
+			var abone = hasAttrib("bone", vs);
+			var aweight = hasAttrib("weight", vs);
+			var struct = getVertexStructure(apos, anor, atex, atex1, acol, atang, abone, aweight);
+			vb = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
+			vertices = vb.lock();
+			buildVertices(vertices, apos ? positions : null, anor ? normals : null, atex ? uvs : null, atex1 ? uvs1 : null, acol ? cols : null, atang ? tangents : null, abone ? bones : null, aweight ? weights : null);
+			vb.unlock();
+			vertexBufferMap.set(s, vb);
+		}
+		return vb;
 	}
 #end
 
@@ -292,6 +325,7 @@ class Geometry {
 		vertices = vertexBuffer.lock();
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights);
 		vertexBuffer.unlock();
+		vertexBufferMap.set(structStr, vertexBuffer);
 #end
 
 		indexBuffers = [];
