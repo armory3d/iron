@@ -541,6 +541,18 @@ class Uniforms {
 				helpVec = camera.rightWorld();
 				v = helpVec;
 			}
+			else if (c.link == "_dim") { // Model space
+				var d = object.transform.dim;
+				var s = object.transform.scale;
+				helpVec.set((d.x / s.x), (d.y / s.y), (d.z / s.z));
+				v = helpVec;
+			}
+			else if (c.link == "_halfDim") { // Model space
+				var d = object.transform.dim;
+				var s = object.transform.scale;
+				helpVec.set((d.x / s.x) / 2, (d.y / s.y) / 2, (d.z / s.z) / 2);
+				v = helpVec;
+			}
 			else if (c.link == "_backgroundCol") {
 				if (camera.data.raw.clear_color != null) helpVec.set(camera.data.raw.clear_color[0], camera.data.raw.clear_color[1], camera.data.raw.clear_color[2]);
 				v = helpVec;
