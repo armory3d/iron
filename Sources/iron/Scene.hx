@@ -88,31 +88,31 @@ class Scene {
 	}
 
 	// Reload scene for now
-	public static function patch() {
-		#if arm_sceneload
-		var cameraTransform = Scene.active.camera.transform;
-		Data.clearSceneData();
-		Scene.setActive(Scene.active.raw.name, function(o:Object) {
-			Scene.active.camera.transform = cameraTransform;
-			Scene.active.root.addTrait(new armory.trait.internal.SpaceArmory());
-		});
-		#end
-	}
+	// public static function patch() {
+	// 	#if arm_sceneload
+	// 	var cameraTransform = Scene.active.camera.transform;
+	// 	Data.clearSceneData();
+	// 	Scene.setActive(Scene.active.raw.name, function(o:Object) {
+	// 		Scene.active.camera.transform = cameraTransform;
+	// 		Scene.active.root.addTrait(new armory.trait.internal.SpaceArmory());
+	// 	});
+	// 	#end
+	// }
 
-	public static function patchTrait(traitName:String) {
-		#if arm_sceneload
-		// Reinstantiate modified traits
-		var cname:Class<iron.Trait> = cast Type.resolveClass(traitName);
-		if (cname == null) return;
-		for (o in active.meshes) { // Check meshes only for now
-			var t = o.getTrait(cname);
-			if (t != null) {
-				t.remove();
-				o.addTrait(Type.createInstance(cname, []));
-			}
-		}
-		#end
-	}
+	// public static function patchTrait(traitName:String) {
+	// 	#if arm_sceneload
+	// 	// Reinstantiate modified traits
+	// 	var cname:Class<iron.Trait> = cast Type.resolveClass(traitName);
+	// 	if (cname == null) return;
+	// 	for (o in active.meshes) { // Check meshes only for now
+	// 		var t = o.getTrait(cname);
+	// 		if (t != null) {
+	// 			t.remove();
+	// 			o.addTrait(Type.createInstance(cname, []));
+	// 		}
+	// 	}
+	// 	#end
+	// }
 
 	public function remove() {
 		for (f in traitRemoves) f();
