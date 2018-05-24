@@ -198,7 +198,8 @@ class Geometry {
 								  tanga:Float32Array = null,
 								  bonea:Float32Array = null,
 								  weighta:Float32Array = null,
-								  offset = 0) {
+								  offset = 0,
+								  fakeUVs = false) {
 
 		var numVertices = Std.int(pa.length / 3);
 		var di = -1 + offset;
@@ -215,6 +216,10 @@ class Geometry {
 			if (uva != null) { // Texture coords
 				vertices.set(++di, uva[i * 2]);
 				vertices.set(++di, uva[i * 2 + 1]);
+			}
+			else if (fakeUVs) {
+				vertices.set(++di, 0.0);
+				vertices.set(++di, 0.0);
 			}
 			if (uva1 != null) { // Texture coords 1
 				vertices.set(++di, uva1[i * 2]);
@@ -298,7 +303,7 @@ class Geometry {
 			var struct = getVertexStructure(apos, anor, atex, atex1, acol, atang, abone, aweight);
 			vb = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
 			vertices = vb.lock();
-			buildVertices(vertices, apos ? positions : null, anor ? normals : null, atex ? uvs : null, atex1 ? uvs1 : null, acol ? cols : null, atang ? tangents : null, abone ? bones : null, aweight ? weights : null);
+			buildVertices(vertices, apos ? positions : null, anor ? normals : null, atex ? uvs : null, atex1 ? uvs1 : null, acol ? cols : null, atang ? tangents : null, abone ? bones : null, aweight ? weights : null, 0, atex && uvs == null);
 			vb.unlock();
 			vertexBufferMap.set(s, vb);
 		}
