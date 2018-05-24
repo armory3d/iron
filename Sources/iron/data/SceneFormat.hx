@@ -25,7 +25,6 @@ typedef TSceneFormat = {
 	@:optional var traits:Array<TTrait>; // Scene root traits
 	@:optional var embedded_datas:Array<String>; // Preload for this scene, images only for now
 	@:optional var frame_time:Null<FastFloat>;
-	@:optional var capture_info:TRenderCaptureInfo;
 }
 
 typedef TMeshData = {
@@ -414,12 +413,6 @@ typedef TTrack = {
 	// @:optional var tension:Float32Array; // tcb
 	// @:optional var continuity:Float32Array;
 	// @:optional var bias:Float32Array;
-}
-
-typedef TRenderCaptureInfo = {
-	var path:String;
-	var frame_start:Int;
-	var frame_end:Int;
 }
 
 // Raw shader data

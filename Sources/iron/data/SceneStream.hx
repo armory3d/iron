@@ -81,7 +81,7 @@ class SceneStream {
 				if (dim[1] > r) r = dim[1];
 				if (dim[2] > r) r = dim[2];
 				cameraDistance -= r;
-				// TODO: handle scale & ror
+				// TODO: handle scale & rot
 			}
 
 			// Load mesh

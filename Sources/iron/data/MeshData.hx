@@ -92,7 +92,7 @@ class MeshData extends Data {
 		done(this);
 	}
 
-	// TODO: temporary
+	// TODO: deprecated
 	public static function newSync(raw:TMeshData):MeshData {
 		return new MeshData(raw, function(data:MeshData){});
 	}

@@ -129,11 +129,7 @@ class MaterialContext {
 						}
 					}
 					else if (tex.generate_mipmaps == true && image != null) {
-						#if arm_viewport // TODO: Deprecated
-						if (image.texture_ != null) untyped Krom.generateMipmaps(image.texture_, 1000);
-						#else
 						image.generateMipmaps(1000);
-						#end
 						tex.mipmaps = null;
 						tex.generate_mipmaps = false;
 

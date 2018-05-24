@@ -2,10 +2,7 @@ package iron;
 
 class App {
 
-	#if arm_render
-	public static inline function w():Int { return armory.data.Config.raw.window_w; }
-	public static inline function h():Int { return armory.data.Config.raw.window_h; }
-	#elseif arm_appwh
+	#if arm_appwh
 	public static inline function w():Int { return arm.App.w(); }
 	public static inline function h():Int { return arm.App.h(); }
 	#else

@@ -159,36 +159,28 @@ class Mouse extends VirtualInput {
 	}
 
 	public function lock() {
-		#if (!arm_viewport)
 		if (kha.input.Mouse.get().canLock()) {
 			kha.input.Mouse.get().lock();
 			locked = true;
 			hidden = true;
 		}
-		#end
 	}
 	public function unlock() {
-		#if (!arm_viewport)
 		if (kha.input.Mouse.get().canLock()) {
 			kha.input.Mouse.get().unlock();
 			locked = false;
 			hidden = false;
 		}
-		#end
 	}
 
 	public function hide() {
-		#if (!arm_viewport)
 		kha.input.Mouse.get().hideSystemCursor();
 		hidden = true;
-		#end
 	}
 
 	public function show() {
-		#if (!arm_viewport)
 		kha.input.Mouse.get().showSystemCursor();
 		hidden = false;
-		#end
 	}
 	
 	function downListener(index:Int, x:Int, y:Int) {
