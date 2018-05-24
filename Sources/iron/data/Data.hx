@@ -36,6 +36,7 @@ class Data {
 		cachedParticles = new Map();
 		cachedWorlds = new Map();
 		// cachedGreasePencils = new Map();
+		if (RenderPath.active != null) RenderPath.active.unload();
 
 		for (c in cachedBlobs) c.unload();
 		cachedBlobs = new Map();
