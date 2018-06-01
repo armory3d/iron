@@ -4,82 +4,82 @@ using iron.math.MathStaticExtension;
 import kha.FastFloat;
 
 class Rotator {
-	public var x:FastFloat;
-	public var y:FastFloat;
-	public var z:FastFloat;
+	public var pitch:FastFloat; //X - look up or down around the X axis
+	public var roll:FastFloat; //Y - axis tilt left or right around the Y axis
+	public var yaw:FastFloat; //Z - heading or facing angle around the Z (up) axis
 
-	public function new(x:FastFloat = 0.0, y:FastFloat = 0.0, z:FastFloat = 0.0) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+	public function new(pitch:FastFloat = 0.0, roll:FastFloat = 0.0, yaw:FastFloat = 0.0) {
+		this.pitch = pitch;
+		this.roll = roll;
+		this.yaw = yaw;
 	}
 
 	public function toDegrees():Rotator {
-		this.x = this.x.toDegrees();
-		this.y = this.y.toDegrees();
-		this.z = this.z.toDegrees();
+		this.pitch = this.pitch.toDegrees();
+		this.roll = this.roll.toDegrees();
+		this.yaw = this.yaw.toDegrees();
 		return this;
 	}
 
 	public function toRadians():Rotator {
-		this.x = this.x.toRadians();
-		this.y = this.y.toRadians();
-		this.z = this.z.toRadians();
+		this.pitch = this.pitch.toRadians();
+		this.roll = this.roll.toRadians();
+		this.yaw = this.yaw.toRadians();
 		return this;
 	}
 
-	public function cross(v:Rotator):Rotator {
-		var x2 = y * v.z - z * v.y;
-		var y2 = z * v.x - x * v.z;
-		var z2 = x * v.y - y * v.x;
-		x = x2;
-		y = y2;
-		z = z2;
+	public function cross(r:Rotator):Rotator {
+		var x2 = roll * r.yaw - yaw * r.roll;
+		var y2 = yaw * r.pitch - pitch * r.yaw;
+		var z2 = pitch * r.roll - roll * r.pitch;
+		pitch = x2;
+		roll = y2;
+		yaw = z2;
 		return this;
 	}
 
 	public function crossvecs(a:Rotator, b:Rotator):Rotator {
-		var x2 = a.y * b.z - a.z * b.y;
-		var y2 = a.z * b.x - a.x * b.z;
-		var z2 = a.x * b.y - a.y * b.x;
-		x = x2;
-		y = y2;
-		z = z2;
+		var x2 = a.roll * b.yaw - a.yaw * b.roll;
+		var y2 = a.yaw * b.pitch - a.pitch * b.yaw;
+		var z2 = a.pitch * b.roll - a.roll * b.pitch;
+		pitch = x2;
+		roll = y2;
+		yaw = z2;
 		return this;
 	}
 
-	public function set(x:FastFloat, y:FastFloat, z:FastFloat):Rotator{
-		this.x = x;
-		this.y = y;
-		this.z = z;
+	public function set(pitch:FastFloat, roll:FastFloat, yaw:FastFloat):Rotator{
+		this.pitch = pitch;
+		this.roll = roll;
+		this.yaw = yaw;
 		return this;
 	}
 
-	public function add(v:Rotator):Rotator {
-		x += v.x;
-		y += v.y;
-		z += v.z;
+	public function add(r:Rotator):Rotator {
+		pitch += r.pitch;
+		roll += r.roll;
+		yaw += r.yaw;
 		return this;
 	}
 
-	public function addf(x:FastFloat, y:FastFloat, z:FastFloat):Rotator {
-		this.x += x;
-		this.y += y;
-		this.z += z;
+	public function addf(pitch:FastFloat, roll:FastFloat, yaw:FastFloat):Rotator {
+		this.pitch += pitch;
+		this.roll += roll;
+		this.yaw += yaw;
 		return this;
 	}
 
 	public function addvecs(a:Rotator, b:Rotator):Rotator {
-		x = a.x + b.x;
-		y = a.y + b.y;
-		z = a.z + b.z;
+		pitch = a.pitch + b.pitch;
+		roll = a.roll + b.roll;
+		yaw = a.yaw + b.yaw;
 		return this;
 	} 
 
 	public function subvecs(a:Rotator, b:Rotator):Rotator {
-		x = a.x - b.x;
-		y = a.y - b.y;
-		z = a.z - b.z;
+		pitch = a.pitch - b.pitch;
+		roll = a.roll - b.roll;
+		yaw = a.yaw - b.yaw;
 		return this;
 	}
 
@@ -87,66 +87,66 @@ class Rotator {
 		var n = length();
 		if (n > 0.0) {
 			var invN = 1.0 / n;
-			this.x *= invN; this.y *= invN; this.z *= invN;
+			this.pitch *= invN; this.roll *= invN; this.yaw *= invN;
 		}
 		return this;
 	}
 
 	public function mult(f:FastFloat):Rotator {
-		x *= f; y *= f; z *= f;
+		pitch *= f; roll *= f; yaw *= f;
 		return this;
 	}
 
-	public function dot(v:Rotator):FastFloat {
-		return x * v.x + y * v.y + z * v.z;
+	public function dot(r:Rotator):FastFloat {
+		return pitch * r.pitch + roll * r.roll + yaw * r.yaw;
 	}
 
-	public function setFrom(v:Rotator):Rotator {
-		x = v.x; y = v.y; z = v.z;
+	public function setFrom(r:Rotator):Rotator {
+		pitch = r.pitch; roll = r.roll; yaw = r.yaw;
 		return this;
 	}
 
 	public function clone():Rotator {
-		return new Rotator(x, y, z);
+		return new Rotator(pitch, roll, yaw);
 	}
 
-	public static function lerp(v1:Rotator, v2:Rotator, t:FastFloat):Rotator {
+	public static function lerp(r1:Rotator, r2:Rotator, t:FastFloat):Rotator {
 		var target = new Rotator();
-		target.x = v2.x + (v1.x - v2.x) * t;
-		target.y = v2.y + (v1.y - v2.y) * t;
-		target.z = v2.z + (v1.z - v2.z) * t;
+		target.pitch = r2.pitch + (r1.pitch - r2.pitch) * t;
+		target.roll = r2.roll + (r1.roll - r2.roll) * t;
+		target.yaw = r2.yaw + (r1.yaw - r2.yaw) * t;
 		return target;
 	}
 
 	public function applyproj(m:Mat4):Rotator {
-		var x = this.x; var y = this.y; var z = this.z;
+		var pitch = this.pitch; var roll = this.roll; var yaw = this.yaw;
 
 		// Perspective divide
-		var d = 1.0 / (m._03 * x + m._13 * y + m._23 * z + m._33);
+		var d = 1.0 / (m._03 * pitch + m._13 * roll + m._23 * yaw + m._33);
 
-		this.x = (m._00 * x + m._10 * y + m._20 * z + m._30) * d;
-		this.y = (m._01 * x + m._11 * y + m._21 * z + m._31) * d;
-		this.z = (m._02 * x + m._12 * y + m._22 * z + m._32) * d;
+		this.pitch = (m._00 * pitch + m._10 * roll + m._20 * yaw + m._30) * d;
+		this.roll = (m._01 * pitch + m._11 * roll + m._21 * yaw + m._31) * d;
+		this.yaw = (m._02 * pitch + m._12 * roll + m._22 * yaw + m._32) * d;
 
 		return this;
 	}
 
 	public function applymat(m:Mat4):Rotator {
-		var x = this.x; var y = this.y; var z = this.z;
+		var pitch = this.pitch; var roll = this.roll; var yaw = this.yaw;
 
-		this.x = m._00 * x + m._10 * y + m._20 * z + m._30;
-		this.y = m._01 * x + m._11 * y + m._21 * z + m._31;
-		this.z = m._02 * x + m._12 * y + m._22 * z + m._32;
+		this.pitch = m._00 * pitch + m._10 * roll + m._20 * yaw + m._30;
+		this.roll = m._01 * pitch + m._11 * roll + m._21 * yaw + m._31;
+		this.yaw = m._02 * pitch + m._12 * roll + m._22 * yaw + m._32;
 
 		return this;
 	}
 
-	public inline function equals(v:Rotator):Bool {
-		return x == v.x && y == v.y && z == v.z;
+	public inline function equals(r:Rotator):Bool {
+		return pitch == r.pitch && roll == r.roll && yaw == r.yaw;
 	}
 
 	public inline function length():FastFloat {
-		return Math.sqrt(x * x + y * y + z * z);
+		return Math.sqrt(pitch * pitch + roll * roll + yaw * yaw);
 	}
 
 	public inline function normalizeTo(newLength:FastFloat):Rotator {
@@ -155,38 +155,43 @@ class Rotator {
 		return v;
 	}
 
-	public function sub(v:Rotator):Rotator {
-		x -= v.x; y -= v.y; z -= v.z;
+	public function sub(r:Rotator):Rotator {
+		pitch -= r.pitch; roll -= r.roll; yaw -= r.yaw;
 		return this;
 	}
 
-	public static inline function distance(v1:Rotator, v2:Rotator):FastFloat {
-		return distancef(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+	public static inline function distance(r1:Rotator, r2:Rotator):FastFloat {
+		return distancef(r1.pitch, r1.roll, r1.yaw, r2.pitch, r2.roll, r2.yaw);
 	}
 
-	public static inline function distancef(v1x:FastFloat, v1y:FastFloat, v1z:FastFloat, v2x:FastFloat, v2y:FastFloat, v2z:FastFloat):FastFloat {
-		var vx = v1x - v2x;
-		var vy = v1y - v2y;
-		var vz = v1z - v2z;
-		return Math.sqrt(vx * vx + vy * vy + vz * vz);
+	public static inline function distancef(r1pitch:FastFloat, r1roll:FastFloat, r1yaw:FastFloat, r2pitch:FastFloat, r2roll:FastFloat, r2yaw:FastFloat):FastFloat {
+		var pitch = r1pitch - r2pitch;
+		var roll = r1roll - r2roll;
+		var yaw = r1yaw - r2yaw;
+		return Math.sqrt(pitch * pitch + roll * roll + yaw * yaw);
 	}
 
-	public function distanceTo(p:Rotator):FastFloat {
-		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
+	public function distanceTo(r:Rotator):FastFloat {
+		return Math.sqrt((r.pitch - pitch) * (r.pitch - pitch) + (r.roll - roll) * (r.roll - roll) + (r.yaw - yaw) * (r.yaw - yaw));
 	}
 
-	public function clamp(fmin:FastFloat, fmax:FastFloat):Rotator {
-		var n = length();
-		var v = this;
-
-		if (n < fmin) {
-			v = normalizeTo(fmin);
-		}
-		else if (n > fmax) {
-			v = normalizeTo(fmax);
-		}
-		return v;
+	public function clamp():Rotator {
+		this.pitch = clampAxis(this.pitch);
+		this.roll = clampAxis(this.roll);
+		this.yaw = clampAxis(this.yaw);
+		return this;
 	}
+
+	public static inline function clampAxis(angle:FastFloat):FastFloat {
+		angle = MathStaticExtension.mod(angle, 360); //Makes the angle between -360 and +360
+
+		if (angle < 0.0) angle += 360.0;
+		trace(angle);
+
+		return angle;
+	}
+
+
 
 	public static function xAxis():Rotator { return new Rotator(1.0, 0.0, 0.0); }
 	public static function yAxis():Rotator { return new Rotator(0.0, 1.0, 0.0); }
@@ -203,6 +208,6 @@ class Rotator {
 	public static function positiveInfinity():Rotator { return new Rotator(Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY); }
 
 	public function toString():String {
-		return "(" + this.x + ", " + this.y + ", " + this.z + ")";
+		return "(" + this.pitch + ", " + this.roll + ", " + this.yaw + ")";
 	}
 }

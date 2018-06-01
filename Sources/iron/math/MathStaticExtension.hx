@@ -48,5 +48,12 @@ class MathStaticExtension {
 		if (value >= leftMax ) return rightMax;
 		if (value <= leftMin) return  rightMin;
 		return map(value, leftMin, leftMax, rightMin, rightMax);
-	} 
+	}
+
+	// remainder = numerator - quotient * denominator might need to check for some v. small numbers here
+
+	public static inline function mod(a:FastFloat, b:FastFloat):FastFloat
+	{
+		return a - (a / b) * b;
+	}
 }
