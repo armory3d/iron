@@ -215,10 +215,10 @@ class Vec4 {
 	}
 
 	public function map(value:Vec4, leftMin:Vec4, leftMax:Vec4, rightMin:Vec4, rightMax:Vec4):Vec4 {
-		this.x = map(value.x, leftMin.x, leftMax.x, rightMin.x, rightMax.x);
-		this.y = map(value.y, leftMin.y, leftMax.y, rightMin.y, rightMax.y);
-		this.z = map(value.z, leftMin.z, leftMax.z, rightMin.z, rightMax.z);
-		this.w = map(value.w, leftMin.w, leftMax.w, rightMin.w, rightMax.w);
+		this.x = MathStaticExtension.map(value.x, leftMin.x, leftMax.x, rightMin.x, rightMax.x);
+		this.y = MathStaticExtension.map(value.y, leftMin.y, leftMax.y, rightMin.y, rightMax.y);
+		this.z = MathStaticExtension.map(value.z, leftMin.z, leftMax.z, rightMin.z, rightMax.z);
+		this.w = MathStaticExtension.map(value.w, leftMin.w, leftMax.w, rightMin.w, rightMax.w);
 		return this;
 	}
 
