@@ -177,7 +177,7 @@ class Math {
 	public static inline function min(a:Float, b:Float):Float {
 		return std.Math.min(a, b);
 	};
-	
+	x	x
 	/*
 		Raise to power
 	*/

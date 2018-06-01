@@ -177,7 +177,7 @@ class Vec3 {
 	public function map(value:Vec3, leftMin:Vec3, leftMax:Vec3, rightMin:Vec3, rightMax:Vec3):Vec3 {
 		this.x = map(value.x, leftMin.x, leftMax.x, rightMin.x, rightMax.x);
 		this.y = map(value.y, leftMin.y, leftMax.y, rightMin.y, rightMax.y);
-		this.z = map(value.z, leftMin.z, leftMax.z, rightMin.z, rightMax.z);		
+		this.z = map(value.z, leftMin.z, leftMax.z, rightMin.z, rightMax.z);
 		return this;
 	}
 
