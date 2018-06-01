@@ -1,9 +1,9 @@
 package iron.math;
-using iron.math.MathStaticExtension;
 
+using iron.math.MathStaticExtension;
 import kha.FastFloat;
 
-class Vec3 {
+class Rotator {
 	public var x:FastFloat;
 	public var y:FastFloat;
 	public var z:FastFloat;
@@ -14,7 +14,21 @@ class Vec3 {
 		this.z = z;
 	}
 
-	public function cross(v:Vec3):Vec3 {
+	public function toDegrees():Rotator {
+		this.x = this.x.toDegrees();
+		this.y = this.y.toDegrees();
+		this.z = this.z.toDegrees();
+		return this;
+	}
+
+	public function toRadians():Rotator {
+		this.x = this.x.toRadians();
+		this.y = this.y.toRadians();
+		this.z = this.z.toRadians();
+		return this;
+	}
+
+	public function cross(v:Rotator):Rotator {
 		var x2 = y * v.z - z * v.y;
 		var y2 = z * v.x - x * v.z;
 		var z2 = x * v.y - y * v.x;
@@ -24,7 +38,7 @@ class Vec3 {
 		return this;
 	}
 
-	public function crossvecs(a:Vec3, b:Vec3):Vec3 {
+	public function crossvecs(a:Rotator, b:Rotator):Rotator {
 		var x2 = a.y * b.z - a.z * b.y;
 		var y2 = a.z * b.x - a.x * b.z;
 		var z2 = a.x * b.y - a.y * b.x;
@@ -34,42 +48,42 @@ class Vec3 {
 		return this;
 	}
 
-	public function set(x:FastFloat, y:FastFloat, z:FastFloat):Vec3{
+	public function set(x:FastFloat, y:FastFloat, z:FastFloat):Rotator{
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		return this;
 	}
 
-	public function add(v:Vec3):Vec3 {
+	public function add(v:Rotator):Rotator {
 		x += v.x;
 		y += v.y;
 		z += v.z;
 		return this;
 	}
 
-	public function addf(x:FastFloat, y:FastFloat, z:FastFloat):Vec3 {
+	public function addf(x:FastFloat, y:FastFloat, z:FastFloat):Rotator {
 		this.x += x;
 		this.y += y;
 		this.z += z;
 		return this;
 	}
 
-	public function addvecs(a:Vec3, b:Vec3):Vec3 {
+	public function addvecs(a:Rotator, b:Rotator):Rotator {
 		x = a.x + b.x;
 		y = a.y + b.y;
 		z = a.z + b.z;
 		return this;
 	} 
 
-	public function subvecs(a:Vec3, b:Vec3):Vec3 {
+	public function subvecs(a:Rotator, b:Rotator):Rotator {
 		x = a.x - b.x;
 		y = a.y - b.y;
 		z = a.z - b.z;
 		return this;
 	}
 
-	public function normalize():Vec3 {
+	public function normalize():Rotator {
 		var n = length();
 		if (n > 0.0) {
 			var invN = 1.0 / n;
@@ -78,33 +92,33 @@ class Vec3 {
 		return this;
 	}
 
-	public function mult(f:FastFloat):Vec3 {
+	public function mult(f:FastFloat):Rotator {
 		x *= f; y *= f; z *= f;
 		return this;
 	}
 
-	public function dot(v:Vec3):FastFloat {
+	public function dot(v:Rotator):FastFloat {
 		return x * v.x + y * v.y + z * v.z;
 	}
 
-	public function setFrom(v:Vec3):Vec3 {
+	public function setFrom(v:Rotator):Rotator {
 		x = v.x; y = v.y; z = v.z;
 		return this;
 	}
 
-	public function clone():Vec3 {
-		return new Vec3(x, y, z);
+	public function clone():Rotator {
+		return new Rotator(x, y, z);
 	}
 
-	public static function lerp(v1:Vec3, v2:Vec3, t:FastFloat):Vec3 {
-		var target = new Vec3();
+	public static function lerp(v1:Rotator, v2:Rotator, t:FastFloat):Rotator {
+		var target = new Rotator();
 		target.x = v2.x + (v1.x - v2.x) * t;
 		target.y = v2.y + (v1.y - v2.y) * t;
 		target.z = v2.z + (v1.z - v2.z) * t;
 		return target;
 	}
 
-	public function applyproj(m:Mat4):Vec3 {
+	public function applyproj(m:Mat4):Rotator {
 		var x = this.x; var y = this.y; var z = this.z;
 
 		// Perspective divide
@@ -117,7 +131,7 @@ class Vec3 {
 		return this;
 	}
 
-	public function applymat(m:Mat4):Vec3 {
+	public function applymat(m:Mat4):Rotator {
 		var x = this.x; var y = this.y; var z = this.z;
 
 		this.x = m._00 * x + m._10 * y + m._20 * z + m._30;
@@ -127,7 +141,7 @@ class Vec3 {
 		return this;
 	}
 
-	public inline function equals(v:Vec3):Bool {
+	public inline function equals(v:Rotator):Bool {
 		return x == v.x && y == v.y && z == v.z;
 	}
 
@@ -135,18 +149,18 @@ class Vec3 {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
 
-	public inline function normalizeTo(newLength:FastFloat):Vec3 {
+	public inline function normalizeTo(newLength:FastFloat):Rotator {
 		var v = normalize();
 		v = mult(newLength);
 		return v;
 	}
 
-	public function sub(v:Vec3):Vec3 {
+	public function sub(v:Rotator):Rotator {
 		x -= v.x; y -= v.y; z -= v.z;
 		return this;
 	}
 
-	public static inline function distance(v1:Vec3, v2:Vec3):FastFloat {
+	public static inline function distance(v1:Rotator, v2:Rotator):FastFloat {
 		return distancef(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 	}
 
@@ -157,11 +171,11 @@ class Vec3 {
 		return Math.sqrt(vx * vx + vy * vy + vz * vz);
 	}
 
-	public function distanceTo(p:Vec3):FastFloat {
+	public function distanceTo(p:Rotator):FastFloat {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
 	}
 
-	public function clamp(fmin:FastFloat, fmax:FastFloat):Vec3 {
+	public function clamp(fmin:FastFloat, fmax:FastFloat):Rotator {
 		var n = length();
 		var v = this;
 
@@ -174,26 +188,19 @@ class Vec3 {
 		return v;
 	}
 
-	public function map(value:Vec3, leftMin:Vec3, leftMax:Vec3, rightMin:Vec3, rightMax:Vec3):Vec3 {
-		this.x = MathStaticExtension.map(value.x, leftMin.x, leftMax.x, rightMin.x, rightMax.x);
-		this.y = MathStaticExtension.map(value.y, leftMin.y, leftMax.y, rightMin.y, rightMax.y);
-		this.z = MathStaticExtension.map(value.z, leftMin.z, leftMax.z, rightMin.z, rightMax.z);
-		return this;
-	}
-
-	public static function xAxis():Vec3 { return new Vec3(1.0, 0.0, 0.0); }
-	public static function yAxis():Vec3 { return new Vec3(0.0, 1.0, 0.0); }
-	public static function zAxis():Vec3 { return new Vec3(0.0, 0.0, 1.0); }
-	public static function one():Vec3 { return new Vec3(1.0, 1.0, 1.0); }
-	public static function zero():Vec3 { return new Vec3(0.0, 0.0, 0.0); }
-	public static function back():Vec3 { return new Vec3(0.0, -1.0, 0.0); }
-	public static function forward():Vec3 { return new Vec3(0.0, 1.0, 0.0); }
-	public static function down():Vec3 { return new Vec3(0.0, 0.0, -1.0); }
-	public static function up():Vec3 { return new Vec3(0.0, 0.0, 1.0); }
-	public static function left():Vec3 { return new Vec3(-1.0, 0.0, 0.0); }
-	public static function right():Vec3 { return new Vec3(1.0, 0.0, 0.0); }
-	public static function negativeInfinity():Vec3 { return new Vec3(Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY); }
-	public static function positiveInfinity():Vec3 { return new Vec3(Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY); }
+	public static function xAxis():Rotator { return new Rotator(1.0, 0.0, 0.0); }
+	public static function yAxis():Rotator { return new Rotator(0.0, 1.0, 0.0); }
+	public static function zAxis():Rotator { return new Rotator(0.0, 0.0, 1.0); }
+	public static function one():Rotator { return new Rotator(1.0, 1.0, 1.0); }
+	public static function zero():Rotator { return new Rotator(0.0, 0.0, 0.0); }
+	public static function back():Rotator { return new Rotator(0.0, -1.0, 0.0); }
+	public static function forward():Rotator { return new Rotator(0.0, 1.0, 0.0); }
+	public static function down():Rotator { return new Rotator(0.0, 0.0, -1.0); }
+	public static function up():Rotator { return new Rotator(0.0, 0.0, 1.0); }
+	public static function left():Rotator { return new Rotator(-1.0, 0.0, 0.0); }
+	public static function right():Rotator { return new Rotator(1.0, 0.0, 0.0); }
+	public static function negativeInfinity():Rotator { return new Rotator(Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY, Math.NEGATIVE_INFINITY); }
+	public static function positiveInfinity():Rotator { return new Rotator(Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY, Math.POSITIVE_INFINITY); }
 
 	public function toString():String {
 		return "(" + this.x + ", " + this.y + ", " + this.z + ")";
