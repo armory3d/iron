@@ -50,10 +50,12 @@ class MathStaticExtension {
 		return map(value, leftMin, leftMax, rightMin, rightMax);
 	}
 
-	// remainder = numerator - quotient * denominator might need to check for some v. small numbers here
-
+	/*
+		mod returns the remaainder when dividing a/b
+		remainder = numerator - denominator * quotient as int (to round towards 0)
+	*/
 	public static inline function mod(a:FastFloat, b:FastFloat):FastFloat
 	{
-		return a - (a / b) * b;
+		return a - (b * Std.int(a / b));
 	}
 }
