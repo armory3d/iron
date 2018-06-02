@@ -17,14 +17,14 @@ class MathStaticExtension {
     /*
 		convert radians to degrees
 	*/
-	public static inline function toDegrees(radians:Float):Float {
+	public static inline function toDegrees(radians:FastFloat):FastFloat {
 		return radians * RAD2DEG;
 	}
 
 	/*
 		convert degrees to radians
 	*/
-	public static inline function toRadians(degrees:Float):Float {
+	public static inline function toRadians(degrees:FastFloat):FastFloat {
 		return degrees * DEG2RAD;
 	}
 
@@ -32,7 +32,7 @@ class MathStaticExtension {
 		Convenience function to map a variable from one coordinate space
 		to another. Equivalent to unlerp() followed by lerp().
 	*/
-	public static function map(value:FastFloat, leftMin:FastFloat, leftMax:FastFloat, rightMin:FastFloat, rightMax:FastFloat):Float 
+	public static function map(value:FastFloat, leftMin:FastFloat, leftMax:FastFloat, rightMin:FastFloat, rightMax:FastFloat):FastFloat 
 	{
 		return rightMin + (value - leftMin) / (leftMax - leftMin) * (rightMax- rightMin);
 	}
@@ -43,7 +43,7 @@ class MathStaticExtension {
 		return result;
 	}
 
-	static public function mapClamped(value:FastFloat, leftMin:FastFloat, leftMax:FastFloat, rightMin:FastFloat, rightMax:FastFloat):Float
+	static public function mapClamped(value:FastFloat, leftMin:FastFloat, leftMax:FastFloat, rightMin:FastFloat, rightMax:FastFloat):FastFloat
 	{
 		if (value >= leftMax ) return rightMax;
 		if (value <= leftMin) return  rightMin;
