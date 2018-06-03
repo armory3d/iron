@@ -166,7 +166,7 @@ class Quat {
 
 	public function getRotator():Rotator {
 		getEuler();
-		return new Rotator(x.toDegrees(), y.toDegrees(), z.toDegrees());
+		return new Rotator(x, y, z).toDegrees();
 	}
 
 	public function fromEuler(x:FastFloat, y:FastFloat, z:FastFloat) {
