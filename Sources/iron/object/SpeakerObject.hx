@@ -51,7 +51,7 @@ class SpeakerObject extends Object {
 		d *= data.attenuation;
 		var vol = 1.0 - Math.min(d / 100, 1);
 
-		for (c in channels) c.volume = vol;
+		for (c in channels) c.volume = vol * data.volume;
 	}
 
 	public override function remove() {
