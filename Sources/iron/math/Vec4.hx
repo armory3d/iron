@@ -169,6 +169,10 @@ class Vec4 {
 		return x == v.x && y == v.y && z == v.z;
 	}
 
+	public inline function almostEquals(v:Vec4, prec:Float):Bool {
+		return Math.abs(x - v.x) < prec && Math.abs(y - v.y) < prec && Math.abs(z - v.z) < prec;
+	}
+
 	public inline function length():FastFloat {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
