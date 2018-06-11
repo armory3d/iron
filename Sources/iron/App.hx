@@ -26,6 +26,10 @@ class App {
 	static var lastw = -1;
 	static var lasth = -1;
 	#end
+	#if arm_rendertimer
+	static var renderTimer = 0.0;
+	public static var renderTarget = 1 / 60; // Requested frame time
+	#end
 
 	public static function init(_appReady:Void->Void) {
 		new App(_appReady);
@@ -103,6 +107,12 @@ class App {
 	}
 
 	static function render(frame:kha.Framebuffer) {
+		#if arm_rendertimer
+		renderTimer -= iron.system.Time.realDelta;
+		if (renderTimer > renderTarget) return;
+		renderTimer += renderTarget;
+		#end
+
 		if (Scene.active == null || !Scene.active.ready) {
 			render2D(frame);
 			return;
