@@ -1,4 +1,5 @@
 package iron.math;
+using iron.math.MathStaticExtension;
 
 import kha.FastFloat;
 
@@ -161,6 +162,11 @@ class Quat {
 			pitch = Math.atan2(2 * x * w - 2 * y * z , 1.0 - 2 * sqx - 2 * sqz);
 		}
 		return new Vec4(pitch, roll, yaw);
+	}
+
+	public function getRotator():Rotator {
+		getEuler();
+		return new Rotator(x, y, z).toDegrees();
 	}
 
 	public function fromEuler(x:FastFloat, y:FastFloat, z:FastFloat) {
