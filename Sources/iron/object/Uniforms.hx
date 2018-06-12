@@ -40,14 +40,14 @@ class Uniforms {
 	public static var helpVec2 = new Vec4();
 	public static var helpQuat = new Quat(); // Keep at identity
 
-	public static var externalTextureLinks:Array<String->kha.Image> = null;
-	public static var externalMat4Links:Array<String->Mat4> = null;
-	public static var externalVec4Links:Array<String->Vec4> = null;
-	public static var externalVec3Links:Array<String->Vec4> = null;
-	public static var externalVec2Links:Array<String->Vec4> = null;
-	public static var externalFloatLinks:Array<String->Null<kha.FastFloat>> = null;
-	public static var externalFloatsLinks:Array<String->kha.arrays.Float32Array> = null;
-	public static var externalIntLinks:Array<String->Null<Int>> = null;
+	public static var externalTextureLinks:Array<Object->MaterialData->String->kha.Image> = null;
+	public static var externalMat4Links:Array<Object->MaterialData->String->Mat4> = null;
+	public static var externalVec4Links:Array<Object->MaterialData->String->Vec4> = null;
+	public static var externalVec3Links:Array<Object->MaterialData->String->Vec4> = null;
+	public static var externalVec2Links:Array<Object->MaterialData->String->Vec4> = null;
+	public static var externalFloatLinks:Array<Object->MaterialData->String->Null<kha.FastFloat>> = null;
+	public static var externalFloatsLinks:Array<Object->MaterialData->String->kha.arrays.Float32Array> = null;
+	public static var externalIntLinks:Array<Object->MaterialData->String->Null<Int>> = null;
 
 	public static function setConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 
@@ -133,7 +133,7 @@ class Uniforms {
 				// External
 				else if (externalTextureLinks != null) {
 					for (f in externalTextureLinks) {
-						var image = f(tulink);
+						var image = f(object, currentMat(object), tulink);
 						if (image != null) {
 							g.setTexture(context.textureUnits[j], image);
 							// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
@@ -425,7 +425,7 @@ class Uniforms {
 			// External
 			else if (externalMat4Links != null) {
 				for (fn in externalMat4Links) {
-					m = fn(c.link);
+					m = fn(object, currentMat(object), c.link);
 					if (m != null) break;
 				}
 			}
@@ -459,7 +459,7 @@ class Uniforms {
 			// External
 			else if (externalVec4Links != null) {
 				for (fn in externalVec4Links) {
-					v = fn(c.link);
+					v = fn(object, currentMat(object), c.link);
 					if (v != null) break;
 				}
 			}
@@ -573,7 +573,7 @@ class Uniforms {
 			// External
 			else if (externalVec3Links != null) {
 				for (f in externalVec3Links) {
-					v = f(c.link);
+					v = f(object, currentMat(object), c.link);
 					if (v != null) break;
 				}
 			}
@@ -656,7 +656,7 @@ class Uniforms {
 			// External
 			else if (externalVec2Links != null) {
 				for (fn in externalVec2Links) {
-					var v = fn(c.link);
+					var v = fn(object, currentMat(object), c.link);
 					if (v != null) {
 						vx = v.x;
 						vy = v.y;
@@ -707,7 +707,7 @@ class Uniforms {
 				f = object.uid;
 			}
 			else if (c.link == "_objectInfoMaterialIndex") {
-				f = RenderPath.active.currentMaterial != null ? RenderPath.active.currentMaterial.uid : cast(object, MeshObject).materials[0].uid; // TODO: Move to material constants
+				f = currentMat(object).uid;
 			}
 			else if (c.link == "_objectInfoRandom") {
 				f = object.urandom;
@@ -729,7 +729,7 @@ class Uniforms {
 			// External
 			else if (externalFloatLinks != null) {
 				for (fn in externalFloatLinks) {
-					var res = fn(c.link);
+					var res = fn(object, currentMat(object), c.link);
 					if (res != null) {
 						f = res;
 						break;
@@ -756,7 +756,7 @@ class Uniforms {
 			// External
 			else if (externalFloatsLinks != null) {
 				for (fn in externalFloatsLinks) {
-					fa = fn(c.link);
+					fa = fn(object, currentMat(object), c.link);
 					if (fa != null) break;
 				}
 			}
@@ -790,7 +790,7 @@ class Uniforms {
 			// External
 			else if (externalIntLinks != null) {
 				for (fn in externalIntLinks) {
-					var res = fn(c.link);
+					var res = fn(object, currentMat(object), c.link);
 					if (res != null) {
 						i = res;
 						break;
@@ -836,6 +836,13 @@ class Uniforms {
 				}
 			}
 		}
+	}
+
+	static function currentMat(object:Object):MaterialData {
+		var rp = RenderPath.active;
+		if (rp.currentMaterial != null) return rp.currentMaterial;
+		if (object != null && Std.is(object, iron.object.MeshObject)) return cast(object, MeshObject).materials[0];
+		return null;
 	}
 
 	static function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderConstant, matc:TBindConstant) {
