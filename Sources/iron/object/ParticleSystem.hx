@@ -80,9 +80,8 @@ class ParticleSystem {
 		return m;
 	}
 
-	// CPU particles
 	public function update(object:MeshObject, owner:MeshObject) {
-		if (!ready) return;
+		if (!ready || object == null) return;
 
 		dimx = object.transform.dim.x;
 		dimy = object.transform.dim.y;

@@ -55,6 +55,10 @@ class MeshObject extends Object {
 		#if arm_batch
 		Scene.active.meshBatch.removeMesh(this);
 		#end
+		if (particleChildren != null) {
+			for (c in particleChildren) c.remove();
+			particleChildren = null;
+		}
 		if (particleSystems != null) {
 			for (psys in particleSystems) psys.remove();
 			particleSystems = null;
@@ -195,17 +199,20 @@ class MeshObject extends Object {
 		if (raw != null && raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
 		var meshContext = raw != null ? RenderPath.meshContext == context : false;
 		if (particleSystems != null && meshContext) {
-			// TODO: all particles have to be added prior to render being called
 			if (particleChildren == null) {
 				particleChildren = [];
 				for (psys in particleSystems) {
-					var c = cast iron.Scene.active.getChild(psys.data.raw.dupli_object);
-					particleChildren.push(c);
-					if (c != null) {
-						c.particleOwner = this;
-						c.particleIndex = particleChildren.length - 1;
-						c.transform = this.transform;
-					}
+					// var c:MeshObject = cast iron.Scene.active.getChild(psys.data.raw.dupli_object);
+					iron.Scene.active.spawnObject(psys.data.raw.dupli_object, null, function(o:Object) {
+						if (o != null) {
+							var c:MeshObject = cast o;
+							particleChildren.push(c);
+							c.particleOwner = this;
+							c.particleIndex = particleChildren.length - 1;
+							c.transform = this.transform;
+						}
+					});
+					
 				}
 			}
 			for (i in 0...particleSystems.length) particleSystems[i].update(particleChildren[i], this);

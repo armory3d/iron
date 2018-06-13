@@ -413,7 +413,7 @@ class Uniforms {
 			}
 			else if (c.link == "_particleData") {
 				var mo = cast(object, MeshObject);
-				if (mo.particleOwner != null) {
+				if (mo.particleOwner != null && mo.particleOwner.particleSystems != null) {
 					m = mo.particleOwner.particleSystems[mo.particleIndex].getData();
 				}
 			}
