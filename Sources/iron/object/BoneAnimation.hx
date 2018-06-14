@@ -198,6 +198,7 @@ class BoneAnimation extends Animation {
 	}
 
 	function updateConstraints() {
+		if (data == null) return;
 		var cs = data.raw.skin.constraints;
 		if (cs == null) return;
 		// Init constraints
