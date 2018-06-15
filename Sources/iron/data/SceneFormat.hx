@@ -337,6 +337,7 @@ typedef TObj = {
 	@:optional var parent:TObj;
 	@:optional var parent_bone:String;
 	@:optional var parent_bone_tail:Float32Array;
+	@:optional var parent_bone_tail_y:Float32Array;
 	@:optional var visible:Null<Bool>;
 	@:optional var visible_mesh:Null<Bool>;
 	@:optional var visible_shadow:Null<Bool>;
