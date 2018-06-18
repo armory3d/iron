@@ -22,6 +22,12 @@ class Data {
 	public static var cachedVideos:Map<String, kha.Video> = new Map();
 	public static var cachedFonts:Map<String, kha.Font> = new Map();
 
+	#if arm_published
+	static var dataPath = './data/';
+	#else
+	static var dataPath = '';
+	#end
+
 	public function new() { }
 
 	public static function deleteAll() {
@@ -383,7 +389,7 @@ class Data {
 
 		loadingBlobs.set(file, [done]); // Start loading
 
-		kha.Assets.loadBlobFromPath(file, function(b:kha.Blob) {
+		kha.Assets.loadBlobFromPath(dataPath + file, function(b:kha.Blob) {
 			cachedBlobs.set(file, b);
 			for (f in loadingBlobs.get(file)) f(b);
 			loadingBlobs.remove(file);
@@ -406,7 +412,7 @@ class Data {
 		loadingImages.set(file, [done]);
 
 		// TODO: process format in Kha
-		kha.Assets.loadImageFromPath(file, readable, function(b:kha.Image) {
+		kha.Assets.loadImageFromPath(dataPath + file, readable, function(b:kha.Image) {
 			cachedImages.set(file, b);
 			for (f in loadingImages.get(file)) f(b);
 			loadingImages.remove(file);
@@ -433,7 +439,7 @@ class Data {
 
 		loadingSounds.set(file, [done]);
 
-		kha.Assets.loadSoundFromPath(file, function(b:kha.Sound) {
+		kha.Assets.loadSoundFromPath(dataPath + file, function(b:kha.Sound) {
 			#if arm_soundcompress
 			b.uncompress(function () {
 			#end
@@ -460,7 +466,7 @@ class Data {
 
 		loadingVideos.set(file, [done]);
 
-		kha.Assets.loadVideoFromPath(file, function(b:kha.Video) {
+		kha.Assets.loadVideoFromPath(dataPath + file, function(b:kha.Video) {
 			cachedVideos.set(file, b);
 			for (f in loadingVideos.get(file)) f(b);
 			loadingVideos.remove(file);
@@ -478,7 +484,7 @@ class Data {
 
 		loadingFonts.set(file, [done]);
 
-		kha.Assets.loadFontFromPath(file, function(b:kha.Font) {
+		kha.Assets.loadFontFromPath(dataPath + file, function(b:kha.Font) {
 			cachedFonts.set(file, b);
 			for (f in loadingFonts.get(file)) f(b);
 			loadingFonts.remove(file);

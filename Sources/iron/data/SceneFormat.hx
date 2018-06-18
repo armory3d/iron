@@ -316,7 +316,7 @@ typedef TParticleReference = {
 }
 
 typedef TObj = {
-	var type:String;
+	var type:String; // object, mesh_object, lamp_object, camera_object, speaker_object, decal_object
 	var name:String;
 	var data_ref:String;
 	var transform:TTransform;
