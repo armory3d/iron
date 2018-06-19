@@ -193,7 +193,13 @@ class RenderPath {
 	}
 
 	public function clearTarget(colorFlag:Null<Int> = null, depthFlag:Null<Float> = null) {
-		if (colorFlag == -1 && Scene.active.world != null) colorFlag = Scene.active.world.raw.background_color;
+		if (colorFlag == -1) {
+			if (Scene.active.world != null) colorFlag = Scene.active.world.raw.background_color;
+			else if (Scene.active.camera != null) {
+				var cc = Scene.active.camera.data.raw.clear_color;
+				if (cc != null) colorFlag = kha.Color.fromFloats(cc[0], cc[1], cc[2]);
+			}
+		}
 		currentG.clear(colorFlag, depthFlag, null);
 	}
 
