@@ -23,9 +23,9 @@ class Data {
 	public static var cachedFonts:Map<String, kha.Font> = new Map();
 
 	#if arm_published
-	static var dataPath = './data/';
+	public static var dataPath = './data/';
 	#else
-	static var dataPath = '';
+	public static var dataPath = '';
 	#end
 
 	public function new() { }
@@ -389,7 +389,9 @@ class Data {
 
 		loadingBlobs.set(file, [done]); // Start loading
 
-		kha.Assets.loadBlobFromPath(dataPath + file, function(b:kha.Blob) {
+		var p = (file.charAt(0) == '/' || file.charAt(1) == ':') ? file : dataPath + file;
+
+		kha.Assets.loadBlobFromPath(p, function(b:kha.Blob) {
 			cachedBlobs.set(file, b);
 			for (f in loadingBlobs.get(file)) f(b);
 			loadingBlobs.remove(file);
@@ -411,8 +413,10 @@ class Data {
 
 		loadingImages.set(file, [done]);
 
+		var p = (file.charAt(0) == '/' || file.charAt(1) == ':') ? file : dataPath + file;
+
 		// TODO: process format in Kha
-		kha.Assets.loadImageFromPath(dataPath + file, readable, function(b:kha.Image) {
+		kha.Assets.loadImageFromPath(p, readable, function(b:kha.Image) {
 			cachedImages.set(file, b);
 			for (f in loadingImages.get(file)) f(b);
 			loadingImages.remove(file);
@@ -439,7 +443,9 @@ class Data {
 
 		loadingSounds.set(file, [done]);
 
-		kha.Assets.loadSoundFromPath(dataPath + file, function(b:kha.Sound) {
+		var p = (file.charAt(0) == '/' || file.charAt(1) == ':') ? file : dataPath + file;
+
+		kha.Assets.loadSoundFromPath(p, function(b:kha.Sound) {
 			#if arm_soundcompress
 			b.uncompress(function () {
 			#end
@@ -466,7 +472,9 @@ class Data {
 
 		loadingVideos.set(file, [done]);
 
-		kha.Assets.loadVideoFromPath(dataPath + file, function(b:kha.Video) {
+		var p = (file.charAt(0) == '/' || file.charAt(1) == ':') ? file : dataPath + file;
+
+		kha.Assets.loadVideoFromPath(p, function(b:kha.Video) {
 			cachedVideos.set(file, b);
 			for (f in loadingVideos.get(file)) f(b);
 			loadingVideos.remove(file);
@@ -484,7 +492,9 @@ class Data {
 
 		loadingFonts.set(file, [done]);
 
-		kha.Assets.loadFontFromPath(dataPath + file, function(b:kha.Font) {
+		var p = (file.charAt(0) == '/' || file.charAt(1) == ':') ? file : dataPath + file;
+
+		kha.Assets.loadFontFromPath(p, function(b:kha.Font) {
 			cachedFonts.set(file, b);
 			for (f in loadingFonts.get(file)) f(b);
 			loadingFonts.remove(file);
