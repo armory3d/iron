@@ -11,6 +11,7 @@ class LampObject extends Object {
 
 	public static var cascadeCount = 1;
 	public static var cascadeSplitFactor = 0.8;
+	public static var cascadeBounds = 1.0;
 	#if arm_csm
 	var cascadeData:kha.arrays.Float32Array = null;
 	var cascadeVP:Array<Mat4>;
@@ -179,14 +180,15 @@ class LampObject extends Object {
 		maxy = Math.floor(maxy / worldPerTexelY) * worldPerTexelY;
 		maxz = Math.floor(maxz / worldPerTexelZ) * worldPerTexelZ;
 
-		var hx = (maxx - minx) / 2;
-		var hy = (maxy - miny) / 2;
-		var hz = (maxz - minz) / 2;
+		var hx = ((maxx - minx) / 2) * cascadeBounds;
+		var hy = ((maxy - miny) / 2) * cascadeBounds;
+		var hz = ((maxz - minz) / 2) * cascadeBounds;
 		V._30 = -(minx + hx);
 		V._31 = -(miny + hy);
 		V._32 = -(minz + hz);
 
-		m = Mat4.ortho(-hx, hx, -hy, hy, -hz * 4, hz); // TODO: * 4 - include shadow casters out of view frustum
+		// -hz * 4 - include shadow casters out of view frustum
+		m = Mat4.ortho(-hx, hx, -hy, hy, -hz * 4, hz);
 		P.setFrom(m);
 
 		updateViewFrustum(camera);
