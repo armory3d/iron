@@ -1,5 +1,4 @@
 package iron.math;
-using iron.math.MathStaticExtension;
 
 import kha.FastFloat;
 
@@ -219,13 +218,12 @@ class Vec4 {
 	}
 
 	public function map(value:Vec4, leftMin:Vec4, leftMax:Vec4, rightMin:Vec4, rightMax:Vec4):Vec4 {
-		this.x = MathStaticExtension.map(value.x, leftMin.x, leftMax.x, rightMin.x, rightMax.x);
-		this.y = MathStaticExtension.map(value.y, leftMin.y, leftMax.y, rightMin.y, rightMax.y);
-		this.z = MathStaticExtension.map(value.z, leftMin.z, leftMax.z, rightMin.z, rightMax.z);
-		this.w = MathStaticExtension.map(value.w, leftMin.w, leftMax.w, rightMin.w, rightMax.w);
+		x = Math.map(value.x, leftMin.x, leftMax.x, rightMin.x, rightMax.x);
+		y = Math.map(value.y, leftMin.y, leftMax.y, rightMin.y, rightMax.y);
+		z = Math.map(value.z, leftMin.z, leftMax.z, rightMin.z, rightMax.z);
+		w = Math.map(value.w, leftMin.w, leftMax.w, rightMin.w, rightMax.w);
 		return this;
 	}
-
 
 	public static function xAxis():Vec4 { return new Vec4(1.0, 0.0, 0.0); }
 	public static function yAxis():Vec4 { return new Vec4(0.0, 1.0, 0.0); }

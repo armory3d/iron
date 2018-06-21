@@ -1,12 +1,11 @@
 package iron.math;
 
-using iron.math.MathStaticExtension;
 import kha.FastFloat;
 
 class Rotator {
-	public var pitch:FastFloat; //X - look up or down around the X axis
-	public var roll:FastFloat; //Y - axis tilt left or right around the Y axis
-	public var yaw:FastFloat; //Z - heading or facing angle around the Z (up) axis
+	public var pitch:FastFloat; // X - look up or down around the X axis
+	public var roll:FastFloat; // Y - axis tilt left or right around the Y axis
+	public var yaw:FastFloat; // Z - heading or facing angle around the Z (up) axis
 
 	public function new(pitch:FastFloat = 0.0, roll:FastFloat = 0.0, yaw:FastFloat = 0.0) {
 		this.pitch = pitch;
@@ -15,16 +14,16 @@ class Rotator {
 	}
 
 	public function toDegrees():Rotator {
-		this.pitch = this.pitch.toDegrees();
-		this.roll = this.roll.toDegrees();
-		this.yaw = this.yaw.toDegrees();
+		pitch = Math.toDegrees(pitch);
+		roll = Math.toDegrees(roll);
+		yaw = Math.toDegrees(yaw);
 		return this;
 	}
 
 	public function toRadians():Rotator {
-		this.pitch = this.pitch.toRadians();
-		this.roll = this.roll.toRadians();
-		this.yaw = this.yaw.toRadians();
+		pitch = Math.toRadians(pitch);
+		roll = Math.toRadians(roll);
+		yaw = Math.toRadians(yaw);
 		return this;
 	}
 
@@ -183,15 +182,10 @@ class Rotator {
 	}
 
 	public static inline function clampAxis(angle:FastFloat):FastFloat {
-		angle = MathStaticExtension.mod(angle, 360); //Makes the angle between -360 and +360
-
+		angle = Math.mod(angle, 360); // Makes the angle between -360 and +360
 		if (angle < 0.0) angle += 360.0;
-		trace(angle);
-
 		return angle;
 	}
-
-
 
 	public static function xAxis():Rotator { return new Rotator(1.0, 0.0, 0.0); }
 	public static function yAxis():Rotator { return new Rotator(0.0, 1.0, 0.0); }

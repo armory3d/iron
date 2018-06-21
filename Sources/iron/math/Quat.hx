@@ -1,5 +1,4 @@
 package iron.math;
-using iron.math.MathStaticExtension;
 
 import kha.FastFloat;
 
@@ -165,8 +164,8 @@ class Quat {
 	}
 
 	public function getRotator():Rotator {
-		getEuler();
-		return new Rotator(x, y, z).toDegrees();
+		var v = getEuler();
+		return new Rotator(v.x, v.y, v.z);
 	}
 
 	public function fromEuler(x:FastFloat, y:FastFloat, z:FastFloat) {
