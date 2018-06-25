@@ -265,34 +265,24 @@ class Math {
 	}
 
 	/*
-		clamp float to interval
-	 */
+		Clamp float to interval
+	*/
 	public static function clamp(f:Float, min:Float, max:Float):Float {
 		return f < min ? min : f > max ? max : f;
 	}
 
-	/*
-		Degrees to Radians Constant
-	*/
-	public static var DEG2RAD = 0.0174532924;
-
-	/*
-		Radians to Degrees Constant
-	*/
-	public static var RAD2DEG = 57.29578;
-
     /*
-		convert radians to degrees
+		Convert radians to degrees
 	*/
 	public static inline function toDegrees(radians:Float):Float {
-		return radians * RAD2DEG;
+		return radians * 57.29578;
 	}
 
 	/*
-		convert degrees to radians
+		Convert degrees to radians
 	*/
 	public static inline function toRadians(degrees:Float):Float {
-		return degrees * DEG2RAD;
+		return degrees * 0.0174532924;
 	}
 
 	/*
