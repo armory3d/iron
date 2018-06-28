@@ -14,6 +14,7 @@ class Scene {
 	public var uid:Int;
 	public var raw:TSceneFormat;
 	public var root:Object;
+	public var sceneParent:Object;
 	public var camera:CameraObject;
 	public var world:WorldData;
 	// public var greasePencil:GreasePencilData = null;
@@ -82,6 +83,7 @@ class Scene {
 				for (f in active.traitInits) f();
 				active.traitInits = [];
 
+				active.sceneParent = sceneObject;
 				done(sceneObject);
 			});
 		});

@@ -299,7 +299,7 @@ class Pen extends VirtualInput {
 
 class Keyboard extends VirtualInput {
 
-	static var keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', ',', 'space', 'backspace', 'tab', 'enter', 'shift', 'ctrl', 'alt', 'esc', 'del', 'back', 'up', 'right', 'left', 'down'];
+	static var keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', ',', 'space', 'backspace', 'tab', 'enter', 'shift', 'control', 'alt', 'escape', 'delete', 'back', 'up', 'right', 'left', 'down'];
 	var keysDown = new Map<String, Bool>();
 	var keysStarted = new Map<String, Bool>();
 	var keysReleased = new Map<String, Bool>();
@@ -349,10 +349,10 @@ class Keyboard extends VirtualInput {
 		else if (key == kha.input.KeyCode.Tab) return "tab";
 		else if (key == kha.input.KeyCode.Return) return "enter";
 		else if (key == kha.input.KeyCode.Shift) return "shift";
-		else if (key == kha.input.KeyCode.Control) return "ctrl";
+		else if (key == kha.input.KeyCode.Control) return "control";
 		else if (key == kha.input.KeyCode.Alt) return "alt";
-		else if (key == kha.input.KeyCode.Escape) return "esc";
-		else if (key == kha.input.KeyCode.Delete) return "del";
+		else if (key == kha.input.KeyCode.Escape) return "escape";
+		else if (key == kha.input.KeyCode.Delete) return "delete";
 		else if (key == kha.input.KeyCode.Up) return "up";
 		else if (key == kha.input.KeyCode.Down) return "down";
 		else if (key == kha.input.KeyCode.Left) return "left";
