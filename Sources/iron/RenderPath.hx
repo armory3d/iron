@@ -34,8 +34,8 @@ class RenderPath {
 	var meshesSorted:Bool;
 	var scissorSet = false;
 	var viewportScaled = false;
-	var currentG:Graphics;
-	var frameG:Graphics;
+	public var currentG:Graphics;
+	public var frameG:Graphics;
 	var lastFrameTime = 0.0;
 	
 	public var paused = false;
@@ -570,6 +570,8 @@ class RenderPath {
 			drawMeshes();
 		}
 		else { // Simulate
+			Scene.active.camera.buildProjection(halfw / apph);
+
 			// Left eye
 			g.viewport(0, 0, halfw, apph);
 			drawMeshes();

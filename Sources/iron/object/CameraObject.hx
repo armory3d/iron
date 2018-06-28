@@ -60,8 +60,9 @@ class CameraObject extends Object {
 		Scene.active.cameras.push(this);
 	}
 
-	public function buildProjection() {
-		var aspect:kha.FastFloat = data.raw.aspect != null ? data.raw.aspect : iron.App.w() / iron.App.h();
+	public function buildProjection(screenAspect:Null<Float> = null) {
+		if (screenAspect == null) screenAspect = iron.App.w() / iron.App.h();
+		var aspect = data.raw.aspect != null ? data.raw.aspect : screenAspect;
 		if (data.raw.ortho_scale != null) {
 			var sc:kha.FastFloat = data.raw.ortho_scale;
 			P = Mat4.ortho(-1 * aspect * sc, aspect * sc, -1 * sc, 1 * sc, -1 * farPlane, farPlane);
