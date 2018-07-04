@@ -257,6 +257,8 @@ class Quat {
 
 	public function fromTo(v1:Vec4, v2:Vec4) {
 		// Rotation formed by direction vectors
+		// v1.normalize();
+		// v2.normalize();
 		var a = helpVec0;
 		var dot = v1.dot(v2);
 		if (dot < -0.999999) {

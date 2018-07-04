@@ -22,7 +22,7 @@ class Data {
 	public static var cachedVideos:Map<String, kha.Video> = new Map();
 	public static var cachedFonts:Map<String, kha.Font> = new Map();
 
-	#if arm_published
+	#if arm_data_dir
 	public static var dataPath = './data/';
 	#else
 	public static var dataPath = '';
