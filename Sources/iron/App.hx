@@ -38,7 +38,11 @@ class App {
 	function new(_appReady:Void->Void) {
 		_appReady();
 
+		#if (kha_version < 1807) // TODO: deprecated
 		kha.System.notifyOnRender(render);
+		#else
+		kha.System.notifyOnFrames(render);
+		#end
 		kha.Scheduler.addTimeTask(update, 0, iron.system.Time.delta);
 	}
 
@@ -106,7 +110,13 @@ class App {
 		#end
 	}
 
+	#if (kha_version < 1807) // TODO: deprecated
 	static function render(frame:kha.Framebuffer) {
+	#else
+	static function render(frames:Array<kha.Framebuffer>) {
+		var frame = frames[0];
+	#end
+
 		#if arm_rendertimer
 		renderTimer -= iron.system.Time.realDelta;
 		if (renderTimer > renderTarget) return;
