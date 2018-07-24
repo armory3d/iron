@@ -8,6 +8,7 @@ class Input {
 	static var keyboard:Keyboard = null;
 	static var gamepads:Array<Gamepad> = [];
 	static var sensor:Sensor = null;
+	static var registered = false;
 	public static var virtualButtons:Map<String, VirtualButton> = null; // Button name
 
 	public static function reset() {
@@ -30,39 +31,52 @@ class Input {
 	}
 
 	public static function getMouse():Mouse {
+		if (!registered) register();
 		if (mouse == null) mouse = new Mouse();
 		return mouse;
 	}
 
 	public static function getPen():Pen {
+		if (!registered) register();
 		if (pen == null) pen = new Pen();
 		return pen;
 	}
 
 	public static function getSurface():Surface {
+		if (!registered) register();
 		// Map to mouse for now..
 		return getMouse();
 	}
 
 	public static function getKeyboard():Keyboard {
+		if (!registered) register();
 		if (keyboard == null) keyboard = new Keyboard();
 		return keyboard;
 	}
 
 	public static function getGamepad(i:Int = 0):Gamepad {
 		if (i >= 4) return null;
+		if (!registered) register();
 		while (gamepads.length <= i) gamepads.push(new Gamepad(gamepads.length));
 		return gamepads[i].connected ? gamepads[i] : null;
 	}
 
 	public static function getSensor():Sensor {
+		if (!registered) register();
 		if (sensor == null) sensor = new Sensor();
 		return sensor;
 	}
 
 	public static function getVirtualButton(virtual:String):VirtualButton {
+		if (!registered) register();
 		if (virtualButtons == null) return null;
 		return virtualButtons.get(virtual);
+	}
+
+	static inline function register() {
+		registered = true;
+		App.notifyOnEndFrame(endFrame);
+		App.notifyOnReset(reset);
 	}
 }
 

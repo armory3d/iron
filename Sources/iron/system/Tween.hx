@@ -10,7 +10,15 @@ class Tween {
 											easeCircOut, easeCircInOut, easeBackIn, easeBackOut, easeBackInOut];
 	static var anims:Array<TAnim> = [];
 
+	static var registered = false;
+	static inline function register() {
+		registered = true;
+		App.notifyOnUpdate(update);
+		App.notifyOnReset(function() { App.notifyOnUpdate(update); reset(); });
+	}
+
 	public static function to(anim:TAnim):TAnim {
+		if (!registered) register();
 		anim._time = 0;
 		anim.isPlaying = (anim.delay != null && anim.delay > 0.0) ? false : true;
 		

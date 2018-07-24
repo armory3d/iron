@@ -224,11 +224,13 @@ class Scene {
 		return object;
 	}
 	
+	#if rp_decals
 	public function addDecalObject(material:MaterialData, parent:Object = null):DecalObject {
 		var object = new DecalObject(material);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
+	#end
 
 	#if arm_stream
 	var objectsTraversed = 0;
@@ -424,6 +426,7 @@ class Scene {
 			var object = addSpeakerObject(Data.getSpeakerRawByName(format.speaker_datas, o.data_ref), parent);	
 			returnObject(object, o, done);
 		}
+		#if rp_decals
 		else if (o.type == "decal_object") {
 			if (o.material_refs != null && o.material_refs.length > 0) {
 				Data.getMaterial(sceneName, o.material_refs[0], function(material:MaterialData) {
@@ -436,6 +439,7 @@ class Scene {
 				returnObject(object, o, done);
 			}
 		}
+		#end
 		else if (o.type == "object") {
 			var object = addObject(parent);
 			returnObject(object, o, function(ro:Object){

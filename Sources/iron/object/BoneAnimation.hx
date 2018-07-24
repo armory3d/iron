@@ -1,5 +1,7 @@
 package iron.object;
 
+#if arm_skin
+
 import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.math.Quat;
@@ -621,3 +623,5 @@ class BoneAnimation extends Animation {
 		}
 	}
 }
+
+#end

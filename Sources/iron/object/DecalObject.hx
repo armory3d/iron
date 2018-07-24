@@ -8,6 +8,8 @@ import iron.Scene;
 
 class DecalObject extends Object {
 
+#if rp_decals
+
 	public var material:MaterialData;
 
 	public function new(material:MaterialData) {
@@ -50,4 +52,6 @@ class DecalObject extends Object {
 		g.setIndexBuffer(ConstData.boxIB);
 		g.drawIndexedVertices();
 	}
+
+#end
 }

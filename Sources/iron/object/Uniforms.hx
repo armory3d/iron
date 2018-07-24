@@ -452,12 +452,14 @@ class Uniforms {
 		else if (c.type == "vec4") {
 			var v:Vec4 = null;
 			helpVec.set(0, 0, 0);
+			#if arm_debug
 			if (c.link == "_input") {
 				helpVec.set(iron.system.Input.getMouse().x / iron.App.w(), iron.system.Input.getMouse().y / iron.App.h(), iron.system.Input.getMouse().down() ? 1.0 : 0.0, 0.0);
 				v = helpVec;
 			}
+			#end
 			// External
-			else if (externalVec4Links != null) {
+			if (externalVec4Links != null) {
 				for (fn in externalVec4Links) {
 					v = fn(object, currentMat(object), c.link);
 					if (v != null) break;
@@ -741,15 +743,17 @@ class Uniforms {
 		}
 		else if (c.type == "floats") {
 			var fa:kha.arrays.Float32Array = null;
-			if (c.link == "_skinBones") {
-				if (object.animation != null) fa = cast(object.animation, BoneAnimation).skinBuffer;
-			}
-			else if (c.link == "_envmapIrradiance") {
+			if (c.link == "_envmapIrradiance") {
 				if (Scene.active.world == null) fa = WorldData.getEmptyIrradiance();
 				else fa = Scene.active.world.getSHIrradiance();
 			}
+			#if arm_skin
+			else if (c.link == "_skinBones") {
+				if (object.animation != null) fa = cast(object.animation, BoneAnimation).skinBuffer;
+			}
+			#end
 			#if arm_csm
-			if (c.link == "_cascadeData") {
+			else if (c.link == "_cascadeData") {
 				if (lamp != null) fa = lamp.getCascadeData();
 			}
 			#end
@@ -839,8 +843,6 @@ class Uniforms {
 	}
 
 	static function currentMat(object:Object):MaterialData {
-		var rp = RenderPath.active;
-		if (rp.currentMaterial != null) return rp.currentMaterial;
 		if (object != null && Std.is(object, iron.object.MeshObject)) return cast(object, MeshObject).materials[0];
 		return null;
 	}

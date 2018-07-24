@@ -47,6 +47,7 @@ class ConstData {
 		screenAlignedIB.unlock();
 	}
 
+	#if (rp_renderer == "Deferred Plus")
 	public static function createRectData() {
 		// Quad
 		var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];
@@ -65,7 +66,9 @@ class ConstData {
 		for (i in 0...id.length) id[i] = indices[i];
 		rectIB.unlock();
 	}
+	#end
 	
+	#if rp_decals
 	public static function createBoxData() {
 		var data = [
 			-1.0,1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,1.0,-1.0,1.0,1.0,-1.0,
@@ -91,6 +94,7 @@ class ConstData {
 		for (i in 0...id.length) id[i] = indices[i];
 		boxIB.unlock();
 	}
+	#end
 
 	public static function createSkydomeData() {
 		#if arm_deinterleaved

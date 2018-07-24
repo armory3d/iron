@@ -1,6 +1,5 @@
 package iron.data;
 import haxe.io.BytesInput;
-import haxe.zip.Reader;
 import iron.data.SceneFormat;
 
 // Global data list and asynchronous data loading
@@ -239,14 +238,14 @@ class Data {
 		getBlob(file + ext, function(b:kha.Blob) {
 
 			if (compressed) {
-#if (!hl) // TODO: korehl - unresolved external symbol _fmt_inflate_buffer
+#if (arm_compress && !hl) // TODO: korehl - unresolved external symbol _fmt_inflate_buffer
 				var input = new BytesInput(b.toBytes());
-				var entry = Reader.readZip(input).first();
+				var entry = haxe.zip.Reader.readZip(input).first();
 				if (entry == null) {
 					trace('Failed to uncompress ' + file);
 					return;
 				}
-				if (entry.compressed) b = kha.Blob.fromBytes(Reader.unzip(entry));
+				if (entry.compressed) b = kha.Blob.fromBytes(haxe.zip.Reader.unzip(entry));
 				else b = kha.Blob.fromBytes(entry.data);
 #end
 			}

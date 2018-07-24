@@ -304,6 +304,7 @@ class RenderPath {
 	}
 	#end
 
+	#if (rp_renderer == "Deferred Plus")
 	function getRectContexts(mat:MaterialData, context:String, materialContexts:Array<MaterialContext>, shaderContexts:Array<ShaderContext>) {
 		for (i in 0...mat.raw.contexts.length) {
 			if (mat.raw.contexts[i].name.substr(0, context.length) == context) {
@@ -313,9 +314,8 @@ class RenderPath {
 			}
 		}
 	}
-
+	
 	inline function clampRect(f:Float):Float { return f < -1.0 ? -1.0 : (f > 1.0 ? 1.0 : f); }
-
 	public var currentMaterial:MaterialData = null; // Temp
 	static var helpMat = Mat4.identity();
 	public function drawRects(context:String) {
@@ -422,7 +422,9 @@ class RenderPath {
 
 		end(g);
 	}
+	#end
 	
+	#if rp_decals
 	public function drawDecals(context:String) {
 		if (ConstData.boxVB == null) ConstData.createBoxData();
 		var g = currentG;
@@ -432,6 +434,7 @@ class RenderPath {
 		}
 		end(g);
 	}
+	#end
 
 	// static var gpFrame = 0;
 	// public function drawGreasePencil(con:String) {

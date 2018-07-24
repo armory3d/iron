@@ -10,6 +10,8 @@ class App {
 	public static inline function h():Int { return kha.System.windowHeight(); }
 	#end
 
+	static var onResets:Array<Void->Void> = null;
+	static var onEndFrames:Array<Void->Void> = null;
 	static var traitInits:Array<Void->Void> = [];
 	static var traitUpdates:Array<Void->Void> = [];
 	static var traitLateUpdates:Array<Void->Void> = [];
@@ -52,9 +54,7 @@ class App {
 		traitLateUpdates = [];
 		traitRenders = [];
 		traitRenders2D = [];
-
-		iron.system.Input.reset();
-		iron.system.Tween.reset();
+		if (onResets != null) for (f in onResets) f();
 	}
 
 	static function update() {
@@ -65,7 +65,6 @@ class App {
 		startTime = kha.Scheduler.realTime();
 		#end
 
-		iron.system.Tween.update();
 		iron.system.Time.update();
 
 		Scene.active.updateFrame();
@@ -90,7 +89,7 @@ class App {
 			l <= traitLateUpdates.length ? i++ : l = traitLateUpdates.length;
 		}
 
-		iron.system.Input.endFrame();
+		if (onEndFrames != null) for (f in onEndFrames) f();
 
 		#if arm_debug
 		iron.object.Animation.endFrame();
@@ -195,5 +194,23 @@ class App {
 
 	public static function removeRender2D(f:kha.graphics2.Graphics->Void) {
 		traitRenders2D.remove(f);
+	}
+
+	public static function notifyOnReset(f:Void->Void) {
+		if (onResets == null) onResets = [];
+		onResets.push(f);
+	}
+
+	public static function removeReset(f:Void->Void) {
+		onResets.remove(f);
+	}
+
+	public static function notifyOnEndFrame(f:Void->Void) {
+		if (onEndFrames == null) onEndFrames = [];
+		onEndFrames.push(f);
+	}
+
+	public static function removeEndFrame(f:Void->Void) {
+		onEndFrames.remove(f);
 	}
 }

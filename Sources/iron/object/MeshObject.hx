@@ -70,6 +70,7 @@ class MeshObject extends Object {
 	}
 
 	public override function setupAnimation(oactions:Array<TSceneFormat> = null) {
+		#if arm_skin
 		var hasAction = parent != null && parent.raw != null && parent.raw.bone_actions != null;
 		if (hasAction) {
 			var armatureName = parent.name;
@@ -77,6 +78,7 @@ class MeshObject extends Object {
 			if (animation == null) animation = new BoneAnimation(armatureName);
 			if (data.isSkinned) cast(animation, BoneAnimation).setSkin(this);
 		}
+		#end
 		super.setupAnimation(oactions);
 	}
 
