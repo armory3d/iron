@@ -17,6 +17,7 @@ class App {
 	static var traitLateUpdates:Array<Void->Void> = [];
 	static var traitRenders:Array<kha.graphics4.Graphics->Void> = [];
 	static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
+	public static var framebuffer:kha.Framebuffer;
 	public static var pauseUpdates = false;
 
 	#if arm_debug
@@ -115,6 +116,7 @@ class App {
 	static function render(frames:Array<kha.Framebuffer>) {
 		var frame = frames[0];
 	#end
+		framebuffer = frame;
 
 		#if arm_rendertimer
 		renderTimer -= iron.system.Time.realDelta;
