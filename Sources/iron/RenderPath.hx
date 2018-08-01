@@ -281,13 +281,18 @@ class RenderPath {
 		var lamp = getLamp(currentLampIndex);
 		var g = currentG;
 
+		if (!meshesSorted && Scene.active.camera != null) { // Order max one per frame for now
+			#if arm_batch
+			sortMeshes(Scene.active.meshBatch.nonBatched, Scene.active.camera);
+			#else
+			sortMeshes(Scene.active.meshes, Scene.active.camera);
+			#end
+			meshesSorted = true;
+		}
+
 		#if arm_batch
 		Scene.active.meshBatch.render(g, context, Scene.active.camera, lamp, bindParams);
 		#else
-		if (!meshesSorted && Scene.active.camera != null) { // Order max one per frame for now
-			sortMeshes(Scene.active.meshes, Scene.active.camera);
-			meshesSorted = true;
-		}
 		for (m in Scene.active.meshes) {
 			m.render(g, context, Scene.active.camera, lamp, bindParams);
 		}

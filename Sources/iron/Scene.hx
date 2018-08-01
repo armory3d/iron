@@ -482,6 +482,10 @@ class Scene {
 	}
 #end
 
+	function isLod(raw:TObj):Bool {
+		return raw.lods != null && raw.lods.length > 0;
+	}
+
 	public function returnMeshObject(object_file:String, data_ref:String, sceneName:String, armature:Armature, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
 		Data.getMesh(object_file, data_ref, function(mesh:MeshData) {
 			if (mesh.isSkinned) {
@@ -489,7 +493,11 @@ class Scene {
 				armature != null ? g.addArmature(armature) : g.addAction(mesh.format.objects, 'none');
 			}
 			var object = addMeshObject(mesh, materials, parent);
-		
+			#if arm_batch
+			var lod = isLod(o) || (parent != null && isLod(parent.raw));
+			object.batch(lod);
+			#end
+
 			// Attach particle systems
 			if (o.particle_refs != null) {
 				for (ref in o.particle_refs) cast(object, MeshObject).setupParticleSystem(sceneName, ref);

@@ -43,13 +43,18 @@ class MeshObject extends Object {
 		this.data = data;
 		data.refcount++;
 
-		var makeBuffers = true;
-		#if arm_batch
-		if (MeshBatch.isBatchable(this)) makeBuffers = false; // Batch data instead
-		Scene.active.meshBatch.addMesh(this);
+		#if (!arm_batch)
+		data.geom.build();
 		#end
-		if (makeBuffers) data.geom.build();
 	}
+
+	#if arm_batch
+	@:allow(iron.Scene)
+	function batch(isLod:Bool) {
+		var batched = Scene.active.meshBatch.addMesh(this, isLod);
+		if (!batched) data.geom.build();
+	}
+	#end
 
 	public override function remove() {
 		#if arm_batch

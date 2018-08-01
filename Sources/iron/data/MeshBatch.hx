@@ -16,7 +16,7 @@ import iron.data.MeshData;
 class MeshBatch {
 
 	var buckets:Map<ShaderData, Bucket> = new Map();
-	var nonBatched:Array<MeshObject> = [];
+	public var nonBatched:Array<MeshObject> = [];
 
 	public function new() {
 
@@ -26,19 +26,15 @@ class MeshBatch {
 		for (b in buckets) remove();
 	}
 
-	static function isLod(m:MeshObject):Bool {
-		return (m.raw != null && m.raw.lods != null && m.raw.lods.length > 0);
-	}
-
 	public static function isBatchable(m:MeshObject):Bool {
 		// Batch only basic meshes for now
-		return !(m.data.isSkinned || m.materials == null || m.materials.length > 1 || isLod(m) || m.data.geom.instanced);
+		return !(m.data.isSkinned || m.materials == null || m.materials.length > 1 || m.data.geom.instanced);
 	}
 
-	public function addMesh(m:MeshObject) {
-		if (!isBatchable(m)) {
+	public function addMesh(m:MeshObject, isLod:Bool):Bool {
+		if (!isBatchable(m) || isLod) {
 			nonBatched.push(m);
-			return;
+			return false;
 		}
 
 		var shader = m.materials[0].shader;
@@ -48,6 +44,7 @@ class MeshBatch {
 			buckets.set(shader, b);
 		}
 		b.addMesh(m);
+		return true;
 	}
 
 	public function removeMesh(m:MeshObject) {
