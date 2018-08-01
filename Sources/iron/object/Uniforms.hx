@@ -217,14 +217,26 @@ class Uniforms {
 		if (c.type == "mat4") {
 			var m:Mat4 = null;
 			if (c.link == "_worldMatrix") {
+				#if arm_centerworld
+				m = wmat(object.transform.world, camera);
+				#else
 				m = object.transform.world;
+				#end
 			}
 			else if (c.link == "_inverseWorldMatrix") {
+				#if arm_centerworld
+				helpMat.getInverse(wmat(object.transform.world, camera));
+				#else
 				helpMat.getInverse(object.transform.world);
+				#end
 				m = helpMat;
 			}
 			else if (c.link == "_viewMatrix") {
+				#if arm_centerworld
+				m = vmat(camera.V);
+				#else
 				m = camera.V;
+				#end
 			}
 			else if (c.link == "_transposeInverseViewMatrix") {
 				helpMat.setFrom(camera.V);
@@ -233,7 +245,11 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_inverseViewMatrix") {
+				#if arm_centerworld
+				helpMat.getInverse(vmat(camera.V));
+				#else
 				helpMat.getInverse(camera.V);
+				#end
 				m = helpMat;
 			}
 			else if (c.link == "_transposeViewMatrix") {
@@ -249,7 +265,11 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_inverseViewProjectionMatrix") {
+				#if arm_centerworld
+				helpMat.setFrom(vmat(camera.V));
+				#else
 				helpMat.setFrom(camera.V);
+				#end
 				helpMat.multmat2(camera.P);
 				helpMat.getInverse(helpMat);
 				m = helpMat;
@@ -284,7 +304,12 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_viewProjectionMatrix") {
+				#if arm_centerworld
+				m = vmat(camera.V);
+				m.multmat2(camera.P);
+				#else
 				m = camera.VP;
+				#end
 			}
 			else if (c.link == "_prevViewProjectionMatrix") {
 				helpMat.setFrom(camera.prevV);
@@ -406,7 +431,13 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_lampViewMatrix") {
-				if (lamp != null) m = lamp.V;
+				if (lamp != null) {
+					#if arm_centerworld
+					m = vmat(lamp.V);
+					#else
+					m = lamp.V;
+					#end
+				}
 			}
 			else if (c.link == "_lampProjectionMatrix") {
 				if (lamp != null) m = lamp.P;
@@ -473,7 +504,14 @@ class Uniforms {
 			var v:Vec4 = null;
 			helpVec.set(0, 0, 0);
 			if (c.link == "_lampPosition") {
-				if (lamp != null) helpVec.set(lamp.transform.worldx(), lamp.transform.worldy(), lamp.transform.worldz());
+				if (lamp != null) {
+					#if arm_centerworld
+					var t = camera.transform;
+					helpVec.set(lamp.transform.worldx() - t.worldx(), lamp.transform.worldy() - t.worldy(), lamp.transform.worldz() - t.worldz());
+					#else
+					helpVec.set(lamp.transform.worldx(), lamp.transform.worldy(), lamp.transform.worldz());
+					#end
+				}
 				v = helpVec;
 			}
 			else if (c.link == "_lampDirection") {
@@ -857,4 +895,24 @@ class Uniforms {
 		case "int": g.setInt(location, matc.int);
 		}
 	}
+
+	#if arm_centerworld
+	static var mm1:Mat4 = Mat4.identity();
+	static var mm2:Mat4 = Mat4.identity();
+	static function wmat(m:Mat4, cam:CameraObject):Mat4 {
+		var t = cam.transform;
+		mm1.setFrom(m);
+		mm1._30 -= t.worldx();
+		mm1._31 -= t.worldy();
+		mm1._32 -= t.worldz();
+		return mm1;
+	}
+	static function vmat(m:Mat4):Mat4 {
+		mm2.setFrom(m);
+		mm2._30 = 0;
+		mm2._31 = 0;
+		mm2._32 = 0;
+		return mm2;
+	}
+	#end
 }
