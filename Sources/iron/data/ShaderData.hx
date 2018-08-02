@@ -191,8 +191,6 @@ class ShaderContext {
 				var ar = file.split('.');
 				file = ar[0] + ext + '.' + ar[1];
 				var path = '../html5-resources/' + file + '.essl';
-				// #elseif kha_kore
-				// var path = '../osx-resources/' + file + '.glsl';
 				#else // TODO: assuming krom & glsl
 				var path = '../krom-resources/' + file + '.glsl';
 				#end

@@ -202,7 +202,7 @@ class Mouse extends VirtualInput {
 		buttonsStarted[index] = true;
 		this.x = x;
 		this.y = y;
-		#if (kha_android || kha_ios) // For movement delta using touch
+		#if (kha_android || kha_ios || kha_webgl) // For movement delta using touch
 		if (index == 0) { lastX = x; lastY = y; }
 		#end
 
