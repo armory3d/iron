@@ -62,17 +62,26 @@ class ObjectAnimation extends Animation {
 		}
 	}
 
-	inline function interpolateLinear(t:Float, t1:Float, t2:Float):Float {
-		return (t - t1) / (t2 - t1);
+	inline function interpolateLinear(t:Float, t1:Float, t2:Float, v1:Float, v2:Float):Float {
+		var s = (t - t1) / (t2 - t1);
+		return (1.0 - s) * v1 + s * v2;
 	}
-	inline function interpolateBezier(t:Float, t1:Float, t2:Float) {
-		// TODO: proper interpolation
-		var k = interpolateLinear(t, t1, t2);
-		// return k == 1 ? 1 : (1 - Math.pow(2, -10 * k));
-		k = k * k * (3.0 - 2.0 * k); // Smoothstep
-		return k;
+
+	var s0 = 0.0;
+	var bezierFrameIndex = -1;
+	inline function interpolateBezier(t:Float, t1:Float, t2:Float, v1:Float, v2:Float, c1:Float, c2:Float, p1:Float, p2:Float):Float {
+		if (frameIndex != bezierFrameIndex) {
+			bezierFrameIndex = frameIndex;
+			s0 = (t - t1) / (t2 - t1);
+		}
+		var a = (t2 - 3 * c2 + 3 * c1 - t1) * (s0 * s0 * s0) + 3 * (c2 - 2 * c1 + t1) * (s0 * s0) + 3 * (c1 - t1) * s0 + t1 - t;
+		var b = 3 * (t2 - 3 * c2 + 3 * c1 - t1) * (s0 * s0) + 6 * (c2 - 2 * c1 + t1) * s0 + 3 * (c1 - t1);
+		var s = s0 - (a / b);
+		s0 = s;
+		return (1 - s) * (1 - s) * (1 - s) * v1 + 3 * s * (1 - s) * (1 - s) * p1 + 3 * (s * s) * (1 - s) * p2 + s * s * s * v2;
 	}
-	inline function interpolateTcb() {}
+
+	// inline function interpolateTcb():Float { return 0.0; }
 
 	override function isTrackEnd(track:TTrack):Bool {
 		return speed > 0 ?
@@ -122,17 +131,22 @@ class ObjectAnimation extends Animation {
 			var ti = frameIndex;
 			var t1 = track.frames[ti] * frameTime;
 			var t2 = track.frames[ti + sign] * frameTime;
-			var interpolate = interpolateLinear;
-			switch (track.curve) {
-			case "linear": interpolate = interpolateLinear;
-			case "bezier": interpolate = interpolateBezier;
-			// case "tcb": interpolate = interpolateTcb;
-			}
-			var s = interpolate(t, t1, t2);
-			var invs = 1.0 - s;
 			var v1 = track.values[ti];
 			var v2 = track.values[ti + sign];
-			var v = v1 * invs + v2 * s;
+			var v = 0.0;
+			switch (track.curve) {
+			case "linear": {
+				v = interpolateLinear(t, t1, t2, v1, v2);
+			}
+			case "bezier": {
+				var c1 = track.frames_control_plus[ti] * frameTime;
+				var c2 = track.frames_control_minus[ti + sign] * frameTime;
+				var p1 = track.values_control_plus[ti];
+				var p2 = track.values_control_minus[ti + sign];
+				v = interpolateBezier(t, t1, t2, v1, v2, c1, c2, p1, p2);
+			}
+			// case "tcb": v = interpolateTcb();
+			}
 
 			switch (track.target) {
 			case "xloc": transform.loc.x = v;
