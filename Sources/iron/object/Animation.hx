@@ -78,7 +78,7 @@ class Animation {
 		}
 	}
 
-	inline function isTrackEnd(track:TTrack):Bool {
+	function isTrackEnd(track:TTrack):Bool {
 		return speed > 0 ?
 			frameIndex >= track.frames.length - 1 :
 			frameIndex <= 0;

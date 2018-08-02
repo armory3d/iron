@@ -74,6 +74,12 @@ class ObjectAnimation extends Animation {
 	}
 	inline function interpolateTcb() {}
 
+	override function isTrackEnd(track:TTrack):Bool {
+		return speed > 0 ?
+			frameIndex >= track.frames.length - 2 :
+			frameIndex <= 0;
+	}
+
 	inline function checkFrameIndexT(frameValues:kha.arrays.Uint32Array, t:Float):Bool {
 		return speed > 0 ?
 			frameIndex < frameValues.length - 2 && t > frameValues[frameIndex + 1] * frameTime :
