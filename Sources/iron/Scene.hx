@@ -483,7 +483,7 @@ class Scene {
 #end
 
 	function isLod(raw:TObj):Bool {
-		return raw.lods != null && raw.lods.length > 0;
+		return raw != null && raw.lods != null && raw.lods.length > 0;
 	}
 
 	public function returnMeshObject(object_file:String, data_ref:String, sceneName:String, armature:Armature, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
