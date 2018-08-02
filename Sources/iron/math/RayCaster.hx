@@ -92,46 +92,46 @@ class RayCaster {
 	static var nor = new Vec4();
 	static var m = Mat4.identity();
 	public static function getPlaneUV(obj:MeshObject, screenX:Float, screenY:Float, camera:CameraObject):Vec2 {
-		// Get normal from data
-		var normals = obj.data.geom.normals;
-		nor.set(normals[0], normals[1], normals[2]);
-		// nor = obj.transform.look();
-		
-		// Rotate by world rotation matrix
-		m.setFrom(obj.transform.world);
-		m.getInverse(m);
-		m.transpose3x3();
-		m._30 = m._31 = m._32 = 0;
-		nor.applymat(m);
-		nor.normalize();
+		nor = obj.transform.up(); // Transformed normal
 	
 		// Plane intersection
 		loc.set(obj.transform.worldx(), obj.transform.worldy(), obj.transform.worldz());
 		var hit = RayCaster.planeIntersect(nor, loc, screenX, screenY, camera);
-		
+
 		// Convert to uv
 		if (hit != null) {
+			var normals = obj.data.geom.normals;
+			nor.set(normals[0], normals[1], normals[2]); // Raw normal
+			
 			var a = nor.x;
 			var b = nor.y;
 			var c = nor.z;
 			var e = 0.0001;
 			var u = a >= e && b >= e ? new Vec4(b, -a, 0) : new Vec4(c, -a, 0);
 			u.normalize();
+
 			var v = nor.clone();
 			v.cross(u);
+
+			m.setFrom(obj.transform.world);
+			m.getInverse(m);
+			m.transpose3x3();
+			m._30 = m._31 = m._32 = 0;
+			u.applymat(m);
+			u.normalize();
+			v.applymat(m);
+			v.normalize();
 			
 			hit.sub(loc); // Center
-			var uCoord = u.dot(hit);
-			var vCoord = v.dot(hit);
+			var ucoord = u.dot(hit);
+			var vcoord = v.dot(hit);
 			
 			var dim = obj.transform.dim;
-			var hx = dim.x / 2;
-			// TODO: depends on plane facing normal, do not use dim of lenght 0
-			var hy = dim.z > dim.y ? dim.z / 2 : dim.y / 2;
-			
+			var size = dim.x > dim.y ? dim.x / 2 : dim.y / 2;
+
 			// Screen space
-			var ix = uCoord / hx * (-1) * 0.5 + 0.5;
-			var iy = vCoord / hy * 0.5 + 0.5;
+			var ix = ucoord / size * -0.5 + 0.5;
+			var iy = vcoord / size * -0.5 + 0.5;
 			
 			return new Vec2(ix, iy);
 		}
