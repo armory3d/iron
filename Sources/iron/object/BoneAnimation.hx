@@ -187,7 +187,7 @@ class BoneAnimation extends Animation {
 		updateConstraints();
 
 		// Do inverse kinematics here
-		if (onUpdate != null) onUpdate();
+		if (onUpdates != null) for (f in onUpdates) f();
 
 		if (isSkinned) {
 			#if arm_skin_cpu
@@ -239,9 +239,14 @@ class BoneAnimation extends Animation {
 	}
 
 	// Do inverse kinematics here
-	var onUpdate:Void->Void = null;
+	var onUpdates:Array<Void->Void> = null;
 	public function notifyOnUpdate(f:Void->Void) {
-		onUpdate = f;
+		if (onUpdates == null) onUpdates = [];
+		onUpdates.push(f);
+	}
+
+	public function removeUpdate(f:Void->Void) {
+		onUpdates.remove(f);
 	}
 
 	function updateBonesOnly() {
