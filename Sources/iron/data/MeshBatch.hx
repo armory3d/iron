@@ -121,8 +121,20 @@ class Bucket {
 		meshes.remove(m);
 	}
 
+	function vertexCount(g:Geometry, hasUVs:Bool):Int {
+		var vcount = g.getVerticesLength();
+		if (hasUVs && g.uvs == null) {
+			vcount += Std.int(g.positions.length / 3) * 2;
+		}
+		return vcount;
+	}
+
 	public function batch() {
 		batched = true;
+
+		// Ensure same vertex structure for batched meshes
+		var hasUVs = false;
+		for (m in meshes) if (m.data.geom.uvs != null) { hasUVs = true; break; }
 
 		// Unique mesh datas
 		var vcount = 0;
@@ -141,19 +153,23 @@ class Bucket {
 				m.data.start = icount;
 				m.data.count = m.data.geom.indices[0].length;
 				icount += m.data.count;
-				vcount += m.data.geom.getVerticesLength();
+				vcount += vertexCount(m.data.geom, hasUVs);
 			}
 		}
 
 		if (mdatas.length == 0) return;
 
+		// Pick UVs if present
+		var vs = mdatas[0].geom.struct;
+		for (md in mdatas) if (md.geom.struct.size() > vs.size()) vs = md.geom.struct;
+
 		// Build shared buffers
-		vertexBuffer = new VertexBuffer(vcount, mdatas[0].geom.struct, Usage.StaticUsage);
+		vertexBuffer = new VertexBuffer(vcount, vs, Usage.StaticUsage);
 		var vertices = vertexBuffer.lock();
 		var offset = 0;
 		for (md in mdatas) {
-			md.geom.copyVertices(vertices, offset);
-			offset += md.geom.getVerticesLength();
+			md.geom.copyVertices(vertices, offset, hasUVs);
+			offset += vertexCount(md.geom, hasUVs);
 		}
 		vertexBuffer.unlock();
 

@@ -140,6 +140,8 @@ class ParticleSystem {
 		var age = lapTime - p.i * spawnRate;
 		age -= age * fhash(i) * r.lifetime_random;
 
+		// age /= 2; // Match
+
 		// Loop
 		if (r.loop) while (age < 0) age += animtime;
 

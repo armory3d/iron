@@ -185,8 +185,8 @@ class Geometry {
 		vb.unlock();
 	}
 
-	public function copyVertices(vertices:Float32Array, offset = 0) {
-		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights, offset);
+	public function copyVertices(vertices:Float32Array, offset = 0, fakeUVs = false) {
+		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights, offset, fakeUVs);
 	}
 
 	static function buildVertices(vertices:Float32Array,
