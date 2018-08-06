@@ -336,14 +336,15 @@ typedef TObj = {
 	@:optional var anim:TAnimation; // Bone/object animation
 	@:optional var parent:TObj;
 	@:optional var parent_bone:String;
-	@:optional var parent_bone_tail:Float32Array;
-	@:optional var parent_bone_tail_y:Float32Array;
+	@:optional var parent_bone_tail:Float32Array; // Translate from head to tail
+	@:optional var parent_bone_tail_pose:Float32Array;
+	@:optional var parent_bone_connected:Null<Bool>;
 	@:optional var visible:Null<Bool>;
 	@:optional var visible_mesh:Null<Bool>;
 	@:optional var visible_shadow:Null<Bool>;
 	@:optional var mobile:Null<Bool>;
 	@:optional var spawn:Null<Bool>; // Auto add object when creating scene
-	@:optional var local_transform_only:Null<Bool>; // No parent matrix applied
+	@:optional var connected:Null<Bool>; // Apply parent matrix
 	@:optional var tilesheet_ref:String;
 	@:optional var tilesheet_action_ref:String;
 	@:optional var sampled:Null<Bool>; // Object action

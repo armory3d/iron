@@ -558,7 +558,7 @@ class Scene {
 		transform.world = object.transform != null ? iron.math.Mat4.fromFloat32Array(object.transform.values) : iron.math.Mat4.identity();
 		transform.world.decompose(transform.loc, transform.rot, transform.scale);
 		// Whether to apply parent matrix
-		if (object.local_transform_only != null) transform.localOnly = object.local_transform_only;
+		if (object.connected != null) transform.connected = object.connected;
 		if (transform.object.parent != null) transform.update();
 	}
 

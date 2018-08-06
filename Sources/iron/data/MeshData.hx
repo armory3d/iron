@@ -47,7 +47,7 @@ class MeshData extends Data {
 		var tanga = getVertexArrayValues("tang");
 
 		// Skinning
-		isSkinned = raw.skin != null ? true : false;
+		isSkinned = raw.skin != null;
 
 		// Usage, also used for instanced data
 		var parsedUsage = Usage.StaticUsage;

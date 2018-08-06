@@ -96,9 +96,16 @@ class BoneAnimation extends Animation {
 			var t = o.transform;
 			if (t.boneParent == null) t.boneParent = Mat4.identity();
 			if (o.raw.parent_bone_tail != null) {
-				var v = isSkinned ? o.raw.parent_bone_tail : o.raw.parent_bone_tail_y;
-				t.boneParent.initTranslate(v[0], v[1], v[2]);
-				t.boneParent.multmat2(bm);
+				if (o.raw.parent_bone_connected || isSkinned) {
+					var v = o.raw.parent_bone_tail;
+					t.boneParent.initTranslate(v[0], v[1], v[2]);
+					t.boneParent.multmat2(bm);
+				}
+				else {
+					var v = o.raw.parent_bone_tail_pose;
+					t.boneParent.setFrom(bm);
+					t.boneParent.translate(v[0], v[1], v[2]);
+				}
 			}
 			else t.boneParent.setFrom(bm);
 			t.buildMatrix();
@@ -259,7 +266,7 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	function multParent(m:Mat4, bone:TObj, mats:Array<Mat4>, bones:Array<TObj>) {
+	function multParent(m:Mat4, bone:TObj, mats:Array<Mat4>, bones:Array<TObj>, applyParentFlag = false) {
 		var p = bone.parent;
 		while (p != null) { // TODO: store absolute transforms per bone
 			var boneIndex = getBoneIndex(p, bones);
@@ -267,18 +274,7 @@ class BoneAnimation extends Animation {
 			var pm = mats[boneIndex];
 			m.multmat2(pm);
 			p = p.parent;
-		}
-	}
-
-	function multParent2(m:Mat4, bone:TObj, mats:Array<Mat4>, bones:Array<TObj>) {
-		var p = bone.parent;
-		while (p != null) { // TODO: store absolute transforms per bone
-			var boneIndex = getBoneIndex(p, bones);
-			if (boneIndex == -1) continue;
-			var pm = mats[boneIndex];
-			m.multmat2(pm);
-			p = p.parent;
-			if (applyParent != null && !applyParent[boneIndex]) break;
+			if (applyParentFlag && applyParent != null && !applyParent[boneIndex]) break;
 		}
 	}
 
@@ -325,7 +321,7 @@ class BoneAnimation extends Animation {
 			else {
 				m.setFrom(skeletonMats[i]);
 				var r = applyParent == null || applyParent[i];
-				if (r) multParent2(m, bones[i], skeletonMats, skeletonBones);
+				if (r) multParent(m, bones[i], skeletonMats, skeletonBones, true);
 			}
 
 			if (absMats != null && i < absMats.length) absMats[i].setFrom(m);
