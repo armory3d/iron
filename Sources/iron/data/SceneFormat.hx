@@ -344,7 +344,7 @@ typedef TObj = {
 	@:optional var visible_shadow:Null<Bool>;
 	@:optional var mobile:Null<Bool>;
 	@:optional var spawn:Null<Bool>; // Auto add object when creating scene
-	@:optional var connected:Null<Bool>; // Apply parent matrix
+	@:optional var local_only:Null<Bool>; // Apply parent matrix
 	@:optional var tilesheet_ref:String;
 	@:optional var tilesheet_action_ref:String;
 	@:optional var sampled:Null<Bool>; // Object action

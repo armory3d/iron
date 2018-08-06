@@ -6,7 +6,7 @@ import iron.math.Quat;
 
 class Transform {
 	public var world:Mat4; // Read only
-	public var connected = true; // Whether to apply parent matrix
+	public var localOnly = false; // Whether to apply parent matrix
 	public var local:Mat4; // Call decompose()
 	public var loc:Vec4; // Decomposed local matrix
 	public var rot:Quat;
@@ -87,7 +87,7 @@ class Transform {
 
 		if (boneParent != null) local.multmats(boneParent, local);
 		
-		if (object.parent != null && connected) {
+		if (object.parent != null && !localOnly) {
 			world.multmat3x4(local, object.parent.transform.world);
 		}
 		else {
