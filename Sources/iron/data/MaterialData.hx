@@ -22,7 +22,7 @@ class MaterialData extends Data {
 		this.raw = raw;
 		this.name = raw.name;
 
-		var ref = raw.shader.split("/");
+		var ref = raw.shader.split(":");
 		var object_file = "";
 		var data_ref = "";
 		if (ref.length == 2) { // File reference
