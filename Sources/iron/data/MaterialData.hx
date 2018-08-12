@@ -28,6 +28,10 @@ class MaterialData extends Data {
 		if (ref.length == 2) { // File reference
 			object_file = ref[0];
 			data_ref = ref[1];
+
+			if (!StringTools.startsWith(object_file, "/") && file.indexOf("/") != -1) { // Relative path
+				object_file = new haxe.io.Path(file).dir + "/" + object_file;
+			}
 		}
 		else { // Local data
 			object_file = file;

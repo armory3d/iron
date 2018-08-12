@@ -15,7 +15,7 @@ class WorldData extends Data {
 
 	static var emptyIrr:kha.arrays.Float32Array = null;
 	
-	public function new(raw:TWorldData, done:WorldData->Void) {
+	public function new(raw:TWorldData, sceneName:String = "", done:WorldData->Void) {
 		super();
 
 		this.raw = raw;
@@ -25,7 +25,7 @@ class WorldData extends Data {
 		if (raw.probes != null && raw.probes.length > 0) {
 			probes = [];
 			for (p in raw.probes) {
-				new Probe(p, function(self:Probe) {
+				new Probe(p, sceneName, function(self:Probe) {
 					probes.push(self);
 					if (probes.length == raw.probes.length) loadEnvmap(done);
 				});
@@ -51,7 +51,7 @@ class WorldData extends Data {
 				trace('World data "$id" not found!');
 				done(null);
 			}
-			new WorldData(raw, done);
+			new WorldData(raw, name, done);
 		});
 	}
 
@@ -126,6 +126,7 @@ class WorldData extends Data {
 class Probe {
 	
 	public var raw:TProbe;
+	public var sceneName:String;
 	public var radiance:Image;
 	public var irradiance:kha.arrays.Float32Array;
 	public var volume:Vec4;
@@ -133,8 +134,9 @@ class Probe {
 	public var volumeMin:Vec4;
 	public var volumeMax:Vec4;
 	
-	public function new(raw:TProbe, done:Probe->Void) {
+	public function new(raw:TProbe, sceneName:String = "", done:Probe->Void) {
 		this.raw = raw;
+		this.sceneName = sceneName;
 		
 		setIrradiance(function(irr:kha.arrays.Float32Array) {
 			irradiance = irr;
@@ -189,7 +191,13 @@ class Probe {
 		}
 		else {
 			var ext = StringTools.endsWith(raw.irradiance, '.json') ? '' : '.arm';
-			iron.data.Data.getBlob(raw.irradiance + ext, function(b:kha.Blob) {
+			var file = raw.irradiance + ext;
+
+			if (!StringTools.startsWith(file, "/") && this.sceneName.indexOf("/") != -1) { // Relative path
+				file = new haxe.io.Path(sceneName).dir + "/" + file;
+			}
+
+			iron.data.Data.getBlob(file, function(b:kha.Blob) {
 				var irradianceParsed:TIrradiance = ext == '' ?
 					haxe.Json.parse(b.toString()) :
 					iron.system.ArmPack.decode(b.toBytes());
