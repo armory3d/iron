@@ -117,9 +117,7 @@ class Object {
 			for (f in t._remove) f();
 			t._remove = null;
 		}
-
 		traits.remove(t);
-		t.object = null;
 	}
 
 	public function getTrait<T:Trait>(c:Class<T>):T {

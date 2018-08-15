@@ -67,19 +67,17 @@ class App {
 		#end
 
 		iron.system.Time.update();
-
 		Scene.active.updateFrame();
-		
-		if (traitInits.length > 0) {
-			for (f in traitInits) { if (traitInits.length == 0) break; f(); }
-			traitInits.splice(0, traitInits.length);     
-		}
 
-		// Account for removed traits
 		var i = 0;
 		var l = traitUpdates.length;
 		while (i < l) {
+			if (traitInits.length > 0) {
+				for (f in traitInits) { traitInits.length > 0 ? f() : break; }
+				traitInits.splice(0, traitInits.length);     
+			}
 			traitUpdates[i]();
+			// Account for removed traits
 			l <= traitUpdates.length ? i++ : l = traitUpdates.length;
 		}
 
@@ -134,13 +132,13 @@ class App {
 		#end
 
 		if (traitInits.length > 0) {
-			for (f in traitInits) { if (traitInits.length == 0) break; f(); }
+			for (f in traitInits) { traitInits.length > 0 ? f() : break; }
 			traitInits.splice(0, traitInits.length);     
 		}
 
 		Scene.active.renderFrame(frame.g4);
 
-		for (f in traitRenders) { if (traitRenders.length == 0) break; f(frame.g4); }
+		for (f in traitRenders) { traitRenders.length > 0 ? f(frame.g4) : break; }
 
 		render2D(frame);
 
@@ -152,7 +150,7 @@ class App {
 	static function render2D(frame:kha.Framebuffer) {
 		if (traitRenders2D.length > 0) {
 			frame.g2.begin(false);
-			for (f in traitRenders2D) { if (traitRenders2D.length == 0) break; f(frame.g2); }
+			for (f in traitRenders2D) { traitRenders2D.length > 0 ? f(frame.g2) : break; }
 			frame.g2.end();
 		}
 	}
