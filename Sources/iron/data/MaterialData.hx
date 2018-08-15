@@ -108,7 +108,7 @@ class MaterialContext {
 				}
 
 				// Get path relative to material file
-				var texPath = "";
+				var texPath = tex.file;
 				var subdir = haxe.io.Path.directory(this.filePath);
 				if (subdir != "") {
 					texPath = subdir + "/" + tex.file;

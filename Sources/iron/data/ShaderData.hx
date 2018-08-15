@@ -201,7 +201,6 @@ class ShaderContext {
 				} else {
 					path = 'shaders/' + file + '.glsl';
 				}
-				trace(path);
 				#else // TODO: assuming krom & glsl
 				var path = '../krom-resources/' + file + '.glsl';
 				#end
