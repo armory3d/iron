@@ -99,125 +99,126 @@ class Math {
 	*/
 	public static inline function abs(v:Float):Float {
 		return std.Math.abs(v);
-	};
+	}
 	
 	/*
 		Inverse cosine in radians
 	*/	
 	public static inline function acos(v:Float):Float {
 		return std.Math.acos(v);
-	};
+	}
 
 	/*
 		Inverse sine in radians
 	*/	
 	public static inline function asin(v:Float):Float {
 		return std.Math.asin(v);
-	};
+	}
 	
 	/*
 		Inverse tangent in radians
 	*/
 	public static inline function atan(v:Float):Float {
 		return std.Math.atan(v);
-	};
+	}
 	
 	/*
 		Four-quadrant inverse tangent
 	*/
 	public static inline function atan2(y:Float, x:Float):Float {
 		return std.Math.atan2(y, x);
-	};
+	}
 	
 	/*
 		Round toward positive infinity
 	*/
 	public static inline function ceil(v:Float):Int {
 		return std.Math.ceil(v);
-	};
+	}
 	
 	/*
 		Cosine of argument in radians
 	*/
 	public static inline function cos(v:Float):Float {
 		return std.Math.cos(v);
-	};
+	}
 	
 	/*
 		Exponential
 	*/
 	public static inline function exp(v:Float):Float {
 		return std.Math.exp(v);
-	};
+	}
 	
 	/*
 		Round toward negative infinity
 	*/
 	public static inline function floor(v:Float):Int {
 		return std.Math.floor(v);
-	};
+	}
 	
 	/*
 		Natural logarithm
 	*/
 	public static inline function log(v:Float):Float {
 		return std.Math.log(v);
-	};
+	}
 	
 	/*
 		Maximum value
 	*/
 	public static inline function max(a:Float, b:Float):Float {
 		return std.Math.max(a, b);
-	};
+	}
 	
 	/*
 		Minimum value
 	*/
 	public static inline function min(a:Float, b:Float):Float {
 		return std.Math.min(a, b);
-	};
+	}
+
 	/*
 		Raise to power
 	*/
 	public static inline function pow(v:Float, exp:Float):Float {
 		return std.Math.pow(v, exp);
-	};
+	}
 	
 	/*
 		Generate random number between 0 and 1
 	*/
 	public static inline function random(): Float {
 		return std.Math.random();
-	};
+	}
 	
 	/*
 		Round float to closest integer
 	*/
 	public static inline function round(v:Float):Int {
 		return std.Math.round(v);
-	};
+	}
 	
 	/*
 		Sine of argument in radians
 	*/
 	public static inline function sin(v:Float):Float {
 		return std.Math.sin(v);
-	};
+	}
 	
 	/*
 		Square root
 	*/
 	public static inline function sqrt(v:Float):Float {
 		return std.Math.sqrt(v);
-	};
+	}
 	
 	/*
 		Tangent of argument in radians
 	*/
 	public static inline function tan(v:Float):Float {
 		return std.Math.tan(v);
-	};
+	}
 
 	/*
 		Round toward negative infinity
@@ -310,5 +311,9 @@ class Math {
 	*/
 	public static inline function mod(a:Float, b:Float):Float {
 		return a - (b * Std.int(a / b));
+	}
+
+	public static inline function fract(v:Float):Float {
+		return v - Std.int(v);
 	}
 }
