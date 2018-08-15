@@ -22,7 +22,7 @@ class ShaderData extends Data {
 
 	public var contexts:Array<ShaderContext> = [];
 
-	public function new(raw:TShaderData, overrideContext:TShaderOverride, done:ShaderData->Void) {
+	public function new(raw:TShaderData, filePath:String, overrideContext:TShaderOverride, done:ShaderData->Void) {
 		super();
 
 		this.raw = raw;
@@ -34,7 +34,7 @@ class ShaderData extends Data {
 		for (i in 0...raw.contexts.length) {
 			var c = raw.contexts[i];
 
-			new ShaderContext(c, overrideContext, function(con:ShaderContext) {
+			new ShaderContext(c, filePath, overrideContext, function(con:ShaderContext) {
 				contexts[i] = con;
 				contextsLoaded++;
 				if (contextsLoaded == raw.contexts.length) done(this);
@@ -49,7 +49,7 @@ class ShaderData extends Data {
 				trace('Shader data "$name" not found!');
 				done(null);
 			}
-			new ShaderData(raw, overrideContext, done);
+			new ShaderData(raw, file, overrideContext, done);
 		});
 	}
 
@@ -65,6 +65,7 @@ class ShaderData extends Data {
 
 class ShaderContext {
 	public var raw:TShaderContext;
+	public var filePath:String;
 
 	public var pipeState:PipelineState;
 	public var constants:Array<ConstantLocation>;
@@ -76,8 +77,9 @@ class ShaderContext {
 	var overrideContext:TShaderOverride;
 	static var structureRect:VertexStructure = null; // For screen-space rectangle
 
-	public function new(raw:TShaderContext, overrideContext:TShaderOverride, done:ShaderContext->Void) {
+	public function new(raw:TShaderContext, filePath:String, overrideContext:TShaderOverride, done:ShaderContext->Void) {
 		this.raw = raw;
+		this.filePath = filePath;
 		this.overrideContext = overrideContext;
 
 		if (raw.name == "rect") {
@@ -191,6 +193,15 @@ class ShaderContext {
 				var ar = file.split('.');
 				file = ar[0] + ext + '.' + ar[1];
 				var path = '../html5-resources/' + file + '.essl';
+				#elseif arm_modding // TODO: assuming krom & glsl
+				var subdir = haxe.io.Path.directory(filePath);
+				var path = "";
+				if (subdir != "") {
+					path = subdir + '/shaders/' + file + '.glsl';
+				} else {
+					path = 'shaders/' + file + '.glsl';
+				}
+				trace(path);
 				#else // TODO: assuming krom & glsl
 				var path = '../krom-resources/' + file + '.glsl';
 				#end
