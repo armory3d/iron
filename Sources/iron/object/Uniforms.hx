@@ -442,12 +442,14 @@ class Uniforms {
 			else if (c.link == "_lampProjectionMatrix") {
 				if (lamp != null) m = lamp.P;
 			}
+			#if arm_particles_gpu
 			else if (c.link == "_particleData") {
 				var mo = cast(object, MeshObject);
 				if (mo.particleOwner != null && mo.particleOwner.particleSystems != null) {
 					m = mo.particleOwner.particleSystems[mo.particleIndex].getData();
 				}
 			}
+			#end
 			#if arm_vr
 			else if (c.link == "_undistortionMatrix") {
 				m = iron.system.VR.getUndistortionMatrix();

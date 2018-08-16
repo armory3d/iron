@@ -1,5 +1,7 @@
 package iron.object;
 
+#if arm_particles
+
 import kha.graphics4.Usage;
 import iron.data.Data;
 import iron.data.ParticleData;
@@ -33,7 +35,6 @@ class ParticleSystem {
 	var tilesy:Int;
 	var tilesFramerate:Int;
 
-	var emitFrom:kha.arrays.Float32Array = null; // CPU volume/face offset
 	var count = 0;
 	var lap = 0;
 	var lapTime = 0.0;
@@ -60,7 +61,32 @@ class ParticleSystem {
 		});
 	}
 
-	// GPU particles
+	public function update(object:MeshObject, owner:MeshObject) {
+		if (!ready || object == null || speed == 0.0) return;
+
+		dimx = object.transform.dim.x;
+		dimy = object.transform.dim.y;
+
+		if (object.tilesheet != null) {
+			tilesx = object.tilesheet.raw.tilesx;
+			tilesy = object.tilesheet.raw.tilesy;
+			tilesFramerate = object.tilesheet.raw.framerate;
+		}
+
+		// Animate
+		time += Time.delta * speed;
+		lap = Std.int(time / animtime);
+		lapTime = time - lap * animtime;
+		count = Std.int(lapTime / spawnRate);
+
+		#if arm_particles_gpu
+		updateGpu(object, owner);
+		#else
+		updateCpu(object, owner);
+		#end
+	}
+
+	#if arm_particles_gpu
 	public function getData():iron.math.Mat4 {
 		m._00 = r.loop ? animtime : -animtime;
 		m._01 = spawnRate;
@@ -81,32 +107,37 @@ class ParticleSystem {
 		return m;
 	}
 
-	public function update(object:MeshObject, owner:MeshObject) {
-		if (!ready || object == null || speed == 0.0) return;
-
-		dimx = object.transform.dim.x;
-		dimy = object.transform.dim.y;
-
-		if (object.tilesheet != null) {
-			tilesx = object.tilesheet.raw.tilesx;
-			tilesy = object.tilesheet.raw.tilesy;
-			tilesFramerate = object.tilesheet.raw.framerate;
-		}
-
-		// Animate
-		time += Time.delta * speed;
-		lap = Std.int(time / animtime);
-		lapTime = time - lap * animtime;
-		count = Std.int(lapTime / spawnRate);
-
-		r.gpu_sim ? updateGpu(object, owner) : updateCpu(object, owner);
-	}
-
 	function updateGpu(object:MeshObject, owner:MeshObject) {
 		if (!object.data.geom.instanced) setupGeomGpu(object, owner);
-
 		// GPU particles transform is attached to owner object
 	}
+
+	function setupGeomGpu(object:MeshObject, owner:MeshObject) {
+		var instancedData = new kha.arrays.Float32Array(particles.length * 3);
+		var i = 0;
+		if (r.emit_from == 0) { // Vert, Face
+			var pa = owner.data.geom.positions;
+			for (p in particles) {
+				var j = Std.int(fhash(i) * (pa.length / 3));
+				instancedData.set(i, pa[j * 3 + 0]); i++;
+				instancedData.set(i, pa[j * 3 + 1]); i++;
+				instancedData.set(i, pa[j * 3 + 2]); i++;
+			}
+		}
+		else { // Volume
+			for (p in particles) {
+				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0)); i++;
+				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0)); i++;
+				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
+			}
+		}
+		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
+		object.data.geom.setupInstanced(instancedData, Usage.StaticUsage);
+	}
+
+	#else // cpu
+
+	var emitFrom:kha.arrays.Float32Array = null; // Volume/face offset
 
 	function updateCpu(object:MeshObject, owner:MeshObject) {
 		// Make mesh data instanced
@@ -172,29 +203,6 @@ class ParticleSystem {
 		p.z *= age;
 	}
 
-	function setupGeomGpu(object:MeshObject, owner:MeshObject) {
-		var instancedData = new kha.arrays.Float32Array(particles.length * 3);
-		var i = 0;
-		if (r.emit_from == 0) { // Vert, Face
-			var pa = owner.data.geom.positions;
-			for (p in particles) {
-				var j = Std.int(fhash(i) * (pa.length / 3));
-				instancedData.set(i, pa[j * 3 + 0]); i++;
-				instancedData.set(i, pa[j * 3 + 1]); i++;
-				instancedData.set(i, pa[j * 3 + 2]); i++;
-			}
-		}
-		else { // Volume
-			for (p in particles) {
-				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0)); i++;
-				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0)); i++;
-				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
-			}
-		}
-		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
-		object.data.geom.setupInstanced(instancedData, Usage.StaticUsage);
-	}
-
 	function setupGeomCpu(object:MeshObject, owner:MeshObject) {
 		var instancedData = new kha.arrays.Float32Array(particles.length * 3);
 		var i = 0;
@@ -235,17 +243,19 @@ class ParticleSystem {
 		}
 
 		particles.sort(function(p1:Particle, p2:Particle):Int {
-		    if (p1.cameraDistance > p2.cameraDistance) return -1;
-		    if (p1.cameraDistance < p2.cameraDistance) return 1;
-		    return 0;
+			if (p1.cameraDistance > p2.cameraDistance) return -1;
+			if (p1.cameraDistance < p2.cameraDistance) return 1;
+			return 0;
 		});
 	}
+
+	#end
 
 	function fhash(n:Int):Float {
 		// var f = Math.sin(n) * 43758.5453;
 		// return f - Std.int(f);
 		var s = n + 1.0;
-        s *= 9301.0 % s;
+		s *= 9301.0 % s;
 		s = (s * 9301.0 + 49297.0) % 233280.0;
 		return s / 233280.0;
 	}
@@ -263,3 +273,5 @@ class Particle {
 	public var cameraDistance:Float;
 	public function new(i:Int) { this.i = i; }
 }
+
+#end

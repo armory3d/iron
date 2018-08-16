@@ -499,9 +499,11 @@ class Scene {
 			#end
 
 			// Attach particle systems
+			#if arm_particles
 			if (o.particle_refs != null) {
 				for (ref in o.particle_refs) cast(object, MeshObject).setupParticleSystem(sceneName, ref);
 			}
+			#end
 			// Attach tilesheet
 			if (o.tilesheet_ref != null) {
 				cast(object, MeshObject).setupTilesheet(sceneName, o.tilesheet_ref, o.tilesheet_action_ref);

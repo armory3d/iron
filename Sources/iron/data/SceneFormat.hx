@@ -304,7 +304,6 @@ typedef TParticleData = {
 	var mass:FastFloat; // Random scale
 	// Render
 	var dupli_object:String; // Object reference
-	var gpu_sim:Bool; // Simulate on GPU
 	// Field weights
 	var weight_gravity:FastFloat;
 }

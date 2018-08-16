@@ -18,10 +18,12 @@ class MeshObject extends Object {
 
 	public var data:MeshData = null;
 	public var materials:Vector<MaterialData>;
+	#if arm_particles
 	public var particleSystems:Array<ParticleSystem> = null; // Particle owner
 	public var particleChildren:Array<MeshObject> = null;
 	public var particleOwner:MeshObject = null; // Particle object
 	public var particleIndex = -1;
+	#end
 	public var cameraDistance:Float;
 	public var screenSize = 0.0;
 	public var frustumCulling = true;
@@ -60,6 +62,7 @@ class MeshObject extends Object {
 		#if arm_batch
 		Scene.active.meshBatch.removeMesh(this);
 		#end
+		#if arm_particles
 		if (particleChildren != null) {
 			for (c in particleChildren) c.remove();
 			particleChildren = null;
@@ -68,6 +71,7 @@ class MeshObject extends Object {
 			for (psys in particleSystems) psys.remove();
 			particleSystems = null;
 		}
+		#end
 		if (tilesheet != null) tilesheet.remove();
 		if (Scene.active != null) Scene.active.meshes.remove(this);
 		data.refcount--;
@@ -87,11 +91,13 @@ class MeshObject extends Object {
 		super.setupAnimation(oactions);
 	}
 
+	#if arm_particles
 	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {
 		if (particleSystems == null) particleSystems = [];
 		var psys = new ParticleSystem(sceneName, pref);
 		particleSystems.push(psys);
 	}
+	#end
 
 	public function setupTilesheet(sceneName:String, tilesheet_ref:String, tilesheet_action_ref:String) {
 		tilesheet = new Tilesheet(sceneName, tilesheet_ref, tilesheet_action_ref);
@@ -132,8 +138,10 @@ class MeshObject extends Object {
 			// Scale radius for skinned mesh and particle system
 			// TODO: define skin & particle bounds
 			var radiusScale = data.isSkinned ? 2.0 : 1.0;
+			#if arm_particles
 			// particleSystems for update, particleOwner for render
 			if (particleSystems != null || particleOwner != null) radiusScale *= 1000;
+			#end
 			if (context == "voxel") radiusScale *= 100;
 			var isShadow = context == RenderPath.shadowsContext;
 			var frustumPlanes = isShadow ? lamp.frustumPlanes : camera.frustumPlanes;
@@ -203,8 +211,9 @@ class MeshObject extends Object {
 		if (data == null || !data.geom.ready) return; // Data not yet streamed
 		if (!visible) return; // Skip render if object is hidden
 		if (cullMesh(context, camera, lamp)) return;
-		if (raw != null && raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
 		var meshContext = raw != null ? RenderPath.meshContext == context : false;
+		#if arm_particles
+		if (raw != null && raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
 		if (particleSystems != null && meshContext) {
 			if (particleChildren == null) {
 				particleChildren = [];
@@ -225,6 +234,7 @@ class MeshObject extends Object {
 			for (i in 0...particleSystems.length) particleSystems[i].update(particleChildren[i], this);
 		}
 		if (particleSystems != null && particleSystems.length > 0 && !particleSystems[0].data.raw.render_emitter) return;
+		#end
 		if (tilesheet != null) tilesheet.update();
 		if (cullMaterial(context)) return;
 
