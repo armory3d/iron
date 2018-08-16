@@ -163,7 +163,7 @@ class BoneAnimation extends Animation {
 		#end
 
 		super.update(delta);
-		if (paused) return;
+		if (paused || speed == 0.0) return;
 
 		updateAnim();
 

@@ -10,6 +10,7 @@ import iron.math.Mat4;
 
 class ParticleSystem {
 	public var data:ParticleData;
+	public var speed = 1.0;
 	var particles:Array<Particle>;
 	var ready:Bool;
 	var frameRate = 24;
@@ -81,7 +82,7 @@ class ParticleSystem {
 	}
 
 	public function update(object:MeshObject, owner:MeshObject) {
-		if (!ready || object == null) return;
+		if (!ready || object == null || speed == 0.0) return;
 
 		dimx = object.transform.dim.x;
 		dimy = object.transform.dim.y;
@@ -93,7 +94,7 @@ class ParticleSystem {
 		}
 
 		// Animate
-		time += Time.delta;
+		time += Time.delta * speed;
 		lap = Std.int(time / animtime);
 		lapTime = time - lap * animtime;
 		count = Std.int(lapTime / spawnRate);

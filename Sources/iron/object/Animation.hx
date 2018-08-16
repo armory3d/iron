@@ -69,7 +69,7 @@ class Animation {
 	}
 
 	public function update(delta:Float) {
-		if (paused) return;
+		if (paused || speed == 0.0) return;
 		time += delta * speed;
 
 		if (blendTime > 0) {
