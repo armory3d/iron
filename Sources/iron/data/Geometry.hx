@@ -21,6 +21,7 @@ class Geometry {
 	public var indexBuffers:Array<IndexBuffer>;
 	public var start = 0; // For drawIndexedVertices
 	public var count = -1;
+	public var name = "";
 
 	public var ready = false;
 	public var vertices:Float32Array;
@@ -306,6 +307,8 @@ class Geometry {
 			buildVertices(vertices, apos ? positions : null, anor ? normals : null, atex ? uvs : null, atex1 ? uvs1 : null, acol ? cols : null, atang ? tangents : null, abone ? bones : null, aweight ? weights : null, 0, atex && uvs == null);
 			vb.unlock();
 			vertexBufferMap.set(s, vb);
+			if (atex && uvs == null) trace("Armory Warning: Geometry " + name + " is missing UV map");
+			if (acol && cols == null) trace("Armory Warning: Geometry " + name + " is missing vertex colors");
 		}
 		return vb;
 	}

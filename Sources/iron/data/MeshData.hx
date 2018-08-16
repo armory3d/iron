@@ -88,6 +88,7 @@ class MeshData extends Data {
 		
 		// Make vertex buffers
 		geom = new Geometry(indices, materialIndices, pa, na, uva, uva1, ca, tanga, bonea, weighta, usage, raw.instance_offsets);
+		geom.name = name;
 
 		done(this);
 	}
