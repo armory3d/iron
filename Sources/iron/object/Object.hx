@@ -39,7 +39,7 @@ class Object {
 	/**
 	 * Used to add a game Object as a child of this game Object.
 	 *
-	 * @param	o - The game Object instance to be added as a child.
+	 * @param	o The game Object instance to be added as a child.
 	 * @param	parentInverse - Optional (default false) change the scale of the child object to be relative to the parents 3D space or use the original scale.
 	 */
 	public function addChild(o:Object, parentInverse = false) {
@@ -52,8 +52,8 @@ class Object {
 	/**
 	 * Used to remove a child game Object from it's parentage. Does not remove the object from the scene.
 	 *
-	 * @param	o - The game Object instance to be removed.
-	 * @param	keepTransform - Optional (defaut false) keep the transform given by the parent or revert to the objects default.
+	 * @param	o The game Object instance to be removed.
+	 * @param	keepTransform Optional (defaut false) keep the transform given by the parent or revert to the objects default.
 	 */
 	public function removeChild(o:Object, keepTransform = false) {
 		if (keepTransform) o.transform.applyParent();
@@ -76,8 +76,8 @@ class Object {
 	/**
 	 * Used to get a child game Object of this game Object. Using the childs name property as a lookup.
 	 *
-	 * @param	name - A string matching the name property of the game Object to fetch.
-	 * @return	Object || null - Returns the first requested matching game Object instance or null if it does not exsist.
+	 * @param	name A string matching the name property of the game Object to fetch.
+	 * @return	Object or null
 	 */
 	public function getChild(name:String):Object {
 		if (this.name == name) return this;
@@ -144,8 +144,8 @@ class Object {
 	/**
 	 * Used to get the Trait instance that is attached to this game Object. 
 	 *
-	 * @param	c - The class of type Trait to attempt to retrieve.
-	 * @return	Trait || null - Returns the requested Trait or null if it does not exsist.
+	 * @param	c The class of type Trait to attempt to retrieve.
+	 * @return	Trait or null
 	 */
 	public function getTrait<T:Trait>(c:Class<T>):T {
 		for (t in traits) if (Type.getClass(t) == cast c) return cast t;
