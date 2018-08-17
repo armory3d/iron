@@ -50,6 +50,15 @@ class Object {
 		children.remove(o);
 	}
 
+	public function removeChildWithName(name:String, keepTransform = false){
+		var childToRemove = this.getChild(name);
+		if (childToRemove != null){
+			removeChild(childToRemove, keepTransform);
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Removes the game object from the scene.
 	 */
