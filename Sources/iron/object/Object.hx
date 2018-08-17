@@ -37,7 +37,7 @@ class Object {
 	}
 	
 	/**
-	 * Used to add a game Object as a child of this game Object.
+	 * Add a game Object as a child of this game Object.
 	 *
 	 * @param	o The game Object instance to be added as a child.
 	 * @param	parentInverse Optional (default false) change the scale of the child object to be relative to the parents 3D space or use the original scale.
@@ -50,7 +50,7 @@ class Object {
 	}
 
 	/**
-	 * Used to remove a child game Object from it's parentage. Does not remove the object from the scene.
+	 * Remove a child game Object from it's parentage. Does not remove the object from the scene.
 	 *
 	 * @param	o The game Object instance to be removed.
 	 * @param	keepTransform Optional (defaut false) keep the transform given by the parent or revert to the objects default.
@@ -74,7 +74,7 @@ class Object {
 	}
 
 	/**
-	 * Used to get a child game Object of this game Object. Using the childs name property as a lookup.
+	 * Get a child game Object of this game Object. Using the childs name property as a lookup.
 	 *
 	 * @param	name A string matching the name property of the game Object to fetch.
 	 * @return	Object or null
@@ -142,7 +142,7 @@ class Object {
 	}
 
 	/**
-	 * Used to get the Trait instance that is attached to this game Object. 
+	 * Get the Trait instance that is attached to this game Object. 
 	 *
 	 * @param	c The class of type Trait to attempt to retrieve.
 	 * @return	Trait or null
