@@ -428,7 +428,7 @@ class Data {
 	 * Load sound file from disk into ram.
 	 *
 	 * @param	file A String matching the file name of the sound file on disk.
-	 * @param	done Completion handler function to do somting after the sound is loaded.
+	 * @param	done Completion handler function to do something after the sound is loaded.
 	 */
 	public static function getSound(file:String, done:kha.Sound->Void) {
 		#if arm_no_audio
