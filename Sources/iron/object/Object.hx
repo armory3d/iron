@@ -40,7 +40,7 @@ class Object {
 	 * Used to add a game Object as a child of this game Object.
 	 *
 	 * @param	o The game Object instance to be added as a child.
-	 * @param	parentInverse - Optional (default false) change the scale of the child object to be relative to the parents 3D space or use the original scale.
+	 * @param	parentInverse Optional (default false) change the scale of the child object to be relative to the parents 3D space or use the original scale.
 	 */
 	public function addChild(o:Object, parentInverse = false) {
 		if (o.parent == this) return;
