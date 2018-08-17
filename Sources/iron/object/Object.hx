@@ -53,7 +53,7 @@ class Object {
 	/**
 	 * Used to remove a child game Object from it's parentage. Does not remove the object from the scene.
 	 *
-	 * @param	o - The game Object instance to be removed.
+	 * @param	name - The name of the game Object instance to be removed.
 	 * @param	keepTransform - Optional (defaut false) keep the transform given by the parent or revert to the objects default.
 	 * @return  Bool - Returns ture or false depending on if the child was found and removed.
 	 */
