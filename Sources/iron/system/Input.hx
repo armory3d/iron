@@ -358,6 +358,12 @@ class Keyboard extends VirtualInput {
 		return keysDown.get(key);
 	}
 
+	/**
+	 * Check if a key has started being pressed down. Will only be run once until the key is released and pressed again.
+	 *
+	 * @param	key A String representing the physical keyboard key to check.
+	 * @return	Bool. Returns true or false depending on the keyboard state.
+	 */
 	public function started(key:String):Bool {
 		return keysStarted.get(key);
 	}
