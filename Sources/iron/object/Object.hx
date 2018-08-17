@@ -49,6 +49,12 @@ class Object {
 		if (parentInverse) o.transform.applyParentInverse();
 	}
 
+	/**
+	 * Used to remove a child game Object from it's parentage. Does not remove the object from the scene.
+	 *
+	 * @param	o - The game Object instance to be removed.
+	 * @param	keepTransform - Optional (defaut false) keep the transform given by the parent or revert to the objects default.
+	 */
 	public function removeChild(o:Object, keepTransform = false) {
 		if (keepTransform) o.transform.applyParent();
 		o.parent = null;
