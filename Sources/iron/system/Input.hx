@@ -368,6 +368,12 @@ class Keyboard extends VirtualInput {
 		return keysStarted.get(key);
 	}
 
+	/**
+	 * Check if a key has been released from being pressed down. Will only be run once until the key is pressed again and release again.
+	 *
+	 * @param	key A String representing the physical keyboard key to check.
+	 * @return	Bool. Returns true or false depending on the keyboard state.
+	 */
 	public function released(key:String):Bool {
 		return keysReleased.get(key);
 	}
