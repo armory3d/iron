@@ -348,6 +348,12 @@ class Keyboard extends VirtualInput {
 		endFrame();
 	}
 
+	/**
+	 * Check if a key is currently pressed.
+	 *
+	 * @param	key A String representing the physical keyboard key to check.
+	 * @return	Bool. Returns true or false depending on the keyboard state.
+	 */
 	public function down(key:String):Bool {
 		return keysDown.get(key);
 	}
