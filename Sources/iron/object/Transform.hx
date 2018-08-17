@@ -185,6 +185,13 @@ class Transform {
 		return r;
 	}
 
+	public function overlap(t2:Transform) {
+		var t1 = this;
+		return t1.worldx() + t1.dim.x / 2 > t2.worldx() - t2.dim.x / 2 && t1.worldx() - t1.dim.x / 2 < t2.worldx() + t2.dim.x / 2 &&
+			   t1.worldy() + t1.dim.y / 2 > t2.worldy() - t2.dim.y / 2 && t1.worldy() - t1.dim.y / 2 < t2.worldy() + t2.dim.y / 2 &&
+			   t1.worldz() + t1.dim.z / 2 > t2.worldz() - t2.dim.z / 2 && t1.worldz() - t1.dim.z / 2 < t2.worldz() + t2.dim.z / 2;
+	}
+
 	// Wrong order returned from getEuler(), store last state for animation
 	var _eulerX:kha.FastFloat;
 	var _eulerY:kha.FastFloat;
