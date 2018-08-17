@@ -48,6 +48,9 @@ class Input {
 		return getMouse();
 	}
 
+	/**
+	 * Get the Keyboard object. If it is not registered yet then register a new Keyboard.
+	 */
 	public static function getKeyboard():Keyboard {
 		if (!registered) register();
 		if (keyboard == null) keyboard = new Keyboard();
