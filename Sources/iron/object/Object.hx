@@ -50,6 +50,9 @@ class Object {
 		children.remove(o);
 	}
 
+	/**
+	 * Removes the game object from the scene.
+	 */
 	public function remove() {
 		if (isEmpty && Scene.active != null) Scene.active.empties.remove(this);
 		if (animation != null) animation.remove();
@@ -120,6 +123,12 @@ class Object {
 		traits.remove(t);
 	}
 
+	/**
+	 * Returns the instance of the Trait attached to the Game Object. 
+	 *
+	 * @param	c - The class of type Trait to attempt to retrieve.
+	 * @return	Returns the requested Trait or null if it does not exsist.
+	 */
 	public function getTrait<T:Trait>(c:Class<T>):T {
 		for (t in traits) if (Type.getClass(t) == cast c) return cast t;
 		return null;
