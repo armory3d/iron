@@ -142,10 +142,10 @@ class Object {
 	}
 
 	/**
-	 * Returns the instance of the Trait attached to the Game Object. 
+	 * Used to get the Trait instance that is attached to this game Object. 
 	 *
 	 * @param	c - The class of type Trait to attempt to retrieve.
-	 * @return	Returns the requested Trait or null if it does not exsist.
+	 * @return	Trait || null - Returns the requested Trait or null if it does not exsist.
 	 */
 	public function getTrait<T:Trait>(c:Class<T>):T {
 		for (t in traits) if (Type.getClass(t) == cast c) return cast t;
