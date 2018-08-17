@@ -73,6 +73,12 @@ class Object {
 		if (parent != null) { parent.children.remove(this); parent = null; }
 	}
 
+	/**
+	 * Used to get a child game Object of this game Object. Using the childs name property as a lookup.
+	 *
+	 * @param	name - A string matching the name property of the game Object to fetch.
+	 * @return	Object || null - Returns the first requested matching game Object instance or null if it does not exsist.
+	 */
 	public function getChild(name:String):Object {
 		if (this.name == name) return this;
 		else {
