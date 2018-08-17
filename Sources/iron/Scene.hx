@@ -310,7 +310,7 @@ class Scene {
 	 *
 	 * @param	name The String name of the Object as defined in blender. 
 	 * @param	parent The parent object this new object should be attached to. (Optional use null to just add to the Scene without a parent).
-	 * @param	done A function to run after the spawn is complete. Example might want to change properties of the object after spawning.
+	 * @param	done A completion handler function to run after the spawn is complete. Example might want to change properties of the object after spawning.
 	 * @param	spawnChildren Also spawn the children of the newly spawned object. (Optional default is true).
 	 */
 	public function spawnObject(name:String, parent:Object, done:Object->Void, spawnChildren = true) {
