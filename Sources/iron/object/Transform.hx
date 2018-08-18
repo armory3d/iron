@@ -144,7 +144,7 @@ class Transform {
 		dirty = true;
 	}
 
-/**
+	/**
 	 * Set the rotation of the object in radians.
 	 *
 	 * @param	x Set the x axis rotation in radians.
