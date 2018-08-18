@@ -112,6 +112,11 @@ class Object {
 		}
 	}
 
+	/**
+	 * Remove the Trait from the Object. 
+	 *
+	 * @param	t The Trait to be removed from the game Object.
+	 */
 	@:access(iron.Trait)
 	public function removeTrait(t:Trait) {
 		if (t._init != null) {
