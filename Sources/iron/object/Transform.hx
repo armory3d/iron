@@ -144,6 +144,13 @@ class Transform {
 		dirty = true;
 	}
 
+/**
+	 * Set the rotation of the object in radians.
+	 *
+	 * @param	x Set the x axis rotation in radians.
+	 * @param	y Set the y axis rotation in radians.
+	 * @param	z Set the z axis rotation in radians.
+	 */
 	public function setRotation(x:kha.FastFloat, y:kha.FastFloat, z:kha.FastFloat) {
 		rot.fromEuler(x, y, z);
 		_eulerX = x;
