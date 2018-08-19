@@ -36,6 +36,7 @@ class WorldData extends Data {
 
 	function loadEnvmap(done:WorldData->Void) {
 		if (raw.envmap != null) {
+			// TODO - modding: This may need to be adjusted for mod paths
 			iron.data.Data.getImage(raw.envmap, function(image:kha.Image) {
 				envmap = image;
 				done(this);
@@ -143,6 +144,7 @@ class Probe {
 		
 			if (raw.radiance != null) {
 				
+				// TODO - modding: This may need to be adjusted for mod paths
 				iron.data.Data.getImage(raw.radiance, function(rad:kha.Image) {
 
 					radiance = rad;
@@ -153,6 +155,7 @@ class Probe {
 
 					var mipsLoaded = 0;
 					for (i in 0...raw.radiance_mipmaps) {
+						// TODO - modding: This may need to be adjusted for mod paths
 						iron.data.Data.getImage(base + '_' + i + ext, function(mipimg:kha.Image) {
 							radianceMipmaps[i] = mipimg;
 							mipsLoaded++;

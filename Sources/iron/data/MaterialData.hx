@@ -127,6 +127,7 @@ class MaterialContext {
 						for (j in 0...tex.mipmaps.length) {
 							var name = tex.mipmaps[j];
 
+							// TODO - modding: This might need to be adjusted for modd paths
 							iron.data.Data.getImage(name, function(mipimg:kha.Image) {
 								mipmaps[j] = mipimg;
 								mipmapsLoaded++;
