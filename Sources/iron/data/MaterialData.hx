@@ -147,9 +147,9 @@ class MaterialContext {
 		// This function is called by MeshObject for samplers set using material context
 		if (!context.paramsSet[unitIndex]) {
 			context.setTextureParameters(g, unitIndex, raw.bind_textures[textureIndex]);
-			#if (kha_opengl || kha_webgl) // TODO: need to re-set params for direct3d11
-			context.paramsSet[unitIndex] = true;
-			#end
+			// #if kha_kore // TODO: need to re-set params for kore
+			// context.paramsSet[unitIndex] = true;
+			// #end
 		}
 	}
 }
