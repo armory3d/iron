@@ -290,16 +290,16 @@ class Math {
 		Convenience function to map a variable from one coordinate space
 		to another. Equivalent to unlerp() followed by lerp().
 	*/
-	public static function map(value:Float, leftMin:Float, leftMax:Float, rightMin:Float, rightMax:Float):Float {
+	public static inline function map(value:Float, leftMin:Float, leftMax:Float, rightMin:Float, rightMax:Float):Float {
 		return rightMin + (value - leftMin) / (leftMax - leftMin) * (rightMax- rightMin);
 	}
 
-	public static function mapInt(value:Int, leftMin:Int, leftMax:Int, rightMin:Int, rightMax:Int ):Int {
+	public static inline function mapInt(value:Int, leftMin:Int, leftMax:Int, rightMin:Int, rightMax:Int ):Int {
 		var result =  Std.int(map(value, leftMin, leftMax, rightMin, rightMax));
 		return result;
 	}
 
-	public static function mapClamped(value:Float, leftMin:Float, leftMax:Float, rightMin:Float, rightMax:Float):Float {
+	public static inline function mapClamped(value:Float, leftMin:Float, leftMax:Float, rightMin:Float, rightMax:Float):Float {
 		if (value >= leftMax) return rightMax;
 		if (value <= leftMin) return rightMin;
 		return map(value, leftMin, leftMax, rightMin, rightMax);

@@ -6,46 +6,46 @@ class Vec2 {
 	public var x:FastFloat;
 	public var y:FastFloat;
 
-	public function new(x:FastFloat = 0.0, y:FastFloat = 0.0) {
+	inline public function new(x:FastFloat = 0.0, y:FastFloat = 0.0) {
 		this.x = x;
 		this.y = y;
 	}
 
-	public function cross(v:Vec2):FastFloat {
+	inline public function cross(v:Vec2):FastFloat {
 		return x * v.y - y * v.x;
 	}
 	
-	public function set(x:FastFloat, y:FastFloat):Vec2{
+	inline public function set(x:FastFloat, y:FastFloat):Vec2{
 		this.x = x;
 		this.y = y;
 		return this;
 	}
 
-	public function add(v:Vec2):Vec2 {
+	inline public function add(v:Vec2):Vec2 {
 		x += v.x;
 		y += v.y;
 		return this;
 	}
 
-	public function addf(x:FastFloat, y:FastFloat):Vec2 {
+	inline public function addf(x:FastFloat, y:FastFloat):Vec2 {
 		this.x += x;
 		this.y += y;
 		return this;
 	}
 
-	public function addvecs(a:Vec2, b:Vec2):Vec2 {
+	inline public function addvecs(a:Vec2, b:Vec2):Vec2 {
 		x = a.x + b.x;
 		y = a.y + b.y;
 		return this;
 	}
 
-	public function subvecs(a:Vec2, b:Vec2):Vec2 {
+	inline public function subvecs(a:Vec2, b:Vec2):Vec2 {
 		x = a.x - b.x;
 		y = a.y - b.y;
 		return this;
 	}
 
-	public function normalize():Vec2 {
+	inline public function normalize():Vec2 {
 		var a = this.x;
         var b = this.y;
         var l = a * a + b * b;
@@ -57,21 +57,21 @@ class Vec2 {
         return this;
 	}
 
-	public function mult(f:FastFloat):Vec2 {
+	inline public function mult(f:FastFloat):Vec2 {
 		x *= f; y *= f;
 		return this;
 	}
 
-	public function dot(v:Vec2):FastFloat {
+	inline public function dot(v:Vec2):FastFloat {
 		return x * v.x + y * v.y;
 	}
 	
-	public function setFrom(v:Vec2):Vec2 {
+	inline public function setFrom(v:Vec2):Vec2 {
 		x = v.x; y = v.y;
 		return this;
 	}
 
-	public function clone():Vec2 {
+	inline public function clone():Vec2 {
 		return new Vec2(x, y);
 	}
 	
@@ -82,21 +82,21 @@ class Vec2 {
 		return target;
 	}
 
-	public inline function equals(v:Vec2):Bool {
+	inline public function equals(v:Vec2):Bool {
 		return x == v.x && y == v.y;
 	}
 
-	public inline function length():FastFloat {
+	inline public function length():FastFloat {
 		return Math.sqrt(x * x + y * y);
 	}
 
-	public inline function normalizeTo(newLength:FastFloat):Vec2 {
+	inline public function normalizeTo(newLength:FastFloat):Vec2 {
 		var v = normalize();
 		v = mult(newLength);
 		return v;
 	}
 
-	public function sub(v:Vec2):Vec2 {
+	inline public function sub(v:Vec2):Vec2 {
 		x -= v.x; y -= v.y;
 		return this;
 	}
@@ -111,11 +111,11 @@ class Vec2 {
 		return Math.sqrt(vx * vx + vy * vy);
 	}
 
-	public function distanceTo(p:Vec2):FastFloat {
+	inline public function distanceTo(p:Vec2):FastFloat {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y));
 	}
 
-	public function clamp(fmin:FastFloat, fmax:FastFloat):Vec2 {
+	inline public function clamp(fmin:FastFloat, fmax:FastFloat):Vec2 {
 		var n = length();
 		var v = this;
 
@@ -128,7 +128,7 @@ class Vec2 {
 		return v;
 	}
 
-	public function map(value:Vec2, leftMin:Vec2, leftMax:Vec2, rightMin:Vec2, rightMax:Vec2):Vec2 {
+	inline public function map(value:Vec2, leftMin:Vec2, leftMax:Vec2, rightMin:Vec2, rightMax:Vec2):Vec2 {
 		x = Math.map(value.x, leftMin.x, leftMax.x, rightMin.x, rightMax.x);
 		y = Math.map(value.y, leftMin.y, leftMax.y, rightMin.y, rightMax.y);
 		return this;

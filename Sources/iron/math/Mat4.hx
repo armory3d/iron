@@ -6,11 +6,10 @@ import iron.data.SceneFormat;
 class Mat4 {
 
 	public var self:kha.math.FastMatrix4;
-
 	static var helpVec = new Vec4();
 	static var helpMat = Mat4.identity();
 
-	public function new(_00:FastFloat, _10:FastFloat, _20:FastFloat, _30:FastFloat,
+	inline public function new(_00:FastFloat, _10:FastFloat, _20:FastFloat, _30:FastFloat,
 						_01:FastFloat, _11:FastFloat, _21:FastFloat, _31:FastFloat,
 						_02:FastFloat, _12:FastFloat, _22:FastFloat, _32:FastFloat,
 						_03:FastFloat, _13:FastFloat, _23:FastFloat, _33:FastFloat) {
@@ -18,14 +17,14 @@ class Mat4 {
 		self = new kha.math.FastMatrix4(_00, _10, _20, _30, _01, _11, _21, _31, _02, _12, _22, _32, _03, _13, _23, _33);
 	}
 
-	public function compose(location:Vec4, quaternion:Quat, sc:Vec4):Mat4 {
+	inline public function compose(location:Vec4, quaternion:Quat, sc:Vec4):Mat4 {
 		fromQuaternion(quaternion);
 		scale(sc);
 		setLocation(location);
 		return this;
 	}
 
-	public function decompose(location:Vec4, quaternion:Quat, scale:Vec4):Mat4 {
+	inline public function decompose(location:Vec4, quaternion:Quat, scale:Vec4):Mat4 {
 		helpVec.w = 0.0;
 		var sx = helpVec.set(_00, _01, _02).length();
 		var sy = helpVec.set(_10, _11, _12).length();
@@ -62,14 +61,14 @@ class Mat4 {
 		return this;
 	}
 
-	public function setLocation(v:Vec4):Mat4 {
+	inline public function setLocation(v:Vec4):Mat4 {
 		_30 = v.x;
 		_31 = v.y;
 		_32 = v.z;
 		return this;
 	}
 
-	public function fromQuaternion(q:Quat):Mat4 {
+	inline public function fromQuaternion(q:Quat):Mat4 {
 		var x = q.x, y = q.y, z = q.z, w = q.w;
 		var x2 = x + x, y2 = y + y, z2 = z + z;
 		var xx = x * x2, xy = x * y2, xz = x * z2;
@@ -121,7 +120,7 @@ class Mat4 {
 		);
 	}
 
-	public function toArray():Array<FastFloat> {
+	inline public function toArray():Array<FastFloat> {
 		return [
 			_00, _10, _20, _30,
 			_01, _11, _21, _31,
@@ -130,7 +129,7 @@ class Mat4 {
 		];
 	}
 
-	public function setIdentity():Mat4 {
+	inline public function setIdentity():Mat4 {
 		_00 = 1.0; _01 = 0.0; _02 = 0.0; _03 = 0.0;
 		_10 = 0.0; _11 = 1.0; _12 = 0.0; _13 = 0.0;
 		_20 = 0.0; _21 = 0.0; _22 = 1.0; _23 = 0.0;
@@ -138,27 +137,27 @@ class Mat4 {
 		return this;
 	}
 
-	public function initTranslate(x = 0.0, y = 0.0, z = 0.0) {
+	inline public function initTranslate(x = 0.0, y = 0.0, z = 0.0) {
 		_00 = 1.0; _01 = 0.0; _02 = 0.0; _03 = 0.0;
 		_10 = 0.0; _11 = 1.0; _12 = 0.0; _13 = 0.0;
 		_20 = 0.0; _21 = 0.0; _22 = 1.0; _23 = 0.0;
 		_30 = x;   _31 = y;   _32 = z;   _33 = 1.0;
 	}
 	
-	public function translate(x = 0.0, y = 0.0, z = 0.0) {
+	inline public function translate(x = 0.0, y = 0.0, z = 0.0) {
 		_00 += x * _03; _01 += y * _03; _02 += z * _03;
 		_10 += x * _13; _11 += y * _13; _12 += z * _13;
 		_20 += x * _23; _21 += y * _23; _22 += z * _23;
 		_30 += x * _33; _31 += y * _33; _32 += z * _33;
 	}
 	
-	public function scale(v:Vec4) {
+	inline public function scale(v:Vec4) {
 		_00 *= v.x; _01 *= v.x; _02 *= v.x; _03 *= v.x;
 		_10 *= v.y; _11 *= v.y; _12 *= v.y; _13 *= v.y;
 		_20 *= v.z; _21 *= v.z; _22 *= v.z; _23 *= v.z;
 	}
 	
-	public function multmat3x4(a:Mat4, b:Mat4) {
+	inline public function multmat3x4(a:Mat4, b:Mat4) {
 		var m11 = a._00; var m12 = a._01; var m13 = a._02;
 		var m21 = a._10; var m22 = a._11; var m23 = a._12;
 		var a31 = a._20; var a32 = a._21; var a33 = a._22;
@@ -189,7 +188,7 @@ class Mat4 {
 		_33 = 1.0;
 	}
 
-	public function multmat(m:Mat4):Mat4 {
+	inline public function multmat(m:Mat4):Mat4 {
 		return new Mat4(
 			_00 * m._00 + _10 * m._01 + _20 * m._02 + _30 * m._03, _00 * m._10 + _10 * m._11 + _20 * m._12 + _30 * m._13, _00 * m._20 + _10 * m._21 + _20 * m._22 + _30 * m._23, _00 * m._30 + _10 * m._31 + _20 * m._32 + _30 * m._33,
 			_01 * m._00 + _11 * m._01 + _21 * m._02 + _31 * m._03, _01 * m._10 + _11 * m._11 + _21 * m._12 + _31 * m._13, _01 * m._20 + _11 * m._21 + _21 * m._22 + _31 * m._23, _01 * m._30 + _11 * m._31 + _21 * m._32 + _31 * m._33,
@@ -198,8 +197,7 @@ class Mat4 {
 		);
 	}
 
-	
-	public function multmat2(m:Mat4):Mat4 {
+	inline public function multmat2(m:Mat4):Mat4 {
 		var a00 = _00; var a01 = _01; var a02 = _02; var a03 = _03;
 		var a10 = _10; var a11 = _11; var a12 = _12; var a13 = _13;
 		var a20 = _20; var a21 = _21; var a22 = _22; var a23 = _23;
@@ -232,7 +230,7 @@ class Mat4 {
 		return this;
 	}
 
-	public function multmats(a:Mat4, b:Mat4):Mat4 {
+	inline public function multmats(a:Mat4, b:Mat4):Mat4 {
 		var a11 = a._00, a12 = a._10, a13 = a._20, a14 = a._30;
 		var a21 = a._01, a22 = a._11, a23 = a._21, a24 = a._31;
 		var a31 = a._02, a32 = a._12, a33 = a._22, a34 = a._32;
@@ -266,7 +264,7 @@ class Mat4 {
 		return this;
 	}
 
-	public function getInverse(m:Mat4):Mat4 {
+	inline public function getInverse(m:Mat4):Mat4 {
 		var n11 = m._00, n12 = m._10, n13 = m._20, n14 = m._30;
 		var n21 = m._01, n22 = m._11, n23 = m._21, n24 = m._31;
 		var n31 = m._02, n32 = m._12, n33 = m._22, n34 = m._32;
@@ -295,7 +293,7 @@ class Mat4 {
 		return this;
 	}
 
-	public function transpose() {
+	inline public function transpose() {
 		var tmp:FastFloat;
 		tmp = _01; _01 = _10; _10 = tmp;
 		tmp = _02; _02 = _20; _20 = tmp;
@@ -305,14 +303,14 @@ class Mat4 {
 		tmp = _23; _23 = _32; _32 = tmp;
 	}
 	
-	public function transpose3x3() {
+	inline public function transpose3x3() {
 		var tmp:FastFloat;
 		tmp = _01; _01 = _10; _10 = tmp;
 		tmp = _02; _02 = _20; _20 = tmp;
 		tmp = _12; _12 = _21; _21 = tmp;
 	}
 
-	public function clone():Mat4 {
+	inline public function clone():Mat4 {
 		var m = Mat4.identity();
 		m._00 = _00; m._01 = _01; m._02 = _02; m._03 = _03;
 		m._10 = _10; m._11 = _11; m._12 = _12; m._13 = _13;
@@ -321,7 +319,7 @@ class Mat4 {
 		return m;
 	}
 
-	public function init(_00:FastFloat, _10:FastFloat, _20:FastFloat, _30:FastFloat,
+	inline public function init(_00:FastFloat, _10:FastFloat, _20:FastFloat, _30:FastFloat,
 						 _01:FastFloat, _11:FastFloat, _21:FastFloat, _31:FastFloat,
 						 _02:FastFloat, _12:FastFloat, _22:FastFloat, _32:FastFloat,
 						 _03:FastFloat, _13:FastFloat, _23:FastFloat, _33:FastFloat) {
@@ -331,21 +329,21 @@ class Mat4 {
 		this._03 = _03; this._13 = _13; this._23 = _23; this._33 = _33;
 	}
 
-	public function set(a:Array<FastFloat>, offset = 0) {
+	inline public function set(a:Array<FastFloat>, offset = 0) {
 		_00 = a[0 + offset]; _10 = a[1 + offset]; _20 = a[2 + offset]; _30 = a[3 + offset];
 		_01 = a[4 + offset]; _11 = a[5 + offset]; _21 = a[6 + offset]; _31 = a[7 + offset];
 		_02 = a[8 + offset]; _12 = a[9 + offset]; _22 = a[10 + offset];_32 = a[11 + offset];
 		_03 = a[12 + offset]; _13 = a[13 + offset]; _23 = a[14 + offset]; _33 = a[15 + offset];
 	}
 
-	public function setF32(a:kha.arrays.Float32Array, offset = 0) {
+	inline public function setF32(a:kha.arrays.Float32Array, offset = 0) {
 		_00 = a[0 + offset]; _10 = a[1 + offset]; _20 = a[2 + offset]; _30 = a[3 + offset];
 		_01 = a[4 + offset]; _11 = a[5 + offset]; _21 = a[6 + offset]; _31 = a[7 + offset];
 		_02 = a[8 + offset]; _12 = a[9 + offset]; _22 = a[10 + offset];_32 = a[11 + offset];
 		_03 = a[12 + offset]; _13 = a[13 + offset]; _23 = a[14 + offset]; _33 = a[15 + offset];
 	}
 
-	public function setFrom(m:Mat4):Mat4 {
+	inline public function setFrom(m:Mat4):Mat4 {
 		_00 = m._00; _01 = m._01; _02 = m._02; _03 = m._03;
 		_10 = m._10; _11 = m._11; _12 = m._12; _13 = m._13;
 		_20 = m._20; _21 = m._21; _22 = m._22; _23 = m._23;
@@ -353,11 +351,11 @@ class Mat4 {
 		return this;
 	}
 
-	public inline function getLoc():Vec4 {
+	inline public function getLoc():Vec4 {
 		return new Vec4(_30, _31 , _32 , _33);
 	}
 
-	public function getScale():Vec4 {
+	inline public function getScale():Vec4 {
 		return new Vec4(
 			Math.sqrt(_00 * _00 + _10 * _10 + _20 * _20),
 			Math.sqrt(_01 * _01 + _11 * _11 + _21 * _21),
@@ -365,7 +363,7 @@ class Mat4 {
 		);
 	}
 
-	public function mult(s:Float):Mat4 {
+	inline public function mult(s:Float):Mat4 {
 		_00 *= s; _10 *= s; _20 *= s; _30 *= s;
 		_01 *= s; _11 *= s; _21 *= s; _31 *= s;
 		_02 *= s; _12 *= s; _22 *= s; _32 *= s;
@@ -373,7 +371,7 @@ class Mat4 {
 		return this;
 	}
 
-	public function toRotation():Mat4 {
+	inline public function toRotation():Mat4 {
 		var v1 = new Vec4();
 		var scaleX = 1.0 / v1.set(_00, _01, _02).length();
 		var scaleY = 1.0 / v1.set(_10, _11, _12).length();
@@ -392,7 +390,7 @@ class Mat4 {
 		return this;
 	}
 
-	public function getQuat():Quat {
+	inline public function getQuat():Quat {
 		helpMat.setFrom(this);
 		helpMat.toRotation();
 
@@ -471,7 +469,7 @@ class Mat4 {
 		);
 	}
 
-	public function setLookAt(eye:Vec4, center:Vec4, up:Vec4):Mat4 {
+	inline public function setLookAt(eye:Vec4, center:Vec4, up:Vec4):Mat4 {
 		var f0 = center.x - eye.x;
 		var f1 = center.y - eye.y;
 		var f2 = center.z - eye.z;
@@ -514,12 +512,12 @@ class Mat4 {
 		return this;
 	}
 
-	public function applyQuat(q:Quat) {
+	inline public function applyQuat(q:Quat) {
 		q.toMat(helpMat);
 		multmat2(helpMat);
 	}
 
-	public function write(ar:kha.arrays.Float32Array, offset = 0) {
+	inline public function write(ar:kha.arrays.Float32Array, offset = 0) {
 		ar[offset] = _00;
 		ar[offset + 1] = _10;
 		ar[offset + 2] = _20;

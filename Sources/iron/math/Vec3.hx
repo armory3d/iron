@@ -7,13 +7,13 @@ class Vec3 {
 	public var y:FastFloat;
 	public var z:FastFloat;
 
-	public function new(x:FastFloat = 0.0, y:FastFloat = 0.0, z:FastFloat = 0.0) {
+	inline public function new(x:FastFloat = 0.0, y:FastFloat = 0.0, z:FastFloat = 0.0) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
 
-	public function cross(v:Vec3):Vec3 {
+	inline public function cross(v:Vec3):Vec3 {
 		var x2 = y * v.z - z * v.y;
 		var y2 = z * v.x - x * v.z;
 		var z2 = x * v.y - y * v.x;
@@ -23,7 +23,7 @@ class Vec3 {
 		return this;
 	}
 
-	public function crossvecs(a:Vec3, b:Vec3):Vec3 {
+	inline public function crossvecs(a:Vec3, b:Vec3):Vec3 {
 		var x2 = a.y * b.z - a.z * b.y;
 		var y2 = a.z * b.x - a.x * b.z;
 		var z2 = a.x * b.y - a.y * b.x;
@@ -33,42 +33,42 @@ class Vec3 {
 		return this;
 	}
 
-	public function set(x:FastFloat, y:FastFloat, z:FastFloat):Vec3{
+	inline public function set(x:FastFloat, y:FastFloat, z:FastFloat):Vec3{
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		return this;
 	}
 
-	public function add(v:Vec3):Vec3 {
+	inline public function add(v:Vec3):Vec3 {
 		x += v.x;
 		y += v.y;
 		z += v.z;
 		return this;
 	}
 
-	public function addf(x:FastFloat, y:FastFloat, z:FastFloat):Vec3 {
+	inline public function addf(x:FastFloat, y:FastFloat, z:FastFloat):Vec3 {
 		this.x += x;
 		this.y += y;
 		this.z += z;
 		return this;
 	}
 
-	public function addvecs(a:Vec3, b:Vec3):Vec3 {
+	inline public function addvecs(a:Vec3, b:Vec3):Vec3 {
 		x = a.x + b.x;
 		y = a.y + b.y;
 		z = a.z + b.z;
 		return this;
 	} 
 
-	public function subvecs(a:Vec3, b:Vec3):Vec3 {
+	inline public function subvecs(a:Vec3, b:Vec3):Vec3 {
 		x = a.x - b.x;
 		y = a.y - b.y;
 		z = a.z - b.z;
 		return this;
 	}
 
-	public function normalize():Vec3 {
+	inline public function normalize():Vec3 {
 		var n = length();
 		if (n > 0.0) {
 			var invN = 1.0 / n;
@@ -77,21 +77,21 @@ class Vec3 {
 		return this;
 	}
 
-	public function mult(f:FastFloat):Vec3 {
+	inline public function mult(f:FastFloat):Vec3 {
 		x *= f; y *= f; z *= f;
 		return this;
 	}
 
-	public function dot(v:Vec3):FastFloat {
+	inline public function dot(v:Vec3):FastFloat {
 		return x * v.x + y * v.y + z * v.z;
 	}
 
-	public function setFrom(v:Vec3):Vec3 {
+	inline public function setFrom(v:Vec3):Vec3 {
 		x = v.x; y = v.y; z = v.z;
 		return this;
 	}
 
-	public function clone():Vec3 {
+	inline public function clone():Vec3 {
 		return new Vec3(x, y, z);
 	}
 
@@ -103,7 +103,7 @@ class Vec3 {
 		return target;
 	}
 
-	public function applyproj(m:Mat4):Vec3 {
+	inline public function applyproj(m:Mat4):Vec3 {
 		var x = this.x; var y = this.y; var z = this.z;
 
 		// Perspective divide
@@ -116,7 +116,7 @@ class Vec3 {
 		return this;
 	}
 
-	public function applymat(m:Mat4):Vec3 {
+	inline public function applymat(m:Mat4):Vec3 {
 		var x = this.x; var y = this.y; var z = this.z;
 
 		this.x = m._00 * x + m._10 * y + m._20 * z + m._30;
@@ -126,21 +126,21 @@ class Vec3 {
 		return this;
 	}
 
-	public inline function equals(v:Vec3):Bool {
+	inline public function equals(v:Vec3):Bool {
 		return x == v.x && y == v.y && z == v.z;
 	}
 
-	public inline function length():FastFloat {
+	inline public function length():FastFloat {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
 
-	public inline function normalizeTo(newLength:FastFloat):Vec3 {
+	inline public function normalizeTo(newLength:FastFloat):Vec3 {
 		var v = normalize();
 		v = mult(newLength);
 		return v;
 	}
 
-	public function sub(v:Vec3):Vec3 {
+	inline public function sub(v:Vec3):Vec3 {
 		x -= v.x; y -= v.y; z -= v.z;
 		return this;
 	}
@@ -156,11 +156,11 @@ class Vec3 {
 		return Math.sqrt(vx * vx + vy * vy + vz * vz);
 	}
 
-	public function distanceTo(p:Vec3):FastFloat {
+	inline public function distanceTo(p:Vec3):FastFloat {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
 	}
 
-	public function clamp(fmin:FastFloat, fmax:FastFloat):Vec3 {
+	inline public function clamp(fmin:FastFloat, fmax:FastFloat):Vec3 {
 		var n = length();
 		var v = this;
 
@@ -173,7 +173,7 @@ class Vec3 {
 		return v;
 	}
 
-	public function map(value:Vec3, leftMin:Vec3, leftMax:Vec3, rightMin:Vec3, rightMax:Vec3):Vec3 {
+	inline public function map(value:Vec3, leftMin:Vec3, leftMax:Vec3, rightMin:Vec3, rightMax:Vec3):Vec3 {
 		x = Math.map(value.x, leftMin.x, leftMax.x, rightMin.x, rightMax.x);
 		y = Math.map(value.y, leftMin.y, leftMax.y, rightMin.y, rightMax.y);
 		z = Math.map(value.z, leftMin.z, leftMax.z, rightMin.z, rightMax.z);

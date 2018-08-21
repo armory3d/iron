@@ -6,7 +6,7 @@ class Mat3 {
 
 	public var self:kha.math.FastMatrix3;
 
-	public function new(_00:FastFloat, _10:FastFloat, _20:FastFloat,
+	inline public function new(_00:FastFloat, _10:FastFloat, _20:FastFloat,
 						_01:FastFloat, _11:FastFloat, _21:FastFloat,
 						_02:FastFloat, _12:FastFloat, _22:FastFloat) {
 		
@@ -21,7 +21,7 @@ class Mat3 {
 		);
 	}
 
-	public function setFrom4(m:Mat4) {
+	inline public function setFrom4(m:Mat4) {
 		_00 = m._00;
 		_01 = m._01;
 		_02 = m._02;

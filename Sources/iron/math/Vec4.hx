@@ -9,14 +9,14 @@ class Vec4 {
 	public var z:FastFloat;
 	public var w:FastFloat;
 
-	public function new(x = 0.0, y = 0.0, z = 0.0, w = 1.0) {
+	inline public function new(x = 0.0, y = 0.0, z = 0.0, w = 1.0) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.w = w;
 	}
 
-	public function cross(v:Vec4):Vec4 {
+	inline public function cross(v:Vec4):Vec4 {
 		var x2 = y * v.z - z * v.y;
 		var y2 = z * v.x - x * v.z;
 		var z2 = x * v.y - y * v.x;
@@ -26,7 +26,7 @@ class Vec4 {
 		return this;
 	}
 
-	public function crossvecs(a:Vec4, b:Vec4):Vec4 {
+	inline public function crossvecs(a:Vec4, b:Vec4):Vec4 {
 		var x2 = a.y * b.z - a.z * b.y;
 		var y2 = a.z * b.x - a.x * b.z;
 		var z2 = a.x * b.y - a.y * b.x;
@@ -36,7 +36,7 @@ class Vec4 {
 		return this;
 	}
 
-	public function set(x:FastFloat, y:FastFloat, z:FastFloat, w = 1.0):Vec4{
+	inline public function set(x:FastFloat, y:FastFloat, z:FastFloat, w = 1.0):Vec4{
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -44,35 +44,35 @@ class Vec4 {
 		return this;
 	}
 
-	public function add(v:Vec4):Vec4 {
+	inline public function add(v:Vec4):Vec4 {
 		x += v.x;
 		y += v.y;
 		z += v.z;
 		return this;
 	}
 
-	public function addf(x:FastFloat, y:FastFloat, z:FastFloat):Vec4 {
+	inline public function addf(x:FastFloat, y:FastFloat, z:FastFloat):Vec4 {
 		this.x += x;
 		this.y += y;
 		this.z += z;
 		return this;
 	}
 
-	public function addvecs(a:Vec4, b:Vec4):Vec4 {
+	inline public function addvecs(a:Vec4, b:Vec4):Vec4 {
 		x = a.x + b.x;
 		y = a.y + b.y;
 		z = a.z + b.z;
 		return this;
 	} 
 
-	public function subvecs(a:Vec4, b:Vec4):Vec4 {
+	inline public function subvecs(a:Vec4, b:Vec4):Vec4 {
 		x = a.x - b.x;
 		y = a.y - b.y;
 		z = a.z - b.z;
 		return this;
 	}   
 
-	public function normalize():Vec4 {
+	inline public function normalize():Vec4 {
 		var n = length();
 		if (n > 0.0) {
 			var invN = 1.0 / n;
@@ -81,27 +81,27 @@ class Vec4 {
 		return this;
 	}
 
-	public inline function normalizeTo(newLength:FastFloat):Vec4 {
+	inline public function normalizeTo(newLength:FastFloat):Vec4 {
 		var v = normalize();
 		v = mult(newLength);
 		return v;
 	}
 
-	public function mult(f:FastFloat):Vec4 {
+	inline public function mult(f:FastFloat):Vec4 {
 		x *= f; y *= f; z *= f;
 		return this;
 	}
 
-	public function dot(v:Vec4):FastFloat {
+	inline public function dot(v:Vec4):FastFloat {
 		return x * v.x + y * v.y + z * v.z;
 	}
 
-	public function setFrom(v:Vec4):Vec4 {
+	inline public function setFrom(v:Vec4):Vec4 {
 		x = v.x; y = v.y; z = v.z;
 		return this;
 	}   
 
-	public function clone():Vec4 {
+	inline public function clone():Vec4 {
 		return new Vec4(x, y, z, w);
 	}
 
@@ -113,7 +113,7 @@ class Vec4 {
 		return target;
 	}
 
-	public function applyproj(m:Mat4):Vec4 {
+	inline public function applyproj(m:Mat4):Vec4 {
 		var x = this.x; var y = this.y; var z = this.z;
 
 		// Perspective divide
@@ -126,7 +126,7 @@ class Vec4 {
 		return this;
 	}
 
-	public function applymat(m:Mat4):Vec4 {
+	inline public function applymat(m:Mat4):Vec4 {
 		var x = this.x; var y = this.y; var z = this.z;
 
 		this.x = m._00 * x + m._10 * y + m._20 * z + m._30;
@@ -136,7 +136,7 @@ class Vec4 {
 		return this;
 	}
 
-	public function applymat4(m:Mat4):Vec4 {
+	inline public function applymat4(m:Mat4):Vec4 {
 		var x = this.x; var y = this.y; var z = this.z; var w = this.w;
 
 		this.x = m._00 * x + m._10 * y + m._20 * z + m._30 * w;
@@ -148,12 +148,13 @@ class Vec4 {
 	}
 
 	var quat = new Quat();
-	public function applyAxisAngle(axis:Vec4, angle:FastFloat):Vec4 {
+
+	inline public function applyAxisAngle(axis:Vec4, angle:FastFloat):Vec4 {
 		quat.fromAxisAngle(axis, angle);
 		return applyQuat(quat);
 	}
 
-	public function applyQuat(q:Quat):Vec4 {
+	inline public function applyQuat(q:Quat):Vec4 {
 		var ix = q.w * x + q.y * z - q.z * y;
 		var iy = q.w * y + q.z * x - q.x * z;
 		var iz = q.w * z + q.x * y - q.y * x;
@@ -164,19 +165,19 @@ class Vec4 {
 		return this;
 	}
 
-	public inline function equals(v:Vec4):Bool {
+	inline public function equals(v:Vec4):Bool {
 		return x == v.x && y == v.y && z == v.z;
 	}
 
-	public inline function almostEquals(v:Vec4, prec:Float):Bool {
+	inline public function almostEquals(v:Vec4, prec:Float):Bool {
 		return Math.abs(x - v.x) < prec && Math.abs(y - v.y) < prec && Math.abs(z - v.z) < prec;
 	}
 
-	public inline function length():FastFloat {
+	inline public function length():FastFloat {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
 
-	public function sub(v:Vec4):Vec4 {
+	inline public function sub(v:Vec4):Vec4 {
 		x -= v.x; y -= v.y; z -= v.z;
 		return this;
 	} 
@@ -192,11 +193,11 @@ class Vec4 {
 		return Math.sqrt(vx * vx + vy * vy + vz * vz);
 	}
 
-	public function distanceTo(p:Vec4):FastFloat {
+	inline public function distanceTo(p:Vec4):FastFloat {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
 	}
 
-	public function reflect(n:Vec4):Vec4 {
+	inline public function reflect(n:Vec4):Vec4 {
 		var d = this.dot(n);
 		x = x - 2.0 * d * n.x;
 		y = y - 2.0 * d * n.y;
@@ -204,7 +205,7 @@ class Vec4 {
 		return this;
 	}
 
-	public function clamp(fmin:FastFloat, fmax:FastFloat):Vec4 {
+	inline public function clamp(fmin:FastFloat, fmax:FastFloat):Vec4 {
 		var n = length();
 		var v = this;
 
@@ -217,7 +218,7 @@ class Vec4 {
 		return v;
 	}
 
-	public function map(value:Vec4, leftMin:Vec4, leftMax:Vec4, rightMin:Vec4, rightMax:Vec4):Vec4 {
+	inline public function map(value:Vec4, leftMin:Vec4, leftMax:Vec4, rightMin:Vec4, rightMax:Vec4):Vec4 {
 		x = Math.map(value.x, leftMin.x, leftMax.x, rightMin.x, rightMax.x);
 		y = Math.map(value.y, leftMin.y, leftMax.y, rightMin.y, rightMax.y);
 		z = Math.map(value.z, leftMin.z, leftMax.z, rightMin.z, rightMax.z);

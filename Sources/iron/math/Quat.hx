@@ -15,22 +15,21 @@ class Quat {
 
 	public static function identity():Quat { return new Quat(0.0, 0.0, 0.0, 1.0); }
 
-	// Basde on https://github.com/mrdoob/three.js/
-	public function new(x = 0.0, y = 0.0, z = 0.0, w = 1.0) {
+	inline public function new(x = 0.0, y = 0.0, z = 0.0, w = 1.0) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.w = w;
 	}
 
-	public inline function set(x:FastFloat, y:FastFloat, z:FastFloat, w:FastFloat) {
+	inline public function set(x:FastFloat, y:FastFloat, z:FastFloat, w:FastFloat) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.w = w;
 	}
 
-	public function fromAxisAngle(axis:Vec4, angle:FastFloat) {
+	inline public function fromAxisAngle(axis:Vec4, angle:FastFloat) {
 		var s:FastFloat = Math.sin(angle * 0.5);
 		x = axis.x * s;
 		y = axis.y * s;
@@ -39,7 +38,7 @@ class Quat {
 		normalize();
 	}
 
-	public function toAxisAngle(axis:Vec4):FastFloat {
+	inline public function toAxisAngle(axis:Vec4):FastFloat {
 		normalize();
 		var angle = 2 * Math.acos(w);
 		var s = Math.sqrt(1 - w * w);
@@ -54,9 +53,9 @@ class Quat {
 			axis.z = this.z / s;
 		}
 		return angle;
-	};
+	}
 
-	public function fromRotationMat(m:Mat4) {
+	inline public function fromRotationMat(m:Mat4) {
 		// Assumes the upper 3x3 is a pure rotation matrix
 		var m11 = m._00, m12 = m._10, m13 = m._20;
 		var m21 = m._01, m22 = m._11, m23 = m._21;
@@ -96,11 +95,11 @@ class Quat {
 		return this;
 	}
 
-	public function mult(q:Quat) {
+	inline public function mult(q:Quat) {
 		multquats(this, q);
 	}
 
-	public function multquats(q1:Quat, q2:Quat) {
+	inline public function multquats(q1:Quat, q2:Quat) {
 		var x2 = q1.x * q2.w + q1.w * q2.x + q1.y * q2.z - q1.z * q2.y;
 		var y2 = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x;
 		var z2 = q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w;
@@ -111,7 +110,7 @@ class Quat {
 		w = w2;
 	}
 
-	public function normalize() {
+	inline public function normalize() {
 		var l = Math.sqrt(x * x + y * y + z * z + w * w);
 		if (l == 0.0) {
 			x = 0;
@@ -128,14 +127,14 @@ class Quat {
 		}
 	}
 
-	public function setFrom(q:Quat) {
+	inline public function setFrom(q:Quat) {
 		x = q.x;
 		y = q.y;
 		z = q.z;
 		w = q.w;
 	}
 
-	public function getEuler():Vec4 {
+	inline public function getEuler():Vec4 {
 		// YZX
 		var roll = Math.NaN;
 		var yaw = 0.0;
@@ -163,12 +162,12 @@ class Quat {
 		return new Vec4(pitch, roll, yaw);
 	}
 
-	public function getRotator():Rotator {
+	inline public function getRotator():Rotator {
 		var v = getEuler();
 		return new Rotator(v.x, v.y, v.z);
 	}
 
-	public function fromEuler(x:FastFloat, y:FastFloat, z:FastFloat) {
+	inline public function fromEuler(x:FastFloat, y:FastFloat, z:FastFloat) {
 		var c1 = Math.cos(x / 2);
 		var c2 = Math.cos(y / 2);
 		var c3 = Math.cos(z / 2);
@@ -183,7 +182,7 @@ class Quat {
 		return this;
 	}
 
-	public function toMat(m:Mat4):Mat4 {
+	inline public function toMat(m:Mat4):Mat4 {
 		var x2 = x + x, y2 = y + y, z2 = z + z;
 		var xx = x * x2, xy = x * y2, xz = x * z2;
 		var yy = y * y2, yz = y * z2, zz = z * z2;
@@ -251,11 +250,11 @@ class Quat {
 		return c;
 	}
 
-	public function dot(q:Quat):FastFloat {
+	inline public function dot(q:Quat):FastFloat {
 		return (x * q.x) + (y * q.y) + (z * q.z) + (w * q.w);
 	}
 
-	public function fromTo(v1:Vec4, v2:Vec4) {
+	inline public function fromTo(v1:Vec4, v2:Vec4) {
 		// Rotation formed by direction vectors
 		// v1.normalize();
 		// v2.normalize();
