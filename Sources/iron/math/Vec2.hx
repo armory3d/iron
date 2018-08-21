@@ -75,10 +75,10 @@ class Vec2 {
 		return new Vec2(x, y);
 	}
 	
-	public static function lerp(v1:Vec2, v2:Vec2, t:FastFloat):Vec2 {
+	public static function lerp(from:Vec2, to:Vec2, s:FastFloat):Vec2 {
 		var target = new Vec2();
-		target.x = v2.x + (v1.x - v2.x) * t;
-		target.y = v2.y + (v1.y - v2.y) * t;
+		target.x = from.x + (to.x - from.x) * s;
+		target.y = from.y + (to.y - from.y) * s;
 		return target;
 	}
 

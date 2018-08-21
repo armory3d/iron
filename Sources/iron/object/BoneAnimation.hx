@@ -306,8 +306,8 @@ class BoneAnimation extends Animation {
 				m2.decompose(vpos2, q2, vscl2);
 
 				// Lerp
-				var fp = Vec4.lerp(vpos, vpos2, 1.0 - s);
-				var fs = Vec4.lerp(vscl, vscl2, 1.0 - s);
+				var fp = Vec4.lerp(vpos, vpos2, s);
+				var fs = Vec4.lerp(vscl, vscl2, s);
 				var fq = Quat.lerp(q1, q2, s);
 
 				// Compose

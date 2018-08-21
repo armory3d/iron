@@ -105,11 +105,11 @@ class Vec4 {
 		return new Vec4(x, y, z, w);
 	}
 
-	public static function lerp(v1:Vec4, v2:Vec4, t:FastFloat):Vec4 {
+	public static function lerp(from:Vec4, to:Vec4, s:FastFloat):Vec4 {
 		var target = new Vec4();
-		target.x = v2.x + (v1.x - v2.x) * t;
-		target.y = v2.y + (v1.y - v2.y) * t;
-		target.z = v2.z + (v1.z - v2.z) * t;
+		target.x = from.x + (to.x - from.x) * s;
+		target.y = from.y + (to.y - from.y) * s;
+		target.z = from.z + (to.z - from.z) * s;
 		return target;
 	}
 

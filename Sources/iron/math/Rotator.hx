@@ -109,11 +109,11 @@ class Rotator {
 		return new Rotator(pitch, roll, yaw);
 	}
 
-	public static function lerp(r1:Rotator, r2:Rotator, t:FastFloat):Rotator {
+	public static function lerp(from:Rotator, to:Rotator, s:FastFloat):Rotator {
 		var target = new Rotator();
-		target.pitch = r2.pitch + (r1.pitch - r2.pitch) * t;
-		target.roll = r2.roll + (r1.roll - r2.roll) * t;
-		target.yaw = r2.yaw + (r1.yaw - r2.yaw) * t;
+		target.pitch = from.pitch + (to.pitch - from.pitch) * s;
+		target.roll = from.roll + (to.roll - from.roll) * s;
+		target.yaw = from.yaw + (to.yaw - from.yaw) * s;
 		return target;
 	}
 

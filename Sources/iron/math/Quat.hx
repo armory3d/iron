@@ -207,47 +207,47 @@ class Quat {
 		return m;
 	}
 
-	public static function lerp(q1:Quat, q2:Quat, ratio:FastFloat):Quat {
+	public static function lerp(from:Quat, to:Quat, s:FastFloat):Quat {
 		var c = new Quat();
 		var ca = new Quat();
-		ca.setFrom(q1);
-		var dot:FastFloat = q1.dot(q2);
+		ca.setFrom(from);
+		var dot:FastFloat = from.dot(to);
 		if (dot < 0.0) {
 			ca.w = -ca.w;
 			ca.x = -ca.x;
 			ca.y = -ca.y;
 			ca.z = -ca.z;
 		}
-		c.x = ca.x + (q2.x - ca.x) * ratio;
-		c.y = ca.y + (q2.y - ca.y) * ratio;
-		c.z = ca.z + (q2.z - ca.z) * ratio;
-		c.w = ca.w + (q2.w - ca.w) * ratio;
+		c.x = ca.x + (to.x - ca.x) * s;
+		c.y = ca.y + (to.y - ca.y) * s;
+		c.z = ca.z + (to.z - ca.z) * s;
+		c.w = ca.w + (to.w - ca.w) * s;
 		c.normalize();
 		return c;
 	}
 
-	public static function slerp(q1:Quat, q2:Quat, v:FastFloat):Quat {
+	public static function slerp(from:Quat, to:Quat, s:FastFloat):Quat {
 		// Based on https://github.com/HeapsIO/heaps/blob/master/h3d/Quat.hx
 		var c = new Quat();
-		var cosHalfTheta = q1.dot(q2);
+		var cosHalfTheta = from.dot(to);
 		if (Math.abs(cosHalfTheta) >= 1) {
-			c.x = q1.x;
-			c.y = q1.y;
-			c.z = q1.z;
-			c.w = q1.w;
+			c.x = from.x;
+			c.y = from.y;
+			c.z = from.z;
+			c.w = from.w;
 			return c;
 		}
 		var halfTheta = Math.acos(cosHalfTheta);
 		var invSinHalfTheta = 1 / Math.sqrt(1 - cosHalfTheta * cosHalfTheta);
 		if (Math.abs(invSinHalfTheta) > 1e3) {
-			return Quat.lerp(q1, q2, 0.5);
+			return Quat.lerp(from, to, 0.5);
 		}
-		var a = Math.sin((1 - v) * halfTheta) * invSinHalfTheta;
-		var b = Math.sin(v * halfTheta) * invSinHalfTheta * (cosHalfTheta < 0 ? -1 : 1);
-		c.x = q1.x * a + q2.x * b;
-		c.y = q1.y * a + q2.y * b;
-		c.z = q1.z * a + q2.z * b;
-		c.w = q1.w * a + q2.w * b;
+		var a = Math.sin((1 - s) * halfTheta) * invSinHalfTheta;
+		var b = Math.sin(s * halfTheta) * invSinHalfTheta * (cosHalfTheta < 0 ? -1 : 1);
+		c.x = from.x * a + to.x * b;
+		c.y = from.y * a + to.y * b;
+		c.z = from.z * a + to.z * b;
+		c.w = from.w * a + to.w * b;
 		return c;
 	}
 

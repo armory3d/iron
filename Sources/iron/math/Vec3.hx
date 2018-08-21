@@ -95,11 +95,11 @@ class Vec3 {
 		return new Vec3(x, y, z);
 	}
 
-	public static function lerp(v1:Vec3, v2:Vec3, t:FastFloat):Vec3 {
+	public static function lerp(from:Vec3, to:Vec3, s:FastFloat):Vec3 {
 		var target = new Vec3();
-		target.x = v2.x + (v1.x - v2.x) * t;
-		target.y = v2.y + (v1.y - v2.y) * t;
-		target.z = v2.z + (v1.z - v2.z) * t;
+		target.x = from.x + (to.x - from.x) * s;
+		target.y = from.y + (to.y - from.y) * s;
+		target.z = from.z + (to.z - from.z) * s;
 		return target;
 	}
 
