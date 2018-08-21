@@ -424,6 +424,12 @@ class Data {
 	}
 
 	static var loadingSounds:Map<String, Array<kha.Sound->Void>> = new Map();
+	/**
+	 * Load sound file from disk into ram.
+	 *
+	 * @param	file A String matching the file name of the sound file on disk.
+	 * @param	done Completion handler function to do something after the sound is loaded.
+	 */
 	public static function getSound(file:String, done:kha.Sound->Void) {
 		#if arm_no_audio
 		done(null);

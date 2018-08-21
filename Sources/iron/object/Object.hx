@@ -36,6 +36,12 @@ class Object {
 		if (isEmpty && Scene.active != null) Scene.active.empties.push(this);
 	}
 	
+	/**
+	 * Add a game Object as a child of this game Object.
+	 *
+	 * @param	o The game Object instance to be added as a child.
+	 * @param	parentInverse Optional (default false) change the scale of the child object to be relative to the parents 3D space or use the original scale.
+	 */
 	public function addChild(o:Object, parentInverse = false) {
 		if (o.parent == this) return;
 		children.push(o);
@@ -43,6 +49,12 @@ class Object {
 		if (parentInverse) o.transform.applyParentInverse();
 	}
 
+	/**
+	 * Remove a child game Object from it's parentage. Does not remove the object from the scene.
+	 *
+	 * @param	o The game Object instance to be removed.
+	 * @param	keepTransform Optional (defaut false) keep the transform given by the parent or revert to the objects default.
+	 */
 	public function removeChild(o:Object, keepTransform = false) {
 		if (keepTransform) o.transform.applyParent();
 		o.parent = null;
@@ -61,6 +73,12 @@ class Object {
 		if (parent != null) { parent.children.remove(this); parent = null; }
 	}
 
+	/**
+	 * Get a child game Object of this game Object. Using the childs name property as a lookup.
+	 *
+	 * @param	name A string matching the name property of the game Object to fetch.
+	 * @return	Object or null
+	 */
 	public function getChild(name:String):Object {
 		if (this.name == name) return this;
 		else {
@@ -94,6 +112,11 @@ class Object {
 		}
 	}
 
+	/**
+	 * Remove the Trait from the Object. 
+	 *
+	 * @param	t The Trait to be removed from the game Object.
+	 */
 	@:access(iron.Trait)
 	public function removeTrait(t:Trait) {
 		if (t._init != null) {
@@ -124,10 +147,10 @@ class Object {
 	}
 
 	/**
-	 * Returns the instance of the Trait attached to the Game Object. 
+	 * Get the Trait instance that is attached to this game Object. 
 	 *
-	 * @param	c - The class of type Trait to attempt to retrieve.
-	 * @return	Returns the requested Trait or null if it does not exsist.
+	 * @param	c The class of type Trait to attempt to retrieve.
+	 * @return	Trait or null
 	 */
 	public function getTrait<T:Trait>(c:Class<T>):T {
 		for (t in traits) if (Type.getClass(t) == cast c) return cast t;
@@ -162,5 +185,10 @@ class Object {
 		return seed / 233280.0;
 	}
 
+	/**
+	 * Useful for debugging.
+	 *
+	 * @return	Returns a String in the format of "Object + name".
+	 */
 	public function toString():String { return "Object " + name; }
 }

@@ -107,6 +107,13 @@ class Transform {
 		dirty = false;
 	}
 
+	/**
+	 * Move the game Object by the defined amount relative to it's current location.
+	 *
+	 * @param	x Amount to move on the x axis.
+	 * @param	y Amount to move on the y axis.
+	 * @param	z Amount to move on the z axis.
+	 */
 	public function translate(x:kha.FastFloat, y:kha.FastFloat, z:kha.FastFloat) {
 		loc.x += x;
 		loc.y += y;
@@ -137,6 +144,13 @@ class Transform {
 		dirty = true;
 	}
 
+	/**
+	 * Set the rotation of the object in radians.
+	 *
+	 * @param	x Set the x axis rotation in radians.
+	 * @param	y Set the y axis rotation in radians.
+	 * @param	z Set the z axis rotation in radians.
+	 */
 	public function setRotation(x:kha.FastFloat, y:kha.FastFloat, z:kha.FastFloat) {
 		rot.fromEuler(x, y, z);
 		_eulerX = x;

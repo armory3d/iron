@@ -5,6 +5,9 @@ import iron.object.Object;
 class Trait {
 
 	public var name:String = "";
+	/**
+	 * Base class for all entities in a Scene.
+	 */
 	public var object:Object;
 
 	var _add:Array<Void->Void> = null;

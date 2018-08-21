@@ -48,6 +48,9 @@ class Input {
 		return getMouse();
 	}
 
+	/**
+	 * Get the Keyboard object. If it is not registered yet then register a new Keyboard.
+	 */
 	public static function getKeyboard():Keyboard {
 		if (!registered) register();
 		if (keyboard == null) keyboard = new Keyboard();
@@ -345,14 +348,32 @@ class Keyboard extends VirtualInput {
 		endFrame();
 	}
 
+	/**
+	 * Check if a key is currently pressed.
+	 *
+	 * @param	key A String representing the physical keyboard key to check.
+	 * @return	Bool. Returns true or false depending on the keyboard state.
+	 */
 	public function down(key:String):Bool {
 		return keysDown.get(key);
 	}
 
+	/**
+	 * Check if a key has started being pressed down. Will only be run once until the key is released and pressed again.
+	 *
+	 * @param	key A String representing the physical keyboard key to check.
+	 * @return	Bool. Returns true or false depending on the keyboard state.
+	 */
 	public function started(key:String):Bool {
 		return keysStarted.get(key);
 	}
 
+	/**
+	 * Check if a key has been released from being pressed down. Will only be run once until the key is pressed again and release again.
+	 *
+	 * @param	key A String representing the physical keyboard key to check.
+	 * @return	Bool. Returns true or false depending on the keyboard state.
+	 */
 	public function released(key:String):Bool {
 		return keysReleased.get(key);
 	}
