@@ -11,8 +11,11 @@ import iron.object.LampObject;
 import iron.object.MeshObject;
 import iron.object.Uniforms;
 import iron.data.MaterialData;
+import iron.data.ShaderData;
 import iron.data.MeshData;
 
+@:access(iron.object.MeshObject)
+@:access(iron.object.Uniforms)
 class MeshBatch {
 
 	var buckets:Map<ShaderData, Bucket> = new Map();
@@ -28,7 +31,7 @@ class MeshBatch {
 
 	public static function isBatchable(m:MeshObject):Bool {
 		// Batch only basic meshes for now
-		return !(m.data.isSkinned || m.materials == null || m.materials.length > 1 || m.data.geom.instanced);
+		return !(m.materials == null || m.materials.length > 1 || m.data.geom.instanced);
 	}
 
 	public function addMesh(m:MeshObject, isLod:Bool):Bool {
@@ -59,38 +62,74 @@ class MeshBatch {
 		for (b in buckets) {
 
 			if (!b.batched) b.batch();
-
 			if (b.meshes.length > 0 && b.meshes[0].cullMaterial(context)) continue;
 
-			g.setPipeline(b.shader.getContext(context).pipeState);
-			// TODO:
-			// #if arm_deinterleaved
+			var scontext = b.shader.getContext(context);
+			g.setPipeline(scontext.pipeState);
+			// #if arm_deinterleaved // TODO
 			// g.setVertexBuffers(b.vertexBuffers);
 			// #else
 			g.setVertexBuffer(b.vertexBuffer);
 			// #end
 			g.setIndexBuffer(b.indexBuffer);
+			
+			if (scontext.raw.constants != null) {
+				for (i in 0...scontext.raw.constants.length) {
+					var c = scontext.raw.constants[i];
+					Uniforms.setContextConstant(g, camera, lamp, scontext.constants[i], c);
+				}
+			}
+			Uniforms.setTextureContextConstants(g, scontext, camera, lamp, bindParams);
 
-			// Front to back
-			RenderPath.sortMeshes(b.meshes, camera);
+			RenderPath.sortMeshes(b.meshes, camera); // Front to back
 
 			for (m in b.meshes) {
-				m.renderBatch(g, context, camera, lamp, bindParams, m.data.start, m.data.count);
-#if arm_debug
+
+				if (!m.visible) continue; // Skip render if object is hidden
+				if (m.cullMesh(context, camera, lamp)) continue;
+
+				// var lod = m;
+				
+				// Get context
+				var materialContexts:Array<MaterialContext> = [];
+				var shaderContexts:Array<ShaderContext> = [];
+				m.getContexts(context, m.materials, materialContexts, shaderContexts);
+				
+				m.transform.update();
+				
+				// Render mesh
+				Uniforms.setTextureObjectConstants(g, scontext, m);
+				if (scontext.raw.constants != null) {
+					for (i in 0...scontext.raw.constants.length) {
+						var c = scontext.raw.constants[i];
+						Uniforms.setObjectConstant(g, m, camera, lamp, scontext.constants[i], c);
+					}
+				}
+				Uniforms.setMaterialConstants(g, scontext, materialContexts[0]);
+
+				g.drawIndexedVertices(m.data.start, m.data.count);
+
+				#if arm_veloc
+				m.prevMatrix.setFrom(m.transform.world);
+				#end
+				
+				#if arm_debug
+				RenderPath.drawCalls++;
 				RenderPath.batchCalls++;
-#end
+				#end
 			}
 
-#if arm_debug
-				RenderPath.batchBuckets++;
-#end
+			#if arm_debug
+			RenderPath.batchBuckets++;
+			#end
 		}
 
 		for (m in nonBatched) {
 			m.render(g, context, camera, lamp, bindParams);
-#if arm_debug
+			
+			#if arm_debug
 			if (m.culled) RenderPath.culled++;
-#end
+			#end
 		}
 	}
 }

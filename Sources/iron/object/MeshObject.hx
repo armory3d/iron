@@ -319,36 +319,6 @@ class MeshObject extends Object {
 		#end
 	}
 
-	public function renderBatch(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>, start = 0, count = -1) {
-		
-		if (!visible) return; // Skip render if object is hidden
-		if (cullMesh(context, camera, lamp)) return;
-
-		// Get lod
-		var lod = this;
-		
-		// Get context
-		var materialContexts:Array<MaterialContext> = [];
-		var shaderContexts:Array<ShaderContext> = [];
-		getContexts(context, materials, materialContexts, shaderContexts);
-		
-		transform.update();
-		
-		// Render mesh
-		Uniforms.setConstants(g, shaderContexts[0], this, camera, lamp, bindParams);
-		Uniforms.setMaterialConstants(g, shaderContexts[0], materialContexts[0]);
-
-		g.drawIndexedVertices(start, count);
-
-		#if arm_debug
-		RenderPath.drawCalls++;
-		#end
-
-		#if arm_veloc
-		prevMatrix.setFrom(transform.world);
-		#end
-	}
-
 	inline function validContext(mat:MaterialData, context:String):Bool {
 		 return mat.getContext(context) != null;
 	}
