@@ -35,6 +35,7 @@ class Animation {
 	var blendTime = 0.0;
 	var blendCurrent = 0.0;
 	var blendAction = '';
+	var blendFactor = 0.0;
 
 	function new() {
 		Scene.active.animations.push(this);
@@ -72,7 +73,7 @@ class Animation {
 		if (paused || speed == 0.0) return;
 		time += delta * speed;
 
-		if (blendTime > 0) {
+		if (blendTime > 0 && blendFactor == 0) {
 			blendCurrent += delta;
 			if (blendCurrent >= blendTime) blendTime = 0.0;
 		}

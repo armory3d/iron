@@ -147,6 +147,15 @@ class BoneAnimation extends Animation {
 		if (action != '') {
 			blendTime > 0 ? setActionBlend(action) : setAction(action);
 		}
+		blendFactor = 0.0;
+	}
+
+	public function blend(action1:String, action2:String, factor:Float) {
+		if (factor == 0.0) return;
+		setAction(action2);
+		setActionBlend(action1);
+		blendTime = 1.0; // Enable blending
+		blendFactor = factor;
 	}
 
 	override public function update(delta:Float) {
@@ -285,6 +294,7 @@ class BoneAnimation extends Animation {
 
 		var s = blendCurrent / blendTime;
 		s = s * s * (3.0 - 2.0 * s); // Smoothstep
+		if (blendFactor != 0.0) s = 1.0 - blendFactor;
 
 		for (i in 0...bones.length) {
 			
