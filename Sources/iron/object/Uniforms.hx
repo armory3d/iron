@@ -49,21 +49,15 @@ class Uniforms {
 	public static var externalFloatsLinks:Array<Object->MaterialData->String->kha.arrays.Float32Array> = null;
 	public static var externalIntLinks:Array<Object->MaterialData->String->Null<Int>> = null;
 
-	public static function setConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
-
+	public static function setContextConstants(g:Graphics, context:ShaderContext, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 		if (context.raw.constants != null) {
 			for (i in 0...context.raw.constants.length) {
 				var c = context.raw.constants[i];
-				var b = setContextConstant(g, camera, lamp, context.constants[i], c);
-				if (!b) setObjectConstant(g, object, camera, lamp, context.constants[i], c);
+				setContextConstant(g, camera, lamp, context.constants[i], c);
 			}
 		}
-
-		setTextureContextConstants(g, context, camera, lamp, bindParams);
-		setTextureObjectConstants(g, context, object);
-	}
-
-	public static function setTextureContextConstants(g:Graphics, context:ShaderContext, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
+		
+		// Texture context constants
 		if (bindParams != null) { // Bind targets
 			for (i in 0...Std.int(bindParams.length / 2)) {
 				var pos = i * 2; // bind params = [texture, samplerID]
@@ -141,7 +135,15 @@ class Uniforms {
 		}
 	}
 
-	static function setTextureObjectConstants(g:Graphics, context:ShaderContext, object:Object) {
+	public static function setObjectConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject) {
+		if (context.raw.constants != null) {
+			for (i in 0...context.raw.constants.length) {
+				var c = context.raw.constants[i];
+				setObjectConstant(g, object, camera, lamp, context.constants[i], c);
+			}
+		}
+
+		// Texture object constants
 		// External
 		if (externalTextureLinks != null) {
 			if (context.raw.texture_units != null) {

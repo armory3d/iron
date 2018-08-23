@@ -1,5 +1,7 @@
 package iron.data;
 
+#if arm_stream
+
 import haxe.ds.Vector;
 import iron.data.SceneFormat;
 import iron.data.MaterialData;
@@ -106,3 +108,5 @@ class SceneStream {
 		}
 	}
 }
+
+#end

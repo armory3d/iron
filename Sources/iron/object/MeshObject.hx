@@ -206,6 +206,7 @@ class MeshObject extends Object {
 		}
 	}
 
+	static var lastPipeline:kha.graphics4.PipelineState = null;
 	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
 
 		if (data == null || !data.geom.ready) return; // Data not yet streamed
@@ -276,9 +277,22 @@ class MeshObject extends Object {
 		for (i in 0...ldata.geom.indexBuffers.length) {
 
 			var mi = ldata.geom.materialIndices[i];
-			if (shaderContexts.length <= mi) continue; 
-			var vs = shaderContexts[mi].raw.vertex_structure;
+			if (shaderContexts.length <= mi) continue;
+			var scontext = shaderContexts[mi];
+			var vs = scontext.raw.vertex_structure;
 
+			// Uniforms
+			if (scontext.pipeState != lastPipeline) {
+				g.setPipeline(scontext.pipeState);
+				lastPipeline = scontext.pipeState;
+				Uniforms.setContextConstants(g, scontext, camera, lamp, bindParams);
+			}
+			Uniforms.setObjectConstants(g, scontext, this, camera, lamp);
+			if (materialContexts.length > mi) {
+				Uniforms.setMaterialConstants(g, scontext, materialContexts[mi]);
+			}
+
+			// VB / IB
 			#if arm_deinterleaved
 			g.setVertexBuffers(ldata.geom.get(vs));
 			#else
@@ -291,14 +305,8 @@ class MeshObject extends Object {
 			#end
 
 			g.setIndexBuffer(ldata.geom.indexBuffers[i]);
-			g.setPipeline(shaderContexts[mi].pipeState);
 
-			Uniforms.setConstants(g, shaderContexts[mi], this, camera, lamp, bindParams);
-
-			if (materialContexts.length > mi) {
-				Uniforms.setMaterialConstants(g, shaderContexts[mi], materialContexts[mi]);
-			}
-
+			// Draw
 			if (ldata.geom.instanced) {
 				g.drawIndexedVerticesInstanced(ldata.geom.instanceCount, ldata.geom.start, ldata.geom.count);
 			}

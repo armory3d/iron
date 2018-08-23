@@ -37,6 +37,7 @@ class RenderPath {
 	public var currentG:Graphics;
 	public var frameG:Graphics;
 	var lastFrameTime = 0.0;
+	public var drawOrder = DrawOrder.Shader;
 	
 	public var paused = false;
 	public var ready(get, null):Bool;
@@ -213,23 +214,22 @@ class RenderPath {
 		rt.image.generateMipmaps(1000);
 	}
 
-	public static function sortMeshes(meshes:Array<MeshObject>, camera:CameraObject) {
-		// if (params[1] == "front_to_back") {
-			var camX = camera.transform.worldx();
-			var camY = camera.transform.worldy();
-			var camZ = camera.transform.worldz();
-			for (mesh in meshes) {
-				mesh.computeCameraDistance(camX, camY, camZ);
-			}
-			meshes.sort(function(a, b):Int {
-				return a.cameraDistance >= b.cameraDistance ? 1 : -1;
-			});
-		// }
-		// else if (params[1] == "material") {
-			// Scene.active.meshes.sort(function(a, b):Int {
-				// return a.materials[0].name >= b.materials[0].name ? 1 : -1;
-			// });
-		// }
+	public static function sortMeshesDistance(meshes:Array<MeshObject>, camera:CameraObject) {
+		var camX = camera.transform.worldx();
+		var camY = camera.transform.worldy();
+		var camZ = camera.transform.worldz();
+		for (mesh in meshes) {
+			mesh.computeCameraDistance(camX, camY, camZ);
+		}
+		meshes.sort(function(a, b):Int {
+			return a.cameraDistance >= b.cameraDistance ? 1 : -1;
+		});
+	}
+
+	public static function sortMeshesShader(meshes:Array<MeshObject>) {
+		Scene.active.meshes.sort(function(a, b):Int {
+			return a.materials[0].name >= b.materials[0].name ? 1 : -1;
+		});
 	}
 
 	public function drawMeshes(context:String) {
@@ -277,15 +277,18 @@ class RenderPath {
 		end(g);
 	}
 
+	@:access(iron.object.MeshObject)
 	function submitDraw(context:String) {
 		var lamp = getLamp(currentLampIndex);
 		var g = currentG;
 
+		MeshObject.lastPipeline = null;
+
 		if (!meshesSorted && Scene.active.camera != null) { // Order max one per frame for now
 			#if arm_batch
-			sortMeshes(Scene.active.meshBatch.nonBatched, Scene.active.camera);
+			sortMeshesDistance(Scene.active.meshBatch.nonBatched, Scene.active.camera);
 			#else
-			sortMeshes(Scene.active.meshes, Scene.active.camera);
+			drawOrder == DrawOrder.Shader ? sortMeshesShader(Scene.active.meshes) : sortMeshesDistance(Scene.active.meshes, Scene.active.camera);
 			#end
 			meshesSorted = true;
 		}
@@ -419,7 +422,8 @@ class RenderPath {
 			getRectContexts(mat, context, materialContexts, shaderContexts);
 			
 			g.setPipeline(mat.shader.getContext(context).pipeState);
-			Uniforms.setConstants(g, shaderContexts[0], null, Scene.active.camera, lamp, bindParams);
+			Uniforms.setContextConstants(g, shaderContexts[0], Scene.active.camera, lamp, bindParams);
+			Uniforms.setObjectConstants(g, shaderContexts[0], null, Scene.active.camera, lamp);
 			Uniforms.setMaterialConstants(g, shaderContexts[0], materialContexts[0]);
 			g.drawIndexedVertices();
 		}
@@ -449,7 +453,8 @@ class RenderPath {
 	// 	var lamp = getLamp(currentLampIndex);
 	// 	var context = GreasePencilData.getContext(con);
 	// 	g.setPipeline(context.pipeState);
-	// 	Uniforms.setConstants(g, context, null, Scene.active.camera, lamp, null);
+	// 	Uniforms.setContextConstants(g, context, Scene.active.camera, lamp, null);
+	// 	Uniforms.setObjectConstants(g, context, null, Scene.active.camera, lamp);
 	// 	// Draw layers
 	// 	for (layer in gp.layers) {
 	// 		// Next frame
@@ -491,7 +496,8 @@ class RenderPath {
 		var g = currentG;
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);
-		Uniforms.setConstants(g, cc.context, null, Scene.active.camera, lamp, bindParams);
+		Uniforms.setContextConstants(g, cc.context, Scene.active.camera, lamp, bindParams);
+		Uniforms.setObjectConstants(g, cc.context, null, Scene.active.camera, lamp); // External hosek
 		#if arm_deinterleaved
 		g.setVertexBuffers(ConstData.skydomeVB);
 		#else
@@ -524,7 +530,8 @@ class RenderPath {
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		var g = currentG;		
 		g.setPipeline(cc.context.pipeState);
-		Uniforms.setConstants(g, cc.context, null, Scene.active.camera, lamp, bindParams);
+		Uniforms.setContextConstants(g, cc.context, Scene.active.camera, lamp, bindParams);
+		Uniforms.setObjectConstants(g, cc.context, null, Scene.active.camera, lamp);
 		g.setVertexBuffer(vb);
 		g.setIndexBuffer(ib);
 		g.drawIndexedVertices();
@@ -544,7 +551,8 @@ class RenderPath {
 		var g = currentG;		
 		g.setPipeline(cc.context.pipeState);
 		var lamp = getLamp(currentLampIndex);
-		Uniforms.setConstants(g, cc.context, null, Scene.active.camera, lamp, bindParams);
+		Uniforms.setContextConstants(g, cc.context, Scene.active.camera, lamp, bindParams);
+		Uniforms.setObjectConstants(g, cc.context, null, Scene.active.camera, lamp);
 		g.setVertexBuffer(ConstData.screenAlignedVB);
 		g.setIndexBuffer(ConstData.screenAlignedIB);
 		g.drawIndexedVertices();
@@ -806,4 +814,10 @@ class RenderTarget {
 class CachedShaderContext {
 	public var context:ShaderContext;
 	public function new() {}
+}
+
+@:enum abstract DrawOrder(Int) from Int {
+	var Distance = 0; // Early-z
+	var Shader = 1; // Less state changes
+	// var Mix = 2; // Distance buckets sorted by shader
 }

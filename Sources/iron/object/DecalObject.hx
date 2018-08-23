@@ -45,7 +45,8 @@ class DecalObject extends Object {
 		
 		g.setPipeline(shaderContext.pipeState);
 		
-		Uniforms.setConstants(g, shaderContext, this, camera, lamp, bindParams);			
+		Uniforms.setContextConstants(g, shaderContext, camera, lamp, bindParams);			
+		Uniforms.setObjectConstants(g, shaderContext, this, camera, lamp);			
 		Uniforms.setMaterialConstants(g, shaderContext, materialContext);
 
 		g.setVertexBuffer(ConstData.boxVB);

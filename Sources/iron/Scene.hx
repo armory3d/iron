@@ -19,8 +19,12 @@ class Scene {
 	public var world:WorldData;
 	// public var greasePencil:GreasePencilData = null;
 
+	#if arm_batch
 	public var meshBatch:MeshBatch = null;
+	#end
+	#if arm_stream
 	public var sceneStream:SceneStream = null;
+	#end
 	public var meshes:Array<MeshObject>;
 	public var lamps:Array<LampObject>;
 	public var cameras:Array<CameraObject>;
@@ -91,7 +95,9 @@ class Scene {
 
 	public function remove() {
 		for (f in traitRemoves) f();
+		#if arm_batch
 		if (meshBatch != null) meshBatch.remove();
+		#end
 		for (o in meshes) o.remove();
 		for (o in lamps) o.remove();
 		for (o in cameras) o.remove();

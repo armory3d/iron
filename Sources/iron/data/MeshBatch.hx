@@ -1,5 +1,7 @@
 package iron.data;
 
+#if arm_batch
+
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
@@ -30,12 +32,11 @@ class MeshBatch {
 	}
 
 	public static function isBatchable(m:MeshObject):Bool {
-		// Batch only basic meshes for now
 		return !(m.materials == null || m.materials.length > 1 || m.data.geom.instanced);
 	}
 
 	public function addMesh(m:MeshObject, isLod:Bool):Bool {
-		if (!isBatchable(m) || isLod) {
+		if (!isBatchable(m) || isLod) { // No instancing, multimat or lod batching
 			nonBatched.push(m);
 			return false;
 		}
@@ -73,22 +74,14 @@ class MeshBatch {
 			// #end
 			g.setIndexBuffer(b.indexBuffer);
 			
-			if (scontext.raw.constants != null) {
-				for (i in 0...scontext.raw.constants.length) {
-					var c = scontext.raw.constants[i];
-					Uniforms.setContextConstant(g, camera, lamp, scontext.constants[i], c);
-				}
-			}
-			Uniforms.setTextureContextConstants(g, scontext, camera, lamp, bindParams);
+			Uniforms.setContextConstants(g, scontext, camera, lamp, bindParams);
 
-			RenderPath.sortMeshes(b.meshes, camera); // Front to back
+			RenderPath.sortMeshesDistance(b.meshes, camera);
 
 			for (m in b.meshes) {
 
 				if (!m.visible) continue; // Skip render if object is hidden
 				if (m.cullMesh(context, camera, lamp)) continue;
-
-				// var lod = m;
 				
 				// Get context
 				var materialContexts:Array<MaterialContext> = [];
@@ -98,13 +91,7 @@ class MeshBatch {
 				m.transform.update();
 				
 				// Render mesh
-				Uniforms.setTextureObjectConstants(g, scontext, m);
-				if (scontext.raw.constants != null) {
-					for (i in 0...scontext.raw.constants.length) {
-						var c = scontext.raw.constants[i];
-						Uniforms.setObjectConstant(g, m, camera, lamp, scontext.constants[i], c);
-					}
-				}
+				Uniforms.setObjectConstants(g, scontext, m, camera, lamp);
 				Uniforms.setMaterialConstants(g, scontext, materialContexts[0]);
 
 				g.drawIndexedVertices(m.data.start, m.data.count);
@@ -225,3 +212,5 @@ class Bucket {
 		indexBuffer.unlock();
 	}
 }
+
+#end
