@@ -248,7 +248,7 @@ class Scene {
 		}
 		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			createTraits(format.traits, parent); // Scene traits
-			loadEmbeddedData(format.embedded_datas, function() { // Additional scene assets
+			loadEmbeddedData(format.embedded_datas, sceneName, function() { // Additional scene assets
 
 				// if (format.grease_pencil_ref != null) {
 				// 	var ref = format.grease_pencil_ref.split('/');
@@ -392,12 +392,16 @@ class Scene {
 						if (materialsLoaded == o.material_refs.length) {
 
 							// Mesh reference
-							var ref = o.data_ref.split('/');
+							var ref = o.data_ref.split(':');
 							var object_file = '';
 							var data_ref = '';
 							if (ref.length == 2) { // File reference
 								object_file = ref[0];
 								data_ref = ref[1];
+
+								if (!StringTools.startsWith(object_file, "/") && sceneName.indexOf("/") != -1) { // Relative path
+									object_file = new haxe.io.Path(sceneName).dir + "/" + object_file;
+								}
 							}
 							else { // Local mesh data
 								object_file = sceneName;
@@ -649,10 +653,14 @@ class Scene {
 		return Type.createInstance(cname, args);
 	}
 
-	function loadEmbeddedData(datas:Array<String>, done:Void->Void) {
+	function loadEmbeddedData(datas:Array<String>, sceneName:String, done:Void->Void) {
 		if (datas == null) { done(); return; }
 		var loaded = 0;
 		for (file in datas) {
+			if (!StringTools.startsWith(file, "/") && sceneName.indexOf("/") != -1) { // Relative path
+				file = new haxe.io.Path(sceneName).dir + "/" + file;
+			}
+
 			iron.data.Data.getImage(file, function(image:kha.Image) {
 				embedded.set(file, image);
 				loaded++;

@@ -20,6 +20,7 @@ class SpeakerObject extends Object {
 
 		if (data.sound == "") return;
 		
+		// TODO - modding: This may need to be adjusted for mod paths
 		iron.data.Data.getSound(data.sound, function(sound:kha.Sound) {
 			this.sound = sound;
 			App.notifyOnInit(init);

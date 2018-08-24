@@ -15,25 +15,29 @@ class MaterialData extends Data {
 
 	public var contexts:Array<MaterialContext> = null;
 
-	public function new(raw:TMaterialData, done:MaterialData->Void, file = "") {
+	public function new(raw:TMaterialData, filePath:String, done:MaterialData->Void) {
 		super();
 
 		uid = ++uidCounter; // Start from 1
 		this.raw = raw;
 		this.name = raw.name;
 
-		var ref = raw.shader.split("/");
+		var ref = raw.shader.split(":");
 		var object_file = "";
 		var data_ref = "";
 		if (ref.length == 2) { // File reference
 			object_file = ref[0];
 			data_ref = ref[1];
+
+			if (!StringTools.startsWith(object_file, "/") && filePath.indexOf("/") != -1) { // Relative path
+				object_file = new haxe.io.Path(filePath).dir + "/" + object_file;
+			}
 		}
 		else { // Local data
-			object_file = file;
+			object_file = filePath;
 			data_ref = raw.shader;
 		}
-
+		
 		Data.getShader(object_file, data_ref, raw.override_context, function(b:ShaderData) {
 			shader = b;
 
@@ -45,7 +49,7 @@ class MaterialData extends Data {
 
 			for (i in 0...raw.contexts.length) {
 				var c = raw.contexts[i];
-				new MaterialContext(c, function(self:MaterialContext) {
+				new MaterialContext(c, filePath, function(self:MaterialContext) {
 					contexts[i] = self;
 					contextsLoaded++;
 					if (contextsLoaded == raw.contexts.length) done(this);
@@ -61,7 +65,7 @@ class MaterialData extends Data {
 				trace('Material data "$name" not found!');
 				done(null);
 			}
-			new MaterialData(raw, done, file);
+			new MaterialData(raw, file, done);
 		});
 	}
 
@@ -78,12 +82,14 @@ class MaterialData extends Data {
 
 class MaterialContext {
 	public var raw:TMaterialContext;
+	public var filePath:String;
 	public var textures:Vector<kha.Image> = null;
 	public var id = 0;
 	static var num = 0;
 
-	public function new(raw:TMaterialContext, done:MaterialContext->Void) {
+	public function new(raw:TMaterialContext, filePath:String, done:MaterialContext->Void) {
 		this.raw = raw;
+		this.filePath = filePath;
 		id = num++;
 
 		if (raw.bind_textures != null && raw.bind_textures.length > 0) {
@@ -101,7 +107,14 @@ class MaterialContext {
 					continue;
 				}
 
-				iron.data.Data.getImage(tex.file, function(image:kha.Image) {
+				// Get path relative to material file
+				var texPath = tex.file;
+				var subdir = haxe.io.Path.directory(this.filePath);
+				if (subdir != "") {
+					texPath = subdir + "/" + tex.file;
+				}
+
+				iron.data.Data.getImage(texPath, function(image:kha.Image) {
 					textures[i] = image;
 					texturesLoaded++;
 
@@ -114,6 +127,7 @@ class MaterialContext {
 						for (j in 0...tex.mipmaps.length) {
 							var name = tex.mipmaps[j];
 
+							// TODO - modding: This might need to be adjusted for modd paths
 							iron.data.Data.getImage(name, function(mipimg:kha.Image) {
 								mipmaps[j] = mipimg;
 								mipmapsLoaded++;
