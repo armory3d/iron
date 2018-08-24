@@ -397,19 +397,21 @@ class Uniforms {
 					#else
 					helpVec.set(lamp.transform.worldx(), lamp.transform.worldy(), lamp.transform.worldz());
 					#end
+					v = helpVec;
 				}
-				v = helpVec;
 			}
 			else if (c.link == "_lampDirection") {
-				if (lamp != null) helpVec = lamp.look();
-				v = helpVec;
+				if (lamp != null) {
+					helpVec = lamp.look();
+					v = helpVec;
+				}
 			}
 			else if (c.link == "_lampColor") {
 				if (lamp != null) {
 					var str = lamp.data.raw.strength; // Merge with strength
 					helpVec.set(lamp.data.raw.color[0] * str, lamp.data.raw.color[1] * str, lamp.data.raw.color[2] * str);
+					v = helpVec;
 				}
-				v = helpVec;
 			}
 			else if (c.link == "_lampArea0") {
 				if (lamp != null && lamp.data.raw.size != null) {
@@ -560,8 +562,10 @@ class Uniforms {
 				vy = (-far * near) / (far - near);
 			}
 			else if (c.link == "_lampPlane") {
-				vx = lamp == null ? 0.0 : lamp.data.raw.near_plane;
-				vy = lamp == null ? 0.0 : lamp.data.raw.far_plane;
+				if (lamp != null) {
+					vx = lamp.data.raw.near_plane;
+					vy = lamp.data.raw.far_plane;
+				}
 			}
 			else if (c.link == "_lampPlaneProj") { // shadowCube
 				if (lamp != null) {
@@ -577,8 +581,11 @@ class Uniforms {
 			}
 			else if (c.link == "_spotlampData") {
 				// cutoff, cutoff - exponent
-				vx = lamp == null ? 0.0 : lamp.data.raw.spot_size;
-				vy = lamp == null ? 0.0 : vx - lamp.data.raw.spot_blend;
+				if (lamp != null) {
+					vx = lamp.data.raw.spot_size;
+					var vxf:Float = vx; // cpp fix
+					vy = vxf - lamp.data.raw.spot_blend;
+				}
 			}
 
 			if (vx != null) {
@@ -607,8 +614,7 @@ class Uniforms {
 				// if (lamp != null && lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size / lamp.data.raw.fov;
 			// }
 			else if (c.link == "_envmapStrength") {
-				if (Scene.active.world == null) f = 0.0;
-				else f = Scene.active.world.getGlobalProbe().raw.strength;
+				f = Scene.active.world == null ? 0.0 : Scene.active.world.getGlobalProbe().raw.strength;
 			}
 			else if (c.link == "_aspectRatioF") {
 				f = RenderPath.active.currentW / RenderPath.active.currentH;
@@ -639,8 +645,7 @@ class Uniforms {
 		else if (c.type == "floats") {
 			var fa:kha.arrays.Float32Array = null;
 			if (c.link == "_envmapIrradiance") {
-				if (Scene.active.world == null) fa = WorldData.getEmptyIrradiance();
-				else fa = Scene.active.world.getSHIrradiance();
+				fa = Scene.active.world == null ? WorldData.getEmptyIrradiance() : Scene.active.world.getSHIrradiance();
 			}
 			#if arm_csm
 			else if (c.link == "_cascadeData") {
@@ -665,6 +670,7 @@ class Uniforms {
 				if (lamp != null && lamp.data.raw.cast_shadow) {
 					i = lamp.data.raw.shadowmap_cube ? 2 : 1;
 				}
+				else i = 0;
 			}
 			else if (c.link == "_envmapNumMipmaps") {
 				var w = Scene.active.world;
