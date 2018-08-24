@@ -57,6 +57,11 @@ class Animation {
 		paused = false;
 	}
 
+	public function blend(action1:String, action2:String, factor:Float) {
+		blendTime = 1.0; // Enable blending
+		blendFactor = factor;
+	}
+
 	public function pause() {
 		paused = true;
 	}

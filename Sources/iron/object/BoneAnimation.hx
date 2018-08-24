@@ -150,12 +150,11 @@ class BoneAnimation extends Animation {
 		blendFactor = 0.0;
 	}
 
-	public function blend(action1:String, action2:String, factor:Float) {
+	override public function blend(action1:String, action2:String, factor:Float) {
 		if (factor == 0.0) return;
 		setAction(action2);
 		setActionBlend(action1);
-		blendTime = 1.0; // Enable blending
-		blendFactor = factor;
+		super.blend(action1, action2, factor);
 	}
 
 	override public function update(delta:Float) {
