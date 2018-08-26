@@ -487,84 +487,102 @@ class Uniforms {
 			}
 		}
 		else if (c.type == "vec2") {
-			var vx:Null<kha.FastFloat> = null;
-			var vy:Null<kha.FastFloat> = null;
+			var v:Vec4 = null;
+			helpVec.set(0, 0, 0);
 			if (c.link == "_vec2x") {
-				vx = 1.0;
-				vy = 0.0;
+				v = helpVec;
+				v.x = 1.0;
+				v.y = 0.0;
 			}
 			else if (c.link == "_vec2xInv") {
-				vx = 1.0 / RenderPath.active.currentW;
-				vy = 0.0;
+				v = helpVec;
+				v.x = 1.0 / RenderPath.active.currentW;
+				v.y = 0.0;
 			}
 			else if (c.link == "_vec2x2") {
-				vx = 2.0;
-				vy = 0.0;
+				v = helpVec;
+				v.x = 2.0;
+				v.y = 0.0;
 			}
 			else if (c.link == "_vec2x2Inv") {
-				vx = 2.0 / RenderPath.active.currentW;
-				vy = 0.0;
+				v = helpVec;
+				v.x = 2.0 / RenderPath.active.currentW;
+				v.y = 0.0;
 			}
 			else if (c.link == "_vec2y") {
-				vx = 0.0;
-				vy = 1.0;
+				v = helpVec;
+				v.x = 0.0;
+				v.y = 1.0;
 			}
 			else if (c.link == "_vec2yInv") {
-				vx = 0.0;
-				vy = 1.0 / RenderPath.active.currentH;
+				v = helpVec;
+				v.x = 0.0;
+				v.y = 1.0 / RenderPath.active.currentH;
 			}
 			else if (c.link == "_vec2y2") {
-				vx = 0.0;
-				vy = 2.0;
+				v = helpVec;
+				v.x = 0.0;
+				v.y = 2.0;
 			}
 			else if (c.link == "_vec2y2Inv") {
-				vx = 0.0;
-				vy = 2.0 / RenderPath.active.currentH;
+				v = helpVec;
+				v.x = 0.0;
+				v.y = 2.0 / RenderPath.active.currentH;
 			}
 			else if (c.link == "_vec2y3") {
-				vx = 0.0;
-				vy = 3.0;
+				v = helpVec;
+				v.x = 0.0;
+				v.y = 3.0;
 			}
 			else if (c.link == "_vec2y3Inv") {
-				vx = 0.0;
-				vy = 3.0 / RenderPath.active.currentH;
+				v = helpVec;
+				v.x = 0.0;
+				v.y = 3.0 / RenderPath.active.currentH;
 			}
 			else if (c.link == "_windowSize") {
-				vx = App.w();
-				vy = App.h();
+				v = helpVec;
+				v.x = App.w();
+				v.y = App.h();
 			}
 			else if (c.link == "_windowSizeInv") {
-				vx = 1.0 / App.w();
-				vy = 1.0 / App.h();
+				v = helpVec;
+				v.x = 1.0 / App.w();
+				v.y = 1.0 / App.h();
 			}
 			else if (c.link == "_screenSize") {
-				vx = RenderPath.active.currentW;
-				vy = RenderPath.active.currentH;
+				v = helpVec;
+				v.x = RenderPath.active.currentW;
+				v.y = RenderPath.active.currentH;
 			}
 			else if (c.link == "_screenSizeInv") {
-				vx = 1.0 / RenderPath.active.currentW;
-				vy = 1.0 / RenderPath.active.currentH;
+				v = helpVec;
+				v.x = 1.0 / RenderPath.active.currentW;
+				v.y = 1.0 / RenderPath.active.currentH;
 			}
 			else if (c.link == "_aspectRatio") {
-				vx = RenderPath.active.currentH / RenderPath.active.currentW;
-				vy = RenderPath.active.currentW / RenderPath.active.currentH;
-				vx = vx > 1.0 ? 1.0 : vx;
-				vy = vy > 1.0 ? 1.0 : vy;
+				v = helpVec;
+				v.x = RenderPath.active.currentH / RenderPath.active.currentW;
+				v.y = RenderPath.active.currentW / RenderPath.active.currentH;
+				v.x = v.x > 1.0 ? 1.0 : v.x;
+				v.y = v.y > 1.0 ? 1.0 : v.y;
 			}
 			else if (c.link == "_cameraPlane") {
-				vx = camera.data.raw.near_plane;
-				vy = camera.data.raw.far_plane;
+				v = helpVec;
+				v.x = camera.data.raw.near_plane;
+				v.y = camera.data.raw.far_plane;
 			}
 			else if (c.link == "_cameraPlaneProj") {
 				var near = camera.data.raw.near_plane;
 				var far = camera.data.raw.far_plane;
-				vx = far / (far - near);
-				vy = (-far * near) / (far - near);
+				v = helpVec;
+				v.x = far / (far - near);
+				v.y = (-far * near) / (far - near);
 			}
 			else if (c.link == "_lampPlane") {
 				if (lamp != null) {
-					vx = lamp.data.raw.near_plane;
-					vy = lamp.data.raw.far_plane;
+					v = helpVec;
+					v.x = lamp.data.raw.near_plane;
+					v.y = lamp.data.raw.far_plane;
 				}
 			}
 			else if (c.link == "_lampPlaneProj") { // shadowCube
@@ -575,21 +593,22 @@ class Uniforms {
 					var b:kha.FastFloat = far - near;
 					var f2:kha.FastFloat = 2.0;
 					var c = f2 * far * near;
-					vx = a / b;
-					vy = c / b;
+					v = helpVec;
+					v.x = a / b;
+					v.y = c / b;
 				}
 			}
 			else if (c.link == "_spotlampData") {
 				// cutoff, cutoff - exponent
 				if (lamp != null) {
-					vx = lamp.data.raw.spot_size;
-					var vxf:Float = vx; // cpp fix
-					vy = vxf - lamp.data.raw.spot_blend;
+					v = helpVec;
+					v.x = lamp.data.raw.spot_size;
+					v.y = v.x - lamp.data.raw.spot_blend;
 				}
 			}
 
-			if (vx != null) {
-				g.setFloat2(location, vx, vy);
+			if (v != null) {
+				g.setFloat2(location, v.x, v.y);
 				return true;
 			}
 		}

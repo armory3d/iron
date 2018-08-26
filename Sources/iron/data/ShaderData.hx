@@ -258,7 +258,7 @@ class ShaderContext {
 		else if (size == 2) return VertexData.Float2;
 		else if (size == 3) return VertexData.Float3;
 		else if (size == 4) return VertexData.Float4;
-		return null;
+		return VertexData.Float1;
 	}
 	
 	function parseVertexStructure() {
