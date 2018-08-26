@@ -59,9 +59,9 @@ class RenderPath {
 	}
 
 	#if (rp_gi != "Off")
-	var voxelized = 0;
+	public var voxelized = 0;
 	public var onVoxelize:Void->Bool = null;
-	public function voxelize() {
+	public function voxelize() { // Returns true if scene should be voxelized
 		if (onVoxelize != null) return onVoxelize();
 		#if arm_voxelgi_revox
 		return true;

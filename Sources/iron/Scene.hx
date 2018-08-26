@@ -116,6 +116,9 @@ class Scene {
 		iron.data.Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			Scene.create(format, function(o:Object) {
 				if (done != null) done(o);
+				#if (rp_gi != "Off") // Revoxelize
+				RenderPath.active.voxelized = 0;
+				#end
 			});
 		});
 	}
