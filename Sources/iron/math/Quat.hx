@@ -102,13 +102,18 @@ class Quat {
 		return this;
 	}
 
-	inline public function multquats(q1:Quat, q2:Quat) {
+	inline public function mult(q:Quat):Quat {	
+		return multquats(this, q);
+	}
+
+	inline public function multquats(q1:Quat, q2:Quat):Quat {
 		var q1x = q1.x; var q1y = q1.y; var q1z = q1.z; var q1w = q1.w;
 		var q2x = q2.x; var q2y = q2.y; var q2z = q2.z; var q2w = q2.w;
 		x = q1x * q2w + q1w * q2x + q1y * q2z - q1z * q2y;
 		y = q1w * q2y - q1x * q2z + q1y * q2w + q1z * q2x;
 		z = q1w * q2z + q1x * q2y - q1y * q2x + q1z * q2w;
 		w = q1w * q2w - q1x * q2x - q1y * q2y - q1z * q2z;
+		return this;
 	}
 
 	inline public function normalize():Quat {
@@ -231,7 +236,7 @@ class Quat {
 		return (x * q.x) + (y * q.y) + (z * q.z) + (w * q.w);
 	}
 
-	inline public function fromTo(v1:Vec4, v2:Vec4) {
+	inline public function fromTo(v1:Vec4, v2:Vec4):Quat {
 		// Rotation formed by direction vectors
 		// v1.normalize();
 		// v2.normalize();
@@ -251,6 +256,7 @@ class Quat {
 			set(a.x, a.y, a.z, 1 + dot);
 			normalize();
 		}
+		return this;
 	}
 
 	public function toString():String {
