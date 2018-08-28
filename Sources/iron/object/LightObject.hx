@@ -3,11 +3,11 @@ package iron.object;
 import iron.math.Mat4;
 import iron.math.Vec4;
 import iron.math.Quat;
-import iron.data.LampData;
+import iron.data.LightData;
 import iron.object.CameraObject.FrustumPlane;
 import iron.Scene;
 
-class LampObject extends Object {
+class LightObject extends Object {
 
 	public static var cascadeCount = 1;
 	public static var cascadeSplitFactor = 0.8;
@@ -21,7 +21,7 @@ class LampObject extends Object {
 	var camSlicedP:Mat4 = null;
 	#end
 
-	public var data:LampData;
+	public var data:LightData;
 
 	public var V:Mat4 = Mat4.identity();
 	public var P:Mat4 = null;
@@ -30,7 +30,7 @@ class LampObject extends Object {
 	public var frustumPlanes:Array<FrustumPlane> = null;
 	static var corners:Array<Vec4> = null;
 
-	public function new(data:LampData) {
+	public function new(data:LightData) {
 		super();
 		
 		this.data = data;
@@ -52,11 +52,11 @@ class LampObject extends Object {
 			P = Mat4.persp(fov, 1, data.raw.near_plane, data.raw.far_plane);
 		}
 
-		Scene.active.lamps.push(this);
+		Scene.active.lights.push(this);
 	}
 
 	public override function remove() {
-		if (Scene.active != null) Scene.active.lamps.remove(this);
+		if (Scene.active != null) Scene.active.lights.remove(this);
 		super.remove();
 	}
 
@@ -121,7 +121,7 @@ class LampObject extends Object {
 		}
 		m.multmat(camSlicedP[cascade]);
 		#else
-		if (camSlicedP == null) { // Fit to lamp far plane
+		if (camSlicedP == null) { // Fit to light far plane
 			var fov = camera.data.raw.fov;
 			var near = data.raw.near_plane;
 			var far = data.raw.far_plane;
@@ -296,5 +296,5 @@ class LampObject extends Object {
 	public inline function up():Vec4 { return new Vec4(V._01, V._11, V._21); }
 	public inline function look():Vec4 { return new Vec4(V._02, V._12, V._22); }
 
-	public override function toString():String { return "Lamp Object " + name; }
+	public override function toString():String { return "Light Object " + name; }
 }

@@ -24,7 +24,7 @@ class DecalObject extends Object {
 	}
 	
 	// Called before rendering decal in render path
-	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
+	public function render(g:Graphics, context:String, camera:CameraObject, light:LightObject, bindParams:Array<String>) {
 
 		// Check context skip
 		if (material.raw.skip_context != null &&
@@ -45,8 +45,8 @@ class DecalObject extends Object {
 		
 		g.setPipeline(shaderContext.pipeState);
 		
-		Uniforms.setContextConstants(g, shaderContext, camera, lamp, bindParams);			
-		Uniforms.setObjectConstants(g, shaderContext, this, camera, lamp);			
+		Uniforms.setContextConstants(g, shaderContext, camera, light, bindParams);			
+		Uniforms.setObjectConstants(g, shaderContext, this, camera, light);			
 		Uniforms.setMaterialConstants(g, shaderContext, materialContext);
 
 		g.setVertexBuffer(ConstData.boxVB);

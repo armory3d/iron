@@ -12,7 +12,7 @@ import iron.math.Quat;
 import iron.math.Mat3;
 import iron.math.Mat4;
 import iron.data.WorldData;
-import iron.data.LampData;
+import iron.data.LightData;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.SceneFormat;
@@ -49,11 +49,11 @@ class Uniforms {
 	public static var externalFloatsLinks:Array<Object->MaterialData->String->kha.arrays.Float32Array> = null;
 	public static var externalIntLinks:Array<Object->MaterialData->String->Null<Int>> = null;
 
-	public static function setContextConstants(g:Graphics, context:ShaderContext, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
+	public static function setContextConstants(g:Graphics, context:ShaderContext, camera:CameraObject, light:LightObject, bindParams:Array<String>) {
 		if (context.raw.constants != null) {
 			for (i in 0...context.raw.constants.length) {
 				var c = context.raw.constants[i];
-				setContextConstant(g, camera, lamp, context.constants[i], c);
+				setContextConstant(g, camera, light, context.constants[i], c);
 			}
 		}
 		
@@ -112,9 +112,9 @@ class Uniforms {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise256.png'));
 					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 				}
-				else if (tulink == "_lampColorTexture") {
-					if (lamp != null) {
-						g.setTexture(context.textureUnits[j], lamp.data.colorTexture);
+				else if (tulink == "_lightColorTexture") {
+					if (light != null) {
+						g.setTexture(context.textureUnits[j], light.data.colorTexture);
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 					}
 				}
@@ -135,11 +135,11 @@ class Uniforms {
 		}
 	}
 
-	public static function setObjectConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, lamp:LampObject) {
+	public static function setObjectConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, light:LightObject) {
 		if (context.raw.constants != null) {
 			for (i in 0...context.raw.constants.length) {
 				var c = context.raw.constants[i];
-				setObjectConstant(g, object, camera, lamp, context.constants[i], c);
+				setObjectConstant(g, object, camera, light, context.constants[i], c);
 			}
 		}
 
@@ -228,7 +228,7 @@ class Uniforms {
 		}
 	}
 
-	static function setContextConstant(g:Graphics, camera:CameraObject, lamp:LampObject,
+	static function setContextConstant(g:Graphics, camera:CameraObject, light:LightObject,
 									  location:ConstantLocation, c:TShaderConstant):Bool {
 		if (c.link == null) return true;
 
@@ -290,26 +290,26 @@ class Uniforms {
 				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
-			else if (c.link == "_lampViewProjectionMatrix") {
-				if (lamp != null) {
-					m = lamp.VP;
+			else if (c.link == "_lightViewProjectionMatrix") {
+				if (light != null) {
+					m = light.VP;
 				}
 			}
-			else if (c.link == "_biasLampViewProjectionMatrix") {
-				if (lamp != null) {
-					helpMat.setFrom(lamp.VP);
+			else if (c.link == "_biasLightViewProjectionMatrix") {
+				if (light != null) {
+					helpMat.setFrom(light.VP);
 					helpMat.multmat(biasMat);
 					m = helpMat;
 				}
 			}
-			else if (c.link == "_lampVolumeWorldViewProjectionMatrix") {
-				if (lamp != null) {
-					var tr = lamp.transform;
-					var type = lamp.data.raw.type;
+			else if (c.link == "_lightVolumeWorldViewProjectionMatrix") {
+				if (light != null) {
+					var tr = light.transform;
+					var type = light.data.raw.type;
 					if (type == "spot") { // Oriented cone
 						// helpMat.setIdentity();
-						// var f = lamp.data.raw.spot_size * lamp.data.raw.far_plane * 1.05;
-						// helpVec2.set(f, f, lamp.data.raw.far_plane);
+						// var f = light.data.raw.spot_size * light.data.raw.far_plane * 1.05;
+						// helpVec2.set(f, f, light.data.raw.far_plane);
 						// helpMat.scale(helpVec2);
 						// helpMat2.setFrom(tr.world);
 						// helpMat2.toRotation();
@@ -317,13 +317,13 @@ class Uniforms {
 						// helpMat.translate(tr.worldx(), tr.worldy(), tr.worldz());
 						helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
 						var f2:kha.FastFloat = 2.0;
-						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * f2, lamp.data.raw.far_plane * f2);
+						helpVec2.set(light.data.raw.far_plane, light.data.raw.far_plane * f2, light.data.raw.far_plane * f2);
 						helpMat.compose(helpVec, helpQuat, helpVec2);
 					}
 					else if (type == "point" || type == "area") { // Sphere
 						helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
 						var f2:kha.FastFloat = 2.0;
-						helpVec2.set(lamp.data.raw.far_plane, lamp.data.raw.far_plane * f2, lamp.data.raw.far_plane * f2);
+						helpVec2.set(light.data.raw.far_plane, light.data.raw.far_plane * f2, light.data.raw.far_plane * f2);
 						helpMat.compose(helpVec, helpQuat, helpVec2);
 					}
 					
@@ -343,17 +343,17 @@ class Uniforms {
 				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
-			else if (c.link == "_lampViewMatrix") {
-				if (lamp != null) {
+			else if (c.link == "_lightViewMatrix") {
+				if (light != null) {
 					#if arm_centerworld
-					m = vmat(lamp.V);
+					m = vmat(light.V);
 					#else
-					m = lamp.V;
+					m = light.V;
 					#end
 				}
 			}
-			else if (c.link == "_lampProjectionMatrix") {
-				if (lamp != null) m = lamp.P;
+			else if (c.link == "_lightProjectionMatrix") {
+				if (light != null) m = light.P;
 			}
 			#if arm_vr
 			else if (c.link == "_undistortionMatrix") {
@@ -389,67 +389,67 @@ class Uniforms {
 		else if (c.type == "vec3") {
 			var v:Vec4 = null;
 			helpVec.set(0, 0, 0);
-			if (c.link == "_lampPosition") {
-				if (lamp != null) {
+			if (c.link == "_lightPosition") {
+				if (light != null) {
 					#if arm_centerworld
 					var t = camera.transform;
-					helpVec.set(lamp.transform.worldx() - t.worldx(), lamp.transform.worldy() - t.worldy(), lamp.transform.worldz() - t.worldz());
+					helpVec.set(light.transform.worldx() - t.worldx(), light.transform.worldy() - t.worldy(), light.transform.worldz() - t.worldz());
 					#else
-					helpVec.set(lamp.transform.worldx(), lamp.transform.worldy(), lamp.transform.worldz());
+					helpVec.set(light.transform.worldx(), light.transform.worldy(), light.transform.worldz());
 					#end
 					v = helpVec;
 				}
 			}
-			else if (c.link == "_lampDirection") {
-				if (lamp != null) {
-					helpVec = lamp.look();
+			else if (c.link == "_lightDirection") {
+				if (light != null) {
+					helpVec = light.look();
 					v = helpVec;
 				}
 			}
-			else if (c.link == "_lampColor") {
-				if (lamp != null) {
-					var str = lamp.data.raw.strength; // Merge with strength
-					helpVec.set(lamp.data.raw.color[0] * str, lamp.data.raw.color[1] * str, lamp.data.raw.color[2] * str);
+			else if (c.link == "_lightColor") {
+				if (light != null) {
+					var str = light.data.raw.strength; // Merge with strength
+					helpVec.set(light.data.raw.color[0] * str, light.data.raw.color[1] * str, light.data.raw.color[2] * str);
 					v = helpVec;
 				}
 			}
-			else if (c.link == "_lampArea0") {
-				if (lamp != null && lamp.data.raw.size != null) {
+			else if (c.link == "_lightArea0") {
+				if (light != null && light.data.raw.size != null) {
 					var f2:kha.FastFloat = 0.5;
-					var sx:kha.FastFloat = lamp.data.raw.size * f2;
-					var sy:kha.FastFloat = lamp.data.raw.size_y * f2;
+					var sx:kha.FastFloat = light.data.raw.size * f2;
+					var sy:kha.FastFloat = light.data.raw.size_y * f2;
 					helpVec.set(-sx, sy, 0.0);
-					helpVec.applymat(lamp.transform.world);
+					helpVec.applymat(light.transform.world);
 					v = helpVec;
 				}
 			}
-			else if (c.link == "_lampArea1") {
-				if (lamp != null && lamp.data.raw.size != null) {
+			else if (c.link == "_lightArea1") {
+				if (light != null && light.data.raw.size != null) {
 					var f2:kha.FastFloat = 0.5;
-					var sx:kha.FastFloat = lamp.data.raw.size * f2;
-					var sy:kha.FastFloat = lamp.data.raw.size_y * f2;
+					var sx:kha.FastFloat = light.data.raw.size * f2;
+					var sy:kha.FastFloat = light.data.raw.size_y * f2;
 					helpVec.set(sx, sy, 0.0);
-					helpVec.applymat(lamp.transform.world);
+					helpVec.applymat(light.transform.world);
 					v = helpVec;
 				}
 			}
-			else if (c.link == "_lampArea2") {
-				if (lamp != null && lamp.data.raw.size != null) {
+			else if (c.link == "_lightArea2") {
+				if (light != null && light.data.raw.size != null) {
 					var f2:kha.FastFloat = 0.5;
-					var sx:kha.FastFloat = lamp.data.raw.size * f2;
-					var sy:kha.FastFloat = lamp.data.raw.size_y * f2;
+					var sx:kha.FastFloat = light.data.raw.size * f2;
+					var sy:kha.FastFloat = light.data.raw.size_y * f2;
 					helpVec.set(sx, -sy, 0.0);
-					helpVec.applymat(lamp.transform.world);
+					helpVec.applymat(light.transform.world);
 					v = helpVec;
 				}
 			}
-			else if (c.link == "_lampArea3") {
-				if (lamp != null && lamp.data.raw.size != null) {
+			else if (c.link == "_lightArea3") {
+				if (light != null && light.data.raw.size != null) {
 					var f2:kha.FastFloat = 0.5;
-					var sx:kha.FastFloat = lamp.data.raw.size * f2;
-					var sy:kha.FastFloat = lamp.data.raw.size_y * f2;
+					var sx:kha.FastFloat = light.data.raw.size * f2;
+					var sy:kha.FastFloat = light.data.raw.size_y * f2;
 					helpVec.set(-sx, -sy, 0.0);
-					helpVec.applymat(lamp.transform.world);
+					helpVec.applymat(light.transform.world);
 					v = helpVec;
 				}
 			}
@@ -578,17 +578,17 @@ class Uniforms {
 				v.x = far / (far - near);
 				v.y = (-far * near) / (far - near);
 			}
-			else if (c.link == "_lampPlane") {
-				if (lamp != null) {
+			else if (c.link == "_lightPlane") {
+				if (light != null) {
 					v = helpVec;
-					v.x = lamp.data.raw.near_plane;
-					v.y = lamp.data.raw.far_plane;
+					v.x = light.data.raw.near_plane;
+					v.y = light.data.raw.far_plane;
 				}
 			}
-			else if (c.link == "_lampPlaneProj") { // shadowCube
-				if (lamp != null) {
-					var near:kha.FastFloat = lamp.data.raw.near_plane;
-					var far:kha.FastFloat = lamp.data.raw.far_plane;
+			else if (c.link == "_lightPlaneProj") { // shadowCube
+				if (light != null) {
+					var near:kha.FastFloat = light.data.raw.near_plane;
+					var far:kha.FastFloat = light.data.raw.far_plane;
 					var a:kha.FastFloat = far + near;
 					var b:kha.FastFloat = far - near;
 					var f2:kha.FastFloat = 2.0;
@@ -598,12 +598,12 @@ class Uniforms {
 					v.y = c / b;
 				}
 			}
-			else if (c.link == "_spotlampData") {
+			else if (c.link == "_spotlightData") {
 				// cutoff, cutoff - exponent
-				if (lamp != null) {
+				if (light != null) {
 					v = helpVec;
-					v.x = lamp.data.raw.spot_size;
-					v.y = v.x - lamp.data.raw.spot_blend;
+					v.x = light.data.raw.spot_size;
+					v.y = v.x - light.data.raw.spot_blend;
 				}
 			}
 
@@ -620,17 +620,17 @@ class Uniforms {
 			else if (c.link == "_deltaTime") {
 				f = iron.system.Time.delta;
 			}
-			else if (c.link == "_lampRadius") {
-				f = lamp == null ? 0.0 : lamp.data.raw.far_plane;
+			else if (c.link == "_lightRadius") {
+				f = light == null ? 0.0 : light.data.raw.far_plane;
 			}
-			else if (c.link == "_lampShadowsBias") {
-				f = lamp == null ? 0.0 : lamp.data.raw.shadows_bias;
+			else if (c.link == "_lightShadowsBias") {
+				f = light == null ? 0.0 : light.data.raw.shadows_bias;
 			}
-			else if (c.link == "_lampSize") {
-				if (lamp != null && lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size;
+			else if (c.link == "_lightSize") {
+				if (light != null && light.data.raw.light_size != null) f = light.data.raw.light_size;
 			}
-			// else if (c.link == "_lampSizeUV") {
-				// if (lamp != null && lamp.data.raw.lamp_size != null) f = lamp.data.raw.lamp_size / lamp.data.raw.fov;
+			// else if (c.link == "_lightSizeUV") {
+				// if (light != null && light.data.raw.light_size != null) f = light.data.raw.light_size / light.data.raw.fov;
 			// }
 			else if (c.link == "_envmapStrength") {
 				f = Scene.active.world == null ? 0.0 : Scene.active.world.getGlobalProbe().raw.strength;
@@ -668,7 +668,7 @@ class Uniforms {
 			}
 			#if arm_csm
 			else if (c.link == "_cascadeData") {
-				if (lamp != null) fa = lamp.getCascadeData();
+				if (light != null) fa = light.getCascadeData();
 			}
 			#end
 
@@ -679,15 +679,15 @@ class Uniforms {
 		}
 		else if (c.type == "int") {
 			var i:Null<Int> = null;
-			if (c.link == "_lampType") {
-				i = lamp == null ? 0 : LampData.typeToInt(lamp.data.raw.type);
+			if (c.link == "_lightType") {
+				i = light == null ? 0 : LightData.typeToInt(light.data.raw.type);
 			}
-			else if (c.link == "_lampIndex") {
-				i = RenderPath.active.currentLampIndex;
+			else if (c.link == "_lightIndex") {
+				i = RenderPath.active.currentLightIndex;
 			}
-			else if (c.link == "_lampCastShadow") {
-				if (lamp != null && lamp.data.raw.cast_shadow) {
-					i = lamp.data.raw.shadowmap_cube ? 2 : 1;
+			else if (c.link == "_lightCastShadow") {
+				if (light != null && light.data.raw.cast_shadow) {
+					i = light.data.raw.shadowmap_cube ? 2 : 1;
 				}
 				else i = 0;
 			}
@@ -704,7 +704,7 @@ class Uniforms {
 		return false;
 	}
 
-	static function setObjectConstant(g:Graphics, object:Object, camera:CameraObject, lamp:LampObject,
+	static function setObjectConstant(g:Graphics, object:Object, camera:CameraObject, light:LightObject,
 									  location:ConstantLocation, c:TShaderConstant) {
 		if (c.link == null) return;
 
@@ -766,16 +766,16 @@ class Uniforms {
 				m = cast(object, MeshObject).prevMatrix;
 			}
 			#end
-			else if (c.link == "_lampWorldViewProjectionMatrix") {
-				if (lamp != null) {
+			else if (c.link == "_lightWorldViewProjectionMatrix") {
+				if (light != null) {
 					// object is null for DrawQuad
 					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.world);
-					helpMat.multmat(lamp.VP);
+					helpMat.multmat(light.VP);
 					m = helpMat;
 				}
 			}
-			else if (c.link == "_lampWorldViewProjectionMatrixSphere") {
-				if (lamp != null) {
+			else if (c.link == "_lightWorldViewProjectionMatrixSphere") {
+				if (light != null) {
 					helpMat.setFrom(object.transform.world);
 					
 					// Align to camera..
@@ -786,12 +786,12 @@ class Uniforms {
 					helpMat2.getInverse(camera.V);
 					helpMat.multmat(helpMat2);
 
-					helpMat.multmat(lamp.VP);
+					helpMat.multmat(light.VP);
 					m = helpMat;
 				}
 			}
-			else if (c.link == "_lampWorldViewProjectionMatrixCylinder") {
-				if (lamp != null) {
+			else if (c.link == "_lightWorldViewProjectionMatrixCylinder") {
+				if (light != null) {
 					helpMat.setFrom(object.transform.world);
 					
 					// Align to camera..
@@ -802,15 +802,15 @@ class Uniforms {
 					helpMat2.getInverse(camera.V);
 					helpMat.multmat(helpMat2);
 
-					helpMat.multmat(lamp.VP);
+					helpMat.multmat(light.VP);
 					m = helpMat;
 				}
 			}
-			else if (c.link == "_biasLampWorldViewProjectionMatrix") {
-				if (lamp != null)  {
+			else if (c.link == "_biasLightWorldViewProjectionMatrix") {
+				if (light != null)  {
 					// object is null for DrawQuad
 					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.world);
-					helpMat.multmat(lamp.VP);
+					helpMat.multmat(light.VP);
 					helpMat.multmat(biasMat);
 					m = helpMat;
 				}

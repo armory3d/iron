@@ -7,7 +7,7 @@ class Data {
 
 	public static var cachedSceneRaws:Map<String, TSceneFormat> = new Map();
 	public static var cachedMeshes:Map<String, MeshData> = new Map();
-	public static var cachedLamps:Map<String, LampData> = new Map();
+	public static var cachedLights:Map<String, LightData> = new Map();
 	public static var cachedCameras:Map<String, CameraData> = new Map();
 	public static var cachedMaterials:Map<String, MaterialData> = new Map();
 	public static var cachedParticles:Map<String, ParticleData> = new Map();
@@ -35,7 +35,7 @@ class Data {
 		for (c in cachedShaders) c.delete();
 		cachedShaders = new Map();
 		cachedSceneRaws = new Map();
-		cachedLamps = new Map();
+		cachedLights = new Map();
 		cachedCameras = new Map();
 		cachedMaterials = new Map();
 		cachedParticles = new Map();
@@ -59,7 +59,7 @@ class Data {
 	public static function clearSceneData() {
 		cachedSceneRaws = new Map();
 		cachedMeshes = new Map(); // Delete data
-		cachedLamps = new Map();
+		cachedLights = new Map();
 		cachedMaterials = new Map();
 		cachedCameras = new Map();
 		cachedParticles = new Map();
@@ -96,20 +96,20 @@ class Data {
 		cachedMeshes.remove(handle);
 	}
 
-	static var loadingLamps:Map<String, Array<LampData->Void>> = new Map();
-	public static function getLamp(file:String, name:String, done:LampData->Void) {
-		var cached = cachedLamps.get(file + name);
+	static var loadingLights:Map<String, Array<LightData->Void>> = new Map();
+	public static function getLight(file:String, name:String, done:LightData->Void) {
+		var cached = cachedLights.get(file + name);
 		if (cached != null) { done(cached); return; }
 
-		var loading = loadingLamps.get(file + name);
+		var loading = loadingLights.get(file + name);
 		if (loading != null) { loading.push(done); return; }
 
-		loadingLamps.set(file + name, [done]);
+		loadingLights.set(file + name, [done]);
 
-		LampData.parse(file, name, function(b:LampData) {
-			cachedLamps.set(file + name, b);
-			for (f in loadingLamps.get(file + name)) f(b);
-			loadingLamps.remove(file + name);
+		LightData.parse(file, name, function(b:LightData) {
+			cachedLights.set(file + name, b);
+			for (f in loadingLights.get(file + name)) f(b);
+			loadingLights.remove(file + name);
 		});
 	}
 
@@ -327,7 +327,7 @@ class Data {
 		return null;
 	}
 
-	public static function getLampRawByName(datas:Array<TLampData>, name:String):TLampData {
+	public static function getLightRawByName(datas:Array<TLightData>, name:String):TLightData {
 		if (name == "") return datas[0];
 		for (dat in datas) if (dat.name == name) return dat;
 		return null;

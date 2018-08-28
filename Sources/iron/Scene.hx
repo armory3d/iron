@@ -26,7 +26,7 @@ class Scene {
 	public var sceneStream:SceneStream = null;
 	#end
 	public var meshes:Array<MeshObject>;
-	public var lamps:Array<LampObject>;
+	public var lights:Array<LightObject>;
 	public var cameras:Array<CameraObject>;
 	public var speakers:Array<SpeakerObject>;
 	public var decals:Array<DecalObject>;
@@ -51,7 +51,7 @@ class Scene {
 		sceneStream = new SceneStream();
 		#end
 		meshes = [];
-		lamps = [];
+		lights = [];
 		cameras = [];
 		speakers = [];
 		decals = [];
@@ -99,7 +99,7 @@ class Scene {
 		if (meshBatch != null) meshBatch.remove();
 		#end
 		for (o in meshes) o.remove();
-		for (o in lamps) o.remove();
+		for (o in lights) o.remove();
 		for (o in cameras) o.remove();
 		for (o in speakers) o.remove();
 		for (o in decals) o.remove();
@@ -189,8 +189,8 @@ class Scene {
 		return null;
 	}
 
-	public function getLamp(name:String):LampObject {
-		for (l in lamps) if (l.name == name) return l;
+	public function getLight(name:String):LightObject {
+		for (l in lights) if (l.name == name) return l;
 		return null;
 	}
 
@@ -215,8 +215,8 @@ class Scene {
 		return object;
 	}
 
-	public function addLampObject(data:LampData, parent:Object = null):LampObject {
-		var object = new LampObject(data);
+	public function addLightObject(data:LightData, parent:Object = null):LightObject {
+		var object = new LightObject(data);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
@@ -369,9 +369,9 @@ class Scene {
 				returnObject(object, o, done);
 			});
 		}
-		else if (o.type == "lamp_object") {
-			Data.getLamp(sceneName, o.data_ref, function(b:LampData) {
-				var object = addLampObject(b, parent);	
+		else if (o.type == "light_object") {
+			Data.getLight(sceneName, o.data_ref, function(b:LightData) {
+				var object = addLightObject(b, parent);	
 				returnObject(object, o, done);
 			});
 		}

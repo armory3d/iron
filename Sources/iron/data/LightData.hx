@@ -3,14 +3,14 @@ package iron.data;
 import iron.math.Mat4;
 import iron.data.SceneFormat;
 
-class LampData extends Data {
+class LightData extends Data {
 
 	public var name:String;
-	public var raw:TLampData;
+	public var raw:TLightData;
 
 	public var colorTexture:kha.Image = null;
 
-	public function new(raw:TLampData, done:LampData->Void) {
+	public function new(raw:TLightData, done:LightData->Void) {
 		super();
 
 		this.raw = raw;
@@ -35,14 +35,14 @@ class LampData extends Data {
 		}
 	}
 
-	public static function parse(name:String, id:String, done:LampData->Void) {
+	public static function parse(name:String, id:String, done:LightData->Void) {
 		Data.getSceneRaw(name, function(format:TSceneFormat) {
-			var raw:TLampData = Data.getLampRawByName(format.lamp_datas, id);
+			var raw:TLightData = Data.getLightRawByName(format.light_datas, id);
 			if (raw == null) {
-				trace('Lamp data "$id" not found!');
+				trace('Light data "$id" not found!');
 				done(null);
 			}
-			new LampData(raw, done);
+			new LightData(raw, done);
 		});
 	}
 }

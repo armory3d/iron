@@ -33,7 +33,7 @@ from mathutils import *
 NodeTypeNode = 0
 NodeTypeBone = 1
 NodeTypeMesh = 2
-NodeTypeLamp = 3
+NodeTypeLight = 3
 NodeTypeCamera = 4
 NodeTypeSpeaker = 5
 NodeTypeDecal = 6
@@ -42,7 +42,7 @@ AnimationTypeLinear = 1
 AnimationTypeBezier = 2
 ExportEpsilon = 1.0e-6
 
-structIdentifier = ["object", "bone_object", "mesh_object", "lamp_object", "camera_object", "speaker_object", "decal_object"]
+structIdentifier = ["object", "bone_object", "mesh_object", "light_object", "camera_object", "speaker_object", "decal_object"]
 
 subtranslationName = ["xloc", "yloc", "zloc"]
 subrotationName = ["xrot", "yrot", "zrot"]

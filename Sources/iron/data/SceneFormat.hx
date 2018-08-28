@@ -7,7 +7,7 @@ import kha.arrays.Uint32Array;
 typedef TSceneFormat = {
 	@:optional var name:String;
 	@:optional var mesh_datas:Array<TMeshData>;
-	@:optional var lamp_datas:Array<TLampData>;
+	@:optional var light_datas:Array<TLightData>;
 	@:optional var camera_datas:Array<TCameraData>;
 	@:optional var camera_ref:String; // Active camera
 	@:optional var material_datas:Array<TMaterialData>;
@@ -59,7 +59,7 @@ typedef TIndexArray = {
 	var material:Int;
 }
 
-typedef TLampData = {
+typedef TLightData = {
 	var name:String;
 	var type:String; // Sun, point, spot
 	var color:Float32Array;
@@ -73,9 +73,9 @@ typedef TLampData = {
 	@:optional var shadowmap_cube:Null<Bool>; // Omni shadows for point
 	@:optional var spot_size:Null<FastFloat>;
 	@:optional var spot_blend:Null<FastFloat>;
-	@:optional var lamp_size:Null<FastFloat>; // Shadow soft size
+	@:optional var light_size:Null<FastFloat>; // Shadow soft size
 	@:optional var color_texture:String; // Image reference
-	@:optional var size:Null<FastFloat>; // Area lamp
+	@:optional var size:Null<FastFloat>; // Area light
 	@:optional var size_y:Null<FastFloat>;
 }
 
@@ -315,7 +315,7 @@ typedef TParticleReference = {
 }
 
 typedef TObj = {
-	var type:String; // object, mesh_object, lamp_object, camera_object, speaker_object, decal_object
+	var type:String; // object, mesh_object, light_object, camera_object, speaker_object, decal_object
 	var name:String;
 	var data_ref:String;
 	var transform:TTransform;

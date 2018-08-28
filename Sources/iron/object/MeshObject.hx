@@ -131,7 +131,7 @@ class MeshObject extends Object {
 		return setCulled(isShadow, false);
 	}
 
-	function cullMesh(context:String, camera:CameraObject, lamp:LampObject):Bool {
+	function cullMesh(context:String, camera:CameraObject, light:LightObject):Bool {
 		if (camera == null) return false;
 
 		if (camera.data.raw.frustum_culling && frustumCulling) {
@@ -144,11 +144,11 @@ class MeshObject extends Object {
 			#end
 			if (context == "voxel") radiusScale *= 100;
 			var isShadow = context == RenderPath.shadowsContext;
-			var frustumPlanes = isShadow ? lamp.frustumPlanes : camera.frustumPlanes;
+			var frustumPlanes = isShadow ? light.frustumPlanes : camera.frustumPlanes;
 
-			if (isShadow && lamp.data.raw.type != "sun") { // Non-sun lamp bounds intersect camera frustum
-				lamp.transform.radius = lamp.data.raw.far_plane;
-				if (!CameraObject.sphereInFrustum(camera.frustumPlanes, lamp.transform)) {
+			if (isShadow && light.data.raw.type != "sun") { // Non-sun light bounds intersect camera frustum
+				light.transform.radius = light.data.raw.far_plane;
+				if (!CameraObject.sphereInFrustum(camera.frustumPlanes, light.transform)) {
 					return setCulled(isShadow, true);
 				}
 			}
@@ -207,11 +207,11 @@ class MeshObject extends Object {
 	}
 
 	static var lastPipeline:kha.graphics4.PipelineState = null;
-	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
+	public function render(g:Graphics, context:String, camera:CameraObject, light:LightObject, bindParams:Array<String>) {
 
 		if (data == null || !data.geom.ready) return; // Data not yet streamed
 		if (!visible) return; // Skip render if object is hidden
-		if (cullMesh(context, camera, lamp)) return;
+		if (cullMesh(context, camera, light)) return;
 		var meshContext = raw != null ? RenderPath.meshContext == context : false;
 		#if arm_particles
 		if (raw != null && raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
@@ -285,9 +285,9 @@ class MeshObject extends Object {
 			if (scontext.pipeState != lastPipeline) {
 				g.setPipeline(scontext.pipeState);
 				lastPipeline = scontext.pipeState;
-				Uniforms.setContextConstants(g, scontext, camera, lamp, bindParams);
+				Uniforms.setContextConstants(g, scontext, camera, light, bindParams);
 			}
-			Uniforms.setObjectConstants(g, scontext, this, camera, lamp);
+			Uniforms.setObjectConstants(g, scontext, this, camera, light);
 			if (materialContexts.length > mi) {
 				Uniforms.setMaterialConstants(g, scontext, materialContexts[mi]);
 			}

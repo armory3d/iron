@@ -9,7 +9,7 @@ import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
 import kha.graphics4.Graphics;
 import iron.object.CameraObject;
-import iron.object.LampObject;
+import iron.object.LightObject;
 import iron.object.MeshObject;
 import iron.object.Uniforms;
 import iron.data.MaterialData;
@@ -58,7 +58,7 @@ class MeshBatch {
 		else nonBatched.remove(m);
 	}
 
-	public function render(g:Graphics, context:String, camera:CameraObject, lamp:LampObject, bindParams:Array<String>) {
+	public function render(g:Graphics, context:String, camera:CameraObject, light:LightObject, bindParams:Array<String>) {
 
 		for (b in buckets) {
 
@@ -74,14 +74,14 @@ class MeshBatch {
 			// #end
 			g.setIndexBuffer(b.indexBuffer);
 			
-			Uniforms.setContextConstants(g, scontext, camera, lamp, bindParams);
+			Uniforms.setContextConstants(g, scontext, camera, light, bindParams);
 
 			RenderPath.sortMeshesDistance(b.meshes, camera);
 
 			for (m in b.meshes) {
 
 				if (!m.visible) continue; // Skip render if object is hidden
-				if (m.cullMesh(context, camera, lamp)) continue;
+				if (m.cullMesh(context, camera, light)) continue;
 				
 				// Get context
 				var materialContexts:Array<MaterialContext> = [];
@@ -91,7 +91,7 @@ class MeshBatch {
 				m.transform.update();
 				
 				// Render mesh
-				Uniforms.setObjectConstants(g, scontext, m, camera, lamp);
+				Uniforms.setObjectConstants(g, scontext, m, camera, light);
 				Uniforms.setMaterialConstants(g, scontext, materialContexts[0]);
 
 				g.drawIndexedVertices(m.data.start, m.data.count);
@@ -112,7 +112,7 @@ class MeshBatch {
 		}
 
 		for (m in nonBatched) {
-			m.render(g, context, camera, lamp, bindParams);
+			m.render(g, context, camera, light, bindParams);
 			
 			#if arm_debug
 			if (m.culled) RenderPath.culled++;
