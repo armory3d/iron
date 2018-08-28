@@ -11,9 +11,6 @@ class CameraObject extends Object {
 	public var data:CameraData;
 
 	public var P:Mat4;
-	// #if arm_veloc
-	// public var prevP:Mat4;
-	// #end
 	#if arm_taa
 	public var noJitterP = Mat4.identity();
 	#end
@@ -24,6 +21,7 @@ class CameraObject extends Object {
 	public var nearPlane:kha.FastFloat;
 	public var farPlane:kha.FastFloat;
 	static var temp = new Vec4();
+	static var q = new Quat();
 
 	#if arm_vr
 	var helpMat = Mat4.identity();
@@ -43,11 +41,6 @@ class CameraObject extends Object {
 		#end
 
 		buildProjection();
-
-		// #if arm_veloc
-		// prevP = Mat4.identity();
-		// prevP.setFrom(P);
-		// #end
 
 		V = Mat4.identity();
 		VP = Mat4.identity();
@@ -97,9 +90,6 @@ class CameraObject extends Object {
 		RenderPath.active.renderFrame(g);
 	
 		prevV.setFrom(V);
-		// #if (arm_veloc && arm_taa)
-		// prevP.setFrom(P);
-		// #end
 	}
 
 	#if arm_taa
@@ -134,11 +124,11 @@ class CameraObject extends Object {
 		if (vr != null && vr.IsPresenting()) {
 			leftV.setFrom(V);
 			helpMat.self = vr.GetViewMatrix(0);
-			leftV.multmat2(helpMat);
+			leftV.multmat(helpMat);
 			
 			rightV.setFrom(V);
 			helpMat.self = vr.GetViewMatrix(1);
-			rightV.multmat2(helpMat);
+			rightV.multmat(helpMat);
 
 			// var tr = camera.transform;
 			// tr.world.getInverse(camera.V);
@@ -188,7 +178,6 @@ class CameraObject extends Object {
 		return true;
 	}
 
-	static var q = new Quat();
 	public function rotate(axis:Vec4, f:Float) {
 		q.fromAxisAngle(axis, f);
 		transform.rot.multquats(q, transform.rot);

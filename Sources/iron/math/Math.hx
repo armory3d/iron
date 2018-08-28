@@ -224,21 +224,25 @@ class Math {
 		Round toward negative infinity
 	*/
 	public static inline function ffloor(v:Float): Float {
-		return std.Math.floor(v);
+		return std.Math.ffloor(v);
 	}
 
 	/*
 		Round toward positive infinity
 	*/
 	public static inline function fceil(v:Float): Float {
-		return std.Math.ceil(v);
+		return std.Math.fceil(v);
 	}
 
 	/*
 		Round float to closest integer
 	*/
 	public static inline function fround(v:Float): Float {
-		return std.Math.round(v);
+		#if js
+		return untyped __js__("Math.fround")(v);
+		#else
+		return std.Math.fround(v);
+		#end
 	}
 
 	/*

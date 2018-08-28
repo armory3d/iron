@@ -378,7 +378,7 @@ class RenderPath {
 			ps.push(new Vec4(min.x + dx, min.y, min.z + dz));
 			ps.push(new Vec4(min.x + dx, min.y + dy, min.z + dz));
 			helpMat.setFrom(Scene.active.camera.V);
-			helpMat.multmat2(Scene.active.camera.P);
+			helpMat.multmat(Scene.active.camera.P);
 			var b:Vec4 = null;
 			for (v in ps) {
 				v.applymat4(helpMat);

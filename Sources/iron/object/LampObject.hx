@@ -119,7 +119,7 @@ class LampObject extends Object {
 				camSlicedP.push(Mat4.persp(fov, aspect, near, cfar));
 			}
 		}
-		m.multmat2(camSlicedP[cascade]);
+		m.multmat(camSlicedP[cascade]);
 		#else
 		if (camSlicedP == null) { // Fit to lamp far plane
 			var fov = camera.data.raw.fov;
@@ -128,13 +128,13 @@ class LampObject extends Object {
 			var aspect = camera.data.raw.aspect != null ? camera.data.raw.aspect : iron.App.w() / iron.App.h();
 			camSlicedP = Mat4.persp(fov, aspect, near, far);
 		}
-		m.multmat2(camSlicedP);
+		m.multmat(camSlicedP);
 		#end
 		
 		m.getInverse(m);
 		V.getInverse(transform.world);
 		V.toRotation();
-		m.multmat2(V);
+		m.multmat(V);
 		setCorners();
 		for (v in corners) {
 			v.applymat4(m);
@@ -266,7 +266,7 @@ class LampObject extends Object {
 			bias._00 /= cascadeCount; // Atlas offset
 			bias._30 /= cascadeCount;
 			bias._30 += i * (1 / cascadeCount);
-			m.multmat2(bias);
+			m.multmat(bias);
 			cascadeData[i * 16] = m._00;
 			cascadeData[i * 16 + 1] = m._01;
 			cascadeData[i * 16 + 2] = m._02;

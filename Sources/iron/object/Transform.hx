@@ -17,6 +17,7 @@ class Transform {
 	public var dim:Vec4;
 	public var radius:kha.FastFloat;
 	static var temp = Mat4.identity();
+	static var q = new Quat();
 	var prependMats:Array<Mat4> = null;
 	var appendMats:Array<Mat4> = null;
 	public var boneParent:Mat4 = null;
@@ -79,16 +80,16 @@ class Transform {
 
 		if (prependMats != null) {
 			temp.setIdentity();
-			for (m in prependMats) temp.multmat2(m);
-			temp.multmat2(local);
+			for (m in prependMats) temp.multmat(m);
+			temp.multmat(local);
 			local.setFrom(temp);
 		}
-		if (appendMats != null) for (m in appendMats) local.multmat2(m);
+		if (appendMats != null) for (m in appendMats) local.multmat(m);
 
 		if (boneParent != null) local.multmats(boneParent, local);
 		
 		if (object.parent != null && !localOnly) {
-			world.multmat3x4(local, object.parent.transform.world);
+			world.multmats3x4(local, object.parent.transform.world);
 		}
 		else {
 			world.setFrom(local);
@@ -128,7 +129,7 @@ class Transform {
 	}
 
 	public function multMatrix(mat:Mat4) {
-		local.multmat2(mat);
+		local.multmat(mat);
 		decompose();
 		buildMatrix();
 	}
@@ -138,7 +139,6 @@ class Transform {
 	}
 
 	public function rotate(axis:Vec4, f:kha.FastFloat) {
-		var q = new Quat();
 		q.fromAxisAngle(axis, f);
 		rot.multquats(q, rot);
 		dirty = true;
@@ -175,14 +175,14 @@ class Transform {
 		var pt = object.parent.transform;
 		pt.buildMatrix();
 		temp.getInverse(pt.world);
-		this.local.multmat2(temp);
+		this.local.multmat(temp);
 		this.decompose();
 		this.buildMatrix();
 	}
 
 	public function applyParent() {
 		var pt = object.parent.transform;
-		this.local.multmat2(pt.world);
+		this.local.multmat(pt.world);
 		this.decompose();
 	}
 

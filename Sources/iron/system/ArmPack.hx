@@ -37,10 +37,7 @@ class ArmPack {
 		try {
 			var b = i.readByte();
 			switch (b) {
-				// null
 				case 0xc0: return null;
-
-				// boolean
 				case 0xc2: return false;
 				case 0xc3: return true;
 

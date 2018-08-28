@@ -39,7 +39,6 @@ class MaterialData extends Data {
 
 			// Contexts have to be in the same order as in raw data for now
 			contexts = [];
-			// contexts = new Vector(raw.contexts.length);
 			while (contexts.length < raw.contexts.length) contexts.push(null);
 			var contextsLoaded = 0;
 
@@ -145,11 +144,11 @@ class MaterialContext {
 	
 	public function setTextureParameters(g:kha.graphics4.Graphics, textureIndex:Int, context:ShaderContext, unitIndex:Int) {
 		// This function is called by MeshObject for samplers set using material context
-		if (!context.paramsSet[unitIndex]) {
+		// if (!context.paramsSet[unitIndex]) {
 			context.setTextureParameters(g, unitIndex, raw.bind_textures[textureIndex]);
 			// #if kha_kore // TODO: need to re-set params for kore
 			// context.paramsSet[unitIndex] = true;
 			// #end
-		}
+		// }
 	}
 }

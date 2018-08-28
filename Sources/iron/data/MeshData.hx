@@ -93,11 +93,6 @@ class MeshData extends Data {
 		done(this);
 	}
 
-	// TODO: deprecated
-	public static function newSync(raw:TMeshData):MeshData {
-		return new MeshData(raw, function(data:MeshData){});
-	}
-
 	public function delete() {
 		geom.delete();
 	}

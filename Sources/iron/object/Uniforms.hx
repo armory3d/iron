@@ -273,21 +273,21 @@ class Uniforms {
 				#else
 				helpMat.setFrom(camera.V);
 				#end
-				helpMat.multmat2(camera.P);
+				helpMat.multmat(camera.P);
 				helpMat.getInverse(helpMat);
 				m = helpMat;
 			}
 			else if (c.link == "_viewProjectionMatrix") {
 				#if arm_centerworld
 				m = vmat(camera.V);
-				m.multmat2(camera.P);
+				m.multmat(camera.P);
 				#else
 				m = camera.VP;
 				#end
 			}
 			else if (c.link == "_prevViewProjectionMatrix") {
 				helpMat.setFrom(camera.prevV);
-				helpMat.multmat2(camera.P);
+				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_lampViewProjectionMatrix") {
@@ -298,7 +298,7 @@ class Uniforms {
 			else if (c.link == "_biasLampViewProjectionMatrix") {
 				if (lamp != null) {
 					helpMat.setFrom(lamp.VP);
-					helpMat.multmat2(biasMat);
+					helpMat.multmat(biasMat);
 					m = helpMat;
 				}
 			}
@@ -313,7 +313,7 @@ class Uniforms {
 						// helpMat.scale(helpVec2);
 						// helpMat2.setFrom(tr.world);
 						// helpMat2.toRotation();
-						// helpMat.multmat2(helpMat2);
+						// helpMat.multmat(helpMat2);
 						// helpMat.translate(tr.worldx(), tr.worldy(), tr.worldz());
 						helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
 						var f2:kha.FastFloat = 2.0;
@@ -327,8 +327,8 @@ class Uniforms {
 						helpMat.compose(helpVec, helpQuat, helpVec2);
 					}
 					
-					helpMat.multmat2(camera.V);
-					helpMat.multmat2(camera.P);
+					helpMat.multmat(camera.V);
+					helpMat.multmat(camera.P);
 					m = helpMat;
 				}
 			}
@@ -339,8 +339,8 @@ class Uniforms {
 				var bounds = camera.farPlane * 0.95;
 				helpVec2.set(bounds, bounds, bounds);
 				helpMat.compose(helpVec, helpQuat, helpVec2);
-				helpMat.multmat2(camera.V);
-				helpMat.multmat2(camera.P);
+				helpMat.multmat(camera.V);
+				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_lampViewMatrix") {
@@ -727,39 +727,39 @@ class Uniforms {
 			}
 			else if (c.link == "_worldViewProjectionMatrix") {
 				helpMat.setFrom(object.transform.world);
-				helpMat.multmat2(camera.V);
-				helpMat.multmat2(camera.P);
+				helpMat.multmat(camera.V);
+				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrixSphere") { // Billboard
 				helpMat.setFrom(object.transform.world);
-				helpMat.multmat2(camera.V);
+				helpMat.multmat(camera.V);
 				helpMat._00 = 1.0; helpMat._10 = 0.0; helpMat._20 = 0.0;
 				helpMat._01 = 0.0; helpMat._11 = 1.0; helpMat._21 = 0.0;
 				helpMat._02 = 0.0; helpMat._12 = 0.0; helpMat._22 = 1.0;
-				helpMat.multmat2(camera.P);
+				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrixCylinder") { // Billboard - x rot 90deg
 				helpMat.setFrom(object.transform.world);
-				helpMat.multmat2(camera.V);
+				helpMat.multmat(camera.V);
 				helpMat._00 = 1.0;  helpMat._20 = 0.0;
 				helpMat._01 = 0.0;  helpMat._21 = 0.0;
 				helpMat._02 = 0.0;  helpMat._22 = 1.0;
-				helpMat.multmat2(camera.P);
+				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewMatrix") {
 				helpMat.setFrom(object.transform.world);
-				helpMat.multmat2(camera.V);
+				helpMat.multmat(camera.V);
 				m = helpMat;
 			}
 			#if arm_veloc
 			else if (c.link == "_prevWorldViewProjectionMatrix") {
 				helpMat.setFrom(cast(object, MeshObject).prevMatrix);
-				helpMat.multmat2(camera.prevV);
-				// helpMat.multmat2(camera.prevP);
-				helpMat.multmat2(camera.P);
+				helpMat.multmat(camera.prevV);
+				// helpMat.multmat(camera.prevP);
+				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_prevWorldMatrix") {
@@ -770,7 +770,7 @@ class Uniforms {
 				if (lamp != null) {
 					// object is null for DrawQuad
 					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.world);
-					helpMat.multmat2(lamp.VP);
+					helpMat.multmat(lamp.VP);
 					m = helpMat;
 				}
 			}
@@ -779,14 +779,14 @@ class Uniforms {
 					helpMat.setFrom(object.transform.world);
 					
 					// Align to camera..
-					helpMat.multmat2(camera.V);
+					helpMat.multmat(camera.V);
 					helpMat._00 = 1.0; helpMat._10 = 0.0; helpMat._20 = 0.0;
 					helpMat._01 = 0.0; helpMat._11 = 1.0; helpMat._21 = 0.0;
 					helpMat._02 = 0.0; helpMat._12 = 0.0; helpMat._22 = 1.0;
 					helpMat2.getInverse(camera.V);
-					helpMat.multmat2(helpMat2);
+					helpMat.multmat(helpMat2);
 
-					helpMat.multmat2(lamp.VP);
+					helpMat.multmat(lamp.VP);
 					m = helpMat;
 				}
 			}
@@ -795,14 +795,14 @@ class Uniforms {
 					helpMat.setFrom(object.transform.world);
 					
 					// Align to camera..
-					helpMat.multmat2(camera.V);
+					helpMat.multmat(camera.V);
 					helpMat._00 = 1.0;  helpMat._20 = 0.0;
 					helpMat._01 = 0.0;  helpMat._21 = 0.0;
 					helpMat._02 = 0.0;  helpMat._22 = 1.0;
 					helpMat2.getInverse(camera.V);
-					helpMat.multmat2(helpMat2);
+					helpMat.multmat(helpMat2);
 
-					helpMat.multmat2(lamp.VP);
+					helpMat.multmat(lamp.VP);
 					m = helpMat;
 				}
 			}
@@ -810,8 +810,8 @@ class Uniforms {
 				if (lamp != null)  {
 					// object is null for DrawQuad
 					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.world);
-					helpMat.multmat2(lamp.VP);
-					helpMat.multmat2(biasMat);
+					helpMat.multmat(lamp.VP);
+					helpMat.multmat(biasMat);
 					m = helpMat;
 				}
 			}
@@ -1015,7 +1015,6 @@ class Uniforms {
 			for (i in 0...materialContext.textures.length) {
 				var mname = materialContext.raw.bind_textures[i].name;
 
-				// TODO: cache
 				for (j in 0...context.textureUnits.length) {
 					var sname = context.raw.texture_units[j].name;
 					if (mname == sname) {

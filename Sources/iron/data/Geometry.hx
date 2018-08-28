@@ -338,11 +338,7 @@ class Geometry {
 
 		indexBuffers = [];
 		for (id in indices) {
-			if (id.length == 0) {
-				// Exporter should prevent this
-				// trace('Geometry contains material with no face assigned!');
-				continue;
-			}
+			if (id.length == 0) continue;
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
 
@@ -354,7 +350,6 @@ class Geometry {
 			#end
 			
 			indexBuffer.unlock();
-
 			indexBuffers.push(indexBuffer);
 		}
 
@@ -418,7 +413,6 @@ class Geometry {
 		var actionMats:Array<Mat4> = [];
 		for (b in actionBones) {
 			actionMats.push(Mat4.fromFloat32Array(b.transform.values));
-			// boneTimeIndices.set(b, 0);
 		}
 		mats.set(name, actionMats);
 	}

@@ -23,11 +23,14 @@ class Animation {
 	static var vscl2 = new Vec4();
 	static var q1 = new Quat();
 	static var q2 = new Quat();
+	static var q3 = new Quat();
+	static var vp = new Vec4();
+	static var vs = new Vec4();
 
 	public var time = 0.0;
 	public var speed = 1.0;
 	public var loop = true;
-	public var frameIndex = 0; // TODO: use boneTimeIndices
+	public var frameIndex = 0;
 	public var onComplete:Void->Void = null;
 	public var paused = false;
 	var frameTime:kha.FastFloat;
@@ -36,6 +39,9 @@ class Animation {
 	var blendCurrent = 0.0;
 	var blendAction = '';
 	var blendFactor = 0.0;
+
+	var lastFrameIndex = -1;
+	var markerEvents:Map<String, Array<Void->Void>> = null;
 
 	function new() {
 		Scene.active.animations.push(this);
@@ -109,10 +115,8 @@ class Animation {
 		if (frameIndex == -1) rewind(track);
 
 		// Move keyframe
-		//var frameIndex = boneTimeIndices.get(b);
 		var sign = speed > 0 ? 1 : -1;
 		while (checkFrameIndex(track.frames)) frameIndex += sign;
-		//boneTimeIndices.set(b, frameIndex);
 
 		// Marker events
 		if (markerEvents != null && anim.marker_names != null && frameIndex != lastFrameIndex) {
@@ -130,11 +134,10 @@ class Animation {
 			if (loop || blendTime > 0) rewind(track);
 			else { frameIndex -= sign; paused = true; }
 			if (onComplete != null && blendTime == 0) onComplete();
-			//boneTimeIndices.set(b, frameIndex);
 		}
 	}
 
-	function updateAnimSampled(anim:TAnimation, targetMatrix:Mat4) {
+	function updateAnimSampled(anim:TAnimation, m:Mat4) {
 		if (anim == null) return;
 		var track = anim.tracks[0];
 		var sign = speed > 0 ? 1 : -1;
@@ -153,22 +156,17 @@ class Animation {
 		m2.decompose(vpos2, q2, vscl2);
 
 		// Lerp
-		var fp = Vec4.lerp(vpos, vpos2, s);
-		var fs = Vec4.lerp(vscl, vscl2, s);
-		var fq = Quat.lerp(q1, q2, s);
+		vp.lerp(vpos, vpos2, s);
+		vs.lerp(vscl, vscl2, s);
+		q3.lerp(q1, q2, s);
 
 		// Compose
-		var m = targetMatrix;
-		fq.toMat(m);
-		m.scale(fs);
-		m._30 = fp.x;
-		m._31 = fp.y;
-		m._32 = fp.z;
-		// boneMats.set(b, m);
+		m.fromQuat(q3);
+		m.scale(vs);
+		m._30 = vp.x;
+		m._31 = vp.y;
+		m._32 = vp.z;
 	}
-
-	var lastFrameIndex = -1;
-	var markerEvents:Map<String, Array<Void->Void>> = null;
 	
 	public function notifyOnMarker(name:String, onMarker:Void->Void) {
 		if (markerEvents == null) markerEvents = new Map();

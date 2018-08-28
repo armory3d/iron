@@ -60,7 +60,6 @@ class Armature {
 	}
 }
 
-// @:structInit class TAction {
 typedef TAction = {
 	public var name:String;
 	public var bones:Array<TObj>;

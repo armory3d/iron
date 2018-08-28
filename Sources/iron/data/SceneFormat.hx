@@ -243,7 +243,7 @@ typedef TProbe = {
 // typedef TGreasePencilFrame = {
 // 	var frame_number:Int;
 // 	var vertex_array:TVertexArray;
-// 	var col_array:TVertexArray; // TODO: Use array instead
+// 	var col_array:TVertexArray;
 // 	var colfill_array:TVertexArray;
 // 	var index_array:TIndexArray;
 // 	var num_stroke_points:Uint32Array;

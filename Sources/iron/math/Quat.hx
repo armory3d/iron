@@ -12,30 +12,32 @@ class Quat {
 	static var helpVec0 = new Vec4();
 	static var helpVec1 = new Vec4();
 	static var helpVec2 = new Vec4();
+	static var helpMat = Mat4.identity();
+	static var xAxis = Vec4.xAxis();
+	static var yAxis = Vec4.yAxis();
 
-	public static function identity():Quat { return new Quat(0.0, 0.0, 0.0, 1.0); }
-
-	inline public function new(x = 0.0, y = 0.0, z = 0.0, w = 1.0) {
+	inline public function new(x:FastFloat = 0.0, y:FastFloat = 0.0, z:FastFloat = 0.0, w:FastFloat = 1.0) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.w = w;
 	}
 
-	inline public function set(x:FastFloat, y:FastFloat, z:FastFloat, w:FastFloat) {
+	inline public function set(x:FastFloat, y:FastFloat, z:FastFloat, w:FastFloat):Quat {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.w = w;
+		return this;
 	}
 
-	inline public function fromAxisAngle(axis:Vec4, angle:FastFloat) {
+	inline public function fromAxisAngle(axis:Vec4, angle:FastFloat):Quat {
 		var s:FastFloat = Math.sin(angle * 0.5);
 		x = axis.x * s;
 		y = axis.y * s;
 		z = axis.z * s;
 		w = Math.cos(angle * 0.5);
-		normalize();
+		return normalize();
 	}
 
 	inline public function toAxisAngle(axis:Vec4):FastFloat {
@@ -55,12 +57,17 @@ class Quat {
 		return angle;
 	}
 
-	inline public function fromRotationMat(m:Mat4) {
-		// Assumes the upper 3x3 is a pure rotation matrix
-		var m11 = m._00, m12 = m._10, m13 = m._20;
-		var m21 = m._01, m22 = m._11, m23 = m._21;
-		var m31 = m._02, m32 = m._12, m33 = m._22;
+	inline public function fromMat(m:Mat4):Quat {
+		helpMat.setFrom(m);
+		helpMat.toRotation();
+		return fromRotationMat(m);
+	}
 
+	inline public function fromRotationMat(m:Mat4):Quat {
+		// Assumes the upper 3x3 is a pure rotation matrix
+		var m11 = m._00; var m12 = m._10; var m13 = m._20;
+		var m21 = m._01; var m22 = m._11; var m23 = m._21;
+		var m31 = m._02; var m32 = m._12; var m33 = m._22;
 		var tr = m11 + m22 + m33;
 		var s = 0.0;
 
@@ -95,22 +102,16 @@ class Quat {
 		return this;
 	}
 
-	inline public function mult(q:Quat) {
-		multquats(this, q);
-	}
-
 	inline public function multquats(q1:Quat, q2:Quat) {
-		var x2 = q1.x * q2.w + q1.w * q2.x + q1.y * q2.z - q1.z * q2.y;
-		var y2 = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x;
-		var z2 = q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w;
-		var w2 = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
-		x = x2;
-		y = y2;
-		z = z2;
-		w = w2;
+		var q1x = q1.x; var q1y = q1.y; var q1z = q1.z; var q1w = q1.w;
+		var q2x = q2.x; var q2y = q2.y; var q2z = q2.z; var q2w = q2.w;
+		x = q1x * q2w + q1w * q2x + q1y * q2z - q1z * q2y;
+		y = q1w * q2y - q1x * q2z + q1y * q2w + q1z * q2x;
+		z = q1w * q2z + q1x * q2y - q1y * q2x + q1z * q2w;
+		w = q1w * q2w - q1x * q2x - q1y * q2y - q1z * q2z;
 	}
 
-	inline public function normalize() {
+	inline public function normalize():Quat {
 		var l = Math.sqrt(x * x + y * y + z * z + w * w);
 		if (l == 0.0) {
 			x = 0;
@@ -125,13 +126,15 @@ class Quat {
 			z *= l;
 			w *= l;
 		}
+		return this;
 	}
 
-	inline public function setFrom(q:Quat) {
+	inline public function setFrom(q:Quat):Quat {
 		x = q.x;
 		y = q.y;
 		z = q.z;
 		w = q.w;
+		return this;
 	}
 
 	inline public function getEuler():Vec4 {
@@ -152,28 +155,26 @@ class Quat {
 			pitch = 0;
 		}
 		if (Math.isNaN(roll)) {
-			var sqx = x * x;
-			var sqy = y * y;
-			var sqz = z * z;
-			roll = Math.atan2(2 * y * w - 2 * x * z , 1.0 - 2 * sqy - 2 * sqz);
+			var a = 2 * z * z;
+			var b = y * y;
+			roll = Math.atan2(2 * y * w - 2 * x * z , 1.0 - 2 * b - a);
+			b = x * x;
+			pitch = Math.atan2(2 * x * w - 2 * y * z , 1.0 - 2 * b - a);
 			yaw = Math.asin(2 * test);
-			pitch = Math.atan2(2 * x * w - 2 * y * z , 1.0 - 2 * sqx - 2 * sqz);
 		}
 		return new Vec4(pitch, roll, yaw);
 	}
 
-	inline public function getRotator():Rotator {
-		var v = getEuler();
-		return new Rotator(v.x, v.y, v.z);
-	}
-
-	inline public function fromEuler(x:FastFloat, y:FastFloat, z:FastFloat) {
-		var c1 = Math.cos(x / 2);
-		var c2 = Math.cos(y / 2);
-		var c3 = Math.cos(z / 2);
-		var s1 = Math.sin(x / 2);
-		var s2 = Math.sin(y / 2);
-		var s3 = Math.sin(z / 2);
+	inline public function fromEuler(x:FastFloat, y:FastFloat, z:FastFloat):Quat {
+		var f = x / 2;
+		var c1 = Math.cos(f);
+		var s1 = Math.sin(f);
+		f = y / 2;
+		var c2 = Math.cos(f);
+		var s2 = Math.sin(f);
+		f = z / 2;
+		var c3 = Math.cos(f);
+		var s3 = Math.sin(f);
 		// YZX
 		this.x = s1 * c2 * c3 + c1 * s2 * s3;
 		this.y = c1 * s2 * c3 + s1 * c2 * s3;
@@ -182,73 +183,49 @@ class Quat {
 		return this;
 	}
 
-	inline public function toMat(m:Mat4):Mat4 {
-		var x2 = x + x, y2 = y + y, z2 = z + z;
-		var xx = x * x2, xy = x * y2, xz = x * z2;
-		var yy = y * y2, yz = y * z2, zz = z * z2;
-		var wx = w * x2, wy = w * y2, wz = w * z2;
-
-		m._00 = 1 - (yy + zz);
-		m._10 = xy - wz;
-		m._20 = xz + wy;
-
-		m._01 = xy + wz;
-		m._11 = 1 - (xx + zz);
-		m._21 = yz - wx;
-
-		m._02 = xz - wy;
-		m._12 = yz + wx;
-		m._22 = 1 - (xx + yy);
-
-		m._03 = 0; m._13 = 0; m._23 = 0;
-		m._30 = 0; m._31 = 0; m._32 = 0; m._33 = 1;
-
-		return m;
-	}
-
-	public static function lerp(from:Quat, to:Quat, s:FastFloat):Quat {
-		var c = new Quat();
-		var ca = new Quat();
-		ca.setFrom(from);
+	public inline function lerp(from:Quat, to:Quat, s:FastFloat):Quat {
+		var fromx = from.x;
+		var fromy = from.y;
+		var fromz = from.z;
+		var fromw = from.w;
 		var dot:FastFloat = from.dot(to);
 		if (dot < 0.0) {
-			ca.w = -ca.w;
-			ca.x = -ca.x;
-			ca.y = -ca.y;
-			ca.z = -ca.z;
+			fromx = -fromx;
+			fromy = -fromy;
+			fromz = -fromz;
+			fromw = -fromw;
 		}
-		c.x = ca.x + (to.x - ca.x) * s;
-		c.y = ca.y + (to.y - ca.y) * s;
-		c.z = ca.z + (to.z - ca.z) * s;
-		c.w = ca.w + (to.w - ca.w) * s;
-		c.normalize();
-		return c;
+		x = fromx + (to.x - fromx) * s;
+		y = fromy + (to.y - fromy) * s;
+		z = fromz + (to.z - fromz) * s;
+		w = fromw + (to.w - fromw) * s;
+		return normalize();
 	}
 
-	public static function slerp(from:Quat, to:Quat, s:FastFloat):Quat {
-		// Based on https://github.com/HeapsIO/heaps/blob/master/h3d/Quat.hx
-		var c = new Quat();
-		var cosHalfTheta = from.dot(to);
-		if (Math.abs(cosHalfTheta) >= 1) {
-			c.x = from.x;
-			c.y = from.y;
-			c.z = from.z;
-			c.w = from.w;
-			return c;
-		}
-		var halfTheta = Math.acos(cosHalfTheta);
-		var invSinHalfTheta = 1 / Math.sqrt(1 - cosHalfTheta * cosHalfTheta);
-		if (Math.abs(invSinHalfTheta) > 1e3) {
-			return Quat.lerp(from, to, 0.5);
-		}
-		var a = Math.sin((1 - s) * halfTheta) * invSinHalfTheta;
-		var b = Math.sin(s * halfTheta) * invSinHalfTheta * (cosHalfTheta < 0 ? -1 : 1);
-		c.x = from.x * a + to.x * b;
-		c.y = from.y * a + to.y * b;
-		c.z = from.z * a + to.z * b;
-		c.w = from.w * a + to.w * b;
-		return c;
-	}
+	// public static inline function slerp(from:Quat, to:Quat, s:FastFloat):Quat {
+	// 	// Based on https://github.com/HeapsIO/heaps/blob/master/h3d/Quat.hx
+	// 	var c = new Quat();
+	// 	var cosHalfTheta = from.dot(to);
+	// 	if (Math.abs(cosHalfTheta) >= 1) {
+	// 		c.x = from.x;
+	// 		c.y = from.y;
+	// 		c.z = from.z;
+	// 		c.w = from.w;
+	// 		return c;
+	// 	}
+	// 	var halfTheta = Math.acos(cosHalfTheta);
+	// 	var invSinHalfTheta = 1 / Math.sqrt(1 - cosHalfTheta * cosHalfTheta);
+	// 	if (Math.abs(invSinHalfTheta) > 1e3) {
+	// 		return Quat.lerp(from, to, 0.5);
+	// 	}
+	// 	var a = Math.sin((1 - s) * halfTheta) * invSinHalfTheta;
+	// 	var b = Math.sin(s * halfTheta) * invSinHalfTheta * (cosHalfTheta < 0 ? -1 : 1);
+	// 	c.x = from.x * a + to.x * b;
+	// 	c.y = from.y * a + to.y * b;
+	// 	c.z = from.z * a + to.z * b;
+	// 	c.w = from.w * a + to.w * b;
+	// 	return c;
+	// }
 
 	inline public function dot(q:Quat):FastFloat {
 		return (x * q.x) + (y * q.y) + (z * q.z) + (w * q.w);
@@ -261,8 +238,8 @@ class Quat {
 		var a = helpVec0;
 		var dot = v1.dot(v2);
 		if (dot < -0.999999) {
-			a.crossvecs(Vec4.xAxis(), v1);
-			if (a.length() < 0.000001) a.crossvecs(Vec4.yAxis(), v1);
+			a.crossvecs(xAxis, v1);
+			if (a.length() < 0.000001) a.crossvecs(yAxis, v1);
 			a.normalize();
 			fromAxisAngle(a, Math.PI);
 		}

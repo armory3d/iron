@@ -7,13 +7,12 @@ class Mat3 {
 	public var self:kha.math.FastMatrix3;
 
 	inline public function new(_00:FastFloat, _10:FastFloat, _20:FastFloat,
-						_01:FastFloat, _11:FastFloat, _21:FastFloat,
-						_02:FastFloat, _12:FastFloat, _22:FastFloat) {
-		
+							   _01:FastFloat, _11:FastFloat, _21:FastFloat,
+							   _02:FastFloat, _12:FastFloat, _22:FastFloat) {
 		self = new kha.math.FastMatrix3(_00, _10, _20, _01, _11, _21, _02, _12, _22);
 	}
 
-	public static function identity():Mat3 {
+	public static inline function identity():Mat3 {
 		return new Mat3(
 			1, 0, 0,
 			0, 1, 0,
