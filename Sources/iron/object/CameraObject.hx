@@ -18,8 +18,6 @@ class CameraObject extends Object {
 	public var prevV:Mat4 = null;
 	public var VP:Mat4;
 	public var frustumPlanes:Array<FrustumPlane> = null;
-	public var nearPlane:kha.FastFloat;
-	public var farPlane:kha.FastFloat;
 	static var temp = new Vec4();
 	static var q = new Quat();
 
@@ -33,8 +31,6 @@ class CameraObject extends Object {
 		super();
 
 		this.data = data;
-		nearPlane = data.raw.near_plane;
-		farPlane = data.raw.far_plane;
 
 		#if arm_vr
 		iron.system.VR.initButton();
@@ -58,10 +54,10 @@ class CameraObject extends Object {
 		var aspect = data.raw.aspect != null ? data.raw.aspect : screenAspect;
 		if (data.raw.ortho_scale != null) {
 			var sc:kha.FastFloat = data.raw.ortho_scale;
-			P = Mat4.ortho(-1 * aspect * sc, aspect * sc, -1 * sc, 1 * sc, -1 * farPlane, farPlane);
+			P = Mat4.ortho(-1 * aspect * sc, aspect * sc, -1 * sc, 1 * sc, -1 * data.raw.far_plane, data.raw.far_plane);
 		}
 		else {
-			P = Mat4.persp(data.raw.fov, aspect, nearPlane, farPlane);
+			P = Mat4.persp(data.raw.fov, aspect, data.raw.near_plane, data.raw.far_plane);
 		}
 		#if arm_taa
 		noJitterP.setFrom(P);

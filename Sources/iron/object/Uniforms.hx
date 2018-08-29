@@ -336,7 +336,7 @@ class Uniforms {
 				var tr = camera.transform;
 				// helpVec.set(tr.worldx(), tr.worldy(), tr.worldz() + 3.0); // Envtex
 				helpVec.set(tr.worldx(), tr.worldy(), tr.worldz() - 3.5); // Sky
-				var bounds = camera.farPlane * 0.95;
+				var bounds = camera.data.raw.far_plane * 0.95;
 				helpVec2.set(bounds, bounds, bounds);
 				helpMat.compose(helpVec, helpQuat, helpVec2);
 				helpMat.multmat(camera.V);
