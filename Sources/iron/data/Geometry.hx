@@ -45,9 +45,10 @@ class Geometry {
 	public var tangents:Float32Array;
 	public var bones:Float32Array;
 	public var weights:Float32Array;
-	var instanceOffsets:Float32Array;
+	var instancedData:Float32Array;
+	var instancedType:Null<Int>;
 	
-	public var offsetVecs:Array<Vec4>; // Used for sorting and culling
+	// public var offsetVecs:Array<Vec4>; // Used for sorting and culling
 	public var aabb:Vec4 = null;
 
 	// Skinned
@@ -78,7 +79,8 @@ class Geometry {
 						bones:Float32Array = null,
 						weights:Float32Array = null,
 						usage:Usage = null,
-						instanceOffsets:Float32Array = null) {
+						instancedData:Float32Array = null,
+						instancedType:Null<Int> = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
 
@@ -94,7 +96,8 @@ class Geometry {
 		this.tangents = tangents;
 		this.bones = bones;
 		this.weights = weights;
-		this.instanceOffsets = instanceOffsets;
+		this.instancedData = instancedData;
+		this.instancedType = instancedType;
 
 		// pos=3, tex=2, nor=3, col=4, tang=3, bone=4, weight=4
 		struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
@@ -145,46 +148,53 @@ class Geometry {
 		#end
 	}
 
-	public function setupInstanced(offsets:Float32Array, usage:Usage) {
+	public function setupInstanced(data:Float32Array, instancedType:Int, usage:Usage) {
 		// Store vecs for sorting and culling
-		offsetVecs = [];
-		for (i in 0...Std.int(offsets.length / 3)) {
-			offsetVecs.push(new Vec4(offsets[i * 3], offsets[i * 3 + 1], offsets[i * 3 + 2]));
-		}
+		// offsetVecs = [];
+		// for (i in 0...Std.int(data.length / 3)) {
+			// offsetVecs.push(new Vec4(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]));
+		// }
 
 		instanced = true;
-		instanceCount = Std.int(offsets.length / 3);
+		instanceCount = Std.int(data.length / 3);
 
 		var structure = new VertexStructure();
 		structure.instanced = true;
-		structure.add("off", kha.graphics4.VertexData.Float3);
+		// off, loc, loc+rot, loc+scale, loc+rot+scale
+		structure.add("ipos", kha.graphics4.VertexData.Float3);
+		if (instancedType == 2 || instancedType == 4) {
+			structure.add("irot", kha.graphics4.VertexData.Float3);
+		}
+		if (instancedType == 3 || instancedType == 4) {
+			structure.add("iscl", kha.graphics4.VertexData.Float3);
+		}
 
 		instancedVB = new VertexBuffer(instanceCount, structure, usage, 1);
 		var vertices = instancedVB.lock();
-		for (i in 0...vertices.length) vertices.set(i, offsets[i]);
+		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		instancedVB.unlock();
 	}
 
-	public function sortInstanced(camX:Float, camY:Float, camZ:Float) {
-		// Use W component to store distance to camera
-		for (v in offsetVecs) {
-			// TODO: include parent transform
-			v.w  = iron.math.Vec4.distancef(camX, camY, camZ, v.x, v.y, v.z);
-		}
+	// public function sortInstanced(camX:Float, camY:Float, camZ:Float) {
+	// 	// Use W component to store distance to camera
+	// 	for (v in offsetVecs) {
+	// 		// TODO: include parent transform
+	// 		v.w  = iron.math.Vec4.distancef(camX, camY, camZ, v.x, v.y, v.z);
+	// 	}
 		
-		offsetVecs.sort(function(a, b):Int {
-			return a.w > b.w ? 1 : -1;
-		});
+	// 	offsetVecs.sort(function(a, b):Int {
+	// 		return a.w > b.w ? 1 : -1;
+	// 	});
 
-		var vb = instancedVB;
-		var vertices = vb.lock();
-		for (i in 0...Std.int(vertices.length / 3)) {
-			vertices.set(i * 3, offsetVecs[i].x);
-			vertices.set(i * 3 + 1, offsetVecs[i].y);
-			vertices.set(i * 3 + 2, offsetVecs[i].z);
-		}
-		vb.unlock();
-	}
+	// 	var vb = instancedVB;
+	// 	var vertices = vb.lock();
+	// 	for (i in 0...Std.int(vertices.length / 3)) {
+	// 		vertices.set(i * 3, offsetVecs[i].x);
+	// 		vertices.set(i * 3 + 1, offsetVecs[i].y);
+	// 		vertices.set(i * 3 + 2, offsetVecs[i].z);
+	// 	}
+	// 	vb.unlock();
+	// }
 
 	public function copyVertices(vertices:Float32Array, offset = 0, fakeUVs = false) {
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights, offset, fakeUVs);
@@ -277,7 +287,7 @@ class Geometry {
 			else if (e.name == 'tang') { if (vertexBuffers[5] != null) vbs.push(vertexBuffers[5]); }
 			else if (e.name == 'bone') { if (vertexBuffers[6] != null) vbs.push(vertexBuffers[6]); }
 			else if (e.name == 'weight') { if (vertexBuffers[7] != null) vbs.push(vertexBuffers[7]); }
-			else if (e.name == 'off') { if (instancedVB != null) vbs.push(instancedVB); }
+			else if (e.name == 'ipos') { if (instancedVB != null) vbs.push(instancedVB); }
 		}
 		return vbs;
 	}
@@ -354,7 +364,7 @@ class Geometry {
 		}
 
 		// Instanced
-		if (instanceOffsets != null) setupInstanced(instanceOffsets, usage);
+		if (instancedData != null) setupInstanced(instancedData, instancedType, usage);
 
 		ready = true;
 	}

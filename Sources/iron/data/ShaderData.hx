@@ -72,7 +72,7 @@ class ShaderContext {
 	public var paramsSet:Array<Bool>;
 
 	var structure:VertexStructure;
-	var instancing = false;
+	var instancingType = 0;
 	var overrideContext:TShaderOverride;
 	static var structureRect:VertexStructure = null; // For screen-space rectangle
 
@@ -82,7 +82,7 @@ class ShaderContext {
 
 		if (raw.name == "rect") {
 			structure = getStructureRect();
-			instancing = false;
+			instancingType = 0;
 		}
 		else {
 			parseVertexStructure();
@@ -99,9 +99,15 @@ class ShaderContext {
 		paramsSet = [];
 
 		// Instancing
-		if (instancing) {
+		if (instancingType > 0) {
 			var instStruct = new VertexStructure();
-			instStruct.add("off", VertexData.Float3);
+			instStruct.add("ipos", VertexData.Float3);
+			if (instancingType == 2 || instancingType == 4) {
+				instStruct.add("irot", VertexData.Float3);
+			}
+			if (instancingType == 3 || instancingType == 4) {
+				instStruct.add("iscl", VertexData.Float3);
+			}
 			instStruct.instanced = true;
 			pipeState.inputLayout = [structure, instStruct];
 		}
@@ -263,14 +269,19 @@ class ShaderContext {
 	
 	function parseVertexStructure() {
 		structure = new VertexStructure();
+		var ipos = false;
+		var irot = false;
+		var iscl = false;
 		for (vs in raw.vertex_structure) {
-			if (vs.name == 'off') {
-				instancing = true;
-				continue;
-			}
-
+			if (vs.name == 'ipos') { ipos = true; continue; }
+			if (vs.name == 'irot') { ipos = true; continue; }
+			if (vs.name == 'iscl') { ipos = true; continue; }
 			structure.add(vs.name, sizeToVD(vs.size));
 		}
+		if (ipos && !irot && !iscl) instancingType = 1;
+		else if (ipos && irot && !iscl) instancingType = 2;
+		else if (ipos && !irot && iscl) instancingType = 3;
+		else if (ipos && irot && iscl) instancingType = 4;
 	}
 
 	static function getStructureRect() {

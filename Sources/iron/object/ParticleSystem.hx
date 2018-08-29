@@ -132,7 +132,7 @@ class ParticleSystem {
 			}
 		}
 		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
-		object.data.geom.setupInstanced(instancedData, Usage.StaticUsage);
+		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);
 	}
 
 	#else // cpu
@@ -212,7 +212,7 @@ class ParticleSystem {
 			instancedData.set(i, 0.0); i++;
 		}
 		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
-		object.data.geom.setupInstanced(instancedData, Usage.DynamicUsage);
+		object.data.geom.setupInstanced(instancedData, 1, Usage.DynamicUsage);
 		
 		emitFrom = new kha.arrays.Float32Array(particles.length * 3);
 		i = 0;

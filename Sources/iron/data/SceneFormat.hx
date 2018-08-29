@@ -33,7 +33,8 @@ typedef TMeshData = {
 	var index_arrays:Array<TIndexArray>;
 	@:optional var dynamic_usage:Null<Bool>;
 	@:optional var skin:TSkin;
-	@:optional var instance_offsets:Float32Array;
+	@:optional var instanced_data:Float32Array;
+	@:optional var instanced_type:Null<Int>; // off, loc, loc+rot, loc+scale, loc+rot+scale
 	@:optional var sdf_ref:String;
 }
 

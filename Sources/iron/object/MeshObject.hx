@@ -157,14 +157,14 @@ class MeshObject extends Object {
 			if (data.geom.instanced) {
 				// Cull
 				// TODO: per-instance culling
-				var instanceInFrustum = false;
-				for (v in data.geom.offsetVecs) {
-					if (CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale, v.x, v.y, v.z)) {
-						instanceInFrustum = true;
-						break;
-					}
-				}
-				if (!instanceInFrustum) return setCulled(isShadow, true);
+				// var instanceInFrustum = false;
+				// for (v in data.geom.offsetVecs) {
+				// 	if (CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale, v.x, v.y, v.z)) {
+				// 		instanceInFrustum = true;
+				// 		break;
+				// 	}
+				// }
+				// if (!instanceInFrustum) return setCulled(isShadow, true);
 
 				// Sort - always front to back for now
 				// var camX = camera.transform.worldx();
