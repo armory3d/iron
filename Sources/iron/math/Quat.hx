@@ -60,7 +60,7 @@ class Quat {
 	inline public function fromMat(m:Mat4):Quat {
 		helpMat.setFrom(m);
 		helpMat.toRotation();
-		return fromRotationMat(m);
+		return fromRotationMat(helpMat);
 	}
 
 	inline public function fromRotationMat(m:Mat4):Quat {
