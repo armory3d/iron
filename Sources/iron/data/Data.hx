@@ -201,7 +201,7 @@ class Data {
 	// }
 
 	static var loadingShaders:Map<String, Array<ShaderData->Void>> = new Map();
-	public static function getShader(file:String, name:String, overrideContext:TShaderOverride, done:ShaderData->Void) {
+	public static function getShader(file:String, name:String, done:ShaderData->Void, overrideContext:TShaderOverride = null) {
 		// Only one context override per shader data for now
 		var cacheName = name;
 		if (overrideContext != null) cacheName += "2";
@@ -213,11 +213,11 @@ class Data {
 
 		loadingShaders.set(cacheName, [done]);
 
-		ShaderData.parse(file, name, overrideContext, function(b:ShaderData) {
+		ShaderData.parse(file, name, function(b:ShaderData) {
 			cachedShaders.set(cacheName, b);
 			for (f in loadingShaders.get(cacheName)) f(b);
 			loadingShaders.remove(cacheName);
-		});
+		}, overrideContext);
 	}
 
 	static var loadingSceneRaws:Map<String, Array<TSceneFormat->Void>> = new Map();

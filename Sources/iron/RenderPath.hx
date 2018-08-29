@@ -619,7 +619,7 @@ class RenderPath {
 		shaderPath[0] += '.json';
 		#end
 
-		Data.getShader(shaderPath[0], shaderPath[1], null, function(res:ShaderData) {
+		Data.getShader(shaderPath[0], shaderPath[1], function(res:ShaderData) {
 			cc.context = res.getContext(shaderPath[2]);
 			loading--;
 		});

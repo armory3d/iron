@@ -43,7 +43,7 @@
 // 		if (first) {
 // 			first = false;
 // 			var shaderName:Array<String> = raw.shader.split("/");
-// 			Data.getShader(shaderName[0], shaderName[1], null, function(b:ShaderData) {
+// 			Data.getShader(shaderName[0], shaderName[1], function(b:ShaderData) {
 // 				shaderData = b;
 // 				makeLayers(done);
 // 			});

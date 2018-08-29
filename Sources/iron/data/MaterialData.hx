@@ -34,7 +34,7 @@ class MaterialData extends Data {
 			data_ref = raw.shader;
 		}
 
-		Data.getShader(object_file, data_ref, raw.override_context, function(b:ShaderData) {
+		Data.getShader(object_file, data_ref, function(b:ShaderData) {
 			shader = b;
 
 			// Contexts have to be in the same order as in raw data for now
@@ -50,7 +50,7 @@ class MaterialData extends Data {
 					if (contextsLoaded == raw.contexts.length) done(this);
 				});
 			}
-		});
+		}, raw.override_context);
 	}
 
 	public static function parse(file:String, name:String, done:MaterialData->Void) {

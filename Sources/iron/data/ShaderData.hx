@@ -22,7 +22,7 @@ class ShaderData extends Data {
 
 	public var contexts:Array<ShaderContext> = [];
 
-	public function new(raw:TShaderData, overrideContext:TShaderOverride, done:ShaderData->Void) {
+	public function new(raw:TShaderData, done:ShaderData->Void, overrideContext:TShaderOverride = null) {
 		super();
 
 		this.raw = raw;
@@ -34,22 +34,22 @@ class ShaderData extends Data {
 		for (i in 0...raw.contexts.length) {
 			var c = raw.contexts[i];
 
-			new ShaderContext(c, overrideContext, function(con:ShaderContext) {
+			new ShaderContext(c, function(con:ShaderContext) {
 				contexts[i] = con;
 				contextsLoaded++;
 				if (contextsLoaded == raw.contexts.length) done(this);
-			});
+			}, overrideContext);
 		}
 	}
 
-	public static function parse(file:String, name:String, overrideContext:TShaderOverride, done:ShaderData->Void) {
+	public static function parse(file:String, name:String, done:ShaderData->Void, overrideContext:TShaderOverride = null) {
 		Data.getSceneRaw(file, function(format:TSceneFormat) {
 			var raw:TShaderData = Data.getShaderRawByName(format.shader_datas, name);
 			if (raw == null) {
 				trace('Shader data "$name" not found!');
 				done(null);
 			}
-			new ShaderData(raw, overrideContext, done);
+			new ShaderData(raw, done, overrideContext);
 		});
 	}
 
@@ -76,7 +76,7 @@ class ShaderContext {
 	var overrideContext:TShaderOverride;
 	static var structureRect:VertexStructure = null; // For screen-space rectangle
 
-	public function new(raw:TShaderContext, overrideContext:TShaderOverride, done:ShaderContext->Void) {
+	public function new(raw:TShaderContext, done:ShaderContext->Void, overrideContext:TShaderOverride = null) {
 		this.raw = raw;
 		this.overrideContext = overrideContext;
 
