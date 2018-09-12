@@ -17,7 +17,8 @@ class Trait {
 	var _lateUpdate:Array<Void->Void> = null;
 	var _render:Array<kha.graphics4.Graphics->Void> = null;
 	var _render2D:Array<kha.graphics2.Graphics->Void> = null;
-
+	var _updatePriority:Int = 100;
+	
 	public function new() {
 	
 	}
@@ -45,23 +46,23 @@ class Trait {
 	public function notifyOnUpdate(f:Void->Void) {
 		if (_update == null) _update = [];
 		_update.push(f);
-		App.notifyOnUpdate(f);
+		App.notifyOnUpdate(f, _updatePriority);
 	}
 
 	public function removeUpdate(f:Void->Void) {
 		_update.remove(f);
-		App.removeUpdate(f);
+		App.removeUpdate(f, _updatePriority);
 	}
 	
 	public function notifyOnLateUpdate(f:Void->Void) {
 		if (_lateUpdate == null) _lateUpdate = [];
 		_lateUpdate.push(f);
-		App.notifyOnLateUpdate(f);
+		App.notifyOnLateUpdate(f, _updatePriority);
 	}
 
 	public function removeLateUpdate(f:Void->Void) {
 		_lateUpdate.remove(f);
-		App.removeLateUpdate(f);
+		App.removeLateUpdate(f,_updatePriority);
 	}
 
 	public function notifyOnRender(f:kha.graphics4.Graphics->Void) {
