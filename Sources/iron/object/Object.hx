@@ -124,11 +124,11 @@ class Object {
 			t._init = null;
 		}
 		if (t._update != null) {
-			for (f in t._update) App.removeUpdate(f, t._updatePriority);
+			for (f in t._update) App.removeUpdate(f);
 			t._update = null;
 		}
 		if (t._lateUpdate != null) {
-			for (f in t._lateUpdate) App.removeLateUpdate(f, t._updatePriority);
+			for (f in t._lateUpdate) App.removeLateUpdate(f);
 			t._lateUpdate = null;
 		}
 		if (t._render != null) {
