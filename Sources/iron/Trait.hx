@@ -6,7 +6,7 @@ class Trait {
 
 	public var name:String = "";
 	/**
-	 * Base class for all entities in a Scene.
+	 * Object this trait belongs to.
 	 */
 	public var object:Object;
 
