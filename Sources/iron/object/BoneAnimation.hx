@@ -192,7 +192,10 @@ class BoneAnimation extends Animation {
 	}
 
 	override public function blend(action1:String, action2:String, factor:Float) {
-		if (factor == 0.0) return;
+		if (factor == 0.0) {
+			setAction(action1);
+			return;
+		}
 		setAction(action2);
 		setActionBlend(action1);
 		super.blend(action1, action2, factor);

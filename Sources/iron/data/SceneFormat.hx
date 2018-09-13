@@ -421,6 +421,7 @@ typedef TTrack = {
 /*
 typedef TRawShader = {
 	var contexts:Array<TRawContext>;
+	var variants:Array<String>;
 }
 
 typedef TRawContext = {
