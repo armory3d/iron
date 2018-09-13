@@ -51,7 +51,7 @@ class Trait {
 
 	public function removeUpdate(f:Void->Void) {
 		_update.remove(f);
-		App.removeUpdate(f, _updatePriority);
+		App.removeUpdate(f);
 	}
 	
 	public function notifyOnLateUpdate(f:Void->Void) {
@@ -62,7 +62,7 @@ class Trait {
 
 	public function removeLateUpdate(f:Void->Void) {
 		_lateUpdate.remove(f);
-		App.removeLateUpdate(f,_updatePriority);
+		App.removeLateUpdate(f);
 	}
 
 	public function notifyOnRender(f:kha.graphics4.Graphics->Void) {

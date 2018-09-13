@@ -17,9 +17,11 @@ class App {
 	static var traitLateUpdates:Array<{ priority : Int, f : Void->Void }> = [];
 	static var traitRenders:Array<kha.graphics4.Graphics->Void> = [];
 	static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
+	static var traitUpdatesDirty:Bool;
+	static var traitLateUpdatesDirty:Bool;
 	public static var framebuffer:kha.Framebuffer;
 	public static var pauseUpdates = false;
-
+	
 	#if arm_debug
 	static var startTime:Float;
 	public static var updateTime:Float;
@@ -64,7 +66,14 @@ class App {
 
 		iron.system.Time.update();
 		Scene.active.updateFrame();
-
+		
+		if(traitUpdatesDirty){
+			traitUpdatesDirty = false;			
+			traitUpdates.sort(function(a, b):Int {
+				return a.priority >= b.priority ? 1 : -1;
+			});			
+		}
+		
 		var i = 0;
 		var l = traitUpdates.length;
 		while (i < l) {
@@ -75,6 +84,13 @@ class App {
 			traitUpdates[i].f();
 			// Account for removed traits
 			l <= traitUpdates.length ? i++ : l = traitUpdates.length;
+		}		
+		
+		if(traitLateUpdatesDirty){
+			traitLateUpdatesDirty = false;
+			traitLateUpdates.sort(function(a, b):Int {
+				return a.priority >= b.priority ? 1 : -1;
+			});			
 		}
 
 		i = 0;
@@ -158,28 +174,32 @@ class App {
 
 	public static function notifyOnUpdate(f:Void->Void, updatePriority = 100) {
 		traitUpdates.push({priority:updatePriority, f:f});
-		traitUpdates.sort(function(a, b):Int {
-		  if (a.priority < b.priority) return -1;
-		  else if (a.priority > b.priority) return 1;
-		  return 0;
-		});		
+		traitUpdatesDirty = true;
 	}
 
-	public static function removeUpdate(f:Void->Void, updatePriority = 100) {
-		traitUpdates.remove({priority:updatePriority, f:f});
+	public static function removeUpdate(f:Void->Void) {
+		
+		for (i in 0...traitUpdates.length) {
+			if (traitUpdates[i].f == f) {
+				traitUpdates.splice(i, 1);
+				break;
+			}
+		}
+		
 	}
 	
 	public static function notifyOnLateUpdate(f:Void->Void, updatePriority = 100) {
 		traitLateUpdates.push({priority:updatePriority, f:f});
-		traitLateUpdates.sort(function(a, b):Int {
-		  if (a.priority < b.priority) return -1;
-		  else if (a.priority > b.priority) return 1;
-		  return 0;
-		});
+		traitLateUpdatesDirty = true;
 	}
 
-	public static function removeLateUpdate(f:Void->Void, updatePriority = 100) {
-		traitLateUpdates.remove({priority:updatePriority, f:f});
+	public static function removeLateUpdate(f:Void->Void) {
+		for (i in 0...traitLateUpdates.length) {
+			if (traitLateUpdates[i].f == f) {
+				traitLateUpdates.splice(i, 1);
+				break;
+			}
+		}
 	}
 
 	public static function notifyOnRender(f:kha.graphics4.Graphics->Void) {
