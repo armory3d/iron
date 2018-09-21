@@ -1,5 +1,6 @@
 package iron.math;
 
+import kha.FastFloat;
 import iron.App;
 import iron.object.CameraObject;
 import iron.object.MeshObject;
@@ -8,7 +9,7 @@ import iron.math.Ray.Plane;
 
 class RayCaster {
 
-	public static function getRay(inputX:Float, inputY:Float, camera:CameraObject):Ray {
+	public static function getRay(inputX:FastFloat, inputY:FastFloat, camera:CameraObject):Ray {
 		var start = new Vec4();
 		var end = new Vec4();
 		getDirection(start, end, inputX, inputY, camera);
@@ -26,7 +27,7 @@ class RayCaster {
 	static var VPInv = Mat4.identity();
 	static var PInv = Mat4.identity();
 	static var VInv = Mat4.identity();
-	public static function getDirection(start:Vec4, end:Vec4, inputX:Float, inputY:Float, camera:CameraObject) {
+	public static function getDirection(start:Vec4, end:Vec4, inputX:FastFloat, inputY:FastFloat, camera:CameraObject) {
 		// Get 3D point form screen coords
 		// Set two vectors with opposing z values
 		start.x = (inputX / App.w()) * 2.0 - 1.0;
@@ -43,7 +44,7 @@ class RayCaster {
 		end.applyproj(VPInv);
 	}
 
-	public static function boxIntersect(transform:Transform, inputX:Float, inputY:Float, camera:CameraObject):Vec4 {
+	public static function boxIntersect(transform:Transform, inputX:FastFloat, inputY:FastFloat, camera:CameraObject):Vec4 {
 		var ray = getRay(inputX, inputY, camera);
 
 		var t = transform;
@@ -52,7 +53,7 @@ class RayCaster {
 		return ray.intersectBox(c, s);
 	}
 
-	public static function closestBoxIntersect(transforms:Array<Transform>, inputX:Float, inputY:Float, camera:CameraObject):Transform {
+	public static function closestBoxIntersect(transforms:Array<Transform>, inputX:FastFloat, inputY:FastFloat, camera:CameraObject):Transform {
 		var intersects:Array<Transform> = [];
 
 		// Get intersects
@@ -66,7 +67,7 @@ class RayCaster {
 
 		// Get closest intersect
 		var closest:Transform = null;
-		var minDist:Float = std.Math.POSITIVE_INFINITY;
+		var minDist = std.Math.POSITIVE_INFINITY;
 		for (t in intersects) {
 			var dist = Vec4.distance(t.loc, camera.transform.loc);
 			if (dist < minDist) {
@@ -78,7 +79,7 @@ class RayCaster {
 		return closest;
 	}
 
-	public static function planeIntersect(normal:Vec4, a:Vec4, inputX:Float, inputY:Float, camera:CameraObject):Vec4 {
+	public static function planeIntersect(normal:Vec4, a:Vec4, inputX:FastFloat, inputY:FastFloat, camera:CameraObject):Vec4 {
 		var ray = getRay(inputX, inputY, camera);
 
 		var plane = new Plane();
@@ -91,7 +92,7 @@ class RayCaster {
 	static var loc = new Vec4();
 	static var nor = new Vec4();
 	static var m = Mat4.identity();
-	public static function getPlaneUV(obj:MeshObject, screenX:Float, screenY:Float, camera:CameraObject):Vec2 {
+	public static function getPlaneUV(obj:MeshObject, screenX:FastFloat, screenY:FastFloat, camera:CameraObject):Vec2 {
 		nor = obj.transform.up(); // Transformed normal
 	
 		// Plane intersection

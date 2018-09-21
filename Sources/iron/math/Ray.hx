@@ -1,5 +1,7 @@
 package iron.math;
 
+import kha.FastFloat;
+
 class Ray {
 	
 	public var origin:Vec4;
@@ -10,12 +12,12 @@ class Ray {
 		this.direction = direction == null ? new Vec4() : direction;
 	}
 	
-	public function at(t:Float):Vec4 {
+	public function at(t:FastFloat):Vec4 {
 		var result = new Vec4();
 		return result.setFrom(direction).mult(t).add(origin);
 	}
 	
-	public function distanceToPoint(point:Vec4):Float {
+	public function distanceToPoint(point:Vec4):FastFloat {
 		var v1 = new Vec4();
 		var directionDistance = v1.subvecs(point, this.origin).dot(this.direction);
 		
@@ -29,7 +31,7 @@ class Ray {
 		return v1.distanceTo(point);
 	}
 	
-	public function intersectsSphere(sphereCenter:Vec4, sphereRadius:Float):Bool {
+	public function intersectsSphere(sphereCenter:Vec4, sphereRadius:FastFloat):Bool {
 		return distanceToPoint(sphereCenter) <= sphereRadius;
 	}	
 	
@@ -45,7 +47,7 @@ class Ray {
 		return false;
 	}
 	
-	public function distanceToPlane(plane:Plane):Float {
+	public function distanceToPlane(plane:Plane):FastFloat {
 		var denominator = plane.normal.dot(this.direction);
 		if (denominator == 0) {
 			// Line is coplanar, return origin
@@ -206,7 +208,7 @@ class Plane {
 
 	public function new() { }
 
-	public function distanceToPoint(point:Vec4):Float {
+	public function distanceToPoint(point:Vec4):FastFloat {
 		return normal.dot(point) + constant;
 	}
 

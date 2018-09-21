@@ -2,6 +2,7 @@ package iron.object;
 
 #if arm_skin
 
+import kha.FastFloat;
 import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.math.Quat;
@@ -191,7 +192,7 @@ class BoneAnimation extends Animation {
 		blendFactor = 0.0;
 	}
 
-	override public function blend(action1:String, action2:String, factor:Float) {
+	override public function blend(action1:String, action2:String, factor:FastFloat) {
 		if (factor == 0.0) {
 			setAction(action1);
 			return;
@@ -201,7 +202,7 @@ class BoneAnimation extends Animation {
 		super.blend(action1, action2, factor);
 	}
 
-	override public function update(delta:Float) {
+	override public function update(delta:FastFloat) {
 		if (!isSkinned && skeletonBones == null) setAction(armature.actions[0].name);
 		if (object != null && (!object.visible || object.culled)) return;
 		if (skeletonBones == null || skeletonBones.length == 0) return;
@@ -350,7 +351,7 @@ class BoneAnimation extends Animation {
 	function updateSkinGpu() {
 		var bones = skeletonBones;
 
-		var s = blendCurrent / blendTime;
+		var s:FastFloat = blendCurrent / blendTime;
 		s = s * s * (3.0 - 2.0 * s); // Smoothstep
 		if (blendFactor != 0.0) s = 1.0 - blendFactor;
 
@@ -568,7 +569,7 @@ class BoneAnimation extends Animation {
 		return wm;
 	}
 
-	public function getBoneLen(bone:TObj):Float {
+	public function getBoneLen(bone:TObj):FastFloat {
 		var refs = data.geom.skeletonBoneRefs;
 		var lens = data.geom.skeletonBoneLens;
 		for (i in 0...refs.length) if (refs[i] == bone.name) return lens[i];
@@ -578,7 +579,7 @@ class BoneAnimation extends Animation {
 	public function solveIK(effector:TObj, goal:Vec4, precission = 0.1, maxIterations = 6) {
 		// FABRIK - Forward and backward reaching inverse kinematics solver
 		var bones:Array<TObj> = [];
-		var lengths:Array<Float> = [];
+		var lengths:Array<FastFloat> = [];
 		var start = effector;
 		while (start.parent != null) {
 			bones.push(start);
@@ -595,7 +596,7 @@ class BoneAnimation extends Animation {
 		var dist = Vec4.distance(goal, startLoc);
 
 		// Bones length
-		var x = 0.0;
+		var x:FastFloat = 0.0;
 		for (l in lengths) x += l;
 
 		v1.set(0, 1, 0);

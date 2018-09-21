@@ -335,7 +335,7 @@ class Mat4 {
 		);
 	}
 
-	inline public function mult(s:Float):Mat4 {
+	inline public function mult(s:FastFloat):Mat4 {
 		_00 *= s; _10 *= s; _20 *= s; _30 *= s;
 		_01 *= s; _11 *= s; _21 *= s; _31 *= s;
 		_02 *= s; _12 *= s; _22 *= s; _32 *= s;

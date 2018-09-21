@@ -1,5 +1,6 @@
 package iron.object;
 
+import kha.FastFloat;
 import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.math.Quat;
@@ -33,7 +34,7 @@ class ObjectAnimation extends Animation {
 		}
 	}
 
-	public override function update(delta:Float) {
+	public override function update(delta:FastFloat) {
 		if (!object.visible || object.culled || oaction == null) return;
 		
 		#if arm_debug
@@ -62,26 +63,26 @@ class ObjectAnimation extends Animation {
 		}
 	}
 
-	inline function interpolateLinear(t:Float, t1:Float, t2:Float, v1:Float, v2:Float):Float {
+	inline function interpolateLinear(t:FastFloat, t1:FastFloat, t2:FastFloat, v1:FastFloat, v2:FastFloat):FastFloat {
 		var s = (t - t1) / (t2 - t1);
 		return (1.0 - s) * v1 + s * v2;
 	}
 
-	var s0 = 0.0;
+	var s0:FastFloat = 0.0;
 	var bezierFrameIndex = -1;
-	inline function interpolateBezier(t:Float, t1:Float, t2:Float, v1:Float, v2:Float, c1:Float, c2:Float, p1:Float, p2:Float):Float {
+	inline function interpolateBezier(t:FastFloat, t1:FastFloat, t2:FastFloat, v1:FastFloat, v2:FastFloat, c1:FastFloat, c2:FastFloat, p1:FastFloat, p2:FastFloat):FastFloat {
 		if (frameIndex != bezierFrameIndex) {
 			bezierFrameIndex = frameIndex;
 			s0 = (t - t1) / (t2 - t1);
 		}
-		var a = (t2 - 3 * c2 + 3 * c1 - t1) * (s0 * s0 * s0) + 3 * (c2 - 2 * c1 + t1) * (s0 * s0) + 3 * (c1 - t1) * s0 + t1 - t;
-		var b = 3 * (t2 - 3 * c2 + 3 * c1 - t1) * (s0 * s0) + 6 * (c2 - 2 * c1 + t1) * s0 + 3 * (c1 - t1);
-		var s = s0 - (a / b);
+		var a:FastFloat = (t2 - 3 * c2 + 3 * c1 - t1) * (s0 * s0 * s0) + 3 * (c2 - 2 * c1 + t1) * (s0 * s0) + 3 * (c1 - t1) * s0 + t1 - t;
+		var b:FastFloat = 3 * (t2 - 3 * c2 + 3 * c1 - t1) * (s0 * s0) + 6 * (c2 - 2 * c1 + t1) * s0 + 3 * (c1 - t1);
+		var s:FastFloat = s0 - (a / b);
 		s0 = s;
 		return (1 - s) * (1 - s) * (1 - s) * v1 + 3 * s * (1 - s) * (1 - s) * p1 + 3 * (s * s) * (1 - s) * p2 + s * s * s * v2;
 	}
 
-	// inline function interpolateTcb():Float { return 0.0; }
+	// inline function interpolateTcb():FastFloat { return 0.0; }
 
 	override function isTrackEnd(track:TTrack):Bool {
 		return speed > 0 ?
@@ -89,7 +90,7 @@ class ObjectAnimation extends Animation {
 			frameIndex <= 0;
 	}
 
-	inline function checkFrameIndexT(frameValues:kha.arrays.Uint32Array, t:Float):Bool {
+	inline function checkFrameIndexT(frameValues:kha.arrays.Uint32Array, t:FastFloat):Bool {
 		return speed > 0 ?
 			frameIndex < frameValues.length - 2 && t > frameValues[frameIndex + 1] * frameTime :
 			frameIndex > 1 && t > frameValues[frameIndex - 1] * frameTime;
