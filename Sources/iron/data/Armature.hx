@@ -61,7 +61,7 @@ class Armature {
 }
 
 typedef TAction = {
-	public var name:String;
-	public var bones:Array<TObj>;
-	public var mats:Array<Mat4>;
+	var name:String;
+	var bones:Array<TObj>;
+	var mats:Array<Mat4>;
 }

@@ -190,7 +190,7 @@ class Probe {
 		else {
 			var ext = StringTools.endsWith(raw.irradiance, '.json') ? '' : '.arm';
 			iron.data.Data.getBlob(raw.irradiance + ext, function(b:kha.Blob) {
-				var irradianceParsed:TIrradiance = ext == '' ?
+				var irradianceParsed:TSceneFormat = ext == '' ?
 					haxe.Json.parse(b.toString()) :
 					iron.system.ArmPack.decode(b.toBytes());
 				var irr = new kha.arrays.Float32Array(28); // Align to mult of 4 - 27->28

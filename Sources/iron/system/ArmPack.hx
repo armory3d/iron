@@ -33,7 +33,7 @@ class ArmPack {
 		return read(i);
 	}
 
-	static function read(i:BytesInput):Dynamic {
+	static function read(i:BytesInput, key = "", parentKey = ""):Dynamic {
 		try {
 			var b = i.readByte();
 			switch (b) {
@@ -72,17 +72,17 @@ class ArmPack {
 				case 0xdb: return i.readString(i.readInt32());
 
 				// array 16, 32
-				case 0xdc: return readArray(i, i.readUInt16());
-				case 0xdd: return readArray(i, i.readInt32());
+				case 0xdc: return readArray(i, i.readUInt16(), key, parentKey);
+				case 0xdd: return readArray(i, i.readInt32(), key, parentKey);
 
 				// map 16, 32
-				case 0xde: return readMap(i, i.readUInt16());
-				case 0xdf: return readMap(i, i.readInt32());
+				case 0xde: return readMap(i, i.readUInt16(), key, parentKey);
+				case 0xdf: return readMap(i, i.readInt32(), key, parentKey);
 
 				default: {
 					if (b < 0x80) return b; // positive fix num
-					else if (b < 0x90) return readMap(i, (0xf & b)); // fix map
-					else if (b < 0xa0) return readArray(i, (0xf & b)); // fix array
+					else if (b < 0x90) return readMap(i, (0xf & b), key, parentKey); // fix map
+					else if (b < 0xa0) return readArray(i, (0xf & b), key, parentKey); // fix array
 					else if (b < 0xc0) return i.readString(0x1f & b); // fix string
 					else if (b > 0xdf) return 0xffffff00 | b; // negative fix num
 				}
@@ -92,7 +92,7 @@ class ArmPack {
 		return null;
 	}
 
-	static function readArray(i:BytesInput, length:Int):Dynamic {
+	static function readArray(i:BytesInput, length:Int, key = "", parentKey = ""):Dynamic {
 		var b = i.readByte();
 		i.position--;
 
@@ -113,18 +113,66 @@ class ArmPack {
 		// Dynamic type-value
 		else {
 			var a:Array<Dynamic> = [];
-			for(x in 0...length) a.push(read(i));
+			for(x in 0...length) a.push(read(i, key, parentKey));
 			return a;
 		}
 	}
 
-	static function readMap(i:BytesInput, length:Int):Dynamic {
+	static function readMap(i:BytesInput, length:Int, key = "", parentKey = ""):Dynamic {
+		#if js
 		var out = {};
+		#else
+		var out = Type.createEmptyInstance(getClass(key, parentKey));
+		#end
 		for (n in 0...length) {
-			var k = read(i);
-			var v = read(i);
-			Reflect.setField(out, Std.string(k), v);
+			var k = Std.string(read(i));
+			var v = read(i, k, key);
+			Reflect.setField(out, k, v);
 		}
 		return out;	
 	}
+
+	#if (!js)
+	static function getClass(key:String, parentKey:String):Class<Dynamic> {
+		return switch (key) {
+		case "": TSceneFormat;
+		case "mesh_datas": TMeshData;
+		case "light_datas": TLightData;
+		case "camera_datas": TCameraData;
+		case "material_datas": TMaterialData;
+		case "particle_datas": TParticleData;
+		case "shader_datas": TShaderData;
+		case "speaker_datas": TSpeakerData;
+		case "world_datas": TWorldData;
+		// case "grease_pencil_datas": TGreasePencilData;
+		// case "layers": TGreasePencilLayer;
+		// case "frames": TGreasePencilFrame;
+		// case "colors": TGreasePencilPaletteColor;
+		case "tilesheet_datas": TTilesheetData;
+		case "objects": TObj;
+		case "children": TObj;
+		case "groups": TGroup;
+		case "traits": TTrait;
+		case "vertex_arrays": TVertexArray;
+		case "index_arrays": TIndexArray;
+		case "skin": TSkin;
+		case "transform": TTransform;
+		case "constraints": TConstraint;
+		case "contexts": parentKey == "material_datas" ? TMaterialContext : TShaderContext;
+		case "override_context": TShaderOverride;
+		case "bind_constants": TBindConstant;
+		case "bind_textures": TBindTexture;
+		case "vertex_structure": TVertexData;
+		case "constants": TShaderConstant;
+		case "texture_units": TTextureUnit;
+		case "probes": TProbe;
+		case "actions": TTilesheetAction;
+		case "particle_refs": TParticleReference;
+		case "lods": TLod;
+		case "anim": TAnimation;
+		case "tracks": TTrack;
+		case _: TSceneFormat;
+		}
+	}
+	#end
 }
