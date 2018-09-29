@@ -214,20 +214,14 @@ class RenderPath {
 		rt.image.generateMipmaps(1000);
 	}
 
-	public static function sortMeshesDistance(meshes:Array<MeshObject>, camera:CameraObject) {
-		var camX = camera.transform.worldx();
-		var camY = camera.transform.worldy();
-		var camZ = camera.transform.worldz();
-		for (mesh in meshes) {
-			mesh.computeCameraDistance(camX, camY, camZ);
-		}
+	public static function sortMeshesDistance(meshes:Array<MeshObject>) {
 		meshes.sort(function(a, b):Int {
 			return a.cameraDistance >= b.cameraDistance ? 1 : -1;
 		});
 	}
 
 	public static function sortMeshesShader(meshes:Array<MeshObject>) {
-		Scene.active.meshes.sort(function(a, b):Int {
+		meshes.sort(function(a, b):Int {
 			return a.materials[0].name >= b.materials[0].name ? 1 : -1;
 		});
 	}
@@ -280,24 +274,31 @@ class RenderPath {
 	@:access(iron.object.MeshObject)
 	function submitDraw(context:String) {
 		var light = getLight(currentLightIndex);
+		var camera = Scene.active.camera;
+		var meshes = Scene.active.meshes;
 		var g = currentG;
-
 		MeshObject.lastPipeline = null;
 
-		if (!meshesSorted && Scene.active.camera != null) { // Order max one per frame for now
+		if (!meshesSorted && camera != null) { // Order max one per frame for now
+			var camX = camera.transform.worldx();
+			var camY = camera.transform.worldy();
+			var camZ = camera.transform.worldz();
+			for (mesh in meshes) {
+				mesh.computeCameraDistance(camX, camY, camZ);
+			}
 			#if arm_batch
-			sortMeshesDistance(Scene.active.meshBatch.nonBatched, Scene.active.camera);
+			sortMeshesDistance(Scene.active.meshBatch.nonBatched);
 			#else
-			drawOrder == DrawOrder.Shader ? sortMeshesShader(Scene.active.meshes) : sortMeshesDistance(Scene.active.meshes, Scene.active.camera);
+			drawOrder == DrawOrder.Shader ? sortMeshesShader(meshes) : sortMeshesDistance(meshes);
 			#end
 			meshesSorted = true;
 		}
 
 		#if arm_batch
-		Scene.active.meshBatch.render(g, context, Scene.active.camera, light, bindParams);
+		Scene.active.meshBatch.render(g, context, camera, light, bindParams);
 		#else
-		for (m in Scene.active.meshes) {
-			m.render(g, context, Scene.active.camera, light, bindParams);
+		for (m in meshes) {
+			m.render(g, context, camera, light, bindParams);
 		}
 		#end
 	}
