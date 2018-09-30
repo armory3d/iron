@@ -138,6 +138,7 @@ class ArmPack {
 		case "": TSceneFormat;
 		case "mesh_datas": TMeshData;
 		case "light_datas": TLightData;
+		case "probe_datas": TProbeData;
 		case "camera_datas": TCameraData;
 		case "material_datas": TMaterialData;
 		case "particle_datas": TParticleData;

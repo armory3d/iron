@@ -12,6 +12,7 @@ typedef TSceneFormat = {
 	@:optional public var name:String;
 	@:optional public var mesh_datas:Array<TMeshData>;
 	@:optional public var light_datas:Array<TLightData>;
+	@:optional public var probe_datas:Array<TProbeData>;
 	@:optional public var camera_datas:Array<TCameraData>;
 	@:optional public var camera_ref:String; // Active camera
 	@:optional public var material_datas:Array<TMaterialData>;
@@ -309,6 +310,14 @@ typedef TProbe = {
 	public var volume_center:Float32Array;
 	@:optional public var radiance:String;
 	@:optional public var radiance_mipmaps:Null<Int>;
+}
+
+#if js
+typedef TProbeData = {
+#else
+@:structInit class TProbeData {
+#end
+	public var name:String;
 }
 
 // #if js

@@ -25,11 +25,16 @@ class Scene {
 	#if arm_stream
 	public var sceneStream:SceneStream = null;
 	#end
+	#if rp_decals
+	public var decals:Array<DecalObject>;
+	#end
+	#if rp_probes
+	public var probes:Array<ProbeObject>;
+	#end
 	public var meshes:Array<MeshObject>;
 	public var lights:Array<LightObject>;
 	public var cameras:Array<CameraObject>;
 	public var speakers:Array<SpeakerObject>;
-	public var decals:Array<DecalObject>;
 	public var empties:Array<Object>;
 	public var animations:Array<Animation>;
 	public var armatures:Array<Armature>;
@@ -50,11 +55,16 @@ class Scene {
 		#if arm_stream
 		sceneStream = new SceneStream();
 		#end
+		#if rp_decals
+		decals = [];
+		#end
+		#if rp_probes
+		probes = [];
+		#end
 		meshes = [];
 		lights = [];
 		cameras = [];
 		speakers = [];
-		decals = [];
 		empties = [];
 		animations = [];
 		armatures = [];
@@ -98,11 +108,16 @@ class Scene {
 		#if arm_batch
 		if (meshBatch != null) meshBatch.remove();
 		#end
+		#if rp_decals
+		for (o in decals) o.remove();
+		#end
+		#if rp_probes
+		for (o in probes) o.remove();
+		#end
 		for (o in meshes) o.remove();
 		for (o in lights) o.remove();
 		for (o in cameras) o.remove();
 		for (o in speakers) o.remove();
-		for (o in decals) o.remove();
 		for (o in empties) o.remove();
 		groups = null;
 		root.remove();
