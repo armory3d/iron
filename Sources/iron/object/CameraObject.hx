@@ -18,6 +18,8 @@ class CameraObject extends Object {
 	public var prevV:Mat4 = null;
 	public var VP:Mat4;
 	public var frustumPlanes:Array<FrustumPlane> = null;
+	public var renderTarget:kha.Image = null; // Render camera view to texture
+
 	static var temp = new Vec4();
 	static var q = new Quat();
 
@@ -70,7 +72,6 @@ class CameraObject extends Object {
 	}
 
 	public function renderFrame(g:Graphics) {
-
 		#if arm_taa
 		projectionJitter();
 		#end
@@ -110,8 +111,10 @@ class CameraObject extends Object {
 		// Prevent camera matrix scaling
 		// TODO: discards position affected by scaled camera parent
 		var sc = transform.world.getScale();
-		temp.set(1.0 / sc.x, 1.0 / sc.y, 1.0 / sc.z);
-		transform.world.scale(temp);
+		if (sc.x != 1.0 || sc.y != 1.0 || sc.z != 1.0) {
+			temp.set(1.0 / sc.x, 1.0 / sc.y, 1.0 / sc.z);
+			transform.world.scale(temp);
+		}
 
 		V.getInverse(transform.world);
 

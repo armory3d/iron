@@ -6,20 +6,11 @@ class CameraData extends Data {
 
 	public var name:String;
 	public var raw:TCameraData;
-	public var renderTarget:kha.Image = null;
 
-	public function new(raw:TCameraData, done:CameraData->Void, file = "") {
+	public function new(raw:TCameraData, done:CameraData->Void) {
 		super();
 		this.raw = raw;
 		this.name = raw.name;
-
-		if (raw.render_to_texture) {
-			renderTarget = kha.Image.createRenderTarget(
-				raw.texture_resolution_x, raw.texture_resolution_y,
-				kha.graphics4.TextureFormat.RGBA32,
-				kha.graphics4.DepthStencilFormat.NoDepthAndStencil);
-		}
-
 		done(this);
 	}
 
@@ -30,7 +21,7 @@ class CameraData extends Data {
 				trace('Camera data "$id" not found!');
 				done(null);
 			}
-			new CameraData(raw, done, name);
+			new CameraData(raw, done);
 		});
 	}
 }

@@ -100,9 +100,9 @@ class RenderPath {
 		numTrisShadow = 0;
 		#end
 		
-		// Render to screen or camera texture
-		var noRT = Scene.active.camera == null || Scene.active.camera.data.renderTarget == null;
-		frameG = noRT ? g : Scene.active.camera.data.renderTarget.g4;
+		// Render to screen or probe
+		var toScreen = Scene.active.camera == null || Scene.active.camera.renderTarget == null;
+		frameG = toScreen ? g : Scene.active.camera.renderTarget.g4;
 		
 		currentG = frameG;
 		currentW = iron.App.w();

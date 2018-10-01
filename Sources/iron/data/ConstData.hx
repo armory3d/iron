@@ -10,10 +10,12 @@ class ConstData {
 
 	public static var screenAlignedVB:VertexBuffer = null;
 	public static var screenAlignedIB:IndexBuffer = null;
-	public static var rectVB:VertexBuffer = null;
-	public static var rectIB:IndexBuffer = null;
 	public static var boxVB:VertexBuffer = null;
 	public static var boxIB:IndexBuffer = null;
+	#if (rp_renderer == "Deferred Plus")
+	public static var rectVB:VertexBuffer = null;
+	public static var rectIB:IndexBuffer = null;
+	#end
 	#if arm_deinterleaved
 	public static var skydomeVB:Array<VertexBuffer> = null;
 	#else

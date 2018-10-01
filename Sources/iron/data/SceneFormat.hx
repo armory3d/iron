@@ -118,9 +118,6 @@ typedef TCameraData = {
 	@:optional public var clear_color:Float32Array;
 	@:optional public var aspect:Null<FastFloat>;
 	@:optional public var frustum_culling:Null<Bool>;
-	@:optional public var render_to_texture:Null<Bool>;
-	@:optional public var texture_resolution_x:Null<Int>;
-	@:optional public var texture_resolution_y:Null<Int>;
 	@:optional public var ortho_scale:Null<FastFloat>; // Indicates ortho camera
 }
 

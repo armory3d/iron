@@ -151,36 +151,14 @@ class Scene {
 		if (!ready || RenderPath.active == null) return;
 		framePassed = true;
 
-		var activeCamera = camera;
 		// Render probes
-		for (cam in cameras) {
-			if (cam.data.renderTarget != null) {
-
-				// Reflection probe
-				// var mo = cast(iron.Scene.active.getChild("CameraPlane"), MeshObject);
-				// var nors = mo.data.geom.normals;
-				// var nor = new iron.math.Vec4(nors[0], nors[1], nors[2]);
-				// // nor.applyproj(mo.transform.world);
-				// var a = mo.transform.world.getLoc();
-				// var plane = new iron.math.Ray.Plane();
-				// plane.set(nor, a);
-				// var start = activeCamera.transform.world.getLoc();
-				// nor.mult(-1);
-				// var end = nor;
-				// var ray = new iron.math.Ray(start, end);
-				// var hit = ray.intersectPlane(plane);
-				// if (hit != null) {
-				// 	cam.transform.loc.setFrom(hit);
-				// 	nor.mult(-1);
-				// 	cam.transform.rot = hit.reflect(nor);
-				// }
-
-				camera = cam;
-				camera.renderFrame(g);
-			}
-		}
-		// Render active camera
+		#if rp_probes
+		var activeCamera = camera;
+		for (probe in probes) probe.render(g);
 		camera = activeCamera;
+		#end
+
+		// Render active camera
 		camera != null ? camera.renderFrame(g) : RenderPath.active.renderFrame(g);
 	}
 
