@@ -139,6 +139,7 @@ class ArmPack {
 		case "mesh_datas": TMeshData;
 		case "light_datas": TLightData;
 		case "probe_datas": TProbeData;
+		case "probe": TProbeData;
 		case "camera_datas": TCameraData;
 		case "material_datas": TMaterialData;
 		case "particle_datas": TParticleData;
@@ -166,7 +167,6 @@ class ArmPack {
 		case "vertex_structure": TVertexData;
 		case "constants": TShaderConstant;
 		case "texture_units": TTextureUnit;
-		case "probes": TProbe;
 		case "actions": TTilesheetAction;
 		case "particle_refs": TParticleReference;
 		case "lods": TLod;

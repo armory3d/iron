@@ -236,6 +236,14 @@ class Scene {
 		return object;
 	}
 
+	#if rp_probes
+	public function addProbeObject(data:ProbeData, parent:Object = null):ProbeObject {
+		var object = new ProbeObject(data);
+		parent != null ? parent.addChild(object) : root.addChild(object);
+		return object;
+	}
+	#end
+
 	public function addCameraObject(data:CameraData, parent:Object = null):CameraObject {
 		var object = new CameraObject(data);
 		parent != null ? parent.addChild(object) : root.addChild(object);
@@ -390,6 +398,14 @@ class Scene {
 				returnObject(object, o, done);
 			});
 		}
+		#if rp_probes
+		else if (o.type == "probe_object") {
+			Data.getProbe(sceneName, o.data_ref, function(b:ProbeData) {
+				var object = addProbeObject(b, parent);	
+				returnObject(object, o, done);
+			});
+		}
+		#end
 		else if (o.type == "mesh_object") {
 			if (o.material_refs == null || o.material_refs.length == 0) {
 				// No material, create empty object

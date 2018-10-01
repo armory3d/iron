@@ -14,6 +14,9 @@ class Data {
 	public static var cachedWorlds:Map<String, WorldData> = new Map();
 	// public static var cachedGreasePencils:Map<String, GreasePencilData> = new Map();
 	public static var cachedShaders:Map<String, ShaderData> = new Map();
+	#if rp_probes
+	public static var cachedProbes:Map<String, ProbeData> = new Map();
+	#end
 
 	public static var cachedBlobs:Map<String, kha.Blob> = new Map();
 	public static var cachedImages:Map<String, kha.Image> = new Map();
@@ -112,6 +115,25 @@ class Data {
 			loadingLights.remove(file + name);
 		});
 	}
+
+	#if rp_probes
+	static var loadingProbes:Map<String, Array<ProbeData->Void>> = new Map();
+	public static function getProbe(file:String, name:String, done:ProbeData->Void) {
+		var cached = cachedProbes.get(file + name);
+		if (cached != null) { done(cached); return; }
+
+		var loading = loadingProbes.get(file + name);
+		if (loading != null) { loading.push(done); return; }
+
+		loadingProbes.set(file + name, [done]);
+
+		ProbeData.parse(file, name, function(b:ProbeData) {
+			cachedProbes.set(file + name, b);
+			for (f in loadingProbes.get(file + name)) f(b);
+			loadingProbes.remove(file + name);
+		});
+	}
+	#end
 
 	static var loadingCameras:Map<String, Array<CameraData->Void>> = new Map();
 	public static function getCamera(file:String, name:String, done:CameraData->Void) {
@@ -332,6 +354,14 @@ class Data {
 		for (dat in datas) if (dat.name == name) return dat;
 		return null;
 	}
+
+	#if rp_probes
+	public static function getProbeRawByName(datas:Array<TProbeData>, name:String):TProbeData {
+		if (name == "") return datas[0];
+		for (dat in datas) if (dat.name == name) return dat;
+		return null;
+	}
+	#end
 
 	public static function getCameraRawByName(datas:Array<TCameraData>, name:String):TCameraData {
 		if (name == "") return datas[0];

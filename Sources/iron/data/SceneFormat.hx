@@ -290,26 +290,11 @@ typedef TWorldData = {
 #end
 	public var name:String;
 	public var background_color:Int;
-	public var probes:Array<TProbe>;
+	public var probe:TProbeData;
 	@:optional public var sun_direction:Float32Array; // Sky data
 	@:optional public var turbidity:Null<FastFloat>;
 	@:optional public var ground_albedo:Null<FastFloat>;
 	@:optional public var envmap:String;
-}
-
-#if js
-typedef TProbe = {
-#else
-@:structInit class TProbe {
-#end
-	public var name:String;
-	public var irradiance:String; // Reference to TIrradiance blob
-	public var strength:FastFloat;
-	public var blending:FastFloat;
-	public var volume:Float32Array;
-	public var volume_center:Float32Array;
-	@:optional public var radiance:String;
-	@:optional public var radiance_mipmaps:Null<Int>;
 }
 
 #if js
@@ -318,6 +303,11 @@ typedef TProbeData = {
 @:structInit class TProbeData {
 #end
 	public var name:String;
+	public var type:String; // grid, planar, cubemap
+	public var strength:FastFloat;
+	@:optional public var irradiance:String; // Reference to TIrradiance blob
+	@:optional public var radiance:String;
+	@:optional public var radiance_mipmaps:Null<Int>;
 }
 
 // #if js

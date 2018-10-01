@@ -83,7 +83,7 @@ class Uniforms {
 				if (tulink == "_envmapRadiance") {
 					var w = Scene.active.world;
 					if (w != null) {
-						g.setTexture(context.textureUnits[j], w.getGlobalProbe().radiance);
+						g.setTexture(context.textureUnits[j], w.probe.radiance);
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 					}
 				}
@@ -633,7 +633,7 @@ class Uniforms {
 				// if (light != null && light.data.raw.light_size != null) f = light.data.raw.light_size / light.data.raw.fov;
 			// }
 			else if (c.link == "_envmapStrength") {
-				f = Scene.active.world == null ? 0.0 : Scene.active.world.getGlobalProbe().raw.strength;
+				f = Scene.active.world == null ? 0.0 : Scene.active.world.probe.raw.strength;
 			}
 			else if (c.link == "_aspectRatioF") {
 				f = RenderPath.active.currentW / RenderPath.active.currentH;
@@ -664,7 +664,7 @@ class Uniforms {
 		else if (c.type == "floats") {
 			var fa:kha.arrays.Float32Array = null;
 			if (c.link == "_envmapIrradiance") {
-				fa = Scene.active.world == null ? WorldData.getEmptyIrradiance() : Scene.active.world.getSHIrradiance();
+				fa = Scene.active.world == null ? WorldData.getEmptyIrradiance() : Scene.active.world.probe.irradiance;
 			}
 			#if arm_csm
 			else if (c.link == "_cascadeData") {
@@ -693,7 +693,7 @@ class Uniforms {
 			}
 			else if (c.link == "_envmapNumMipmaps") {
 				var w = Scene.active.world;
-				i = w != null ? w.getGlobalProbe().raw.radiance_mipmaps + 1 - 2 : 1; // Include basecolor and exclude 2 scaled mips
+				i = w != null ? w.probe.raw.radiance_mipmaps + 1 - 2 : 1; // Include basecolor and exclude 2 scaled mips
 			}
 
 			if (i != null) {
@@ -879,12 +879,6 @@ class Uniforms {
 				helpVec.set((d.x / s.x) / 2, (d.y / s.y) / 2, (d.z / s.z) / 2);
 				v = helpVec;
 			}
-			else if (c.link == "_probeVolumeCenter") { // Local probes
-				v = Scene.active.world.getProbeVolumeCenter(object.transform);
-			}
-			else if (c.link == "_probeVolumeSize") {
-				v = Scene.active.world.getProbeVolumeSize(object.transform);
-			}
 			// External
 			else if (externalVec3Links != null) {
 				for (f in externalVec3Links) {
@@ -921,13 +915,7 @@ class Uniforms {
 		}
 		else if (c.type == "float") {
 			var f:Null<kha.FastFloat> = null;
-			if (c.link == "_probeStrength") {
-				f = Scene.active.world.getProbeStrength(object.transform);
-			}
-			else if (c.link == "_probeBlending") {
-				f = Scene.active.world.getProbeBlending(object.transform);
-			}
-			else if (c.link == "_objectInfoIndex") {
+			if (c.link == "_objectInfoIndex") {
 				f = object.uid;
 			}
 			else if (c.link == "_objectInfoMaterialIndex") {
@@ -973,10 +961,6 @@ class Uniforms {
 			if (c.link == "_uid") {
 				i = object.uid;
 			}
-			// else if (c.link == "_probeID") { // Local probes
-				// var w = Scene.active.world;
-				// i = w != null ? w.getProbeID(object.transform) : 0;
-			// }
 			// External
 			else if (externalIntLinks != null) {
 				for (fn in externalIntLinks) {
