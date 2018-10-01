@@ -32,15 +32,13 @@ class ProbeObject extends Object {
 				camera.name = raw.name;
 				camera.transform = transform;
 				Scene.active.root.addChild(camera);
-				// Show target in debug console
-				#if arm_debug
-				iron.App.notifyOnInit(function() {
+				// Make target bindable from render path
+				iron.App.notifyOnInit(function() { // TODO
 					var rt = new iron.RenderPath.RenderTarget(new iron.RenderPath.RenderTargetRaw());
 					rt.raw.name = raw.name;
 					rt.image = camera.renderTarget;
 					iron.RenderPath.active.renderTargets.set(raw.name, rt);
 				});
-				#end
 			});
 		}
 	}
@@ -53,6 +51,8 @@ class ProbeObject extends Object {
 	var init = true;
 	public function render(g:Graphics) {
 		if (camera == null) return;
+
+		// TODO: cull
 
 		if (data.raw.type == "planar") {
 

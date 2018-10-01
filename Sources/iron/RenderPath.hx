@@ -530,7 +530,6 @@ class RenderPath {
 			vb = ConstData.sphereVB;
 			ib = ConstData.sphereIB;
 		}
-		
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		var g = currentG;		
 		g.setPipeline(cc.context.pipeState);
@@ -541,6 +540,23 @@ class RenderPath {
 		g.drawIndexedVertices();
 		end(g);
 	}
+
+	#if rp_probes
+	public function drawVolume(object:Object, handle:String) {
+		object.transform.scale.z = 0.1; // TODO
+		object.transform.buildMatrix();
+		if (ConstData.boxVB == null) ConstData.createBoxData();
+		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		var g = currentG;
+		g.setPipeline(cc.context.pipeState);
+		Uniforms.setContextConstants(g, cc.context, Scene.active.camera, null, bindParams);
+		Uniforms.setObjectConstants(g, cc.context, object, Scene.active.camera, null);
+		g.setVertexBuffer(ConstData.boxVB);
+		g.setIndexBuffer(ConstData.boxIB);
+		g.drawIndexedVertices();
+		end(g);
+	}
+	#end
 
 	public function bindTarget(target:String, uniform:String) {
 		if (bindParams != null) { bindParams.push(target); bindParams.push(uniform); }

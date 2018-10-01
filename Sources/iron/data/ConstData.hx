@@ -10,8 +10,10 @@ class ConstData {
 
 	public static var screenAlignedVB:VertexBuffer = null;
 	public static var screenAlignedIB:IndexBuffer = null;
+	#if (rp_decals || rp_probes)
 	public static var boxVB:VertexBuffer = null;
 	public static var boxIB:IndexBuffer = null;
+	#end
 	#if (rp_renderer == "Deferred Plus")
 	public static var rectVB:VertexBuffer = null;
 	public static var rectIB:IndexBuffer = null;
@@ -70,7 +72,7 @@ class ConstData {
 	}
 	#end
 	
-	#if rp_decals
+	#if (rp_decals || rp_probes)
 	public static function createBoxData() {
 		var data = [
 			-1.0,1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,1.0,-1.0,1.0,1.0,-1.0,
