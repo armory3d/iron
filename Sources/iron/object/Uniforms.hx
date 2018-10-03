@@ -480,6 +480,11 @@ class Uniforms {
 					v = helpVec;
 				}
 			}
+			#if rp_probes
+			else if (c.link == "_probeNormal") {
+				v = Scene.active.probes[RenderPath.active.currentProbeIndex].transform.up();
+			}
+			#end
 			
 			if (v != null) {
 				g.setFloat3(location, v.x, v.y, v.z);
@@ -815,6 +820,13 @@ class Uniforms {
 					m = helpMat;
 				}
 			}
+			#if rp_probes
+			else if (c.link == "_probeViewProjectionMatrix") {
+				helpMat.setFrom(Scene.active.probes[RenderPath.active.currentProbeIndex].camera.V);
+				helpMat.multmat(Scene.active.probes[RenderPath.active.currentProbeIndex].camera.P);
+				m = helpMat;
+			}
+			#end
 			#if arm_particles_gpu
 			else if (c.link == "_particleData") {
 				var mo = cast(object, MeshObject);

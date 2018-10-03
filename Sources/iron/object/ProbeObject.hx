@@ -6,6 +6,8 @@ import kha.graphics4.DepthStencilFormat;
 import iron.data.ProbeData;
 import iron.data.CameraData;
 import iron.data.SceneFormat;
+import iron.math.Vec4;
+import iron.math.Mat4;
 import iron.Scene;
 
 class ProbeObject extends Object {
@@ -15,55 +17,124 @@ class ProbeObject extends Object {
 	public var data:ProbeData;
 	public var renderTarget:kha.Image = null;
 	public var camera:CameraObject = null;
+	public var ready = false;
+
+	var m1:Mat4;
+	var m2:Mat4;
+	var proben:Vec4;
+	var probep:Vec4;
+	// static var v = new Vec4();
+	static var p = new Vec4();
+	static var q = new Vec4();
 
 	public function new(data:ProbeData) {
 		super();
 		this.data = data;
 		Scene.active.probes.push(this);
-
-		if (data.raw.type == "planar") {
-			var raw:TCameraData = { name: data.raw.name, near_plane: 0.1, far_plane: 100.0, fov: 1.0 };
-			new CameraData(raw, function(cdata:CameraData) {
-				camera = new CameraObject(cdata);
-				camera.renderTarget = kha.Image.createRenderTarget(
-					1024, 1024,
-					TextureFormat.RGBA32,
-					DepthStencilFormat.NoDepthAndStencil);
-				camera.name = raw.name;
-				camera.transform = transform;
-				Scene.active.root.addChild(camera);
-				// Make target bindable from render path
-				iron.App.notifyOnInit(function() { // TODO
-					var rt = new iron.RenderPath.RenderTarget(new iron.RenderPath.RenderTargetRaw());
-					rt.raw.name = raw.name;
-					rt.image = camera.renderTarget;
-					iron.RenderPath.active.renderTargets.set(raw.name, rt);
-				});
-			});
-		}
+		iron.App.notifyOnInit(init);
 	}
 
 	public override function remove() {
 		if (Scene.active != null) Scene.active.probes.remove(this);
+		// if (camera != null) camera.remove();
 		super.remove();
 	}
 
-	var init = true;
-	public function render(g:Graphics) {
-		if (camera == null) return;
+	function init() {
+		if (data.raw.type == "planar") {
+			m1 = Mat4.identity();
+			m2 = Mat4.identity();
+			probep = transform.world.getLoc();
+			proben = transform.up().normalize();
+			proben.w = -probep.dot(proben);
+			reflect(m1, proben, probep);
+			reflect(m2, new Vec4(0, 1, 0), probep);
+
+			transform.scale.z = transform.dim.z;
+			transform.buildMatrix();
+
+			// var aspect = transform.scale.x / transform.scale.y;
+			var aspect = iron.App.w() / iron.App.h(); // TODO
+			var raw:TCameraData = {
+				name: data.raw.name,
+				near_plane: Scene.active.camera.data.raw.near_plane,
+				far_plane: Scene.active.camera.data.raw.far_plane,
+				fov: Scene.active.camera.data.raw.fov,
+				aspect: aspect
+			};
+			new CameraData(raw, function(cdata:CameraData) {
+				camera = new CameraObject(cdata);
+				camera.renderTarget = kha.Image.createRenderTarget(
+					iron.App.w(), // TODO
+					iron.App.h(),
+					TextureFormat.RGBA32,
+					DepthStencilFormat.NoDepthAndStencil
+				);
+				camera.name = raw.name;
+				iron.Scene.active.root.addChild(camera);
+				// Make target bindable from render path
+				var rt = new iron.RenderPath.RenderTarget(new iron.RenderPath.RenderTargetRaw());
+				rt.raw.name = raw.name;
+				rt.image = camera.renderTarget;
+				iron.RenderPath.active.renderTargets.set(raw.name, rt);
+				ready = true;
+			});
+		}
+	}
+
+	static function reflect(m:Mat4, n:Vec4, p:Vec4) {
+		var c = -p.dot(n);
+		m._00 = 1 - 2 * n.x * n.x;
+		m._10 =   - 2 * n.x * n.y;
+		m._20 =   - 2 * n.x * n.z;
+		m._30 =   - 2 * n.x * c;
+		m._01 =   - 2 * n.x * n.y;
+		m._11 = 1 - 2 * n.y * n.y;
+		m._21 =   - 2 * n.y * n.z;
+		m._31 =   - 2 * n.y * c;
+		m._02 =   - 2 * n.x * n.z;
+		m._12 =   - 2 * n.y * n.z;
+		m._22 = 1 - 2 * n.z * n.z;
+		m._32 =   - 2 * n.z * c;
+		m._03 = 0;
+		m._13 = 0;
+		m._23 = 0;
+		m._33 = 1;
+	}
+
+	static inline function sign(f:Float):Float {
+		return f > 0.0 ? 1.0 : f < 0.0 ? -1.0 : 0.0;
+	}
+
+	static function obliqueProjection(m:Mat4, plane:Vec4) {
+		// http://www.terathon.com/code/oblique.html
+		p.x = (sign(plane.x) + m._20) / m._00;
+		p.y = (sign(plane.y) + m._21) / m._11;
+		p.z = -1.0;
+		p.w = (1.0 + m._22) / m._32;
+		q.setFrom(plane).mult(2.0 / plane.dot(p));
+		m._02 = q.x;
+		m._12 = q.y;
+		m._22 = q.z + 1.0;
+		m._32 = q.w;
+	}
+
+	public function render(g:Graphics, activeCamera:CameraObject) {
+		if (camera == null || !ready) return;
 
 		// TODO: cull
-
 		if (data.raw.type == "planar") {
+			camera.V.setFrom(m1);
+			camera.V.multmat(activeCamera.V);
+			camera.V.multmat(m2);
+			camera.transform.local.getInverse(camera.V);
+			camera.transform.decompose();
+			
+			// Skip objects below the reflection plane
+			// v.setFrom(proben).applyproj(camera.V);
+			// obliqueProjection(#if (arm_taa) camera.noJitterP #else camera.P #end, v);
 
-			// Invert look
-			if (init) {
-				init = false;
-				transform.rot.fromAxisAngle(transform.right(), Math.PI);
-				transform.buildMatrix();
-			}
-
-			Scene.active.camera = camera;
+			camera.buildMatrix();
 			camera.renderFrame(g);
 		}
 	}

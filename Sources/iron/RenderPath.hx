@@ -25,6 +25,9 @@ class RenderPath {
 	public var currentCube:Bool;
 	public var currentFace:Int;
 	public var currentLightIndex = 0;
+	#if rp_probes
+	public var currentProbeIndex = 0;
+	#end
 	public var currentW:Int;
 	public var currentH:Int;
 	public var currentD:Int;
@@ -543,8 +546,6 @@ class RenderPath {
 
 	#if rp_probes
 	public function drawVolume(object:Object, handle:String) {
-		object.transform.scale.z = 0.1; // TODO
-		object.transform.buildMatrix();
 		if (ConstData.boxVB == null) ConstData.createBoxData();
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		var g = currentG;

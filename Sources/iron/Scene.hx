@@ -154,7 +154,10 @@ class Scene {
 		// Render probes
 		#if rp_probes
 		var activeCamera = camera;
-		for (probe in probes) probe.render(g);
+		for (probe in probes) {
+			camera = probe.camera;
+			probe.render(g, activeCamera);
+		}
 		camera = activeCamera;
 		#end
 

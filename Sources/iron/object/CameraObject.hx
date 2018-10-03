@@ -68,6 +68,7 @@ class CameraObject extends Object {
 
 	public override function remove() {
 		Scene.active.cameras.remove(this);
+		// if (renderTarget != null) renderTarget.unload();
 		super.remove();
 	}
 
