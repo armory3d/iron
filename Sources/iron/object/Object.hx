@@ -184,11 +184,4 @@ class Object {
 		seed = (seed * 9301 + 49297) % 233280;
 		return seed / 233280.0;
 	}
-
-	/**
-	 * Useful for debugging.
-	 *
-	 * @return	Returns a String in the format of "Object + name".
-	 */
-	public function toString():String { return "Object " + name; }
 }

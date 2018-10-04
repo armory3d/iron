@@ -484,6 +484,9 @@ class Uniforms {
 			else if (c.link == "_probeNormal") {
 				v = Scene.active.probes[RenderPath.active.currentProbeIndex].transform.up();
 			}
+			else if (c.link == "_probePosition") {
+				v = Scene.active.probes[RenderPath.active.currentProbeIndex].transform.world.getLoc();
+			}
 			#end
 			
 			if (v != null) {

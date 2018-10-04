@@ -41,12 +41,13 @@ class ProbeObject extends Object {
 	}
 
 	function init() {
+		probep = transform.world.getLoc();
+		proben = transform.up().normalize();
+		proben.w = -probep.dot(proben);
+		
 		if (data.raw.type == "planar") {
 			m1 = Mat4.identity();
 			m2 = Mat4.identity();
-			probep = transform.world.getLoc();
-			proben = transform.up().normalize();
-			proben.w = -probep.dot(proben);
 			reflect(m1, proben, probep);
 			reflect(m2, new Vec4(0, 1, 0), probep);
 
@@ -55,14 +56,14 @@ class ProbeObject extends Object {
 
 			// var aspect = transform.scale.x / transform.scale.y;
 			var aspect = iron.App.w() / iron.App.h(); // TODO
-			var raw:TCameraData = {
-				name: data.raw.name,
+			var craw:TCameraData = {
+				name: raw.name + "_Camera",
 				near_plane: Scene.active.camera.data.raw.near_plane,
 				far_plane: Scene.active.camera.data.raw.far_plane,
 				fov: Scene.active.camera.data.raw.fov,
 				aspect: aspect
 			};
-			new CameraData(raw, function(cdata:CameraData) {
+			new CameraData(craw, function(cdata:CameraData) {
 				camera = new CameraObject(cdata);
 				camera.renderTarget = kha.Image.createRenderTarget(
 					iron.App.w(), // TODO
@@ -70,13 +71,45 @@ class ProbeObject extends Object {
 					TextureFormat.RGBA32,
 					DepthStencilFormat.NoDepthAndStencil
 				);
-				camera.name = raw.name;
+				camera.name = craw.name;
 				iron.Scene.active.root.addChild(camera);
 				// Make target bindable from render path
 				var rt = new iron.RenderPath.RenderTarget(new iron.RenderPath.RenderTargetRaw());
 				rt.raw.name = raw.name;
 				rt.image = camera.renderTarget;
-				iron.RenderPath.active.renderTargets.set(raw.name, rt);
+				iron.RenderPath.active.renderTargets.set(rt.raw.name, rt);
+				ready = true;
+			});
+		}
+		else if (data.raw.type == "cubemap") {
+			transform.scale.x *= transform.dim.x;
+			transform.scale.y *= transform.dim.y;
+			transform.scale.z *= transform.dim.z;
+			transform.buildMatrix();
+
+			var craw:TCameraData = {
+				name: data.raw.name + "_Camera",
+				near_plane: Scene.active.camera.data.raw.near_plane,
+				far_plane: Scene.active.camera.data.raw.far_plane,
+				fov: 1.5708, // pi/2
+				aspect: 1.0
+			};
+			new CameraData(craw, function(cdata:CameraData) {
+				camera = new CameraObject(cdata);
+				camera.renderTargetCube = kha.graphics4.CubeMap.createRenderTarget(
+					1024, // TODO
+					TextureFormat.RGBA32,
+					DepthStencilFormat.NoDepthAndStencil
+				);
+				camera.name = craw.name;
+				iron.Scene.active.root.addChild(camera);
+				// Make target bindable from render path
+				var rt = new iron.RenderPath.RenderTarget(new iron.RenderPath.RenderTargetRaw());
+				rt.raw.name = raw.name;
+				rt.raw.is_cubemap = true;
+				rt.isCubeMap = true;
+				rt.cubeMap = camera.renderTargetCube;
+				iron.RenderPath.active.renderTargets.set(rt.raw.name, rt);
 				ready = true;
 			});
 		}
@@ -129,13 +162,19 @@ class ProbeObject extends Object {
 			camera.V.multmat(m2);
 			camera.transform.local.getInverse(camera.V);
 			camera.transform.decompose();
-			
 			// Skip objects below the reflection plane
 			// v.setFrom(proben).applyproj(camera.V);
 			// obliqueProjection(#if (arm_taa) camera.noJitterP #else camera.P #end, v);
-
-			camera.buildMatrix();
 			camera.renderFrame(g);
+		}
+		else if (data.raw.type == "cubemap") {
+			for (i in 0...6) {
+				camera.currentFace = i;
+				CameraObject.setCubeFace(camera.V, probep, 5 - i); // Reverse face order
+				camera.transform.local.getInverse(camera.V);
+				camera.transform.decompose();
+				camera.renderFrame(g);
+			}
 		}
 	}
 

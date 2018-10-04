@@ -22,12 +22,14 @@ class RenderPath {
 	public var frameScissorH = 0;
 	public var frameTime = 0.0;
 	public var currentTarget:RenderTarget = null;
-	public var currentCube:Bool;
 	public var currentFace:Int;
 	public var currentLightIndex = 0;
 	#if rp_probes
 	public var currentProbeIndex = 0;
 	#end
+	public var isProbePlanar = false;
+	public var isProbeCube = false;
+	public var isProbe = false;
 	public var currentW:Int;
 	public var currentH:Int;
 	public var currentD:Int;
@@ -104,19 +106,24 @@ class RenderPath {
 		#end
 		
 		// Render to screen or probe
-		var toScreen = Scene.active.camera == null || Scene.active.camera.renderTarget == null;
-		frameG = toScreen ? g : Scene.active.camera.renderTarget.g4;
+		var cam = Scene.active.camera;
+		isProbePlanar = cam != null && cam.renderTarget != null;
+		isProbeCube = cam != null && cam.renderTargetCube != null;
+		isProbe = isProbePlanar || isProbeCube;
+		
+		if (isProbePlanar) frameG = cam.renderTarget.g4;
+		else if (isProbeCube) frameG = cam.renderTargetCube.g4;
+		else frameG = g;
 		
 		currentG = frameG;
 		currentW = iron.App.w();
 		currentH = iron.App.h();
 		currentD = 1;
-		currentCube = false;
 		currentFace = -1;
 		meshesSorted = false;
 
 		currentLightIndex = 0;
-		for (l in Scene.active.lights) if (l.visible) l.buildMatrices(Scene.active.camera);
+		for (l in Scene.active.lights) if (l.visible) l.buildMatrix(Scene.active.camera);
 
 		commands();
 	}
@@ -124,18 +131,26 @@ class RenderPath {
 	public function setTarget(target:String, additional:Array<String> = null, viewportScale = 1.0) {
 		if (target == "") { // Framebuffer
 			currentG = frameG;
-			currentW = iron.App.w();
-			currentH = iron.App.h();
 			currentD = 1;
 			currentTarget = null;
-			currentCube = false;
 			currentFace = -1;
-			if (frameScissor) setFrameScissor();
-			begin(currentG);
-			#if arm_appwh
-			setCurrentViewport(iron.App.w(), iron.App.h());
-			setCurrentScissor(iron.App.w(), iron.App.h());
-			#end
+			if (isProbeCube) {
+				currentW = Scene.active.camera.renderTargetCube.width;
+				currentH = Scene.active.camera.renderTargetCube.width;
+				begin(currentG, Scene.active.camera.currentFace);
+			}
+			else { // Screen, planar probe
+				currentW = iron.App.w();
+				currentH = iron.App.h();
+				if (frameScissor) setFrameScissor();
+				begin(currentG);
+				#if arm_appwh
+				if (!isProbe) {
+					setCurrentViewport(iron.App.w(), iron.App.h());
+					setCurrentScissor(iron.App.w(), iron.App.h());
+				}
+				#end
+			}
 		}
 		else { // Render target
 			var rt = renderTargets.get(target);
@@ -152,7 +167,6 @@ class RenderPath {
 			currentW = rt.isCubeMap ? rt.cubeMap.width : rt.image.width;
 			currentH = rt.isCubeMap ? rt.cubeMap.height : rt.image.height;
 			if (rt.is3D) currentD = rt.image.depth;
-			currentCube = rt.isCubeMap;
 			begin(currentG, additionalImages, currentFace);
 		}
 		if (viewportScale != 1.0) {

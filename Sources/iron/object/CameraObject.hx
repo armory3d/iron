@@ -19,6 +19,8 @@ class CameraObject extends Object {
 	public var VP:Mat4;
 	public var frustumPlanes:Array<FrustumPlane> = null;
 	public var renderTarget:kha.Image = null; // Render camera view to texture
+	public var renderTargetCube:kha.graphics4.CubeMap = null;
+	public var currentFace = 0;
 
 	static var temp = new Vec4();
 	static var q = new Quat();
@@ -69,6 +71,7 @@ class CameraObject extends Object {
 	public override function remove() {
 		Scene.active.cameras.remove(this);
 		// if (renderTarget != null) renderTarget.unload();
+		// if (renderTargetCube != null) renderTargetCube.unload();
 		super.remove();
 	}
 
@@ -80,10 +83,7 @@ class CameraObject extends Object {
 		buildMatrix();
 
 		// First time setting up previous V, prevents first frame flicker
-		if (prevV == null) {
-			prevV = Mat4.identity();
-			prevV.setFrom(V);
-		}
+		if (prevV == null) { prevV = Mat4.identity(); prevV.setFrom(V); }
 
 		RenderPath.active.renderFrame(g);
 	
@@ -189,14 +189,40 @@ class CameraObject extends Object {
 		buildMatrix();
 	}
 
+	static var vcenter = new Vec4();
+	static var vup = new Vec4();
+	public static function setCubeFace(m:Mat4, eye:Vec4, face:Int) {
+		// Set matrix to match cubemap face
+		vcenter.setFrom(eye);
+		switch (face) {
+		case 0: // x+
+			vcenter.addf(1.0, 0.0, 0.0);
+			vup.set(0.0, -1.0, 0.0);
+		case 1: // x-
+			vcenter.addf(-1.0, 0.0, 0.0);
+			vup.set(0.0, -1.0, 0.0);
+		case 2: // y+
+			vcenter.addf(0.0, 1.0, 0.0);
+			vup.set(0.0, 0.0, 1.0);
+		case 3: // y-
+			vcenter.addf(0.0, -1.0, 0.0);
+			vup.set(0.0, 0.0, -1.0);
+		case 4: // z+
+			vcenter.addf(0.0, 0.0, 1.0);
+			vup.set(0.0, -1.0, 0.0);
+		case 5: // z-
+			vcenter.addf(0.0, 0.0, -1.0);
+			vup.set(0.0, -1.0, 0.0);
+		}
+		m.setLookAt(eye, vcenter, vup);
+	}
+
 	public inline function right():Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }
 	public inline function up():Vec4 { return new Vec4(transform.local._10, transform.local._11, transform.local._12); }
 	public inline function look():Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
 	public inline function rightWorld():Vec4 { return new Vec4(transform.world._00, transform.world._01, transform.world._02); }
 	public inline function upWorld():Vec4 { return new Vec4(transform.world._10, transform.world._11, transform.world._12); }
 	public inline function lookWorld():Vec4 { return new Vec4(-transform.world._20, -transform.world._21, -transform.world._22); }
-
-	public override function toString():String { return "Camera Object " + name; }
 }
 
 class FrustumPlane {

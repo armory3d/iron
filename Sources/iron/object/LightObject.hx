@@ -72,7 +72,7 @@ class LightObject extends Object {
 	}
 
 	static var m = Mat4.identity();
-	public function buildMatrices(camera:CameraObject) {
+	public function buildMatrix(camera:CameraObject) {
 		transform.buildMatrix();
 		if (data.raw.type == "sun") { // Cover camera frustum
 			#if (!arm_csm) // Otherwise set cascades on mesh draw
@@ -217,36 +217,11 @@ class LightObject extends Object {
 		}
 	}
 
-	static var p1 = new Vec4();
-	static var p2 = new Vec4();
-	static var p3 = new Vec4();
+	static var eye = new Vec4();
 	public function setCubeFace(face:Int, camera:CameraObject) {
 		// Set matrix to match cubemap face
-		p1.set(transform.worldx(), transform.worldy(), transform.worldz());
-		p2.setFrom(p1);
-
-		switch (face) {
-		case 0: // x+
-			p2.addf(1.0, 0.0, 0.0);
-			p3.set(0.0, -1.0, 0.0);
-		case 1: // x-
-			p2.addf(-1.0, 0.0, 0.0);
-			p3.set(0.0, -1.0, 0.0);
-		case 2: // y+
-			p2.addf(0.0, 1.0, 0.0);
-			p3.set(0.0, 0.0, 1.0);
-		case 3: // y-
-			p2.addf(0.0, -1.0, 0.0);
-			p3.set(0.0, 0.0, -1.0);
-		case 4: // z+
-			p2.addf(0.0, 0.0, 1.0);
-			p3.set(0.0, -1.0, 0.0);
-		case 5: // z-
-			p2.addf(0.0, 0.0, -1.0);
-			p3.set(0.0, -1.0, 0.0);
-		}
-
-		V.setLookAt(p1, p2, p3);
+		eye.set(transform.worldx(), transform.worldy(), transform.worldz());
+		CameraObject.setCubeFace(V, eye, face);
 		updateViewFrustum(camera);
 	}
 
@@ -295,6 +270,4 @@ class LightObject extends Object {
 	public inline function right():Vec4 { return new Vec4(V._00, V._10, V._20); }
 	public inline function up():Vec4 { return new Vec4(V._01, V._11, V._21); }
 	public inline function look():Vec4 { return new Vec4(V._02, V._12, V._22); }
-
-	public override function toString():String { return "Light Object " + name; }
 }

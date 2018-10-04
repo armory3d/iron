@@ -689,8 +689,4 @@ class Scene {
 	public function notifyOnRemove(f:Void->Void) {
 		traitRemoves.push(f);
 	}
-
-	public function toString():String {
-		return "Scene " + raw.name;
-	}
 }
