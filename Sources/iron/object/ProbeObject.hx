@@ -51,7 +51,7 @@ class ProbeObject extends Object {
 			reflect(m1, proben, probep);
 			reflect(m2, new Vec4(0, 1, 0), probep);
 
-			transform.scale.z = transform.dim.z;
+			transform.scale.z = 1.0; // Only take dim.z into account
 			transform.buildMatrix();
 
 			// var aspect = transform.scale.x / transform.scale.y;
@@ -152,8 +152,20 @@ class ProbeObject extends Object {
 		m._32 = q.w;
 	}
 
+	function cullProbe(camera:CameraObject):Bool {
+		if (camera.data.raw.frustum_culling) {
+			if (!CameraObject.sphereInFrustum(camera.frustumPlanes, transform, 1.0)) {
+				culled = true;
+				return culled;
+			}
+		}
+		culled = false;
+		return culled;
+	}
+
 	public function render(g:Graphics, activeCamera:CameraObject) {
 		if (camera == null || !ready) return;
+		if (cullProbe(activeCamera)) return;
 
 		// TODO: cull
 		if (data.raw.type == "planar") {
