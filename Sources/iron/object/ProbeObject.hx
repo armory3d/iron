@@ -164,8 +164,7 @@ class ProbeObject extends Object {
 	}
 
 	public function render(g:Graphics, activeCamera:CameraObject) {
-		if (camera == null || !ready) return;
-		if (cullProbe(activeCamera)) return;
+		if (camera == null || !ready || !visible || cullProbe(activeCamera)) return;
 
 		// TODO: cull
 		if (data.raw.type == "planar") {
