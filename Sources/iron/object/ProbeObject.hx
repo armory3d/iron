@@ -19,6 +19,10 @@ class ProbeObject extends Object {
 	public var camera:CameraObject = null;
 	public var ready = false;
 
+	// Cubemap update
+	public var perFrame = false; // Update probe every frame
+	public var redraw = true; // Update probe next frame
+
 	var m1:Mat4;
 	var m2:Mat4;
 	var proben:Vec4;
@@ -166,7 +170,6 @@ class ProbeObject extends Object {
 	public function render(g:Graphics, activeCamera:CameraObject) {
 		if (camera == null || !ready || !visible || cullProbe(activeCamera)) return;
 
-		// TODO: cull
 		if (data.raw.type == "planar") {
 			camera.V.setFrom(m1);
 			camera.V.multmat(activeCamera.V);
@@ -179,14 +182,18 @@ class ProbeObject extends Object {
 			camera.renderFrame(g);
 		}
 		else if (data.raw.type == "cubemap") {
-			for (i in 0...6) {
-				camera.currentFace = i;
-				CameraObject.setCubeFace(camera.V, probep, 5 - i); // Reverse face order
-				camera.transform.local.getInverse(camera.V);
-				camera.transform.decompose();
-				camera.renderFrame(g);
+			if (perFrame || redraw) {
+				for (i in 0...6) {
+					camera.currentFace = i;
+					CameraObject.setCubeFace(camera.V, probep, 5 - i); // Reverse face order
+					camera.transform.local.getInverse(camera.V);
+					camera.transform.decompose();
+					camera.renderFrame(g);
+				}
 			}
 		}
+
+		redraw = false;
 	}
 
 #end
