@@ -162,6 +162,14 @@ class ShaderContext {
 		if (raw.color_write_blue != null) pipeState.colorWriteMaskBlue = raw.color_write_blue;
 		if (raw.color_write_alpha != null) pipeState.colorWriteMaskAlpha = raw.color_write_alpha;
 
+		// Per target masks
+		#if arm_dev
+		if (raw.color_writes_red != null) for (i in 0...raw.color_writes_red.length) pipeState.colorWriteMasksRed[i] = raw.color_writes_red[i];
+		if (raw.color_writes_green != null) for (i in 0...raw.color_writes_green.length) pipeState.colorWriteMasksGreen[i] = raw.color_writes_green[i];
+		if (raw.color_writes_blue != null) for (i in 0...raw.color_writes_blue.length) pipeState.colorWriteMasksBlue[i] = raw.color_writes_blue[i];
+		if (raw.color_writes_alpha != null) for (i in 0...raw.color_writes_alpha.length) pipeState.colorWriteMasksAlpha[i] = raw.color_writes_alpha[i];
+		#end
+
 		// Conservative raster for voxelization
 		if (raw.conservative_raster != null) pipeState.conservativeRasterization = raw.conservative_raster;
 

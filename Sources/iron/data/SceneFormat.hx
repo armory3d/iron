@@ -225,6 +225,10 @@ typedef TShaderContext = {
 	@:optional public var color_write_green:Null<Bool>;
 	@:optional public var color_write_blue:Null<Bool>;
 	@:optional public var color_write_alpha:Null<Bool>;
+	@:optional public var color_writes_red:Array<Bool>; // Per target masks
+	@:optional public var color_writes_green:Array<Bool>;
+	@:optional public var color_writes_blue:Array<Bool>;
+	@:optional public var color_writes_alpha:Array<Bool>;
 	@:optional public var conservative_raster:Null<Bool>;
 	@:optional public var shader_from_source:Null<Bool>; // Build shader at runtime using fromSource()
 }
