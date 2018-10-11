@@ -256,7 +256,7 @@ class RenderPath {
 		var isShadows = context == shadowsContext;
 		if (isShadows) {
 			// Disabled shadow casting for this light
-			if (light == null || !light.data.raw.cast_shadow) return;
+			if (light == null || !light.data.raw.cast_shadow || light.data.raw.strength == 0) return;
 		}
 		// Single face attached
 		// TODO: draw first cube-face last, otherwise some opengl drivers glitch
