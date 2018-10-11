@@ -203,8 +203,8 @@ class Mouse extends VirtualInput {
 	function downListener(index:Int, x:Int, y:Int) {
 		buttonsDown[index] = true;
 		buttonsStarted[index] = true;
-		this.x = x;
-		this.y = y;
+		this.x = x - iron.App.x();
+		this.y = y - iron.App.y();
 		#if (kha_android || kha_ios || kha_webgl) // For movement delta using touch
 		if (index == 0) { lastX = x; lastY = y; }
 		#end
@@ -215,8 +215,8 @@ class Mouse extends VirtualInput {
 	function upListener(index:Int, x:Int, y:Int) {
 		buttonsDown[index] = false;
 		buttonsReleased[index] = true;
-		this.x = x;
-		this.y = y;
+		this.x = x - iron.App.x();
+		this.y = y - iron.App.y();
 
 		upVirtual(buttons[index]);
 	}
@@ -233,8 +233,8 @@ class Mouse extends VirtualInput {
 		}
 		lastX = x;
 		lastY = y;
-		this.x = x;
-		this.y = y;
+		this.x = x - iron.App.x();
+		this.y = y - iron.App.y();
 		moved = true;
 	}
 
@@ -304,8 +304,8 @@ class Pen extends VirtualInput {
 		this.movementY = y - lastY;
 		lastX = x;
 		lastY = y;
-		this.x = x;
-		this.y = y;
+		this.x = x - iron.App.x();
+		this.y = y - iron.App.y();
 		moved = true;
 		this.pressure = pressure;
 		if (pressure > 0 && lastPressure == 0.0) { buttonsDown[0] = true; buttonsStarted[0] = true; }

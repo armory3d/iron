@@ -5,9 +5,13 @@ class App {
 	#if arm_appwh
 	public static inline function w():Int { return arm.App.w(); }
 	public static inline function h():Int { return arm.App.h(); }
+	public static inline function x():Int { return arm.App.x(); }
+	public static inline function y():Int { return arm.App.y(); }
 	#else
 	public static inline function w():Int { return kha.System.windowWidth(); }
 	public static inline function h():Int { return kha.System.windowHeight(); }
+	public static inline function x():Int { return 0; }
+	public static inline function y():Int { return 0; }
 	#end
 
 	static var onResets:Array<Void->Void> = null;

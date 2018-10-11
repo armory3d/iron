@@ -196,11 +196,11 @@ class RenderPath {
 	}
 
 	public function setCurrentViewport(viewW:Int, viewH:Int) {
-		currentG.viewport(0, currentH - viewH, viewW, viewH);
+		currentG.viewport(iron.App.x(), currentH - viewH - iron.App.y(), viewW, viewH);
 	}
 
 	public function setCurrentScissor(viewW:Int, viewH:Int) {
-		currentG.scissor(0, currentH - viewH, viewW, viewH);
+		currentG.scissor(iron.App.x(), currentH - viewH - iron.App.y(), viewW, viewH);
 		scissorSet = true;
 	}
 
