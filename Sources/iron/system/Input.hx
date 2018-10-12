@@ -316,7 +316,7 @@ class Pen extends VirtualInput {
 
 class Keyboard extends VirtualInput {
 
-	static var keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', ',', 'space', 'backspace', 'tab', 'enter', 'shift', 'control', 'alt', 'escape', 'delete', 'back', 'up', 'right', 'left', 'down'];
+	static var keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', ',', 'space', 'backspace', 'tab', 'enter', 'shift', 'control', 'alt', 'escape', 'delete', 'back', 'up', 'right', 'left', 'down', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12'];
 	var keysDown = new Map<String, Bool>();
 	var keysStarted = new Map<String, Bool>();
 	var keysReleased = new Map<String, Bool>();
@@ -403,6 +403,18 @@ class Keyboard extends VirtualInput {
 		else if (key == kha.input.KeyCode.Seven) return "7";
 		else if (key == kha.input.KeyCode.Eight) return "8";
 		else if (key == kha.input.KeyCode.Nine) return "9";
+		else if (key == kha.input.KeyCode.F1) return "f1";
+		else if (key == kha.input.KeyCode.F2) return "f2";
+		else if (key == kha.input.KeyCode.F3) return "f3";
+		else if (key == kha.input.KeyCode.F4) return "f4";
+		else if (key == kha.input.KeyCode.F5) return "f5";
+		else if (key == kha.input.KeyCode.F6) return "f6";
+		else if (key == kha.input.KeyCode.F7) return "f7";
+		else if (key == kha.input.KeyCode.F8) return "f8";
+		else if (key == kha.input.KeyCode.F9) return "f9";
+		else if (key == kha.input.KeyCode.F10) return "f10";
+		else if (key == kha.input.KeyCode.F11) return "f11";
+		else if (key == kha.input.KeyCode.F12) return "f12";
 		else return String.fromCharCode(cast key).toLowerCase();
 	}
 
