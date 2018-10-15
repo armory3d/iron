@@ -407,7 +407,7 @@ class Scene {
 						if (materialsLoaded == o.material_refs.length) {
 
 							// Mesh reference
-							var ref = o.data_ref.split('/');
+							var ref = o.data_ref.split(':');
 							var object_file = '';
 							var data_ref = '';
 							if (ref.length == 2) { // File reference
