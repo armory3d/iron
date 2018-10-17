@@ -68,6 +68,7 @@ class Probe {
 	
 	public var raw:TProbeData;
 	public var radiance:Image;
+	public var radianceMipmaps:Array<kha.Image> = [];
 	public var irradiance:kha.arrays.Float32Array;
 	
 	public function new(raw:TProbeData, done:Probe->Void) {
@@ -81,7 +82,6 @@ class Probe {
 				iron.data.Data.getImage(raw.radiance, function(rad:kha.Image) {
 
 					radiance = rad;
-					var radianceMipmaps:Array<kha.Image> = [];
 					while (radianceMipmaps.length < raw.radiance_mipmaps) radianceMipmaps.push(null);
 					var ext = raw.radiance.substring(raw.radiance.length - 4);
 					var base = raw.radiance.substring(0, raw.radiance.length - 4);
