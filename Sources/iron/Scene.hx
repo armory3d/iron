@@ -81,11 +81,11 @@ class Scene {
 		active.ready = false;
 		active.raw = format;
 
-		Data.getWorld(format.name, format.world_ref, function(world:WorldData) {
+		Data.getWorld(format.file, format.world_ref, function(world:WorldData) {
 			active.world = world;
 
 			// Startup scene
-			active.addScene(format.name, null, function(sceneObject:Object) {
+			active.addScene(format.file, null, function(sceneObject:Object) {
 
 				if (active.cameras.length == 0) {
 					trace('No camera found for scene "' + format.name + '"');
@@ -124,11 +124,11 @@ class Scene {
 	}
 
 	static var framePassed = true;
-	public static function setActive(sceneName:String, done:Object->Void = null) {
+	public static function setActive(sceneFile:String, done:Object->Void = null) {
 		if (!framePassed) return;
 		framePassed = false;
 		if (Scene.active != null) Scene.active.remove();
-		iron.data.Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
+		iron.data.Data.getSceneRaw(sceneFile, function(format:TSceneFormat) {
 			Scene.create(format, function(o:Object) {
 				if (done != null) done(o);
 				#if (rp_gi != "Off") // Revoxelize
@@ -248,14 +248,14 @@ class Scene {
 	#if arm_stream
 	var objectsTraversed = 0;
 	#end
-	public function addScene(sceneName:String, parent:Object, done:Object->Void) {
+	public function addScene(sceneFile:String, parent:Object, done:Object->Void) {
 		if (parent == null) {
 			parent = addObject();
-			parent.name = sceneName;
+			parent.name = sceneFile;
 		}
-		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
+		Data.getSceneRaw(sceneFile, function(format:TSceneFormat) {
 			createTraits(format.traits, parent); // Scene traits
-			loadEmbeddedData(format.embedded_datas, function() { // Additional scene assets
+			loadEmbeddedData(sceneFile, format.embedded_datas, function() { // Additional scene assets
 
 				// if (format.grease_pencil_ref != null) {
 				// 	var ref = format.grease_pencil_ref.split('/');
@@ -366,22 +366,22 @@ class Scene {
 	
 	public function createObject(o:TObj, format:TSceneFormat, parent:Object, parentObject:TObj, done:Object->Void) {
 
-		var sceneName = format.name;
+		var sceneFile = format.file;
 		if (o.type == "camera_object") {
-			Data.getCamera(sceneName, o.data_ref, function(b:CameraData) {
+			Data.getCamera(sceneFile, o.data_ref, function(b:CameraData) {
 				var object = addCameraObject(b, parent);
 				returnObject(object, o, done);
 			});
 		}
 		else if (o.type == "light_object") {
-			Data.getLight(sceneName, o.data_ref, function(b:LightData) {
+			Data.getLight(sceneFile, o.data_ref, function(b:LightData) {
 				var object = addLightObject(b, parent);	
 				returnObject(object, o, done);
 			});
 		}
 		#if rp_probes
 		else if (o.type == "probe_object") {
-			Data.getProbe(sceneName, o.data_ref, function(b:ProbeData) {
+			Data.getProbe(sceneFile, o.data_ref, function(b:ProbeData) {
 				var object = addProbeObject(b, parent);	
 				returnObject(object, o, done);
 			});
@@ -400,7 +400,7 @@ class Scene {
 
 				for (i in 0...o.material_refs.length) {
 					var ref = o.material_refs[i];
-					Data.getMaterial(sceneName, ref, function(mat:MaterialData) {
+					Data.getMaterial(sceneFile, ref, function(mat:MaterialData) {
 						materials[i] = mat;
 						materialsLoaded++;
 
@@ -411,11 +411,11 @@ class Scene {
 							var object_file = '';
 							var data_ref = '';
 							if (ref.length == 2) { // File reference
-								object_file = ref[0];
+								object_file = Data.getAbsolutePath(sceneFile, ref[0]);
 								data_ref = ref[1];
 							}
 							else { // Local mesh data
-								object_file = sceneName;
+								object_file = sceneFile;
 								data_ref = o.data_ref;
 							}
 
@@ -441,7 +441,7 @@ class Scene {
 											#else
 											returnMeshObject(
 											#end
-												object_file, data_ref, sceneName, armature, materials, parent, o, done);
+												object_file, data_ref, sceneFile, armature, materials, parent, o, done);
 										}
 									});
 								}
@@ -452,7 +452,7 @@ class Scene {
 								#else
 								returnMeshObject(
 								#end
-									object_file, data_ref, sceneName, null, materials, parent, o, done);
+									object_file, data_ref, sceneFile, null, materials, parent, o, done);
 							}
 						}
 					});
@@ -466,7 +466,7 @@ class Scene {
 		#if rp_decals
 		else if (o.type == "decal_object") {
 			if (o.material_refs != null && o.material_refs.length > 0) {
-				Data.getMaterial(sceneName, o.material_refs[0], function(material:MaterialData) {
+				Data.getMaterial(sceneFile, o.material_refs[0], function(material:MaterialData) {
 					var object = addDecalObject(material, parent);	
 					returnObject(object, o, done);
 				});
@@ -674,10 +674,11 @@ class Scene {
 		return Type.createInstance(cname, args);
 	}
 
-	function loadEmbeddedData(datas:Array<String>, done:Void->Void) {
+	function loadEmbeddedData(sceneFile:String, datas:Array<String>, done:Void->Void) {
 		if (datas == null) { done(); return; }
 		var loaded = 0;
-		for (file in datas) {
+		for (fileRef in datas) {
+			var file = Data.getAbsolutePath(sceneFile, fileRef);
 			iron.data.Data.getImage(file, function(image:kha.Image) {
 				embedded.set(file, image);
 				loaded++;

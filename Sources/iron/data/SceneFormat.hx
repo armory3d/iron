@@ -11,6 +11,8 @@ typedef TSceneFormat = {
 @:structInit class TSceneFormat {
 #end
 	@:optional public var name:String;
+	/** The file the scene was loaded from ( used internally ) */
+	@:optional public var file:String;
 	@:optional public var mesh_datas:Array<TMeshData>;
 	@:optional public var light_datas:Array<TLightData>;
 	@:optional public var probe_datas:Array<TProbeData>;
@@ -128,6 +130,8 @@ typedef TMaterialData = {
 @:structInit class TMaterialData {
 #end
 	public var name:String;
+	/** The file the material was loaded from ( used internally ) */
+	public var file:String;
 	public var shader:String;
 	public var contexts:Array<TMaterialContext>;
 	@:optional public var skip_context:String;
@@ -190,6 +194,8 @@ typedef TShaderData = {
 @:structInit class TShaderData {
 #end
 	public var name:String;
+	/** the file that the shader was loaded from ( used internally ) */
+	public var file:String;
 	public var contexts:Array<TShaderContext>;
 }
 
@@ -199,6 +205,8 @@ typedef TShaderContext = {
 @:structInit class TShaderContext {
 #end
 	public var name:String;
+	/** the file that the shader was loaded from ( used internally ) */
+	public var file:String;
 	public var depth_write:Bool;
 	public var compare_mode:String;
 	public var cull_mode:String;
@@ -291,6 +299,8 @@ typedef TWorldData = {
 @:structInit class TWorldData {
 #end
 	public var name:String;
+	/** the file that the world was loaded from ( used internally ) */
+	public var file:String;
 	public var background_color:Int;
 	public var probe:TProbeData;
 	@:optional public var sun_direction:Float32Array; // Sky data
@@ -305,6 +315,8 @@ typedef TProbeData = {
 @:structInit class TProbeData {
 #end
 	public var name:String;
+	/** the file that the world was loaded from ( used internally ) */
+	public var file:String;
 	public var type:String; // grid, planar, cubemap
 	public var strength:FastFloat;
 	@:optional public var irradiance:String; // Reference to TIrradiance blob

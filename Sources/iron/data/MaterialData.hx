@@ -24,7 +24,7 @@ class MaterialData {
 		var object_file = "";
 		var data_ref = "";
 		if (ref.length == 2) { // File reference
-			object_file = ref[0];
+			object_file = Data.getAbsolutePath(raw.file, ref[0]);
 			data_ref = ref[1];
 		}
 		else { // Local data
@@ -58,6 +58,7 @@ class MaterialData {
 				trace('Material data "$name" not found!');
 				done(null);
 			}
+			raw.file = file;
 			new MaterialData(raw, done, file);
 		});
 	}

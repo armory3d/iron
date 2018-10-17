@@ -20,6 +20,7 @@ class WorldData {
 		
 		// Parse probes
 		if (raw.probe != null) {
+			raw.probe.file = raw.file;
 			new Probe(raw.probe, function(self:Probe) {
 				probe = self;
 				loadEnvmap(done);
@@ -38,13 +39,14 @@ class WorldData {
 		else done(this);
 	}
 
-	public static function parse(name:String, id:String, done:WorldData->Void) {
-		Data.getSceneRaw(name, function(format:TSceneFormat) {
+	public static function parse(sceneFile:String, id:String, done:WorldData->Void) {
+		Data.getSceneRaw(sceneFile, function(format:TSceneFormat) {
 			var raw:TWorldData = Data.getWorldRawByName(format.world_datas, id);
 			if (raw == null) {
 				trace('World data "$id" not found!');
 				done(null);
 			}
+			raw.file = sceneFile;
 			new WorldData(raw, done);
 		});
 	}
@@ -73,12 +75,12 @@ class Probe {
 		
 			if (raw.radiance != null) {
 				
-				iron.data.Data.getImage(raw.radiance, function(rad:kha.Image) {
-
+				var radFile = Data.getAbsolutePath(raw.file, raw.radiance);
+				iron.data.Data.getImage(radFile, function(rad:kha.Image) {
 					radiance = rad;
 					while (radianceMipmaps.length < raw.radiance_mipmaps) radianceMipmaps.push(null);
-					var ext = raw.radiance.substring(raw.radiance.length - 4);
-					var base = raw.radiance.substring(0, raw.radiance.length - 4);
+					var ext = radFile.substring(radFile.length - 4);
+					var base = radFile.substring(0, radFile.length - 4);
 
 					var mipsLoaded = 0;
 					for (i in 0...raw.radiance_mipmaps) {

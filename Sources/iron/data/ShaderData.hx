@@ -31,6 +31,7 @@ class ShaderData {
 
 		for (i in 0...raw.contexts.length) {
 			var c = raw.contexts[i];
+			c.file = raw.file;
 
 			new ShaderContext(c, function(con:ShaderContext) {
 				contexts[i] = con;
@@ -47,6 +48,7 @@ class ShaderData {
 				trace('Shader data "$name" not found!');
 				done(null);
 			}
+			raw.file = file;
 			new ShaderData(raw, done, overrideContext);
 		});
 	}
@@ -191,6 +193,14 @@ class ShaderContext {
 				var ar = file.split('.');
 				file = ar[0] + '-webgl2.' + ar[1];
 				var path = '../html5-resources/' + file + '.essl';
+				#elseif arm_modding // TODO: assuming krom & glsl
+				var subdir = haxe.io.Path.directory(raw.file);
+				var path = "";
+				if (subdir != "") {
+					path = subdir + '/shaders/' + file + '.glsl';
+				} else {
+					path = 'shaders/' + file + '.glsl';
+				}
 				#elseif kha_opengl
 				var path = '../krom-resources/' + file + '.glsl';
 				#else

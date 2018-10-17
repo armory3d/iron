@@ -32,6 +32,23 @@ class Data {
 
 	public function new() { }
 
+	/**
+	 * Helper method that returns the absolute path to a resource refrenced in
+	 * a Scene. Used when loading resources relative to the scene file.
+	 * 
+	 * @param scene The file path of the scene that a resource is referenced in.
+	 * @param path The path to the resrouce referenced in the scene.
+	 */
+	public static function getAbsolutePath(scene:String, path:String) {
+		if (!StringTools.startsWith(path, "/") && scene.indexOf("/") != -1) {
+			// Return path relative to scene file
+			return new haxe.io.Path(scene).dir + "/" + path;
+		} else {
+			// Return the path unchanged
+			return path;
+		}
+	}
+
 	public static function deleteAll() {
 		for (c in cachedMeshes) c.delete();
 		cachedMeshes = new Map();
@@ -288,6 +305,7 @@ class Data {
 				parsed = iron.system.ArmPack.decode(b.toBytes());
 			}
 
+			parsed.file = file;
 			returnSceneRaw(file, parsed);
 		});
 	}
