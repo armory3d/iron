@@ -152,6 +152,8 @@ typedef TMaterialContext = {
 @:structInit class TMaterialContext {
 #end
 	public var name:String;
+	/** the file that the material was loaded from ( used internally ) */
+	public var file:String;
 	@:optional public var bind_constants:Array<TBindConstant>;
 	@:optional public var bind_textures:Array<TBindTexture>;
 }

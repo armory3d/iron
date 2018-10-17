@@ -42,6 +42,7 @@ class MaterialData {
 
 			for (i in 0...raw.contexts.length) {
 				var c = raw.contexts[i];
+				c.file = raw.file;
 				new MaterialContext(c, function(self:MaterialContext) {
 					contexts[i] = self;
 					contextsLoaded++;
@@ -96,7 +97,8 @@ class MaterialContext {
 					continue;
 				}
 
-				iron.data.Data.getImage(tex.file, function(image:kha.Image) {
+				var texFile = Data.getAbsolutePath(raw.file, tex.file);
+				iron.data.Data.getImage(texFile, function(image:kha.Image) {
 					textures[i] = image;
 					texturesLoaded++;
 
