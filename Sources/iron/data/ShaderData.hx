@@ -285,9 +285,15 @@ class ShaderContext {
 		var irot = false;
 		var iscl = false;
 		for (vs in raw.vertex_structure) {
+			#if cpp
+			if (Reflect.field(vs, 'name') == 'ipos') { ipos = true; continue; }
+			if (Reflect.field(vs, 'name') == 'irot') { irot = true; continue; }
+			if (Reflect.field(vs, 'name') == 'iscl') { iscl = true; continue; }
+			#else
 			if (vs.name == 'ipos') { ipos = true; continue; }
-			if (vs.name == 'irot') { ipos = true; continue; }
-			if (vs.name == 'iscl') { ipos = true; continue; }
+			if (vs.name == 'irot') { irot = true; continue; }
+			if (vs.name == 'iscl') { iscl = true; continue; }
+			#end
 			structure.add(vs.name, sizeToVD(vs.size));
 		}
 		if (ipos && !irot && !iscl) instancingType = 1;
