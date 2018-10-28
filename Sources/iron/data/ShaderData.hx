@@ -310,19 +310,12 @@ class ShaderContext {
 		return structureRect;
 	}
 
-	inline function deleteShader(shader:Dynamic) {
-		#if kha_krom
-		if (shader.shader == null) return;
-		#end	
-		shader.delete();
-	}
-
 	public function delete() {
-		if (pipeState.fragmentShader != null) deleteShader(pipeState.fragmentShader);
-		if (pipeState.vertexShader != null) deleteShader(pipeState.vertexShader);
-		if (pipeState.geometryShader != null) deleteShader(pipeState.geometryShader);
-		if (pipeState.tessellationControlShader != null) deleteShader(pipeState.tessellationControlShader);
-		if (pipeState.tessellationEvaluationShader != null) deleteShader(pipeState.tessellationEvaluationShader);
+		if (pipeState.fragmentShader != null) pipeState.fragmentShader.delete();
+		if (pipeState.vertexShader != null) pipeState.vertexShader.delete();
+		if (pipeState.geometryShader != null) pipeState.geometryShader.delete();
+		if (pipeState.tessellationControlShader != null) pipeState.tessellationControlShader.delete();
+		if (pipeState.tessellationEvaluationShader != null) pipeState.tessellationEvaluationShader.delete();
 		pipeState.delete();
 	}
 
