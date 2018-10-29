@@ -57,7 +57,7 @@ class Input {
 		return keyboard;
 	}
 
-	public static function getGamepad(i:Int = 0):Gamepad {
+	public static function getGamepad(i = 0):Gamepad {
 		if (i >= 4) return null;
 		if (!registered) register();
 		while (gamepads.length <= i) gamepads.push(new Gamepad(gamepads.length));
@@ -163,15 +163,15 @@ class Mouse extends VirtualInput {
 		return button == "left" ? 0 : (button == "right" ? 1 : 2);
 	}
 
-	public function down(button:String = "left"):Bool {
+	public function down(button = "left"):Bool {
 		return buttonsDown[buttonIndex(button)];
 	}
 
-	public function started(button:String = "left"):Bool {
+	public function started(button = "left"):Bool {
 		return buttonsStarted[buttonIndex(button)];
 	}
 
-	public function released(button:String = "left"):Bool {
+	public function released(button = "left"):Bool {
 		return buttonsReleased[buttonIndex(button)];
 	}
 
@@ -258,7 +258,6 @@ class Pen extends VirtualInput {
 	public var pressure(default, null) = 0.0;
 	var lastX = -1.0;
 	var lastY = -1.0;
-	var lastPressure = 0.0;
 
 	public function new() {
 		kha.input.Pen.get().notify(downListener, upListener, moveListener);
@@ -282,24 +281,36 @@ class Pen extends VirtualInput {
 		// return button == "tip" ? 0 : 0;
 	}
 
-	public function down(button:String = "tip"):Bool {
+	public function down(button = "tip"):Bool {
 		return buttonsDown[buttonIndex(button)];
 	}
 
-	public function started(button:String = "tip"):Bool {
+	public function started(button = "tip"):Bool {
 		return buttonsStarted[buttonIndex(button)];
 	}
 
-	public function released(button:String = "tip"):Bool {
+	public function released(button = "tip"):Bool {
 		return buttonsReleased[buttonIndex(button)];
 	}
 	
-	function downListener(x:Float, y:Float, pressure:Float) {} // Detected from pressure
+	function downListener(x:Float, y:Float, pressure:Float) {
+		buttonsDown[0] = true;
+		buttonsStarted[0] = true;
+		this.x = x - iron.App.x();
+		this.y = y - iron.App.y();
+		this.pressure = pressure;
+	}
 
-	function upListener(x:Float, y:Float, pressure:Float) {}
+	function upListener(x:Float, y:Float, pressure:Float) {
+		buttonsDown[0] = false;
+		buttonsReleased[0] = true;
+		this.x = x - iron.App.x();
+		this.y = y - iron.App.y();
+		this.pressure = pressure;
+	}
 	
 	function moveListener(x:Int, y:Int, pressure:Float) {
-		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; lastPressure = pressure; } // First frame init
+		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
 		this.movementX = x - lastX;
 		this.movementY = y - lastY;
 		lastX = x;
@@ -308,9 +319,6 @@ class Pen extends VirtualInput {
 		this.y = y - iron.App.y();
 		moved = true;
 		this.pressure = pressure;
-		if (pressure > 0 && lastPressure == 0.0) { buttonsDown[0] = true; buttonsStarted[0] = true; }
-		if (pressure == 0 && lastPressure > 0) { buttonsDown[0] = false; buttonsReleased[0] = true; }
-		lastPressure = pressure;
 	}
 }
 
