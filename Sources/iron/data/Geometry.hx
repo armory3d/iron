@@ -50,6 +50,8 @@ class Geometry {
 	
 	// public var offsetVecs:Array<Vec4>; // Used for sorting and culling
 	public var aabb:Vec4 = null;
+	public var aabbMin:Vec4 = null;
+	public var aabbMax:Vec4 = null;
 
 	// Skinned
 	#if arm_skin_cpu
@@ -455,8 +457,8 @@ class Geometry {
 	#end
 
 	public function calculateAABB() {
-		var aabbMin = new Vec4(-0.01, -0.01, -0.01);
-		var aabbMax = new Vec4(0.01, 0.01, 0.01);
+		aabbMin = new Vec4(-0.01, -0.01, -0.01);
+		aabbMax = new Vec4(0.01, 0.01, 0.01);
 		aabb = new Vec4();
 		var i = 0;
 		while (i < positions.length) {
