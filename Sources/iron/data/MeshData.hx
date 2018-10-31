@@ -7,7 +7,7 @@ import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
 import iron.data.SceneFormat;
 
-class MeshData extends Data {
+class MeshData {
 
 	public var name:String;
 	public var raw:TMeshData;
@@ -25,8 +25,6 @@ class MeshData extends Data {
 	#end
 
 	public function new(raw:TMeshData, done:MeshData->Void) {
-		super();
-
 		this.raw = raw;
 		this.name = raw.name;
 

@@ -3,7 +3,7 @@ package iron.data;
 import iron.math.Mat4;
 import iron.data.SceneFormat;
 
-class LightData extends Data {
+class LightData {
 
 	public var name:String;
 	public var raw:TLightData;
@@ -11,8 +11,6 @@ class LightData extends Data {
 	public var colorTexture:kha.Image = null;
 
 	public function new(raw:TLightData, done:LightData->Void) {
-		super();
-
 		this.raw = raw;
 		this.name = raw.name;
 

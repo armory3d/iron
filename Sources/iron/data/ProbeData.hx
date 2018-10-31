@@ -2,15 +2,13 @@ package iron.data;
 
 import iron.data.SceneFormat;
 
-class ProbeData extends Data {
+class ProbeData {
 
 #if rp_probes
 
 	public var raw:TProbeData;
 
 	public function new(raw:TProbeData, done:ProbeData->Void) {
-		super();
-
 		this.raw = raw;
 		done(this);
 	}

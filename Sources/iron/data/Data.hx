@@ -81,13 +81,13 @@ class Data {
 		var loading = loadingMeshes.get(handle);
 		if (loading != null) { loading.push(done); return; }
 
-		loadingMeshes.set(file + name, [done]);
+		loadingMeshes.set(handle, [done]);
 
 		MeshData.parse(file, name, function(b:MeshData) {
-			cachedMeshes.set(file + name, b);
+			cachedMeshes.set(handle, b);
 			b.handle = handle;
-			for (f in loadingMeshes.get(file + name)) f(b);
-			loadingMeshes.remove(file + name);
+			for (f in loadingMeshes.get(handle)) f(b);
+			loadingMeshes.remove(handle);
 		});
 	}
 
@@ -101,88 +101,93 @@ class Data {
 
 	static var loadingLights:Map<String, Array<LightData->Void>> = new Map();
 	public static function getLight(file:String, name:String, done:LightData->Void) {
-		var cached = cachedLights.get(file + name);
+		var handle = file + name;
+		var cached = cachedLights.get(handle);
 		if (cached != null) { done(cached); return; }
 
-		var loading = loadingLights.get(file + name);
+		var loading = loadingLights.get(handle);
 		if (loading != null) { loading.push(done); return; }
 
-		loadingLights.set(file + name, [done]);
+		loadingLights.set(handle, [done]);
 
 		LightData.parse(file, name, function(b:LightData) {
-			cachedLights.set(file + name, b);
-			for (f in loadingLights.get(file + name)) f(b);
-			loadingLights.remove(file + name);
+			cachedLights.set(handle, b);
+			for (f in loadingLights.get(handle)) f(b);
+			loadingLights.remove(handle);
 		});
 	}
 
 	#if rp_probes
 	static var loadingProbes:Map<String, Array<ProbeData->Void>> = new Map();
 	public static function getProbe(file:String, name:String, done:ProbeData->Void) {
-		var cached = cachedProbes.get(file + name);
+		var handle = file + name;
+		var cached = cachedProbes.get(handle);
 		if (cached != null) { done(cached); return; }
 
-		var loading = loadingProbes.get(file + name);
+		var loading = loadingProbes.get(handle);
 		if (loading != null) { loading.push(done); return; }
 
-		loadingProbes.set(file + name, [done]);
+		loadingProbes.set(handle, [done]);
 
 		ProbeData.parse(file, name, function(b:ProbeData) {
-			cachedProbes.set(file + name, b);
-			for (f in loadingProbes.get(file + name)) f(b);
-			loadingProbes.remove(file + name);
+			cachedProbes.set(handle, b);
+			for (f in loadingProbes.get(handle)) f(b);
+			loadingProbes.remove(handle);
 		});
 	}
 	#end
 
 	static var loadingCameras:Map<String, Array<CameraData->Void>> = new Map();
 	public static function getCamera(file:String, name:String, done:CameraData->Void) {
-		var cached = cachedCameras.get(file + name);
+		var handle = file + name;
+		var cached = cachedCameras.get(handle);
 		if (cached != null) { done(cached); return; }
 
-		var loading = loadingCameras.get(file + name);
+		var loading = loadingCameras.get(handle);
 		if (loading != null) { loading.push(done); return; }
 
-		loadingCameras.set(file + name, [done]);
+		loadingCameras.set(handle, [done]);
 
 		CameraData.parse(file, name, function(b:CameraData) {
-			cachedCameras.set(file + name, b);
-			for (f in loadingCameras.get(file + name)) f(b);
-			loadingCameras.remove(file + name);
+			cachedCameras.set(handle, b);
+			for (f in loadingCameras.get(handle)) f(b);
+			loadingCameras.remove(handle);
 		});
 	}
 
 	static var loadingMaterials:Map<String, Array<MaterialData->Void>> = new Map();
 	public static function getMaterial(file:String, name:String, done:MaterialData->Void) {
-		var cached = cachedMaterials.get(file + name);
+		var handle = file + name;
+		var cached = cachedMaterials.get(handle);
 		if (cached != null) { done(cached); return; }
 
-		var loading = loadingMaterials.get(file + name);
+		var loading = loadingMaterials.get(handle);
 		if (loading != null) { loading.push(done); return; }
 
-		loadingMaterials.set(file + name, [done]);
+		loadingMaterials.set(handle, [done]);
 
 		MaterialData.parse(file, name, function(b:MaterialData) {
-			cachedMaterials.set(file + name, b);
-			for (f in loadingMaterials.get(file + name)) f(b);
-			loadingMaterials.remove(file + name);
+			cachedMaterials.set(handle, b);
+			for (f in loadingMaterials.get(handle)) f(b);
+			loadingMaterials.remove(handle);
 		});
 	}
 
 	static var loadingParticles:Map<String, Array<ParticleData->Void>> = new Map();
 	public static function getParticle(file:String, name:String, done:ParticleData->Void) {
-		var cached = cachedParticles.get(file + name);
+		var handle = file + name;
+		var cached = cachedParticles.get(handle);
 		if (cached != null) { done(cached); return; }
 
-		var loading = loadingParticles.get(file + name);
+		var loading = loadingParticles.get(handle);
 		if (loading != null) { loading.push(done); return; }
 
-		loadingParticles.set(file + name, [done]);
+		loadingParticles.set(handle, [done]);
 
 		ParticleData.parse(file, name, function(b:ParticleData) {
-			cachedParticles.set(file + name, b);
-			for (f in loadingParticles.get(file + name)) f(b);
-			loadingParticles.remove(file + name);
+			cachedParticles.set(handle, b);
+			for (f in loadingParticles.get(handle)) f(b);
+			loadingParticles.remove(handle);
 		});
 	}
 
@@ -190,35 +195,37 @@ class Data {
 	public static function getWorld(file:String, name:String, done:WorldData->Void) {
 		if (name == null) { done(null); return; } // No world defined in scene
 
-		var cached = cachedWorlds.get(file + name);
+		var handle = file + name;
+		var cached = cachedWorlds.get(handle);
 		if (cached != null) { done(cached); return; }
 
-		var loading = loadingWorlds.get(file + name);
+		var loading = loadingWorlds.get(handle);
 		if (loading != null) { loading.push(done); return; }
 
-		loadingWorlds.set(file + name, [done]);
+		loadingWorlds.set(handle, [done]);
 
 		WorldData.parse(file, name, function(b:WorldData) {
-			cachedWorlds.set(file + name, b);
-			for (f in loadingWorlds.get(file + name)) f(b);
-			loadingWorlds.remove(file + name);
+			cachedWorlds.set(handle, b);
+			for (f in loadingWorlds.get(handle)) f(b);
+			loadingWorlds.remove(handle);
 		});
 	}
 
 	// static var loadingGreasePencils:Map<String, Array<GreasePencilData->Void>> = new Map();
 	// public static function getGreasePencil(file:String, name:String, done:GreasePencilData->Void) {
-	// 	var cached = cachedGreasePencils.get(file + name);
+	//	var handle = file + name;
+	// 	var cached = cachedGreasePencils.get(handle);
 	// 	if (cached != null) { done(cached); return; }
 
-	// 	var loading = loadingGreasePencils.get(file + name);
+	// 	var loading = loadingGreasePencils.get(handle);
 	// 	if (loading != null) { loading.push(done); return; }
 
-	// 	loadingGreasePencils.set(file + name, [done]);
+	// 	loadingGreasePencils.set(handle, [done]);
 
 	// 	GreasePencilData.parse(file, name, function(b:GreasePencilData) {
-	// 		cachedGreasePencils.set(file + name, b);
-	// 		for (f in loadingGreasePencils.get(file + name)) f(b);
-	// 		loadingGreasePencils.remove(file + name);
+	// 		cachedGreasePencils.set(handle, b);
+	// 		for (f in loadingGreasePencils.get(handle)) f(b);
+	// 		loadingGreasePencils.remove(handle);
 	// 	});
 	// }
 

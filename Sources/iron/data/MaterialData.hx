@@ -5,7 +5,7 @@ import iron.data.SceneFormat;
 import iron.data.ShaderData;
 import iron.object.MeshObject;
 
-class MaterialData extends Data {
+class MaterialData {
 
 	static var uidCounter = 0;
 	public var uid:Float;
@@ -16,8 +16,6 @@ class MaterialData extends Data {
 	public var contexts:Array<MaterialContext> = null;
 
 	public function new(raw:TMaterialData, done:MaterialData->Void, file = "") {
-		super();
-
 		uid = ++uidCounter; // Start from 1
 		this.raw = raw;
 		this.name = raw.name;

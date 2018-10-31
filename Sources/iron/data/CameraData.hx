@@ -2,13 +2,12 @@ package iron.data;
 
 import iron.data.SceneFormat;
 
-class CameraData extends Data {
+class CameraData {
 
 	public var name:String;
 	public var raw:TCameraData;
 
 	public function new(raw:TCameraData, done:CameraData->Void) {
-		super();
 		this.raw = raw;
 		this.name = raw.name;
 		done(this);

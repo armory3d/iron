@@ -5,7 +5,7 @@ import iron.math.Vec4;
 import iron.object.Transform;
 import iron.data.SceneFormat;
 
-class WorldData extends Data {
+class WorldData {
 
 	public var name:String;
 	public var raw:TWorldData;
@@ -15,8 +15,6 @@ class WorldData extends Data {
 	static var emptyIrr:kha.arrays.Float32Array = null;
 	
 	public function new(raw:TWorldData, done:WorldData->Void) {
-		super();
-
 		this.raw = raw;
 		this.name = raw.name;
 		

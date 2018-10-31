@@ -15,7 +15,7 @@ import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
 import iron.data.SceneFormat;
 
-class ShaderData extends Data {
+class ShaderData {
 
 	public var name:String;
 	public var raw:TShaderData;
@@ -23,8 +23,6 @@ class ShaderData extends Data {
 	public var contexts:Array<ShaderContext> = [];
 
 	public function new(raw:TShaderData, done:ShaderData->Void, overrideContext:TShaderOverride = null) {
-		super();
-
 		this.raw = raw;
 		this.name = raw.name;
 
