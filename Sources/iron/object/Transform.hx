@@ -141,7 +141,12 @@ class Transform {
 	public function rotate(axis:Vec4, f:kha.FastFloat) {
 		q.fromAxisAngle(axis, f);
 		rot.multquats(q, rot);
-		dirty = true;
+		buildMatrix();
+	}
+
+	public function move(axis:Vec4, f = 1.0) {
+		loc.addf(axis.x * f, axis.y * f, axis.z * f);
+		buildMatrix();
 	}
 
 	/**

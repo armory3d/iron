@@ -628,12 +628,12 @@ class RenderPath {
 			drawMeshes();
 
 			// Right eye
-			Scene.active.camera.move(Scene.active.camera.right(), 0.032);
+			Scene.active.camera.transform.move(Scene.active.camera.right(), 0.032);
 			Scene.active.camera.buildMatrix();
 			g.viewport(halfw, 0, halfw, apph);
 			drawMeshes();
 
-			Scene.active.camera.move(Scene.active.camera.right(), -0.032);
+			Scene.active.camera.transform.move(Scene.active.camera.right(), -0.032);
 			Scene.active.camera.buildMatrix();
 		}
 	}

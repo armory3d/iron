@@ -178,17 +178,6 @@ class CameraObject extends Object {
 		return true;
 	}
 
-	public function rotate(axis:Vec4, f:Float) {
-		q.fromAxisAngle(axis, f);
-		transform.rot.multquats(q, transform.rot);
-		buildMatrix();
-	}
-
-	public function move(axis:Vec4, f = 1.0) {
-		transform.loc.addf(axis.x * f, axis.y * f, axis.z * f);
-		buildMatrix();
-	}
-
 	static var vcenter = new Vec4();
 	static var vup = new Vec4();
 	public static function setCubeFace(m:Mat4, eye:Vec4, face:Int) {
