@@ -28,7 +28,8 @@ class MeshObject extends Object {
 	public var screenSize = 0.0;
 	public var frustumCulling = true;
 	public var tilesheet:Tilesheet = null;
-	public var skip_context:String = null;
+	public var skip_context:String = null; // Do not draw this context
+	public var force_context:String = null; // Draw only this context
 
 	#if arm_veloc
 	public var prevMatrix = Mat4.identity();
@@ -187,6 +188,7 @@ class MeshObject extends Object {
 
 	function skipContext(context:String):Bool {
 		if (skip_context == context) return true;
+		if (force_context != null && force_context != context) return true;
 		for (mat in materials) {
 			if (mat.raw.skip_context != null &&
 				mat.raw.skip_context == context) {
