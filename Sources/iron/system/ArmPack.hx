@@ -22,6 +22,7 @@ package iron.system;
 
 import haxe.io.Bytes;
 import haxe.io.BytesInput;
+import haxe.io.BytesOutput;
 import haxe.io.Eof;
 import iron.data.SceneFormat;
 
@@ -176,4 +177,63 @@ class ArmPack {
 		}
 	}
 	#end
+
+	public static inline function encode(d:Dynamic):Bytes {
+		var o = new BytesOutput();
+		o.bigEndian = true;
+		write(o, d);
+		return o.getBytes();
+	}
+
+	static function write(o:BytesOutput, d:Dynamic) {
+		switch (Type.typeof(d)) {
+			case TNull: o.writeByte(0xc0);
+			case TBool: o.writeByte(d ? 0xc3 : 0xc2);
+			case TInt: { o.writeByte(0xd2); o.writeInt32(d); }
+			case TFloat: { o.writeByte(0xca); o.writeFloat(d); }
+			case TClass(c): {
+				switch (Type.getClassName(c)) {
+					case "String": {
+						o.writeByte(0xdb);
+						o.writeInt32(d.length);
+						o.writeString(d);
+					}
+					case "Array", null: { // Float32Array, Uint32Array gives null
+						o.writeByte(0xdd);
+						o.writeInt32(d.length);
+						var isInt = Std.is(d[0], Int);
+						var isFloat = Std.is(d[0], Float);
+
+						if (isFloat && !isInt) { // Float32Array
+							o.writeByte(0xca);
+							for (i in 0...d.length) o.writeFloat(d[i]);
+						}
+						else if (isInt) { // Uint32Array
+							o.writeByte(0xd2);
+							for (i in 0...d.length) o.writeInt32(d[i]);
+						}
+						else for (i in 0...d.length) write(o, d[i]); // Array
+					}
+					case "haxe.io.Bytes": {
+						o.writeByte(0xc6);
+						o.writeInt32(d.length);
+						o.write(d);
+					}
+					default: {}
+				}
+			}
+			case TObject: {
+				var f = Reflect.fields(d);
+				o.writeByte(0xdf);
+				o.writeInt32(f.length);
+				for (k in f) {
+					o.writeByte(0xdb);
+					o.writeInt32(k.length);
+					o.writeString(k);
+					write(o, Reflect.field(d, k));
+				}
+			}
+			default: {}
+		}
+	}
 }
