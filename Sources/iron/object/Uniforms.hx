@@ -614,6 +614,12 @@ class Uniforms {
 					v.y = v.x - light.data.raw.spot_blend;
 				}
 			}
+			else if (c.link == "_shadowMapSize") {
+				if (light != null && light.data.raw.cast_shadow) {
+					v = helpVec;
+					v.x = v.y = light.data.raw.shadowmap_size;
+				}
+			}
 
 			if (v != null) {
 				g.setFloat2(location, v.x, v.y);
