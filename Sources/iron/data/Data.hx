@@ -460,6 +460,13 @@ class Data {
 		});
 	}
 
+	public static function deleteImage(handle:String) {
+		var image = cachedImages.get(handle);
+		if (image == null) return;
+		image.unload();
+		cachedImages.remove(handle);
+	}
+
 	static var loadingSounds:Map<String, Array<kha.Sound->Void>> = new Map();
 	/**
 	 * Load sound file from disk into ram.
