@@ -131,7 +131,7 @@ typedef TMaterialData = {
 #end
 	public var name:String;
 	/** The file the material was loaded from ( used internally ) */
-	public var file:String;
+	@:optional public var file:String;
 	public var shader:String;
 	public var contexts:Array<TMaterialContext>;
 	@:optional public var skip_context:String;
@@ -153,7 +153,7 @@ typedef TMaterialContext = {
 #end
 	public var name:String;
 	/** the file that the material was loaded from ( used internally ) */
-	public var file:String;
+	@:optional public var file:String;
 	@:optional public var bind_constants:Array<TBindConstant>;
 	@:optional public var bind_textures:Array<TBindTexture>;
 }
@@ -178,7 +178,7 @@ typedef TBindTexture = {
 @:structInit class TBindTexture {
 #end
 	public var name:String;
-	public var file:String;
+	@:optional public var file:String;
 	@:optional public var format:String; // RGBA32, RGBA64, R8
 	@:optional public var generate_mipmaps:Null<Bool>;
 	@:optional public var mipmaps:Array<String>; // Reference image names
@@ -197,7 +197,7 @@ typedef TShaderData = {
 #end
 	public var name:String;
 	/** the file that the shader was loaded from ( used internally ) */
-	public var file:String;
+	@:optional public var file:String;
 	public var contexts:Array<TShaderContext>;
 }
 
@@ -208,7 +208,7 @@ typedef TShaderContext = {
 #end
 	public var name:String;
 	/** the file that the shader was loaded from ( used internally ) */
-	public var file:String;
+	@:optional public var file:String;
 	public var depth_write:Bool;
 	public var compare_mode:String;
 	public var cull_mode:String;
@@ -302,7 +302,7 @@ typedef TWorldData = {
 #end
 	public var name:String;
 	/** the file that the world was loaded from ( used internally ) */
-	public var file:String;
+	@:optional public var file:String;
 	public var background_color:Int;
 	public var probe:TProbeData;
 	@:optional public var sun_direction:Float32Array; // Sky data
@@ -318,7 +318,7 @@ typedef TProbeData = {
 #end
 	public var name:String;
 	/** the file that the world was loaded from ( used internally ) */
-	public var file:String;
+	@:optional public var file:String;
 	public var type:String; // grid, planar, cubemap
 	public var strength:FastFloat;
 	@:optional public var irradiance:String; // Reference to TIrradiance blob
