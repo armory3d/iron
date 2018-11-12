@@ -195,6 +195,9 @@ class MeshObject extends Object {
 				return true;
 			}
 		}
+		#if (!arm_voxelgi_revox) // No revox - do not voxelize moving objects
+		if (context == "voxel" && raw.mobile == true) return true;
+		#end
 		return false;
 	}
 
