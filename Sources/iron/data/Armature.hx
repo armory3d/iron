@@ -4,11 +4,13 @@ import iron.data.SceneFormat;
 import iron.math.Mat4;
 
 class Armature {
+	public var uid:Int;
 	public var name:String;
 	public var actions:Array<TAction> = [];
 	var matsReady = false;
 
-	public function new(name:String, actions:Array<TSceneFormat>) {
+	public function new(uid:Int, name:String, actions:Array<TSceneFormat>) {
+		this.uid = uid;
 		this.name = name;
 		
 		for (a in actions) {

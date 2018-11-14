@@ -426,9 +426,16 @@ class Scene {
 									Data.getSceneRaw(ref, function(action:TSceneFormat) {
 										bactions.push(action);
 										if (bactions.length == parentObject.bone_actions.length) {
-											parent.name += '.' + parent.uid; // Map to unique armature
-											var armature = new Armature(parent.name, bactions);
-											armatures.push(armature);
+											var armature:Armature = null;
+											// Check if armature exists
+											for (a in armatures) if (a.uid == parent.uid) { armature = a; break; }
+											// Create new one
+											if (armature == null) {
+												// Unique name if armature was already instantiated for different object
+												for (a in armatures) if (a.name == parent.name) { parent.name += '.' + parent.uid; break; }
+												armature = new Armature(parent.uid, parent.name, bactions);
+												armatures.push(armature);
+											}
 											#if arm_stream
 											streamMeshObject(
 											#else
