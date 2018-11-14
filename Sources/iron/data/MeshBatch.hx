@@ -76,7 +76,7 @@ class MeshBatch {
 			
 			Uniforms.setContextConstants(g, scontext, camera, light, bindParams);
 
-			RenderPath.sortMeshesDistance(b.meshes, camera);
+			RenderPath.sortMeshesDistance(b.meshes);
 
 			for (m in b.meshes) {
 
