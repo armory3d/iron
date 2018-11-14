@@ -330,15 +330,15 @@ class Scene {
 		var objectsTraversed = 0;
 		var obj = getObj(raw, name);
 		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
-		function spawnObjectTree(obj:TObj, parent:Object, done:Object->Void) {
-			createObject(obj, raw, parent, null, function(object:Object) {
+		function spawnObjectTree(obj:TObj, parent:Object, parentObject:TObj, done:Object->Void) {
+			createObject(obj, raw, parent, parentObject, function(object:Object) {
 				if (spawnChildren && obj.children != null) {
-					for (child in obj.children) spawnObjectTree(child, object, done);
+					for (child in obj.children) spawnObjectTree(child, object, obj, done);
 				}
 				if (++objectsTraversed == objectsCount && done != null) done(object);
 			});
 		}
-		spawnObjectTree(obj, parent, done);
+		spawnObjectTree(obj, parent, null, done);
 	}
 
 	public function parseObject(sceneName:String, objectName:String, parent:Object, done:Object->Void) {
@@ -426,7 +426,8 @@ class Scene {
 									Data.getSceneRaw(ref, function(action:TSceneFormat) {
 										bactions.push(action);
 										if (bactions.length == parentObject.bone_actions.length) {
-											var armature = new Armature(parentObject.name, bactions);
+											parent.name += '.' + parent.uid; // Map to unique armature
+											var armature = new Armature(parent.name, bactions);
 											armatures.push(armature);
 											#if arm_stream
 											streamMeshObject(
