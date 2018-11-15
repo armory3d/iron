@@ -54,13 +54,12 @@ class CameraObject extends Object {
 	}
 
 	public function buildProjection(screenAspect:Null<Float> = null) {
-		if (screenAspect == null) screenAspect = iron.App.w() / iron.App.h();
-		var aspect = data.raw.aspect != null ? data.raw.aspect : screenAspect;
-		if (data.raw.ortho_scale != null) {
-			var sc:kha.FastFloat = data.raw.ortho_scale;
-			P = Mat4.ortho(-1 * aspect * sc, aspect * sc, -1 * sc, 1 * sc, -1 * data.raw.far_plane, data.raw.far_plane);
+		if (data.raw.ortho != null) {
+			P = Mat4.ortho(data.raw.ortho[0], data.raw.ortho[1], data.raw.ortho[2], data.raw.ortho[3], data.raw.near_plane, data.raw.far_plane);
 		}
 		else {
+			if (screenAspect == null) screenAspect = iron.App.w() / iron.App.h();
+			var aspect = data.raw.aspect != null ? data.raw.aspect : screenAspect;
 			P = Mat4.persp(data.raw.fov, aspect, data.raw.near_plane, data.raw.far_plane);
 		}
 		#if arm_taa

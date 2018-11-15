@@ -104,29 +104,45 @@ class LightObject extends Object {
 		if (camSlicedP == null) {
 			camSlicedP = [];
 			cascadeSplit = [];
-			var aspect = camera.data.raw.aspect != null ? camera.data.raw.aspect : iron.App.w() / iron.App.h();
-			var fov = camera.data.raw.fov;
-			var near = camera.data.raw.near_plane;
-			var far = camera.data.raw.far_plane;
-			var factor = cascadeCount > 2 ? cascadeSplitFactor : cascadeSplitFactor * 0.25;
-			for (i in 0...cascadeCount) {
-				var f = i + 1.0;
-				var cfar = mix(
-					near + (f / cascadeCount) * (far - near),
-					near * Math.pow(far / near, f / cascadeCount),
-					factor);
-				cascadeSplit.push(cfar);
-				camSlicedP.push(Mat4.persp(fov, aspect, near, cfar));
+			var ortho = camera.data.raw.ortho;
+			if (ortho == null) {
+				var aspect = camera.data.raw.aspect != null ? camera.data.raw.aspect : iron.App.w() / iron.App.h();
+				var fov = camera.data.raw.fov;
+				var near = camera.data.raw.near_plane;
+				var far = camera.data.raw.far_plane;
+				var factor = cascadeCount > 2 ? cascadeSplitFactor : cascadeSplitFactor * 0.25;
+				for (i in 0...cascadeCount) {
+					var f = i + 1.0;
+					var cfar = mix(
+						near + (f / cascadeCount) * (far - near),
+						near * Math.pow(far / near, f / cascadeCount),
+						factor);
+					cascadeSplit.push(cfar);
+					camSlicedP.push(Mat4.persp(fov, aspect, near, cfar));
+				}
+			}
+			else {
+				for (i in 0...cascadeCount) {
+					cascadeSplit.push(data.raw.far_plane);
+					camSlicedP.push(Mat4.ortho(ortho[0], ortho[1], ortho[2], ortho[3], data.raw.near_plane, data.raw.far_plane));
+				}
 			}
 		}
 		m.multmat(camSlicedP[cascade]);
 		#else
 		if (camSlicedP == null) { // Fit to light far plane
-			var fov = camera.data.raw.fov;
-			var near = data.raw.near_plane;
-			var far = data.raw.far_plane;
-			var aspect = camera.data.raw.aspect != null ? camera.data.raw.aspect : iron.App.w() / iron.App.h();
-			camSlicedP = Mat4.persp(fov, aspect, near, far);
+			var ortho = camera.data.raw.ortho;
+			if (ortho == null) {
+				var fov = camera.data.raw.fov;
+				var near = data.raw.near_plane;
+				var far = data.raw.far_plane;
+				var aspect = camera.data.raw.aspect != null ? camera.data.raw.aspect : iron.App.w() / iron.App.h();
+				camSlicedP = Mat4.persp(fov, aspect, near, far);
+			}
+			else {
+				// camSlicedP = camera.P;
+				camSlicedP = Mat4.ortho(ortho[0], ortho[1], ortho[2], ortho[3], data.raw.near_plane, data.raw.far_plane);
+			}
 		}
 		m.multmat(camSlicedP);
 		#end
