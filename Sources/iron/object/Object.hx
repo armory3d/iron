@@ -162,6 +162,8 @@ class Object {
 		for (a in Scene.active.animations) if (a.armature != null && a.armature.name == name) return cast a;
 		return null;
 	}
+	#else
+	public function getParentArmature(name:String):Animation { return null; }
 	#end
 
 	public function setupAnimation(oactions:Array<TSceneFormat> = null) {
