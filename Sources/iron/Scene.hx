@@ -325,20 +325,32 @@ class Scene {
 	 * @param	parent The parent object this new object should be attached to. (Optional use null to just add to the Scene without a parent).
 	 * @param	done A completion handler function to run after the spawn is complete. Example might want to change properties of the object after spawning.
 	 * @param	spawnChildren Also spawn the children of the newly spawned object. (Optional default is true).
+	 * @param 	scene Optionally specify a different scene file/name to spawn the object from, if the object you want to spawn is from a different scene.
 	 */
-	public function spawnObject(name:String, parent:Object, done:Object->Void, spawnChildren = true) {
+	public function spawnObject(name:String, parent:Object, done:Object->Void, spawnChildren = true, sceneName:Null<String> = null) {
 		var objectsTraversed = 0;
-		var obj = getObj(raw, name);
-		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
-		function spawnObjectTree(obj:TObj, parent:Object, parentObject:TObj, done:Object->Void) {
-			createObject(obj, raw, parent, parentObject, function(object:Object) {
+		var objectsCount = 0;
+
+		function spawnObjectTree(obj:TObj, sceneRaw:TSceneFormat, parent:Object, parentObject:TObj, done:Object->Void) {
+			createObject(obj, sceneRaw, parent, parentObject, function(object:Object) {
 				if (spawnChildren && obj.children != null) {
-					for (child in obj.children) spawnObjectTree(child, object, obj, done);
+					for (child in obj.children) spawnObjectTree(child, sceneRaw, object, obj, done);
 				}
 				if (++objectsTraversed == objectsCount && done != null) done(object);
 			});
 		}
-		spawnObjectTree(obj, parent, null, done);
+
+		if (sceneName == null) {
+			var obj = getObj(this.raw, name);
+			objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
+			spawnObjectTree(obj, this.raw, parent, null, done);
+		} else {
+			Data.getSceneRaw(sceneName, (sceneRaw:TSceneFormat) -> {
+				var obj = getObj(sceneRaw, name);
+				objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
+				spawnObjectTree(obj, sceneRaw, parent, null, done);
+			});
+		}
 	}
 
 	public function parseObject(sceneName:String, objectName:String, parent:Object, done:Object->Void) {
