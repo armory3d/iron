@@ -156,6 +156,7 @@ class ArmPack {
 		case "children": TObj;
 		case "groups": TGroup;
 		case "traits": TTrait;
+		case "properties": TProperty;
 		case "vertex_arrays": TVertexArray;
 		case "index_arrays": TIndexArray;
 		case "skin": TSkin;

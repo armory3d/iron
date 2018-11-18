@@ -447,6 +447,7 @@ typedef TObj = {
 	@:optional public var lods:Array<TLod>;
 	@:optional public var lod_material:Null<Bool>;
 	@:optional public var traits:Array<TTrait>;
+	@:optional public var properties:Array<TProperty>;
 	@:optional public var constraints:Array<TConstraint>;
 	@:optional public var dimensions:Float32Array; // Geometry objects
 	@:optional public var object_actions:Array<String>;
@@ -466,6 +467,15 @@ typedef TObj = {
 	@:optional public var tilesheet_ref:String;
 	@:optional public var tilesheet_action_ref:String;
 	@:optional public var sampled:Null<Bool>; // Object action
+}
+
+#if js
+typedef TProperty = {
+#else
+@:structInit class TProperty {
+#end
+	public var name:String;
+	public var value:Dynamic;
 }
 
 #if js

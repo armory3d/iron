@@ -588,6 +588,10 @@ class Scene {
 					g.push(object);
 				}
 			}
+			if (o.properties != null) {
+				object.properties = new Map();
+				for (p in o.properties) object.properties.set(p.name, p.value);
+			}
 			createTraits(o.traits, object);
 		}
 		done(object);
