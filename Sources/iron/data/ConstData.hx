@@ -14,10 +14,6 @@ class ConstData {
 	public static var boxVB:VertexBuffer = null;
 	public static var boxIB:IndexBuffer = null;
 	#end
-	#if (rp_renderer == "Deferred Plus")
-	public static var rectVB:VertexBuffer = null;
-	public static var rectIB:IndexBuffer = null;
-	#end
 	#if arm_deinterleaved
 	public static var skydomeVB:Array<VertexBuffer> = null;
 	#else
@@ -50,27 +46,6 @@ class ConstData {
 		for (i in 0...id.length) id[i] = indices[i];
 		screenAlignedIB.unlock();
 	}
-
-	#if (rp_renderer == "Deferred Plus")
-	public static function createRectData() {
-		// Quad
-		var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];
-		var indices = [0, 1, 2, 0, 2, 3];
-
-		// Mandatory vertex data names and sizes
-		var structure = new VertexStructure();
-		structure.add("pos", VertexData.Float2);
-		rectVB = new VertexBuffer(Std.int(data.length / Std.int(structure.byteSize() / 4)), structure, Usage.StaticUsage);
-		var vertices = rectVB.lock();
-		for (i in 0...vertices.length) vertices.set(i, data[i]);
-		rectVB.unlock();
-
-		rectIB = new IndexBuffer(indices.length, Usage.StaticUsage);
-		var id = rectIB.lock();
-		for (i in 0...id.length) id[i] = indices[i];
-		rectIB.unlock();
-	}
-	#end
 	
 	#if (rp_decals || rp_probes)
 	public static function createBoxData() {

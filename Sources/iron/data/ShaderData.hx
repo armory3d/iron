@@ -72,20 +72,11 @@ class ShaderContext {
 	var structure:VertexStructure;
 	var instancingType = 0;
 	var overrideContext:TShaderOverride;
-	static var structureRect:VertexStructure = null; // For screen-space rectangle
 
 	public function new(raw:TShaderContext, done:ShaderContext->Void, overrideContext:TShaderOverride = null) {
 		this.raw = raw;
 		this.overrideContext = overrideContext;
-
-		if (raw.name == "rect") {
-			structure = getStructureRect();
-			instancingType = 0;
-		}
-		else {
-			parseVertexStructure();
-		}
-
+		parseVertexStructure();
 		compile(done);
 	}
 
@@ -298,14 +289,6 @@ class ShaderContext {
 		else if (ipos && irot && !iscl) instancingType = 2;
 		else if (ipos && !irot && iscl) instancingType = 3;
 		else if (ipos && irot && iscl) instancingType = 4;
-	}
-
-	static function getStructureRect() {
-		if (structureRect == null) {
-			structureRect = new VertexStructure();
-			structureRect.add("pos", VertexData.Float2);
-		}
-		return structureRect;
 	}
 
 	public function delete() {
