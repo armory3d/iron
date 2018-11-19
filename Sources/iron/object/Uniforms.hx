@@ -122,15 +122,6 @@ class Uniforms {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('iestexture.png'));
 					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 				}
-				else if (tulink == "_sdfTexture") {
-					#if arm_sdf
-					// g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
-					g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-
-					// g.setTexture(context.textureUnits[j], cast(object, MeshObject).data.sdfTex);
-					g.setTexture(context.textureUnits[j], iron.data.MeshData.sdfTex); // Use as global volume for now
-					#end
-				}
 			}
 		}
 	}

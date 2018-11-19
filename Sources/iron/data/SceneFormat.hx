@@ -45,7 +45,6 @@ typedef TMeshData = {
 	@:optional public var skin:TSkin;
 	@:optional public var instanced_data:Float32Array;
 	@:optional public var instanced_type:Null<Int>; // off, loc, loc+rot, loc+scale, loc+rot+scale
-	@:optional public var sdf_ref:String;
 }
 
 #if js
