@@ -112,12 +112,6 @@ class Uniforms {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise256.png'));
 					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 				}
-				else if (tulink == "_lightColorTexture") {
-					if (light != null) {
-						g.setTexture(context.textureUnits[j], light.data.colorTexture);
-						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-					}
-				}
 				else if (tulink == "_iesTexture") {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('iestexture.png'));
 					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
