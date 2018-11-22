@@ -177,6 +177,11 @@ class RenderPath {
 		bindParams = null;
 	}
 
+	public function setDepthFrom(target:String, from:String) {
+		var rt = renderTargets.get(target);
+		rt.image.setDepthStencilFrom(renderTargets.get(from).image);
+	}
+
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null, face = -1) {
 		// TODO: draw first cube-face last, otherwise some opengl drivers glitch
 		face >= 0 ? g.beginFace(5 - face) : g.begin(additionalRenderTargets);
