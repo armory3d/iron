@@ -214,11 +214,11 @@ class MeshObject extends Object {
 	}
 
 	static var lastPipeline:kha.graphics4.PipelineState = null;
-	public function render(g:Graphics, context:String, camera:CameraObject, light:LightObject, bindParams:Array<String>) {
+	public function render(g:Graphics, context:String, bindParams:Array<String>) {
 
 		if (data == null || !data.geom.ready) return; // Data not yet streamed
 		if (!visible) return; // Skip render if object is hidden
-		if (cullMesh(context, camera, light)) return;
+		if (cullMesh(context, Scene.active.camera, RenderPath.active.light)) return;
 		var meshContext = raw != null ? RenderPath.meshContext == context : false;
 		#if arm_particles
 		if (raw != null && raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
@@ -250,7 +250,7 @@ class MeshObject extends Object {
 		var mats = materials;
 		var lod = this;
 		if (raw != null && raw.lods != null && raw.lods.length > 0) {
-			computeScreenSize(camera);
+			computeScreenSize(Scene.active.camera);
 			initLods();
 			if (context == "voxel") {
 				// Voxelize using the lowest lod
@@ -268,7 +268,7 @@ class MeshObject extends Object {
 			if (lod == null) return; // Empty object
 		}
 		#if arm_debug
-		else computeScreenSize(camera);
+		else computeScreenSize(Scene.active.camera);
 		#end
 		if (isLodMaterial() && !validContext(mats[0], context)) return;
 		
@@ -292,9 +292,9 @@ class MeshObject extends Object {
 			if (scontext.pipeState != lastPipeline) {
 				g.setPipeline(scontext.pipeState);
 				lastPipeline = scontext.pipeState;
-				Uniforms.setContextConstants(g, scontext, camera, light, bindParams);
+				Uniforms.setContextConstants(g, scontext, bindParams);
 			}
-			Uniforms.setObjectConstants(g, scontext, this, camera, light);
+			Uniforms.setObjectConstants(g, scontext, this);
 			if (materialContexts.length > mi) {
 				Uniforms.setMaterialConstants(g, scontext, materialContexts[mi]);
 			}

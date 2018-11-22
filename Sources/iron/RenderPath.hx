@@ -23,7 +23,8 @@ class RenderPath {
 	public var frameTime = 0.0;
 	public var currentTarget:RenderTarget = null;
 	public var currentFace:Int;
-	public var currentLightIndex = 0;
+	public var light:LightObject = null;
+	public var sun:LightObject = null;
 	#if rp_probes
 	public var currentProbeIndex = 0;
 	#end
@@ -54,15 +55,6 @@ class RenderPath {
 	public var renderTargets:Map<String, RenderTarget> = new Map();
 	public var depthToRenderTarget:Map<String, RenderTarget> = new Map();
 
-	// Used by render path nodes for branch functions
-	public function lightCastShadow() {
-		return getLight(currentLightIndex).data.raw.cast_shadow;
-	}
-
-	public function lightIsSun() {
-		return getLight(currentLightIndex).data.raw.type == "sun";
-	}
-
 	#if (rp_gi != "Off")
 	public var voxelized = 0;
 	public var onVoxelize:Void->Bool = null;
@@ -81,8 +73,6 @@ class RenderPath {
 	}
 
 	public function new() {}
-
-	inline public function getLight(index:Int) { return Scene.active.lights.length > 0 ? Scene.active.lights[index] : null; }
 
 	public function renderFrame(g:Graphics) {
 		if (!ready || paused || iron.App.w() == 0 || iron.App.h() == 0) return;
@@ -122,8 +112,11 @@ class RenderPath {
 		currentFace = -1;
 		meshesSorted = false;
 
-		currentLightIndex = 0;
-		for (l in Scene.active.lights) if (l.visible) l.buildMatrix(Scene.active.camera);
+		for (l in Scene.active.lights) {
+			if (l.visible) l.buildMatrix(Scene.active.camera);
+			if (l.data.raw.type == "sun") sun = l;
+		}
+		light = Scene.active.lights[0];
 
 		commands();
 	}
@@ -247,16 +240,10 @@ class RenderPath {
 	}
 
 	public function drawMeshes(context:String) {
-		var light = getLight(currentLightIndex);
-		if (light != null && !light.visible) {
-			// Pass draw atleast once to fill geometry buffers
-			if (currentLightIndex > 0) return;
-		}
-
 		var isShadows = context == shadowsContext;
 		if (isShadows) {
 			// Disabled shadow casting for this light
-			if (light == null || !light.data.raw.cast_shadow || light.data.raw.strength == 0) return;
+			if (light == null || !light.data.raw.cast_shadow || !light.visible || light.data.raw.strength == 0) return;
 		}
 		// Single face attached
 		// TODO: draw first cube-face last, otherwise some opengl drivers glitch
@@ -278,6 +265,10 @@ class RenderPath {
 		}
 		#end
 
+		#if arm_clusters
+		if (context == meshContext) LightObject.updateClusters(Scene.active.camera);
+		#end
+
 		if (!drawn) submitDraw(context);
 
 		#if arm_debug
@@ -293,7 +284,6 @@ class RenderPath {
 
 	@:access(iron.object.MeshObject)
 	function submitDraw(context:String) {
-		var light = getLight(currentLightIndex);
 		var camera = Scene.active.camera;
 		var meshes = Scene.active.meshes;
 		var g = currentG;
@@ -315,10 +305,10 @@ class RenderPath {
 		}
 
 		#if arm_batch
-		Scene.active.meshBatch.render(g, context, camera, light, bindParams);
+		Scene.active.meshBatch.render(g, context, bindParams);
 		#else
 		for (m in meshes) {
-			m.render(g, context, camera, light, bindParams);
+			m.render(g, context, bindParams);
 		}
 		#end
 	}
@@ -337,9 +327,8 @@ class RenderPath {
 	public function drawDecals(context:String) {
 		if (ConstData.boxVB == null) ConstData.createBoxData();
 		var g = currentG;
-		var light = getLight(currentLightIndex);
 		for (decal in Scene.active.decals) {
-			decal.render(g, context, Scene.active.camera, light, bindParams);
+			decal.render(g, context, bindParams);
 		}
 		end(g);
 	}
@@ -350,11 +339,10 @@ class RenderPath {
 	// 	var gp = Scene.active.greasePencil;
 	// 	if (gp == null) return;
 	// 	var g = currentG;
-	// 	var light = getLight(currentLightIndex);
 	// 	var context = GreasePencilData.getContext(con);
 	// 	g.setPipeline(context.pipeState);
-	// 	Uniforms.setContextConstants(g, context, Scene.active.camera, light, null);
-	// 	Uniforms.setObjectConstants(g, context, null, Scene.active.camera, light);
+	// 	Uniforms.setContextConstants(g, context, null);
+	// 	Uniforms.setObjectConstants(g, context, null);
 	// 	// Draw layers
 	// 	for (layer in gp.layers) {
 	// 		// Next frame
@@ -395,9 +383,8 @@ class RenderPath {
 		if (cc.context == null) return; // World data not specified
 		var g = currentG;
 		g.setPipeline(cc.context.pipeState);
-		var light = getLight(currentLightIndex);
-		Uniforms.setContextConstants(g, cc.context, Scene.active.camera, light, bindParams);
-		Uniforms.setObjectConstants(g, cc.context, null, Scene.active.camera, light); // External hosek
+		Uniforms.setContextConstants(g, cc.context, bindParams);
+		Uniforms.setObjectConstants(g, cc.context, null); // External hosek
 		#if arm_deinterleaved
 		g.setVertexBuffers(ConstData.skydomeVB);
 		#else
@@ -408,43 +395,14 @@ class RenderPath {
 		end(g);
 	}
 
-	public function drawLightVolume(handle:String) {
-		var vb:VertexBuffer = null;
-		var ib:IndexBuffer = null;
-		var light = getLight(currentLightIndex);
-		var type = light.data.raw.type;
-		if (type == "point" || type == "area") { // Sphere
-			if (ConstData.sphereVB == null) ConstData.createSphereData();
-			vb = ConstData.sphereVB;
-			ib = ConstData.sphereIB;
-		}
-		else if (type == "spot") { // Oriented cone
-			// if (ConstData.coneVB == null) ConstData.createConeData();
-			// vb = ConstData.coneVB;
-			// ib = ConstData.coneIB;
-			if (ConstData.sphereVB == null) ConstData.createSphereData();
-			vb = ConstData.sphereVB;
-			ib = ConstData.sphereIB;
-		}
-		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		var g = currentG;		
-		g.setPipeline(cc.context.pipeState);
-		Uniforms.setContextConstants(g, cc.context, Scene.active.camera, light, bindParams);
-		Uniforms.setObjectConstants(g, cc.context, null, Scene.active.camera, light);
-		g.setVertexBuffer(vb);
-		g.setIndexBuffer(ib);
-		g.drawIndexedVertices();
-		end(g);
-	}
-
 	#if rp_probes
 	public function drawVolume(object:Object, handle:String) {
 		if (ConstData.boxVB == null) ConstData.createBoxData();
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		var g = currentG;
 		g.setPipeline(cc.context.pipeState);
-		Uniforms.setContextConstants(g, cc.context, Scene.active.camera, null, bindParams);
-		Uniforms.setObjectConstants(g, cc.context, object, Scene.active.camera, null);
+		Uniforms.setContextConstants(g, cc.context, bindParams);
+		Uniforms.setObjectConstants(g, cc.context, object);
 		g.setVertexBuffer(ConstData.boxVB);
 		g.setIndexBuffer(ConstData.boxIB);
 		g.drawIndexedVertices();
@@ -464,9 +422,8 @@ class RenderPath {
 		if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
 		var g = currentG;		
 		g.setPipeline(cc.context.pipeState);
-		var light = getLight(currentLightIndex);
-		Uniforms.setContextConstants(g, cc.context, Scene.active.camera, light, bindParams);
-		Uniforms.setObjectConstants(g, cc.context, null, Scene.active.camera, light);
+		Uniforms.setContextConstants(g, cc.context, bindParams);
+		Uniforms.setObjectConstants(g, cc.context, null);
 		g.setVertexBuffer(ConstData.screenAlignedVB);
 		g.setIndexBuffer(ConstData.screenAlignedIB);
 		g.drawIndexedVertices();

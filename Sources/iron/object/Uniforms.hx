@@ -49,11 +49,11 @@ class Uniforms {
 	public static var externalFloatsLinks:Array<Object->MaterialData->String->kha.arrays.Float32Array> = null;
 	public static var externalIntLinks:Array<Object->MaterialData->String->Null<Int>> = null;
 
-	public static function setContextConstants(g:Graphics, context:ShaderContext, camera:CameraObject, light:LightObject, bindParams:Array<String>) {
+	public static function setContextConstants(g:Graphics, context:ShaderContext, bindParams:Array<String>) {
 		if (context.raw.constants != null) {
 			for (i in 0...context.raw.constants.length) {
 				var c = context.raw.constants[i];
-				setContextConstant(g, camera, light, context.constants[i], c);
+				setContextConstant(g, context.constants[i], c);
 			}
 		}
 		
@@ -96,6 +96,12 @@ class Uniforms {
 				else if (tulink == "_envmapBrdf") {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('brdf.png'));
 				}
+				#if arm_clusters
+				else if (tulink == "_clustersData") {
+					g.setTexture(context.textureUnits[j], LightObject.clustersData);
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+				}
+				#end
 				else if (tulink == "_noise8") {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise8.png'));
 					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
@@ -120,11 +126,11 @@ class Uniforms {
 		}
 	}
 
-	public static function setObjectConstants(g:Graphics, context:ShaderContext, object:Object, camera:CameraObject, light:LightObject) {
+	public static function setObjectConstants(g:Graphics, context:ShaderContext, object:Object) {
 		if (context.raw.constants != null) {
 			for (i in 0...context.raw.constants.length) {
 				var c = context.raw.constants[i];
-				setObjectConstant(g, object, camera, light, context.constants[i], c);
+				setObjectConstant(g, object, context.constants[i], c);
 			}
 		}
 
@@ -213,9 +219,12 @@ class Uniforms {
 		}
 	}
 
-	static function setContextConstant(g:Graphics, camera:CameraObject, light:LightObject,
-									  location:ConstantLocation, c:TShaderConstant):Bool {
+	static function setContextConstant(g:Graphics, location:ConstantLocation, c:TShaderConstant):Bool {
 		if (c.link == null) return true;
+
+		var camera = Scene.active.camera;
+		var light = RenderPath.active.light;
+		var sun = RenderPath.active.sun;
 
 		if (c.type == "mat4") {
 			var m:Mat4 = null;
@@ -393,11 +402,25 @@ class Uniforms {
 			}
 			else if (c.link == "_lightColor") {
 				if (light != null) {
-					var str = light.data.raw.strength; // Merge with strength
+					var str = light.visible ? light.data.raw.strength : 0.0;
 					helpVec.set(light.data.raw.color[0] * str, light.data.raw.color[1] * str, light.data.raw.color[2] * str);
 					v = helpVec;
 				}
 			}
+			else if (c.link == "_sunDirection") {
+				if (sun != null) {
+					helpVec = sun.look();
+					v = helpVec;
+				}
+			}
+			else if (c.link == "_sunColor") {
+				if (sun != null) {
+					var str = sun.visible ? sun.data.raw.strength : 0.0;
+					helpVec.set(sun.data.raw.color[0] * str, sun.data.raw.color[1] * str, sun.data.raw.color[2] * str);
+					v = helpVec;
+				}
+			}
+			#if arm_ltc
 			else if (c.link == "_lightArea0") {
 				if (light != null && light.data.raw.size != null) {
 					var f2:kha.FastFloat = 0.5;
@@ -438,6 +461,7 @@ class Uniforms {
 					v = helpVec;
 				}
 			}
+			#end
 			else if (c.link == "_cameraPosition") {
 				helpVec.set(camera.transform.worldx(), camera.transform.worldy(), camera.transform.worldz());
 				v = helpVec;
@@ -458,7 +482,7 @@ class Uniforms {
 				if (camera.data.raw.clear_color != null) helpVec.set(camera.data.raw.clear_color[0], camera.data.raw.clear_color[1], camera.data.raw.clear_color[2]);
 				v = helpVec;
 			}
-			else if (c.link == "_sunDirection") {
+			else if (c.link == "_hosekSunDirection") {
 				var w = Scene.active.world;
 				if (w != null) {
 					helpVec.set(w.raw.sun_direction[0], w.raw.sun_direction[1], w.raw.sun_direction[2]);
@@ -591,14 +615,6 @@ class Uniforms {
 					v.y = c / b;
 				}
 			}
-			else if (c.link == "_spotlightData") {
-				// cutoff, cutoff - exponent
-				if (light != null) {
-					v = helpVec;
-					v.x = light.data.raw.spot_size;
-					v.y = v.x - light.data.raw.spot_blend;
-				}
-			}
 			else if (c.link == "_shadowMapSize") {
 				if (light != null && light.data.raw.cast_shadow) {
 					v = helpVec;
@@ -624,6 +640,9 @@ class Uniforms {
 			}
 			else if (c.link == "_lightShadowsBias") {
 				f = light == null ? 0.0 : light.data.raw.shadows_bias;
+			}
+			else if (c.link == "_sunShadowsBias") {
+				f = sun == null ? 0.0 : sun.data.raw.shadows_bias;
 			}
 			else if (c.link == "_lightSize") {
 				if (light != null && light.data.raw.light_size != null) f = light.data.raw.light_size;
@@ -665,6 +684,16 @@ class Uniforms {
 			if (c.link == "_envmapIrradiance") {
 				fa = Scene.active.world == null ? WorldData.getEmptyIrradiance() : Scene.active.world.probe.irradiance;
 			}
+			#if arm_clusters
+			else if (c.link == "_lightsArray") {
+				fa = LightObject.lightsArray;
+			}
+			#if arm_spot
+			else if (c.link == "_lightsArraySpot") {
+				fa = LightObject.lightsArraySpot;
+			}
+			#end
+			#end // arm_clusters
 			#if arm_csm
 			else if (c.link == "_cascadeData") {
 				if (light != null) fa = light.getCascadeData();
@@ -678,13 +707,7 @@ class Uniforms {
 		}
 		else if (c.type == "int") {
 			var i:Null<Int> = null;
-			if (c.link == "_lightType") {
-				i = light == null ? 0 : LightData.typeToInt(light.data.raw.type);
-			}
-			else if (c.link == "_lightIndex") {
-				i = RenderPath.active.currentLightIndex;
-			}
-			else if (c.link == "_lightCastShadow") {
+			if (c.link == "_lightCastShadow") {
 				if (light != null && light.data.raw.cast_shadow) {
 					i = light.data.raw.shadowmap_cube ? 2 : 1;
 				}
@@ -703,9 +726,11 @@ class Uniforms {
 		return false;
 	}
 
-	static function setObjectConstant(g:Graphics, object:Object, camera:CameraObject, light:LightObject,
-									  location:ConstantLocation, c:TShaderConstant) {
+	static function setObjectConstant(g:Graphics, object:Object, location:ConstantLocation, c:TShaderConstant) {
 		if (c.link == null) return;
+
+		var camera = Scene.active.camera;
+		var light = RenderPath.active.light;
 
 		if (c.type == "mat4") {
 			var m:Mat4 = null;
