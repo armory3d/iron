@@ -289,11 +289,15 @@ class MeshObject extends Object {
 			var vs = scontext.raw.vertex_structure;
 
 			// Uniforms
+			#if (!kha_metal)
 			if (scontext.pipeState != lastPipeline) {
+			#end
 				g.setPipeline(scontext.pipeState);
 				lastPipeline = scontext.pipeState;
 				Uniforms.setContextConstants(g, scontext, bindParams);
+			#if (!kha_metal)
 			}
+			#end
 			Uniforms.setObjectConstants(g, scontext, this);
 			if (materialContexts.length > mi) {
 				Uniforms.setMaterialConstants(g, scontext, materialContexts[mi]);
