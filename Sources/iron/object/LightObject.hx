@@ -19,7 +19,7 @@ class LightObject extends Object {
 	var cascadeData:kha.arrays.Float32Array = null;
 	var cascadeVP:Array<Mat4>;
 	var camSlicedP:Array<Mat4> = null;
-	var cascadeSplit:Array<Float>;
+	var cascadeSplit:Array<kha.FastFloat>;
 	#else
 	var camSlicedP:Mat4 = null;
 	#end
