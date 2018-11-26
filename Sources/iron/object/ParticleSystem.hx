@@ -61,6 +61,16 @@ class ParticleSystem {
 		});
 	}
 
+	public function disableLifetime()
+	{
+		lifetime = 0;
+	}
+
+	public function enableLifetime()
+	{
+		lifetime = r.lifetime / frameRate;
+	}
+
 	public function update(object:MeshObject, owner:MeshObject) {
 		if (!ready || object == null || speed == 0.0) return;
 
