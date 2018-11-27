@@ -66,7 +66,6 @@ class App {
 		startTime = kha.Scheduler.realTime();
 		#end
 
-		iron.system.Time.update();
 		Scene.active.updateFrame();
 
 		var i = 0;
@@ -111,6 +110,8 @@ class App {
 	static function render(frames:Array<kha.Framebuffer>) {
 		var frame = frames[0];
 		framebuffer = frame;
+
+		iron.system.Time.update();
 
 		#if arm_rendertimer
 		renderTimer -= iron.system.Time.realDelta;
