@@ -183,8 +183,7 @@ class RenderPath {
 	}
 
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null, face = -1) {
-		// TODO: draw first cube-face last, otherwise some opengl drivers glitch
-		face >= 0 ? g.beginFace(5 - face) : g.begin(additionalRenderTargets);
+		face >= 0 ? g.beginFace(face) : g.begin(additionalRenderTargets);
 	}
 
 	inline function end(g:Graphics) {
@@ -251,8 +250,7 @@ class RenderPath {
 			if (light == null || !light.data.raw.cast_shadow || !light.visible || light.data.raw.strength == 0) return;
 		}
 		// Single face attached
-		// TODO: draw first cube-face last, otherwise some opengl drivers glitch
-		if (currentFace >= 0 && light != null) light.setCubeFace(5 - currentFace, Scene.active.camera);
+		if (currentFace >= 0 && light != null) light.setCubeFace(currentFace, Scene.active.camera);
 		
 		var g = currentG;
 		var drawn = false;

@@ -203,6 +203,12 @@ class CameraObject extends Object {
 			vup.set(0.0, -1.0, 0.0);
 		}
 		m.setLookAt(eye, vcenter, vup);
+		#if (!kha_opengl && !kha_webgl)
+		m._01 = -m._01;
+		m._11 = -m._11;
+		m._21 = -m._21;
+		m._31 = -m._31;
+		#end
 	}
 
 	public inline function right():Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }

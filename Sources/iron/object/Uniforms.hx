@@ -186,15 +186,28 @@ class Uniforms {
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
 					}
 
-
 					if (!context.paramsSet[j] && rt.raw.mipmaps != null && rt.raw.mipmaps == true && !isImage) {
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 						context.paramsSet[j] = true;
 					}
 
-					#if kha_webgl
+					// if (!context.paramsSet[j]) { // arm_dev
+					// 	if (StringTools.startsWith(samplerID, "shadowMap")) {
+					// 		if (rt.isCubeMap) {
+					// 			g.setCubeMapCompareMode(context.textureUnits[j], true);
+					// 		}
+					// 		else {
+					// 			g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+					// 			g.setTextureCompareMode(context.textureUnits[j], true);
+					// 		}
+					// 		context.paramsSet[j] = true;
+					// 	}
+					// 	else if (attachDepth) {
+					// 		g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+					// 		context.paramsSet[j] = true;
+					// 	}
+					// }
 					if (!context.paramsSet[j]) {
-						// if (samplerID == "shadowMap" || samplerID == "shadowMapCube" || attachDepth) {
 						if (samplerID == "shadowMap" || attachDepth) {
 							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 							context.paramsSet[j] = true;
@@ -203,7 +216,6 @@ class Uniforms {
 							context.paramsSet[j] = true;
 						}
 					}
-					#end
 
 					if (!context.paramsSet[j]) {
 						// No filtering when sampling render targets
