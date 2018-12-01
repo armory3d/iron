@@ -161,10 +161,12 @@ class Uniforms {
 			for (j in 0...tus.length) { // Set texture
 				if (samplerID == tus[j].name) {
 					var isImage = tus[j].is_image != null && tus[j].is_image;
+					var paramsSet = false;
 
 					if (rt.raw.depth > 1) { // sampler3D
 						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
-						context.paramsSet[j] = true;
+						// context.paramsSet[j] = true;
+						paramsSet = true;
 					}
 
 					if (isImage) {
@@ -173,7 +175,8 @@ class Uniforms {
 						// Multiple voxel volumes, always set params
 						// if (!context.paramsSet[j]) {
 							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
-							context.paramsSet[j] = true;
+							// context.paramsSet[j] = true;
+							paramsSet = true;
 
 						// }
 					}
@@ -186,12 +189,15 @@ class Uniforms {
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
 					}
 
-					if (!context.paramsSet[j] && rt.raw.mipmaps != null && rt.raw.mipmaps == true && !isImage) {
+					// if (!context.paramsSet[j] && rt.raw.mipmaps != null && rt.raw.mipmaps == true && !isImage) {
+					if (!paramsSet && rt.raw.mipmaps != null && rt.raw.mipmaps == true && !isImage) {
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
-						context.paramsSet[j] = true;
+						// context.paramsSet[j] = true;
+						paramsSet = true;
 					}
 
-					// if (!context.paramsSet[j]) { // arm_dev
+					//// if (!context.paramsSet[j]) { // arm_dev
+					//	if (!paramsSet) {
 					// 	if (StringTools.startsWith(samplerID, "shadowMap")) {
 					// 		if (rt.isCubeMap) {
 					// 			g.setCubeMapCompareMode(context.textureUnits[j], true);
@@ -200,31 +206,38 @@ class Uniforms {
 					// 			g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 					// 			g.setTextureCompareMode(context.textureUnits[j], true);
 					// 		}
-					// 		context.paramsSet[j] = true;
+					//// 		context.paramsSet[j] = true;
+					//		paramsSet = true;
 					// 	}
 					// 	else if (attachDepth) {
 					// 		g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-					// 		context.paramsSet[j] = true;
+					//// 		context.paramsSet[j] = true;
+					//		paramsSet = true;
 					// 	}
 					// }
-					if (!context.paramsSet[j]) {
+					// if (!context.paramsSet[j]) {
+					if (!paramsSet) {
 						if (samplerID == "shadowMap" || attachDepth) {
 							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-							context.paramsSet[j] = true;
+							// context.paramsSet[j] = true;
+							paramsSet = true;
 						}
 						if (samplerID == "shadowMapCube") {
-							context.paramsSet[j] = true;
+							// context.paramsSet[j] = true;
+							paramsSet = true;
 						}
 					}
 
-					if (!context.paramsSet[j]) {
+					// if (!context.paramsSet[j]) {
+					if (!paramsSet) {
 						// No filtering when sampling render targets
 						#if (rp_resolution_filter == "Point")
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 						#else
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 						#end
-						context.paramsSet[j] = true;
+						// context.paramsSet[j] = true;
+						paramsSet = true;
 					}
 				}
 			}
