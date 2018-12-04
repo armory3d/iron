@@ -267,7 +267,7 @@ class Data {
 		getBlob(file + ext, function(b:kha.Blob) {
 
 			if (compressed) {
-#if (arm_compress && !hl) // TODO: korehl - unresolved external symbol _fmt_inflate_buffer
+				#if (arm_compress && !hl) // TODO: korehl - unresolved external symbol _fmt_inflate_buffer
 				var input = new BytesInput(b.toBytes());
 				var entry = haxe.zip.Reader.readZip(input).first();
 				if (entry == null) {
@@ -276,14 +276,14 @@ class Data {
 				}
 				if (entry.compressed) b = kha.Blob.fromBytes(haxe.zip.Reader.unzip(entry));
 				else b = kha.Blob.fromBytes(entry.data);
-#end
+				#end
 			}
 
-#if (arm_stream && kha_webgl)
+			#if (arm_stream && kha_webgl)
 			workerDecode(b, function(parsed:TSceneFormat) {
 				returnSceneRaw(file, parsed);
 			});
-#else
+			#else
 
 			var parsed:TSceneFormat = null;
 			if (isJson) {
@@ -295,7 +295,7 @@ class Data {
 			}
 
 			returnSceneRaw(file, parsed);
-#end
+			#end
 		});
 	}
 
@@ -437,9 +437,9 @@ class Data {
 
 	static var loadingImages:Map<String, Array<kha.Image->Void>> = new Map();
 	public static function getImage(file:String, done:kha.Image->Void, readable = false, format = 'RGBA32') {
-#if (cpp || hl)
+		#if (cpp || hl)
 		file = file.substring(0, file.length - 4) + '.k';
-#end
+		#end
 
 		var cached = cachedImages.get(file);
 		if (cached != null) { done(cached); return; }
@@ -510,9 +510,9 @@ class Data {
 
 	static var loadingVideos:Map<String, Array<kha.Video->Void>> = new Map();
 	public static function getVideo(file:String, done:kha.Video->Void) {
-#if (cpp || hl)
+		#if (cpp || hl)
 		file = file.substring(0, file.length - 4) + '.avi';
-#end
+		#end
 		var cached = cachedVideos.get(file);
 		if (cached != null) { done(cached); return; }
 
