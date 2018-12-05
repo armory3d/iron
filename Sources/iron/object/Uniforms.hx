@@ -421,7 +421,7 @@ class Uniforms {
 			}
 			else if (c.link == "_lightDirection") {
 				if (light != null) {
-					helpVec = light.look();
+					helpVec = light.look().normalize();
 					v = helpVec;
 				}
 			}
@@ -434,7 +434,7 @@ class Uniforms {
 			}
 			else if (c.link == "_sunDirection") {
 				if (sun != null) {
-					helpVec = sun.look();
+					helpVec = sun.look().normalize();
 					v = helpVec;
 				}
 			}
@@ -488,19 +488,23 @@ class Uniforms {
 			}
 			#end
 			else if (c.link == "_cameraPosition") {
+				// #if arm_centerworld
+				// helpVec.set(0, 0, 0);
+				// #else
 				helpVec.set(camera.transform.worldx(), camera.transform.worldy(), camera.transform.worldz());
+				// #end
 				v = helpVec;
 			}
 			else if (c.link == "_cameraLook") {
-				helpVec = camera.lookWorld();
+				helpVec = camera.lookWorld().normalize();
 				v = helpVec;
 			}
 			else if (c.link == "_cameraUp") {
-				helpVec = camera.upWorld();
+				helpVec = camera.upWorld().normalize();
 				v = helpVec;
 			}
 			else if (c.link == "_cameraRight") {
-				helpVec = camera.rightWorld();
+				helpVec = camera.rightWorld().normalize();
 				v = helpVec;
 			}
 			else if (c.link == "_backgroundCol") {
@@ -516,7 +520,7 @@ class Uniforms {
 			}
 			#if rp_probes
 			else if (c.link == "_probeNormal") {
-				v = Scene.active.probes[RenderPath.active.currentProbeIndex].transform.up();
+				v = Scene.active.probes[RenderPath.active.currentProbeIndex].transform.up().normalize();
 			}
 			else if (c.link == "_probePosition") {
 				v = Scene.active.probes[RenderPath.active.currentProbeIndex].transform.world.getLoc();
