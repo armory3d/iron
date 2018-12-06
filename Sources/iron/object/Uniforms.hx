@@ -906,6 +906,14 @@ class Uniforms {
 				helpMat3.setFrom4(helpMat);
 				m = helpMat3;
 			}
+			if (c.link == "_viewMatrix3") {
+				#if arm_centerworld
+				helpMat3.setFrom4(vmat(camera.V));
+				#else
+				helpMat3.setFrom4(camera.V);
+				#end
+				m = helpMat3;
+			}
 
 			if (m == null) return;
 			g.setMatrix3(location, m.self);
