@@ -321,7 +321,7 @@ class LightObject extends Object {
 		else {
 			var depthl = (z - 1) / (slicesZ - 1);
 			return Math.exp(depthl * Math.log(camera.data.raw.far_plane - clusterNear + 1.0)) + clusterNear - 1.0;
-		}            
+		}
 	}
 
 	public static function updateClusters(camera:CameraObject) {
@@ -392,7 +392,7 @@ class LightObject extends Object {
 				minZ++;
 			}
 			while (maxZ >= minZ) {
-				if (sliceToDist(camera, maxZ - 1) <= lpos.z + radius) { maxZ++; break; }
+				if (sliceToDist(camera, maxZ - 1) <= lpos.z + radius) break;
 				maxZ--;
 			}
 			// Mark affected clusters
