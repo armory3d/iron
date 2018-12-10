@@ -25,6 +25,7 @@ class RenderPath {
 	public var currentFace:Int;
 	public var light:LightObject = null;
 	public var sun:LightObject = null;
+	public var point:LightObject = null;
 	#if rp_probes
 	public var currentProbeIndex = 0;
 	#end
@@ -115,6 +116,7 @@ class RenderPath {
 		for (l in Scene.active.lights) {
 			if (l.visible) l.buildMatrix(Scene.active.camera);
 			if (l.data.raw.type == "sun") sun = l;
+			else point = l;
 		}
 		light = Scene.active.lights[0];
 

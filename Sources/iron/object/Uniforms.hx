@@ -249,7 +249,6 @@ class Uniforms {
 
 		var camera = Scene.active.camera;
 		var light = RenderPath.active.light;
-		var sun = RenderPath.active.sun;
 
 		if (c.type == "mat4") {
 			var m:Mat4 = null;
@@ -433,15 +432,44 @@ class Uniforms {
 				}
 			}
 			else if (c.link == "_sunDirection") {
+				var sun = RenderPath.active.sun;
 				if (sun != null) {
 					helpVec = sun.look().normalize();
 					v = helpVec;
 				}
 			}
 			else if (c.link == "_sunColor") {
+				var sun = RenderPath.active.sun;
 				if (sun != null) {
 					var str = sun.visible ? sun.data.raw.strength : 0.0;
 					helpVec.set(sun.data.raw.color[0] * str, sun.data.raw.color[1] * str, sun.data.raw.color[2] * str);
+					v = helpVec;
+				}
+			}
+			else if (c.link == "_pointPosition") {
+				var point = RenderPath.active.point;
+				if (point != null) {
+					#if arm_centerworld
+					var t = camera.transform;
+					helpVec.set(point.transform.worldx() - t.worldx(), point.transform.worldy() - t.worldy(), point.transform.worldz() - t.worldz());
+					#else
+					helpVec.set(point.transform.worldx(), point.transform.worldy(), point.transform.worldz());
+					#end
+					v = helpVec;
+				}
+			}
+			else if (c.link == "_spotDirection") {
+				var point = RenderPath.active.point;
+				if (point != null) {
+					helpVec = point.look().normalize();
+					v = helpVec;
+				}
+			}
+			else if (c.link == "_pointColor") {
+				var point = RenderPath.active.point;
+				if (point != null) {
+					var str = point.visible ? point.data.raw.strength : 0.0;
+					helpVec.set(point.data.raw.color[0] * str, point.data.raw.color[1] * str, point.data.raw.color[2] * str);
 					v = helpVec;
 				}
 			}
@@ -644,6 +672,15 @@ class Uniforms {
 					v.y = c / b;
 				}
 			}
+			else if (c.link == "_spotData") {
+				// cutoff, cutoff - exponent
+				var point = RenderPath.active.point;
+				if (point != null) {
+					v = helpVec;
+					v.x = point.data.raw.spot_size;
+					v.y = v.x - point.data.raw.spot_blend;
+				}
+			}
 			else if (c.link == "_shadowMapSize") {
 				if (light != null && light.data.raw.cast_shadow) {
 					v = helpVec;
@@ -671,7 +708,12 @@ class Uniforms {
 				f = light == null ? 0.0 : light.data.raw.shadows_bias;
 			}
 			else if (c.link == "_sunShadowsBias") {
+				var sun = RenderPath.active.sun;
 				f = sun == null ? 0.0 : sun.data.raw.shadows_bias;
+			}
+			else if (c.link == "_pointShadowsBias") {
+				var point = RenderPath.active.point;
+				f = point == null ? 0.0 : point.data.raw.shadows_bias;
 			}
 			else if (c.link == "_lightSize") {
 				if (light != null && light.data.raw.light_size != null) f = light.data.raw.light_size;
