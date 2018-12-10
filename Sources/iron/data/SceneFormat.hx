@@ -87,7 +87,7 @@ typedef TLightData = {
 @:structInit class TLightData {
 #end
 	public var name:String;
-	public var type:String; // Sun, point, spot
+	public var type:String; // sun, point, spot
 	public var color:Float32Array;
 	public var strength:FastFloat;
 	@:optional public var cast_shadow:Null<Bool>;

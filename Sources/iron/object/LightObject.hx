@@ -316,11 +316,12 @@ class LightObject extends Object {
 	}
 
 	static function sliceToDist(camera:CameraObject, z:Int):Float {
+		var cnear = clusterNear + camera.data.raw.near_plane;
 		if (z == 0) return camera.data.raw.near_plane; 
-		else if (z == 1) return clusterNear;
+		else if (z == 1) return cnear;
 		else {
 			var depthl = (z - 1) / (slicesZ - 1);
-			return Math.exp(depthl * Math.log(camera.data.raw.far_plane - clusterNear + 1.0)) + clusterNear - 1.0;
+			return Math.exp(depthl * Math.log(camera.data.raw.far_plane - cnear + 1.0)) + cnear - 1.0;
 		}
 	}
 
