@@ -194,12 +194,13 @@ class ShaderContext {
 			function loadShader(file:String, type:Int) {
 
 				#if (kha_webgl && !kha_node)
-				var ext = kha.SystemImpl.gl2 ? '-webgl2' : '';
 				var ar = file.split('.');
-				file = ar[0] + ext + '.' + ar[1];
+				file = ar[0] + '-webgl2.' + ar[1];
 				var path = '../html5-resources/' + file + '.essl';
-				#else // TODO: assuming krom & glsl
+				#elseif kha_opengl
 				var path = '../krom-resources/' + file + '.glsl';
+				#else
+				var path = '../krom-resources/' + file + '.d3d11';
 				#end
 				Data.getBlob(path, function(b:kha.Blob) {
 					if (type == 0) pipeState.vertexShader = new kha.graphics4.VertexShader([b], [file]);
