@@ -30,7 +30,7 @@ class LightObject extends Object {
 	static var slicesY = 16;
 	static var slicesZ = 16;
 	static inline var maxLights = 16;
-	static inline var maxLightsCluster = 8;
+	static inline var maxLightsCluster = 4; // Mirror shader constant
 	static inline var clusterNear = 3.0;
 	public static var lightsArray:kha.arrays.Float32Array = null;
 	#if arm_spot

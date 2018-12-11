@@ -910,6 +910,15 @@ class Uniforms {
 					m = helpMat;
 				}
 			}
+			else if (StringTools.startsWith(c.link, "_biasLightWorldViewProjectionMatrixSpot")) {
+				var light = getSpot(c.link.charCodeAt(c.link.length - 1) - '0'.code);
+				if (light != null) {
+					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.world);
+					helpMat.multmat(light.VP);
+					helpMat.multmat(biasMat);
+					m = helpMat;
+				}
+			}
 			#if rp_probes
 			else if (c.link == "_probeViewProjectionMatrix") {
 				helpMat.setFrom(Scene.active.probes[RenderPath.active.currentProbeIndex].camera.V);
@@ -1120,6 +1129,16 @@ class Uniforms {
 				}
 			}
 		}
+	}
+
+	static function getSpot(index:Int):LightObject {
+		var i = 0;
+		for (l in Scene.active.lights) {
+			if (l.data.raw.type != "spot") continue;
+			if (i == index) return l;
+			i++;
+		}
+		return null;
 	}
 
 	static function currentMat(object:Object):MaterialData {
