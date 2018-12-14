@@ -218,16 +218,16 @@ class Geometry {
 		var numVertices = Std.int(pa.length / 4);
 		var di = -1 + offset;
 		for (i in 0...numVertices) {
-			vertices.set(++di, pa[i * 4]); // Positions
+			vertices.set(++di, pa[i * 4    ]); // Positions
 			vertices.set(++di, pa[i * 4 + 1]);
 			vertices.set(++di, pa[i * 4 + 2]);
 			vertices.set(++di, pa[i * 4 + 3]); // n.z
 			if (na != null) { // Normals
-				vertices.set(++di, na[i * 2]); // n.x
+				vertices.set(++di, na[i * 2    ]); // n.x
 				vertices.set(++di, na[i * 2 + 1]); // n.y
 			}
 			if (uva != null) { // Texture coords
-				vertices.set(++di, uva[i * 2]);
+				vertices.set(++di, uva[i * 2    ]);
 				vertices.set(++di, uva[i * 2 + 1]);
 			}
 			else if (fakeUVs) {
@@ -235,18 +235,18 @@ class Geometry {
 				vertices.set(++di, 0);
 			}
 			if (uva1 != null) { // Texture coords 1
-				vertices.set(++di, uva1[i * 2]);
+				vertices.set(++di, uva1[i * 2    ]);
 				vertices.set(++di, uva1[i * 2 + 1]);
 			}
 			if (ca != null) { // Colors
-				vertices.set(++di, ca[i * 3]);
+				vertices.set(++di, ca[i * 3    ]);
 				vertices.set(++di, ca[i * 3 + 1]);
 				vertices.set(++di, ca[i * 3 + 2]);
 				vertices.set(++di, 0); // Padding
 			}
 			// Normal mapping
 			if (tanga != null) { // Tangents
-				vertices.set(++di, tanga[i * 3]);
+				vertices.set(++di, tanga[i * 3    ]);
 				vertices.set(++di, tanga[i * 3 + 1]);
 				vertices.set(++di, tanga[i * 3 + 2]);
 				vertices.set(++di, 0); // Padding

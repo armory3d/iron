@@ -46,6 +46,8 @@ typedef TMeshData = {
 	@:optional public var skin:TSkin;
 	@:optional public var instanced_data:Float32Array;
 	@:optional public var instanced_type:Null<Int>; // off, loc, loc+rot, loc+scale, loc+rot+scale
+	@:optional public var scale_pos:Null<FastFloat>; // Unpack pos from (-1,1) coords 
+	@:optional public var scale_tex:Null<FastFloat>; // Unpack tex from (-1,1) coords 
 }
 
 #if js

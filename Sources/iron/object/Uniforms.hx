@@ -48,6 +48,7 @@ class Uniforms {
 	public static var externalFloatLinks:Array<Object->MaterialData->String->Null<kha.FastFloat>> = null;
 	public static var externalFloatsLinks:Array<Object->MaterialData->String->kha.arrays.Float32Array> = null;
 	public static var externalIntLinks:Array<Object->MaterialData->String->Null<Int>> = null;
+	public static var texUnpack:Null<kha.FastFloat> = null;
 
 	public static function setContextConstants(g:Graphics, context:ShaderContext, bindParams:Array<String>) {
 		if (context.raw.constants != null) {
@@ -1042,6 +1043,9 @@ class Uniforms {
 			}
 			else if (c.link == "_objectInfoRandom") {
 				f = object.urandom;
+			}
+			else if (c.link == "_texUnpack") {
+				f = texUnpack != null ? texUnpack : 1.0;
 			}
 			// External
 			else if (externalFloatLinks != null) {

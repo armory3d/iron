@@ -50,6 +50,9 @@ class MeshObject extends Object {
 		#if (!arm_batch)
 		data.geom.build();
 		#end
+
+		// Scale-up packed (-1,1) mesh coords
+		transform.scaleWorld = data.raw.scale_pos;
 	}
 
 	#if arm_batch
@@ -277,6 +280,7 @@ class MeshObject extends Object {
 		var shaderContexts:Array<ShaderContext> = [];
 		getContexts(context, mats, materialContexts, shaderContexts);
 		
+		Uniforms.texUnpack = data.raw.scale_tex;
 		transform.update();
 		
 		// Render mesh

@@ -11,6 +11,7 @@ class Transform {
 	public var loc:Vec4; // Decomposed local matrix
 	public var rot:Quat;
 	public var scale:Vec4;
+	public var scaleWorld:kha.FastFloat = 1.0; // Uniform scale factor
 	
 	public var dirty:Bool;
 	public var object:Object;
@@ -99,6 +100,21 @@ class Transform {
 		if (object.constraints != null) for (c in object.constraints) c.apply(this);
 
 		computeDim();
+
+		if (scaleWorld != 1.0) {
+			world._00 *= scaleWorld;
+			world._01 *= scaleWorld;
+			world._02 *= scaleWorld;
+			world._03 *= scaleWorld;
+			world._10 *= scaleWorld;
+			world._11 *= scaleWorld;
+			world._12 *= scaleWorld;
+			world._13 *= scaleWorld;
+			world._20 *= scaleWorld;
+			world._21 *= scaleWorld;
+			world._22 *= scaleWorld;
+			world._23 *= scaleWorld;
+		}
 
 		// Update children
 		for (n in object.children) {
