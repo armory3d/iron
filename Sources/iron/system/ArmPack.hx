@@ -111,6 +111,13 @@ class ArmPack {
 			for (x in 0...length) a[x] = i.readInt32();
 			return a;
 		}
+		// Typed int16
+		else if (b == 0xd1) {
+			i.position++;
+			var a = new kha.arrays.Int16Array(length);
+			for (x in 0...length) a[x] = i.readInt16();
+			return a;
+		}
 		// Dynamic type-value
 		else {
 			var a:Array<Dynamic> = [];
@@ -166,7 +173,7 @@ class ArmPack {
 		case "override_context": TShaderOverride;
 		case "bind_constants": TBindConstant;
 		case "bind_textures": TBindTexture;
-		case "vertex_structure": TVertexData;
+		case "vertex_elements": TVertexElement;
 		case "constants": TShaderConstant;
 		case "texture_units": TTextureUnit;
 		case "actions": TTilesheetAction;
@@ -213,6 +220,7 @@ class ArmPack {
 							o.writeByte(0xd2);
 							for (i in 0...d.length) o.writeInt32(d[i]);
 						}
+						// else if (isInt16) {} // TODO: Int16Array
 						else for (i in 0...d.length) write(o, d[i]); // Array
 					}
 					case "haxe.io.Bytes": {

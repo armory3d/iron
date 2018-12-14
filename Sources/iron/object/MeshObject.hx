@@ -286,7 +286,7 @@ class MeshObject extends Object {
 			var mi = ldata.geom.materialIndices[i];
 			if (shaderContexts.length <= mi) continue;
 			var scontext = shaderContexts[mi];
-			var vs = scontext.raw.vertex_structure;
+			var elems = scontext.raw.vertex_elements;
 
 			// Uniforms
 			if (scontext.pipeState != lastPipeline) {
@@ -302,13 +302,13 @@ class MeshObject extends Object {
 
 			// VB / IB
 			#if arm_deinterleaved
-			g.setVertexBuffers(ldata.geom.get(vs));
+			g.setVertexBuffers(ldata.geom.get(elems));
 			#else
 			if (ldata.geom.instanced) {
-				g.setVertexBuffers([ldata.geom.get(vs), ldata.geom.instancedVB]);
+				g.setVertexBuffers([ldata.geom.get(elems), ldata.geom.instancedVB]);
 			}
 			else {
-				g.setVertexBuffer(ldata.geom.get(vs));
+				g.setVertexBuffer(ldata.geom.get(elems));
 			}
 			#end
 

@@ -118,7 +118,7 @@ class ParticleSystem {
 		if (r.emit_from == 0) { // Vert, Face
 			var pa = owner.data.geom.positions;
 			for (p in particles) {
-				var j = Std.int(fhash(i) * (pa.length / 3));
+				var j = Std.int(fhash(i) * (pa.length / 4));
 				instancedData.set(i, pa[j * 3 + 0]); i++;
 				instancedData.set(i, pa[j * 3 + 1]); i++;
 				instancedData.set(i, pa[j * 3 + 2]); i++;
@@ -219,7 +219,7 @@ class ParticleSystem {
 		if (r.emit_from == 0) { // Vert, Face
 			var pa = owner.data.geom.positions;
 			for (p in particles) {
-				var j = Std.int(fhash(i) * (pa.length / 3));
+				var j = Std.int(fhash(i) * (pa.length / 4));
 				emitFrom.set(i, pa[j * 3 + 0]); i++;
 				emitFrom.set(i, pa[j * 3 + 1]); i++;
 				emitFrom.set(i, pa[j * 3 + 2]); i++;

@@ -7,6 +7,7 @@ import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
+import kha.arrays.Int16Array;
 import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.data.SceneFormat;
@@ -24,7 +25,7 @@ class Geometry {
 	public var name = "";
 
 	public var ready = false;
-	public var vertices:Float32Array;
+	public var vertices:Int16Array;
 	public var indices:Array<Uint32Array>;
 	public var numTris = 0;
 	public var materialIndices:Array<Int>;
@@ -37,14 +38,14 @@ class Geometry {
 	public var instanced = false;
 	public var instanceCount = 0;
 
-	public var positions:Float32Array;
-	public var normals:Float32Array;
-	public var uvs:Float32Array;
-	public var uvs1:Float32Array;
-	public var cols:Float32Array;
-	public var tangents:Float32Array;
-	public var bones:Float32Array;
-	public var weights:Float32Array;
+	public var positions:Int16Array;
+	public var normals:Int16Array;
+	public var uvs:Int16Array;
+	public var uvs1:Int16Array;
+	public var cols:Int16Array;
+	public var tangents:Int16Array;
+	public var bones:Int16Array;
+	public var weights:Int16Array;
 	var instancedData:Float32Array;
 	var instancedType:Null<Int>;
 	
@@ -59,9 +60,9 @@ class Geometry {
 	public var skinTransformI:Mat4 = null;
 	public var skeletonTransforms:Array<Mat4> = null;
 	#end
-	public var skinBoneCounts:Uint32Array = null;
-	public var skinBoneIndices:Uint32Array = null;
-	public var skinBoneWeights:Float32Array = null;
+	public var skinBoneCounts:Int16Array = null;
+	public var skinBoneIndices:Int16Array = null;
+	public var skinBoneWeights:Int16Array = null;
 
 	public var skeletonTransformsI:Array<Mat4> = null;
 	public var skeletonBoneRefs:Array<String> = null;
@@ -72,14 +73,14 @@ class Geometry {
 
 	public function new(indices:Array<Uint32Array>,
 						materialIndices:Array<Int>,
-						positions:Float32Array,
-						normals:Float32Array,
-						uvs:Float32Array,
-						uvs1:Float32Array,
-						cols:Float32Array,
-						tangents:Float32Array = null,
-						bones:Float32Array = null,
-						weights:Float32Array = null,
+						positions:Int16Array,
+						normals:Int16Array,
+						uvs:Int16Array,
+						uvs1:Int16Array,
+						cols:Int16Array,
+						tangents:Int16Array = null,
+						bones:Int16Array = null,
+						weights:Int16Array = null,
 						usage:Usage = null,
 						instancedData:Float32Array = null,
 						instancedType:Null<Int> = null) {
@@ -119,14 +120,14 @@ class Geometry {
 
 	static function getVertexStructure(pos = false, nor = false, tex = false, tex1 = false, col = false, tang = false, bone = false, weight = false):VertexStructure {
 		var structure = new VertexStructure();
-		if (pos) structure.add("pos", VertexData.Float3);
-		if (nor) structure.add("nor", VertexData.Float3);
-		if (tex) structure.add("tex", VertexData.Float2);
-		if (tex1) structure.add("tex1", VertexData.Float2);
-		if (col) structure.add("col", VertexData.Float3);
-		if (tang) structure.add("tang", VertexData.Float3);
-		if (bone) structure.add("bone", VertexData.Float4);
-		if (weight) structure.add("weight", VertexData.Float4);
+		if (pos) structure.add("pos", VertexData.Short4Norm); // p.xyz + n.z
+		if (nor) structure.add("nor", VertexData.Short2Norm); // n.xy
+		if (tex) structure.add("tex", VertexData.Short2Norm);
+		if (tex1) structure.add("tex1", VertexData.Short2Norm);
+		if (col) structure.add("col", VertexData.Short4Norm); // 3+1 padding
+		if (tang) structure.add("tang", VertexData.Short4Norm); //3+1 padding
+		if (bone) structure.add("bone", VertexData.Short4Norm);
+		if (weight) structure.add("weight", VertexData.Short4Norm);
 		return structure;
 	}
 
@@ -198,41 +199,40 @@ class Geometry {
 	// 	vb.unlock();
 	// }
 
-	public function copyVertices(vertices:Float32Array, offset = 0, fakeUVs = false) {
+	public function copyVertices(vertices:Int16Array, offset = 0, fakeUVs = false) {
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights, offset, fakeUVs);
 	}
 
-	static function buildVertices(vertices:Float32Array,
-								  pa:Float32Array = null,
-								  na:Float32Array = null,
-								  uva:Float32Array = null,
-								  uva1:Float32Array = null,
-								  ca:Float32Array = null,
-								  tanga:Float32Array = null,
-								  bonea:Float32Array = null,
-								  weighta:Float32Array = null,
+	static function buildVertices(vertices:Int16Array,
+								  pa:Int16Array = null,
+								  na:Int16Array = null,
+								  uva:Int16Array = null,
+								  uva1:Int16Array = null,
+								  ca:Int16Array = null,
+								  tanga:Int16Array = null,
+								  bonea:Int16Array = null,
+								  weighta:Int16Array = null,
 								  offset = 0,
 								  fakeUVs = false) {
 
-		var numVertices = Std.int(pa.length / 3);
+		var numVertices = Std.int(pa.length / 4);
 		var di = -1 + offset;
 		for (i in 0...numVertices) {
-			vertices.set(++di, pa[i * 3]); // Positions
-			vertices.set(++di, pa[i * 3 + 1]);
-			vertices.set(++di, pa[i * 3 + 2]);
-
+			vertices.set(++di, pa[i * 4]); // Positions
+			vertices.set(++di, pa[i * 4 + 1]);
+			vertices.set(++di, pa[i * 4 + 2]);
+			vertices.set(++di, pa[i * 4 + 3]); // n.z
 			if (na != null) { // Normals
-				vertices.set(++di, na[i * 3]);
-				vertices.set(++di, na[i * 3 + 1]);
-				vertices.set(++di, na[i * 3 + 2]);
+				vertices.set(++di, na[i * 2]); // n.x
+				vertices.set(++di, na[i * 2 + 1]); // n.y
 			}
 			if (uva != null) { // Texture coords
 				vertices.set(++di, uva[i * 2]);
 				vertices.set(++di, uva[i * 2 + 1]);
 			}
 			else if (fakeUVs) {
-				vertices.set(++di, 0.0);
-				vertices.set(++di, 0.0);
+				vertices.set(++di, 0);
+				vertices.set(++di, 0);
 			}
 			if (uva1 != null) { // Texture coords 1
 				vertices.set(++di, uva1[i * 2]);
@@ -242,12 +242,14 @@ class Geometry {
 				vertices.set(++di, ca[i * 3]);
 				vertices.set(++di, ca[i * 3 + 1]);
 				vertices.set(++di, ca[i * 3 + 2]);
+				vertices.set(++di, 0); // Padding
 			}
 			// Normal mapping
 			if (tanga != null) { // Tangents
 				vertices.set(++di, tanga[i * 3]);
 				vertices.set(++di, tanga[i * 3 + 1]);
 				vertices.set(++di, tanga[i * 3 + 2]);
+				vertices.set(++di, 0); // Padding
 			}
 			// GPU skinning
 			if (bonea != null) { // Bone indices
@@ -278,7 +280,7 @@ class Geometry {
 	}
 
 #if arm_deinterleaved
-	public function get(vs:Array<TVertexData>):Array<VertexBuffer> {
+	public function get(vs:Array<TVertexElement>):Array<VertexBuffer> {
 		var vbs = [];
 		for (e in vs) {
 			if (e.name == 'pos') { if (vertexBuffers[0] != null) vbs.push(vertexBuffers[0]); }
@@ -294,12 +296,12 @@ class Geometry {
 		return vbs;
 	}
 #else
-	function hasAttrib(s:String, vs:Array<TVertexData>):Bool {
+	function hasAttrib(s:String, vs:Array<TVertexElement>):Bool {
 		for (e in vs) if (e.name == s) return true;
 		return false;
 	}
 
-	public function get(vs:Array<TVertexData>):VertexBuffer {
+	public function get(vs:Array<TVertexElement>):VertexBuffer {
 		var s = '';
 		for (e in vs) s += e.name;
 		var vb = vertexBufferMap.get(s);
@@ -314,8 +316,8 @@ class Geometry {
 			var abone = hasAttrib("bone", vs);
 			var aweight = hasAttrib("weight", vs);
 			var struct = getVertexStructure(apos, anor, atex, atex1, acol, atang, abone, aweight);
-			vb = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
-			vertices = vb.lock();
+			vb = new VertexBuffer(Std.int(positions.length / 4), struct, usage);
+			vertices = vb.lockInt16();
 			buildVertices(vertices, apos ? positions : null, anor ? normals : null, atex ? uvs : null, atex1 ? uvs1 : null, acol ? cols : null, atang ? tangents : null, abone ? bones : null, aweight ? weights : null, 0, atex && uvs == null);
 			vb.unlock();
 			vertexBufferMap.set(s, vb);
@@ -331,18 +333,18 @@ class Geometry {
 
 #if arm_deinterleaved
 		vertexBuffers = [null, null, null, null, null, null, null, null];
-		vertexBuffers[0] = makeDeinterleavedVB(positions, "pos", 3);
-		if (normals != null) vertexBuffers[1] = makeDeinterleavedVB(normals, "nor", 3);
+		vertexBuffers[0] = makeDeinterleavedVB(positions, "pos", 4);
+		if (normals != null) vertexBuffers[1] = makeDeinterleavedVB(normals, "nor", 2);
 		if (uvs != null) vertexBuffers[2] = makeDeinterleavedVB(uvs, "tex", 2);
 		if (uvs1 != null) vertexBuffers[3] = makeDeinterleavedVB(uvs1, "tex1", 2);
-		if (cols != null) vertexBuffers[4] = makeDeinterleavedVB(cols, "col", 3);
-		if (tangents != null) vertexBuffers[5] = makeDeinterleavedVB(tangents, "tang", 3);
+		if (cols != null) vertexBuffers[4] = makeDeinterleavedVB(cols, "col", 4);
+		if (tangents != null) vertexBuffers[5] = makeDeinterleavedVB(tangents, "tang", 4);
 		if (bones != null) vertexBuffers[6] = makeDeinterleavedVB(bones, "bone", 4);
 		if (weights != null) vertexBuffers[7] = makeDeinterleavedVB(weights, "weight", 4);
 #else
 
-		vertexBuffer = new VertexBuffer(Std.int(positions.length / 3), struct, usage);
-		vertices = vertexBuffer.lock();
+		vertexBuffer = new VertexBuffer(Std.int(positions.length / 4), struct, usage);
+		vertices = vertexBuffer.lockInt16();
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights);
 		vertexBuffer.unlock();
 		vertexBufferMap.set(structStr, vertexBuffer);
@@ -354,7 +356,7 @@ class Geometry {
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
 
-			#if (kha_html5 && !arm_json && arm_fast)
+			#if (kha_html5 && !arm_json)
 			indexBuffer._data = id;
 			#else
 			var indicesA = indexBuffer.lock();
@@ -372,18 +374,17 @@ class Geometry {
 	}
 
 #if arm_deinterleaved
-	function makeDeinterleavedVB(data:Float32Array, name:String, structLength:Int) {
+	function makeDeinterleavedVB(data:Int16Array, name:String, structLength:Int) {
 		var struct = new VertexStructure();
-		if (structLength == 2) struct.add(name, VertexData.Float2);
-		else if (structLength == 3) struct.add(name, VertexData.Float3);
-		else if (structLength == 4) struct.add(name, VertexData.Float4);
+		if (structLength == 2) struct.add(name, VertexData.Short2Norm);
+		else if (structLength == 4) struct.add(name, VertexData.Short4Norm);
 
 		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
 		
-		#if (kha_html5 && !arm_json && arm_fast)
-		vertexBuffer._data = data;
+		#if (kha_html5 && !arm_json)
+		vertexBuffer._data = cast data;
 		#else
-		var vertices = vertexBuffer.lock();
+		var vertices = vertexBuffer.lockInt16();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		#end
 		
@@ -393,7 +394,7 @@ class Geometry {
 #end
 
 	public function getVerticesCount():Int {
-		return Std.int(positions.length / 3);
+		return Std.int(positions.length / 4);
 	}
 
 	// Skinned
@@ -449,7 +450,7 @@ class Geometry {
 	}
 
 	#if arm_skin_cpu
-	public function initSkinTransform(t:Float32Array) {
+	public function initSkinTransform(t:Int16Array) {
 		skinTransform = Mat4.fromFloat32Array(t);
 		skinTransformI = Mat4.identity();
 		skinTransformI.getInverse(skinTransform);
@@ -468,11 +469,14 @@ class Geometry {
 			if (positions[i] < aabbMin.x) aabbMin.x = positions[i];
 			if (positions[i + 1] < aabbMin.y) aabbMin.y = positions[i + 1];
 			if (positions[i + 2] < aabbMin.z) aabbMin.z = positions[i + 2];
-			i += 3;
+			i += 4;
 		}
 		aabb.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);
 		aabb.y = Math.abs(aabbMin.y) + Math.abs(aabbMax.y);
 		aabb.z = Math.abs(aabbMin.z) + Math.abs(aabbMax.z);
+		aabb.x /= 32767;
+		aabb.y /= 32767;
+		aabb.z /= 32767;
 		// Sphere radius
 		// if (aabb.x >= aabb.y && aabb.x >= aabb.z) radius = aabb.x / 2;
 		// else if (aabb.y >= aabb.x && aabb.y >= aabb.z) radius = aabb.y / 2;

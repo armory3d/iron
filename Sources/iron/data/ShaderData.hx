@@ -261,11 +261,13 @@ class ShaderContext {
 		done(this);
 	}
 
-	function sizeToVD(size:Int):VertexData {
-		if (size == 1) return VertexData.Float1;
-		else if (size == 2) return VertexData.Float2;
-		else if (size == 3) return VertexData.Float3;
-		else if (size == 4) return VertexData.Float4;
+	function parseData(data:String):VertexData {
+		if (data == "float1") return VertexData.Float1;
+		else if (data == "float2") return VertexData.Float2;
+		else if (data == "float3") return VertexData.Float3;
+		else if (data == "float4") return VertexData.Float4;
+		else if (data == "short2norm") return VertexData.Short2Norm;
+		else if (data == "short4norm") return VertexData.Short4Norm;
 		return VertexData.Float1;
 	}
 	
@@ -274,17 +276,17 @@ class ShaderContext {
 		var ipos = false;
 		var irot = false;
 		var iscl = false;
-		for (vs in raw.vertex_structure) {
+		for (elem in raw.vertex_elements) {
 			#if cpp
-			if (Reflect.field(vs, 'name') == 'ipos') { ipos = true; continue; }
-			if (Reflect.field(vs, 'name') == 'irot') { irot = true; continue; }
-			if (Reflect.field(vs, 'name') == 'iscl') { iscl = true; continue; }
+			if (Reflect.field(elem, 'name') == 'ipos') { ipos = true; continue; }
+			if (Reflect.field(elem, 'name') == 'irot') { irot = true; continue; }
+			if (Reflect.field(elem, 'name') == 'iscl') { iscl = true; continue; }
 			#else
-			if (vs.name == 'ipos') { ipos = true; continue; }
-			if (vs.name == 'irot') { irot = true; continue; }
-			if (vs.name == 'iscl') { iscl = true; continue; }
+			if (elem.name == 'ipos') { ipos = true; continue; }
+			if (elem.name == 'irot') { irot = true; continue; }
+			if (elem.name == 'iscl') { iscl = true; continue; }
 			#end
-			structure.add(vs.name, sizeToVD(vs.size));
+			structure.add(elem.name, parseData(elem.data));
 		}
 		if (ipos && !irot && !iscl) instancingType = 1;
 		else if (ipos && irot && !iscl) instancingType = 2;
