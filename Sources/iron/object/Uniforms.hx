@@ -197,34 +197,22 @@ class Uniforms {
 						paramsSet = true;
 					}
 
-					//// if (!context.paramsSet[j]) { // arm_dev
-					//	if (!paramsSet) {
-					// 	if (StringTools.startsWith(samplerID, "shadowMap")) {
-					// 		if (rt.isCubeMap) {
-					// 			g.setCubeMapCompareMode(context.textureUnits[j], true);
-					// 		}
-					// 		else {
-					// 			g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-					// 			g.setTextureCompareMode(context.textureUnits[j], true);
-					// 		}
-					//// 		context.paramsSet[j] = true;
-					//		paramsSet = true;
-					// 	}
-					// 	else if (attachDepth) {
-					// 		g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-					//// 		context.paramsSet[j] = true;
-					//		paramsSet = true;
-					// 	}
-					// }
 					// if (!context.paramsSet[j]) {
-					if (!paramsSet) {
-						if (samplerID == "shadowMap" || attachDepth) {
-							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-							// context.paramsSet[j] = true;
+						if (!paramsSet) {
+						if (StringTools.startsWith(samplerID, "shadowMap")) {
+							if (rt.isCubeMap) {
+								g.setCubeMapCompareMode(context.textureUnits[j], true);
+							}
+							else {
+								g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+								g.setTextureCompareMode(context.textureUnits[j], true);
+							}
+					// 		context.paramsSet[j] = true;
 							paramsSet = true;
 						}
-						if (samplerID == "shadowMapCube") {
-							// context.paramsSet[j] = true;
+						else if (attachDepth) {
+							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+					// 		context.paramsSet[j] = true;
 							paramsSet = true;
 						}
 					}
