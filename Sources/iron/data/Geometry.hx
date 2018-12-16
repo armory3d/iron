@@ -102,9 +102,9 @@ class Geometry {
 		this.instancedData = instancedData;
 		this.instancedType = instancedType;
 
-		// pos=3, tex=2, nor=3, col=4, tang=3, bone=4, weight=4
+		// pos=4, nor=2, tex=2, col=4, tang=4, bone=4, weight=4
 		struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
-		structLength = Std.int(struct.byteSize() / 4);
+		structLength = Std.int(struct.byteSize() / 2);
 		structStr = '';
 		for (e in struct.elements) structStr += e.name;
 	}
@@ -134,10 +134,10 @@ class Geometry {
 	public function applyScale(sx:Float, sy:Float, sz:Float) {
 		#if arm_deinterleaved
 		var vertices = vertexBuffers[0].lock();
-		for (i in 0...Std.int(vertices.length / 3)) {
-			vertices[i * 3]     *= sx;
-			vertices[i * 3 + 1] *= sy;
-			vertices[i * 3 + 2] *= sz;
+		for (i in 0...Std.int(vertices.length / 4)) {
+			vertices[i * 4]     *= sx;
+			vertices[i * 4 + 1] *= sy;
+			vertices[i * 4 + 2] *= sz;
 		}
 		vertexBuffers[0].unlock();
 		#else
@@ -376,8 +376,7 @@ class Geometry {
 #if arm_deinterleaved
 	function makeDeinterleavedVB(data:Int16Array, name:String, structLength:Int) {
 		var struct = new VertexStructure();
-		if (structLength == 2) struct.add(name, VertexData.Short2Norm);
-		else if (structLength == 4) struct.add(name, VertexData.Short4Norm);
+		struct.add(name, structLength == 2 ? VertexData.Short2Norm : VertexData.Short4Norm);
 
 		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
 		
@@ -450,7 +449,7 @@ class Geometry {
 	}
 
 	#if arm_skin_cpu
-	public function initSkinTransform(t:Int16Array) {
+	public function initSkinTransform(t:Float32Array) {
 		skinTransform = Mat4.fromFloat32Array(t);
 		skinTransformI = Mat4.identity();
 		skinTransformI.getInverse(skinTransform);

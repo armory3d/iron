@@ -48,6 +48,7 @@ class Uniforms {
 	public static var externalFloatLinks:Array<Object->MaterialData->String->Null<kha.FastFloat>> = null;
 	public static var externalFloatsLinks:Array<Object->MaterialData->String->kha.arrays.Float32Array> = null;
 	public static var externalIntLinks:Array<Object->MaterialData->String->Null<Int>> = null;
+	public static var posUnpack:Null<kha.FastFloat> = null;
 	public static var texUnpack:Null<kha.FastFloat> = null;
 
 	public static function setContextConstants(g:Graphics, context:ShaderContext, bindParams:Array<String>) {
@@ -796,27 +797,27 @@ class Uniforms {
 			var m:Mat4 = null;
 			if (c.link == "_worldMatrix") {
 				#if arm_centerworld
-				m = wmat(object.transform.world, camera);
+				m = wmat(object.transform.worldUnpack, camera);
 				#else
-				m = object.transform.world;
+				m = object.transform.worldUnpack;
 				#end
 			}
 			else if (c.link == "_inverseWorldMatrix") {
 				#if arm_centerworld
-				helpMat.getInverse(wmat(object.transform.world, camera));
+				helpMat.getInverse(wmat(object.transform.worldUnpack, camera));
 				#else
-				helpMat.getInverse(object.transform.world);
+				helpMat.getInverse(object.transform.worldUnpack);
 				#end
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrix") {
-				helpMat.setFrom(object.transform.world);
+				helpMat.setFrom(object.transform.worldUnpack);
 				helpMat.multmat(camera.V);
 				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrixSphere") { // Billboard
-				helpMat.setFrom(object.transform.world);
+				helpMat.setFrom(object.transform.worldUnpack);
 				helpMat.multmat(camera.V);
 				helpMat._00 = 1.0; helpMat._10 = 0.0; helpMat._20 = 0.0;
 				helpMat._01 = 0.0; helpMat._11 = 1.0; helpMat._21 = 0.0;
@@ -825,16 +826,16 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrixCylinder") { // Billboard - x rot 90deg
-				helpMat.setFrom(object.transform.world);
+				helpMat.setFrom(object.transform.worldUnpack);
 				helpMat.multmat(camera.V);
-				helpMat._00 = 1.0;  helpMat._20 = 0.0;
-				helpMat._01 = 0.0;  helpMat._21 = 0.0;
-				helpMat._02 = 0.0;  helpMat._22 = 1.0;
+				helpMat._00 = 1.0; helpMat._20 = 0.0;
+				helpMat._01 = 0.0; helpMat._21 = 0.0;
+				helpMat._02 = 0.0; helpMat._22 = 1.0;
 				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewMatrix") {
-				helpMat.setFrom(object.transform.world);
+				helpMat.setFrom(object.transform.worldUnpack);
 				helpMat.multmat(camera.V);
 				m = helpMat;
 			}
@@ -853,14 +854,14 @@ class Uniforms {
 			else if (c.link == "_lightWorldViewProjectionMatrix") {
 				if (light != null) {
 					// object is null for DrawQuad
-					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.world);
+					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.worldUnpack);
 					helpMat.multmat(light.VP);
 					m = helpMat;
 				}
 			}
 			else if (c.link == "_lightWorldViewProjectionMatrixSphere") {
 				if (light != null) {
-					helpMat.setFrom(object.transform.world);
+					helpMat.setFrom(object.transform.worldUnpack);
 					
 					// Align to camera..
 					helpMat.multmat(camera.V);
@@ -876,13 +877,13 @@ class Uniforms {
 			}
 			else if (c.link == "_lightWorldViewProjectionMatrixCylinder") {
 				if (light != null) {
-					helpMat.setFrom(object.transform.world);
+					helpMat.setFrom(object.transform.worldUnpack);
 					
 					// Align to camera..
 					helpMat.multmat(camera.V);
-					helpMat._00 = 1.0;  helpMat._20 = 0.0;
-					helpMat._01 = 0.0;  helpMat._21 = 0.0;
-					helpMat._02 = 0.0;  helpMat._22 = 1.0;
+					helpMat._00 = 1.0; helpMat._20 = 0.0;
+					helpMat._01 = 0.0; helpMat._21 = 0.0;
+					helpMat._02 = 0.0; helpMat._22 = 1.0;
 					helpMat2.getInverse(camera.V);
 					helpMat.multmat(helpMat2);
 
@@ -893,7 +894,7 @@ class Uniforms {
 			else if (c.link == "_biasLightWorldViewProjectionMatrix") {
 				if (light != null)  {
 					// object is null for DrawQuad
-					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.world);
+					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.worldUnpack);
 					helpMat.multmat(light.VP);
 					helpMat.multmat(biasMat);
 					m = helpMat;
@@ -902,7 +903,7 @@ class Uniforms {
 			else if (StringTools.startsWith(c.link, "_biasLightWorldViewProjectionMatrixSpot")) {
 				var light = getSpot(c.link.charCodeAt(c.link.length - 1) - '0'.code);
 				if (light != null) {
-					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.world);
+					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.worldUnpack);
 					helpMat.multmat(light.VP);
 					helpMat.multmat(biasMat);
 					m = helpMat;
@@ -1031,6 +1032,9 @@ class Uniforms {
 			}
 			else if (c.link == "_objectInfoRandom") {
 				f = object.urandom;
+			}
+			else if (c.link == "_posUnpack") {
+				f = posUnpack != null ? posUnpack : 1.0;
 			}
 			else if (c.link == "_texUnpack") {
 				f = texUnpack != null ? texUnpack : 1.0;

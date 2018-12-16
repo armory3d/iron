@@ -435,11 +435,12 @@ class BoneAnimation extends Animation {
 	function updateSkinCpu() {
 		#if arm_deinterleaved
 		// Assume position=0, normal=1 storage
-		var v = data.geom.vertexBuffers[0].lock();
-		var vnor = data.geom.vertexBuffers[1].lock();
-		var l = 3;
+		var v = data.geom.vertexBuffers[0].lockInt16();
+		var vnor = data.geom.vertexBuffers[1].lockInt16();
+		var l = 4;
+		var lnor = 2;
 		#else
-		var v = data.geom.vertexBuffer.lock();
+		var v = data.geom.vertexBuffer.lockInt16();
 		var l = data.geom.structLength;
 		#end
 
@@ -452,7 +453,7 @@ class BoneAnimation extends Animation {
 			var boneWeights = [];
 			for (j in index...(index + boneCount)) {
 				boneIndices.push(data.geom.skinBoneIndices[j]);
-				boneWeights.push(data.geom.skinBoneWeights[j]);
+				boneWeights.push(data.geom.skinBoneWeights[j] / 32767);
 			}
 			index += boneCount;
 
@@ -464,9 +465,9 @@ class BoneAnimation extends Animation {
 				var bone = skeletonBones[boneIndex];
 
 				// Position
-				m.initTranslate(data.geom.positions[i * 3],
-								data.geom.positions[i * 3 + 1],
-								data.geom.positions[i * 3 + 2]);
+				m.initTranslate((data.geom.positions[i * 4    ] * data.raw.scale_pos) / 32767,
+								(data.geom.positions[i * 4 + 1] * data.raw.scale_pos) / 32767,
+								(data.geom.positions[i * 4 + 2] * data.raw.scale_pos) / 32767);
 
 				m.multmat(data.geom.skinTransform);
 
@@ -482,35 +483,35 @@ class BoneAnimation extends Animation {
 				pos.add(m.getLoc());
 
 				// Normal
-				m.getInverse(bm);
+				// m.getInverse(bm);
 
-				m.multmat(data.geom.skeletonTransforms[boneIndex]);
+				// m.multmat(data.geom.skeletonTransforms[boneIndex]);
 
-				m.multmat(data.geom.skinTransformI);
+				// m.multmat(data.geom.skinTransformI);
 
-				m.translate(data.geom.normals[i * 3],
-							data.geom.normals[i * 3 + 1],
-							data.geom.normals[i * 3 + 2]);
+				// m.translate(data.geom.normals  [i * 2    ] / 32767,
+				// 			data.geom.normals  [i * 2 + 1] / 32767,
+				// 			data.geom.positions[i * 4 + 3] / 32767);
 
-				m.mult(boneWeight);
+				// m.mult(boneWeight);
 
-				nor.add(m.getLoc());
+				// nor.add(m.getLoc());
 			}
 
 			#if arm_deinterleaved
-			v.set(i * l, pos.x);
-			v.set(i * l + 1, pos.y);
-			v.set(i * l + 2, pos.z);
-			vnor.set(i * l, nor.x);
-			vnor.set(i * l + 1, nor.y);
-			vnor.set(i * l + 2, nor.z);
+			v.set(i * l    , pos.x * (1 / data.raw.scale_pos) * 32767);
+			v.set(i * l + 1, pos.y * (1 / data.raw.scale_pos) * 32767);
+			v.set(i * l + 2, pos.z * (1 / data.raw.scale_pos) * 32767);
+			// v.set(i * l + 3, nor.z * 32767); // Packed
+			// vnor.set(i * lnor    , nor.x * 32767);
+			// vnor.set(i * lnor + 1, nor.y * 32767);
 			#else
-			v.set(i * l, pos.x);
-			v.set(i * l + 1, pos.y);
-			v.set(i * l + 2, pos.z);
-			v.set(i * l + 3, nor.x);
-			v.set(i * l + 4, nor.y);
-			v.set(i * l + 5, nor.z);
+			v.set(i * l    , Std.int(pos.x * (1 / data.raw.scale_pos) * 32767));
+			v.set(i * l + 1, Std.int(pos.y * (1 / data.raw.scale_pos) * 32767));
+			v.set(i * l + 2, Std.int(pos.z * (1 / data.raw.scale_pos) * 32767));
+			// v.set(i * l + 3, Std.int(nor.z * 32767)); // Packed
+			// v.set(i * l + 4, Std.int(nor.x * 32767));
+			// v.set(i * l + 5, Std.int(nor.y * 32767));
 			#end
 		}
 

@@ -280,6 +280,7 @@ class MeshObject extends Object {
 		var shaderContexts:Array<ShaderContext> = [];
 		getContexts(context, mats, materialContexts, shaderContexts);
 		
+		Uniforms.posUnpack = data.raw.scale_pos;
 		Uniforms.texUnpack = data.raw.scale_tex;
 		transform.update();
 		
@@ -335,7 +336,7 @@ class MeshObject extends Object {
 		#end
 
 		#if arm_veloc
-		prevMatrix.setFrom(transform.world);
+		prevMatrix.setFrom(transform.worldUnpack);
 		#end
 	}
 
