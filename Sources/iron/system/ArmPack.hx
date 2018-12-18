@@ -30,7 +30,7 @@ class ArmPack {
 
 	public static inline function decode(b:Bytes):Dynamic {
 		var i = new BytesInput(b);
-		i.bigEndian = true;
+		i.bigEndian = false;
 		return read(i);
 	}
 
@@ -188,7 +188,7 @@ class ArmPack {
 
 	public static inline function encode(d:Dynamic):Bytes {
 		var o = new BytesOutput();
-		o.bigEndian = true;
+		o.bigEndian = false;
 		write(o, d);
 		return o.getBytes();
 	}
