@@ -435,7 +435,7 @@ class Mat4 {
 
 	inline public function applyQuat(q:Quat) {
 		helpMat.fromQuat(q);
-		multmat2(helpMat);
+		multmat(helpMat);
 	}
 	
 	public inline function right():Vec4 { return new Vec4(_00, _01, _02); }
