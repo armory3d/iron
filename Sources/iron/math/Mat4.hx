@@ -203,8 +203,6 @@ class Mat4 {
 
 		return this;
 	}
-
-	inline public function multmat2(m:Mat4):Mat4 { return multmat(m); } // TODO: deprecated
 	
 	inline public function multmat(m:Mat4):Mat4 {
 		var a00 = _00; var a01 = _01; var a02 = _02; var a03 = _03;

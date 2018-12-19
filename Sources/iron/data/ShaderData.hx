@@ -129,11 +129,7 @@ class ShaderContext {
 			pipeState.stencilFail = StencilAction.Keep;
 		}
 		if (raw.stencil_reference_value != null) {
-			#if (kha_version >= 1810) 
 			pipeState.stencilReferenceValue = Static(raw.stencil_reference_value);
-			#else // TODO: remove in 0.6
-			pipeState.stencilReferenceValue = raw.stencil_reference_value;
-			#end
 		}	
 		// pipeState.stencilReadMask = raw.stencil_read_mask;
 		// pipeState.stencilWriteMask = raw.stencil_write_mask;

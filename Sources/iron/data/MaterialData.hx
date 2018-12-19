@@ -88,7 +88,6 @@ class MaterialContext {
 
 			for (i in 0...raw.bind_textures.length) {
 				var tex = raw.bind_textures[i];
-				// TODO: make sure to store in the same order as shader texture units array
 
 				if (tex.file == '') { // Empty texture
 					texturesLoaded++;
