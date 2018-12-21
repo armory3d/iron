@@ -38,10 +38,6 @@ class WorldData {
 		else done(this);
 	}
 
-	public inline function getGlobalProbe():Probe { // TODO: deprecated
-		return probe;
-	}
-
 	public static function parse(name:String, id:String, done:WorldData->Void) {
 		Data.getSceneRaw(name, function(format:TSceneFormat) {
 			var raw:TWorldData = Data.getWorldRawByName(format.world_datas, id);

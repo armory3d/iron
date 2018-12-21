@@ -3,6 +3,7 @@ package iron.data;
 import kha.FastFloat;
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
+import kha.arrays.Int16Array;
 
 #if js
 typedef TSceneFormat = {
@@ -45,6 +46,8 @@ typedef TMeshData = {
 	@:optional public var skin:TSkin;
 	@:optional public var instanced_data:Float32Array;
 	@:optional public var instanced_type:Null<Int>; // off, loc, loc+rot, loc+scale, loc+rot+scale
+	@:optional public var scale_pos:Null<FastFloat>; // Unpack pos from (-1,1) coords 
+	@:optional public var scale_tex:Null<FastFloat>; // Unpack tex from (-1,1) coords 
 }
 
 #if js
@@ -56,9 +59,9 @@ typedef TSkin = {
 	public var bone_ref_array:Array<String>;
 	public var bone_len_array:Float32Array;
 	public var transformsI:Array<Float32Array>; // per-bone, size = 16, with skin.transform, pre-inverted
-	public var bone_count_array:Uint32Array;
-	public var bone_index_array:Uint32Array;
-	public var bone_weight_array:Float32Array;
+	public var bone_count_array:Int16Array;
+	public var bone_index_array:Int16Array;
+	public var bone_weight_array:Int16Array;
 	public var constraints:Array<TConstraint>;
 }
 
@@ -68,8 +71,7 @@ typedef TVertexArray = {
 @:structInit class TVertexArray {
 #end
 	public var attrib:String;
-	public var values:Float32Array;
-	@:optional public var size:Null<Int>; // 3
+	public var values:Int16Array;
 }
 
 #if js
@@ -200,7 +202,7 @@ typedef TShaderContext = {
 	public var depth_write:Bool;
 	public var compare_mode:String;
 	public var cull_mode:String;
-	public var vertex_structure:Array<TVertexData>;
+	public var vertex_elements:Array<TVertexElement>;
 	public var vertex_shader:String;
 	public var fragment_shader:String;
 	@:optional public var geometry_shader:String;
@@ -233,12 +235,12 @@ typedef TShaderContext = {
 }
 
 #if js
-typedef TVertexData = {
+typedef TVertexElement = {
 #else
-@:structInit class TVertexData {
+@:structInit class TVertexElement {
 #end
 	public var name:String;
-	public var size:Int;
+	public var data:String; // "float4", "short2norm"
 }
 
 #if js

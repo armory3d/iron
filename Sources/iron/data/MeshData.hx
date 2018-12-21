@@ -3,7 +3,7 @@ package iron.data;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
-import kha.arrays.Float32Array;
+import kha.arrays.Int16Array;
 import kha.arrays.Uint32Array;
 import iron.data.SceneFormat;
 
@@ -52,17 +52,17 @@ class MeshData {
 		var usage = parsedUsage;
 		#end
 
-		var bonea:Float32Array = null; // Store bone indices and weights per vertex
-		var weighta:Float32Array = null;
+		var bonea:Int16Array = null; // Store bone indices and weights per vertex
+		var weighta:Int16Array = null;
 		#if (!arm_skin_cpu)
 		if (isSkinned) {
-			var l = Std.int(pa.length / 3) * 4;
-			bonea = new Float32Array(l);
-			weighta = new Float32Array(l);
+			var l = Std.int(pa.length / 4) * 4;
+			bonea = new Int16Array(l);
+			weighta = new Int16Array(l);
 
 			var index = 0;
 			var ai = 0;
-			for (i in 0...Std.int(pa.length / 3)) {
+			for (i in 0...Std.int(pa.length / 4)) {
 				var boneCount = raw.skin.bone_count_array[i];
 				for (j in index...(index + boneCount)) {
 					bonea[ai] = raw.skin.bone_index_array[j];
@@ -71,8 +71,8 @@ class MeshData {
 				}
 				// Fill unused weights
 				for (j in boneCount...4) {
-					bonea[ai] = 0.0;
-					weighta[ai] = 0.0;
+					bonea[ai] = 0;
+					weighta[ai] = 0;
 					ai++;
 				}
 				index += boneCount;
@@ -118,7 +118,7 @@ class MeshData {
 		});
 	}
 
-	function getVertexArrayValues(attrib:String):Float32Array {
+	function getVertexArrayValues(attrib:String):Int16Array {
 		for (va in raw.vertex_arrays) if (va.attrib == attrib) return va.values;
 		return null;
 	}

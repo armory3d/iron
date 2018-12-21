@@ -50,6 +50,9 @@ class MeshObject extends Object {
 		#if (!arm_batch)
 		data.geom.build();
 		#end
+
+		// Scale-up packed (-1,1) mesh coords
+		transform.scaleWorld = data.raw.scale_pos;
 	}
 
 	#if arm_batch
@@ -277,6 +280,8 @@ class MeshObject extends Object {
 		var shaderContexts:Array<ShaderContext> = [];
 		getContexts(context, mats, materialContexts, shaderContexts);
 		
+		Uniforms.posUnpack = data.raw.scale_pos;
+		Uniforms.texUnpack = data.raw.scale_tex;
 		transform.update();
 		
 		// Render mesh
@@ -286,7 +291,7 @@ class MeshObject extends Object {
 			var mi = ldata.geom.materialIndices[i];
 			if (shaderContexts.length <= mi) continue;
 			var scontext = shaderContexts[mi];
-			var vs = scontext.raw.vertex_structure;
+			var elems = scontext.raw.vertex_elements;
 
 			// Uniforms
 			if (scontext.pipeState != lastPipeline) {
@@ -302,13 +307,13 @@ class MeshObject extends Object {
 
 			// VB / IB
 			#if arm_deinterleaved
-			g.setVertexBuffers(ldata.geom.get(vs));
+			g.setVertexBuffers(ldata.geom.get(elems));
 			#else
 			if (ldata.geom.instanced) {
-				g.setVertexBuffers([ldata.geom.get(vs), ldata.geom.instancedVB]);
+				g.setVertexBuffers([ldata.geom.get(elems), ldata.geom.instancedVB]);
 			}
 			else {
-				g.setVertexBuffer(ldata.geom.get(vs));
+				g.setVertexBuffer(ldata.geom.get(elems));
 			}
 			#end
 
@@ -331,7 +336,7 @@ class MeshObject extends Object {
 		#end
 
 		#if arm_veloc
-		prevMatrix.setFrom(transform.world);
+		prevMatrix.setFrom(transform.worldUnpack);
 		#end
 	}
 

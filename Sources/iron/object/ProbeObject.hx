@@ -185,7 +185,7 @@ class ProbeObject extends Object {
 			if (perFrame || redraw) {
 				for (i in 0...6) {
 					camera.currentFace = i;
-					CameraObject.setCubeFace(camera.V, probep, 5 - i); // Reverse face order
+					CameraObject.setCubeFace(camera.V, probep, i);
 					camera.transform.local.getInverse(camera.V);
 					camera.transform.decompose();
 					camera.renderFrame(g);

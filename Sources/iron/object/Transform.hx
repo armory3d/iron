@@ -11,6 +11,9 @@ class Transform {
 	public var loc:Vec4; // Decomposed local matrix
 	public var rot:Quat;
 	public var scale:Vec4;
+
+	public var worldUnpack:Mat4; // With applied scaleWorld
+	public var scaleWorld:kha.FastFloat = 1.0; // Uniform scale factor
 	
 	public var dirty:Bool;
 	public var object:Object;
@@ -29,6 +32,7 @@ class Transform {
 
 	public function reset() {
 		world = Mat4.identity();
+		worldUnpack = Mat4.identity();
 		local = Mat4.identity();
 		loc = new Vec4();
 		rot = new Quat();
@@ -94,6 +98,22 @@ class Transform {
 		else {
 			world.setFrom(local);
 		}
+
+		worldUnpack.setFrom(world);
+		if (scaleWorld != 1.0) {
+			worldUnpack._00 *= scaleWorld;
+			worldUnpack._01 *= scaleWorld;
+			worldUnpack._02 *= scaleWorld;
+			worldUnpack._03 *= scaleWorld;
+			worldUnpack._10 *= scaleWorld;
+			worldUnpack._11 *= scaleWorld;
+			worldUnpack._12 *= scaleWorld;
+			worldUnpack._13 *= scaleWorld;
+			worldUnpack._20 *= scaleWorld;
+			worldUnpack._21 *= scaleWorld;
+			worldUnpack._22 *= scaleWorld;
+			worldUnpack._23 *= scaleWorld;
+		} 
 
 		// Constraints
 		if (object.constraints != null) for (c in object.constraints) c.apply(this);

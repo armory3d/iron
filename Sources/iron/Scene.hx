@@ -648,10 +648,8 @@ class Scene {
 			str = StringTools.replace(str, "]", "");
 			str = StringTools.replace(str, " ", "");
 			var ar:Dynamic = [];
-			var s = str.split(",");
-			for (childStr in s) {
-				ar.push(parseArg(childStr));
-			}
+			var vals = str.split(",");
+			for (v in vals) ar.push(parseArg(v));
 			return ar;
 		}
 		else {
