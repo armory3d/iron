@@ -158,12 +158,10 @@ class Geometry {
 			// offsetVecs.push(new Vec4(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]));
 		// }
 
-		instanced = true;
-		instanceCount = Std.int(data.length / 3);
-
 		var structure = new VertexStructure();
 		structure.instanced = true;
-		// off, loc, loc+rot, loc+scale, loc+rot+scale
+		instanced = true;
+		// pos, pos+rot, pos+scale, pos+rot+scale
 		structure.add("ipos", kha.graphics4.VertexData.Float3);
 		if (instancedType == 2 || instancedType == 4) {
 			structure.add("irot", kha.graphics4.VertexData.Float3);
@@ -172,6 +170,7 @@ class Geometry {
 			structure.add("iscl", kha.graphics4.VertexData.Float3);
 		}
 
+		instanceCount = Std.int(data.length / Std.int(structure.byteSize() / 4));
 		instancedVB = new VertexBuffer(instanceCount, structure, usage, 1);
 		var vertices = instancedVB.lock();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
