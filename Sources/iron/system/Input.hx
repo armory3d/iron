@@ -401,6 +401,8 @@ class Keyboard extends VirtualInput {
 		else if (key == kha.input.KeyCode.Left) return "left";
 		else if (key == kha.input.KeyCode.Right) return "right";
 		else if (key == kha.input.KeyCode.Back) return "back";
+		else if (key == kha.input.KeyCode.Comma) return "comma";
+		else if (key == kha.input.KeyCode.Period) return "period";
 		else if (key == kha.input.KeyCode.Zero) return "0";
 		else if (key == kha.input.KeyCode.One) return "1";
 		else if (key == kha.input.KeyCode.Two) return "2";
