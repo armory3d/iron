@@ -130,8 +130,12 @@ class MeshObject extends Object {
 		if (!visibleMesh && !isShadow) return setCulled(isShadow, true);
 		if (!visibleShadow && isShadow) return setCulled(isShadow, true);
 
-		// Check context skip
-		if (skipContext(context)) return setCulled(isShadow, true);
+		if (skip_context == context) return setCulled(isShadow, true);
+		if (force_context != null && force_context != context) return setCulled(isShadow, true);
+
+		#if (!arm_voxelgi_revox) // No revox - do not voxelize moving objects
+		if (context == "voxel" && raw.mobile == true) return setCulled(isShadow, true);
+		#end
 
 		return setCulled(isShadow, false);
 	}
@@ -189,18 +193,11 @@ class MeshObject extends Object {
 		return culled;
 	}
 
-	function skipContext(context:String):Bool {
-		if (skip_context == context) return true;
-		if (force_context != null && force_context != context) return true;
-		for (mat in materials) {
-			if (mat.raw.skip_context != null &&
-				mat.raw.skip_context == context) {
-				return true;
-			}
+	function skipContext(context:String, mat:MaterialData):Bool {
+		if (mat.raw.skip_context != null &&
+			mat.raw.skip_context == context) {
+			return true;
 		}
-		#if (!arm_voxelgi_revox) // No revox - do not voxelize moving objects
-		if (context == "voxel" && raw.mobile == true) return true;
-		#end
 		return false;
 	}
 
@@ -290,6 +287,10 @@ class MeshObject extends Object {
 
 			var mi = ldata.geom.materialIndices[i];
 			if (shaderContexts.length <= mi) continue;
+
+			// Check context skip
+			if (materials.length > mi && skipContext(context, materials[mi])) continue;
+
 			var scontext = shaderContexts[mi];
 			var elems = scontext.raw.vertex_elements;
 

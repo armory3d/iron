@@ -131,7 +131,7 @@ class RenderPath {
 			currentFace = -1;
 			if (isProbeCube) {
 				currentW = Scene.active.camera.renderTargetCube.width;
-				currentH = Scene.active.camera.renderTargetCube.width;
+				currentH = Scene.active.camera.renderTargetCube.height;
 				begin(currentG, Scene.active.camera.currentFace);
 			}
 			else { // Screen, planar probe
