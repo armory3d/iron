@@ -465,9 +465,9 @@ class BoneAnimation extends Animation {
 				var bone = skeletonBones[boneIndex];
 
 				// Position
-				m.initTranslate((data.geom.positions[i * 4    ] * data.raw.scale_pos) / 32767,
-								(data.geom.positions[i * 4 + 1] * data.raw.scale_pos) / 32767,
-								(data.geom.positions[i * 4 + 2] * data.raw.scale_pos) / 32767);
+				m.initTranslate((data.geom.positions[i * 4    ] * data.scalePos) / 32767,
+								(data.geom.positions[i * 4 + 1] * data.scalePos) / 32767,
+								(data.geom.positions[i * 4 + 2] * data.scalePos) / 32767);
 
 				m.multmat(data.geom.skinTransform);
 
@@ -499,16 +499,16 @@ class BoneAnimation extends Animation {
 			}
 
 			#if arm_deinterleaved
-			v.set(i * l    , pos.x * (1 / data.raw.scale_pos) * 32767);
-			v.set(i * l + 1, pos.y * (1 / data.raw.scale_pos) * 32767);
-			v.set(i * l + 2, pos.z * (1 / data.raw.scale_pos) * 32767);
+			v.set(i * l    , pos.x * (1 / data.scalePos) * 32767);
+			v.set(i * l + 1, pos.y * (1 / data.scalePos) * 32767);
+			v.set(i * l + 2, pos.z * (1 / data.scalePos) * 32767);
 			// v.set(i * l + 3, nor.z * 32767); // Packed
 			// vnor.set(i * lnor    , nor.x * 32767);
 			// vnor.set(i * lnor + 1, nor.y * 32767);
 			#else
-			v.set(i * l    , Std.int(pos.x * (1 / data.raw.scale_pos) * 32767));
-			v.set(i * l + 1, Std.int(pos.y * (1 / data.raw.scale_pos) * 32767));
-			v.set(i * l + 2, Std.int(pos.z * (1 / data.raw.scale_pos) * 32767));
+			v.set(i * l    , Std.int(pos.x * (1 / data.scalePos) * 32767));
+			v.set(i * l + 1, Std.int(pos.y * (1 / data.scalePos) * 32767));
+			v.set(i * l + 2, Std.int(pos.z * (1 / data.scalePos) * 32767));
 			// v.set(i * l + 3, Std.int(nor.z * 32767)); // Packed
 			// v.set(i * l + 4, Std.int(nor.x * 32767));
 			// v.set(i * l + 5, Std.int(nor.y * 32767));

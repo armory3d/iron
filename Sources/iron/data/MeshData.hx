@@ -17,12 +17,17 @@ class MeshData {
 	public var count = -1;
 	public var refcount = 0; // Number of users
 	public var handle:String; // Handle used to retrieve this object in Data
+	public var scalePos:Float = 1.0;
+	public var scaleTex:Float = 1.0;
 
 	public var isSkinned:Bool;
 
 	public function new(raw:TMeshData, done:MeshData->Void) {
 		this.raw = raw;
 		this.name = raw.name;
+		
+		if (raw.scale_pos != null) scalePos = raw.scale_pos;
+		if (raw.scale_tex != null) scaleTex = raw.scale_tex;
 
 		// Mesh data
 		var indices:Array<Uint32Array> = [];
