@@ -86,7 +86,8 @@ class MeshData {
 		#end
 		
 		// Make vertex buffers
-		geom = new Geometry(indices, materialIndices, pa, na, uva, uva1, ca, tanga, bonea, weighta, usage, raw.instanced_data, raw.instanced_type);
+		geom = new Geometry(this, indices, materialIndices,
+							pa, na, uva, uva1, ca, tanga, bonea, weighta, usage);
 		geom.name = name;
 
 		done(this);

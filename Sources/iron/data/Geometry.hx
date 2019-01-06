@@ -46,8 +46,7 @@ class Geometry {
 	public var tangents:Int16Array;
 	public var bones:Int16Array;
 	public var weights:Int16Array;
-	var instancedData:Float32Array;
-	var instancedType:Null<Int>;
+	var data:MeshData;
 	
 	// public var offsetVecs:Array<Vec4>; // Used for sorting and culling
 	public var aabb:Vec4 = null;
@@ -71,7 +70,8 @@ class Geometry {
 	public var actions:Map<String, Array<TObj>> = null;
 	public var mats:Map<String, Array<Mat4>> = null;
 
-	public function new(indices:Array<Uint32Array>,
+	public function new(data:MeshData,
+						indices:Array<Uint32Array>,
 						materialIndices:Array<Int>,
 						positions:Int16Array,
 						normals:Int16Array,
@@ -81,9 +81,7 @@ class Geometry {
 						tangents:Int16Array = null,
 						bones:Int16Array = null,
 						weights:Int16Array = null,
-						usage:Usage = null,
-						instancedData:Float32Array = null,
-						instancedType:Null<Int> = null) {
+						usage:Usage = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
 
@@ -99,8 +97,7 @@ class Geometry {
 		this.tangents = tangents;
 		this.bones = bones;
 		this.weights = weights;
-		this.instancedData = instancedData;
-		this.instancedType = instancedType;
+		this.data = data;
 
 		// pos=4, nor=2, tex=2, col=4, tang=4, bone=4, weight=4
 		struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
@@ -367,7 +364,7 @@ class Geometry {
 		}
 
 		// Instanced
-		if (instancedData != null) setupInstanced(instancedData, instancedType, usage);
+		if (data.raw.instanced_data != null) setupInstanced(data.raw.instanced_data, data.raw.instanced_type, usage);
 
 		ready = true;
 	}
@@ -461,20 +458,17 @@ class Geometry {
 		aabb = new Vec4();
 		var i = 0;
 		while (i < positions.length) {
-			if (positions[i] > aabbMax.x) aabbMax.x = positions[i];
+			if (positions[i    ] > aabbMax.x) aabbMax.x = positions[i];
 			if (positions[i + 1] > aabbMax.y) aabbMax.y = positions[i + 1];
 			if (positions[i + 2] > aabbMax.z) aabbMax.z = positions[i + 2];
-			if (positions[i] < aabbMin.x) aabbMin.x = positions[i];
+			if (positions[i    ] < aabbMin.x) aabbMin.x = positions[i];
 			if (positions[i + 1] < aabbMin.y) aabbMin.y = positions[i + 1];
 			if (positions[i + 2] < aabbMin.z) aabbMin.z = positions[i + 2];
 			i += 4;
 		}
-		aabb.x = Math.abs(aabbMin.x) + Math.abs(aabbMax.x);
-		aabb.y = Math.abs(aabbMin.y) + Math.abs(aabbMax.y);
-		aabb.z = Math.abs(aabbMin.z) + Math.abs(aabbMax.z);
-		aabb.x /= 32767;
-		aabb.y /= 32767;
-		aabb.z /= 32767;
+		aabb.x = (Math.abs(aabbMin.x) + Math.abs(aabbMax.x)) / 32767 * data.scalePos;
+		aabb.y = (Math.abs(aabbMin.y) + Math.abs(aabbMax.y)) / 32767 * data.scalePos;
+		aabb.z = (Math.abs(aabbMin.z) + Math.abs(aabbMax.z)) / 32767 * data.scalePos;
 		// Sphere radius
 		// if (aabb.x >= aabb.y && aabb.x >= aabb.z) radius = aabb.x / 2;
 		// else if (aabb.y >= aabb.x && aabb.y >= aabb.z) radius = aabb.y / 2;
