@@ -909,6 +909,14 @@ class Uniforms {
 					m = helpMat;
 				}
 			}
+			else if (StringTools.startsWith(c.link, "_biasLightViewProjectionMatrixSpot")) {
+				var light = getSpot(c.link.charCodeAt(c.link.length - 1) - '0'.code);
+				if (light != null) {
+					helpMat.setFrom(light.VP);
+					helpMat.multmat(biasMat);
+					m = helpMat;
+				}
+			}
 			#if rp_probes
 			else if (c.link == "_probeViewProjectionMatrix") {
 				helpMat.setFrom(Scene.active.probes[RenderPath.active.currentProbeIndex].camera.V);
