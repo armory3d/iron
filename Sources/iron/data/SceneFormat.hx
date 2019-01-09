@@ -443,7 +443,7 @@ typedef TObj = {
 	@:optional public var particle_refs:Array<TParticleReference>;
 	@:optional public var is_particle:Null<Bool>; // This object is used as a particle object
 	@:optional public var children:Array<TObj>;
-	@:optional public var group_ref:String; // dupli_type
+	@:optional public var group_ref:String; // instance_type
 	@:optional public var groups:Array<String>;
 	@:optional public var lods:Array<TLod>;
 	@:optional public var lod_material:Null<Bool>;

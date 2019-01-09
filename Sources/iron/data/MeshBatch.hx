@@ -189,7 +189,7 @@ class Bucket {
 
 		// Build shared buffers
 		vertexBuffer = new VertexBuffer(vcount, vs, Usage.StaticUsage);
-		var vertices = vertexBuffer.lock();
+		var vertices = vertexBuffer.lockInt16();
 		var offset = 0;
 		for (md in mdatas) {
 			md.geom.copyVertices(vertices, offset, hasUVs);
