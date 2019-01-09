@@ -117,11 +117,12 @@ class ParticleSystem {
 		var i = 0;
 		if (r.emit_from == 0) { // Vert, Face
 			var pa = owner.data.geom.positions;
+			var sc = owner.data.scalePos;
 			for (p in particles) {
 				var j = Std.int(fhash(i) * (pa.length / 4));
-				instancedData.set(i, pa[j * 3 + 0]); i++;
-				instancedData.set(i, pa[j * 3 + 1]); i++;
-				instancedData.set(i, pa[j * 3 + 2]); i++;
+				instancedData.set(i, pa[j * 4    ] / 32767 * sc); i++;
+				instancedData.set(i, pa[j * 4 + 1] / 32767 * sc); i++;
+				instancedData.set(i, pa[j * 4 + 2] / 32767 * sc); i++;
 			}
 		}
 		else { // Volume
@@ -151,17 +152,18 @@ class ParticleSystem {
 		// Upload
 		// sort(); // TODO: breaks particle order
 		var instancedData = object.data.geom.instancedVB.lock();
+		var scalePos = object.data.scalePos;
 		for (i in 0...particles.length) {
 			var p = particles[i];
 			var px = p.x;
 			var py = p.y;
 			var pz = p.z;
-			px += emitFrom[i * 3 + 0];
+			px += emitFrom[i * 3    ];
 			py += emitFrom[i * 3 + 1];
 			pz += emitFrom[i * 3 + 2];
-			instancedData.set(i * 3 + 0, px);
-			instancedData.set(i * 3 + 1, py);
-			instancedData.set(i * 3 + 2, pz);
+			instancedData.set(i * 3    , px / scalePos);
+			instancedData.set(i * 3 + 1, py / scalePos);
+			instancedData.set(i * 3 + 2, pz / scalePos);
 		}
 		object.data.geom.instancedVB.unlock();
 	}
@@ -189,7 +191,7 @@ class ParticleSystem {
 		p.z = alignz;
 
 		var l = particles.length;
-		p.x += fhash(p.i + 0 * l) * r.factor_random - r.factor_random / 2;
+		p.x += fhash(p.i     * l) * r.factor_random - r.factor_random / 2;
 		p.y += fhash(p.i + 1 * l) * r.factor_random - r.factor_random / 2;
 		p.z += fhash(p.i + 2 * l) * r.factor_random - r.factor_random / 2;
 
@@ -218,11 +220,12 @@ class ParticleSystem {
 		i = 0;
 		if (r.emit_from == 0) { // Vert, Face
 			var pa = owner.data.geom.positions;
+			var sc = owner.data.scalePos;
 			for (p in particles) {
 				var j = Std.int(fhash(i) * (pa.length / 4));
-				emitFrom.set(i, pa[j * 3 + 0]); i++;
-				emitFrom.set(i, pa[j * 3 + 1]); i++;
-				emitFrom.set(i, pa[j * 3 + 2]); i++;
+				emitFrom.set(i, pa[j * 4    ] / 32767 * sc); i++;
+				emitFrom.set(i, pa[j * 4 + 1] / 32767 * sc); i++;
+				emitFrom.set(i, pa[j * 4 + 2] / 32767 * sc); i++;
 			}
 		}
 		else { // Volume
