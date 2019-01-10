@@ -64,6 +64,15 @@ class ParticleSystem {
 	public function update(object:MeshObject, owner:MeshObject) {
 		if (!ready || object == null || speed == 0.0) return;
 
+		// Copy owner transform but discard scale
+		object.transform.loc = owner.transform.loc;
+		object.transform.rot = owner.transform.rot;
+		object.transform.buildMatrix();
+		owner.transform.buildMatrix();
+		object.transform.dim.setFrom(owner.transform.dim);
+
+		trace(owner.transform.dim);
+
 		dimx = object.transform.dim.x;
 		dimy = object.transform.dim.y;
 
@@ -88,22 +97,23 @@ class ParticleSystem {
 
 	#if arm_particles_gpu
 	public function getData():iron.math.Mat4 {
+		var hair = r.type == 1;
 		m._00 = r.loop ? animtime : -animtime;
-		m._01 = spawnRate;
-		m._02 = lifetime;
+		m._01 = hair ? 1 / particles.length : spawnRate;
+		m._02 = hair ? 1 : lifetime;
 		m._03 = particles.length;
-		m._10 = alignx;
-		m._11 = aligny;
-		m._12 = alignz;
-		m._13 = r.factor_random;
-		m._20 = gx * r.mass;
-		m._21 = gy * r.mass;
-		m._22 = gz * r.mass;
-		m._23 = r.lifetime_random;
+		m._10 = hair ? 0 : alignx;
+		m._11 = hair ? 0 : aligny;
+		m._12 = hair ? 0 : alignz;
+		m._13 = hair ? 0 : r.factor_random;
+		m._20 = hair ? 0 : gx * r.mass;
+		m._21 = hair ? 0 : gy * r.mass;
+		m._22 = hair ? 0 : gz * r.mass;
+		m._23 = hair ? 0 : r.lifetime_random;
 		m._30 = tilesx;
 		m._31 = tilesy;
 		m._32 = 1 / tilesFramerate;
-		m._33 = lapTime;
+		m._33 = hair ? 1 : lapTime;
 		return m;
 	}
 

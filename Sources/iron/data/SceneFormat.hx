@@ -415,7 +415,7 @@ typedef TParticleData = {
 	public var size_random:FastFloat; // Random scale
 	public var mass:FastFloat; // Random scale
 	// Render
-	public var dupli_object:String; // Object reference
+	public var instance_object:String; // Object reference
 	// Field weights
 	public var weight_gravity:FastFloat;
 }

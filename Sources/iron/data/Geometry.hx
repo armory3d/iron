@@ -129,23 +129,24 @@ class Geometry {
 	}
 
 	public function applyScale(sx:Float, sy:Float, sz:Float) {
-		#if arm_deinterleaved
-		var vertices = vertexBuffers[0].lock();
-		for (i in 0...Std.int(vertices.length / 4)) {
-			vertices[i * 4]     *= sx;
-			vertices[i * 4 + 1] *= sy;
-			vertices[i * 4 + 2] *= sz;
-		}
-		vertexBuffers[0].unlock();
-		#else
-		var vertices = vertexBuffer.lock();
-		for (i in 0...Std.int(vertices.length / structLength)) {
-			vertices[i * structLength]     *= sx;
-			vertices[i * structLength + 1] *= sy;
-			vertices[i * structLength + 2] *= sz;
-		}
-		vertexBuffer.unlock();
-		#end
+		// #if arm_deinterleaved
+		// var vertices = vertexBuffers[0].lock();
+		// for (i in 0...Std.int(vertices.length / 4)) {
+		// 	vertices[i * 4    ] *= sx;
+		// 	vertices[i * 4 + 1] *= sy;
+		// 	vertices[i * 4 + 2] *= sz;
+		// }
+		// vertexBuffers[0].unlock();
+		// #else
+		// var vertices = vertexBuffer.lock();
+		// for (i in 0...Std.int(vertices.length / structLength)) {
+		// 	vertices[i * structLength    ] *= sx;
+		// 	vertices[i * structLength + 1] *= sy;
+		// 	vertices[i * structLength + 2] *= sz;
+		// }
+		// vertexBuffer.unlock();
+		// #end
+		data.scalePos *= sx;
 	}
 
 	public function setupInstanced(data:Float32Array, instancedType:Int, usage:Usage) {

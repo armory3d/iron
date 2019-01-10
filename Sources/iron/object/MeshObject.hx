@@ -226,14 +226,13 @@ class MeshObject extends Object {
 			if (particleChildren == null) {
 				particleChildren = [];
 				for (psys in particleSystems) {
-					// var c:MeshObject = cast iron.Scene.active.getChild(psys.data.raw.dupli_object);
-					iron.Scene.active.spawnObject(psys.data.raw.dupli_object, null, function(o:Object) {
+					// var c:MeshObject = cast iron.Scene.active.getChild(psys.data.raw.instance_object);
+					iron.Scene.active.spawnObject(psys.data.raw.instance_object, null, function(o:Object) {
 						if (o != null) {
 							var c:MeshObject = cast o;
 							particleChildren.push(c);
 							c.particleOwner = this;
 							c.particleIndex = particleChildren.length - 1;
-							c.transform = this.transform;
 						}
 					});
 					
