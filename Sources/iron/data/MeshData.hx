@@ -17,8 +17,8 @@ class MeshData {
 	public var count = -1;
 	public var refcount = 0; // Number of users
 	public var handle:String; // Handle used to retrieve this object in Data
-	public var scalePos:Float = 1.0;
-	public var scaleTex:Float = 1.0;
+	public var scalePos:kha.FastFloat = 1.0;
+	public var scaleTex:kha.FastFloat = 1.0;
 
 	public var isSkinned:Bool;
 
