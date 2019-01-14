@@ -119,7 +119,7 @@ typedef TCameraData = {
 	@:optional public var clear_color:Float32Array;
 	@:optional public var aspect:Null<FastFloat>;
 	@:optional public var frustum_culling:Null<Bool>;
-	@:optional public var ortho:Array<FastFloat>; // Indicates ortho camera, left, right, bottom, top
+	@:optional public var ortho:Float32Array; // Indicates ortho camera, left, right, bottom, top
 }
 
 #if js
