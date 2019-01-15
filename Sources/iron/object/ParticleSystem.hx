@@ -71,8 +71,6 @@ class ParticleSystem {
 		owner.transform.buildMatrix();
 		object.transform.dim.setFrom(owner.transform.dim);
 
-		trace(owner.transform.dim);
-
 		dimx = object.transform.dim.x;
 		dimy = object.transform.dim.y;
 
