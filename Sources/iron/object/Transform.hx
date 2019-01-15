@@ -79,6 +79,11 @@ class Transform {
 		local.compose(dloc, drot, dscale);
 	}
 
+	/**
+	 * Update the transform matrix based on `loc`, `rot`, and `scale`. If any
+	 * change is made to `loc`, `rot`, or `scale` `buildMatrix()` must be
+	 * called to update the objects transform.
+	 */
 	public function buildMatrix() {
 		dloc == null ? local.compose(loc, rot, scale) : composeDelta();
 
