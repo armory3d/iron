@@ -367,6 +367,7 @@ class Scene {
 	public function createObject(o:TObj, format:TSceneFormat, parent:Object, parentObject:TObj, done:Object->Void) {
 
 		var sceneFile = format.file;
+		o.file = sceneFile;
 		if (o.type == "camera_object") {
 			Data.getCamera(sceneFile, o.data_ref, function(b:CameraData) {
 				var object = addCameraObject(b, parent);
@@ -408,14 +409,12 @@ class Scene {
 
 							// Mesh reference
 							var ref = o.data_ref.split(':');
-							var object_file = '';
 							var data_ref = '';
 							if (ref.length == 2) { // File reference
-								object_file = Data.getAbsolutePath(sceneFile, ref[0]);
+								o.file = Data.getAbsolutePath(sceneFile, ref[0]);
 								data_ref = ref[1];
 							}
 							else { // Local mesh data
-								object_file = sceneFile;
 								data_ref = o.data_ref;
 							}
 
@@ -423,7 +422,7 @@ class Scene {
 							if (parentObject != null && parentObject.bone_actions != null) {
 								var bactions:Array<TSceneFormat> = [];
 								for (ref in parentObject.bone_actions) {
-									Data.getSceneRaw(ref, function(action:TSceneFormat) {
+									Data.getSceneRaw(Data.getAbsolutePath(sceneFile, ref), function(action:TSceneFormat) {
 										bactions.push(action);
 										if (bactions.length == parentObject.bone_actions.length) {
 											var armature:Armature = null;
@@ -441,7 +440,7 @@ class Scene {
 											#else
 											returnMeshObject(
 											#end
-												object_file, data_ref, sceneFile, armature, materials, parent, o, done);
+												o.file, data_ref, sceneFile, armature, materials, parent, o, done);
 										}
 									});
 								}
@@ -452,7 +451,7 @@ class Scene {
 								#else
 								returnMeshObject(
 								#end
-									object_file, data_ref, sceneFile, null, materials, parent, o, done);
+									o.file, data_ref, sceneFile, null, materials, parent, o, done);
 							}
 						}
 					});

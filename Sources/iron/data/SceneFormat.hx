@@ -451,6 +451,8 @@ typedef TObj = {
 #end
 	public var type:String; // object, mesh_object, light_object, camera_object, speaker_object, decal_object
 	public var name:String;
+	/** The file the object was loaded from ( used internally ) */
+	@:optional public var file:String;
 	public var data_ref:String;
 	public var transform:TTransform;
 	@:optional public var material_refs:Array<String>;

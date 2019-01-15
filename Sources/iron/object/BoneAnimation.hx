@@ -6,6 +6,7 @@ import kha.FastFloat;
 import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.math.Quat;
+import iron.data.Data;
 import iron.data.MeshData;
 import iron.data.SceneFormat;
 import iron.data.Armature;
@@ -85,7 +86,7 @@ class BoneAnimation extends Animation {
 			#end
 			var refs = mo.parent.raw.bone_actions;
 			if (refs != null && refs.length > 0) {
-				iron.data.Data.getSceneRaw(refs[0], function(action:TSceneFormat) { play(action.name); });
+				Data.getSceneRaw(Data.getAbsolutePath(mo.parent.raw.file, refs[0]), function(action:TSceneFormat) { play(action.name); });
 			}
 		}
 	}
