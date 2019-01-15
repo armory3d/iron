@@ -179,36 +179,31 @@ class CameraObject extends Object {
 
 	static var vcenter = new Vec4();
 	static var vup = new Vec4();
-	public static function setCubeFace(m:Mat4, eye:Vec4, face:Int) {
+	public static function setCubeFace(m:Mat4, eye:Vec4, face:Int, flip = false) {
 		// Set matrix to match cubemap face
 		vcenter.setFrom(eye);
+		var f = flip ? -1.0 : 1.0;
 		switch (face) {
 		case 0: // x+
-			vcenter.addf(1.0, 0.0, 0.0);
-			vup.set(0.0, -1.0, 0.0);
+			vcenter.addf(1.0 * f, 0.0, 0.0);
+			vup.set(0.0, -1.0 * f, 0.0);
 		case 1: // x-
-			vcenter.addf(-1.0, 0.0, 0.0);
-			vup.set(0.0, -1.0, 0.0);
+			vcenter.addf(-1.0 * f, 0.0, 0.0);
+			vup.set(0.0, -1.0 * f, 0.0);
 		case 2: // y+
-			vcenter.addf(0.0, 1.0, 0.0);
-			vup.set(0.0, 0.0, 1.0);
+			vcenter.addf(0.0, 1.0 * f, 0.0);
+			vup.set(0.0, 0.0, 1.0 * f);
 		case 3: // y-
-			vcenter.addf(0.0, -1.0, 0.0);
-			vup.set(0.0, 0.0, -1.0);
+			vcenter.addf(0.0, -1.0 * f, 0.0);
+			vup.set(0.0, 0.0, -1.0 * f);
 		case 4: // z+
-			vcenter.addf(0.0, 0.0, 1.0);
-			vup.set(0.0, -1.0, 0.0);
+			vcenter.addf(0.0, 0.0, 1.0 * f);
+			vup.set(0.0, -1.0 * f, 0.0);
 		case 5: // z-
-			vcenter.addf(0.0, 0.0, -1.0);
-			vup.set(0.0, -1.0, 0.0);
+			vcenter.addf(0.0, 0.0, -1.0 * f);
+			vup.set(0.0, -1.0 * f, 0.0);
 		}
 		m.setLookAt(eye, vcenter, vup);
-		#if (!kha_opengl && !kha_webgl)
-		m._01 = -m._01;
-		m._11 = -m._11;
-		m._21 = -m._21;
-		m._31 = -m._31;
-		#end
 	}
 
 	public inline function right():Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }

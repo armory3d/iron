@@ -168,7 +168,7 @@ class ProbeObject extends Object {
 	}
 
 	public function render(g:Graphics, activeCamera:CameraObject) {
-		if (camera == null || !ready || !visible || cullProbe(activeCamera)) return;
+		if (camera == null || !ready || !RenderPath.active.ready || !visible || cullProbe(activeCamera)) return;
 
 		if (data.raw.type == "planar") {
 			camera.V.setFrom(m1);
@@ -185,7 +185,12 @@ class ProbeObject extends Object {
 			if (perFrame || redraw) {
 				for (i in 0...6) {
 					camera.currentFace = i;
-					CameraObject.setCubeFace(camera.V, probep, i);
+					#if (!kha_opengl && !kha_webgl)
+					var flip = (i == 2 || i == 3) ? true : false; // Flip +Y, -Y
+					#else
+					var flip = false;
+					#end
+					CameraObject.setCubeFace(camera.V, probep, i, flip);
 					camera.transform.local.getInverse(camera.V);
 					camera.transform.decompose();
 					camera.renderFrame(g);

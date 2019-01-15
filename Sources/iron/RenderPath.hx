@@ -21,6 +21,7 @@ class RenderPath {
 	public var frameScissorW = 0;
 	public var frameScissorH = 0;
 	public var frameTime = 0.0;
+	public var frame = 0;
 	public var currentTarget:RenderTarget = null;
 	public var currentFace:Int;
 	public var light:LightObject = null;
@@ -121,6 +122,8 @@ class RenderPath {
 		light = Scene.active.lights[0];
 
 		commands();
+		
+		if (!isProbe) frame++;
 	}
 
 	public function setTarget(target:String, additional:Array<String> = null, viewportScale = 1.0) {
