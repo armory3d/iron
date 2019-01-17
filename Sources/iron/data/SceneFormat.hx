@@ -32,6 +32,8 @@ typedef TSceneFormat = {
 	@:optional public var embedded_datas:Array<String>; // Preload for this scene, images only for now
 	@:optional public var frame_time:Null<FastFloat>;
 	@:optional public var irradiance:Float32Array; // Blob with spherical harmonics, bands 0,1,2
+	@:optional public var terrain_datas:Array<TTerrainData>;
+	@:optional public var terrain_ref:String;
 }
 
 #if js
@@ -283,6 +285,19 @@ typedef TSpeakerData = {
 	public var pitch:FastFloat;
 	public var attenuation:FastFloat;
 	public var play_on_start:Bool;
+}
+
+#if js
+typedef TTerrainData = {
+#else
+@:structInit class TTerrainData {
+#end
+	public var name:String;
+	public var sectors_x:Int;
+	public var sectors_y:Int;
+	public var sector_size:Float;
+	public var height_scale:Float;
+	public var material_ref:String;
 }
 
 #if js

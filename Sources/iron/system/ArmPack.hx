@@ -154,6 +154,7 @@ class ArmPack {
 		case "shader_datas": TShaderData;
 		case "speaker_datas": TSpeakerData;
 		case "world_datas": TWorldData;
+		case "terrain_datas": TTerrainData;
 		// case "grease_pencil_datas": TGreasePencilData;
 		// case "layers": TGreasePencilLayer;
 		// case "frames": TGreasePencilFrame;

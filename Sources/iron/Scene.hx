@@ -25,6 +25,9 @@ class Scene {
 	#if arm_stream
 	public var sceneStream:SceneStream = null;
 	#end
+	#if arm_terrain
+	public var terrainStream:TerrainStream = null;
+	#end
 	#if rp_decals
 	public var decals:Array<DecalObject>;
 	#end
@@ -87,6 +90,12 @@ class Scene {
 			// Startup scene
 			active.addScene(format.name, null, function(sceneObject:Object) {
 
+				#if arm_terrain
+				if (format.terrain_ref != null)  {
+					active.terrainStream = new TerrainStream(format.terrain_datas[0]);
+				}
+				#end
+
 				if (active.cameras.length == 0) {
 					trace('No camera found for scene "' + format.name + '"');
 				}
@@ -107,6 +116,12 @@ class Scene {
 		for (f in traitRemoves) f();
 		#if arm_batch
 		if (meshBatch != null) meshBatch.remove();
+		#end
+		#if arm_stream
+		if (sceneStream != null) sceneStream.remove();
+		#end
+		#if arm_terrain
+		if (terrainStream != null) terrainStream.remove();
 		#end
 		#if rp_decals
 		for (o in decals) o.remove();
@@ -142,6 +157,9 @@ class Scene {
 		if (!ready) return;
 		#if arm_stream
 		sceneStream.update(active.camera);
+		#end
+		#if arm_terrain
+		if (terrainStream != null) terrainStream.update(active.camera);
 		#end
 		for (anim in animations) anim.update(iron.system.Time.delta);
 		for (e in empties) if (e != null && e.parent != null) e.transform.update();

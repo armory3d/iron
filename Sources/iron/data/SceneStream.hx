@@ -47,6 +47,10 @@ class SceneStream {
 		sectors = [new StreamSector()];
 	}
 
+	public function remove() {
+		
+	}
+
 	public function add(object_file:String, data_ref:String, sceneName:String, armature:Armature, materials:Vector<MaterialData>, parent:Object, obj:TObj) {
 		sectors[0].handles.push({object_file: object_file, data_ref: data_ref, sceneName: sceneName, armature: armature, materials: materials, parent: parent, obj: obj, object: null, loading: false});
 	}
