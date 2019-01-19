@@ -996,6 +996,14 @@ class Uniforms {
 				helpVec.set((d.x / s.x) / 2, (d.y / s.y) / 2, (d.z / s.z) / 2);
 				v = helpVec;
 			}
+			else if (c.link == "_worldPosition") {
+				// #if arm_centerworld
+				// helpVec.set(0, 0, 0);
+				// #else
+				helpVec.set(object.transform.worldx(), object.transform.worldy(), object.transform.worldz());
+				// #end
+				v = helpVec;
+			}
 			// External
 			else if (externalVec3Links != null) {
 				for (f in externalVec3Links) {
