@@ -353,12 +353,8 @@ class Geometry {
 			var indexBuffer = new IndexBuffer(id.length, usage);
 			numTris += Std.int(id.length / 3);
 
-			#if (kha_html5 && !arm_json)
-			indexBuffer._data = id;
-			#else
 			var indicesA = indexBuffer.lock();
 			for (i in 0...indicesA.length) indicesA[i] = id[i];
-			#end
 			
 			indexBuffer.unlock();
 			indexBuffers.push(indexBuffer);
@@ -376,13 +372,9 @@ class Geometry {
 		struct.add(name, structLength == 2 ? VertexData.Short2Norm : VertexData.Short4Norm);
 
 		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
-		
-		#if (kha_html5 && !arm_json)
-		vertexBuffer._data = cast data;
-		#else
+
 		var vertices = vertexBuffer.lockInt16();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
-		#end
 		
 		vertexBuffer.unlock();
 		return vertexBuffer;
