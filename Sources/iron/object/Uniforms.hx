@@ -532,7 +532,10 @@ class Uniforms {
 			else if (c.link == "_hosekSunDirection") {
 				var w = Scene.active.world;
 				if (w != null) {
-					helpVec.set(w.raw.sun_direction[0], w.raw.sun_direction[1], w.raw.sun_direction[2]);
+					// Clamp Z for night cycle
+					helpVec.set(w.raw.sun_direction[0],
+								w.raw.sun_direction[1],
+								w.raw.sun_direction[2] > 0 ? w.raw.sun_direction[2] : 0);
 					v = helpVec;
 				}
 			}
