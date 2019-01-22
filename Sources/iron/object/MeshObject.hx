@@ -291,6 +291,7 @@ class MeshObject extends Object {
 			if (materials.length > mi && skipContext(context, materials[mi])) continue;
 
 			var scontext = shaderContexts[mi];
+			if (scontext == null) continue;
 			var elems = scontext.raw.vertex_elements;
 
 			// Uniforms
