@@ -229,7 +229,9 @@ class Scene {
 		if (g == null) {
 			g = [];
 			groups.set(name, g);
-			for (ref in getGroupObjectRefs(name)) {
+			var refs = getGroupObjectRefs(name);
+			if (refs == null) return g;
+			for (ref in refs) {
 				var c = getChild(ref);
 				if (c != null) g.push(c);
 			}
