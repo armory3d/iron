@@ -41,7 +41,7 @@ class Scene {
 	public var empties:Array<Object>;
 	public var animations:Array<Animation>;
 	public var armatures:Array<Armature>;
-	public var groups:Map<String, Array<Object>> = null;
+	var groups:Map<String, Array<Object>> = null;
 
 	public var embedded:Map<String, kha.Image>;
 
@@ -221,6 +221,20 @@ class Scene {
 	public function getEmpty(name:String):Object {
 		for (e in empties) if (e.name == name) return e;
 		return null;
+	}
+
+	public function getGroup(name:String):Array<Object> {
+		if (groups == null) groups = new Map();
+		var g = groups.get(name);
+		if (g == null) {
+			g = [];
+			groups.set(name, g);
+			for (ref in getGroupObjectRefs(name)) {
+				var c = getChild(ref);
+				if (c != null) g.push(c);
+			}
+		}
+		return g;
 	}
 
 	public function addMeshObject(data:MeshData, materials:Vector<MaterialData>, parent:Object = null):MeshObject {
@@ -598,14 +612,6 @@ class Scene {
 			createConstraints(o.constraints, object);
 			generateTransform(o, object.transform);
 			object.setupAnimation(oactions);
-			if (o.groups != null) {
-				if (groups == null) groups = new Map();
-				for (gname in o.groups) {
-					var g = groups.get(gname);
-					if (g == null) { g = []; groups.set(gname, g); }
-					g.push(object);
-				}
-			}
 			if (o.properties != null) {
 				object.properties = new Map();
 				for (p in o.properties) object.properties.set(p.name, p.value);
