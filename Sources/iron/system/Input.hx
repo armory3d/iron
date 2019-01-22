@@ -224,12 +224,13 @@ class Mouse extends VirtualInput {
 	function moveListener(x:Int, y:Int, movementX:Int, movementY:Int) {
 		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
 		if (locked) {
-			this.movementX = movementX;
-			this.movementY = movementY;
+			// Can be called multiple times per frame
+			this.movementX += movementX;
+			this.movementY += movementY;
 		}
 		else {
-			this.movementX = x - lastX;
-			this.movementY = y - lastY;
+			this.movementX += x - lastX;
+			this.movementY += y - lastY;
 		}
 		lastX = x;
 		lastY = y;
