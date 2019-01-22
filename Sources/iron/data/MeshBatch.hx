@@ -86,6 +86,8 @@ class MeshBatch {
 				var shaderContexts:Array<ShaderContext> = [];
 				m.getContexts(context, m.materials, materialContexts, shaderContexts);
 				
+				Uniforms.posUnpack = m.data.scalePos;
+				Uniforms.texUnpack = m.data.scaleTex;
 				m.transform.update();
 				
 				// Render mesh
