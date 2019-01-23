@@ -89,7 +89,7 @@ class MaterialContext {
 			for (i in 0...raw.bind_textures.length) {
 				var tex = raw.bind_textures[i];
 
-				if (tex.file == '') { // Empty texture
+				if (tex.file == '' || tex.source == 'movie') { // Empty texture
 					texturesLoaded++;
 					if (texturesLoaded == raw.bind_textures.length) done(this);
 					continue;

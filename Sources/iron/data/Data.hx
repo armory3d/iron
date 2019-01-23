@@ -460,6 +460,8 @@ class Data {
 	public static function getVideo(file:String, done:kha.Video->Void) {
 		#if (cpp || hl)
 		file = file.substring(0, file.length - 4) + '.avi';
+		#elseif krom
+		file = file.substring(0, file.length - 4) + '.webm';
 		#end
 		var cached = cachedVideos.get(file);
 		if (cached != null) { done(cached); return; }
