@@ -1149,7 +1149,7 @@ class Uniforms {
 	static function getSpot(index:Int):LightObject {
 		var i = 0;
 		for (l in Scene.active.lights) {
-			if (l.data.raw.type != "spot") continue;
+			if (l.data.raw.type != "spot" && l.data.raw.type != "area") continue;
 			if (i == index) return l;
 			i++;
 		}
