@@ -162,8 +162,8 @@ class ShaderContext {
 
 		// Shaders
 		if (raw.shader_from_source) {
-			pipeState.fragmentShader = kha.graphics4.FragmentShader.fromSource(raw.fragment_shader);
 			pipeState.vertexShader = kha.graphics4.VertexShader.fromSource(raw.vertex_shader);
+			pipeState.fragmentShader = kha.graphics4.FragmentShader.fromSource(raw.fragment_shader);
 			// if (raw.geometry_shader != null) {
 				// pipeState.geometryShader = kha.graphics4.GeometryShader.fromSource(raw.geometry_shader);
 			// }
