@@ -213,15 +213,15 @@ class LightObject extends Object {
 		maxy = Math.floor(maxy / worldPerTexelY) * worldPerTexelY;
 		maxz = Math.floor(maxz / worldPerTexelZ) * worldPerTexelZ;
 
-		var hx = ((maxx - minx) / 2) * cascadeBounds;
-		var hy = ((maxy - miny) / 2) * cascadeBounds;
-		var hz = ((maxz - minz) / 2) * cascadeBounds;
+		var hx = (maxx - minx) / 2;
+		var hy = (maxy - miny) / 2;
+		var hz = (maxz - minz) / 2;
 		V._30 = -(minx + hx);
 		V._31 = -(miny + hy);
 		V._32 = -(minz + hz);
 
-		// -hz * 4 - include shadow casters out of view frustum
-		m = Mat4.ortho(-hx, hx, -hy, hy, -hz * 4, hz);
+		// (-hz * 4 * cascadeBounds) - include shadow casters out of view frustum
+		m = Mat4.ortho(-hx, hx, -hy, hy, -hz * 4 * cascadeBounds, hz);
 		P.setFrom(m);
 
 		updateViewFrustum(camera);
