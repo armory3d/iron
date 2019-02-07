@@ -236,10 +236,10 @@ class Geometry {
 				vertices.set(++di, uva1[i * 2 + 1]);
 			}
 			if (ca != null) { // Colors
-				vertices.set(++di, ca[i * 3    ]);
-				vertices.set(++di, ca[i * 3 + 1]);
-				vertices.set(++di, ca[i * 3 + 2]);
-				vertices.set(++di, 0); // Padding
+				vertices.set(++di, ca[i * 4    ]);
+				vertices.set(++di, ca[i * 4 + 1]);
+				vertices.set(++di, ca[i * 4 + 2]);
+				vertices.set(++di, ca[i * 4 + 3]);
 			}
 			// Normal mapping
 			if (tanga != null) { // Tangents
