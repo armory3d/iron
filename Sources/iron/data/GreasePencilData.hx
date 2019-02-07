@@ -1,4 +1,4 @@
-// package iron.data;
+package iron.data;
 
 // import kha.graphics4.VertexBuffer;
 // import kha.graphics4.IndexBuffer;
