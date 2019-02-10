@@ -58,20 +58,6 @@ class Data {
 		cachedFonts = new Map();
 	}
 
-	// Experimental scene patching
-	public static function clearSceneData() {
-		cachedSceneRaws = new Map();
-		cachedMeshes = new Map(); // Delete data
-		cachedLights = new Map();
-		cachedMaterials = new Map();
-		cachedCameras = new Map();
-		cachedParticles = new Map();
-		cachedWorlds = new Map();
-		// cachedGreasePencils = new Map();
-		cachedShaders = new Map(); // Slow
-		cachedBlobs = new Map();
-	}
-
 	static var loadingMeshes:Map<String, Array<MeshData->Void>> = new Map();
 	public static function getMesh(file:String, name:String, done:MeshData->Void) {
 		var handle = file + name;

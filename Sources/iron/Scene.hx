@@ -112,6 +112,18 @@ class Scene {
 		});
 	}
 
+	#if arm_patch
+	public static var getRenderPath:Void->iron.RenderPath;
+	public static function patch() {
+		Data.deleteAll();
+		var cameraTransform = Scene.active.camera.transform;
+		Scene.setActive(Scene.active.raw.name, function(o:Object) {
+			RenderPath.setActive(getRenderPath());
+			Scene.active.camera.transform = cameraTransform;
+		});
+	}
+	#end
+
 	public function remove() {
 		for (f in traitRemoves) f();
 		#if arm_batch
