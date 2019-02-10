@@ -202,11 +202,15 @@ class Uniforms {
 						if (!paramsSet) {
 						if (StringTools.startsWith(samplerID, "shadowMap")) {
 							if (rt.isCubeMap) {
+								#if (!arm_legacy)
 								g.setCubeMapCompareMode(context.textureUnits[j], true);
+								#end
 							}
 							else {
 								g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+								#if (!arm_legacy)
 								g.setTextureCompareMode(context.textureUnits[j], true);
+								#end
 							}
 					// 		context.paramsSet[j] = true;
 							paramsSet = true;
