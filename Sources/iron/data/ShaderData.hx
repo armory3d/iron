@@ -255,7 +255,7 @@ class ShaderContext {
 		done(this);
 	}
 
-	function parseData(data:String):VertexData {
+	public static function parseData(data:String):VertexData {
 		if (data == "float1") return VertexData.Float1;
 		else if (data == "float2") return VertexData.Float2;
 		else if (data == "float3") return VertexData.Float3;

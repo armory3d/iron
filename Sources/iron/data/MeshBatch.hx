@@ -2,6 +2,7 @@ package iron.data;
 
 #if arm_batch
 
+import kha.arrays.Int16Array;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
@@ -13,6 +14,7 @@ import iron.object.Uniforms;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.MeshData;
+import iron.data.SceneFormat;
 
 @:access(iron.object.MeshObject)
 @:access(iron.object.Uniforms)
@@ -30,7 +32,11 @@ class MeshBatch {
 	}
 
 	public static function isBatchable(m:MeshObject):Bool {
-		return !(m.materials == null || m.materials.length > 1 || m.data.geom.instanced);
+		var batch = 
+			m.materials != null &&
+			m.materials.length == 1 &&
+			!m.data.geom.instanced;
+		return batch;
 	}
 
 	public function addMesh(m:MeshObject, isLod:Bool):Bool {
@@ -68,7 +74,7 @@ class MeshBatch {
 			// #if arm_deinterleaved // TODO
 			// g.setVertexBuffers(b.vertexBuffers);
 			// #else
-			g.setVertexBuffer(b.vertexBuffer);
+			g.setVertexBuffer(b.getVertexBuffer(scontext.raw.vertex_elements));
 			// #end
 			g.setIndexBuffer(b.indexBuffer);
 			
@@ -125,7 +131,8 @@ class Bucket {
 
 	public var batched = false;
 	public var shader:ShaderData;
-	public var vertexBuffer:VertexBuffer;
+	var vertexBuffer:VertexBuffer;
+	var vertexBufferMap:Map<String, VertexBuffer> = new Map();
 	public var indexBuffer:IndexBuffer;
 	public var meshes:Array<MeshObject> = [];
 
@@ -145,6 +152,54 @@ class Bucket {
 
 	public function removeMesh(m:MeshObject) {
 		meshes.remove(m);
+	}
+
+	function copyAttribute(attribSize:Int, count:Int, to:Int16Array, toStride:Int, toOffset:Int, from:Int16Array, fromStride:Int, fromOffset:Int) {
+		for (i in 0...count) {
+			for (j in 0...attribSize) {
+				to.set(i * toStride + toOffset + j, from.get(i * fromStride + fromOffset + j));
+			}
+		}
+	}
+
+	function extractVertexBuffer(elems:Array<TVertexElement>):VertexBuffer {
+		// Build vertex buffer for specific context
+		var vs = new VertexStructure();
+		for (e in elems) vs.add(e.name, ShaderContext.parseData(e.data));
+
+		var vb = new VertexBuffer(vertexBuffer.count(), vs, Usage.StaticUsage);
+		var to = vb.lockInt16();
+		var from = vertexBuffer.lockInt16();
+
+		var toOffset = 0;
+		var toStride = Std.int(vb.stride() / 2);
+		var fromOffset = 0;
+		var fromStride = Std.int(vertexBuffer.stride() / 2);
+
+		for (e in elems) trace(e.name);
+
+		for (e in elems) {
+			var size = 0;
+			if (e.name == "pos") { size = 4; fromOffset = 0; }
+			else if (e.name == "nor") { size = 2; fromOffset = 4; }
+			else if (e.name == "tex") { size = 2; fromOffset = 6; }
+			copyAttribute(size, vertexBuffer.count(), to, toStride, toOffset, from, fromStride, fromOffset);
+			toOffset += size;
+		}
+		
+		vb.unlock();
+		return vb;
+	}
+
+	public function getVertexBuffer(elems:Array<TVertexElement>):VertexBuffer {
+		var s = '';
+		for (e in elems) s += e.name;
+		var vb = vertexBufferMap.get(s);
+		if (vb == null) {
+			vb = extractVertexBuffer(elems);
+			vertexBufferMap.set(s, vb);
+		}
+		return vb;
 	}
 
 	function vertexCount(g:Geometry, hasUVs:Bool):Int {
@@ -198,6 +253,10 @@ class Bucket {
 			offset += vertexCount(md.geom, hasUVs);
 		}
 		vertexBuffer.unlock();
+
+		var s = '';
+		for (e in vs.elements) s += e.name;
+		vertexBufferMap.set(s, vertexBuffer);
 
 		indexBuffer = new IndexBuffer(icount, Usage.StaticUsage);
 		var indices = indexBuffer.lock();
