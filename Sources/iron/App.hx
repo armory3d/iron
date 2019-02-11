@@ -29,9 +29,10 @@ class App {
 	public static var updateTime:Float;
 	public static var renderPathTime:Float;
 	#end
-	#if kha_webgl
+	#if arm_resizable
 	static var lastw = -1;
 	static var lasth = -1;
+	public static var onResize:Void->Void = null;
 	#end
 	#if arm_rendertimer
 	static var renderTimer = 0.0;
@@ -94,12 +95,15 @@ class App {
 		updateTime = kha.Scheduler.realTime() - startTime;
 		#end
 
-		#if kha_webgl
-		// Rebuild projection on canvas size change
+		#if arm_resizable
+		// Rebuild projection on window resize
 		if (lastw == -1) { lastw = App.w(); lasth = App.h(); }
 		if (lastw != App.w() || lasth != App.h()) {
-			if (iron.Scene.active != null && iron.Scene.active.camera != null) {
-				iron.Scene.active.camera.buildProjection();
+			if (onResize != null) onResize();
+			else {
+				if (iron.Scene.active != null && iron.Scene.active.camera != null) {
+					iron.Scene.active.camera.buildProjection();
+				}
 			}
 		}
 		lastw = App.w();
