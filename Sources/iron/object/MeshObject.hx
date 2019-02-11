@@ -18,6 +18,7 @@ class MeshObject extends Object {
 
 	public var data:MeshData = null;
 	public var materials:Vector<MaterialData>;
+	public var materialIndex = 0;
 	#if arm_particles
 	public var particleSystems:Array<ParticleSystem> = null; // Particle owner
 	public var particleChildren:Array<MeshObject> = null;
@@ -286,6 +287,7 @@ class MeshObject extends Object {
 
 			var mi = ldata.geom.materialIndices[i];
 			if (shaderContexts.length <= mi) continue;
+			materialIndex = mi;
 
 			// Check context skip
 			if (materials.length > mi && skipContext(context, materials[mi])) continue;
