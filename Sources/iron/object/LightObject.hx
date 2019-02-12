@@ -254,13 +254,12 @@ class LightObject extends Object {
 	public function setCubeFace(face:Int, camera:CameraObject) {
 		// Set matrix to match cubemap face
 		eye.set(transform.worldx(), transform.worldy(), transform.worldz());
-		CameraObject.setCubeFace(V, eye, face);
 		#if (!kha_opengl && !kha_webgl)
-		V._01 = -V._01;
-		V._11 = -V._11;
-		V._21 = -V._21;
-		V._31 = -V._31;
+		var flip = (face == 2 || face == 3) ? true : false; // Flip +Y, -Y
+		#else
+		var flip = false;
 		#end
+		CameraObject.setCubeFace(V, eye, face, flip);
 		updateViewFrustum(camera);
 	}
 
