@@ -103,7 +103,7 @@ class MeshBatch {
 				g.drawIndexedVertices(m.data.start, m.data.count);
 
 				#if arm_veloc
-				m.prevMatrix.setFrom(m.transform.world);
+				m.prevMatrix.setFrom(m.transform.worldUnpack);
 				#end
 				
 				#if arm_debug
@@ -175,8 +175,6 @@ class Bucket {
 		var toStride = Std.int(vb.stride() / 2);
 		var fromOffset = 0;
 		var fromStride = Std.int(vertexBuffer.stride() / 2);
-
-		for (e in elems) trace(e.name);
 
 		for (e in elems) {
 			var size = 0;
