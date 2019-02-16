@@ -188,8 +188,10 @@ class ShaderContext {
 			function loadShader(file:String, type:Int) {
 
 				#if (kha_webgl && !kha_node)
+				#if (!arm_legacy)
 				var ar = file.split('.');
 				file = ar[0] + '-webgl2.' + ar[1];
+				#end
 				var path = '../html5-resources/' + file + '.essl';
 				#elseif kha_opengl
 				var path = '../krom-resources/' + file + '.glsl';
