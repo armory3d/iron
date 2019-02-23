@@ -404,6 +404,15 @@ class Keyboard extends VirtualInput {
 		else if (key == kha.input.KeyCode.Back) return "back";
 		else if (key == kha.input.KeyCode.Comma) return "comma";
 		else if (key == kha.input.KeyCode.Period) return "period";
+		else if (key == kha.input.KeyCode.Colon) return ":";
+		else if (key == kha.input.KeyCode.Semicolon) return ";";
+		else if (key == kha.input.KeyCode.LessThan) return "<";
+		else if (key == kha.input.KeyCode.Equals) return "=";
+		else if (key == kha.input.KeyCode.GreaterThan) return ">";
+		else if (key == kha.input.KeyCode.Add) return "+";
+		else if (key == kha.input.KeyCode.Plus) return "+";
+		else if (key == kha.input.KeyCode.Subtract) return "-";
+		else if (key == kha.input.KeyCode.HyphenMinus) return "-";
 		else if (key == kha.input.KeyCode.Zero) return "0";
 		else if (key == kha.input.KeyCode.One) return "1";
 		else if (key == kha.input.KeyCode.Two) return "2";
