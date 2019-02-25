@@ -364,7 +364,7 @@ class LightObject extends Object {
 		var n = lights.length > maxLights ? maxLights : lights.length;
 		var i = 0;
 		for (l in lights) {
-			if (!l.visible || l.data.raw.type == "sun") continue;
+			if (!l.visible || l.data.raw.strength == 0.0 || l.data.raw.type == "sun") continue;
 			if (i >= n) break;
 			// Light bounds
 			lpos.set(l.transform.worldx(), l.transform.worldy(), l.transform.worldz());
