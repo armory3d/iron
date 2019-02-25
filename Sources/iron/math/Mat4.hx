@@ -375,7 +375,7 @@ class Mat4 {
 		);
 	}
 
-	public static inline function ortho(left:FastFloat, right:FastFloat, bottom:FastFloat, top:FastFloat, near:FastFloat, far:kha.FastFloat):Mat4 {
+	public static inline function ortho(left:FastFloat, right:FastFloat, bottom:FastFloat, top:FastFloat, near:FastFloat, far:FastFloat):Mat4 {
 		var rl = right - left;
 		var tb = top - bottom;
 		var fn = far - near;
