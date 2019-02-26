@@ -173,6 +173,15 @@ class ShaderContext {
 			// if (raw.tesseval_shader != null) {
 				// pipeState.tessellationEvaluationShader = kha.graphics4.TessellationEvaluationShader.fromSource(raw.tesseval_shader);
 			// }
+
+			#if kha_krom
+			// Shader compile error
+			if (pipeState.vertexShader.shader == null || pipeState.fragmentShader.shader == null) {
+				done(null);
+				return;
+			}
+			#end
+
 			finishCompile(done);
 		}
 		else {
