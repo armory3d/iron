@@ -79,11 +79,11 @@ class RenderPath {
 	public function renderFrame(g:Graphics) {
 		if (!ready || paused || iron.App.w() == 0 || iron.App.h() == 0) return;
 
-		// #if arm_resizable
+		#if arm_resizable
 		if (lastW > 0 && (lastW != iron.App.w() || lastH != iron.App.h())) resize();
 		lastW = iron.App.w();
 		lastH = iron.App.h();
-		// #end
+		#end
 
 		frameTime = iron.system.Time.time() - lastFrameTime;
 		lastFrameTime = iron.system.Time.time();
@@ -506,7 +506,10 @@ class RenderPath {
 
 	public function unload() { for (rt in renderTargets) rt.unload(); }
 
+	#if arm_resizable
 	public function resize() {
+		if (kha.System.windowWidth() == 0 || kha.System.windowHeight() == 0) return;
+
 		// Make sure depth buffer is attached to single target only and gets released once
 		for (rt in renderTargets) {
 			if (rt.raw.width > 0 ||
@@ -543,6 +546,7 @@ class RenderPath {
 			}
 		}
 	}
+	#end
 	
 	public function createRenderTarget(t:RenderTargetRaw):RenderTarget {
 		var rt = createTarget(t);
@@ -618,6 +622,8 @@ class RenderPath {
 			height = Std.int(height * t.scale);
 			depth = Std.int(depth * t.scale);
 		}
+		if (width < 1) width = 1;
+		if (height < 1) height = 1;
 		if (t.depth != null && t.depth > 1) { // 3D texture
 			// Image only
 			var img = Image.create3D(width, height, depth,
