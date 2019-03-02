@@ -506,7 +506,6 @@ class RenderPath {
 
 	public function unload() { for (rt in renderTargets) rt.unload(); }
 
-	#if arm_resizable
 	public function resize() {
 		if (kha.System.windowWidth() == 0 || kha.System.windowHeight() == 0) return;
 
@@ -546,7 +545,6 @@ class RenderPath {
 			}
 		}
 	}
-	#end
 	
 	public function createRenderTarget(t:RenderTargetRaw):RenderTarget {
 		var rt = createTarget(t);
