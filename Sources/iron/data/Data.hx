@@ -369,6 +369,13 @@ class Data {
 		});
 	}
 
+	public static function deleteBlob(handle:String) {
+		var blob = cachedBlobs.get(handle);
+		if (blob == null) return;
+		blob.unload();
+		cachedBlobs.remove(handle);
+	}
+
 	static var loadingImages:Map<String, Array<kha.Image->Void>> = new Map();
 	public static function getImage(file:String, done:kha.Image->Void, readable = false, format = 'RGBA32') {
 		#if (cpp || hl)
@@ -442,6 +449,13 @@ class Data {
 		});
 	}
 
+	public static function deleteSound(handle:String) {
+		var sound = cachedSounds.get(handle);
+		if (sound == null) return;
+		sound.unload();
+		cachedSounds.remove(handle);
+	}
+
 	static var loadingVideos:Map<String, Array<kha.Video->Void>> = new Map();
 	public static function getVideo(file:String, done:kha.Video->Void) {
 		#if (cpp || hl)
@@ -467,6 +481,13 @@ class Data {
 		});
 	}
 
+	public static function deleteVideo(handle:String) {
+		var video = cachedVideos.get(handle);
+		if (video == null) return;
+		video.unload();
+		cachedVideos.remove(handle);
+	}
+
 	static var loadingFonts:Map<String, Array<kha.Font->Void>> = new Map();
 	public static function getFont(file:String, done:kha.Font->Void) {
 		var cached = cachedFonts.get(file);
@@ -485,5 +506,12 @@ class Data {
 			loadingFonts.remove(file);
 			assetsLoaded++;
 		});
+	}
+
+	public static function deleteFont(handle:String) {
+		var font = cachedFonts.get(handle);
+		if (font == null) return;
+		font.unload();
+		cachedFonts.remove(handle);
 	}
 }
