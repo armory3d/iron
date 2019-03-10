@@ -5,19 +5,53 @@ import iron.math.Vec4;
 import iron.math.Quat;
 
 class Transform {
-	public var world:Mat4; // Read only
-	public var localOnly = false; // Whether to apply parent matrix
-	public var local:Mat4; // Call decompose()
-	public var loc:Vec4; // Decomposed local matrix
+	/**
+	 * The world matrix (read-only).
+	 */
+	public var world:Mat4;
+	/**
+	 * Whether to apply the parent matrix. Default: `false`.
+	 */
+	public var localOnly = false;
+	/**
+	 * The local matrix. If you modify this, call `decompose()` to update the
+	 * `loc`, `rot` and `scale` fields, or `buildMatrix()` to update
+	 * everything.
+	 */
+	public var local:Mat4;
+	/**
+	 * The local translation. Changes to this field should be applied by
+	 * calling `buildMatrix()`.
+	 */
+	public var loc:Vec4;
+	/**
+	 * The local rotation. Changes to this field should be applied by
+	 * calling `buildMatrix()`.
+	 */
 	public var rot:Quat;
+	/**
+	 * The local scale. Changes to this field should be applied by
+	 * calling `buildMatrix()`.
+	 */
 	public var scale:Vec4;
 
 	public var worldUnpack:Mat4; // With applied scaleWorld
 	public var scaleWorld:kha.FastFloat = 1.0; // Uniform scale factor
-	
+
 	public var dirty:Bool;
+	/**
+	 * The object that is effected by this transform.
+	 */
 	public var object:Object;
+	/**
+	 * The dimensions of the object in local space (without parent, prepended
+	 * or appended matrices applied).
+	 */
 	public var dim:Vec4;
+	/**
+	 * The radius of the smallest sphere that encompasses the object in local
+	 * space.
+	 */
 	public var radius:kha.FastFloat;
 	static var temp = Mat4.identity();
 	static var q = new Quat();
@@ -30,6 +64,11 @@ class Transform {
 		reset();
 	}
 
+	/**
+	 * Reset to a null transform: zero location and rotation, and a uniform
+	 * scale of one. Other fields such as prepended matrices and bone parents
+	 * will not be changed.
+	 */
 	public function reset() {
 		world = Mat4.identity();
 		worldUnpack = Mat4.identity();
@@ -42,15 +81,27 @@ class Transform {
 		dirty = true;
 	}
 
+	/**
+	 * Rebuild the matrices, if needed.
+	 */
 	public function update() {
 		if (dirty) buildMatrix();
 	}
 
+	/**
+	 * Add a matrix to apply before this transform's local matrix.
+	 * The matrix will persist, so that subsequent changes to `loc`, `rot` and
+	 * `scale` will have `m` applied beforehand.
+	 * @param	m The matrix to append.
+	 */
 	public function prependMatrix(m:Mat4) {
 		if (prependMats == null) prependMats = [];
 		prependMats.push(m);
 	}
 
+	/**
+	 * Remove the last prepended matrix.
+	 */
 	public function popPrependMatrix() {
 		if (prependMats != null) {
 			prependMats.pop();
@@ -58,11 +109,20 @@ class Transform {
 		}
 	}
 
+	/**
+	 * Add a matrix to apply after this transform's local matrix.
+	 * The matrix will persist, so that subsequent changes to `loc`, `rot` and
+	 * `scale` will have `m` applied afterward.
+	 * @param	m The matrix to append.
+	 */
 	public function appendMatrix(m:Mat4) {
 		if (appendMats == null) appendMats = [];
 		appendMats.push(m);
 	}
 
+	/**
+	 * Remove the last appended matrix.
+	 */
 	public function popAppendMatrix() {
 		if (appendMats != null) {
 			appendMats.pop();
@@ -134,11 +194,11 @@ class Transform {
 	}
 
 	/**
-	 * Move the game Object by the defined amount relative to it's current location.
+	 * Move the game Object by the defined amount relative to its current location.
 	 *
-	 * @param	x Amount to move on the x axis.
-	 * @param	y Amount to move on the y axis.
-	 * @param	z Amount to move on the z axis.
+	 * @param	x Amount to move on the local x axis.
+	 * @param	y Amount to move on the local y axis.
+	 * @param	z Amount to move on the local z axis.
 	 */
 	public function translate(x:kha.FastFloat, y:kha.FastFloat, z:kha.FastFloat) {
 		loc.x += x;
@@ -147,28 +207,53 @@ class Transform {
 		buildMatrix();
 	}
 
+	/**
+	 * Set the local matrix and update `loc`, `rot`, `scale` and `world`.
+	 * @param	mat The new local matrix.
+	 */
 	public function setMatrix(mat:Mat4) {
 		local.setFrom(mat);
 		decompose();
 		buildMatrix();
 	}
 
+	/**
+	 * Apply another transform to this one, i.e. multiply this transform's
+	 * local matrix by another.
+	 * @param	mat The other transform to apply.
+	 */
 	public function multMatrix(mat:Mat4) {
 		local.multmat(mat);
 		decompose();
 		buildMatrix();
 	}
 
+	/**
+	 * Update the `loc`, `rot` and `scale` fields according to the local
+	 * matrix. You may need to call this after directly mutating the local
+	 * matrix.
+	 */
 	public function decompose() {
 		local.decompose(loc, rot, scale);
 	}
 
+	/**
+	 * Rotate around an axis.
+	 * @param	axis The axis to rotate around.
+	 * @param	f The magnitude of the rotation in radians.
+	 */
 	public function rotate(axis:Vec4, f:kha.FastFloat) {
 		q.fromAxisAngle(axis, f);
 		rot.multquats(q, rot);
 		buildMatrix();
 	}
 
+	/**
+	 * Apply a scaled translation in local space.
+	 * @param	axis The direction to move.
+	 * @param	f A multiplier for the movement. If `axis` is a unit
+	 * 			vector, then this is the distance to move. Default: `1.0`.
+	 */
 	public function move(axis:Vec4, f = 1.0) {
 		loc.addf(axis.x * f, axis.y * f, axis.z * f);
 		buildMatrix();
@@ -217,6 +302,11 @@ class Transform {
 	}
 
 	var lastWorld:Mat4 = null;
+	/**
+	 * Check whether the transform has changed at all since the last time
+	 * this function was called.
+	 * @return	`true` iff the transform has changed.
+	 */
 	public function diff():Bool {
 		if (lastWorld == null) { lastWorld = Mat4.identity().setFrom(world); return false; }
 		var a = world;
@@ -241,12 +331,30 @@ class Transform {
 	var _eulerY:kha.FastFloat;
 	var _eulerZ:kha.FastFloat;
 
+	/**
+	 * @return	The look vector (positive local y axis) in world space.
+	 */
 	public inline function look():Vec4 { return world.look(); }
+	/**
+	 * @return	The right vector (positive local x axis) in world space.
+	 */
 	public inline function right():Vec4 { return world.right(); }
+	/**
+	 * @return	The up vector (positive local z axis) in world space.
+	 */
 	public inline function up():Vec4 { return world.up(); }
 
+	/**
+	 * @return The world x location.
+	 */
 	public inline function worldx():kha.FastFloat { return world._30; }
+	/**
+	 * @return The world y location.
+	 */
 	public inline function worldy():kha.FastFloat { return world._31; }
+	/**
+	 * @return The world z location.
+	 */
 	public inline function worldz():kha.FastFloat { return world._32; }
 
 	// Animated delta transform
