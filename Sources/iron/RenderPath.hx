@@ -45,7 +45,7 @@ class RenderPath {
 	public var currentG:Graphics;
 	public var frameG:Graphics;
 	var lastFrameTime = 0.0;
-	public var drawOrder = DrawOrder.Shader;
+	public var drawOrder = DrawOrder.Distance;
 	
 	public var paused = false;
 	public var ready(get, null):Bool;
