@@ -102,10 +102,21 @@ class Quat {
 		return this;
 	}
 
+	/**
+	 * Multiply this quaternion by another.
+	 * @param	q The quaternion to multiply this one with.
+	 * @return	This quaternion.
+	 */
 	inline public function mult(q:Quat):Quat {	
 		return multquats(this, q);
 	}
 
+	/**
+	 * Multiply two other quaternions and store the result in this one.
+	 * @param	q1 The first operand.
+	 * @param	q2 The second operand.
+	 * @return	This quaternion.
+	 */
 	inline public function multquats(q1:Quat, q2:Quat):Quat {
 		var q1x = q1.x; var q1y = q1.y; var q1z = q1.z; var q1w = q1.w;
 		var q2x = q2.x; var q2y = q2.y; var q2z = q2.z; var q2w = q2.w;
@@ -116,6 +127,10 @@ class Quat {
 		return this;
 	}
 
+	/**
+	 * Scale this quaternion to have a magnitude of 1.
+	 * @return	This quaternion.
+	 */
 	inline public function normalize():Quat {
 		var l = Math.sqrt(x * x + y * y + z * z + w * w);
 		if (l == 0.0) {
@@ -134,6 +149,11 @@ class Quat {
 		return this;
 	}
 
+	/**
+	 * Copy the rotation of another quaternion to this one.
+	 * @param	q A quaternion to copy.
+	 * @return	This quaternion.
+	 */
 	inline public function setFrom(q:Quat):Quat {
 		x = q.x;
 		y = q.y;
@@ -142,6 +162,11 @@ class Quat {
 		return this;
 	}
 
+	/**
+	 * Convert this quaternion to a YZX Euler.
+	 * @return	A new YZX Euler that represents the same rotation as this
+	 * 			quaternion.
+	 */
 	inline public function getEuler():Vec4 {
 		// YZX
 		var roll = Math.NaN;
@@ -170,6 +195,13 @@ class Quat {
 		return new Vec4(pitch, roll, yaw);
 	}
 
+	/**
+	 * Set this quaternion to the rotation represented by a YZX Euler.
+	 * @param	x The Euler's x component.
+	 * @param	y The Euler's y component.
+	 * @param	z The Euler's z component.
+	 * @return	This quaternion.
+	 */
 	inline public function fromEuler(x:FastFloat, y:FastFloat, z:FastFloat):Quat {
 		var f = x / 2;
 		var c1 = Math.cos(f);
@@ -188,6 +220,15 @@ class Quat {
 		return this;
 	}
 
+	/**
+	 * Linearly interpolate between two other quaterions, and store the
+	 * result in this one. This is not a so-called slerp operation.
+	 * @param	from The quaterion to interpolate from.
+	 * @param	to The quaterion to interpolate to.
+	 * @param	s The amount to interpolate, with 0 being `from` and 1 being
+	 * 			`to`, and 0.5 being half way between the two.
+	 * @return	This quaternion.
+	 */
 	public inline function lerp(from:Quat, to:Quat, s:FastFloat):Quat {
 		var fromx = from.x;
 		var fromy = from.y;
@@ -232,6 +273,11 @@ class Quat {
 	// 	return c;
 	// }
 
+	/**
+	 * Find the dot product of this quaternion with another.
+	 * @param	q The other quaternion.
+	 * @return	The dot product.
+	 */
 	inline public function dot(q:Quat):FastFloat {
 		return (x * q.x) + (y * q.y) + (z * q.z) + (w * q.w);
 	}
