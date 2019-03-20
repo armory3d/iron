@@ -20,7 +20,7 @@ class ParticleSystem {
 	var animtime = 0.0;
 	var time = 0.0;
 	var spawnRate = 0.0;
-	var seed = 0.0;
+	var seed = 0;
 
 	var r:TParticleData;
 	var gx:Float;

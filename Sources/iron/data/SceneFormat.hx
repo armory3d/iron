@@ -428,7 +428,7 @@ typedef TParticleData = {
 	public var physics_type:Int; // 0 - No, 1 - Newton
 	public var particle_size:FastFloat; // Object scale
 	public var size_random:FastFloat; // Random scale
-	public var mass:FastFloat; // Random scale
+	public var mass:FastFloat;
 	// Render
 	public var instance_object:String; // Object reference
 	// Field weights
