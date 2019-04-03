@@ -48,7 +48,7 @@ class MeshObject extends Object {
 		this.data = data;
 		data.refcount++;
 
-		#if (!arm_batch)
+		#if (!arm_batch && !kha_dxr)
 		data.geom.build();
 		#end
 
