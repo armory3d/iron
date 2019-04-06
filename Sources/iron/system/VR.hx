@@ -22,8 +22,6 @@ class VR {
 	}
 
 	public static function initButton() {
-		var vrImage:kha.Image = iron.Scene.active.embedded.get('vr.png');
-
 		function vrDownListener(index:Int, x:Float, y:Float) {
 			var vr = kha.vr.VrInterface.instance;
 			if (vr == null || !vr.IsVrEnabled() || vr.IsPresenting()) return;
@@ -38,8 +36,8 @@ class VR {
 			if (vr == null || !vr.IsVrEnabled() || vr.IsPresenting()) return;
 			var w:Float = iron.App.w();
 			var h:Float = iron.App.h();
-			g.color = 0xffffffff;
-			g.drawImage(vrImage, w - 150, h - 150);
+			g.color = 0xffff0000;
+			g.fillRect(w - 150, h - 150, 140, 140);
 		}
 
 		kha.input.Mouse.get().notify(vrDownListener, null, null, null);

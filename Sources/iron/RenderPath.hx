@@ -57,7 +57,7 @@ class RenderPath {
 	public var renderTargets:Map<String, RenderTarget> = new Map();
 	public var depthToRenderTarget:Map<String, RenderTarget> = new Map();
 
-	#if (rp_gi != "Off")
+	#if rp_voxelao
 	public var voxelized = 0;
 	public var onVoxelize:Void->Bool = null;
 	public function voxelize() { // Returns true if scene should be voxelized

@@ -112,11 +112,6 @@ class LightObject extends Object {
 		m.setFrom(camera.V);
 		#end
 
-		#if ((!arm_voxelgi_revox) && (rp_gi == "Voxel GI"))
-		// Cover the voxelization volume if revoxelization is turned off
-		m.setLookAt(new Vec4(0, 0, Main.voxelgiHalfExtents), new Vec4(0, 0, 0), new Vec4(0, 1, 0));
-		#end
-
 		#if arm_csm
 		if (camSlicedP == null) {
 			camSlicedP = [];
