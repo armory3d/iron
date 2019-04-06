@@ -119,13 +119,7 @@ class ShaderContext {
 		if (raw.alpha_blend_destination != null) pipeState.alphaBlendDestination = getBlendingFactor(raw.alpha_blend_destination);
 		if (raw.alpha_blend_operation != null) pipeState.alphaBlendOperation = getBlendingOperation(raw.alpha_blend_operation);
 
-		// Color write mask
-		if (raw.color_write_red != null) pipeState.colorWriteMaskRed = raw.color_write_red;
-		if (raw.color_write_green != null) pipeState.colorWriteMaskGreen = raw.color_write_green;
-		if (raw.color_write_blue != null) pipeState.colorWriteMaskBlue = raw.color_write_blue;
-		if (raw.color_write_alpha != null) pipeState.colorWriteMaskAlpha = raw.color_write_alpha;
-
-		// Per target masks
+		// Per-target color write mask
 		if (raw.color_writes_red != null) for (i in 0...raw.color_writes_red.length) pipeState.colorWriteMasksRed[i] = raw.color_writes_red[i];
 		if (raw.color_writes_green != null) for (i in 0...raw.color_writes_green.length) pipeState.colorWriteMasksGreen[i] = raw.color_writes_green[i];
 		if (raw.color_writes_blue != null) for (i in 0...raw.color_writes_blue.length) pipeState.colorWriteMasksBlue[i] = raw.color_writes_blue[i];

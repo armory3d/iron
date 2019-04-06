@@ -215,10 +215,6 @@ typedef TShaderContext = {
 	@:optional public var alpha_blend_source:String;
 	@:optional public var alpha_blend_destination:String;
 	@:optional public var alpha_blend_operation:String;
-	@:optional public var color_write_red:Null<Bool>;
-	@:optional public var color_write_green:Null<Bool>;
-	@:optional public var color_write_blue:Null<Bool>;
-	@:optional public var color_write_alpha:Null<Bool>;
 	@:optional public var color_writes_red:Array<Bool>; // Per target masks
 	@:optional public var color_writes_green:Array<Bool>;
 	@:optional public var color_writes_blue:Array<Bool>;
