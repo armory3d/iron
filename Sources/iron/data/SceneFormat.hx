@@ -346,25 +346,19 @@ typedef TParticleData = {
 	public var type:Int; // 0 - Emitter, Hair
 	public var loop:Bool;
 	public var render_emitter:Bool;
-	// Emission
 	public var count:Int;
 	public var frame_start:FastFloat;
 	public var frame_end:FastFloat;
 	public var lifetime:FastFloat;
 	public var lifetime_random:FastFloat;
 	public var emit_from:Int; // 0 - Vert, Face, 1 - Volume
-	// Velocity
-	// public var normal_factor:FastFloat;
 	public var object_align_factor:Float32Array;
 	public var factor_random:FastFloat;
-	// Physics
 	public var physics_type:Int; // 0 - No, 1 - Newton
 	public var particle_size:FastFloat; // Object scale
 	public var size_random:FastFloat; // Random scale
 	public var mass:FastFloat;
-	// Render
 	public var instance_object:String; // Object reference
-	// Field weights
 	public var weight_gravity:FastFloat;
 }
 
@@ -524,34 +518,3 @@ typedef TTrack = {
 	// @:optional public var continuity:Float32Array;
 	// @:optional public var bias:Float32Array;
 }
-
-// Raw shader data
-/*
-typedef TRawShader = {
-	public var contexts:Array<TRawContext>;
-	public var variants:Array<String>;
-}
-
-typedef TRawContext = {
-	public var name:String;
-	public var params:Array<TRawParam>;
-	public var links:Array<TRawLink>;
-	public var vertex_shader:String;
-	public var fragment_shader:String;
-	@:optional public var geometry_shader:String;
-	@:optional public var tesscontrol_shader:String;
-	@:optional public var tesseval_shader:String;
-}
-
-typedef TRawParam = {
-	public var name:String;
-	public var value:String;
-}
-
-typedef TRawLink = {
-	public var name:String;
-	public var link:String;
-	@:optional public var ifdef:Array<String>;
-	@:optional public var ifndef:Array<String>;
-}
-*/

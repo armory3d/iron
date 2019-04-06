@@ -12,6 +12,8 @@ class ObjectAnimation extends Animation {
 	public var object:Object;
 	var oactions:Array<TSceneFormat>;
 	var oaction:TObj;
+	var s0:FastFloat = 0.0;
+	var bezierFrameIndex = -1;
 
 	public function new(object:Object, oactions:Array<TSceneFormat>) {
 		this.object = object;
@@ -68,8 +70,6 @@ class ObjectAnimation extends Animation {
 		return (1.0 - s) * v1 + s * v2;
 	}
 
-	var s0:FastFloat = 0.0;
-	var bezierFrameIndex = -1;
 	inline function interpolateBezier(t:FastFloat, t1:FastFloat, t2:FastFloat, v1:FastFloat, v2:FastFloat, c1:FastFloat, c2:FastFloat, p1:FastFloat, p2:FastFloat):FastFloat {
 		if (frameIndex != bezierFrameIndex) {
 			bezierFrameIndex = frameIndex;

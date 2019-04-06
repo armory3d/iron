@@ -9,6 +9,14 @@ import iron.math.Ray.Plane;
 
 class RayCaster {
 
+	static var VPInv = Mat4.identity();
+	static var PInv = Mat4.identity();
+	static var VInv = Mat4.identity();
+
+	static var loc = new Vec4();
+	static var nor = new Vec4();
+	static var m = Mat4.identity();
+
 	public static function getRay(inputX:FastFloat, inputY:FastFloat, camera:CameraObject):Ray {
 		var start = new Vec4();
 		var end = new Vec4();
@@ -24,9 +32,6 @@ class RayCaster {
 		return new Ray(start, end);
 	}
 
-	static var VPInv = Mat4.identity();
-	static var PInv = Mat4.identity();
-	static var VInv = Mat4.identity();
 	public static function getDirection(start:Vec4, end:Vec4, inputX:FastFloat, inputY:FastFloat, camera:CameraObject) {
 		// Get 3D point form screen coords
 		// Set two vectors with opposing z values
@@ -89,9 +94,6 @@ class RayCaster {
 	}
 	
 	// Project screen-space point onto 3D plane
-	static var loc = new Vec4();
-	static var nor = new Vec4();
-	static var m = Mat4.identity();
 	public static function getPlaneUV(obj:MeshObject, screenX:FastFloat, screenY:FastFloat, camera:CameraObject):Vec2 {
 		nor = obj.transform.up(); // Transformed normal
 	

@@ -18,9 +18,7 @@ class Trait {
 	var _render:Array<kha.graphics4.Graphics->Void> = null;
 	var _render2D:Array<kha.graphics2.Graphics->Void> = null;
 
-	public function new() {
-	
-	}
+	public function new() {}
 
 	public function remove() {
 		object.removeTrait(this);

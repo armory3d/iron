@@ -34,10 +34,6 @@ class App {
 	static var lasth = -1;
 	public static var onResize:Void->Void = null;
 	#end
-	#if arm_rendertimer
-	static var renderTimer = 0.0;
-	public static var renderTarget = 1 / 60; // Requested frame time
-	#end
 
 	public static function init(_appReady:Void->Void) {
 		new App(_appReady);
@@ -116,12 +112,6 @@ class App {
 		framebuffer = frame;
 
 		iron.system.Time.update();
-
-		#if arm_rendertimer
-		renderTimer -= iron.system.Time.realDelta;
-		if (renderTimer > renderTarget) return;
-		renderTimer += renderTarget;
-		#end
 
 		if (Scene.active == null || !Scene.active.ready) {
 			render2D(frame);

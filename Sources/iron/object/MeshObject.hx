@@ -31,6 +31,7 @@ class MeshObject extends Object {
 	public var tilesheet:Tilesheet = null;
 	public var skip_context:String = null; // Do not draw this context
 	public var force_context:String = null; // Draw only this context
+	static var lastPipeline:kha.graphics4.PipelineState = null;
 
 	#if arm_veloc
 	public var prevMatrix = Mat4.identity();
@@ -127,7 +128,7 @@ class MeshObject extends Object {
 		var mats = materials;
 		if (!isLodMaterial() && !validContext(mats[0], context)) return true;
 
-		var isShadow = context == RenderPath.shadowsContext;
+		var isShadow = context == "shadowmap";
 		if (!visibleMesh && !isShadow) return setCulled(isShadow, true);
 		if (!visibleShadow && isShadow) return setCulled(isShadow, true);
 
@@ -153,7 +154,7 @@ class MeshObject extends Object {
 			if (particleSystems != null || particleOwner != null) radiusScale *= 1000;
 			#end
 			if (context == "voxel") radiusScale *= 100;
-			var isShadow = context == RenderPath.shadowsContext;
+			var isShadow = context == "shadowmap";
 			var frustumPlanes = isShadow ? light.frustumPlanes : camera.frustumPlanes;
 
 			if (isShadow && light.data.raw.type != "sun") { // Non-sun light bounds intersect camera frustum
@@ -214,13 +215,12 @@ class MeshObject extends Object {
 		}
 	}
 
-	static var lastPipeline:kha.graphics4.PipelineState = null;
 	public function render(g:Graphics, context:String, bindParams:Array<String>) {
 
 		if (data == null || !data.geom.ready) return; // Data not yet streamed
 		if (!visible) return; // Skip render if object is hidden
 		if (cullMesh(context, Scene.active.camera, RenderPath.active.light)) return;
-		var meshContext = raw != null ? RenderPath.meshContext == context : false;
+		var meshContext = raw != null ? context == "mesh" : false;
 		#if arm_particles
 		if (raw != null && raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
 		if (particleSystems != null && meshContext) {
@@ -332,7 +332,7 @@ class MeshObject extends Object {
 		}
 
 		#if arm_debug
-		var isShadow = RenderPath.shadowsContext == context;
+		var isShadow = context == "shadowmap";
 		if (meshContext) RenderPath.numTrisMesh += ldata.geom.numTris;
 		else if (isShadow) RenderPath.numTrisShadow += ldata.geom.numTris;
 		RenderPath.drawCalls++;

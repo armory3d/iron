@@ -392,7 +392,6 @@ class Scene {
 	}
 	
 	public function createObject(o:TObj, format:TSceneFormat, parent:Object, parentObject:TObj, done:Object->Void) {
-
 		var sceneName = format.name;
 		if (o.type == "camera_object") {
 			Data.getCamera(sceneName, o.data_ref, function(b:CameraData) {

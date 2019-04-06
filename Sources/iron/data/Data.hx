@@ -23,13 +23,31 @@ class Data {
 	public static var cachedVideos:Map<String, kha.Video> = new Map();
 	public static var cachedFonts:Map<String, kha.Font> = new Map();
 
+	public static var assetsLoaded = 0;
+	static var loadingMeshes:Map<String, Array<MeshData->Void>> = new Map();
+	static var loadingLights:Map<String, Array<LightData->Void>> = new Map();
+	static var loadingCameras:Map<String, Array<CameraData->Void>> = new Map();
+	static var loadingMaterials:Map<String, Array<MaterialData->Void>> = new Map();
+	static var loadingParticles:Map<String, Array<ParticleData->Void>> = new Map();
+	static var loadingWorlds:Map<String, Array<WorldData->Void>> = new Map();
+	static var loadingShaders:Map<String, Array<ShaderData->Void>> = new Map();
+	static var loadingSceneRaws:Map<String, Array<TSceneFormat->Void>> = new Map();
+	#if rp_probes
+	static var loadingProbes:Map<String, Array<ProbeData->Void>> = new Map();
+	#end
+	static var loadingBlobs:Map<String, Array<kha.Blob->Void>> = new Map();
+	static var loadingImages:Map<String, Array<kha.Image->Void>> = new Map();
+	static var loadingSounds:Map<String, Array<kha.Sound->Void>> = new Map();
+	static var loadingVideos:Map<String, Array<kha.Video->Void>> = new Map();
+	static var loadingFonts:Map<String, Array<kha.Font->Void>> = new Map();
+
 	#if arm_data_dir
 	public static var dataPath = './data/';
 	#else
 	public static var dataPath = '';
 	#end
 
-	public function new() { }
+	public function new() {}
 
 	public static function deleteAll() {
 		for (c in cachedMeshes) c.delete();
@@ -56,7 +74,6 @@ class Data {
 		cachedFonts = new Map();
 	}
 
-	static var loadingMeshes:Map<String, Array<MeshData->Void>> = new Map();
 	public static function getMesh(file:String, name:String, done:MeshData->Void) {
 		var handle = file + name;
 		var cached = cachedMeshes.get(handle);
@@ -83,7 +100,6 @@ class Data {
 		cachedMeshes.remove(handle);
 	}
 
-	static var loadingLights:Map<String, Array<LightData->Void>> = new Map();
 	public static function getLight(file:String, name:String, done:LightData->Void) {
 		var handle = file + name;
 		var cached = cachedLights.get(handle);
@@ -102,7 +118,6 @@ class Data {
 	}
 
 	#if rp_probes
-	static var loadingProbes:Map<String, Array<ProbeData->Void>> = new Map();
 	public static function getProbe(file:String, name:String, done:ProbeData->Void) {
 		var handle = file + name;
 		var cached = cachedProbes.get(handle);
@@ -121,7 +136,6 @@ class Data {
 	}
 	#end
 
-	static var loadingCameras:Map<String, Array<CameraData->Void>> = new Map();
 	public static function getCamera(file:String, name:String, done:CameraData->Void) {
 		var handle = file + name;
 		var cached = cachedCameras.get(handle);
@@ -139,7 +153,6 @@ class Data {
 		});
 	}
 
-	static var loadingMaterials:Map<String, Array<MaterialData->Void>> = new Map();
 	public static function getMaterial(file:String, name:String, done:MaterialData->Void) {
 		var handle = file + name;
 		var cached = cachedMaterials.get(handle);
@@ -157,7 +170,6 @@ class Data {
 		});
 	}
 
-	static var loadingParticles:Map<String, Array<ParticleData->Void>> = new Map();
 	public static function getParticle(file:String, name:String, done:ParticleData->Void) {
 		var handle = file + name;
 		var cached = cachedParticles.get(handle);
@@ -175,7 +187,6 @@ class Data {
 		});
 	}
 
-	static var loadingWorlds:Map<String, Array<WorldData->Void>> = new Map();
 	public static function getWorld(file:String, name:String, done:WorldData->Void) {
 		if (name == null) { done(null); return; } // No world defined in scene
 
@@ -195,7 +206,6 @@ class Data {
 		});
 	}
 
-	static var loadingShaders:Map<String, Array<ShaderData->Void>> = new Map();
 	public static function getShader(file:String, name:String, done:ShaderData->Void, overrideContext:TShaderOverride = null) {
 		// Only one context override per shader data for now
 		var cacheName = name;
@@ -215,7 +225,6 @@ class Data {
 		}, overrideContext);
 	}
 
-	static var loadingSceneRaws:Map<String, Array<TSceneFormat->Void>> = new Map();
 	public static function getSceneRaw(file:String, done:TSceneFormat->Void) {
 		var cached = cachedSceneRaws.get(file);
 		if (cached != null) { done(cached); return; }
@@ -321,9 +330,6 @@ class Data {
 	}
 
 	// Raw assets
-	public static var assetsLoaded = 0;
-
-	static var loadingBlobs:Map<String, Array<kha.Blob->Void>> = new Map();
 	public static function getBlob(file:String, done:kha.Blob->Void) {
 		var cached = cachedBlobs.get(file); // Is already cached
 		if (cached != null) { done(cached); return; }
@@ -350,7 +356,6 @@ class Data {
 		cachedBlobs.remove(handle);
 	}
 
-	static var loadingImages:Map<String, Array<kha.Image->Void>> = new Map();
 	public static function getImage(file:String, done:kha.Image->Void, readable = false, format = 'RGBA32') {
 		#if (cpp || hl)
 		file = file.substring(0, file.length - 4) + '.k';
@@ -382,7 +387,6 @@ class Data {
 		cachedImages.remove(handle);
 	}
 
-	static var loadingSounds:Map<String, Array<kha.Sound->Void>> = new Map();
 	/**
 	 * Load sound file from disk into ram.
 	 *
@@ -430,7 +434,6 @@ class Data {
 		cachedSounds.remove(handle);
 	}
 
-	static var loadingVideos:Map<String, Array<kha.Video->Void>> = new Map();
 	public static function getVideo(file:String, done:kha.Video->Void) {
 		#if (cpp || hl)
 		file = file.substring(0, file.length - 4) + '.avi';
@@ -462,7 +465,6 @@ class Data {
 		cachedVideos.remove(handle);
 	}
 
-	static var loadingFonts:Map<String, Array<kha.Font->Void>> = new Map();
 	public static function getFont(file:String, done:kha.Font->Void) {
 		var cached = cachedFonts.get(file);
 		if (cached != null) { done(cached); return; }

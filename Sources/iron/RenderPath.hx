@@ -33,6 +33,15 @@ class RenderPath {
 	public var isProbePlanar = false;
 	public var isProbeCube = false;
 	public var isProbe = false;
+	public var currentG:Graphics;
+	public var frameG:Graphics;
+	public var drawOrder = DrawOrder.Distance;
+	public var paused = false;
+	public var ready(get, null):Bool;
+	function get_ready():Bool { return loading == 0; }
+	public var commands:Void->Void = null;
+	public var renderTargets:Map<String, RenderTarget> = new Map();
+	public var depthToRenderTarget:Map<String, RenderTarget> = new Map();
 	public var currentW:Int;
 	public var currentH:Int;
 	public var currentD:Int;
@@ -42,20 +51,10 @@ class RenderPath {
 	var meshesSorted:Bool;
 	var scissorSet = false;
 	var viewportScaled = false;
-	public var currentG:Graphics;
-	public var frameG:Graphics;
 	var lastFrameTime = 0.0;
-	public var drawOrder = DrawOrder.Distance;
-	
-	public var paused = false;
-	public var ready(get, null):Bool;
-	function get_ready():Bool { return loading == 0; }
 	var loading = 0;
 	var cachedShaderContexts:Map<String, CachedShaderContext> = new Map();
-
-	public var commands:Void->Void = null;
-	public var renderTargets:Map<String, RenderTarget> = new Map();
-	public var depthToRenderTarget:Map<String, RenderTarget> = new Map();
+	var depthBuffers:Array<{name:String, format:String}> = [];
 
 	#if rp_voxelao
 	public var voxelized = 0;
@@ -68,6 +67,15 @@ class RenderPath {
 		return ++voxelized > 2 ? false : true;
 		#end
 	}
+	#end
+
+	#if arm_debug
+	public static var drawCalls = 0;
+	public static var batchBuckets = 0;
+	public static var batchCalls = 0;
+	public static var culled = 0;
+	public static var numTrisMesh = 0;
+	public static var numTrisShadow = 0;
 	#end
 
 	public static function setActive(renderPath:RenderPath) { 
@@ -249,7 +257,7 @@ class RenderPath {
 	}
 
 	public function drawMeshes(context:String) {
-		var isShadows = context == shadowsContext;
+		var isShadows = context == "shadowmap";
 		if (isShadows) {
 			// Disabled shadow casting for this light
 			if (light == null || !light.data.raw.cast_shadow || !light.visible || light.data.raw.strength == 0) return;
@@ -273,7 +281,7 @@ class RenderPath {
 		#end
 
 		#if arm_clusters
-		if (context == meshContext) LightObject.updateClusters(Scene.active.camera);
+		if (context == "mesh") LightObject.updateClusters(Scene.active.camera);
 		#end
 
 		if (!drawn) submitDraw(context);
@@ -508,7 +516,6 @@ class RenderPath {
 		return rt;
 	}
 
-	var depthBuffers:Array<{name:String, format:String}> = [];
 	public function createDepthBuffer(name:String, format:String = null) {
 		depthBuffers.push({name: name, format: format});
 	}
@@ -628,18 +635,6 @@ class RenderPath {
 		default: return DepthStencilFormat.DepthOnly;
 		}
 	}
-
-	public static inline var meshContext = "mesh";
-	public static inline var shadowsContext = "shadowmap";
-
-	#if arm_debug
-	public static var drawCalls = 0;
-	public static var batchBuckets = 0;
-	public static var batchCalls = 0;
-	public static var culled = 0;
-	public static var numTrisMesh = 0;
-	public static var numTrisShadow = 0;
-	#end
 }
 
 class RenderTargetRaw {

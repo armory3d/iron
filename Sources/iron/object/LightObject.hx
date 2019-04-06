@@ -20,6 +20,7 @@ class LightObject extends Object {
 	var cascadeVP:Array<Mat4>;
 	var camSlicedP:Array<Mat4> = null;
 	var cascadeSplit:Array<kha.FastFloat>;
+	var bias = Mat4.identity();
 	#else
 	var camSlicedP:Mat4 = null;
 	#end
@@ -46,6 +47,8 @@ class LightObject extends Object {
 
 	public var frustumPlanes:Array<FrustumPlane> = null;
 	static var corners:Array<Vec4> = null;
+	static var m = Mat4.identity();
+	static var eye = new Vec4();
 
 	public function new(data:LightData) {
 		super();
@@ -88,7 +91,6 @@ class LightObject extends Object {
 		corners[7].set(1.0, 1.0, -1.0);
 	}
 
-	static var m = Mat4.identity();
 	public function buildMatrix(camera:CameraObject) {
 		transform.buildMatrix();
 		if (data.raw.type == "sun") { // Cover camera frustum
@@ -245,7 +247,6 @@ class LightObject extends Object {
 		}
 	}
 
-	static var eye = new Vec4();
 	public function setCubeFace(face:Int, camera:CameraObject) {
 		// Set matrix to match cubemap face
 		eye.set(transform.worldx(), transform.worldy(), transform.worldz());
@@ -259,7 +260,6 @@ class LightObject extends Object {
 	}
 
 	#if arm_csm
-	var bias = Mat4.identity();
 	public function getCascadeData():kha.arrays.Float32Array {
 		// Cascade mats + split distances
 		if (cascadeData == null) {

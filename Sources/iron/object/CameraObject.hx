@@ -13,6 +13,7 @@ class CameraObject extends Object {
 	public var P:Mat4;
 	#if arm_taa
 	public var noJitterP = Mat4.identity();
+	var frame = 0;
 	#end
 	public var V:Mat4;
 	public var prevV:Mat4 = null;
@@ -24,6 +25,9 @@ class CameraObject extends Object {
 
 	static var temp = new Vec4();
 	static var q = new Quat();
+	static var sphereCenter = new Vec4();
+	static var vcenter = new Vec4();
+	static var vup = new Vec4();
 
 	#if arm_vr
 	var helpMat = Mat4.identity();
@@ -90,7 +94,6 @@ class CameraObject extends Object {
 	}
 
 	#if arm_taa
-	var frame = 0;
 	function projectionJitter() {
 		var w = RenderPath.active.currentW;
 		var h = RenderPath.active.currentH;
@@ -163,7 +166,6 @@ class CameraObject extends Object {
 		for (plane in frustumPlanes) plane.normalize();
 	}
 
-	static var sphereCenter = new Vec4();
 	public static function sphereInFrustum(frustumPlanes:Array<FrustumPlane>, t:Transform, radiusScale = 1.0, offsetX = 0.0, offsetY = 0.0, offsetZ = 0.0):Bool {
 		// Use scale when radius is changing
 		var radius = t.radius * radiusScale;
@@ -177,8 +179,6 @@ class CameraObject extends Object {
 		return true;
 	}
 
-	static var vcenter = new Vec4();
-	static var vup = new Vec4();
 	public static function setCubeFace(m:Mat4, eye:Vec4, face:Int, flip = false) {
 		// Set matrix to match cubemap face
 		vcenter.setFrom(eye);
@@ -218,7 +218,7 @@ class FrustumPlane {
 	public var normal = new Vec4(1.0, 0.0, 0.0);
 	public var constant = 0.0;
 
-	public function new() { }
+	public function new() {}
 
 	public function normalize() {
 		var inverseNormalLength = 1.0 / normal.length();
