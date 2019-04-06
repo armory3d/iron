@@ -86,14 +86,9 @@ class ParticleSystem {
 		lapTime = time - lap * animtime;
 		count = Std.int(lapTime / spawnRate);
 
-		#if arm_particles_gpu
 		updateGpu(object, owner);
-		#else
-		updateCpu(object, owner);
-		#end
 	}
 
-	#if arm_particles_gpu
 	public function getData():iron.math.Mat4 {
 		var hair = r.type == 1;
 		m._00 = r.loop ? animtime : -animtime;
@@ -143,124 +138,6 @@ class ParticleSystem {
 		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
 		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);
 	}
-
-	#else // cpu
-
-	var emitFrom:kha.arrays.Float32Array = null; // Volume/face offset
-
-	function updateCpu(object:MeshObject, owner:MeshObject) {
-		// Make mesh data instanced
-		if (!object.data.geom.instanced) setupGeomCpu(object, owner);
-		if (emitFrom == null) return;
-
-		if (r.type == 0) { // Emitter
-			for (p in particles) computePos(p, object, particles.length, lap, count);
-		}
-
-		// Upload
-		// sort(); // TODO: breaks particle order
-		var instancedData = object.data.geom.instancedVB.lock();
-		var scalePos = object.data.scalePos;
-		for (i in 0...particles.length) {
-			var p = particles[i];
-			var px = p.x;
-			var py = p.y;
-			var pz = p.z;
-			px += emitFrom[i * 3    ];
-			py += emitFrom[i * 3 + 1];
-			pz += emitFrom[i * 3 + 2];
-			instancedData.set(i * 3    , px / scalePos);
-			instancedData.set(i * 3 + 1, py / scalePos);
-			instancedData.set(i * 3 + 2, pz / scalePos);
-		}
-		object.data.geom.instancedVB.unlock();
-	}
-
-	function computePos(p:Particle, object:MeshObject, l:Int, lap:Int, count:Int) {
-
-		var i = p.i;// + lap * l * l; // Shuffle repeated laps
-		var age = lapTime - p.i * spawnRate;
-		age -= age * fhash(i) * r.lifetime_random;
-
-		// age /= 2; // Match
-
-		// Loop
-		if (r.loop) while (age < 0) age += animtime;
-
-		if (age < 0 || age > lifetime) { p.x = p.y = p.z = -99999; return; } // Limit to current particle count
-
-		if (r.physics_type == 1) computeNewton(p, i, age);
-	}
-
-	function computeNewton(p:Particle, i:Int, age:Float) {
-
-		p.x = alignx;
-		p.y = aligny;
-		p.z = alignz;
-
-		var l = particles.length;
-		p.x += fhash(p.i     * l) * r.factor_random - r.factor_random / 2;
-		p.y += fhash(p.i + 1 * l) * r.factor_random - r.factor_random / 2;
-		p.z += fhash(p.i + 2 * l) * r.factor_random - r.factor_random / 2;
-
-		// Gravity
-		p.x += (gx * r.mass * age) / 5;
-		p.y += (gy * r.mass * age) / 5;
-		p.z += (gz * r.mass * age) / 5;
-
-		p.x *= age;
-		p.y *= age;
-		p.z *= age;
-	}
-
-	function setupGeomCpu(object:MeshObject, owner:MeshObject) {
-		var instancedData = new kha.arrays.Float32Array(particles.length * 3);
-		var i = 0;
-		for (p in particles) {
-			instancedData.set(i, 0.0); i++;
-			instancedData.set(i, 0.0); i++;
-			instancedData.set(i, 0.0); i++;
-		}
-		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
-		object.data.geom.setupInstanced(instancedData, 1, Usage.DynamicUsage);
-		
-		emitFrom = new kha.arrays.Float32Array(particles.length * 3);
-		i = 0;
-		if (r.emit_from == 0) { // Vert, Face
-			var pa = owner.data.geom.positions;
-			var sc = owner.data.scalePos;
-			for (p in particles) {
-				var j = Std.int(fhash(i) * (pa.length / 4));
-				emitFrom.set(i, pa[j * 4    ] / 32767 * sc); i++;
-				emitFrom.set(i, pa[j * 4 + 1] / 32767 * sc); i++;
-				emitFrom.set(i, pa[j * 4 + 2] / 32767 * sc); i++;
-			}
-		}
-		else { // Volume
-			for (p in particles) {
-				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0)); i++;
-				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0)); i++;
-				emitFrom.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
-			}
-		}
-	}
-
-	function sort() {
-		var camera = iron.Scene.active.camera;
-		var l = camera.transform.loc;
-
-		for (p in particles) { // TODO: check particle systems located at non-origin location
-			p.cameraDistance = Vec4.distancef(p.x, p.y, p.z, l.x, l.y, l.z);
-		}
-
-		particles.sort(function(p1:Particle, p2:Particle):Int {
-			if (p1.cameraDistance > p2.cameraDistance) return -1;
-			if (p1.cameraDistance < p2.cameraDistance) return 1;
-			return 0;
-		});
-	}
-
-	#end
 
 	function fhash(n:Int):Float {
 		var s = n + 1.0;

@@ -818,7 +818,7 @@ class Uniforms {
 				m = helpMat;
 			}
 			#end
-			#if arm_particles_gpu
+			#if arm_particles
 			else if (c.link == "_particleData") {
 				var mo = cast(object, MeshObject);
 				if (mo.particleOwner != null && mo.particleOwner.particleSystems != null) {
