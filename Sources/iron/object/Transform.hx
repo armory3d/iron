@@ -34,10 +34,17 @@ class Transform {
 	 * calling `buildMatrix()`.
 	 */
 	public var scale:Vec4;
-
-	public var worldUnpack:Mat4; // With applied scaleWorld
-	public var scaleWorld:kha.FastFloat = 1.0; // Uniform scale factor
-
+	/**
+	 * Uniform scale factor for world matrix.
+	 */
+	public var scaleWorld:kha.FastFloat = 1.0;
+	/**
+	 * The world matrix with scaleWorld applied (read-only).
+	 */
+	public var worldUnpack:Mat4;
+	/**
+	 * Flag to rebuild the world matrix on next update.
+	 */
 	public var dirty:Bool;
 	/**
 	 * The object that is effected by this transform.
@@ -53,11 +60,11 @@ class Transform {
 	 * space.
 	 */
 	public var radius:kha.FastFloat;
+	
 	static var temp = Mat4.identity();
 	static var q = new Quat();
-	var prependMats:Array<Mat4> = null;
-	var appendMats:Array<Mat4> = null;
-	public var boneParent:Mat4 = null;
+
+	var boneParent:Mat4 = null;
 	var lastWorld:Mat4 = null;
 
 	// Wrong order returned from getEuler(), store last state for animation
@@ -66,9 +73,9 @@ class Transform {
 	var _eulerZ:kha.FastFloat;
 
 	// Animated delta transform
-	public var dloc:Vec4 = null;
-	public var drot:Quat = null;
-	public var dscale:Vec4 = null;
+	var dloc:Vec4 = null;
+	var drot:Quat = null;
+	var dscale:Vec4 = null;
 	var _deulerX:kha.FastFloat;
 	var _deulerY:kha.FastFloat;
 	var _deulerZ:kha.FastFloat;
@@ -102,48 +109,6 @@ class Transform {
 		if (dirty) buildMatrix();
 	}
 
-	/**
-	 * Add a matrix to apply before this transform's local matrix.
-	 * The matrix will persist, so that subsequent changes to `loc`, `rot` and
-	 * `scale` will have `m` applied beforehand.
-	 * @param	m The matrix to append.
-	 */
-	public function prependMatrix(m:Mat4) {
-		if (prependMats == null) prependMats = [];
-		prependMats.push(m);
-	}
-
-	/**
-	 * Remove the last prepended matrix.
-	 */
-	public function popPrependMatrix() {
-		if (prependMats != null) {
-			prependMats.pop();
-			if (prependMats.length == 0) prependMats = null;
-		}
-	}
-
-	/**
-	 * Add a matrix to apply after this transform's local matrix.
-	 * The matrix will persist, so that subsequent changes to `loc`, `rot` and
-	 * `scale` will have `m` applied afterward.
-	 * @param	m The matrix to append.
-	 */
-	public function appendMatrix(m:Mat4) {
-		if (appendMats == null) appendMats = [];
-		appendMats.push(m);
-	}
-
-	/**
-	 * Remove the last appended matrix.
-	 */
-	public function popAppendMatrix() {
-		if (appendMats != null) {
-			appendMats.pop();
-			if (appendMats.length == 0) appendMats = null;
-		}
-	}
-
 	function composeDelta() {
 		// Delta transform
 		dloc.addvecs(loc, dloc);
@@ -160,14 +125,6 @@ class Transform {
 	 */
 	public function buildMatrix() {
 		dloc == null ? local.compose(loc, rot, scale) : composeDelta();
-
-		if (prependMats != null) {
-			temp.setIdentity();
-			for (m in prependMats) temp.multmat(m);
-			temp.multmat(local);
-			local.setFrom(temp);
-		}
-		if (appendMats != null) for (m in appendMats) local.multmat(m);
 
 		if (boneParent != null) local.multmats(boneParent, local);
 		

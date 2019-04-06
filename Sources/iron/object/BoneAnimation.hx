@@ -88,6 +88,7 @@ class BoneAnimation extends Animation {
 		ar.push(o);
 	}
 
+	@:access(iron.object.Transform)
 	function updateBoneChildren(bone:TObj, bm:Mat4) {
 		var ar = boneChildren.get(bone.name);
 		if (ar == null) return;
