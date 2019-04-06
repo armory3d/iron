@@ -5,7 +5,6 @@ import kha.graphics4.ConstantLocation;
 import kha.graphics4.TextureUnit;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
-import kha.graphics4.StencilAction;
 import kha.graphics4.CompareMode;
 import kha.graphics4.CullMode;
 import kha.graphics4.BlendingOperation;
@@ -108,31 +107,6 @@ class ShaderContext {
 		// Depth
 		pipeState.depthWrite = raw.depth_write;
 		pipeState.depthMode = getCompareMode(raw.compare_mode);
-		
-		// Stencil
-		if (raw.stencil_mode != null) {
-			if (raw.stencil_mode == "always")
-				pipeState.stencilMode = CompareMode.Always;
-			else if (raw.stencil_mode == "equal")
-				pipeState.stencilMode = CompareMode.Equal;
-			else if (raw.stencil_mode == "not_equal")
-				pipeState.stencilMode = CompareMode.NotEqual;
-		}
-		if (raw.stencil_pass != null) {
-			if (raw.stencil_pass == "replace")
-				pipeState.stencilBothPass = StencilAction.Replace;
-			else if (raw.stencil_pass == "keep")
-				pipeState.stencilBothPass = StencilAction.Keep;
-		}
-		if (raw.stencil_fail != null && raw.stencil_fail == "keep") {
-			pipeState.stencilDepthFail = StencilAction.Keep;
-			pipeState.stencilFail = StencilAction.Keep;
-		}
-		if (raw.stencil_reference_value != null) {
-			pipeState.stencilReferenceValue = Static(raw.stencil_reference_value);
-		}	
-		// pipeState.stencilReadMask = raw.stencil_read_mask;
-		// pipeState.stencilWriteMask = raw.stencil_write_mask;
 
 		// Cull
 		pipeState.cullMode = getCullMode(raw.cull_mode);
@@ -164,15 +138,6 @@ class ShaderContext {
 		if (raw.shader_from_source) {
 			pipeState.vertexShader = kha.graphics4.VertexShader.fromSource(raw.vertex_shader);
 			pipeState.fragmentShader = kha.graphics4.FragmentShader.fromSource(raw.fragment_shader);
-			// if (raw.geometry_shader != null) {
-				// pipeState.geometryShader = kha.graphics4.GeometryShader.fromSource(raw.geometry_shader);
-			// }
-			// if (raw.tesscontrol_shader != null) {
-				// pipeState.tessellationControlShader = kha.graphics4.TessellationControlShader.fromSource(raw.tesscontrol_shader);
-			// }
-			// if (raw.tesseval_shader != null) {
-				// pipeState.tessellationEvaluationShader = kha.graphics4.TessellationEvaluationShader.fromSource(raw.tesseval_shader);
-			// }
 
 			#if kha_krom
 			// Shader compile error

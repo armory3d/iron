@@ -396,7 +396,6 @@ class BoneAnimation extends Animation {
 		#if arm_skin_mat // Matrix skinning
 		
 		// Transpose while writing to buffer
-		// m.transpose();
 		skinBuffer[i * 12] = m._00;
 		skinBuffer[i * 12 + 1] = m._10;
 		skinBuffer[i * 12 + 2] = m._20;
@@ -416,8 +415,6 @@ class BoneAnimation extends Animation {
 		q1.normalize();
 		q2.set(vpos.x, vpos.y, vpos.z, 0.0);
 		q2.multquats(q2, q1);
-		// q1.set(0, 0, 0, 1); // No skin
-		// q2.set(0, 0, 0, 1);
 		skinBuffer[i * 8] = q1.x; // Real
 		skinBuffer[i * 8 + 1] = q1.y;
 		skinBuffer[i * 8 + 2] = q1.z;

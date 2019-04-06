@@ -263,17 +263,13 @@ class ParticleSystem {
 	#end
 
 	function fhash(n:Int):Float {
-		// var f = Math.sin(n) * 43758.5453;
-		// return f - Std.int(f);
 		var s = n + 1.0;
 		s *= 9301.0 % s;
 		s = (s * 9301.0 + 49297.0) % 233280.0;
 		return s / 233280.0;
 	}
 
-	public function remove() {
-		
-	}
+	public function remove() {}
 }
 
 class Particle {

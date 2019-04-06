@@ -23,9 +23,7 @@ class MeshBatch {
 	var buckets:Map<ShaderData, Bucket> = new Map();
 	public var nonBatched:Array<MeshObject> = [];
 
-	public function new() {
-
-	}
+	public function new() {}
 
 	public function remove() {
 		for (b in buckets) remove();

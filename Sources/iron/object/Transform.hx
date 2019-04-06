@@ -58,6 +58,20 @@ class Transform {
 	var prependMats:Array<Mat4> = null;
 	var appendMats:Array<Mat4> = null;
 	public var boneParent:Mat4 = null;
+	var lastWorld:Mat4 = null;
+
+	// Wrong order returned from getEuler(), store last state for animation
+	var _eulerX:kha.FastFloat;
+	var _eulerY:kha.FastFloat;
+	var _eulerZ:kha.FastFloat;
+
+	// Animated delta transform
+	public var dloc:Vec4 = null;
+	public var drot:Quat = null;
+	public var dscale:Vec4 = null;
+	var _deulerX:kha.FastFloat;
+	var _deulerY:kha.FastFloat;
+	var _deulerZ:kha.FastFloat;
 
 	public function new(object:Object) {
 		this.object = object;
@@ -301,7 +315,6 @@ class Transform {
 		this.decompose();
 	}
 
-	var lastWorld:Mat4 = null;
 	/**
 	 * Check whether the transform has changed at all since the last time
 	 * this function was called.
@@ -325,11 +338,6 @@ class Transform {
 			   t1.worldy() + t1.dim.y / 2 > t2.worldy() - t2.dim.y / 2 && t1.worldy() - t1.dim.y / 2 < t2.worldy() + t2.dim.y / 2 &&
 			   t1.worldz() + t1.dim.z / 2 > t2.worldz() - t2.dim.z / 2 && t1.worldz() - t1.dim.z / 2 < t2.worldz() + t2.dim.z / 2;
 	}
-
-	// Wrong order returned from getEuler(), store last state for animation
-	var _eulerX:kha.FastFloat;
-	var _eulerY:kha.FastFloat;
-	var _eulerZ:kha.FastFloat;
 
 	/**
 	 * @return	The look vector (positive local y axis) in world space.
@@ -356,12 +364,4 @@ class Transform {
 	 * @return The world z location.
 	 */
 	public inline function worldz():kha.FastFloat { return world._32; }
-
-	// Animated delta transform
-	public var dloc:Vec4 = null;
-	public var drot:Quat = null;
-	public var dscale:Vec4 = null;
-	var _deulerX:kha.FastFloat;
-	var _deulerY:kha.FastFloat;
-	var _deulerZ:kha.FastFloat;
 }

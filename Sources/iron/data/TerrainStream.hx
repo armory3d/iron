@@ -122,13 +122,10 @@ class TerrainStream {
 		object.transform.dim.z = raw.height_scale;
 	}
 
-	public function remove() {
-		
-	}
+	public function remove() {}
 	
 	public function update(camera:CameraObject) {
 		if (!ready) return;
-		
 	}
 
 	function textureLink(object:Object, mat:MaterialData, link:String):kha.Image {

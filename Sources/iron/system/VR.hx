@@ -7,9 +7,7 @@ class VR {
 
 	static var undistortionMatrix:Mat4 = null;
 
-	public function new() {
-
-	}
+	public function new() {}
 
 	public static function getUndistortionMatrix():Mat4 {
 		if (undistortionMatrix == null) {

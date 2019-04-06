@@ -4,9 +4,7 @@ import kha.Sound;
 
 class Audio {
 
-	public function new() {
-
-	}
+	public function new() {}
 
 	public static function play(sound:Sound, loop = false, stream = false):kha.audio1.AudioChannel {
 		#if arm_no_audio

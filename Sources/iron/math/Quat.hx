@@ -248,31 +248,6 @@ class Quat {
 		return normalize();
 	}
 
-	// public static inline function slerp(from:Quat, to:Quat, s:FastFloat):Quat {
-	// 	// Based on https://github.com/HeapsIO/heaps/blob/master/h3d/Quat.hx
-	// 	var c = new Quat();
-	// 	var cosHalfTheta = from.dot(to);
-	// 	if (Math.abs(cosHalfTheta) >= 1) {
-	// 		c.x = from.x;
-	// 		c.y = from.y;
-	// 		c.z = from.z;
-	// 		c.w = from.w;
-	// 		return c;
-	// 	}
-	// 	var halfTheta = Math.acos(cosHalfTheta);
-	// 	var invSinHalfTheta = 1 / Math.sqrt(1 - cosHalfTheta * cosHalfTheta);
-	// 	if (Math.abs(invSinHalfTheta) > 1e3) {
-	// 		return Quat.lerp(from, to, 0.5);
-	// 	}
-	// 	var a = Math.sin((1 - s) * halfTheta) * invSinHalfTheta;
-	// 	var b = Math.sin(s * halfTheta) * invSinHalfTheta * (cosHalfTheta < 0 ? -1 : 1);
-	// 	c.x = from.x * a + to.x * b;
-	// 	c.y = from.y * a + to.y * b;
-	// 	c.z = from.z * a + to.z * b;
-	// 	c.w = from.w * a + to.w * b;
-	// 	return c;
-	// }
-
 	/**
 	 * Find the dot product of this quaternion with another.
 	 * @param	q The other quaternion.

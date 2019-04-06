@@ -279,7 +279,6 @@ class Pen extends VirtualInput {
 
 	function buttonIndex(button:String) {
 		return 0;
-		// return button == "tip" ? 0 : 0;
 	}
 
 	public function down(button = "tip"):Bool {
@@ -466,9 +465,7 @@ class Keyboard extends VirtualInput {
 		upVirtual(s);
 	}
 
-	function pressListener(char: String) {
-
-	}
+	function pressListener(char: String) {}
 }
 
 class GamepadStick {

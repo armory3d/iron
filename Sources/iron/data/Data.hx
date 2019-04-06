@@ -12,7 +12,6 @@ class Data {
 	public static var cachedMaterials:Map<String, MaterialData> = new Map();
 	public static var cachedParticles:Map<String, ParticleData> = new Map();
 	public static var cachedWorlds:Map<String, WorldData> = new Map();
-	// public static var cachedGreasePencils:Map<String, GreasePencilData> = new Map();
 	public static var cachedShaders:Map<String, ShaderData> = new Map();
 	#if rp_probes
 	public static var cachedProbes:Map<String, ProbeData> = new Map();
@@ -43,7 +42,6 @@ class Data {
 		cachedMaterials = new Map();
 		cachedParticles = new Map();
 		cachedWorlds = new Map();
-		// cachedGreasePencils = new Map();
 		if (RenderPath.active != null) RenderPath.active.unload();
 
 		for (c in cachedBlobs) c.unload();
@@ -197,24 +195,6 @@ class Data {
 		});
 	}
 
-	// static var loadingGreasePencils:Map<String, Array<GreasePencilData->Void>> = new Map();
-	// public static function getGreasePencil(file:String, name:String, done:GreasePencilData->Void) {
-	//	var handle = file + name;
-	// 	var cached = cachedGreasePencils.get(handle);
-	// 	if (cached != null) { done(cached); return; }
-
-	// 	var loading = loadingGreasePencils.get(handle);
-	// 	if (loading != null) { loading.push(done); return; }
-
-	// 	loadingGreasePencils.set(handle, [done]);
-
-	// 	GreasePencilData.parse(file, name, function(b:GreasePencilData) {
-	// 		cachedGreasePencils.set(handle, b);
-	// 		for (f in loadingGreasePencils.get(handle)) f(b);
-	// 		loadingGreasePencils.remove(handle);
-	// 	});
-	// }
-
 	static var loadingShaders:Map<String, Array<ShaderData->Void>> = new Map();
 	public static function getShader(file:String, name:String, done:ShaderData->Void, overrideContext:TShaderOverride = null) {
 		// Only one context override per shader data for now
@@ -327,12 +307,6 @@ class Data {
 		for (dat in datas) if (dat.name == name) return dat;
 		return null;
 	}
-
-	// public static function getGreasePencilRawByName(datas:Array<TGreasePencilData>, name:String):TGreasePencilData {
-	// 	if (name == "") return datas[0];
-	// 	for (dat in datas) if (dat.name == name) return dat;
-	// 	return null;
-	// }
 
 	public static function getShaderRawByName(datas:Array<TShaderData>, name:String):TShaderData {
 		if (name == "") return datas[0];

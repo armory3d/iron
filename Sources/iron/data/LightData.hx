@@ -8,19 +8,10 @@ class LightData {
 	public var name:String;
 	public var raw:TLightData;
 
-	public var colorTexture:kha.Image = null;
-
 	public function new(raw:TLightData, done:LightData->Void) {
 		this.raw = raw;
 		this.name = raw.name;
-
-		if (raw.color_texture != null) {
-			iron.data.Data.getImage(raw.color_texture, function(image:kha.Image) {
-				colorTexture = image;
-				done(this);
-			});
-		}
-		else done(this);
+		done(this);
 	}
 
 	public static inline function typeToInt(s:String):Int {

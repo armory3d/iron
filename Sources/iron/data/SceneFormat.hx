@@ -22,8 +22,6 @@ typedef TSceneFormat = {
 	@:optional public var speaker_datas:Array<TSpeakerData>;
 	@:optional public var world_datas:Array<TWorldData>;
 	@:optional public var world_ref:String;
-	// @:optional public var grease_pencil_datas:Array<TGreasePencilData>;
-	// @:optional public var grease_pencil_ref:String;
 	@:optional public var tilesheet_datas:Array<TTilesheetData>;
 	@:optional public var objects:Array<TObj>;
 	@:optional public var groups:Array<TGroup>;
@@ -104,7 +102,6 @@ typedef TLightData = {
 	@:optional public var spot_size:Null<FastFloat>;
 	@:optional public var spot_blend:Null<FastFloat>;
 	@:optional public var light_size:Null<FastFloat>; // Shadow soft size
-	@:optional public var color_texture:String; // Image reference
 	@:optional public var size:Null<FastFloat>; // Area light
 	@:optional public var size_y:Null<FastFloat>;
 }
@@ -218,12 +215,6 @@ typedef TShaderContext = {
 	@:optional public var alpha_blend_source:String;
 	@:optional public var alpha_blend_destination:String;
 	@:optional public var alpha_blend_operation:String;
-	@:optional public var stencil_mode:String;
-	@:optional public var stencil_pass:String;
-	@:optional public var stencil_fail:String;
-	@:optional public var stencil_reference_value:Null<Int>;
-	@:optional public var stencil_read_mask:Null<Int>;
-	@:optional public var stencil_write_mask:Null<Int>;
 	@:optional public var color_write_red:Null<Bool>;
 	@:optional public var color_write_green:Null<Bool>;
 	@:optional public var color_write_blue:Null<Bool>;
@@ -326,60 +317,6 @@ typedef TProbeData = {
 	@:optional public var radiance:String;
 	@:optional public var radiance_mipmaps:Null<Int>;
 }
-
-// #if js
-// typedef TGreasePencilData = {
-// #else
-// @:structInit class TGreasePencilData {
-// #end
-// 	public var name:String;
-// 	public var layers:Array<TGreasePencilLayer>;
-// 	public var shader:String;
-// }
-
-// #if js
-// typedef TGreasePencilLayer = {
-// #else
-// @:structInit class TGreasePencilLayer {
-// #end
-// 	public var name:String;
-// 	public var opacity:FastFloat;
-// 	public var frames:Array<TGreasePencilFrame>;
-// }
-
-// #if js
-// typedef TGreasePencilFrame = {
-// #else
-// @:structInit class TGreasePencilFrame {
-// #end
-// 	public var frame_number:Int;
-// 	public var vertex_array:TVertexArray;
-// 	public var col_array:TVertexArray;
-// 	public var colfill_array:TVertexArray;
-// 	public var index_array:TIndexArray;
-// 	public var num_stroke_points:Uint32Array;
-// }
-
-// #if js
-// typedef TGreasePencilPalette = {
-// #else
-// @:structInit class TGreasePencilPalette {
-// #end
-// 	public var name:String;
-// 	public var colors:Array<TGreasePencilPaletteColor>;
-// }
-
-// #if js
-// typedef TGreasePencilPaletteColor = {
-// #else
-// @:structInit class TGreasePencilPaletteColor {
-// #end
-// 	public var name:String;
-// 	public var color:Float32Array;
-// 	public var alpha:FastFloat;
-// 	public var fill_color:Float32Array;
-// 	public var fill_alpha:FastFloat;
-// }
 
 #if js
 typedef TTilesheetData = {

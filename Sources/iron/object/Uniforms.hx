@@ -346,7 +346,6 @@ class Uniforms {
 			}
 			else if (c.link == "_skydomeMatrix") {
 				var tr = camera.transform;
-				// helpVec.set(tr.worldx(), tr.worldy(), tr.worldz() + 3.0); // Envtex
 				helpVec.set(tr.worldx(), tr.worldy(), tr.worldz() - 3.5); // Sky
 				var bounds = camera.data.raw.far_plane * 0.95;
 				helpVec2.set(bounds, bounds, bounds);
@@ -378,11 +377,6 @@ class Uniforms {
 				return true;
 			}
 		}
-		// else if (c.type == "mat3") {
-			// var m:Mat3 = null;
-			// if (m == null) return false;
-			// g.setMatrix3(location, m.self);
-		// }
 		else if (c.type == "vec4") {
 			var v:Vec4 = null;
 			helpVec.set(0, 0, 0);
@@ -715,9 +709,6 @@ class Uniforms {
 			else if (c.link == "_lightSize") {
 				if (light != null && light.data.raw.light_size != null) f = light.data.raw.light_size;
 			}
-			// else if (c.link == "_lightSizeUV") {
-				// if (light != null && light.data.raw.light_size != null) f = light.data.raw.light_size / light.data.raw.fov;
-			// }
 			else if (c.link == "_envmapStrength") {
 				f = Scene.active.world == null ? 0.0 : Scene.active.world.probe.raw.strength;
 			}
@@ -953,12 +944,8 @@ class Uniforms {
 		else if (c.type == "mat3") {
 			var m:Mat3 = null;
 			if (c.link == "_normalMatrix") {
-				helpMat.setFrom(object.transform.world);
-				// Non uniform anisotropic scaling, calculate normal matrix
-				//if (!(object.transform.scale.x == object.transform.scale.y && object.transform.scale.x == object.transform.scale.z)) {
-					helpMat.getInverse(helpMat);
-					helpMat.transpose3x3();
-				//}
+				helpMat.getInverse(object.transform.world);
+				helpMat.transpose3x3();
 				helpMat3.setFrom4(helpMat);
 				m = helpMat3;
 			}

@@ -46,9 +46,7 @@ class Tilesheet {
 		paused = false;
 	}
 
-	public function remove() {
-
-	}
+	public function remove() {}
 
 	public function update() {
 		if (!ready || paused || action.start >= action.end) return;

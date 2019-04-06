@@ -265,7 +265,6 @@ class RenderPath {
 			var step = currentH; // Atlas with tiles on x axis
 			for (i in 0...LightObject.cascadeCount) {
 				light.setCascade(Scene.active.camera, i);
-				// g.viewport(0, currentH - (i + 1) * step, step, step);
 				g.viewport(i * step, 0, step, step);
 				submitDraw(context);
 			}
@@ -341,49 +340,6 @@ class RenderPath {
 		end(g);
 	}
 	#end
-
-	// static var gpFrame = 0;
-	// public function drawGreasePencil(con:String) {
-	// 	var gp = Scene.active.greasePencil;
-	// 	if (gp == null) return;
-	// 	var g = currentG;
-	// 	var context = GreasePencilData.getContext(con);
-	// 	g.setPipeline(context.pipeState);
-	// 	Uniforms.setContextConstants(g, context, null);
-	// 	Uniforms.setObjectConstants(g, context, null);
-	// 	// Draw layers
-	// 	for (layer in gp.layers) {
-	// 		// Next frame
-	// 		if (layer.frames.length - 1 > layer.currentFrame && gpFrame >= layer.frames[layer.currentFrame + 1].raw.frame_number) {
-	// 			layer.currentFrame++;
-	// 		}
-	// 		var frame = layer.frames[layer.currentFrame];
-	// 		if (frame.numVertices > 0) {
-	// 			// Stroke
-	// 			#if (js && kha_webgl && !kha_node && !kha_html5worker)
-	// 			// TODO: temporary, construct triangulated lines from points instead
-	// 			g.setVertexBuffer(frame.vertexStrokeBuffer);
-	// 			kha.SystemImpl.gl.lineWidth(3);
-	// 			var start = 0;
-	// 			for (i in frame.raw.num_stroke_points) {
-	// 				kha.SystemImpl.gl.drawArrays(js.html.webgl.GL.LINE_STRIP, start, i);
-	// 				start += i;
-	// 			}
-	// 			#end
-	// 			// Fill
-	// 			g.setVertexBuffer(frame.vertexBuffer);
-	// 			g.setIndexBuffer(frame.indexBuffer);
-	// 			g.drawIndexedVertices();
-	// 		}
-	// 	}
-	// 	gpFrame++;
-	// 	// Reset timeline
-	// 	if (gpFrame > GreasePencilData.frameEnd) {
-	// 		gpFrame = 0;
-	// 		for (layer in gp.layers) layer.currentFrame = 0;
-	// 	}
-	// 	end(g);
-	// }
 
 	public function drawSkydome(handle:String) {
 		if (ConstData.skydomeVB == null) ConstData.createSkydomeData();
@@ -665,12 +621,9 @@ class RenderPath {
 	}
 	
 	inline function getDepthStencilFormat(s:String):DepthStencilFormat {
-		// if (depth && stencil) return DepthStencilFormat.Depth24Stencil8;
-		// else if (depth) return DepthStencilFormat.DepthOnly;
-		// else return DepthStencilFormat.NoDepthAndStencil; 
 		if (s == null || s == "") return DepthStencilFormat.DepthOnly;
 		switch (s) {
-		case "DEPTH24": return DepthStencilFormat.DepthOnly; // Depth32Stencil8
+		case "DEPTH24": return DepthStencilFormat.DepthOnly;
 		case "DEPTH16": return DepthStencilFormat.Depth16;
 		default: return DepthStencilFormat.DepthOnly;
 		}

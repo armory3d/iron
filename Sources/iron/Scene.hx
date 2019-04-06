@@ -17,7 +17,6 @@ class Scene {
 	public var sceneParent:Object;
 	public var camera:CameraObject;
 	public var world:WorldData;
-	// public var greasePencil:GreasePencilData = null;
 
 	#if arm_batch
 	public var meshBatch:MeshBatch = null;
@@ -302,24 +301,6 @@ class Scene {
 		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			createTraits(format.traits, parent); // Scene traits
 			loadEmbeddedData(format.embedded_datas, function() { // Additional scene assets
-
-				// if (format.grease_pencil_ref != null) {
-				// 	var ref = format.grease_pencil_ref.split('/');
-				// 	var object_file = '';
-				// 	var data_ref = '';
-				// 	if (ref.length == 2) { // File reference
-				// 		object_file = ref[0];
-				// 		data_ref = ref[1];
-				// 	}
-				// 	else { // Local GP data
-				// 		object_file = sceneName;
-				// 		data_ref = format.grease_pencil_ref;
-				// 	}
-				// 	Data.getGreasePencil(object_file, data_ref, function(gp:GreasePencilData) {
-				// 		greasePencil = gp;
-				// 	});
-				// }
-
 				#if arm_stream
 				objectsTraversed = 0;
 				#else
@@ -663,7 +644,7 @@ class Scene {
 					for (i in 0...Std.int(t.props.length / 2)) {
 						var pname = t.props[i * 2];
 						var pval = t.props[i * 2 + 1];
-						if (pval != "") { // && Reflect.hasField(traitInst, pname) // Checked when parsing props
+						if (pval != "") {
 							Reflect.setProperty(traitInst, pname, parseArg(pval));
 						}
 					}
@@ -680,8 +661,7 @@ class Scene {
 		else if (str.charAt(0) == "'") return StringTools.replace(str, "'", "");
 		else if (str.charAt(0) == '"') return StringTools.replace(str, '"', "");
 		else if (str.charAt(0) == "[") { // Array
-			// Remove [] and recursively parse into array,
-			// then append into parent
+			// Remove [] and recursively parse into array, then append into parent
 			str = StringTools.replace(str, "[", "");
 			str = StringTools.replace(str, "]", "");
 			str = StringTools.replace(str, " ", "");

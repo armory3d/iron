@@ -22,9 +22,6 @@ class ConstData {
 	public static var skydomeIB:IndexBuffer = null;
 
 	public static function createScreenAlignedData() {
-		// Quad
-		// var data = [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0];
-		// var indices = [0, 1, 2, 0, 2, 3];
 		// Over-sized triangle
 		var data = [-1.0, -1.0, 3.0, -1.0, -1.0, 3.0];
 		var indices = [0, 1, 2];

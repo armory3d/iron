@@ -41,42 +41,22 @@ class ArmPack {
 				case 0xc0: return null;
 				case 0xc2: return false;
 				case 0xc3: return true;
-
-				// binary
 				case 0xc4: return i.read(i.readByte());
 				case 0xc5: return i.read(i.readUInt16());
 				case 0xc6: return i.read(i.readInt32());
-
-				// floating point
 				case 0xca: return i.readFloat();
-				// case 0xcb: return i.readDouble(); // armpack.py forces 32bit floats
-				
-				// unsigned int
 				case 0xcc: return i.readByte();
 				case 0xcd: return i.readUInt16();
 				case 0xce: return i.readInt32();
-				// case 0xcf: throw "UInt64 not supported";
-
-				// signed int
 				case 0xd0: return i.readInt8();
 				case 0xd1: return i.readInt16();
 				case 0xd2: return i.readInt32();
-				// case 0xd3: {
-					// var high = i.readInt32();
-					// var low = i.readInt32();
-					// return Int64.make(high, low);
-				// }
-
-				// string
+				// case 0xd3: return Int64.make(i.readInt32(), i.readInt32());
 				case 0xd9: return i.readString(i.readByte());
 				case 0xda: return i.readString(i.readUInt16());
 				case 0xdb: return i.readString(i.readInt32());
-
-				// array 16, 32
 				case 0xdc: return readArray(i, i.readUInt16(), key, parentKey);
 				case 0xdd: return readArray(i, i.readInt32(), key, parentKey);
-
-				// map 16, 32
 				case 0xde: return readMap(i, i.readUInt16(), key, parentKey);
 				case 0xdf: return readMap(i, i.readInt32(), key, parentKey);
 
@@ -155,10 +135,6 @@ class ArmPack {
 		case "speaker_datas": TSpeakerData;
 		case "world_datas": TWorldData;
 		case "terrain_datas": TTerrainData;
-		// case "grease_pencil_datas": TGreasePencilData;
-		// case "layers": TGreasePencilLayer;
-		// case "frames": TGreasePencilFrame;
-		// case "colors": TGreasePencilPaletteColor;
 		case "tilesheet_datas": TTilesheetData;
 		case "objects": TObj;
 		case "children": TObj;
