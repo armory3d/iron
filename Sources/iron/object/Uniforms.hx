@@ -253,20 +253,6 @@ class Uniforms {
 				m = camera.V;
 				#end
 			}
-			else if (c.link == "_transposeInverseViewMatrix") {
-				helpMat.setFrom(camera.V);
-				helpMat.getInverse(helpMat);
-				helpMat.transpose();
-				m = helpMat;
-			}
-			else if (c.link == "_inverseViewMatrix") {
-				#if arm_centerworld
-				helpMat.getInverse(vmat(camera.V));
-				#else
-				helpMat.getInverse(camera.V);
-				#end
-				m = helpMat;
-			}
 			else if (c.link == "_transposeViewMatrix") {
 				helpMat.setFrom(camera.V);
 				helpMat.transpose3x3();
@@ -314,36 +300,6 @@ class Uniforms {
 					m = helpMat;
 				}
 			}
-			else if (c.link == "_lightVolumeWorldViewProjectionMatrix") {
-				if (light != null) {
-					var tr = light.transform;
-					var type = light.data.raw.type;
-					if (type == "spot") { // Oriented cone
-						// helpMat.setIdentity();
-						// var f = light.data.raw.spot_size * light.data.raw.far_plane * 1.05;
-						// helpVec2.set(f, f, light.data.raw.far_plane);
-						// helpMat.scale(helpVec2);
-						// helpMat2.setFrom(tr.world);
-						// helpMat2.toRotation();
-						// helpMat.multmat(helpMat2);
-						// helpMat.translate(tr.worldx(), tr.worldy(), tr.worldz());
-						helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
-						var f2:kha.FastFloat = 2.0;
-						helpVec2.set(light.data.raw.far_plane, light.data.raw.far_plane * f2, light.data.raw.far_plane * f2);
-						helpMat.compose(helpVec, helpQuat, helpVec2);
-					}
-					else if (type == "point" || type == "area") { // Sphere
-						helpVec.set(tr.worldx(), tr.worldy(), tr.worldz());
-						var f2:kha.FastFloat = 2.0;
-						helpVec2.set(light.data.raw.far_plane, light.data.raw.far_plane * f2, light.data.raw.far_plane * f2);
-						helpMat.compose(helpVec, helpQuat, helpVec2);
-					}
-					
-					helpMat.multmat(camera.V);
-					helpMat.multmat(camera.P);
-					m = helpMat;
-				}
-			}
 			else if (c.link == "_skydomeMatrix") {
 				var tr = camera.transform;
 				helpVec.set(tr.worldx(), tr.worldy(), tr.worldz() - 3.5); // Sky
@@ -354,23 +310,6 @@ class Uniforms {
 				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
-			else if (c.link == "_lightViewMatrix") {
-				if (light != null) {
-					#if arm_centerworld
-					m = vmat(light.V);
-					#else
-					m = light.V;
-					#end
-				}
-			}
-			else if (c.link == "_lightProjectionMatrix") {
-				if (light != null) m = light.P;
-			}
-			#if arm_vr
-			else if (c.link == "_undistortionMatrix") {
-				m = iron.system.VR.getUndistortionMatrix();
-			}
-			#end
 
 			if (m != null) {
 				g.setMatrix(location, m.self);
@@ -409,13 +348,6 @@ class Uniforms {
 			else if (c.link == "_lightDirection") {
 				if (light != null) {
 					helpVec = light.look().normalize();
-					v = helpVec;
-				}
-			}
-			else if (c.link == "_lightColor") {
-				if (light != null) {
-					var str = light.visible ? light.data.raw.strength : 0.0;
-					helpVec.set(light.data.raw.color[0] * str, light.data.raw.color[1] * str, light.data.raw.color[2] * str);
 					v = helpVec;
 				}
 			}
@@ -515,14 +447,6 @@ class Uniforms {
 				helpVec = camera.lookWorld().normalize();
 				v = helpVec;
 			}
-			else if (c.link == "_cameraUp") {
-				helpVec = camera.upWorld().normalize();
-				v = helpVec;
-			}
-			else if (c.link == "_cameraRight") {
-				helpVec = camera.rightWorld().normalize();
-				v = helpVec;
-			}
 			else if (c.link == "_backgroundCol") {
 				if (camera.data.raw.clear_color != null) helpVec.set(camera.data.raw.clear_color[0], camera.data.raw.clear_color[1], camera.data.raw.clear_color[2]);
 				v = helpVec;
@@ -609,11 +533,6 @@ class Uniforms {
 				v.x = App.w();
 				v.y = App.h();
 			}
-			else if (c.link == "_windowSizeInv") {
-				v = helpVec;
-				v.x = 1.0 / App.w();
-				v.y = 1.0 / App.h();
-			}
 			else if (c.link == "_screenSize") {
 				v = helpVec;
 				v.x = RenderPath.active.currentW;
@@ -689,15 +608,6 @@ class Uniforms {
 			if (c.link == "_time") {
 				f = iron.system.Time.time();
 			}
-			else if (c.link == "_deltaTime") {
-				f = iron.system.Time.delta;
-			}
-			else if (c.link == "_lightRadius") {
-				f = light == null ? 0.0 : light.data.raw.far_plane;
-			}
-			else if (c.link == "_lightShadowsBias") {
-				f = light == null ? 0.0 : light.data.raw.shadows_bias;
-			}
 			else if (c.link == "_sunShadowsBias") {
 				var sun = RenderPath.active.sun;
 				f = sun == null ? 0.0 : sun.data.raw.shadows_bias;
@@ -705,9 +615,6 @@ class Uniforms {
 			else if (c.link == "_pointShadowsBias") {
 				var point = RenderPath.active.point;
 				f = point == null ? 0.0 : point.data.raw.shadows_bias;
-			}
-			else if (c.link == "_lightSize") {
-				if (light != null && light.data.raw.light_size != null) f = light.data.raw.light_size;
 			}
 			else if (c.link == "_envmapStrength") {
 				f = Scene.active.world == null ? 0.0 : Scene.active.world.probe.raw.strength;
@@ -721,11 +628,6 @@ class Uniforms {
 			else if (c.link == "_frameScale") {
 				f = RenderPath.active.frameTime / iron.system.Time.delta;
 			}
-			#if arm_vr
-			else if (c.link == "_maxRadiusSq") {
-				f = iron.system.VR.getMaxRadiusSq();
-			}
-			#end
 			#if arm_voxelgi
 			else if (c.link == "_voxelBlend") { // Blend current and last voxels
 				var freq = armory.renderpath.RenderPathCreator.voxelFreq;
@@ -766,13 +668,7 @@ class Uniforms {
 		}
 		else if (c.type == "int") {
 			var i:Null<Int> = null;
-			if (c.link == "_lightCastShadow") {
-				if (light != null && light.data.raw.cast_shadow) {
-					i = light.data.raw.shadowmap_cube ? 2 : 1;
-				}
-				else i = 0;
-			}
-			else if (c.link == "_envmapNumMipmaps") {
+			if (c.link == "_envmapNumMipmaps") {
 				var w = Scene.active.world;
 				i = w != null ? w.probe.raw.radiance_mipmaps + 1 - 2 : 1; // Include basecolor and exclude 2 scaled mips
 			}
@@ -988,14 +884,6 @@ class Uniforms {
 				var d = object.transform.dim;
 				var s = object.transform.scale;
 				helpVec.set((d.x / s.x) / 2, (d.y / s.y) / 2, (d.z / s.z) / 2);
-				v = helpVec;
-			}
-			else if (c.link == "_worldPosition") {
-				// #if arm_centerworld
-				// helpVec.set(0, 0, 0);
-				// #else
-				helpVec.set(object.transform.worldx(), object.transform.worldy(), object.transform.worldz());
-				// #end
 				v = helpVec;
 			}
 			// External
