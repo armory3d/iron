@@ -16,7 +16,7 @@ bl_info = {
     "location": "File -> Export",
     "description": "Armory mesh data",
     "author": "Armory3D.org",
-    "version": (0, 6, 0),
+    "version": (0, 7, 0),
     "blender": (2, 80, 0),
     "wiki_url": "http://armory3d.org/iron",
     "tracker_url": "https://github.com/armory3d/iron/issues"
