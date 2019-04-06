@@ -51,15 +51,10 @@ class MeshData {
 		// Usage, also used for instanced data
 		var parsedUsage = Usage.StaticUsage;
 		if (raw.dynamic_usage != null && raw.dynamic_usage == true) parsedUsage = Usage.DynamicUsage;
-		#if arm_skin_cpu
-		var usage = isSkinned ? Usage.DynamicUsage : Usage.StaticUsage;
-		#else
 		var usage = parsedUsage;
-		#end
 
 		var bonea:Int16Array = null; // Store bone indices and weights per vertex
 		var weighta:Int16Array = null;
-		#if (!arm_skin_cpu)
 		if (isSkinned) {
 			var l = Std.int(pa.length / 4) * 4;
 			bonea = new Int16Array(l);
@@ -83,7 +78,6 @@ class MeshData {
 				index += boneCount;
 			}
 		}
-		#end
 		
 		// Make vertex buffers
 		geom = new Geometry(this, indices, materialIndices,
@@ -109,9 +103,6 @@ class MeshData {
 				dat.format = format;
 				// Skinned
 				if (raw.skin != null) {
-					#if arm_skin_cpu
-					dat.geom.initSkinTransform(raw.skin.transform.values);
-					#end
 					dat.geom.skinBoneCounts = raw.skin.bone_count_array;
 					dat.geom.skinBoneIndices = raw.skin.bone_index_array;
 					dat.geom.skinBoneWeights = raw.skin.bone_weight_array;

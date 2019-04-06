@@ -54,11 +54,6 @@ class Geometry {
 	public var aabbMax:Vec4 = null;
 
 	// Skinned
-	#if arm_skin_cpu
-	public var skinTransform:Mat4 = null;
-	public var skinTransformI:Mat4 = null;
-	public var skeletonTransforms:Array<Mat4> = null;
-	#end
 	public var skinBoneCounts:Int16Array = null;
 	public var skinBoneIndices:Int16Array = null;
 	public var skinBoneWeights:Int16Array = null;
@@ -420,30 +415,11 @@ class Geometry {
 
 	public function initSkeletonTransforms(transformsI:Array<Float32Array>) {
 		skeletonTransformsI = [];
-		#if arm_skin_cpu
-		skeletonTransforms = [];
-		#end
-
 		for (t in transformsI) {
 			var mi = Mat4.fromFloat32Array(t);
 			skeletonTransformsI.push(mi);
 		}
-		#if arm_skin_cpu
-			for (mi in skeletonTransformsI) {
-				var m = Mat4.identity();
-				m.getInverse(mi);
-				skeletonTransforms.push(m);
-			}
-		#end
 	}
-
-	#if arm_skin_cpu
-	public function initSkinTransform(t:Float32Array) {
-		skinTransform = Mat4.fromFloat32Array(t);
-		skinTransformI = Mat4.identity();
-		skinTransformI.getInverse(skinTransform);
-	}
-	#end
 
 	public function calculateAABB() {
 		aabbMin = new Vec4(-0.01, -0.01, -0.01);

@@ -50,10 +50,6 @@ class BoneAnimation extends Animation {
 	static var vscl2 = new Vec4();
 	static var v1 = new Vec4();
 	static var v2 = new Vec4();
-	#if arm_skin_cpu
-	static var pos = new Vec4();
-	static var nor = new Vec4();
-	#end
 
 	public function new(armatureName = '') {
 		super();
@@ -71,18 +67,13 @@ class BoneAnimation extends Animation {
 		this.data = mo != null ? mo.data : null;
 		this.isSkinned = data != null ? data.isSkinned : false;
 		if (this.isSkinned) {
-			#if (!arm_skin_cpu)
-				#if arm_skin_mat
-				var boneSize = 12; // Matrix skinning
-				#else
-				var boneSize = 8; // Dual-quat skinning
-				#end
-				this.skinBuffer = new kha.arrays.Float32Array(skinMaxBones * boneSize);
-				for (i in 0...this.skinBuffer.length) this.skinBuffer[i] = 0;
-				// Rotation is already applied to skin at export
-				object.transform.rot.set(0, 0, 0, 1);
-				object.transform.buildMatrix();
-			#end
+			var boneSize = 8; // Dual-quat skinning
+			this.skinBuffer = new kha.arrays.Float32Array(skinMaxBones * boneSize);
+			for (i in 0...this.skinBuffer.length) this.skinBuffer[i] = 0;
+			// Rotation is already applied to skin at export
+			object.transform.rot.set(0, 0, 0, 1);
+			object.transform.buildMatrix();
+
 			var refs = mo.parent.raw.bone_actions;
 			if (refs != null && refs.length > 0) {
 				iron.data.Data.getSceneRaw(refs[0], function(action:TSceneFormat) { play(action.name); });
@@ -207,10 +198,6 @@ class BoneAnimation extends Animation {
 		if (object != null && (!object.visible || object.culled)) return;
 		if (skeletonBones == null || skeletonBones.length == 0) return;
 
-		#if arm_skin_off
-		return;
-		#end
-
 		#if arm_debug
 		Animation.beginProfile();
 		#end
@@ -253,13 +240,7 @@ class BoneAnimation extends Animation {
 			}
 		}
 
-		if (isSkinned) {
-			#if arm_skin_cpu
-			updateSkinCpu();
-			#else
-			updateSkinGpu();
-			#end
-		}
+		if (isSkinned) updateSkinGpu();
 		else updateBonesOnly();
 
 		#if arm_debug
@@ -346,8 +327,6 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	// Dual quat skinning
-	#if (!arm_skin_cpu)
 	function updateSkinGpu() {
 		var bones = skeletonBones;
 
@@ -393,24 +372,7 @@ class BoneAnimation extends Animation {
 	}
 
 	function updateSkinBuffer(m:Mat4, i:Int) {
-		#if arm_skin_mat // Matrix skinning
-		
-		// Transpose while writing to buffer
-		skinBuffer[i * 12] = m._00;
-		skinBuffer[i * 12 + 1] = m._10;
-		skinBuffer[i * 12 + 2] = m._20;
-		skinBuffer[i * 12 + 3] = m._30;
-		skinBuffer[i * 12 + 4] = m._01;
-		skinBuffer[i * 12 + 5] = m._11;
-		skinBuffer[i * 12 + 6] = m._21;
-		skinBuffer[i * 12 + 7] = m._31;
-		skinBuffer[i * 12 + 8] = m._02;
-		skinBuffer[i * 12 + 9] = m._12;
-		skinBuffer[i * 12 + 10] = m._22;
-		skinBuffer[i * 12 + 11] = m._32;
-		
-		#else // Dual quat skinning
-		
+		// Dual quat skinning
 		m.decompose(vpos, q1, vscl);
 		q1.normalize();
 		q2.set(vpos.x, vpos.y, vpos.z, 0.0);
@@ -423,103 +385,7 @@ class BoneAnimation extends Animation {
 		skinBuffer[i * 8 + 5] = q2.y * 0.5;
 		skinBuffer[i * 8 + 6] = q2.z * 0.5;
 		skinBuffer[i * 8 + 7] = q2.w * 0.5;
-		
-		#end
 	}
-	#end
-
-	#if arm_skin_cpu
-	function updateSkinCpu() {
-		#if arm_deinterleaved
-		// Assume position=0, normal=1 storage
-		var v = data.geom.vertexBuffers[0].lockInt16();
-		var vnor = data.geom.vertexBuffers[1].lockInt16();
-		var l = 4;
-		var lnor = 2;
-		#else
-		var v = data.geom.vertexBuffer.lockInt16();
-		var l = data.geom.structLength;
-		#end
-
-		var index = 0;
-
-		for (i in 0...Std.int(v.length / l)) {
-
-			var boneCount = data.geom.skinBoneCounts[i];
-			var boneIndices = [];
-			var boneWeights = [];
-			for (j in index...(index + boneCount)) {
-				boneIndices.push(data.geom.skinBoneIndices[j]);
-				boneWeights.push(data.geom.skinBoneWeights[j] / 32767);
-			}
-			index += boneCount;
-
-			pos.set(0, 0, 0);
-			nor.set(0, 0, 0);
-			for (j in 0...boneCount) {
-				var boneIndex = boneIndices[j];
-				var boneWeight = boneWeights[j];
-				var bone = skeletonBones[boneIndex];
-
-				// Position
-				m.initTranslate((data.geom.positions[i * 4    ] * data.scalePos) / 32767,
-								(data.geom.positions[i * 4 + 1] * data.scalePos) / 32767,
-								(data.geom.positions[i * 4 + 2] * data.scalePos) / 32767);
-
-				m.multmat(data.geom.skinTransform);
-
-				m.multmat(data.geom.skeletonTransformsI[boneIndex]);
-
-				bm.setFrom(matsFast[boneIndex]);
-				m.multmat(bm);
-
-				if (boneChildren != null) updateBoneChildren(bone, bm);
-
-				m.mult(boneWeight);
-				
-				pos.add(m.getLoc());
-
-				// Normal
-				// m.getInverse(bm);
-
-				// m.multmat(data.geom.skeletonTransforms[boneIndex]);
-
-				// m.multmat(data.geom.skinTransformI);
-
-				// m.translate(data.geom.normals  [i * 2    ] / 32767,
-				// 			data.geom.normals  [i * 2 + 1] / 32767,
-				// 			data.geom.positions[i * 4 + 3] / 32767);
-
-				// m.mult(boneWeight);
-
-				// nor.add(m.getLoc());
-			}
-
-			#if arm_deinterleaved
-			v.set(i * l    , pos.x * (1 / data.scalePos) * 32767);
-			v.set(i * l + 1, pos.y * (1 / data.scalePos) * 32767);
-			v.set(i * l + 2, pos.z * (1 / data.scalePos) * 32767);
-			// v.set(i * l + 3, nor.z * 32767); // Packed
-			// vnor.set(i * lnor    , nor.x * 32767);
-			// vnor.set(i * lnor + 1, nor.y * 32767);
-			#else
-			v.set(i * l    , Std.int(pos.x * (1 / data.scalePos) * 32767));
-			v.set(i * l + 1, Std.int(pos.y * (1 / data.scalePos) * 32767));
-			v.set(i * l + 2, Std.int(pos.z * (1 / data.scalePos) * 32767));
-			// v.set(i * l + 3, Std.int(nor.z * 32767)); // Packed
-			// v.set(i * l + 4, Std.int(nor.x * 32767));
-			// v.set(i * l + 5, Std.int(nor.y * 32767));
-			#end
-		}
-
-		#if arm_deinterleaved
-		data.geom.vertexBuffers[0].unlock();
-		data.geom.vertexBuffers[1].unlock();
-		#else
-		data.geom.vertexBuffer.unlock();
-		#end
-	}
-	#end
 
 	public override function totalFrames():Int { 
 		if (skeletonBones == null) return 0;
