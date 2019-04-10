@@ -168,31 +168,12 @@ class Quat {
 	 * 			quaternion.
 	 */
 	inline public function getEuler():Vec4 {
-		// YZX
-		var roll = Math.NaN;
-		var yaw = 0.0;
-		var pitch = 0.0;
-
-		var test = x * y + z * w;
-		if (test > 0.499) { // Singularity at north pole
-			roll = 2 * Math.atan2(x, w);
-			yaw = Math.PI / 2;
-			pitch = 0;
-		}
-		if (test < -0.499) { // Singularity at south pole
-			roll = -2 * Math.atan2(x, w);
-			yaw = -Math.PI / 2;
-			pitch = 0;
-		}
-		if (Math.isNaN(roll)) {
-			var a = 2 * z * z;
-			var b = y * y;
-			roll = Math.atan2(2 * y * w - 2 * x * z , 1.0 - 2 * b - a);
-			b = x * x;
-			pitch = Math.atan2(2 * x * w - 2 * y * z , 1.0 - 2 * b - a);
-			yaw = Math.asin(2 * test);
-		}
-		return new Vec4(pitch, roll, yaw);
+		var a = -2 *(x * z - w * y);
+		var b =  w * w + x * x - y * y - z * z;
+		var c =  2 *(x * y + w * z);
+		var d = -2 *(y * z - w * x);
+		var e =  w * w - x * x + y * y - z * z;
+		return new Vec4(Math.atan2(d, e), Math.atan2(a, b), Math.asin(c));
 	}
 
 	/**
