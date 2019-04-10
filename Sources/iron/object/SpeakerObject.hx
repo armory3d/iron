@@ -6,7 +6,7 @@ import iron.data.SceneFormat;
 
 class SpeakerObject extends Object {
 
-	var data:TSpeakerData;
+	public var data:TSpeakerData;
 	var sound:kha.Sound = null;
 	var channels:Array<kha.audio1.AudioChannel> = [];
 	var paused = false;
