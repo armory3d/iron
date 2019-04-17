@@ -282,8 +282,8 @@ typedef TTerrainData = {
 	public var name:String;
 	public var sectors_x:Int;
 	public var sectors_y:Int;
-	public var sector_size:Float;
-	public var height_scale:Float;
+	public var sector_size:FastFloat;
+	public var height_scale:FastFloat;
 	public var material_ref:String;
 }
 

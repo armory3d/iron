@@ -33,7 +33,7 @@ class RenderPath {
 	public var isProbePlanar = false;
 	public var isProbeCube = false;
 	public var isProbe = false;
-	public var currentG:Graphics;
+	public var currentG:Graphics = null;
 	public var frameG:Graphics;
 	public var drawOrder = DrawOrder.Distance;
 	public var paused = false;
@@ -115,7 +115,6 @@ class RenderPath {
 		else if (isProbeCube) frameG = cam.renderTargetCube.g4;
 		else frameG = g;
 		
-		currentG = frameG;
 		currentW = iron.App.w();
 		currentH = iron.App.h();
 		currentD = 1;
@@ -136,20 +135,19 @@ class RenderPath {
 
 	public function setTarget(target:String, additional:Array<String> = null, viewportScale = 1.0) {
 		if (target == "") { // Framebuffer
-			currentG = frameG;
 			currentD = 1;
 			currentTarget = null;
 			currentFace = -1;
 			if (isProbeCube) {
 				currentW = Scene.active.camera.renderTargetCube.width;
 				currentH = Scene.active.camera.renderTargetCube.height;
-				begin(currentG, Scene.active.camera.currentFace);
+				begin(frameG, Scene.active.camera.currentFace);
 			}
 			else { // Screen, planar probe
 				currentW = iron.App.w();
 				currentH = iron.App.h();
 				if (frameScissor) setFrameScissor();
-				begin(currentG);
+				begin(frameG);
 				#if arm_appwh
 				if (!isProbe) {
 					setCurrentViewport(iron.App.w(), iron.App.h());
@@ -169,11 +167,11 @@ class RenderPath {
 					additionalImages.push(t.image);
 				}
 			}
-			currentG = rt.isCubeMap ? rt.cubeMap.g4 : rt.image.g4;
+			var targetG = rt.isCubeMap ? rt.cubeMap.g4 : rt.image.g4;
 			currentW = rt.isCubeMap ? rt.cubeMap.width : rt.image.width;
 			currentH = rt.isCubeMap ? rt.cubeMap.height : rt.image.height;
 			if (rt.is3D) currentD = rt.image.depth;
-			begin(currentG, additionalImages, currentFace);
+			begin(targetG, additionalImages, currentFace);
 		}
 		if (viewportScale != 1.0) {
 			viewportScaled = true;
@@ -196,12 +194,15 @@ class RenderPath {
 	}
 
 	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null, face = -1) {
+		if (currentG != null) end();
+		currentG = g;
 		face >= 0 ? g.beginFace(face) : g.begin(additionalRenderTargets);
 	}
 
-	inline function end(g:Graphics) {
-		g.end();
-		if (scissorSet) { g.disableScissor(); scissorSet = false; }
+	inline function end() {
+		if (scissorSet) { currentG.disableScissor(); scissorSet = false; }
+		currentG.end();
+		currentG = null;
 		bindParams = null;
 	}
 
@@ -265,7 +266,6 @@ class RenderPath {
 		// Single face attached
 		if (currentFace >= 0 && light != null) light.setCubeFace(currentFace, Scene.active.camera);
 		
-		var g = currentG;
 		var drawn = false;
 
 		#if arm_csm
@@ -273,7 +273,7 @@ class RenderPath {
 			var step = currentH; // Atlas with tiles on x axis
 			for (i in 0...LightObject.cascadeCount) {
 				light.setCascade(Scene.active.camera, i);
-				g.viewport(i * step, 0, step, step);
+				currentG.viewport(i * step, 0, step, step);
 				submitDraw(context);
 			}
 			drawn = true;
@@ -290,18 +290,17 @@ class RenderPath {
 		// Callbacks to specific context
 		if (contextEvents != null) {
 			var ar = contextEvents.get(context);
-			if (ar != null) for (i in 0...ar.length) ar[i](g, i, ar.length);
+			if (ar != null) for (i in 0...ar.length) ar[i](currentG, i, ar.length);
 		}
 		#end
 
-		end(g);
+		end();
 	}
 
 	@:access(iron.object.MeshObject)
 	function submitDraw(context:String) {
 		var camera = Scene.active.camera;
 		var meshes = Scene.active.meshes;
-		var g = currentG;
 		MeshObject.lastPipeline = null;
 
 		if (!meshesSorted && camera != null) { // Order max one per frame for now
@@ -320,10 +319,10 @@ class RenderPath {
 		}
 
 		#if arm_batch
-		Scene.active.meshBatch.render(g, context, bindParams);
+		Scene.active.meshBatch.render(currentG, context, bindParams);
 		#else
 		for (m in meshes) {
-			m.render(g, context, bindParams);
+			m.render(currentG, context, bindParams);
 		}
 		#end
 	}
@@ -341,11 +340,10 @@ class RenderPath {
 	#if rp_decals
 	public function drawDecals(context:String) {
 		if (ConstData.boxVB == null) ConstData.createBoxData();
-		var g = currentG;
 		for (decal in Scene.active.decals) {
-			decal.render(g, context, bindParams);
+			decal.render(currentG, context, bindParams);
 		}
-		end(g);
+		end();
 	}
 	#end
 
@@ -353,32 +351,30 @@ class RenderPath {
 		if (ConstData.skydomeVB == null) ConstData.createSkydomeData();
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc.context == null) return; // World data not specified
-		var g = currentG;
-		g.setPipeline(cc.context.pipeState);
-		Uniforms.setContextConstants(g, cc.context, bindParams);
-		Uniforms.setObjectConstants(g, cc.context, null); // External hosek
+		currentG.setPipeline(cc.context.pipeState);
+		Uniforms.setContextConstants(currentG, cc.context, bindParams);
+		Uniforms.setObjectConstants(currentG, cc.context, null); // External hosek
 		#if arm_deinterleaved
-		g.setVertexBuffers(ConstData.skydomeVB);
+		currentG.setVertexBuffers(ConstData.skydomeVB);
 		#else
-		g.setVertexBuffer(ConstData.skydomeVB);
+		currentG.setVertexBuffer(ConstData.skydomeVB);
 		#end
-		g.setIndexBuffer(ConstData.skydomeIB);
-		g.drawIndexedVertices();
-		end(g);
+		currentG.setIndexBuffer(ConstData.skydomeIB);
+		currentG.drawIndexedVertices();
+		end();
 	}
 
 	#if rp_probes
 	public function drawVolume(object:Object, handle:String) {
 		if (ConstData.boxVB == null) ConstData.createBoxData();
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
-		var g = currentG;
-		g.setPipeline(cc.context.pipeState);
-		Uniforms.setContextConstants(g, cc.context, bindParams);
-		Uniforms.setObjectConstants(g, cc.context, object);
-		g.setVertexBuffer(ConstData.boxVB);
-		g.setIndexBuffer(ConstData.boxIB);
-		g.drawIndexedVertices();
-		end(g);
+		currentG.setPipeline(cc.context.pipeState);
+		Uniforms.setContextConstants(currentG, cc.context, bindParams);
+		Uniforms.setObjectConstants(currentG, cc.context, object);
+		currentG.setVertexBuffer(ConstData.boxVB);
+		currentG.setIndexBuffer(ConstData.boxIB);
+		currentG.drawIndexedVertices();
+		end();
 	}
 	#end
 
@@ -392,15 +388,14 @@ class RenderPath {
 		// file/data_name/context
 		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
 		if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
-		var g = currentG;		
-		g.setPipeline(cc.context.pipeState);
-		Uniforms.setContextConstants(g, cc.context, bindParams);
-		Uniforms.setObjectConstants(g, cc.context, null);
-		g.setVertexBuffer(ConstData.screenAlignedVB);
-		g.setIndexBuffer(ConstData.screenAlignedIB);
-		g.drawIndexedVertices();
+		currentG.setPipeline(cc.context.pipeState);
+		Uniforms.setContextConstants(currentG, cc.context, bindParams);
+		Uniforms.setObjectConstants(currentG, cc.context, null);
+		currentG.setVertexBuffer(ConstData.screenAlignedVB);
+		currentG.setIndexBuffer(ConstData.screenAlignedIB);
+		currentG.drawIndexedVertices();
 		
-		end(g);
+		end();
 	}
 
 	public function getComputeShader(handle:String):kha.compute.Shader {
@@ -410,7 +405,6 @@ class RenderPath {
 	#if arm_vr
 	public function drawStereo(drawMeshes:Void->Void) {
 		var vr = kha.vr.VrInterface.instance;
-		var g = currentG;
 		var appw = iron.App.w();
 		var apph = iron.App.h();
 		var halfw = Std.int(appw / 2);
@@ -419,26 +413,26 @@ class RenderPath {
 			// Left eye
 			Scene.active.camera.V.setFrom(Scene.active.camera.leftV);
 			Scene.active.camera.P.self = vr.GetProjectionMatrix(0);
-			g.viewport(0, 0, halfw, apph);
+			currentG.viewport(0, 0, halfw, apph);
 			drawMeshes();
 
 			// Right eye
 			Scene.active.camera.V.setFrom(Scene.active.camera.rightV);
 			Scene.active.camera.P.self = vr.GetProjectionMatrix(1);
-			g.viewport(halfw, 0, halfw, apph);
+			currentG.viewport(halfw, 0, halfw, apph);
 			drawMeshes();
 		}
 		else { // Simulate
 			Scene.active.camera.buildProjection(halfw / apph);
 
 			// Left eye
-			g.viewport(0, 0, halfw, apph);
+			currentG.viewport(0, 0, halfw, apph);
 			drawMeshes();
 
 			// Right eye
 			Scene.active.camera.transform.move(Scene.active.camera.right(), 0.032);
 			Scene.active.camera.buildMatrix();
-			g.viewport(halfw, 0, halfw, apph);
+			currentG.viewport(halfw, 0, halfw, apph);
 			drawMeshes();
 
 			Scene.active.camera.transform.move(Scene.active.camera.right(), -0.032);
