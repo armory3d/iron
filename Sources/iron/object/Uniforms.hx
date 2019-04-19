@@ -711,20 +711,22 @@ class Uniforms {
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrixSphere") { // Billboard
-				helpMat.setFrom(object.transform.worldUnpack);
+				var t = object.transform;
+				helpMat.setFrom(t.worldUnpack);
 				helpMat.multmat(camera.V);
-				helpMat._00 = 1.0; helpMat._10 = 0.0; helpMat._20 = 0.0;
-				helpMat._01 = 0.0; helpMat._11 = 1.0; helpMat._21 = 0.0;
-				helpMat._02 = 0.0; helpMat._12 = 0.0; helpMat._22 = 1.0;
+				helpMat._00 = t.scale.x; helpMat._10 = 0.0;       helpMat._20 = 0.0;
+				helpMat._01 = 0.0;       helpMat._11 = t.scale.y; helpMat._21 = 0.0;
+				helpMat._02 = 0.0;       helpMat._12 = 0.0;       helpMat._22 = t.scale.z;
 				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
 			else if (c.link == "_worldViewProjectionMatrixCylinder") { // Billboard - x rot 90deg
-				helpMat.setFrom(object.transform.worldUnpack);
+				var t = object.transform;
+				helpMat.setFrom(t.worldUnpack);
 				helpMat.multmat(camera.V);
-				helpMat._00 = 1.0; helpMat._20 = 0.0;
-				helpMat._01 = 0.0; helpMat._21 = 0.0;
-				helpMat._02 = 0.0; helpMat._22 = 1.0;
+				helpMat._00 = t.scale.x; helpMat._20 = 0.0;
+				helpMat._01 = 0.0;       helpMat._21 = 0.0;
+				helpMat._02 = 0.0;       helpMat._22 = t.scale.z;
 				helpMat.multmat(camera.P);
 				m = helpMat;
 			}
