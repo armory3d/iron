@@ -124,6 +124,20 @@ class Uniforms {
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('iestexture.png'));
 					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 				}
+				#if rp_clouds
+				else if (tulink == "_cloudsBase") {
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('clouds_base.raw'));
+					g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+				}
+				else if (tulink == "_cloudsDetail") {
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('clouds_detail.raw'));
+					g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+				}
+				else if (tulink == "_cloudsMap") {
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('clouds_map.png'));
+					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+				}
+				#end
 			}
 		}
 	}

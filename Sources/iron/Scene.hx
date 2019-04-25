@@ -695,11 +695,24 @@ class Scene {
 		if (datas == null) { done(); return; }
 		var loaded = 0;
 		for (file in datas) {
-			iron.data.Data.getImage(file, function(image:kha.Image) {
-				embedded.set(file, image);
-				loaded++;
-				if (loaded == datas.length) done();
-			});
+			if (StringTools.endsWith(file, '.raw')) {
+				iron.data.Data.getBlob(file, function(blob:kha.Blob) {
+					// Raw 3D texture bytes
+					var b = blob.toBytes();
+					var w = Std.int(Math.pow(b.length, 1 / 3)) + 1;
+					var image = kha.Image.fromBytes3D(b, w, w, w, kha.graphics4.TextureFormat.L8);
+					embedded.set(file, image);
+					loaded++;
+					if (loaded == datas.length) done();
+				});
+			}
+			else {
+				iron.data.Data.getImage(file, function(image:kha.Image) {
+					embedded.set(file, image);
+					loaded++;
+					if (loaded == datas.length) done();
+				});
+			}
 		}
 	}
 
