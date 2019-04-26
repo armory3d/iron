@@ -82,7 +82,16 @@ class Uniforms {
 				var tulink = context.raw.texture_units[j].link;
 				if (tulink == null) continue;
 
-				if (tulink == "_envmapRadiance") {
+				if (tulink.charAt(0) == "$") { // Link to embedded data
+					g.setTexture(context.textureUnits[j], Scene.active.embedded.get(tulink.substr(1)));
+					if (StringTools.endsWith(tulink, '.raw')) { // Raw 3D texture
+						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+					}
+					else { // 2D texture
+						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+					}
+				}
+				else if (tulink == "_envmapRadiance") {
 					var w = Scene.active.world;
 					if (w != null) {
 						g.setTexture(context.textureUnits[j], w.probe.radiance);
@@ -95,47 +104,10 @@ class Uniforms {
 						g.setTexture(context.textureUnits[j], w.envmap);
 					}
 				}
-				else if (tulink == "_envmapBrdf") {
-					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('brdf.png'));
-				}
 				#if arm_clusters
 				else if (tulink == "_clustersData") {
 					g.setTexture(context.textureUnits[j], LightObject.clustersData);
 					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-				}
-				#end
-				else if (tulink == "_noise8") {
-					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise8.png'));
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-				}
-				else if (tulink == "_noise64") {
-					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise64.png'));
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-				}
-				else if (tulink == "_blueNoise64") {
-					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('blue_noise64.png'));
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-				}
-				else if (tulink == "_noise256") {
-					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('noise256.png'));
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-				}
-				else if (tulink == "_iesTexture") {
-					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('iestexture.png'));
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-				}
-				#if rp_clouds
-				else if (tulink == "_cloudsBase") {
-					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('clouds_base.raw'));
-					g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-				}
-				else if (tulink == "_cloudsDetail") {
-					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('clouds_detail.raw'));
-					g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
-				}
-				else if (tulink == "_cloudsMap") {
-					g.setTexture(context.textureUnits[j], Scene.active.embedded.get('clouds_map.png'));
-					g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 				}
 				#end
 			}
