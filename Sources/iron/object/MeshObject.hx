@@ -292,7 +292,7 @@ class MeshObject extends Object {
 		for (i in 0...ldata.geom.indexBuffers.length) {
 
 			var mi = ldata.geom.materialIndices[i];
-			if (shaderContexts[mi] == null || shaderContexts.length <= mi) continue;
+			if (shaderContexts.length <= mi || shaderContexts[mi] == null) continue;
 			materialIndex = mi;
 
 			// Check context skip
