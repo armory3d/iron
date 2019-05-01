@@ -126,7 +126,7 @@ class MeshObject extends Object {
 	public function cullMaterial(context:String):Bool {
 		// Skip render if material does not contain current context
 		var mats = materials;
-		if (!isLodMaterial() && !validContext(mats[0], context)) return true;
+		if (!isLodMaterial() && !validContext(mats, context)) return true;
 
 		var isShadow = context == "shadowmap";
 		if (!visibleMesh && !isShadow) return setCulled(isShadow, true);
@@ -205,12 +205,18 @@ class MeshObject extends Object {
 
 	function getContexts(context:String, materials:Vector<MaterialData>, materialContexts:Array<MaterialContext>, shaderContexts:Array<ShaderContext>) {
 		for (mat in materials) {
+			var found = false;
 			for (i in 0...mat.raw.contexts.length) {
 				if (mat.raw.contexts[i].name.substr(0, context.length) == context) {
 					materialContexts.push(mat.contexts[i]);
 					shaderContexts.push(mat.shader.getContext(context));
+					found = true;
 					break;
 				}
+			}
+			if (!found) {
+				materialContexts.push(null);
+				shaderContexts.push(null);
 			}
 		}
 	}
@@ -270,7 +276,7 @@ class MeshObject extends Object {
 		#if arm_debug
 		else computeScreenSize(Scene.active.camera);
 		#end
-		if (isLodMaterial() && !validContext(mats[0], context)) return;
+		if (isLodMaterial() && !validContext(mats, context)) return;
 		
 		// Get context
 		var materialContexts:Array<MaterialContext> = [];
@@ -286,7 +292,7 @@ class MeshObject extends Object {
 		for (i in 0...ldata.geom.indexBuffers.length) {
 
 			var mi = ldata.geom.materialIndices[i];
-			if (shaderContexts.length <= mi) continue;
+			if (shaderContexts[mi] == null || shaderContexts.length <= mi) continue;
 			materialIndex = mi;
 
 			// Check context skip
@@ -343,8 +349,9 @@ class MeshObject extends Object {
 		#end
 	}
 
-	inline function validContext(mat:MaterialData, context:String):Bool {
-		 return mat.getContext(context) != null;
+	function validContext(mats:haxe.ds.Vector<MaterialData>, context:String):Bool {
+		for (mat in mats) if (mat.getContext(context) != null) return true;
+		return false;
 	}
 
 	public inline function computeCameraDistance(camX:Float, camY:Float, camZ:Float) {
