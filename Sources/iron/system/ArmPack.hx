@@ -177,19 +177,25 @@ class ArmPack {
 			case TInt: { o.writeByte(0xd2); o.writeInt32(d); }
 			case TFloat: { o.writeByte(0xca); o.writeFloat(d); }
 			case TClass(c): {
+
 				switch (Type.getClassName(c)) {
 					case "String": {
 						o.writeByte(0xdb);
 						o.writeInt32(d.length);
 						o.writeString(d);
 					}
-					case "Array", null: { // Float32Array, Uint32Array gives null
+					case "Array", null: { // kha.arrays give null
 						o.writeByte(0xdd);
 						o.writeInt32(d.length);
+						var isInt16 = Std.is(d, #if js js.html.Int16Array #else kha.arrays.Int16Array.Int16ArrayPrivate #end);
 						var isInt = Std.is(d[0], Int);
 						var isFloat = Std.is(d[0], Float);
 
-						if (isFloat && !isInt) { // Float32Array
+						if (isInt16) { // Int16Array
+							o.writeByte(0xd1);
+							for (i in 0...d.length) o.writeInt16(d[i]);
+						}
+						else if (isFloat && !isInt) { // Float32Array
 							o.writeByte(0xca);
 							for (i in 0...d.length) o.writeFloat(d[i]);
 						}
@@ -197,7 +203,6 @@ class ArmPack {
 							o.writeByte(0xd2);
 							for (i in 0...d.length) o.writeInt32(d[i]);
 						}
-						// else if (isInt16) {} // TODO: Int16Array
 						else for (i in 0...d.length) write(o, d[i]); // Array
 					}
 					case "haxe.io.Bytes": {
