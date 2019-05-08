@@ -303,7 +303,7 @@ class RenderPath {
 		var meshes = Scene.active.meshes;
 		MeshObject.lastPipeline = null;
 
-		if (!meshesSorted && camera != null) { // Order max one per frame for now
+		if (!meshesSorted && camera != null) { // Order max once per frame for now
 			var camX = camera.transform.worldx();
 			var camY = camera.transform.worldy();
 			var camZ = camera.transform.worldz();
@@ -611,9 +611,6 @@ class RenderPath {
 		case "RGBA64": return TextureFormat.RGBA64;
 		case "RGBA128": return TextureFormat.RGBA128;
 		case "DEPTH16": return TextureFormat.DEPTH16;
-		case "A32": return TextureFormat.A32;
-		case "A16": return TextureFormat.A16;
-		case "A8": return TextureFormat.L8;
 		case "R32": return TextureFormat.A32;
 		case "R16": return TextureFormat.A16;
 		case "R8": return TextureFormat.L8;
