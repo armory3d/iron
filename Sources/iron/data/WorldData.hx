@@ -22,13 +22,23 @@ class WorldData {
 		if (raw.probe != null) {
 			new Probe(raw.probe, function(self:Probe) {
 				probe = self;
+				#if arm_skip_envmap
+				done(this);
+				#else
 				loadEnvmap(done);
+				#end
 			});
 		}
-		else loadEnvmap(done);
+		else {
+			#if arm_skip_envmap
+			done(this);
+			#else
+			loadEnvmap(done);
+			#end
+		}
 	}
 
-	function loadEnvmap(done:WorldData->Void) {
+	public function loadEnvmap(done:WorldData->Void) {
 		if (raw.envmap != null) {
 			iron.data.Data.getImage(raw.envmap, function(image:kha.Image) {
 				envmap = image;
