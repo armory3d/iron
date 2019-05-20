@@ -292,7 +292,7 @@ class LightObject extends Object {
 			cascadeData[i * 16 + 14] = m._32;
 			cascadeData[i * 16 + 15] = m._33;
 		}
-		cascadeData[cascadeCount * 16 + 0] = cascadeSplit[0];
+		cascadeData[cascadeCount * 16    ] = cascadeSplit[0];
 		cascadeData[cascadeCount * 16 + 1] = cascadeSplit[1];
 		cascadeData[cascadeCount * 16 + 2] = cascadeSplit[2];
 		cascadeData[cascadeCount * 16 + 3] = cascadeSplit[3];
