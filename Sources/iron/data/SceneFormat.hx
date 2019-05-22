@@ -139,6 +139,7 @@ typedef TShaderOverride = {
 @:structInit class TShaderOverride {
 #end
 	@:optional public var cull_mode:String;
+	@:optional public var addressing:String;
 }
 
 #if js

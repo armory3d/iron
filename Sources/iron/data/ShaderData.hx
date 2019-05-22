@@ -66,11 +66,11 @@ class ShaderContext {
 	public var pipeState:PipelineState;
 	public var constants:Array<ConstantLocation>;
 	public var textureUnits:Array<TextureUnit>;
+	public var overrideContext:TShaderOverride;
 	// public var paramsSet:Array<Bool>;
 
 	var structure:VertexStructure;
 	var instancingType = 0;
-	var overrideContext:TShaderOverride;
 
 	public function new(raw:TShaderContext, done:ShaderContext->Void, overrideContext:TShaderOverride = null) {
 		this.raw = raw;
