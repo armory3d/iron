@@ -10,7 +10,7 @@ class Transform {
 	 */
 	public var world:Mat4;
 	/**
-	 * Whether to apply the parent matrix. Default: `false`.
+	 * Prevent applying parent matrix. Default: `false`.
 	 */
 	public var localOnly = false;
 	/**
