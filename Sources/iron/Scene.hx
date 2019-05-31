@@ -376,11 +376,11 @@ class Scene {
 		});
 	}
 
-	function getObj(format:TSceneFormat, name:String):TObj {
+	public static function getObj(format:TSceneFormat, name:String):TObj {
 		return traverseObjs(format.objects, name);
 	}
 
-	function traverseObjs(children:Array<TObj>, name:String):TObj {
+	static function traverseObjs(children:Array<TObj>, name:String):TObj {
 		for (o in children) {
 			if (o.name == name) return o;
 			if (o.children != null) {
