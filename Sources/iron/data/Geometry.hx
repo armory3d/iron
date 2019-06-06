@@ -443,4 +443,68 @@ class Geometry {
 		// else if (aabb.y >= aabb.x && aabb.y >= aabb.z) radius = aabb.y / 2;
 		// else radius = aabb.z / 2;
 	}
+
+	public function calculateTangents() {
+		// var num_verts = Std.int(positions.length / 4);
+		// var tangents = new Float32Array(num_verts * 3);
+		// var bitangents = new Float32Array(num_verts * 3);
+		// for (ia in indices) {
+		// 	var num_tris = Std.int(ia.length / 3);
+		// 	for (i in 0...num_tris) {
+		// 		var i0 = ia[i * 3    ];
+		// 		var i1 = ia[i * 3 + 1];
+		// 		var i2 = ia[i * 3 + 2];
+		// 		var v0 = Vector((positions[i0 * 4], positions[i0 * 4 + 1], positions[i0 * 4 + 2]));
+		// 		var v1 = Vector((positions[i1 * 4], positions[i1 * 4 + 1], positions[i1 * 4 + 2]));
+		// 		var v2 = Vector((positions[i2 * 4], positions[i2 * 4 + 1], positions[i2 * 4 + 2]));
+		// 		var uv0 = Vector((uvs[i0 * 2], uvs[i0 * 2 + 1]));
+		// 		var uv1 = Vector((uvs[i1 * 2], uvs[i1 * 2 + 1]));
+		// 		var uv2 = Vector((uvs[i2 * 2], uvs[i2 * 2 + 1]));
+
+		// 		var deltaPos1 = v1 - v0;
+		// 		var deltaPos2 = v2 - v0;
+		// 		var deltaUV1 = uv1 - uv0;
+		// 		var deltaUV2 = uv2 - uv0;
+		// 		var d = (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+		// 		var r = d != 0 ? 1.0 / d : 1.0;
+		// 		var tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
+		// 		var bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
+
+		// 		var tangents[i0 * 3    ] += tangent.x;
+		// 		var tangents[i0 * 3 + 1] += tangent.y;
+		// 		var tangents[i0 * 3 + 2] += tangent.z;
+		// 		var tangents[i1 * 3    ] += tangent.x;
+		// 		var tangents[i1 * 3 + 1] += tangent.y;
+		// 		var tangents[i1 * 3 + 2] += tangent.z;
+		// 		var tangents[i2 * 3    ] += tangent.x;
+		// 		var tangents[i2 * 3 + 1] += tangent.y;
+		// 		var tangents[i2 * 3 + 2] += tangent.z;
+		// 		var bitangents[i0 * 3    ] += bitangent.x;
+		// 		var bitangents[i0 * 3 + 1] += bitangent.y;
+		// 		var bitangents[i0 * 3 + 2] += bitangent.z;
+		// 		var bitangents[i1 * 3    ] += bitangent.x;
+		// 		var bitangents[i1 * 3 + 1] += bitangent.y;
+		// 		var bitangents[i1 * 3 + 2] += bitangent.z;
+		// 		var bitangents[i2 * 3    ] += bitangent.x;
+		// 		var bitangents[i2 * 3 + 1] += bitangent.y;
+		// 		var bitangents[i2 * 3 + 2] += bitangent.z;
+		// 	}
+		// }
+
+		// // Orthogonalize
+		// for (i in 0...num_verts) {
+		// 	var t = Vector((tangents[i * 3], tangents[i * 3 + 1], tangents[i * 3 + 2]));
+		// 	var b = Vector((bitangents[i * 3], bitangents[i * 3 + 1], bitangents[i * 3 + 2]));
+		// 	var n = Vector((normals[i * 2], normals[i * 2 + 1], positions[i * 4 + 3] / scale_pos));
+		// 	var v = t - n * n.dot(t);
+		// 	v.normalize();
+		// 	// Calculate handedness
+		// 	var cnv = n.cross(v);
+		// 	if (cnv.dot(b) < 0.0)
+		// 		v = v * -1.0;
+		// 	tangents[i * 3    ] = v.x;
+		// 	tangents[i * 3 + 1] = v.y;
+		// 	tangents[i * 3 + 2] = v.z;
+		// }
+	}
 }
