@@ -105,7 +105,7 @@ class Geometry {
 #if arm_deinterleaved
 		for (buf in vertexBuffers) if (buf != null) buf.delete();
 #else
-		vertexBuffer.delete();
+		for (buf in vertexBufferMap) if (buf != null) buf.delete();
 #end
 		for (buf in indexBuffers) buf.delete();
 	}
