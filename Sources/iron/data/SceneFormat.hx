@@ -140,6 +140,7 @@ typedef TShaderOverride = {
 #end
 	@:optional public var cull_mode:String;
 	@:optional public var addressing:String;
+	@:optional public var shared_sampler:Null<Bool>;
 }
 
 #if js
