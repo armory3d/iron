@@ -16,7 +16,7 @@ bl_info = {
     "location": "File -> Export",
     "description": "Armory mesh data",
     "author": "Armory3D.org",
-    "version": (2019, 5, 0),
+    "version": (2019, 6, 0),
     "blender": (2, 80, 0),
     "wiki_url": "http://armory3d.org/iron",
     "tracker_url": "https://github.com/armory3d/iron/issues"
@@ -409,6 +409,9 @@ def _pack_array(obj, fp):
         fp.write(b"\xca")
         for e in obj:
             fp.write(struct.pack("<f", e))
+    elif len(obj) > 0 and isinstance(obj[0], bool):
+        for e in obj:
+            pack(e, fp)
     elif len(obj) > 0 and isinstance(obj[0], int):
         fp.write(b"\xd2")
         for e in obj:
