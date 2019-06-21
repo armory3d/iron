@@ -619,12 +619,6 @@ class Uniforms {
 			else if (c.link == "_frameScale") {
 				f = RenderPath.active.frameTime / iron.system.Time.delta;
 			}
-			#if rp_voxelao
-			else if (c.link == "_voxelBlend") { // Blend current and last voxels
-				var freq = armory.renderpath.RenderPathCreator.voxelFreq;
-				f = (armory.renderpath.RenderPathCreator.voxelFrame % freq) / freq;
-			}
-			#end
 
 			if (f != null) {
 				g.setFloat(location, f);
