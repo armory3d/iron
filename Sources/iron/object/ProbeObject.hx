@@ -3,12 +3,12 @@ package iron.object;
 import kha.graphics4.Graphics;
 import kha.graphics4.TextureFormat;
 import kha.graphics4.DepthStencilFormat;
+import kha.graphics4.CubeMap;
 import iron.data.ProbeData;
 import iron.data.CameraData;
 import iron.data.SceneFormat;
 import iron.math.Vec4;
 import iron.math.Mat4;
-import iron.Scene;
 
 class ProbeObject extends Object {
 
@@ -78,10 +78,10 @@ class ProbeObject extends Object {
 				camera.name = craw.name;
 				iron.Scene.active.root.addChild(camera);
 				// Make target bindable from render path
-				var rt = new iron.RenderPath.RenderTarget(new iron.RenderPath.RenderTargetRaw());
+				var rt = new RenderPath.RenderTarget(new RenderPath.RenderTargetRaw());
 				rt.raw.name = raw.name;
 				rt.image = camera.renderTarget;
-				iron.RenderPath.active.renderTargets.set(rt.raw.name, rt);
+				RenderPath.active.renderTargets.set(rt.raw.name, rt);
 				ready = true;
 			});
 		}
@@ -100,7 +100,7 @@ class ProbeObject extends Object {
 			};
 			new CameraData(craw, function(cdata:CameraData) {
 				camera = new CameraObject(cdata);
-				camera.renderTargetCube = kha.graphics4.CubeMap.createRenderTarget(
+				camera.renderTargetCube = CubeMap.createRenderTarget(
 					1024, // TODO
 					TextureFormat.RGBA32,
 					DepthStencilFormat.NoDepthAndStencil
@@ -108,12 +108,12 @@ class ProbeObject extends Object {
 				camera.name = craw.name;
 				iron.Scene.active.root.addChild(camera);
 				// Make target bindable from render path
-				var rt = new iron.RenderPath.RenderTarget(new iron.RenderPath.RenderTargetRaw());
+				var rt = new RenderPath.RenderTarget(new RenderPath.RenderTargetRaw());
 				rt.raw.name = raw.name;
 				rt.raw.is_cubemap = true;
 				rt.isCubeMap = true;
 				rt.cubeMap = camera.renderTargetCube;
-				iron.RenderPath.active.renderTargets.set(rt.raw.name, rt);
+				RenderPath.active.renderTargets.set(rt.raw.name, rt);
 				ready = true;
 			});
 		}

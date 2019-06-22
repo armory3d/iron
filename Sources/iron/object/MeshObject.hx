@@ -2,14 +2,10 @@ package iron.object;
 
 import haxe.ds.Vector;
 import kha.graphics4.Graphics;
-import kha.graphics4.ConstantLocation;
-import kha.graphics4.TextureAddressing;
-import kha.graphics4.TextureFilter;
-import kha.graphics4.MipMapFilter;
-import iron.Scene;
-import iron.RenderPath;
-import iron.math.*;
-import iron.data.*;
+import kha.graphics4.PipelineState;
+import iron.math.Vec4;
+import iron.math.Mat4;
+import iron.data.MeshData;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.SceneFormat;
@@ -31,7 +27,7 @@ class MeshObject extends Object {
 	public var tilesheet:Tilesheet = null;
 	public var skip_context:String = null; // Do not draw this context
 	public var force_context:String = null; // Draw only this context
-	static var lastPipeline:kha.graphics4.PipelineState = null;
+	static var lastPipeline:PipelineState = null;
 
 	#if arm_veloc
 	public var prevMatrix = Mat4.identity();
@@ -154,6 +150,7 @@ class MeshObject extends Object {
 			if (particleSystems != null || particleOwner != null) radiusScale *= 1000;
 			#end
 			if (context == "voxel") radiusScale *= 100;
+			if (data.geom.instanced) radiusScale *= 100;
 			var isShadow = context == "shadowmap";
 			var frustumPlanes = isShadow ? light.frustumPlanes : camera.frustumPlanes;
 
@@ -164,30 +161,8 @@ class MeshObject extends Object {
 				}
 			}
 
-			// Instanced
-			if (data.geom.instanced) {
-				// Cull
-				// TODO: per-instance culling
-				// var instanceInFrustum = false;
-				// for (v in data.geom.offsetVecs) {
-				// 	if (CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale, v.x, v.y, v.z)) {
-				// 		instanceInFrustum = true;
-				// 		break;
-				// 	}
-				// }
-				// if (!instanceInFrustum) return setCulled(isShadow, true);
-
-				// Sort - always front to back for now
-				// var camX = camera.transform.worldx();
-				// var camY = camera.transform.worldy();
-				// var camZ = camera.transform.worldz();
-				// data.geom.sortInstanced(camX, camY, camZ); // TODO: do not sort particles here
-			}
-			// Non-instanced
-			else {
-				if (!CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale)) {
-					return setCulled(isShadow, true);
-				}
+			if (!CameraObject.sphereInFrustum(frustumPlanes, transform, radiusScale)) {
+				return setCulled(isShadow, true);
 			}
 		}
 
@@ -233,8 +208,8 @@ class MeshObject extends Object {
 			if (particleChildren == null) {
 				particleChildren = [];
 				for (psys in particleSystems) {
-					// var c:MeshObject = cast iron.Scene.active.getChild(psys.data.raw.instance_object);
-					iron.Scene.active.spawnObject(psys.data.raw.instance_object, null, function(o:Object) {
+					// var c:MeshObject = cast Scene.active.getChild(psys.data.raw.instance_object);
+					Scene.active.spawnObject(psys.data.raw.instance_object, null, function(o:Object) {
 						if (o != null) {
 							var c:MeshObject = cast o;
 							particleChildren.push(c);
@@ -349,14 +324,14 @@ class MeshObject extends Object {
 		#end
 	}
 
-	function validContext(mats:haxe.ds.Vector<MaterialData>, context:String):Bool {
+	function validContext(mats:Vector<MaterialData>, context:String):Bool {
 		for (mat in mats) if (mat.getContext(context) != null) return true;
 		return false;
 	}
 
 	public inline function computeCameraDistance(camX:Float, camY:Float, camZ:Float) {
 		// Render path mesh sorting
-		cameraDistance = iron.math.Vec4.distancef(camX, camY, camZ, transform.worldx(), transform.worldy(), transform.worldz());
+		cameraDistance = Vec4.distancef(camX, camY, camZ, transform.worldx(), transform.worldy(), transform.worldz());
 	}
 
 	public inline function computeScreenSize(camera:CameraObject) {

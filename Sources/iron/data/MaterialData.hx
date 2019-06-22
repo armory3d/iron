@@ -95,7 +95,7 @@ class MaterialContext {
 					continue;
 				}
 
-				iron.data.Data.getImage(tex.file, function(image:kha.Image) {
+				Data.getImage(tex.file, function(image:kha.Image) {
 					textures[i] = image;
 					texturesLoaded++;
 
@@ -108,7 +108,7 @@ class MaterialContext {
 						for (j in 0...tex.mipmaps.length) {
 							var name = tex.mipmaps[j];
 
-							iron.data.Data.getImage(name, function(mipimg:kha.Image) {
+							Data.getImage(name, function(mipimg:kha.Image) {
 								mipmaps[j] = mipimg;
 								mipmapsLoaded++;
 
@@ -139,9 +139,6 @@ class MaterialContext {
 	
 	public function setTextureParameters(g:kha.graphics4.Graphics, textureIndex:Int, context:ShaderContext, unitIndex:Int) {
 		// This function is called by MeshObject for samplers set using material context
-		// if (!context.paramsSet[unitIndex]) {
-			context.setTextureParameters(g, unitIndex, raw.bind_textures[textureIndex]);
-			// context.paramsSet[unitIndex] = true;
-		// }
+		context.setTextureParameters(g, unitIndex, raw.bind_textures[textureIndex]);
 	}
 }

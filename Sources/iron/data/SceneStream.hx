@@ -5,28 +5,10 @@ package iron.data;
 import haxe.ds.Vector;
 import iron.data.SceneFormat;
 import iron.data.MaterialData;
-import iron.data.MeshData;
 import iron.object.Object;
 import iron.object.MeshObject;
 import iron.object.CameraObject;
 import iron.math.Vec4;
-
-typedef TMeshHandle = {
-	var object_file:String;
-	var data_ref:String;
-	var sceneName:String;
-	var armature:Armature;
-	var materials:Vector<MaterialData>;
-	var parent:Object;
-	var obj:TObj;
-	var object:MeshObject;
-	var loading:Bool;
-}
-
-class StreamSector {
-	public function new() {}
-	public var handles:Array<TMeshHandle> = []; // Mesh objects
-}
 
 class SceneStream {
 
@@ -109,6 +91,23 @@ class SceneStream {
 			}
 		}
 	}
+}
+
+typedef TMeshHandle = {
+	var object_file:String;
+	var data_ref:String;
+	var sceneName:String;
+	var armature:Armature;
+	var materials:Vector<MaterialData>;
+	var parent:Object;
+	var obj:TObj;
+	var object:MeshObject;
+	var loading:Bool;
+}
+
+class StreamSector {
+	public function new() {}
+	public var handles:Array<TMeshHandle> = []; // Mesh objects
 }
 
 #end

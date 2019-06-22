@@ -1,11 +1,10 @@
 package iron.math;
 
 import kha.FastFloat;
-import iron.App;
 import iron.object.CameraObject;
 import iron.object.MeshObject;
 import iron.object.Transform;
-import iron.math.Ray.Plane;
+import iron.math.Ray;
 
 class RayCaster {
 
@@ -35,8 +34,8 @@ class RayCaster {
 	public static function getDirection(start:Vec4, end:Vec4, inputX:FastFloat, inputY:FastFloat, camera:CameraObject) {
 		// Get 3D point form screen coords
 		// Set two vectors with opposing z values
-		start.x = (inputX / App.w()) * 2.0 - 1.0;
-		start.y = -((inputY / App.h()) * 2.0 - 1.0);
+		start.x = (inputX / iron.App.w()) * 2.0 - 1.0;
+		start.y = -((inputY / iron.App.h()) * 2.0 - 1.0);
 		start.z = -1.0;
 		end.x = start.x;
 		end.y = start.y;
@@ -72,7 +71,7 @@ class RayCaster {
 
 		// Get closest intersect
 		var closest:Transform = null;
-		var minDist = std.Math.POSITIVE_INFINITY;
+		var minDist = Math.POSITIVE_INFINITY;
 		for (t in intersects) {
 			var dist = Vec4.distance(t.loc, camera.transform.loc);
 			if (dist < minDist) {

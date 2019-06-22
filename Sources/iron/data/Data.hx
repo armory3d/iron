@@ -1,6 +1,10 @@
 package iron.data;
+
+import haxe.Json;
 import haxe.io.BytesInput;
 import iron.data.SceneFormat;
+import iron.system.ArmPack;
+using StringTools;
 
 // Global data list and asynchronous data loading
 class Data {
@@ -235,32 +239,23 @@ class Data {
 		loadingSceneRaws.set(file, [done]);
 
 		// If no extension specified, set to .arm
-		var compressed = StringTools.endsWith(file, '.zip');
-		var isJson = StringTools.endsWith(file, '.json');
-		var ext = (compressed || isJson || StringTools.endsWith(file, '.arm')) ? '' : '.arm';
+		var compressed = file.endsWith('.lz4');
+		var isJson = file.endsWith('.json');
+		var ext = (compressed || isJson || file.endsWith('.arm')) ? '' : '.arm';
 
 		getBlob(file + ext, function(b:kha.Blob) {
-
 			if (compressed) {
-				#if (arm_compress && !hl) // TODO: korehl - unresolved external symbol _fmt_inflate_buffer
-				var input = new BytesInput(b.toBytes());
-				var entry = haxe.zip.Reader.readZip(input).first();
-				if (entry == null) {
-					trace('Failed to uncompress ' + file);
-					return;
-				}
-				if (entry.compressed) b = kha.Blob.fromBytes(haxe.zip.Reader.unzip(entry));
-				else b = kha.Blob.fromBytes(entry.data);
+				#if arm_compress
 				#end
 			}
 
 			var parsed:TSceneFormat = null;
 			if (isJson) {
 				var s = b.toString();
-				parsed = s.charAt(0) == "{" ? haxe.Json.parse(s) : iron.system.ArmPack.decode(b.toBytes());
+				parsed = s.charAt(0) == "{" ? Json.parse(s) : ArmPack.decode(b.toBytes());
 			}
 			else {
-				parsed = iron.system.ArmPack.decode(b.toBytes());
+				parsed = ArmPack.decode(b.toBytes());
 			}
 
 			returnSceneRaw(file, parsed);
@@ -400,7 +395,7 @@ class Data {
 		#end
 
 		#if arm_soundcompress
-		if (StringTools.endsWith(file, '.wav')) file = file.substring(0, file.length - 4) + '.ogg';
+		if (file.endsWith('.wav')) file = file.substring(0, file.length - 4) + '.ogg';
 		#end
 
 		var cached = cachedSounds.get(file);

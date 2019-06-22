@@ -48,7 +48,6 @@ class Geometry {
 	public var weights:Int16Array;
 	var data:MeshData;
 	
-	// public var offsetVecs:Array<Vec4>; // Used for sorting and culling
 	public var aabb:Vec4 = null;
 	public var aabbMin:Vec4 = null;
 	public var aabbMax:Vec4 = null;
@@ -124,33 +123,10 @@ class Geometry {
 	}
 
 	public function applyScale(sx:Float, sy:Float, sz:Float) {
-		// #if arm_deinterleaved
-		// var vertices = vertexBuffers[0].lock();
-		// for (i in 0...Std.int(vertices.length / 4)) {
-		// 	vertices[i * 4    ] *= sx;
-		// 	vertices[i * 4 + 1] *= sy;
-		// 	vertices[i * 4 + 2] *= sz;
-		// }
-		// vertexBuffers[0].unlock();
-		// #else
-		// var vertices = vertexBuffer.lock();
-		// for (i in 0...Std.int(vertices.length / structLength)) {
-		// 	vertices[i * structLength    ] *= sx;
-		// 	vertices[i * structLength + 1] *= sy;
-		// 	vertices[i * structLength + 2] *= sz;
-		// }
-		// vertexBuffer.unlock();
-		// #end
 		data.scalePos *= sx;
 	}
 
 	public function setupInstanced(data:Float32Array, instancedType:Int, usage:Usage) {
-		// Store vecs for sorting and culling
-		// offsetVecs = [];
-		// for (i in 0...Std.int(data.length / 3)) {
-			// offsetVecs.push(new Vec4(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]));
-		// }
-
 		var structure = new VertexStructure();
 		structure.instanced = true;
 		instanced = true;
@@ -169,27 +145,6 @@ class Geometry {
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
 		instancedVB.unlock();
 	}
-
-	// public function sortInstanced(camX:Float, camY:Float, camZ:Float) {
-	// 	// Use W component to store distance to camera
-	// 	for (v in offsetVecs) {
-	// 		// TODO: include parent transform
-	// 		v.w  = iron.math.Vec4.distancef(camX, camY, camZ, v.x, v.y, v.z);
-	// 	}
-		
-	// 	offsetVecs.sort(function(a, b):Int {
-	// 		return a.w > b.w ? 1 : -1;
-	// 	});
-
-	// 	var vb = instancedVB;
-	// 	var vertices = vb.lock();
-	// 	for (i in 0...Std.int(vertices.length / 3)) {
-	// 		vertices.set(i * 3, offsetVecs[i].x);
-	// 		vertices.set(i * 3 + 1, offsetVecs[i].y);
-	// 		vertices.set(i * 3 + 2, offsetVecs[i].z);
-	// 	}
-	// 	vb.unlock();
-	// }
 
 	public function copyVertices(vertices:Int16Array, offset = 0, fakeUVs = false) {
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights, offset, fakeUVs);
@@ -438,10 +393,6 @@ class Geometry {
 		aabb.x = (Math.abs(aabbMin.x) + Math.abs(aabbMax.x)) / 32767 * data.scalePos;
 		aabb.y = (Math.abs(aabbMin.y) + Math.abs(aabbMax.y)) / 32767 * data.scalePos;
 		aabb.z = (Math.abs(aabbMin.z) + Math.abs(aabbMax.z)) / 32767 * data.scalePos;
-		// Sphere radius
-		// if (aabb.x >= aabb.y && aabb.x >= aabb.z) radius = aabb.x / 2;
-		// else if (aabb.y >= aabb.x && aabb.y >= aabb.z) radius = aabb.y / 2;
-		// else radius = aabb.z / 2;
 	}
 
 	public function calculateTangents() {

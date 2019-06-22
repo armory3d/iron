@@ -4,7 +4,6 @@ import kha.graphics4.Graphics;
 import iron.data.MaterialData;
 import iron.data.ConstData;
 import iron.object.Uniforms;
-import iron.Scene;
 
 class DecalObject extends Object {
 

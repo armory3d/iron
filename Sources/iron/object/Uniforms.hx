@@ -5,17 +5,19 @@ import kha.graphics4.ConstantLocation;
 import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
-import iron.Scene;
-import iron.RenderPath;
+import kha.arrays.Float32Array;
 import iron.math.Vec4;
 import iron.math.Quat;
 import iron.math.Mat3;
 import iron.math.Mat4;
 import iron.data.WorldData;
-import iron.data.LightData;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.SceneFormat;
+import iron.system.Input;
+import iron.system.Time;
+import iron.RenderPath;
+using StringTools;
 
 // Structure for setting shader uniforms
 class Uniforms {
@@ -46,7 +48,7 @@ class Uniforms {
 	public static var externalVec3Links:Array<Object->MaterialData->String->Vec4> = null;
 	public static var externalVec2Links:Array<Object->MaterialData->String->Vec4> = null;
 	public static var externalFloatLinks:Array<Object->MaterialData->String->Null<kha.FastFloat>> = null;
-	public static var externalFloatsLinks:Array<Object->MaterialData->String->kha.arrays.Float32Array> = null;
+	public static var externalFloatsLinks:Array<Object->MaterialData->String->Float32Array> = null;
 	public static var externalIntLinks:Array<Object->MaterialData->String->Null<Int>> = null;
 	public static var posUnpack:Null<kha.FastFloat> = null;
 	public static var texUnpack:Null<kha.FastFloat> = null;
@@ -84,7 +86,7 @@ class Uniforms {
 
 				if (tulink.charAt(0) == "$") { // Link to embedded data
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get(tulink.substr(1)));
-					if (StringTools.endsWith(tulink, '.raw')) { // Raw 3D texture
+					if (tulink.endsWith('.raw')) { // Raw 3D texture
 						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 					}
 					else { // 2D texture
@@ -153,20 +155,14 @@ class Uniforms {
 
 					if (rt.raw.depth > 1) { // sampler3D
 						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
-						// context.paramsSet[j] = true;
 						paramsSet = true;
 					}
 
 					if (isImage) {
 						g.setImageTexture(context.textureUnits[j], rt.image); // image2D/3D
-
 						// Multiple voxel volumes, always set params
-						// if (!context.paramsSet[j]) {
-							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
-							// context.paramsSet[j] = true;
-							paramsSet = true;
-
-						// }
+						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
+						paramsSet = true;
 					}
 					else if (rt.isCubeMap) {
 						if (attachDepth) g.setCubeMapDepth(context.textureUnits[j], rt.cubeMap); // samplerCube
@@ -177,16 +173,13 @@ class Uniforms {
 						else g.setTexture(context.textureUnits[j], rt.image); // sampler2D
 					}
 
-					// if (!context.paramsSet[j] && rt.raw.mipmaps != null && rt.raw.mipmaps == true && !isImage) {
 					if (!paramsSet && rt.raw.mipmaps != null && rt.raw.mipmaps == true && !isImage) {
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
-						// context.paramsSet[j] = true;
 						paramsSet = true;
 					}
 
-					// if (!context.paramsSet[j]) {
-						if (!paramsSet) {
-						if (StringTools.startsWith(samplerID, "shadowMap")) {
+					if (!paramsSet) {
+						if (samplerID.startsWith("shadowMap")) {
 							if (rt.isCubeMap) {
 								#if (!arm_legacy)
 								g.setCubeMapCompareMode(context.textureUnits[j], true);
@@ -198,17 +191,14 @@ class Uniforms {
 								g.setTextureCompareMode(context.textureUnits[j], true);
 								#end
 							}
-					// 		context.paramsSet[j] = true;
 							paramsSet = true;
 						}
 						else if (attachDepth) {
 							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
-					// 		context.paramsSet[j] = true;
 							paramsSet = true;
 						}
 					}
 
-					// if (!context.paramsSet[j]) {
 					if (!paramsSet) {
 						// No filtering when sampling render targets
 						var oc = context.overrideContext;
@@ -221,7 +211,6 @@ class Uniforms {
 							g.setTextureParameters(context.textureUnits[j], addressing, addressing, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 							#end
 						}
-						// context.paramsSet[j] = true;
 						paramsSet = true;
 					}
 				}
@@ -312,7 +301,7 @@ class Uniforms {
 			helpVec.set(0, 0, 0);
 			#if arm_debug
 			if (c.link == "_input") {
-				helpVec.set(iron.system.Input.getMouse().x / iron.App.w(), iron.system.Input.getMouse().y / iron.App.h(), iron.system.Input.getMouse().down() ? 1.0 : 0.0, 0.0);
+				helpVec.set(Input.getMouse().x / iron.App.w(), Input.getMouse().y / iron.App.h(), Input.getMouse().down() ? 1.0 : 0.0, 0.0);
 				v = helpVec;
 			}
 			#end
@@ -597,7 +586,7 @@ class Uniforms {
 		else if (c.type == "float") {
 			var f:Null<kha.FastFloat> = null;
 			if (c.link == "_time") {
-				f = iron.system.Time.time();
+				f = Time.time();
 			}
 			else if (c.link == "_sunShadowsBias") {
 				var sun = RenderPath.active.sun;
@@ -617,7 +606,7 @@ class Uniforms {
 				f = iron.App.w() / iron.App.h();
 			}
 			else if (c.link == "_frameScale") {
-				f = RenderPath.active.frameTime / iron.system.Time.delta;
+				f = RenderPath.active.frameTime / Time.delta;
 			}
 
 			if (f != null) {
@@ -626,7 +615,7 @@ class Uniforms {
 			}
 		}
 		else if (c.type == "floats") {
-			var fa:kha.arrays.Float32Array = null;
+			var fa:Float32Array = null;
 			if (c.link == "_envmapIrradiance") {
 				fa = Scene.active.world == null ? WorldData.getEmptyIrradiance() : Scene.active.world.probe.irradiance;
 			}
@@ -781,7 +770,7 @@ class Uniforms {
 					m = helpMat;
 				}
 			}
-			else if (StringTools.startsWith(c.link, "_biasLightWorldViewProjectionMatrixSpot")) {
+			else if (c.link.startsWith("_biasLightWorldViewProjectionMatrixSpot")) {
 				var light = getSpot(c.link.charCodeAt(c.link.length - 1) - '0'.code);
 				if (light != null) {
 					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.worldUnpack);
@@ -790,7 +779,7 @@ class Uniforms {
 					m = helpMat;
 				}
 			}
-			else if (StringTools.startsWith(c.link, "_biasLightViewProjectionMatrixSpot")) {
+			else if (c.link.startsWith("_biasLightViewProjectionMatrixSpot")) {
 				var light = getSpot(c.link.charCodeAt(c.link.length - 1) - '0'.code);
 				if (light != null) {
 					helpMat.setFrom(light.VP);
@@ -939,7 +928,7 @@ class Uniforms {
 			g.setFloat(location, f);
 		}
 		else if (c.type == "floats") {
-			var fa:kha.arrays.Float32Array = null;
+			var fa:Float32Array = null;
 			#if arm_skin
 			if (c.link == "_skinBones") {
 				if (object.animation != null) fa = cast(object.animation, BoneAnimation).skinBuffer;

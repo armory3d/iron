@@ -1,6 +1,5 @@
 package iron.data;
 
-import iron.math.Mat4;
 import iron.data.SceneFormat;
 
 class LightData {

@@ -1,5 +1,6 @@
 package iron.object;
 
+import iron.data.Data;
 import iron.data.SceneFormat;
 import iron.system.Time;
 
@@ -19,7 +20,7 @@ class Tilesheet {
 
 	public function new(sceneName:String, tilesheet_ref:String, tilesheet_action_ref:String) {
 		ready = false;
-		iron.data.Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
+		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			for (ts in format.tilesheet_datas) {
 				if (ts.name == tilesheet_ref) {
 					raw = ts;

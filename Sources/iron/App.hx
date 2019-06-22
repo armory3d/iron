@@ -97,8 +97,8 @@ class App {
 		if (lastw != App.w() || lasth != App.h()) {
 			if (onResize != null) onResize();
 			else {
-				if (iron.Scene.active != null && iron.Scene.active.camera != null) {
-					iron.Scene.active.camera.buildProjection();
+				if (Scene.active != null && Scene.active.camera != null) {
+					Scene.active.camera.buildProjection();
 				}
 			}
 		}

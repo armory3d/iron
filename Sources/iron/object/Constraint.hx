@@ -1,6 +1,5 @@
 package iron.object;
 
-import iron.Scene;
 import iron.data.SceneFormat;
 
 class Constraint {

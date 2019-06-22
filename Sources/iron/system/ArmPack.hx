@@ -24,6 +24,9 @@ import haxe.io.Bytes;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import haxe.io.Eof;
+import kha.arrays.Float32Array;
+import kha.arrays.Uint32Array;
+import kha.arrays.Int16Array;
 import iron.data.SceneFormat;
 
 class ArmPack {
@@ -80,21 +83,21 @@ class ArmPack {
 		// Typed float32
 		if (b == 0xca) {
 			i.position++;
-			var a = new kha.arrays.Float32Array(length);
+			var a = new Float32Array(length);
 			for (x in 0...length) a[x] = i.readFloat();
 			return a;
 		}
 		// Typed int32
 		else if (b == 0xd2) {
 			i.position++;
-			var a = new kha.arrays.Uint32Array(length);
+			var a = new Uint32Array(length);
 			for (x in 0...length) a[x] = i.readInt32();
 			return a;
 		}
 		// Typed int16
 		else if (b == 0xd1) {
 			i.position++;
-			var a = new kha.arrays.Int16Array(length);
+			var a = new Int16Array(length);
 			for (x in 0...length) a[x] = i.readInt16();
 			return a;
 		}
@@ -187,7 +190,7 @@ class ArmPack {
 					case "Array", null: { // kha.arrays give null
 						o.writeByte(0xdd);
 						o.writeInt32(d.length);
-						var isInt16 = Std.is(d, #if js js.html.Int16Array #else kha.arrays.Int16Array.Int16ArrayPrivate #end);
+						var isInt16 = Std.is(d, #if js js.html.Int16Array #else Int16Array.Int16ArrayPrivate #end);
 						var isInt = Std.is(d[0], Int);
 						var isFloat = Std.is(d[0], Float);
 

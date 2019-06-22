@@ -1,10 +1,14 @@
 package iron.data;
 
+import haxe.ds.Vector;
+import kha.arrays.Int16Array;
+import kha.arrays.Uint32Array;
 import iron.data.SceneFormat;
 import iron.object.Object;
 import iron.object.CameraObject;
 import iron.object.MeshObject;
 import iron.object.Uniforms;
+import iron.Scene;
 
 #if arm_terrain
 
@@ -15,15 +19,15 @@ class TerrainStream {
 
 	var raw:TTerrainData;
 	var planes:Array<MeshData> = [];
-	var materials:haxe.ds.Vector<MaterialData>;
+	var materials:Vector<MaterialData>;
 	var ready = false;
 
 	public function new(raw:TTerrainData) {
 		this.raw = raw;
 
 		// TODO: async
-		Data.getMaterial(iron.Scene.active.raw.name, raw.material_ref, function(mat:MaterialData) {
-			materials = haxe.ds.Vector.fromData([mat]);
+		Data.getMaterial(Scene.active.raw.name, raw.material_ref, function(mat:MaterialData) {
+			materials = Vector.fromData([mat]);
 		});
 
 		for (i in 0...raw.sectors_x * raw.sectors_y) {
@@ -57,10 +61,10 @@ class TerrainStream {
 		var scalePos = Math.max(halfX, Math.max(halfY, halfZ));
 		var inv = 1 / scalePos;
 
-		var posa = new kha.arrays.Int16Array(vertsX * vertsY * 4);
-		var nora = new kha.arrays.Int16Array(vertsX * vertsY * 2);
-		var texa = new kha.arrays.Int16Array(vertsX * vertsY * 2);
-		var inda = new kha.arrays.Uint32Array((vertsX - 1) * (vertsY - 1) * 6);
+		var posa = new Int16Array(vertsX * vertsY * 4);
+		var nora = new Int16Array(vertsX * vertsY * 2);
+		var texa = new Int16Array(vertsX * vertsY * 2);
+		var inda = new Uint32Array((vertsX - 1) * (vertsY - 1) * 6);
 		var stepX = sizeX / (vertsX - 1);
 		var stepY = sizeY / (vertsY - 1);
 		for (i in 0...vertsX * vertsY) {

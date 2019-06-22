@@ -7,17 +7,14 @@ import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
-import kha.graphics4.VertexData;
 import kha.graphics4.Graphics;
 import iron.object.MeshObject;
 import iron.object.Uniforms;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
-import iron.data.MeshData;
 import iron.data.SceneFormat;
 
 @:access(iron.object.MeshObject)
-@:access(iron.object.Uniforms)
 class MeshBatch {
 
 	var buckets:Map<ShaderData, Bucket> = new Map();
@@ -81,7 +78,6 @@ class MeshBatch {
 			RenderPath.sortMeshesDistance(b.meshes);
 
 			for (m in b.meshes) {
-
 				if (!m.visible) continue; // Skip render if object is hidden
 				if (m.cullMesh(context, Scene.active.camera, RenderPath.active.light)) continue;
 				

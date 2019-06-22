@@ -3,13 +3,19 @@ package iron;
 import kha.Image;
 import kha.Color;
 import kha.Scheduler;
-import kha.graphics4.*;
-import iron.math.*;
-import iron.object.*;
-import iron.data.*;
+import kha.graphics4.Graphics;
+import kha.graphics4.CubeMap;
+import kha.graphics4.DepthStencilFormat;
+import kha.graphics4.TextureFormat;
+import iron.system.Time;
 import iron.data.SceneFormat;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
+import iron.data.ConstData;
+import iron.data.Data;
+import iron.object.LightObject;
+import iron.object.MeshObject;
+import iron.object.Uniforms;
 
 class RenderPath {
 
@@ -93,8 +99,8 @@ class RenderPath {
 		lastH = iron.App.h();
 		#end
 
-		frameTime = iron.system.Time.time() - lastFrameTime;
-		lastFrameTime = iron.system.Time.time();
+		frameTime = Time.time() - lastFrameTime;
+		lastFrameTime = Time.time();
 
 		#if arm_debug
 		drawCalls = 0;

@@ -1,10 +1,10 @@
 package iron.object;
 
 import kha.FastFloat;
+import kha.arrays.Uint32Array;
 import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.math.Quat;
-import iron.data.MeshData;
 import iron.data.SceneFormat;
 
 class ObjectAnimation extends Animation {
@@ -90,7 +90,7 @@ class ObjectAnimation extends Animation {
 			frameIndex <= 0;
 	}
 
-	inline function checkFrameIndexT(frameValues:kha.arrays.Uint32Array, t:FastFloat):Bool {
+	inline function checkFrameIndexT(frameValues:Uint32Array, t:FastFloat):Bool {
 		return speed > 0 ?
 			frameIndex < frameValues.length - 2 && t > frameValues[frameIndex + 1] * frameTime :
 			frameIndex > 1 && t > frameValues[frameIndex - 1] * frameTime;

@@ -12,7 +12,10 @@ import kha.graphics4.BlendingFactor;
 import kha.graphics4.TextureAddressing;
 import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
+import kha.graphics4.VertexShader;
+import kha.graphics4.FragmentShader;
 import iron.data.SceneFormat;
+using StringTools;
 
 class ShaderData {
 
@@ -67,7 +70,6 @@ class ShaderContext {
 	public var constants:Array<ConstantLocation>;
 	public var textureUnits:Array<TextureUnit>;
 	public var overrideContext:TShaderOverride;
-	// public var paramsSet:Array<Bool>;
 
 	var structure:VertexStructure;
 	var instancingType = 0;
@@ -84,7 +86,6 @@ class ShaderContext {
 		pipeState = new PipelineState();
 		constants = [];
 		textureUnits = [];
-		// paramsSet = [];
 
 		// Instancing
 		if (instancingType > 0) {
@@ -130,8 +131,8 @@ class ShaderContext {
 
 		// Shaders
 		if (raw.shader_from_source) {
-			pipeState.vertexShader = kha.graphics4.VertexShader.fromSource(raw.vertex_shader);
-			pipeState.fragmentShader = kha.graphics4.FragmentShader.fromSource(raw.fragment_shader);
+			pipeState.vertexShader = VertexShader.fromSource(raw.vertex_shader);
+			pipeState.fragmentShader = FragmentShader.fromSource(raw.fragment_shader);
 
 			#if kha_krom
 			// Shader compile error
@@ -167,8 +168,8 @@ class ShaderContext {
 				var path = '../krom-resources/' + file + '.d3d11';
 				#end
 				Data.getBlob(path, function(b:kha.Blob) {
-					if (type == 0) pipeState.vertexShader = new kha.graphics4.VertexShader([b], [file]);
-					else if (type == 1) pipeState.fragmentShader = new kha.graphics4.FragmentShader([b], [file]);
+					if (type == 0) pipeState.vertexShader = new VertexShader([b], [file]);
+					else if (type == 1) pipeState.fragmentShader = new FragmentShader([b], [file]);
 					#if !kha_webgl
 					else if (type == 2) pipeState.geometryShader = new kha.graphics4.GeometryShader([b], [file]);
 					else if (type == 3) pipeState.tessellationControlShader = new kha.graphics4.TessellationControlShader([b], [file]);
@@ -186,17 +187,17 @@ class ShaderContext {
 
 			#else
 
-			pipeState.fragmentShader = Reflect.field(kha.Shaders, StringTools.replace(raw.fragment_shader, ".", "_"));
-			pipeState.vertexShader = Reflect.field(kha.Shaders, StringTools.replace(raw.vertex_shader, ".", "_"));
+			pipeState.fragmentShader = Reflect.field(kha.Shaders, raw.fragment_shader.replace(".", "_"));
+			pipeState.vertexShader = Reflect.field(kha.Shaders, raw.vertex_shader.replace(".", "_"));
 
 			if (raw.geometry_shader != null) {
-				pipeState.geometryShader = Reflect.field(kha.Shaders, StringTools.replace(raw.geometry_shader, ".", "_"));
+				pipeState.geometryShader = Reflect.field(kha.Shaders, raw.geometry_shader.replace(".", "_"));
 			}
 			if (raw.tesscontrol_shader != null) {
-				pipeState.tessellationControlShader = Reflect.field(kha.Shaders, StringTools.replace(raw.tesscontrol_shader, ".", "_"));
+				pipeState.tessellationControlShader = Reflect.field(kha.Shaders, raw.tesscontrol_shader.replace(".", "_"));
 			}
 			if (raw.tesseval_shader != null) {
-				pipeState.tessellationEvaluationShader = Reflect.field(kha.Shaders, StringTools.replace(raw.tesseval_shader, ".", "_"));
+				pipeState.tessellationEvaluationShader = Reflect.field(kha.Shaders, raw.tesseval_shader.replace(".", "_"));
 			}
 			finishCompile(done);
 
@@ -347,7 +348,6 @@ class ShaderContext {
 	function addTexture(tu:TTextureUnit) {
 		var unit = pipeState.getTextureUnit(tu.name);
 		textureUnits.push(unit);
-		// paramsSet.push(false);
 	}
 	
 	public function setTextureParameters(g:kha.graphics4.Graphics, unitIndex:Int, tex:TBindTexture) {

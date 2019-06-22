@@ -1,15 +1,17 @@
 package iron.object;
 
 import kha.graphics4.Graphics;
+import kha.graphics4.CubeMap;
 import iron.Scene;
 import iron.RenderPath;
-import iron.math.*;
+import iron.math.Mat4;
+import iron.math.Vec4;
+import iron.math.Quat;
 import iron.data.CameraData;
 
 class CameraObject extends Object {
 
 	public var data:CameraData;
-
 	public var P:Mat4;
 	#if arm_taa
 	public var noJitterP = Mat4.identity();
@@ -20,7 +22,7 @@ class CameraObject extends Object {
 	public var VP:Mat4;
 	public var frustumPlanes:Array<FrustumPlane> = null;
 	public var renderTarget:kha.Image = null; // Render camera view to texture
-	public var renderTargetCube:kha.graphics4.CubeMap = null;
+	public var renderTargetCube:CubeMap = null;
 	public var currentFace = 0;
 
 	static var temp = new Vec4();
@@ -131,10 +133,6 @@ class CameraObject extends Object {
 			rightV.setFrom(V);
 			helpMat.self = vr.GetViewMatrix(1);
 			rightV.multmat(helpMat);
-
-			// var tr = camera.transform;
-			// tr.world.getInverse(camera.V);
-			// tr.world.decompose(tr.loc, tr.rot, tr.scale);
 		}
 		else {
 			leftV.setFrom(V);

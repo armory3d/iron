@@ -1,14 +1,16 @@
 package iron.object;
 
-import iron.Scene;
+import kha.audio1.AudioChannel;
 import iron.math.Vec4;
+import iron.data.Data;
 import iron.data.SceneFormat;
+import iron.system.Audio;
 
 class SpeakerObject extends Object {
 
 	public var data:TSpeakerData;
 	var sound:kha.Sound = null;
-	var channels:Array<kha.audio1.AudioChannel> = [];
+	var channels:Array<AudioChannel> = [];
 	var paused = false;
 
 	public function new(data:TSpeakerData) {
@@ -20,7 +22,7 @@ class SpeakerObject extends Object {
 
 		if (data.sound == "") return;
 		
-		iron.data.Data.getSound(data.sound, function(sound:kha.Sound) {
+		Data.getSound(data.sound, function(sound:kha.Sound) {
 			this.sound = sound;
 			App.notifyOnInit(init);
 		});
@@ -37,7 +39,7 @@ class SpeakerObject extends Object {
 			paused = false;
 			return;
 		}
-		var channel = iron.system.Audio.play(sound, data.loop, data.stream);
+		var channel = Audio.play(sound, data.loop, data.stream);
 		channels.push(channel);
 		if (data.attenuation > 0 && channels.length == 1) App.notifyOnUpdate(update);
 	}
@@ -60,7 +62,7 @@ class SpeakerObject extends Object {
 			return;
 		}
 		
-		var cam = iron.Scene.active.camera;
+		var cam = Scene.active.camera;
 		var loc1 = cam.transform.world.getLoc();
 		var loc2 = transform.world.getLoc();
 

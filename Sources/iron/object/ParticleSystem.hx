@@ -3,11 +3,11 @@ package iron.object;
 #if arm_particles
 
 import kha.graphics4.Usage;
+import kha.arrays.Float32Array;
 import iron.data.Data;
 import iron.data.ParticleData;
 import iron.data.SceneFormat;
 import iron.system.Time;
-import iron.math.Vec4;
 import iron.math.Mat4;
 
 class ParticleSystem {
@@ -38,7 +38,7 @@ class ParticleSystem {
 	var count = 0;
 	var lap = 0;
 	var lapTime = 0.0;
-	var m = iron.math.Mat4.identity();
+	var m = Mat4.identity();
 
 	public function new(sceneName:String, pref:TParticleReference) {
 		seed = pref.seed;
@@ -47,9 +47,9 @@ class ParticleSystem {
 		Data.getParticle(sceneName, pref.particle, function(b:ParticleData) {
 			data = b;
 			r = data.raw;
-			gx = iron.Scene.active.raw.gravity[0] * r.weight_gravity;
-			gy = iron.Scene.active.raw.gravity[1] * r.weight_gravity;
-			gz = iron.Scene.active.raw.gravity[2] * r.weight_gravity;
+			gx = Scene.active.raw.gravity[0] * r.weight_gravity;
+			gy = Scene.active.raw.gravity[1] * r.weight_gravity;
+			gz = Scene.active.raw.gravity[2] * r.weight_gravity;
 			alignx = r.object_align_factor[0] / 2;
 			aligny = r.object_align_factor[1] / 2;
 			alignz = r.object_align_factor[2] / 2;
@@ -89,7 +89,7 @@ class ParticleSystem {
 		updateGpu(object, owner);
 	}
 
-	public function getData():iron.math.Mat4 {
+	public function getData():Mat4 {
 		var hair = r.type == 1;
 		m._00 = r.loop ? animtime : -animtime;
 		m._01 = hair ? 1 / particles.length : spawnRate;
@@ -116,7 +116,7 @@ class ParticleSystem {
 	}
 
 	function setupGeomGpu(object:MeshObject, owner:MeshObject) {
-		var instancedData = new kha.arrays.Float32Array(particles.length * 3);
+		var instancedData = new Float32Array(particles.length * 3);
 		var i = 0;
 		if (r.emit_from == 0) { // Vert, Face
 			var pa = owner.data.geom.positions;

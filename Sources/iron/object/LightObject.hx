@@ -1,11 +1,12 @@
 package iron.object;
 
+import kha.arrays.Float32Array;
+import kha.graphics4.TextureFormat;
+import kha.graphics4.Usage;
 import iron.math.Mat4;
 import iron.math.Vec4;
-import iron.math.Quat;
 import iron.data.LightData;
-import iron.object.CameraObject.FrustumPlane;
-import iron.Scene;
+import iron.object.CameraObject;
 
 class LightObject extends Object {
 
@@ -16,7 +17,7 @@ class LightObject extends Object {
 	public static var cascadeSplitFactor = 0.8;
 	public static var cascadeBounds = 1.0;
 	#if arm_csm
-	var cascadeData:kha.arrays.Float32Array = null;
+	var cascadeData:Float32Array = null;
 	var cascadeVP:Array<Mat4>;
 	var camSlicedP:Array<Mat4> = null;
 	var cascadeSplit:Array<kha.FastFloat>;
@@ -33,9 +34,9 @@ class LightObject extends Object {
 	static inline var maxLights = 16;
 	static inline var maxLightsCluster = 4; // Mirror shader constant
 	static inline var clusterNear = 3.0;
-	public static var lightsArray:kha.arrays.Float32Array = null;
+	public static var lightsArray:Float32Array = null;
 	#if arm_spot
-	public static var lightsArraySpot:kha.arrays.Float32Array = null;
+	public static var lightsArraySpot:Float32Array = null;
 	#end
 	public static var clustersData:kha.Image = null;
 	static var lpos = new Vec4();
@@ -260,10 +261,10 @@ class LightObject extends Object {
 	}
 
 	#if arm_csm
-	public function getCascadeData():kha.arrays.Float32Array {
+	public function getCascadeData():Float32Array {
 		// Cascade mats + split distances
 		if (cascadeData == null) {
-			cascadeData = new kha.arrays.Float32Array(cascadeCount * 16 + 4);
+			cascadeData = new Float32Array(cascadeCount * 16 + 4);
 		}
 		if (cascadeVP == null) return cascadeData;
 
@@ -327,7 +328,6 @@ class LightObject extends Object {
 
 	public static function updateClusters(camera:CameraObject) {
 		// Reference: https://newq.net/publications/more/s2015-many-lights-course
-		
 		var lights = Scene.active.lights;
 
 		#if arm_spot // Point lamps first
@@ -340,7 +340,7 @@ class LightObject extends Object {
 
 		if (clustersData == null) {
 			var lines = #if (arm_spot) 2 #else 1 #end;
-			clustersData = kha.Image.create(slicesX * slicesY * slicesZ, lines + maxLightsCluster, kha.graphics4.TextureFormat.L8, kha.graphics4.Usage.DynamicUsage);
+			clustersData = kha.Image.create(slicesX * slicesY * slicesZ, lines + maxLightsCluster, TextureFormat.L8, Usage.DynamicUsage);
 		}
 
 		var bytes = clustersData.lock();
@@ -424,9 +424,9 @@ class LightObject extends Object {
 
 	static function updateLightsArray() {
 		if (lightsArray == null) { // vec4x3 - 1: pos, a, color, b, 2: dir, c
-			lightsArray = new kha.arrays.Float32Array(maxLights * 4 * 2);
+			lightsArray = new Float32Array(maxLights * 4 * 2);
 			#if arm_spot
-			lightsArraySpot = new kha.arrays.Float32Array(maxLights * 4);
+			lightsArraySpot = new Float32Array(maxLights * 4);
 			#end
 		}
 		var lights = Scene.active.lights;

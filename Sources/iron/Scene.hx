@@ -1,10 +1,32 @@
 package iron;
 
 import haxe.ds.Vector;
+import kha.graphics4.TextureFormat;
 import iron.Trait;
-import iron.object.*;
-import iron.data.*;
+import iron.object.Transform;
+import iron.object.Constraint;
+import iron.object.Animation;
+import iron.object.Object;
+import iron.object.CameraObject;
+import iron.object.MeshObject;
+import iron.object.LightObject;
+import iron.object.SpeakerObject;
+import iron.object.DecalObject;
+import iron.object.ProbeObject;
+import iron.data.CameraData;
+import iron.data.MeshData;
+import iron.data.LightData;
+import iron.data.ProbeData;
+import iron.data.WorldData;
+import iron.data.MaterialData;
+import iron.data.Armature;
+import iron.data.Data;
 import iron.data.SceneFormat;
+import iron.data.TerrainStream;
+import iron.data.SceneStream;
+import iron.data.MeshBatch;
+import iron.system.Time;
+using StringTools;
 
 class Scene {
 
@@ -112,7 +134,7 @@ class Scene {
 	}
 
 	#if arm_patch
-	public static var getRenderPath:Void->iron.RenderPath;
+	public static var getRenderPath:Void->RenderPath;
 	public static function patch() {
 		Data.deleteAll();
 		var cameraTransform = Scene.active.camera.transform;
@@ -154,7 +176,7 @@ class Scene {
 		if (!framePassed) return;
 		framePassed = false;
 		if (Scene.active != null) Scene.active.remove();
-		iron.data.Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
+		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
 			Scene.create(format, function(o:Object) {
 				if (done != null) done(o);
 				#if rp_voxelao // Revoxelize
@@ -172,7 +194,7 @@ class Scene {
 		#if arm_terrain
 		if (terrainStream != null) terrainStream.update(active.camera);
 		#end
-		for (anim in animations) anim.update(iron.system.Time.delta);
+		for (anim in animations) anim.update(Time.delta);
 		for (e in empties) if (e != null && e.parent != null) e.transform.update();
 	}
 
@@ -657,13 +679,13 @@ class Scene {
 		if (str == "true") return true;
 		else if (str == "false") return false;
 		else if (str == "null") return null;
-		else if (str.charAt(0) == "'") return StringTools.replace(str, "'", "");
-		else if (str.charAt(0) == '"') return StringTools.replace(str, '"', "");
+		else if (str.charAt(0) == "'") return str.replace("'", "");
+		else if (str.charAt(0) == '"') return str.replace('"', "");
 		else if (str.charAt(0) == "[") { // Array
 			// Remove [] and recursively parse into array, then append into parent
-			str = StringTools.replace(str, "[", "");
-			str = StringTools.replace(str, "]", "");
-			str = StringTools.replace(str, " ", "");
+			str = str.replace("[", "");
+			str = str.replace("]", "");
+			str = str.replace(" ", "");
 			var ar:Dynamic = [];
 			var vals = str.split(",");
 			for (v in vals) ar.push(parseArg(v));
@@ -695,19 +717,19 @@ class Scene {
 		if (datas == null) { done(); return; }
 		var loaded = 0;
 		for (file in datas) {
-			if (StringTools.endsWith(file, '.raw')) {
-				iron.data.Data.getBlob(file, function(blob:kha.Blob) {
+			if (file.endsWith('.raw')) {
+				Data.getBlob(file, function(blob:kha.Blob) {
 					// Raw 3D texture bytes
 					var b = blob.toBytes();
 					var w = Std.int(Math.pow(b.length, 1 / 3)) + 1;
-					var image = kha.Image.fromBytes3D(b, w, w, w, kha.graphics4.TextureFormat.L8);
+					var image = kha.Image.fromBytes3D(b, w, w, w, TextureFormat.L8);
 					embedded.set(file, image);
 					loaded++;
 					if (loaded == datas.length) done();
 				});
 			}
 			else {
-				iron.data.Data.getImage(file, function(image:kha.Image) {
+				Data.getImage(file, function(image:kha.Image) {
 					embedded.set(file, image);
 					loaded++;
 					if (loaded == datas.length) done();

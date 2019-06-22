@@ -1,12 +1,12 @@
 package iron.system;
 
-import kha.Sound;
+import kha.audio1.AudioChannel;
 
 class Audio {
 
 	public function new() {}
 
-	public static function play(sound:Sound, loop = false, stream = false):kha.audio1.AudioChannel {
+	public static function play(sound:kha.Sound, loop = false, stream = false):AudioChannel {
 		#if arm_no_audio
 		return null;
 		#end

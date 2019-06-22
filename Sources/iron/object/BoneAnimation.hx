@@ -3,12 +3,14 @@ package iron.object;
 #if arm_skin
 
 import kha.FastFloat;
+import kha.arrays.Float32Array;
 import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.math.Quat;
 import iron.data.MeshData;
 import iron.data.SceneFormat;
 import iron.data.Armature;
+import iron.data.Data;
 
 class BoneAnimation extends Animation {
 
@@ -17,7 +19,7 @@ class BoneAnimation extends Animation {
 	// Skinning
 	public var object:MeshObject;
 	public var data:MeshData;
-	public var skinBuffer:kha.arrays.Float32Array;
+	public var skinBuffer:Float32Array;
 
 	var skeletonBones:Array<TObj> = null;
 	var skeletonMats:Array<Mat4> = null;
@@ -54,7 +56,7 @@ class BoneAnimation extends Animation {
 	public function new(armatureName = '') {
 		super();
 		this.isSampled = false;
-		for (a in iron.Scene.active.armatures) {
+		for (a in Scene.active.armatures) {
 			if (a.name == armatureName) {
 				this.armature = a;
 				break;
@@ -68,7 +70,7 @@ class BoneAnimation extends Animation {
 		this.isSkinned = data != null ? data.isSkinned : false;
 		if (this.isSkinned) {
 			var boneSize = 8; // Dual-quat skinning
-			this.skinBuffer = new kha.arrays.Float32Array(skinMaxBones * boneSize);
+			this.skinBuffer = new Float32Array(skinMaxBones * boneSize);
 			for (i in 0...this.skinBuffer.length) this.skinBuffer[i] = 0;
 			// Rotation is already applied to skin at export
 			object.transform.rot.set(0, 0, 0, 1);
@@ -76,7 +78,7 @@ class BoneAnimation extends Animation {
 
 			var refs = mo.parent.raw.bone_actions;
 			if (refs != null && refs.length > 0) {
-				iron.data.Data.getSceneRaw(refs[0], function(action:TSceneFormat) { play(action.name); });
+				Data.getSceneRaw(refs[0], function(action:TSceneFormat) { play(action.name); });
 			}
 		}
 	}
@@ -277,7 +279,7 @@ class BoneAnimation extends Animation {
 			constraintTargets = [];
 			constraintTargetsI = [];
 			for (c in cs) {
-				var o = iron.Scene.active.getChild(c.target);
+				var o = Scene.active.getChild(c.target);
 				constraintTargets.push(o);
 				var m:Mat4 = null;
 				if (o != null) {

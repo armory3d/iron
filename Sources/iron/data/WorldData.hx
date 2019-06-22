@@ -1,18 +1,20 @@
 package iron.data;
 
-import kha.Image;
+import haxe.Json;
+import kha.arrays.Float32Array;
 import iron.math.Vec4;
-import iron.object.Transform;
 import iron.data.SceneFormat;
+import iron.system.ArmPack;
+using StringTools;
 
 class WorldData {
 
 	public var name:String;
 	public var raw:TWorldData;
-	public var envmap:Image;
+	public var envmap:kha.Image;
 	public var probe:Probe;
 	
-	static var emptyIrr:kha.arrays.Float32Array = null;
+	static var emptyIrr:Float32Array = null;
 	
 	public function new(raw:TWorldData, done:WorldData->Void) {
 		this.raw = raw;
@@ -40,7 +42,7 @@ class WorldData {
 
 	public function loadEnvmap(done:WorldData->Void) {
 		if (raw.envmap != null) {
-			iron.data.Data.getImage(raw.envmap, function(image:kha.Image) {
+			Data.getImage(raw.envmap, function(image:kha.Image) {
 				envmap = image;
 				done(this);
 			});
@@ -59,9 +61,9 @@ class WorldData {
 		});
 	}
 
-	public static function getEmptyIrradiance():kha.arrays.Float32Array {
+	public static function getEmptyIrradiance():Float32Array {
 		if (emptyIrr == null) {
-			emptyIrr = new kha.arrays.Float32Array(28);
+			emptyIrr = new Float32Array(28);
 			for (i in 0...emptyIrr.length) emptyIrr.set(i, 0.0);
 		}
 		return emptyIrr;
@@ -71,19 +73,19 @@ class WorldData {
 class Probe {
 	
 	public var raw:TProbeData;
-	public var radiance:Image;
+	public var radiance:kha.Image;
 	public var radianceMipmaps:Array<kha.Image> = [];
-	public var irradiance:kha.arrays.Float32Array;
+	public var irradiance:Float32Array;
 	
 	public function new(raw:TProbeData, done:Probe->Void) {
 		this.raw = raw;
 		
-		setIrradiance(function(irr:kha.arrays.Float32Array) {
+		setIrradiance(function(irr:Float32Array) {
 			irradiance = irr;
 		
 			if (raw.radiance != null) {
 				
-				iron.data.Data.getImage(raw.radiance, function(rad:kha.Image) {
+				Data.getImage(raw.radiance, function(rad:kha.Image) {
 
 					radiance = rad;
 					while (radianceMipmaps.length < raw.radiance_mipmaps) radianceMipmaps.push(null);
@@ -92,7 +94,7 @@ class Probe {
 
 					var mipsLoaded = 0;
 					for (i in 0...raw.radiance_mipmaps) {
-						iron.data.Data.getImage(base + '_' + i + ext, function(mipimg:kha.Image) {
+						Data.getImage(base + '_' + i + ext, function(mipimg:kha.Image) {
 							radianceMipmaps[i] = mipimg;
 							mipsLoaded++;
 							
@@ -108,24 +110,19 @@ class Probe {
 		});
 	}
 
-	function setIrradiance(done:kha.arrays.Float32Array->Void) {
+	function setIrradiance(done:Float32Array->Void) {
 		// Parse probe data
 		if (raw.irradiance == null) {
-			// Use default if no data provided
-			var ar:Array<kha.FastFloat> = [0.775966, 1.167610, 1.498638, 0.133694, 0.215281, 0.056659, -0.022268, -0.019376, -0.010651, 0.000279, 0.000185, 0.0, 0.0, -0.000393, -0.000775, 0.010973, 0.027268, 0.043918, 0.085267, 0.073670, 0.038877, 0.0, 0.0, 0.0, 0.135177, 0.115614, 0.060794];
-			var far = new kha.arrays.Float32Array(ar.length);
-			for (i in 0...far.length) far[i] = ar[i];
-			done(far);
+			done(WorldData.getEmptyIrradiance());
 		}
 		else {
-			var ext = StringTools.endsWith(raw.irradiance, '.json') ? '' : '.arm';
-			iron.data.Data.getBlob(raw.irradiance + ext, function(b:kha.Blob) {
+			var ext = raw.irradiance.endsWith('.json') ? '' : '.arm';
+			Data.getBlob(raw.irradiance + ext, function(b:kha.Blob) {
 				var irradianceParsed:TSceneFormat = ext == '' ?
-					haxe.Json.parse(b.toString()) :
-					iron.system.ArmPack.decode(b.toBytes());
-				var irr = new kha.arrays.Float32Array(28); // Align to mult of 4 - 27->28
+					Json.parse(b.toString()) :
+					ArmPack.decode(b.toBytes());
+				var irr = new Float32Array(28); // Align to mult of 4 - 27->28
 				for (i in 0...27) irr[i] = irradianceParsed.irradiance[i];
-				irr[27] = 0.0;
 				done(irr);
 			});
 		}
