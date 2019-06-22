@@ -146,7 +146,7 @@ class ShaderContext {
 		}
 		else {
 
-			#if (arm_noembed && !kha_debug_html5) // Load shaders manually
+			#if (arm_noembed && kha_krom) // Load shaders manually
 
 			var shadersLoaded = 0;
 			var numShaders = 2;
@@ -155,14 +155,7 @@ class ShaderContext {
 			if (raw.tesseval_shader != null) numShaders++;
 
 			function loadShader(file:String, type:Int) {
-
-				#if (kha_webgl && !kha_node)
-				#if (!arm_legacy)
-				var ar = file.split('.');
-				file = ar[0] + '-webgl2.' + ar[1];
-				#end
-				var path = '../html5-resources/' + file + '.essl';
-				#elseif kha_opengl
+				#if kha_opengl
 				var path = '../krom-resources/' + file + '.glsl';
 				#else
 				var path = '../krom-resources/' + file + '.d3d11';
@@ -170,11 +163,9 @@ class ShaderContext {
 				Data.getBlob(path, function(b:kha.Blob) {
 					if (type == 0) pipeState.vertexShader = new VertexShader([b], [file]);
 					else if (type == 1) pipeState.fragmentShader = new FragmentShader([b], [file]);
-					#if !kha_webgl
 					else if (type == 2) pipeState.geometryShader = new kha.graphics4.GeometryShader([b], [file]);
 					else if (type == 3) pipeState.tessellationControlShader = new kha.graphics4.TessellationControlShader([b], [file]);
 					else if (type == 4) pipeState.tessellationEvaluationShader = new kha.graphics4.TessellationEvaluationShader([b], [file]);
-					#end
 					shadersLoaded++;
 					if (shadersLoaded >= numShaders) finishCompile(done);
 				});
