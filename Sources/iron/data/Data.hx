@@ -23,7 +23,9 @@ class Data {
 
 	public static var cachedBlobs:Map<String, kha.Blob> = new Map();
 	public static var cachedImages:Map<String, kha.Image> = new Map();
+	#if arm_audio
 	public static var cachedSounds:Map<String, kha.Sound> = new Map();
+	#end
 	public static var cachedVideos:Map<String, kha.Video> = new Map();
 	public static var cachedFonts:Map<String, kha.Font> = new Map();
 
@@ -41,7 +43,9 @@ class Data {
 	#end
 	static var loadingBlobs:Map<String, Array<kha.Blob->Void>> = new Map();
 	static var loadingImages:Map<String, Array<kha.Image->Void>> = new Map();
+	#if arm_audio
 	static var loadingSounds:Map<String, Array<kha.Sound->Void>> = new Map();
+	#end
 	static var loadingVideos:Map<String, Array<kha.Video->Void>> = new Map();
 	static var loadingFonts:Map<String, Array<kha.Font->Void>> = new Map();
 
@@ -70,8 +74,10 @@ class Data {
 		cachedBlobs = new Map();
 		for (c in cachedImages) c.unload();
 		cachedImages = new Map();
+		#if arm_audio
 		for (c in cachedSounds) c.unload();
 		cachedSounds = new Map();
+		#end
 		for (c in cachedVideos) c.unload();
 		cachedVideos = new Map();
 		for (c in cachedFonts) c.unload();
@@ -318,11 +324,13 @@ class Data {
 		return null;
 	}
 
+	#if arm_audio
 	public static function getSpeakerRawByName(datas:Array<TSpeakerData>, name:String):TSpeakerData {
 		if (name == "") return datas[0];
 		for (dat in datas) if (dat.name == name) return dat;
 		return null;
 	}
+	#end
 
 	// Raw assets
 	public static function getBlob(file:String, done:kha.Blob->Void) {
@@ -388,12 +396,8 @@ class Data {
 	 * @param	file A String matching the file name of the sound file on disk.
 	 * @param	done Completion handler function to do something after the sound is loaded.
 	 */
+	#if arm_audio
 	public static function getSound(file:String, done:kha.Sound->Void) {
-		#if arm_no_audio
-		done(null);
-		return;
-		#end
-
 		#if arm_soundcompress
 		if (file.endsWith('.wav')) file = file.substring(0, file.length - 4) + '.ogg';
 		#end
@@ -428,6 +432,7 @@ class Data {
 		sound.unload();
 		cachedSounds.remove(handle);
 	}
+	#end // arm_audio
 
 	public static function getVideo(file:String, done:kha.Video->Void) {
 		#if (cpp || hl)

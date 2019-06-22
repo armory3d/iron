@@ -8,6 +8,8 @@ import iron.system.Audio;
 
 class SpeakerObject extends Object {
 
+#if arm_audio
+
 	public var data:TSpeakerData;
 	var sound:kha.Sound = null;
 	var channels:Array<AudioChannel> = [];
@@ -77,4 +79,7 @@ class SpeakerObject extends Object {
 		if (Scene.active != null) Scene.active.speakers.remove(this);
 		super.remove();
 	}
+
+#end
+
 }

@@ -58,7 +58,9 @@ class Scene {
 	public var meshes:Array<MeshObject>;
 	public var lights:Array<LightObject>;
 	public var cameras:Array<CameraObject>;
+	#if arm_audio
 	public var speakers:Array<SpeakerObject>;
+	#end
 	public var empties:Array<Object>;
 	public var animations:Array<Animation>;
 	public var armatures:Array<Armature>;
@@ -88,7 +90,9 @@ class Scene {
 		meshes = [];
 		lights = [];
 		cameras = [];
+		#if arm_audio
 		speakers = [];
+		#end
 		empties = [];
 		animations = [];
 		armatures = [];
@@ -165,7 +169,9 @@ class Scene {
 		for (o in meshes) o.remove();
 		for (o in lights) o.remove();
 		for (o in cameras) o.remove();
+		#if arm_audio
 		for (o in speakers) o.remove();
+		#end
 		for (o in empties) o.remove();
 		groups = null;
 		root.remove();
@@ -246,10 +252,12 @@ class Scene {
 		return null;
 	}
 
+	#if arm_audio
 	public function getSpeaker(name:String):SpeakerObject {
 		for (s in speakers) if (s.name == name) return s;
 		return null;
 	}
+	#end
 
 	public function getEmpty(name:String):Object {
 		for (e in empties) if (e.name == name) return e;
@@ -298,11 +306,13 @@ class Scene {
 		return object;
 	}
 
+	#if arm_audio
 	public function addSpeakerObject(data:TSpeakerData, parent:Object = null):SpeakerObject {
 		var object = new SpeakerObject(data);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
+	#end
 	
 	#if rp_decals
 	public function addDecalObject(material:MaterialData, parent:Object = null):DecalObject {
@@ -507,10 +517,12 @@ class Scene {
 				}
 			}
 		}
+		#if arm_audio
 		else if (o.type == "speaker_object") {
 			var object = addSpeakerObject(Data.getSpeakerRawByName(format.speaker_datas, o.data_ref), parent);	
 			returnObject(object, o, done);
 		}
+		#end
 		#if rp_decals
 		else if (o.type == "decal_object") {
 			if (o.material_refs != null && o.material_refs.length > 0) {
