@@ -147,6 +147,9 @@ class ObjectAnimation extends Animation {
 				var p2 = track.values_control_minus[ti + sign];
 				v = interpolateBezier(t, t1, t2, v1, v2, c1, c2, p1, p2);
 			}
+			case "constant": {
+				v = v1;
+			}
 			// case "tcb": v = interpolateTcb();
 			}
 
