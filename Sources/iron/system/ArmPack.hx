@@ -190,7 +190,7 @@ class ArmPack {
 					case "Array", null: { // kha.arrays give null
 						o.writeByte(0xdd);
 						o.writeInt32(d.length);
-						var isInt16 = Std.is(d, #if js js.html.Int16Array #else Int16Array.Int16ArrayPrivate #end);
+						var isInt16 = Std.is(d, #if js js.html.Int16Array #else Int16ArrayPrivate #end);
 						var isInt = Std.is(d[0], Int);
 						var isFloat = Std.is(d[0], Float);
 
