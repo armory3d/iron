@@ -103,7 +103,7 @@ class CameraObject extends Object {
 		var x = 0.0;
 		var y = 0.0;
 		if (frame % 2 == 0) { x = 0.25; y = 0.25; }
-		else if (frame % 2 == 1) { x = -0.25; y = -0.25; }
+		else { x = -0.25; y = -0.25; }
 		P._20 += x / w;
 		P._21 += y / h;
 		frame++;
