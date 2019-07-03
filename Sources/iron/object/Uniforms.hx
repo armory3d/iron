@@ -202,9 +202,9 @@ class Uniforms {
 					if (!paramsSet) {
 						// No filtering when sampling render targets
 						var oc = context.overrideContext;
-						var addressing = (oc != null && oc.addressing == "repeat") ? TextureAddressing.Repeat : TextureAddressing.Clamp;
-						var allowParams = oc == null || oc.shared_sampler != true;
+						var allowParams = oc == null || oc.shared_sampler == null || oc.shared_sampler == samplerID;
 						if (allowParams) {
+							var addressing = (oc != null && oc.addressing == "repeat") ? TextureAddressing.Repeat : TextureAddressing.Clamp;
 							#if (rp_resolution_filter == "Point")
 							g.setTextureParameters(context.textureUnits[j], addressing, addressing, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 							#else
