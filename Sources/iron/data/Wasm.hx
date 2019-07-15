@@ -28,7 +28,7 @@ class Wasm {
 		return s;
 	}
 
-	public function getMemory(offset:Int, length:Int):js.html.Uint8Array {
+	public function getMemory(offset:Int, length:Int):js.lib.Uint8Array {
 		return untyped __js__('new Uint8Array({0}.memory.buffer, {1}, {2});', exports, offset, length);
 	}
 
