@@ -55,6 +55,8 @@ class Animation {
 			this.blendTime = blendTime;
 			this.blendCurrent = 0.0;
 			this.blendAction = this.action;
+			frameIndex = 0;
+			time = 0.0;			
 		}
 		else frameIndex = -1;
 		this.action = action;
