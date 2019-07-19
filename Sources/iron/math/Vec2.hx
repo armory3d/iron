@@ -83,6 +83,21 @@ class Vec2 {
 		return this;
 	}
 
+	inline public function slerp(from:Vec2, to:Vec2, s:FastFloat):Vec2 {
+		var dot = from.dot(to) / (from.length() * to.length());
+		if (dot > 0.9995) {
+			x = from.x + (to.x - from.x) * s;
+			y = from.y + (to.y - from.y) * s;
+			return this;
+		}
+		var theta = Math.acos(dot);
+		var f = Math.sin(theta * s) / Math.sin(theta);
+		var s = Math.cos(theta * s) - dot * f;
+		x = s * from.x + f * to.x;
+		y = s * from.y + f * to.y;
+		return this;
+	}
+
 	inline public function equals(v:Vec2):Bool {
 		return x == v.x && y == v.y;
 	}
