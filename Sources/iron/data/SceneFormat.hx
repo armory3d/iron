@@ -511,12 +511,4 @@ typedef TTrack = {
 	public var target:String;
 	public var frames:Uint32Array;
 	public var values:Float32Array; // sampled - full matrix transforms, non-sampled - values
-	@:optional public var curve:String; // linear, bezier, tcb
-	@:optional public var frames_control_plus:Float32Array; // bezier
-	@:optional public var frames_control_minus:Float32Array;
-	@:optional public var values_control_plus:Float32Array;
-	@:optional public var values_control_minus:Float32Array;
-	// @:optional public var tension:Float32Array; // tcb
-	// @:optional public var continuity:Float32Array;
-	// @:optional public var bias:Float32Array;
 }

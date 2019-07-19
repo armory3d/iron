@@ -38,7 +38,7 @@ class ObjectAnimation extends Animation {
 
 	public override function update(delta:FastFloat) {
 		if (!object.visible || object.culled || oaction == null) return;
-		
+
 		#if arm_debug
 		Animation.beginProfile();
 		#end
@@ -53,33 +53,13 @@ class ObjectAnimation extends Animation {
 	}
 
 	function updateObjectAnim() {
-		if (isSampled) {
-			updateTrack(oaction.anim);
-			updateAnimSampled(oaction.anim, object.transform.world);
-			object.transform.world.decompose(object.transform.loc, object.transform.rot, object.transform.scale);
-			for (c in object.children) c.transform.buildMatrix();
-		}
-		else {
-			updateAnimNonSampled(oaction.anim, object.transform);
-			object.transform.buildMatrix();
-		}
+		updateTransformAnim(oaction.anim, object.transform);
+		object.transform.buildMatrix();
 	}
 
 	inline function interpolateLinear(t:FastFloat, t1:FastFloat, t2:FastFloat, v1:FastFloat, v2:FastFloat):FastFloat {
 		var s = (t - t1) / (t2 - t1);
 		return (1.0 - s) * v1 + s * v2;
-	}
-
-	inline function interpolateBezier(t:FastFloat, t1:FastFloat, t2:FastFloat, v1:FastFloat, v2:FastFloat, c1:FastFloat, c2:FastFloat, p1:FastFloat, p2:FastFloat):FastFloat {
-		if (frameIndex != bezierFrameIndex) {
-			bezierFrameIndex = frameIndex;
-			s0 = (t - t1) / (t2 - t1);
-		}
-		var a:FastFloat = (t2 - 3 * c2 + 3 * c1 - t1) * (s0 * s0 * s0) + 3 * (c2 - 2 * c1 + t1) * (s0 * s0) + 3 * (c1 - t1) * s0 + t1 - t;
-		var b:FastFloat = 3 * (t2 - 3 * c2 + 3 * c1 - t1) * (s0 * s0) + 6 * (c2 - 2 * c1 + t1) * s0 + 3 * (c1 - t1);
-		var s:FastFloat = s0 - (a / b);
-		s0 = s;
-		return (1 - s) * (1 - s) * (1 - s) * v1 + 3 * s * (1 - s) * (1 - s) * p1 + 3 * (s * s) * (1 - s) * p2 + s * s * s * v2;
 	}
 
 	// inline function interpolateTcb():FastFloat { return 0.0; }
@@ -97,9 +77,9 @@ class ObjectAnimation extends Animation {
 	}
 
 	@:access(iron.object.Transform)
-	function updateAnimNonSampled(anim:TAnimation, transform:Transform) {
+	function updateTransformAnim(anim:TAnimation, transform:Transform) {
 		if (anim == null) return;
-		
+
 		var total = anim.end * frameTime - anim.begin * frameTime;
 
 		if (anim.has_delta) {
@@ -135,49 +115,42 @@ class ObjectAnimation extends Animation {
 			var t2 = track.frames[ti + sign] * frameTime;
 			var v1 = track.values[ti];
 			var v2 = track.values[ti + sign];
-			var v = 0.0;
-			switch (track.curve) {
-			case "linear": {
-				v = interpolateLinear(t, t1, t2, v1, v2);
-			}
-			case "bezier": {
-				var c1 = track.frames_control_plus[ti] * frameTime;
-				var c2 = track.frames_control_minus[ti + sign] * frameTime;
-				var p1 = track.values_control_plus[ti];
-				var p2 = track.values_control_minus[ti + sign];
-				v = interpolateBezier(t, t1, t2, v1, v2, c1, c2, p1, p2);
-			}
-			case "constant": {
-				v = v1;
-			}
-			// case "tcb": v = interpolateTcb();
-			}
+
+			var value = interpolateLinear(t, t1, t2, v1, v2);
 
 			switch (track.target) {
-			case "xloc": transform.loc.x = v;
-			case "yloc": transform.loc.y = v;
-			case "zloc": transform.loc.z = v;
-			case "xrot": transform.setRotation(v, transform._eulerY, transform._eulerZ);
-			case "yrot": transform.setRotation(transform._eulerX, v, transform._eulerZ);
-			case "zrot": transform.setRotation(transform._eulerX, transform._eulerY, v);
-			case "xscl": transform.scale.x = v;
-			case "yscl": transform.scale.y = v;
-			case "zscl": transform.scale.z = v;
-			// Delta
-			case "dxloc": transform.dloc.x = v;
-			case "dyloc": transform.dloc.y = v;
-			case "dzloc": transform.dloc.z = v;
-			case "dxrot": transform._deulerX = v;
-			case "dyrot": transform._deulerY = v;
-			case "dzrot": transform._deulerZ = v;
-			case "dxscl": transform.dscale.x = v;
-			case "dyscl": transform.dscale.y = v;
-			case "dzscl": transform.dscale.z = v;
+				case "xloc": transform.loc.x = value;
+				case "yloc": transform.loc.y = value;
+				case "zloc": transform.loc.z = value;
+				case "xrot": transform.setRotation(value, transform._eulerY, transform._eulerZ);
+				case "yrot": transform.setRotation(transform._eulerX, value, transform._eulerZ);
+				case "zrot": transform.setRotation(transform._eulerX, transform._eulerY, value);
+				case "qwrot": transform.rot.w = value;
+				case "qxrot": transform.rot.x = value;
+				case "qyrot": transform.rot.y = value;
+				case "qzrot": transform.rot.z = value;
+				case "xscl": transform.scale.x = value;
+				case "yscl": transform.scale.y = value;
+				case "zscl": transform.scale.z = value;
+				// Delta
+				case "dxloc": transform.dloc.x = value;
+				case "dyloc": transform.dloc.y = value;
+				case "dzloc": transform.dloc.z = value;
+				case "dxrot": transform._deulerX = value;
+				case "dyrot": transform._deulerY = value;
+				case "dzrot": transform._deulerZ = value;
+				case "dqwrot": transform.drot.w = value;
+				case "dqxrot": transform.drot.x = value;
+				case "dqyrot": transform.drot.y = value;
+				case "dqzrot": transform.drot.z = value;
+				case "dxscl": transform.dscale.x = value;
+				case "dyscl": transform.dscale.y = value;
+				case "dzscl": transform.dscale.z = value;
 			}
 		}
 	}
 
-	public override function totalFrames():Int { 
+	public override function totalFrames():Int {
 		if (oaction == null || oaction.anim == null) return 0;
 		return oaction.anim.end - oaction.anim.begin;
 	}
