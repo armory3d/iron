@@ -230,6 +230,48 @@ class Quat {
 	}
 
 	/**
+	 * Spherically interpolate between two other quaterions, and store the
+	 * result in this one.
+	 * @param	from The quaterion to interpolate from.
+	 * @param	to The quaterion to interpolate to.
+	 * @param	s The amount to interpolate, with 0 being `from` and 1 being
+	 * 			`to`, and 0.5 being half way between the two.
+	 * @return	This quaternion.
+	 */
+	public inline function slerp(from:Quat, to:Quat, s:FastFloat):Quat {
+		from.normalize();
+		to.normalize();
+
+		var fromx = from.x;
+		var fromy = from.y;
+		var fromz = from.z;
+		var fromw = from.w;
+		var dot = from.dot(to);
+		if (dot < 0) {
+			fromx = -fromx;
+			fromy = -fromy;
+			fromz = -fromz;
+			fromw = -fromw;
+			dot = -dot;
+		}
+		if (dot > 0.9995) {
+			x = fromx + (to.x - fromx) * s;
+			y = fromy + (to.y - fromy) * s;
+			z = fromz + (to.z - fromz) * s;
+			w = fromw + (to.w - fromw) * s;
+			return normalize();
+		}
+		var theta = Math.acos(dot);
+		var f = Math.sin(theta * s) / Math.sin(theta);
+		var s = Math.cos(theta * s) - dot * f;
+		x = s * fromx + f * to.x;
+		y = s * fromy + f * to.y;
+		z = s * fromz + f * to.z;
+		w = s * fromw + f * to.w;
+		return this;
+	}
+	
+	/**
 	 * Find the dot product of this quaternion with another.
 	 * @param	q The other quaternion.
 	 * @return	The dot product.

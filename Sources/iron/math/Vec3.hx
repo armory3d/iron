@@ -104,6 +104,32 @@ class Vec3 {
 		return this;
 	}
 
+	inline public function slerp(from:Vec3, to:Vec3, s:FastFloat):Vec3 {
+		var fromx = from.x;
+		var fromy = from.y;
+		var fromz = from.z;
+		var dot = from.dot(to) / (from.length() * to.length());
+		if (dot < 0) {
+			fromx = -fromx;
+			fromy = -fromy;
+			fromz = -fromz;
+			dot = -dot;
+		}
+		if (dot > 0.9995) {
+			x = fromx + (to.x - fromx) * s;
+			y = fromy + (to.y - fromy) * s;
+			z = fromz + (to.z - fromz) * s;
+			return this;
+		}
+		var theta = Math.acos(dot);
+		var f = Math.sin(theta * s) / Math.sin(theta);
+		var s = Math.cos(theta * s) - dot * f;
+		x = s * fromx + f * to.x;
+		y = s * fromy + f * to.y;
+		z = s * fromz + f * to.z;
+		return this;
+	}
+
 	inline public function applyproj(m:Mat4):Vec3 {
 		var x = this.x; var y = this.y; var z = this.z;
 		var d = 1.0 / (m._03 * x + m._13 * y + m._23 * z + m._33); // Perspective divide
