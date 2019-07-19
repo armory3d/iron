@@ -90,8 +90,8 @@ class Object {
 		return null;
 	}
 
-	public function getChildOfType(type:Class<Object>):Object {
-		if (Std.is(this, type)) return this;
+	public function getChildOfType<T:Object>(type:Class<T>):T {
+		if (Std.is(this, type)) return cast this;
 		else {
 			for (c in children) {
 				var r = c.getChildOfType(type);
