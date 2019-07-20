@@ -294,7 +294,7 @@ class Quat {
 		w = s * fromw + f * to.w;
 		return this;
 	}
-	
+
 	/**
 	 * Find the dot product of this quaternion with another.
 	 * @param	q The other quaternion.
@@ -324,6 +324,16 @@ class Quat {
 			normalize();
 		}
 		return this;
+	}
+
+	inline public function lookAt(forward:Vec4, upward:Vec4):Quat {
+		var f = helpVec0.setFrom(forward);
+		var u = helpVec1.setFrom(upward);
+
+		Vec4.fastOrthoNormalize(f, u);
+		var r = helpVec2.setFrom(f).cross(u);
+
+		return fromAxes(r, f, u);
 	}
 
 	public function toString():String {
