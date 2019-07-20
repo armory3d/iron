@@ -63,11 +63,11 @@ class Quat {
 		return fromRotationMat(helpMat);
 	}
 
-	inline public function fromRotationMat(m:Mat4):Quat {
+	inline public function fromRotationMatRaw(
+		m11:FastFloat, m12:FastFloat, m13:FastFloat,
+		m21:FastFloat, m22:FastFloat, m23:FastFloat,
+		m31:FastFloat, m32:FastFloat, m33:FastFloat):Quat {
 		// Assumes the upper 3x3 is a pure rotation matrix
-		var m11 = m._00; var m12 = m._10; var m13 = m._20;
-		var m21 = m._01; var m22 = m._11; var m23 = m._21;
-		var m31 = m._02; var m32 = m._12; var m33 = m._22;
 		var tr = m11 + m22 + m33;
 		var s = 0.0;
 
@@ -100,6 +100,20 @@ class Quat {
 			this.z = 0.25 * s;
 		}
 		return this;
+	}
+
+	inline public function fromRotationMat(m:Mat4):Quat {
+		return fromRotationMatRaw(
+			m._00, m._10, m._20,
+			m._01, m._11, m._21,
+			m._02, m._12, m._22);
+	}
+
+	inline public function fromAxes(xAxis:Vec4, yAxis:Vec4, zAxis:Vec4):Quat {
+		return fromRotationMatRaw(
+			xAxis.x, yAxis.x, zAxis.x,
+			xAxis.y, yAxis.y, zAxis.y,
+			xAxis.z, yAxis.z, zAxis.z);
 	}
 
 	inline public function inverse():Quat {
