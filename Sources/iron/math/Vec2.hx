@@ -57,6 +57,12 @@ class Vec2 {
         return this;
 	}
 
+	inline public function inverse():Vec2 {
+		x = -x;
+		y = -y;
+		return this;
+	}
+
 	inline public function mult(f:FastFloat):Vec2 {
 		x *= f;
 		y *= f;

@@ -75,6 +75,13 @@ class Vec3 {
 		return this;
 	}
 
+	inline public function inverse():Vec3 {
+		x = -x;
+		y = -y;
+		z = -z;
+		return this;
+	}
+
 	inline public function mult(f:FastFloat):Vec3 {
 		x *= f;
 		y *= f;

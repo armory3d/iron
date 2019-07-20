@@ -102,6 +102,16 @@ class Quat {
 		return this;
 	}
 
+	inline public function inverse():Quat {
+		var norm = x * x + y * y + z * z + w * w;
+		var invNorm = 1.0 / norm;
+		w = w * invNorm;
+		x = -x * invNorm;
+		y = -y * invNorm;
+		z = -z * invNorm;
+		return this;
+	}
+
 	/**
 	 * Multiply this quaternion by another.
 	 * @param	q The quaternion to multiply this one with.
