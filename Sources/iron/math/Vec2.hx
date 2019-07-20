@@ -106,6 +106,10 @@ class Vec2 {
 		return Math.sqrt(x * x + y * y);
 	}
 
+	inline public function sqrLength():FastFloat {
+		return x * x + y * y;
+	}
+
 	inline public function sub(v:Vec2):Vec2 {
 		x -= v.x;
 		y -= v.y;

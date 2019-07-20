@@ -183,6 +183,10 @@ class Vec4 {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
 
+	inline public function sqrLength():FastFloat {
+		return x * x + y * y + z * z;
+	}
+
 	inline public function sub(v:Vec4):Vec4 {
 		x -= v.x; y -= v.y; z -= v.z;
 		return this;
