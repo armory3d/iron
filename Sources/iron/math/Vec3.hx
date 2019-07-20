@@ -7,6 +7,8 @@ class Vec3 {
 	public var y:FastFloat;
 	public var z:FastFloat;
 
+	static var helpVec0 = new Vec3();
+
 	inline public function new(x:FastFloat = 0.0, y:FastFloat = 0.0, z:FastFloat = 0.0) {
 		this.x = x;
 		this.y = y;
@@ -208,6 +210,23 @@ class Vec3 {
 		if (l < min) normalize().mult(min);
 		else if (l > max) normalize().mult(max);
 		return this;
+	}
+
+	inline public static function fastOrthoNormalize(normal:Vec3, tangent:Vec3) {
+		normal.normalize();
+		tangent.sub(helpVec0.setFrom(tangent).project(normal));
+		tangent.normalize();
+	}
+
+	inline public static function orthoNormalize(normal:Vec3, tangent:Vec3, binormal:Vec3) {
+		normal.normalize();
+		tangent.sub(helpVec0.setFrom(tangent).project(normal));
+		binormal.sub(helpVec0.setFrom(binormal).project(normal));
+
+		tangent.normalize();
+		binormal.sub(helpVec0.setFrom(binormal).project(tangent));
+
+		binormal.normalize();
 	}
 
 	public static inline function xAxis():Vec3 { return new Vec3(1.0, 0.0, 0.0); }

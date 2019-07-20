@@ -6,6 +6,8 @@ class Vec2 {
 	public var x:FastFloat;
 	public var y:FastFloat;
 
+	static var helpVec0 = new Vec2();
+
 	inline public function new(x:FastFloat = 0.0, y:FastFloat = 0.0) {
 		this.x = x;
 		this.y = y;
@@ -164,6 +166,12 @@ class Vec2 {
 		if (l < min) normalize().mult(min);
 		else if (l > max) normalize().mult(max);
 		return this;
+	}
+
+	inline public static function orthoNormalize(normal:Vec2, tangent:Vec2) {
+		normal.normalize();
+		tangent.sub(helpVec0.setFrom(tangent).project(normal));
+		tangent.normalize();
 	}
 
 	public static inline function xAxis():Vec2 { return new Vec2(1.0, 0.0); }
