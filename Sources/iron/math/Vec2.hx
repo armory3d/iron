@@ -126,6 +126,13 @@ class Vec2 {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y));
 	}
 
+	inline public function reflect(n:Vec2):Vec2 {
+		var d = 2 * this.dot(n);
+		x = x - d * n.x;
+		y = y - d * n.y;
+		return this;
+	}
+
 	inline public function clamp(min:FastFloat, max:FastFloat):Vec2 {
 		var l = length();
 		if (l < min) normalize().mult(min);

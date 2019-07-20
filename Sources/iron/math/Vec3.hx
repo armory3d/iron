@@ -166,6 +166,14 @@ class Vec3 {
 		return Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y) + (p.z - z) * (p.z - z));
 	}
 
+	inline public function reflect(n:Vec3):Vec3 {
+		var d = 2 * this.dot(n);
+		x = x - d * n.x;
+		y = y - d * n.y;
+		z = z - d * n.z;
+		return this;
+	}
+
 	inline public function clamp(min:FastFloat, max:FastFloat):Vec3 {
 		var l = length();
 		if (l < min) normalize().mult(min);
