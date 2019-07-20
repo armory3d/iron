@@ -137,6 +137,22 @@ class Vec2 {
 		return this;
 	}
 
+	inline public function project(v:Vec2) {
+		var dot = this.dot(v);
+		var div = dot / v.sqrLength();
+		x = div * v.x;
+		y = div * v.y;
+		return this;
+	}
+
+	inline public function projectOnPlane(n:Vec2) {
+		var dot = this.dot(n);
+		var div = dot / n.sqrLength();
+		x = x - div * n.x;
+		y = y - div * n.y;
+		return this;
+	}
+
 	inline public function clamp(min:FastFloat, max:FastFloat):Vec2 {
 		var l = length();
 		if (l < min) normalize().mult(min);
