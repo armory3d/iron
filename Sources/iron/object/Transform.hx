@@ -268,8 +268,10 @@ class Transform {
 
 	public function applyParent() {
 		var pt = object.parent.transform;
+		pt.buildMatrix();
 		this.local.multmat(pt.world);
 		this.decompose();
+		this.buildMatrix();
 	}
 
 	/**
