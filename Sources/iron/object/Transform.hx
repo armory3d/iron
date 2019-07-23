@@ -10,6 +10,10 @@ class Transform {
 	 */
 	public var world:Mat4;
 	/**
+	 * The world to local matrix (read-only).
+	 */
+	public var worldToLocal:Mat4;
+	/**
 	 * Prevent applying parent matrix. Default: `false`.
 	 */
 	public var localOnly = false;
@@ -61,7 +65,6 @@ class Transform {
 	 */
 	public var radius:kha.FastFloat;
 	
-	static var temp = Mat4.identity();
 	static var q = new Quat();
 
 	var boneParent:Mat4 = null;
@@ -92,6 +95,7 @@ class Transform {
 	 */
 	public function reset() {
 		world = Mat4.identity();
+		worldToLocal = Mat4.identity();
 		worldUnpack = Mat4.identity();
 		local = Mat4.identity();
 		loc = new Vec4();
@@ -134,6 +138,7 @@ class Transform {
 		else {
 			world.setFrom(local);
 		}
+		worldToLocal.getInverse(world);
 
 		worldUnpack.setFrom(world);
 		if (scaleWorld != 1.0) {
@@ -260,8 +265,7 @@ class Transform {
 	public function applyParentInverse() {
 		var pt = object.parent.transform;
 		pt.buildMatrix();
-		temp.getInverse(pt.world);
-		this.local.multmat(temp);
+		this.local.multmat(pt.worldToLocal);
 		this.decompose();
 		this.buildMatrix();
 	}
