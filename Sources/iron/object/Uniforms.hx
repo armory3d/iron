@@ -206,10 +206,11 @@ class Uniforms {
 						if (allowParams) {
 							var addressing = (oc != null && oc.addressing == "repeat") ? TextureAddressing.Repeat : TextureAddressing.Clamp;
 							#if (rp_resolution_filter == "Point")
-							g.setTextureParameters(context.textureUnits[j], addressing, addressing, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+							var filter = TextureFilter.PointFilter;
 							#else
-							g.setTextureParameters(context.textureUnits[j], addressing, addressing, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+							var filter = (oc != null && oc.filter == "point") ? TextureFilter.PointFilter : TextureFilter.LinearFilter;
 							#end
+							g.setTextureParameters(context.textureUnits[j], addressing, addressing, filter, filter, MipMapFilter.NoMipFilter);
 						}
 						paramsSet = true;
 					}
