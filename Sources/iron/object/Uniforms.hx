@@ -53,6 +53,12 @@ class Uniforms {
 	public static var posUnpack:Null<kha.FastFloat> = null;
 	public static var texUnpack:Null<kha.FastFloat> = null;
 
+	#if (rp_resolution_filter == "Point")
+	public static var defaultFilter = TextureFilter.PointFilter;
+	#else
+	public static var defaultFilter = TextureFilter.LinearFilter;
+	#end
+
 	public static function setContextConstants(g:Graphics, context:ShaderContext, bindParams:Array<String>) {
 		if (context.raw.constants != null) {
 			for (i in 0...context.raw.constants.length) {
@@ -205,11 +211,7 @@ class Uniforms {
 						var allowParams = oc == null || oc.shared_sampler == null || oc.shared_sampler == samplerID;
 						if (allowParams) {
 							var addressing = (oc != null && oc.addressing == "repeat") ? TextureAddressing.Repeat : TextureAddressing.Clamp;
-							#if (rp_resolution_filter == "Point")
-							var filter = TextureFilter.PointFilter;
-							#else
-							var filter = (oc != null && oc.filter == "point") ? TextureFilter.PointFilter : TextureFilter.LinearFilter;
-							#end
+							var filter = (oc != null && oc.filter == "point") ? TextureFilter.PointFilter : defaultFilter;
 							g.setTextureParameters(context.textureUnits[j], addressing, addressing, filter, filter, MipMapFilter.NoMipFilter);
 						}
 						paramsSet = true;
