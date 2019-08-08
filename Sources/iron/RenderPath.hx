@@ -13,6 +13,7 @@ import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.ConstData;
 import iron.data.Data;
+import iron.object.Object;
 import iron.object.LightObject;
 import iron.object.MeshObject;
 import iron.object.Uniforms;
