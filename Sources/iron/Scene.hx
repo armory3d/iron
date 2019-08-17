@@ -729,24 +729,29 @@ class Scene {
 		if (datas == null) { done(); return; }
 		var loaded = 0;
 		for (file in datas) {
-			if (file.endsWith('.raw')) {
-				Data.getBlob(file, function(blob:kha.Blob) {
-					// Raw 3D texture bytes
-					var b = blob.toBytes();
-					var w = Std.int(Math.pow(b.length, 1 / 3)) + 1;
-					var image = kha.Image.fromBytes3D(b, w, w, w, TextureFormat.L8);
-					embedded.set(file, image);
-					loaded++;
-					if (loaded == datas.length) done();
-				});
-			}
-			else {
-				Data.getImage(file, function(image:kha.Image) {
-					embedded.set(file, image);
-					loaded++;
-					if (loaded == datas.length) done();
-				});
-			}
+			embedData(file, function() {
+				loaded++;
+				if (loaded == datas.length) done();
+			});
+		}
+	}
+
+	public function embedData(file:String, done:Void->Void) {
+		if (file.endsWith('.raw')) {
+			Data.getBlob(file, function(blob:kha.Blob) {
+				// Raw 3D texture bytes
+				var b = blob.toBytes();
+				var w = Std.int(Math.pow(b.length, 1 / 3)) + 1;
+				var image = kha.Image.fromBytes3D(b, w, w, w, TextureFormat.L8);
+				embedded.set(file, image);
+				done();
+			});
+		}
+		else {
+			Data.getImage(file, function(image:kha.Image) {
+				embedded.set(file, image);
+				done();
+			});
 		}
 	}
 
