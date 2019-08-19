@@ -3,7 +3,7 @@
 iron
 ==============
 
-[![Build Status](https://travis-ci.org/armory3d/iron.svg?branch=master)](https://travis-ci.org/armory3d/iron)
+[![Build Status](https://dev.azure.com/luboslenco/armory/_apis/build/status/armory3d.iron?branchName=master)](https://dev.azure.com/luboslenco/armory/_build/latest?definitionId=1&branchName=master)
 
 [Wiki](https://github.com/armory3d/iron/wiki) - [Examples](https://github.com/armory3d/iron_examples)
 
