@@ -180,7 +180,6 @@ class ArmPack {
 			case TInt: { o.writeByte(0xd2); o.writeInt32(d); }
 			case TFloat: { o.writeByte(0xca); o.writeFloat(d); }
 			case TClass(c): {
-
 				switch (Type.getClassName(c)) {
 					case "String": {
 						o.writeByte(0xdb);
@@ -191,7 +190,7 @@ class ArmPack {
 						o.writeByte(0xdd);
 						o.writeInt32(d.length);
 						var isInt16 = Std.is(d, #if js js.lib.Int16Array #else Int16ArrayPrivate #end);
-						var isInt = Std.is(d[0], Int);
+						var isInt = Std.is(d[0], Int) && !Std.is(d, #if js js.lib.Float32Array #else Float32ArrayPrivate #end);
 						var isFloat = Std.is(d[0], Float);
 
 						if (isInt16) { // Int16Array
