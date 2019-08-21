@@ -34,7 +34,7 @@ class Animation {
 	public var frameIndex = 0;
 	public var onComplete:Void->Void = null;
 	public var paused = false;
-	var frameTime:FastFloat;
+	var frameTime:FastFloat = 1 / 60;
 
 	var blendTime:FastFloat = 0.0;
 	var blendCurrent:FastFloat = 0.0;
@@ -46,7 +46,9 @@ class Animation {
 
 	function new() {
 		Scene.active.animations.push(this);
-		frameTime = Scene.active.raw.frame_time;
+		if (Scene.active.raw.frame_time != null) {
+			frameTime = Scene.active.raw.frame_time;
+		}
 		play();
 	}
 
