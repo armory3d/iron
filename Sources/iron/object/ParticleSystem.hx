@@ -47,9 +47,16 @@ class ParticleSystem {
 		Data.getParticle(sceneName, pref.particle, function(b:ParticleData) {
 			data = b;
 			r = data.raw;
-			gx = Scene.active.raw.gravity[0] * r.weight_gravity;
-			gy = Scene.active.raw.gravity[1] * r.weight_gravity;
-			gz = Scene.active.raw.gravity[2] * r.weight_gravity;
+			if (Scene.active.raw.gravity != null) {
+				gx = Scene.active.raw.gravity[0] * r.weight_gravity;
+				gy = Scene.active.raw.gravity[1] * r.weight_gravity;
+				gz = Scene.active.raw.gravity[2] * r.weight_gravity;
+			}
+			else {
+				gx = 0;
+				gy = 0;
+				gz = -9.81 * r.weight_gravity;
+			}
 			alignx = r.object_align_factor[0] / 2;
 			aligny = r.object_align_factor[1] / 2;
 			alignz = r.object_align_factor[2] / 2;
