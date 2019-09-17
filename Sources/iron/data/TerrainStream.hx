@@ -16,28 +16,41 @@ class TerrainStream {
 
 	public var sectors:Array<MeshObject> = [];
 	public var heightTextures:Array<kha.Image> = [];
+	public var ready = false;
+	public var onReady:Void->Void = null;
 
 	var raw:TTerrainData;
 	var planes:Array<MeshData> = [];
 	var materials:Vector<MaterialData>;
-	var ready = false;
 
 	public function new(raw:TTerrainData) {
 		this.raw = raw;
 
-		// TODO: async
 		Data.getMaterial(Scene.active.raw.name, raw.material_ref, function(mat:MaterialData) {
 			materials = Vector.fromData([mat]);
+
+			var imagesLoaded = 0;
+			var numSectors = raw.sectors_x * raw.sectors_y;
+			for (i in 0...numSectors) {
+				var j = i + 1;
+				var ext = j < 10 ? "0" + j : "" + j;
+				Data.getImage("heightmap_" + ext + ".png", function(image:kha.Image) {
+					heightTextures[i] = image;
+					imagesLoaded++;
+					if (imagesLoaded == numSectors) {
+						loaded();
+					}
+				}, true); // Readable
+			}
 		});
+	}
 
-		for (i in 0...raw.sectors_x * raw.sectors_y) {
-			var j = i + 1;
-			var ext = j < 10 ? "0" + j : "" + j;
-			Data.getImage("heightmap_" + ext + ".png", function(image:kha.Image) {
-				heightTextures[i] = image;
-			}, true); // Readable
-		}
+	public function notifyOnReady(f:Void->Void) {
+		onReady = f;
+		if (ready) onReady();
+	}
 
+	function loaded() {
 		for (i in 0...4) {
 			makePlane(i, raw.sector_size, raw.sector_size, heightTextures[0].width, heightTextures[0].height);
 		}
@@ -51,6 +64,7 @@ class TerrainStream {
 		});
 
 		ready = true;
+		if (onReady != null) onReady();
 	}
 
 	function makePlane(index:Int, sizeX:Float, sizeY:Float, vertsX:Int, vertsY:Int) {
