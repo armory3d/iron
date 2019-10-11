@@ -97,7 +97,7 @@ class VirtualInput {
 
 	public function setVirtual(virtual:String, button:String) {
 		if (Input.virtualButtons == null) Input.virtualButtons = new Map<String, VirtualButton>();
-		
+
 		var vb = Input.virtualButtons.get(virtual);
 		if (vb == null) {
 			vb = new VirtualButton();
@@ -134,6 +134,8 @@ class Mouse extends VirtualInput {
 
 	public var x(default, null) = 0.0;
 	public var y(default, null) = 0.0;
+	public var viewX(get, null) = 0.0;
+	public var viewY(get, null) = 0.0;
 	public var moved(default, null) = false;
 	public var movementX(default, null) = 0.0;
 	public var movementY(default, null) = 0.0;
@@ -201,28 +203,28 @@ class Mouse extends VirtualInput {
 		kha.input.Mouse.get().showSystemCursor();
 		hidden = false;
 	}
-	
+
 	function downListener(index:Int, x:Int, y:Int) {
 		buttonsDown[index] = true;
 		buttonsStarted[index] = true;
-		this.x = x - iron.App.x();
-		this.y = y - iron.App.y();
+		this.x = x;
+		this.y = y;
 		#if (kha_android || kha_ios || kha_webgl) // For movement delta using touch
 		if (index == 0) { lastX = x; lastY = y; }
 		#end
 
 		downVirtual(buttons[index]);
 	}
-	
+
 	function upListener(index:Int, x:Int, y:Int) {
 		buttonsDown[index] = false;
 		buttonsReleased[index] = true;
-		this.x = x - iron.App.x();
-		this.y = y - iron.App.y();
+		this.x = x;
+		this.y = y;
 
 		upVirtual(buttons[index]);
 	}
-	
+
 	function moveListener(x:Int, y:Int, movementX:Int, movementY:Int) {
 		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
 		if (locked) {
@@ -236,14 +238,17 @@ class Mouse extends VirtualInput {
 		}
 		lastX = x;
 		lastY = y;
-		this.x = x - iron.App.x();
-		this.y = y - iron.App.y();
+		this.x = x;
+		this.y = y;
 		moved = true;
 	}
 
 	function wheelListener(delta:Int) {
 		wheelDelta = delta;
 	}
+
+	inline function get_viewX() { return x - iron.App.x(); }
+	inline function get_viewY() { return y - iron.App.y(); }
 }
 
 class Pen extends VirtualInput {
@@ -255,6 +260,8 @@ class Pen extends VirtualInput {
 
 	public var x(default, null) = 0.0;
 	public var y(default, null) = 0.0;
+	public var viewX(get, null) = 0.0;
+	public var viewY(get, null) = 0.0;
 	public var moved(default, null) = false;
 	public var movementX(default, null) = 0.0;
 	public var movementY(default, null) = 0.0;
@@ -294,34 +301,37 @@ class Pen extends VirtualInput {
 	public function released(button = "tip"):Bool {
 		return buttonsReleased[buttonIndex(button)];
 	}
-	
+
 	function downListener(x:Float, y:Float, pressure:Float) {
 		buttonsDown[0] = true;
 		buttonsStarted[0] = true;
-		this.x = x - iron.App.x();
-		this.y = y - iron.App.y();
+		this.x = x;
+		this.y = y;
 		this.pressure = pressure;
 	}
 
 	function upListener(x:Float, y:Float, pressure:Float) {
 		buttonsDown[0] = false;
 		buttonsReleased[0] = true;
-		this.x = x - iron.App.x();
-		this.y = y - iron.App.y();
+		this.x = x;
+		this.y = y;
 		this.pressure = pressure;
 	}
-	
+
 	function moveListener(x:Int, y:Int, pressure:Float) {
 		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
 		this.movementX = x - lastX;
 		this.movementY = y - lastY;
 		lastX = x;
 		lastY = y;
-		this.x = x - iron.App.x();
-		this.y = y - iron.App.y();
+		this.x = x;
+		this.y = y;
 		moved = true;
 		this.pressure = pressure;
 	}
+
+	inline function get_viewX() { return x - iron.App.x(); }
+	inline function get_viewY() { return y - iron.App.y(); }
 }
 
 class Keyboard extends VirtualInput {

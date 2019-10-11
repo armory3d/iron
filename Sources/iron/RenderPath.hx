@@ -85,7 +85,7 @@ class RenderPath {
 	public static var numTrisShadow = 0;
 	#end
 
-	public static function setActive(renderPath:RenderPath) { 
+	public static function setActive(renderPath:RenderPath) {
 		active = renderPath;
 	}
 
@@ -111,17 +111,17 @@ class RenderPath {
 		numTrisMesh = 0;
 		numTrisShadow = 0;
 		#end
-		
+
 		// Render to screen or probe
 		var cam = Scene.active.camera;
 		isProbePlanar = cam != null && cam.renderTarget != null;
 		isProbeCube = cam != null && cam.renderTargetCube != null;
 		isProbe = isProbePlanar || isProbeCube;
-		
+
 		if (isProbePlanar) frameG = cam.renderTarget.g4;
 		else if (isProbeCube) frameG = cam.renderTargetCube.g4;
 		else frameG = g;
-		
+
 		currentW = iron.App.w();
 		currentH = iron.App.h();
 		currentD = 1;
@@ -136,7 +136,7 @@ class RenderPath {
 		light = Scene.active.lights[0];
 
 		commands();
-		
+
 		if (!isProbe) frame++;
 	}
 
@@ -272,7 +272,7 @@ class RenderPath {
 		}
 		// Single face attached
 		if (currentFace >= 0 && light != null) light.setCubeFace(currentFace, Scene.active.camera);
-		
+
 		var drawn = false;
 
 		#if arm_csm
@@ -343,7 +343,7 @@ class RenderPath {
 		ar.push(onContext);
 	}
 	#end
-	
+
 	#if rp_decals
 	public function drawDecals(context:String) {
 		if (ConstData.boxVB == null) ConstData.createBoxData();
@@ -389,7 +389,7 @@ class RenderPath {
 		if (bindParams != null) { bindParams.push(target); bindParams.push(uniform); }
 		else bindParams = [target, uniform];
 	}
-	
+
 	// Full-screen triangle
 	public function drawShader(handle:String) {
 		// file/data_name/context
@@ -401,7 +401,7 @@ class RenderPath {
 		currentG.setVertexBuffer(ConstData.screenAlignedVB);
 		currentG.setIndexBuffer(ConstData.screenAlignedIB);
 		currentG.drawIndexedVertices();
-		
+
 		end();
 	}
 
@@ -479,13 +479,13 @@ class RenderPath {
 			if (rt.raw.width > 0 ||
 				rt.depthStencilFrom == "" ||
 				rt == depthToRenderTarget.get(rt.depthStencilFrom)) continue;
-			
+
 			var nodepth:RenderTarget = null;
 			for (rt2 in renderTargets) {
 				if (rt2.raw.width > 0 ||
 					rt2.depthStencilFrom != "" ||
 					depthToRenderTarget.get(rt2.raw.depth_buffer) != null) continue;
-				
+
 				nodepth = rt2;
 				break;
 			}
@@ -510,7 +510,7 @@ class RenderPath {
 			}
 		}
 	}
-	
+
 	public function createRenderTarget(t:RenderTargetRaw):RenderTarget {
 		var rt = createTarget(t);
 		renderTargets.set(t.name, rt);
@@ -527,7 +527,7 @@ class RenderPath {
 		if (t.depth_buffer != null) {
 			rt.hasDepth = true;
 			var depthTarget = depthToRenderTarget.get(t.depth_buffer);
-			
+
 			// Create new one
 			if (depthTarget == null) {
 				for (db in depthBuffers) {
@@ -561,7 +561,7 @@ class RenderPath {
 				rt.image = createImage(t, rt.depthStencil);
 			}
 		}
-		
+
 		return rt;
 	}
 
@@ -624,7 +624,7 @@ class RenderPath {
 		default: return TextureFormat.RGBA32;
 		}
 	}
-	
+
 	inline function getDepthStencilFormat(s:String):DepthStencilFormat {
 		if (s == null || s == "") return DepthStencilFormat.DepthOnly;
 		switch (s) {
