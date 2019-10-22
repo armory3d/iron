@@ -66,7 +66,7 @@ class Uniforms {
 				setContextConstant(g, context.constants[i], c);
 			}
 		}
-		
+
 		// Texture context constants
 		if (bindParams != null) { // Bind targets
 			for (i in 0...Std.int(bindParams.length / 2)) {
@@ -83,7 +83,7 @@ class Uniforms {
 				bindRenderTarget(g, rt, context, samplerID, attachDepth);
 			}
 		}
-		
+
 		// Texture links
 		if (context.raw.texture_units != null) {
 			for (j in 0...context.raw.texture_units.length) {
@@ -452,7 +452,7 @@ class Uniforms {
 				v = Scene.active.probes[RenderPath.active.currentProbeIndex].transform.world.getLoc();
 			}
 			#end
-			
+
 			if (v != null) {
 				g.setFloat3(location, v.x, v.y, v.z);
 				return true;
@@ -735,7 +735,7 @@ class Uniforms {
 			else if (c.link == "_lightWorldViewProjectionMatrixSphere") {
 				if (light != null) {
 					helpMat.setFrom(object.transform.worldUnpack);
-					
+
 					// Align to camera..
 					helpMat.multmat(camera.V);
 					helpMat._00 = 1.0; helpMat._10 = 0.0; helpMat._20 = 0.0;
@@ -751,7 +751,7 @@ class Uniforms {
 			else if (c.link == "_lightWorldViewProjectionMatrixCylinder") {
 				if (light != null) {
 					helpMat.setFrom(object.transform.worldUnpack);
-					
+
 					// Align to camera..
 					helpMat.multmat(camera.V);
 					helpMat._00 = 1.0; helpMat._20 = 0.0;
@@ -872,7 +872,7 @@ class Uniforms {
 					if (v != null) break;
 				}
 			}
-			
+
 			if (v == null) return;
 			g.setFloat3(location, v.x, v.y, v.z);
 		}
@@ -982,7 +982,7 @@ class Uniforms {
 				}
 				if (pos == -1) continue;
 				var c = context.raw.constants[pos];
-				
+
 				setMaterialConstant(g, context.constants[pos], c, matc);
 			}
 		}

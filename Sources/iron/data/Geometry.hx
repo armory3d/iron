@@ -47,7 +47,7 @@ class Geometry {
 	public var bones:Int16Array;
 	public var weights:Int16Array;
 	var data:MeshData;
-	
+
 	public var aabb:Vec4 = null;
 	public var aabbMin:Vec4 = null;
 	public var aabbMax:Vec4 = null;
@@ -305,7 +305,7 @@ class Geometry {
 
 			var indicesA = indexBuffer.lock();
 			for (i in 0...indicesA.length) indicesA[i] = id[i];
-			
+
 			indexBuffer.unlock();
 			indexBuffers.push(indexBuffer);
 		}
@@ -325,7 +325,7 @@ class Geometry {
 
 		var vertices = vertexBuffer.lockInt16();
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
-		
+
 		vertexBuffer.unlock();
 		return vertexBuffer;
 	}

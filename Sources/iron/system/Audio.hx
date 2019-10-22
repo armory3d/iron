@@ -10,7 +10,7 @@ class Audio {
 
 	public static function play(sound:kha.Sound, loop = false, stream = false):AudioChannel {
 		if (stream && sound.compressedData != null) {
-			return kha.audio1.Audio.stream(sound, loop); 
+			return kha.audio1.Audio.stream(sound, loop);
 		}
 		else if (sound.uncompressedData != null) {
 			return kha.audio1.Audio.play(sound, loop);

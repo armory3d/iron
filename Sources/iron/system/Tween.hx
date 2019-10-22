@@ -21,9 +21,9 @@ class Tween {
 		if (!registered) register();
 		anim._time = 0;
 		anim.isPlaying = (anim.delay != null && anim.delay > 0.0) ? false : true;
-		
+
 		if (anim.ease == null) anim.ease = Ease.Linear;
-		
+
 		if (anim.target != null && anim.props != null) {
 
 			anim._comps = []; anim._x = []; anim._y = []; anim._z = []; anim._w = []; anim._normalize = [];
@@ -126,7 +126,7 @@ class Tween {
 					}
 				}
 			}
-		
+
 			if (a.isPlaying) {
 				if (a.tick != null) a.tick();
 			}

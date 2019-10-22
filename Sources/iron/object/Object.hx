@@ -35,7 +35,7 @@ class Object {
 		isEmpty = Type.getClass(this) == Object;
 		if (isEmpty && Scene.active != null) Scene.active.empties.push(this);
 	}
-	
+
 	/**
 	 * Add a game Object as a child of this game Object.
 	 *
@@ -113,7 +113,7 @@ class Object {
 	}
 
 	/**
-	 * Remove the Trait from the Object. 
+	 * Remove the Trait from the Object.
 	 *
 	 * @param	t The Trait to be removed from the game Object.
 	 */
@@ -147,7 +147,7 @@ class Object {
 	}
 
 	/**
-	 * Get the Trait instance that is attached to this game Object. 
+	 * Get the Trait instance that is attached to this game Object.
 	 *
 	 * @param	c The class of type Trait to attempt to retrieve.
 	 * @return	Trait or null

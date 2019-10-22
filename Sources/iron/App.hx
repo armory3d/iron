@@ -38,7 +38,7 @@ class App {
 	public static function init(_appReady:Void->Void) {
 		new App(_appReady);
 	}
-	
+
 	function new(_appReady:Void->Void) {
 		_appReady();
 
@@ -58,7 +58,7 @@ class App {
 	static function update() {
 		if (Scene.active == null || !Scene.active.ready) return;
 		if (pauseUpdates) return;
-		
+
 		#if arm_debug
 		startTime = kha.Scheduler.realTime();
 		#end
@@ -70,7 +70,7 @@ class App {
 		while (i < l) {
 			if (traitInits.length > 0) {
 				for (f in traitInits) { traitInits.length > 0 ? f() : break; }
-				traitInits.splice(0, traitInits.length);     
+				traitInits.splice(0, traitInits.length);
 			}
 			traitUpdates[i]();
 			// Account for removed traits
@@ -124,7 +124,7 @@ class App {
 
 		if (traitInits.length > 0) {
 			for (f in traitInits) { traitInits.length > 0 ? f() : break; }
-			traitInits.splice(0, traitInits.length);     
+			traitInits.splice(0, traitInits.length);
 		}
 
 		Scene.active.renderFrame(frame.g4);
@@ -162,7 +162,7 @@ class App {
 	public static function removeUpdate(f:Void->Void) {
 		traitUpdates.remove(f);
 	}
-	
+
 	public static function notifyOnLateUpdate(f:Void->Void) {
 		traitLateUpdates.push(f);
 	}

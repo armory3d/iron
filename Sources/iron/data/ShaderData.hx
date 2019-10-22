@@ -106,14 +106,14 @@ class ShaderContext {
 		else {
 			pipeState.inputLayout = [structure];
 		}
-		
+
 		// Depth
 		pipeState.depthWrite = raw.depth_write;
 		pipeState.depthMode = getCompareMode(raw.compare_mode);
 
 		// Cull
 		pipeState.cullMode = getCullMode(raw.cull_mode);
-		
+
 		// Blending
 		if (raw.blend_source != null) pipeState.blendSource = getBlendingFactor(raw.blend_source);
 		if (raw.blend_destination != null) pipeState.blendDestination = getBlendingFactor(raw.blend_destination);
@@ -228,7 +228,7 @@ class ShaderContext {
 		else if (data == "short4norm") return VertexData.Short4Norm;
 		return VertexData.Float1;
 	}
-	
+
 	function parseVertexStructure() {
 		structure = new VertexStructure();
 		var ipos = false;
@@ -280,7 +280,7 @@ class ShaderContext {
 		case "none": return CullMode.None;
 		case "clockwise": return CullMode.Clockwise;
 		default: return CullMode.CounterClockwise;
-		}			
+		}
 	}
 
 	function getBlendingOperation(s:String):BlendingOperation {
@@ -293,7 +293,7 @@ class ShaderContext {
 		default: return BlendingOperation.Add;
 		}
 	}
-	
+
 	function getBlendingFactor(s:String):BlendingFactor {
 		switch(s) {
 		case "blend_one": return BlendingFactor.BlendOne;
@@ -323,7 +323,7 @@ class ShaderContext {
 		case "point": return TextureFilter.PointFilter;
 		case "linear": return TextureFilter.LinearFilter;
 		default: return TextureFilter.AnisotropicFilter;
-		}	
+		}
 	}
 
 	function getMipmapFilter(s:String):MipMapFilter {
@@ -342,9 +342,9 @@ class ShaderContext {
 		var unit = pipeState.getTextureUnit(tu.name);
 		textureUnits.push(unit);
 	}
-	
+
 	public function setTextureParameters(g:kha.graphics4.Graphics, unitIndex:Int, tex:TBindTexture) {
-		// This function is called for samplers set using material context		
+		// This function is called for samplers set using material context
 		var unit = textureUnits[unitIndex];
 		g.setTextureParameters(unit,
 			tex.u_addressing == null ? TextureAddressing.Repeat : getTextureAddresing(tex.u_addressing),

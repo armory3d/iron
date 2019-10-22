@@ -339,7 +339,7 @@ class BoneAnimation extends Animation {
 
 		// Update skin buffer
 		for (i in 0...bones.length) {
-			
+
 			if (constraintMats != null) {
 				var m = constraintMats.get(bones[i]);
 				if (m != null) { updateSkinBuffer(m, i); continue; }
@@ -390,7 +390,7 @@ class BoneAnimation extends Animation {
 		skinBuffer[i * 8 + 7] = q2.w * 0.5;
 	}
 
-	public override function totalFrames():Int { 
+	public override function totalFrames():Int {
 		if (skeletonBones == null) return 0;
 		var track = skeletonBones[0].anim.tracks[0];
 		return Std.int(track.frames[track.frames.length - 1] - track.frames[0]);
@@ -482,7 +482,7 @@ class BoneAnimation extends Animation {
 			q1.fromTo(v1, v2);
 			m.compose(vpos, q1, vscl);
 			m.multmat(iw);
-			
+
 			for (i in 0...bones.length - 1) {
 				// Cancel child bone rotation
 				var b = bones[i];
@@ -518,7 +518,7 @@ class BoneAnimation extends Animation {
 				locs[j].setFrom(locs[j - 1]);
 				locs[j].add(vec);
 			}
-			// Forward 
+			// Forward
 			locs[locs.length - 1].setFrom(startLoc);
 			var l = locs.length;
 			for (j in 1...l) {

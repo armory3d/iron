@@ -23,7 +23,7 @@ class MeshData {
 	public function new(raw:TMeshData, done:MeshData->Void) {
 		this.raw = raw;
 		this.name = raw.name;
-		
+
 		if (raw.scale_pos != null) scalePos = raw.scale_pos;
 		if (raw.scale_tex != null) scaleTex = raw.scale_tex;
 
@@ -76,7 +76,7 @@ class MeshData {
 				index += boneCount;
 			}
 		}
-		
+
 		// Make vertex buffers
 		geom = new Geometry(this, indices, materialIndices,
 							pa, na, uva, uva1, ca, tanga, bonea, weighta, usage);

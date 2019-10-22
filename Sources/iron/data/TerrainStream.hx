@@ -112,7 +112,7 @@ class TerrainStream {
 		var tex:TVertexArray = { attrib: "tex", values: texa };
 		var ind:TIndexArray = { material: 0, values: inda };
 
-		var rawmeshData:TMeshData = { 
+		var rawmeshData:TMeshData = {
 			name: "Terrain",
 			vertex_arrays: [pos, nor, tex],
 			index_arrays: [ind],
@@ -141,7 +141,7 @@ class TerrainStream {
 	}
 
 	public function remove() {}
-	
+
 	public function update(camera:CameraObject) {
 		if (!ready) return;
 	}

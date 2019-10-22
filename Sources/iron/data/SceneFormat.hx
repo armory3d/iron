@@ -183,7 +183,7 @@ typedef TBindTexture = {
 	@:optional public var min_filter:String;
 	@:optional public var mag_filter:String;
 	@:optional public var mipmap_filter:String;
-	@:optional public var source:String; // file, movie 
+	@:optional public var source:String; // file, movie
 }
 
 #if js

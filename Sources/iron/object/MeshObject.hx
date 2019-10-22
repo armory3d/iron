@@ -36,7 +36,7 @@ class MeshObject extends Object {
 	public function new(data:MeshData, materials:Vector<MaterialData>) {
 		super();
 
-		this.materials = materials;	
+		this.materials = materials;
 		setData(data);
 		Scene.active.meshes.push(this);
 	}
@@ -217,7 +217,7 @@ class MeshObject extends Object {
 							c.particleIndex = particleChildren.length - 1;
 						}
 					});
-					
+
 				}
 			}
 			for (i in 0...particleSystems.length) particleSystems[i].update(particleChildren[i], this);
@@ -252,16 +252,16 @@ class MeshObject extends Object {
 		else computeScreenSize(Scene.active.camera);
 		#end
 		if (isLodMaterial() && !validContext(mats, context)) return;
-		
+
 		// Get context
 		var materialContexts:Array<MaterialContext> = [];
 		var shaderContexts:Array<ShaderContext> = [];
 		getContexts(context, mats, materialContexts, shaderContexts);
-		
+
 		Uniforms.posUnpack = data.scalePos;
 		Uniforms.texUnpack = data.scaleTex;
 		transform.update();
-		
+
 		// Render mesh
 		var ldata = lod.data;
 		for (i in 0...ldata.geom.indexBuffers.length) {

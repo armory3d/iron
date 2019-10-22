@@ -46,13 +46,13 @@ class SceneStream {
 		if (loading >= loadMax) return; // Busy loading..
 
 		var sec = sectors[0];
-		var to = Std.int(Math.min(checkMax, sec.handles.length)); 
+		var to = Std.int(Math.min(checkMax, sec.handles.length));
 		for (i in 0...to) {
 
 			var h = sec.handles[checkPos];
 			checkPos++;
 			if (checkPos >= sec.handles.length) checkPos = 0;
-			
+
 			// Check radius in sector
 			var camX = camera.transform.worldx();
 			var camY = camera.transform.worldy();

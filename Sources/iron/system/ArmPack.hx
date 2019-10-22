@@ -120,7 +120,7 @@ class ArmPack {
 			var v = read(i, k, key);
 			Reflect.setField(out, k, v);
 		}
-		return out;	
+		return out;
 	}
 
 	#if (!js)

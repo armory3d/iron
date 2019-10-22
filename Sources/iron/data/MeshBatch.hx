@@ -27,7 +27,7 @@ class MeshBatch {
 	}
 
 	public static function isBatchable(m:MeshObject):Bool {
-		var batch = 
+		var batch =
 			m.materials != null &&
 			m.materials.length == 1 &&
 			!m.data.geom.instanced;
@@ -72,7 +72,7 @@ class MeshBatch {
 			g.setVertexBuffer(b.getVertexBuffer(scontext.raw.vertex_elements));
 			// #end
 			g.setIndexBuffer(b.indexBuffer);
-			
+
 			Uniforms.setContextConstants(g, scontext, bindParams);
 
 			RenderPath.sortMeshesDistance(b.meshes);
@@ -80,16 +80,16 @@ class MeshBatch {
 			for (m in b.meshes) {
 				if (!m.visible) continue; // Skip render if object is hidden
 				if (m.cullMesh(context, Scene.active.camera, RenderPath.active.light)) continue;
-				
+
 				// Get context
 				var materialContexts:Array<MaterialContext> = [];
 				var shaderContexts:Array<ShaderContext> = [];
 				m.getContexts(context, m.materials, materialContexts, shaderContexts);
-				
+
 				Uniforms.posUnpack = m.data.scalePos;
 				Uniforms.texUnpack = m.data.scaleTex;
 				m.transform.update();
-				
+
 				// Render mesh
 				Uniforms.setObjectConstants(g, scontext, m);
 				Uniforms.setMaterialConstants(g, scontext, materialContexts[0]);
@@ -99,7 +99,7 @@ class MeshBatch {
 				#if arm_veloc
 				m.prevMatrix.setFrom(m.transform.worldUnpack);
 				#end
-				
+
 				#if arm_debug
 				RenderPath.drawCalls++;
 				RenderPath.batchCalls++;
@@ -113,7 +113,7 @@ class MeshBatch {
 
 		for (m in nonBatched) {
 			m.render(g, context, bindParams);
-			
+
 			#if arm_debug
 			if (m.culled) RenderPath.culled++;
 			#end
@@ -178,7 +178,7 @@ class Bucket {
 			copyAttribute(size, vertexBuffer.count(), to, toStride, toOffset, from, fromStride, fromOffset);
 			toOffset += size;
 		}
-		
+
 		vb.unlock();
 		return vb;
 	}

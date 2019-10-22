@@ -60,7 +60,7 @@ class Transform {
 	 * space.
 	 */
 	public var radius:kha.FastFloat;
-	
+
 	static var temp = Mat4.identity();
 	static var q = new Quat();
 
@@ -127,7 +127,7 @@ class Transform {
 		dloc == null ? local.compose(loc, rot, scale) : composeDelta();
 
 		if (boneParent != null) local.multmats(boneParent, local);
-		
+
 		if (object.parent != null && !localOnly) {
 			world.multmats3x4(local, object.parent.transform.world);
 		}
@@ -149,7 +149,7 @@ class Transform {
 			worldUnpack._21 *= scaleWorld;
 			worldUnpack._22 *= scaleWorld;
 			worldUnpack._23 *= scaleWorld;
-		} 
+		}
 
 		// Constraints
 		if (object.constraints != null) for (c in object.constraints) c.apply(this);

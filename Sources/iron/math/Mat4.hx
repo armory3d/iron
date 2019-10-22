@@ -201,13 +201,13 @@ class Mat4 {
 		_23 *= z;
 		return this;
 	}
-	
+
 	inline public function multmats3x4(a:Mat4, b:Mat4):Mat4 {
 		var a00 = a._00; var a01 = a._01; var a02 = a._02; var a03 = a._03;
 		var a10 = a._10; var a11 = a._11; var a12 = a._12; var a13 = a._13;
 		var a20 = a._20; var a21 = a._21; var a22 = a._22; var a23 = a._23;
 		var a30 = a._30; var a31 = a._31; var a32 = a._32; var a33 = a._33;
-		
+
 		var b0 = b._00; var b1 = b._10; var b2 = b._20; var b3 = b._30;
 		_00 = a00 * b0 + a01 * b1 + a02 * b2 + a03 * b3;
 		_10 = a10 * b0 + a11 * b1 + a12 * b2 + a13 * b3;
@@ -225,7 +225,7 @@ class Mat4 {
 		_12 = a10 * b0 + a11 * b1 + a12 * b2 + a13 * b3;
 		_22 = a20 * b0 + a21 * b1 + a22 * b2 + a23 * b3;
 		_32 = a30 * b0 + a31 * b1 + a32 * b2 + a33 * b3;
-		
+
 		_03 = 0;
 		_13 = 0;
 		_23 = 0;
@@ -238,7 +238,7 @@ class Mat4 {
 		var a10 = a._10; var a11 = a._11; var a12 = a._12; var a13 = a._13;
 		var a20 = a._20; var a21 = a._21; var a22 = a._22; var a23 = a._23;
 		var a30 = a._30; var a31 = a._31; var a32 = a._32; var a33 = a._33;
-		
+
 		var b0 = b._00; var b1 = b._10; var b2 = b._20; var b3 = b._30;
 		_00 = a00 * b0 + a01 * b1 + a02 * b2 + a03 * b3;
 		_10 = a10 * b0 + a11 * b1 + a12 * b2 + a13 * b3;
@@ -256,7 +256,7 @@ class Mat4 {
 		_12 = a10 * b0 + a11 * b1 + a12 * b2 + a13 * b3;
 		_22 = a20 * b0 + a21 * b1 + a22 * b2 + a23 * b3;
 		_32 = a30 * b0 + a31 * b1 + a32 * b2 + a33 * b3;
-		
+
 		b0 = b._03; b1 = b._13; b2 = b._23; b3 = b._33;
 		_03 = a00 * b0 + a01 * b1 + a02 * b2 + a03 * b3;
 		_13 = a10 * b0 + a11 * b1 + a12 * b2 + a13 * b3;
@@ -265,13 +265,13 @@ class Mat4 {
 
 		return this;
 	}
-	
+
 	inline public function multmat(m:Mat4):Mat4 {
 		var a00 = _00; var a01 = _01; var a02 = _02; var a03 = _03;
 		var a10 = _10; var a11 = _11; var a12 = _12; var a13 = _13;
 		var a20 = _20; var a21 = _21; var a22 = _22; var a23 = _23;
 		var a30 = _30; var a31 = _31; var a32 = _32; var a33 = _33;
-		
+
 		var b0 = m._00; var b1 = m._10; var b2 = m._20; var b3 = m._30;
 		_00 = a00 * b0 + a01 * b1 + a02 * b2 + a03 * b3;
 		_10 = a10 * b0 + a11 * b1 + a12 * b2 + a13 * b3;
@@ -289,7 +289,7 @@ class Mat4 {
 		_12 = a10 * b0 + a11 * b1 + a12 * b2 + a13 * b3;
 		_22 = a20 * b0 + a21 * b1 + a22 * b2 + a23 * b3;
 		_32 = a30 * b0 + a31 * b1 + a32 * b2 + a33 * b3;
-		
+
 		b0 = m._03; b1 = m._13; b2 = m._23; b3 = m._33;
 		_03 = a00 * b0 + a01 * b1 + a02 * b2 + a03 * b3;
 		_13 = a10 * b0 + a11 * b1 + a12 * b2 + a13 * b3;
@@ -524,7 +524,7 @@ class Mat4 {
 		var d0 = -eye.x * s0 - eye.y * s1 - eye.z * s2;
 		var d1 = -eye.x * u0 - eye.y * u1 - eye.z * u2;
 		var d2 =  eye.x * f0 + eye.y * f1 + eye.z * f2;
-		
+
 		_00 = s0;
 		_10 = s1;
 		_20 = s2;

@@ -53,12 +53,12 @@ class LightObject extends Object {
 
 	public function new(data:LightData) {
 		super();
-		
+
 		this.data = data;
 
 		var type = data.raw.type;
 		var fov = data.raw.fov;
-		
+
 		if (type == "sun") {
 			if (corners == null) {
 				corners = [];
@@ -161,7 +161,7 @@ class LightObject extends Object {
 		}
 		m.multmat(camSlicedP);
 		#end
-		
+
 		m.getInverse(m);
 		V.getInverse(transform.world);
 		V.toRotation();
@@ -171,7 +171,7 @@ class LightObject extends Object {
 			v.applymat4(m);
 			v.set(v.x / v.w, v.y / v.w, v.z / v.w);
 		}
-		
+
 		var minx = corners[0].x;
 		var miny = corners[0].y;
 		var minz = corners[0].z;
@@ -318,7 +318,7 @@ class LightObject extends Object {
 
 	static function sliceToDist(camera:CameraObject, z:Int):Float {
 		var cnear = clusterNear + camera.data.raw.near_plane;
-		if (z == 0) return camera.data.raw.near_plane; 
+		if (z == 0) return camera.data.raw.near_plane;
 		else if (z == 1) return cnear;
 		else {
 			var depthl = (z - 1) / (slicesZ - 1);
@@ -350,7 +350,7 @@ class LightObject extends Object {
 		#if arm_spot
 		for (i in 0...stride) bytes.set(i + stride * (maxLightsCluster + 1), 0);
 		#end
-		
+
 		var fovtan = Math.tan(camera.data.raw.fov * 0.5);
 		var stepY = (2.0 * fovtan) / slicesY;
 		var aspect = RenderPath.active.currentW / RenderPath.active.currentH;

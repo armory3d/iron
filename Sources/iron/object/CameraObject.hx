@@ -91,7 +91,7 @@ class CameraObject extends Object {
 		if (prevV == null) { prevV = Mat4.identity(); prevV.setFrom(V); }
 
 		RenderPath.active.renderFrame(g);
-	
+
 		prevV.setFrom(V);
 	}
 
@@ -129,7 +129,7 @@ class CameraObject extends Object {
 			leftV.setFrom(V);
 			helpMat.self = vr.GetViewMatrix(0);
 			leftV.multmat(helpMat);
-			
+
 			rightV.setFrom(V);
 			helpMat.self = vr.GetViewMatrix(1);
 			rightV.multmat(helpMat);
@@ -167,7 +167,7 @@ class CameraObject extends Object {
 	public static function sphereInFrustum(frustumPlanes:Array<FrustumPlane>, t:Transform, radiusScale = 1.0, offsetX = 0.0, offsetY = 0.0, offsetZ = 0.0):Bool {
 		// Use scale when radius is changing
 		var radius = t.radius * radiusScale;
-		for (plane in frustumPlanes) {	
+		for (plane in frustumPlanes) {
 			sphereCenter.set(t.worldx() + offsetX, t.worldy() + offsetY, t.worldz() + offsetZ);
 			// Outside the frustum
 			if (plane.distanceToSphere(sphereCenter, radius) + radius * 2 < 0) {
@@ -223,7 +223,7 @@ class FrustumPlane {
 		normal.mult(inverseNormalLength);
 		constant *= inverseNormalLength;
 	}
-	
+
 	public function distanceToSphere(sphereCenter:Vec4, sphereRadius:Float):Float {
 		return (normal.dot(sphereCenter) + constant) - sphereRadius;
 	}

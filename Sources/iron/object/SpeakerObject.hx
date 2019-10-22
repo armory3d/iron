@@ -23,7 +23,7 @@ class SpeakerObject extends Object {
 		Scene.active.speakers.push(this);
 
 		if (data.sound == "") return;
-		
+
 		Data.getSound(data.sound, function(sound:kha.Sound) {
 			this.sound = sound;
 			App.notifyOnInit(init);
@@ -63,7 +63,7 @@ class SpeakerObject extends Object {
 			App.removeUpdate(update);
 			return;
 		}
-		
+
 		var cam = Scene.active.camera;
 		var loc1 = cam.transform.world.getLoc();
 		var loc2 = transform.world.getLoc();

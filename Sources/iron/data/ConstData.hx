@@ -39,7 +39,7 @@ class ConstData {
 		for (i in 0...id.length) id[i] = indices[i];
 		screenAlignedIB.unlock();
 	}
-	
+
 	#if (rp_decals || rp_probes)
 	public static function createBoxData() {
 		var data = [
@@ -114,7 +114,7 @@ class ConstData {
 		}
 		skydomeVB.unlock();
 		#end
-		
+
 		var indices = skydomeIndices;
 		skydomeIB = new IndexBuffer(indices.length, Usage.StaticUsage);
 		var id = skydomeIB.lock();

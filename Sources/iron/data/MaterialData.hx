@@ -82,7 +82,7 @@ class MaterialContext {
 		id = num++;
 
 		if (raw.bind_textures != null && raw.bind_textures.length > 0) {
-			
+
 			textures = new Vector(raw.bind_textures.length);
 			var texturesLoaded = 0;
 
@@ -130,13 +130,13 @@ class MaterialContext {
 						if (texturesLoaded == raw.bind_textures.length) done(this);
 					}
 					else if (texturesLoaded == raw.bind_textures.length) done(this);
-				
+
 				}, false, tex.format != null ? tex.format : 'RGBA32');
 			}
 		}
 		else done(this);
 	}
-	
+
 	public function setTextureParameters(g:kha.graphics4.Graphics, textureIndex:Int, context:ShaderContext, unitIndex:Int) {
 		// This function is called by MeshObject for samplers set using material context
 		context.setTextureParameters(g, unitIndex, raw.bind_textures[textureIndex]);

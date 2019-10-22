@@ -21,7 +21,7 @@ class DecalObject extends Object {
 		if (Scene.active != null) Scene.active.decals.remove(this);
 		super.remove();
 	}
-	
+
 	// Called before rendering decal in render path
 	public function render(g:Graphics, context:String, bindParams:Array<String>) {
 
@@ -41,11 +41,11 @@ class DecalObject extends Object {
 			}
 		}
 		var shaderContext = material.shader.getContext(context);
-		
+
 		g.setPipeline(shaderContext.pipeState);
-		
-		Uniforms.setContextConstants(g, shaderContext, bindParams);			
-		Uniforms.setObjectConstants(g, shaderContext, this);			
+
+		Uniforms.setContextConstants(g, shaderContext, bindParams);
+		Uniforms.setObjectConstants(g, shaderContext, this);
 		Uniforms.setMaterialConstants(g, shaderContext, materialContext);
 
 		g.setVertexBuffer(ConstData.boxVB);

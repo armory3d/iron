@@ -313,7 +313,7 @@ class Scene {
 		return object;
 	}
 	#end
-	
+
 	#if rp_decals
 	public function addDecalObject(material:MaterialData, parent:Object = null):DecalObject {
 		var object = new DecalObject(material);
@@ -347,7 +347,7 @@ class Scene {
 							if (++objectsTraversed == objectsCount) done();
 							continue; // Do not auto-create this object
 						}
-						
+
 						createObject(o, format, parent, parentObject, function(object:Object) {
 							if (object != null) traverseObjects(object, o.children, o, done);
 							if (++objectsTraversed == objectsCount) done();
@@ -376,11 +376,11 @@ class Scene {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Spawn a new object instance in the Scene.
 	 *
-	 * @param	name The String name of the Object as defined in blender. 
+	 * @param	name The String name of the Object as defined in blender.
 	 * @param	parent The parent object this new object should be attached to. (Optional use null to just add to the Scene without a parent).
 	 * @param	done A completion handler function to run after the spawn is complete. Example might want to change properties of the object after spawning.
 	 * @param	spawnChildren Also spawn the children of the newly spawned object. (Optional default is true).
@@ -422,7 +422,7 @@ class Scene {
 		}
 		return null;
 	}
-	
+
 	public function createObject(o:TObj, format:TSceneFormat, parent:Object, parentObject:TObj, done:Object->Void) {
 		var sceneName = format.name;
 		if (o.type == "camera_object") {
@@ -433,14 +433,14 @@ class Scene {
 		}
 		else if (o.type == "light_object") {
 			Data.getLight(sceneName, o.data_ref, function(b:LightData) {
-				var object = addLightObject(b, parent);	
+				var object = addLightObject(b, parent);
 				returnObject(object, o, done);
 			});
 		}
 		#if rp_probes
 		else if (o.type == "probe_object") {
 			Data.getProbe(sceneName, o.data_ref, function(b:ProbeData) {
-				var object = addProbeObject(b, parent);	
+				var object = addProbeObject(b, parent);
 				returnObject(object, o, done);
 			});
 		}
@@ -519,7 +519,7 @@ class Scene {
 		}
 		#if arm_audio
 		else if (o.type == "speaker_object") {
-			var object = addSpeakerObject(Data.getSpeakerRawByName(format.speaker_datas, o.data_ref), parent);	
+			var object = addSpeakerObject(Data.getSpeakerRawByName(format.speaker_datas, o.data_ref), parent);
 			returnObject(object, o, done);
 		}
 		#end
@@ -527,12 +527,12 @@ class Scene {
 		else if (o.type == "decal_object") {
 			if (o.material_refs != null && o.material_refs.length > 0) {
 				Data.getMaterial(sceneName, o.material_refs[0], function(material:MaterialData) {
-					var object = addDecalObject(material, parent);	
+					var object = addDecalObject(material, parent);
 					returnObject(object, o, done);
 				});
 			}
 			else {
-				var object = addDecalObject(null, parent);	
+				var object = addDecalObject(null, parent);
 				returnObject(object, o, done);
 			}
 		}

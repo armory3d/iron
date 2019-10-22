@@ -50,7 +50,7 @@ class Trait {
 		_update.remove(f);
 		App.removeUpdate(f);
 	}
-	
+
 	public function notifyOnLateUpdate(f:Void->Void) {
 		if (_lateUpdate == null) _lateUpdate = [];
 		_lateUpdate.push(f);

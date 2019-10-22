@@ -48,7 +48,7 @@ class ProbeObject extends Object {
 		probep = transform.world.getLoc();
 		proben = transform.up().normalize();
 		proben.w = -probep.dot(proben);
-		
+
 		if (data.raw.type == "planar") {
 			m1 = Mat4.identity();
 			m2 = Mat4.identity();

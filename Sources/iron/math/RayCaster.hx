@@ -91,11 +91,11 @@ class RayCaster {
 
 		return ray.intersectPlane(plane);
 	}
-	
+
 	// Project screen-space point onto 3D plane
 	public static function getPlaneUV(obj:MeshObject, screenX:FastFloat, screenY:FastFloat, camera:CameraObject):Vec2 {
 		nor = obj.transform.up(); // Transformed normal
-	
+
 		// Plane intersection
 		loc.set(obj.transform.worldx(), obj.transform.worldy(), obj.transform.worldz());
 		var hit = RayCaster.planeIntersect(nor, loc, screenX, screenY, camera);
@@ -104,7 +104,7 @@ class RayCaster {
 		if (hit != null) {
 			var normals = obj.data.geom.normals;
 			nor.set(normals[0], normals[1], normals[2]); // Raw normal
-			
+
 			var a = nor.x;
 			var b = nor.y;
 			var c = nor.z;
@@ -123,18 +123,18 @@ class RayCaster {
 			u.normalize();
 			v.applymat(m);
 			v.normalize();
-			
+
 			hit.sub(loc); // Center
 			var ucoord = u.dot(hit);
 			var vcoord = v.dot(hit);
-			
+
 			var dim = obj.transform.dim;
 			var size = dim.x > dim.y ? dim.x / 2 : dim.y / 2;
 
 			// Screen space
 			var ix = ucoord / size * -0.5 + 0.5;
 			var iy = vcoord / size * -0.5 + 0.5;
-			
+
 			return new Vec2(ix, iy);
 		}
 		return null;

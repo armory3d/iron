@@ -14,7 +14,7 @@ class Vec2 {
 	inline public function cross(v:Vec2):FastFloat {
 		return x * v.y - y * v.x;
 	}
-	
+
 	inline public function set(x:FastFloat, y:FastFloat):Vec2{
 		this.x = x;
 		this.y = y;
@@ -66,7 +66,7 @@ class Vec2 {
 	inline public function dot(v:Vec2):FastFloat {
 		return x * v.x + y * v.y;
 	}
-	
+
 	inline public function setFrom(v:Vec2):Vec2 {
 		x = v.x;
 		y = v.y;
@@ -76,7 +76,7 @@ class Vec2 {
 	inline public function clone():Vec2 {
 		return new Vec2(x, y);
 	}
-	
+
 	inline public function lerp(from:Vec2, to:Vec2, s:FastFloat):Vec2 {
 		x = from.x + (to.x - from.x) * s;
 		y = from.y + (to.y - from.y) * s;
@@ -120,7 +120,7 @@ class Vec2 {
 
 	public static inline function xAxis():Vec2 { return new Vec2(1.0, 0.0); }
 	public static inline function yAxis():Vec2 { return new Vec2(0.0, 1.0); }
-	
+
 	public function toString():String {
 		return "(" + this.x + ", " + this.y + ")";
 	}

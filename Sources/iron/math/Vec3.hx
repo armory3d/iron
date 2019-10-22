@@ -57,7 +57,7 @@ class Vec3 {
 		y = a.y + b.y;
 		z = a.z + b.z;
 		return this;
-	} 
+	}
 
 	inline public function subvecs(a:Vec3, b:Vec3):Vec3 {
 		x = a.x - b.x;

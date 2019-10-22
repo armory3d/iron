@@ -13,13 +13,13 @@ class WorldData {
 	public var raw:TWorldData;
 	public var envmap:kha.Image;
 	public var probe:Probe;
-	
+
 	static var emptyIrr:Float32Array = null;
-	
+
 	public function new(raw:TWorldData, done:WorldData->Void) {
 		this.raw = raw;
 		this.name = raw.name;
-		
+
 		// Parse probes
 		if (raw.probe != null) {
 			new Probe(raw.probe, function(self:Probe) {
@@ -71,20 +71,20 @@ class WorldData {
 }
 
 class Probe {
-	
+
 	public var raw:TProbeData;
 	public var radiance:kha.Image;
 	public var radianceMipmaps:Array<kha.Image> = [];
 	public var irradiance:Float32Array;
-	
+
 	public function new(raw:TProbeData, done:Probe->Void) {
 		this.raw = raw;
-		
+
 		setIrradiance(function(irr:Float32Array) {
 			irradiance = irr;
-		
+
 			if (raw.radiance != null) {
-				
+
 				Data.getImage(raw.radiance, function(rad:kha.Image) {
 
 					radiance = rad;
@@ -97,7 +97,7 @@ class Probe {
 						Data.getImage(base + '_' + i + ext, function(mipimg:kha.Image) {
 							radianceMipmaps[i] = mipimg;
 							mipsLoaded++;
-							
+
 							if (mipsLoaded == raw.radiance_mipmaps) {
 								radiance.setMipmaps(radianceMipmaps);
 								done(this);

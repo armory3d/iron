@@ -3,7 +3,7 @@ package iron.data;
 #if js
 
 class Wasm {
-	public var exports:Dynamic;	
+	public var exports:Dynamic;
 
 	public static inline function instance(blob:kha.Blob, importObject:Dynamic = null):Wasm {
 		return new Wasm(blob, importObject);

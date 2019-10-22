@@ -12,7 +12,7 @@ class Armature {
 	public function new(uid:Int, name:String, actions:Array<TSceneFormat>) {
 		this.uid = uid;
 		this.name = name;
-		
+
 		for (a in actions) {
 			for (o in a.objects) setParents(o);
 			var bones:Array<TObj> = [];
@@ -46,13 +46,13 @@ class Armature {
 			setParents(o);
 		}
 	}
-	
+
 	static function traverseBones(objects:Array<TObj>, callback:TObj->Void) {
 		for (i in 0...objects.length) {
 			traverseBonesStep(objects[i], callback);
 		}
 	}
-	
+
 	static function traverseBonesStep(object:TObj, callback:TObj->Void) {
 		if (object.type == "bone_object") callback(object);
 		if (object.children == null) return;

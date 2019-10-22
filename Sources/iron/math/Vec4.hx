@@ -61,14 +61,14 @@ class Vec4 {
 		y = a.y + b.y;
 		z = a.z + b.z;
 		return this;
-	} 
+	}
 
 	inline public function subvecs(a:Vec4, b:Vec4):Vec4 {
 		x = a.x - b.x;
 		y = a.y - b.y;
 		z = a.z - b.z;
 		return this;
-	}   
+	}
 
 	inline public function normalize():Vec4 {
 		var n = length();
@@ -98,7 +98,7 @@ class Vec4 {
 		z = v.z;
 		w = v.w;
 		return this;
-	}   
+	}
 
 	inline public function clone():Vec4 {
 		return new Vec4(x, y, z, w);
@@ -169,7 +169,7 @@ class Vec4 {
 	inline public function sub(v:Vec4):Vec4 {
 		x -= v.x; y -= v.y; z -= v.z;
 		return this;
-	} 
+	}
 
 	public static inline function distance(v1:Vec4, v2:Vec4):FastFloat {
 		return distancef(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);

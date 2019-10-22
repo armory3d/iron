@@ -13,7 +13,7 @@ class VR {
 		if (undistortionMatrix == null) {
 			undistortionMatrix = Mat4.identity();
 		}
-		
+
 		return undistortionMatrix;
 	}
 
@@ -29,7 +29,7 @@ class VR {
 			var h:Float = iron.App.h();
 			if (x < w - 150 || y < h - 150) return;
 			vr.onVRRequestPresent();
-		}		
+		}
 
 		function vrRender2D(g:kha.graphics2.Graphics) {
 			var vr = kha.vr.VrInterface.instance;

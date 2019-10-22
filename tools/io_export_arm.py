@@ -5,7 +5,7 @@
 #  http://opengex.org/
 #  Export plugin for Blender by Eric Lengyel
 #  Copyright 2015, Terathon Software LLC
-# 
+#
 #  This software is licensed under the Creative Commons
 #  Attribution-ShareAlike 3.0 Unported License:
 #  http://creativecommons.org/licenses/by-sa/3.0/deed.en_US
@@ -135,7 +135,7 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
             o['scale_pos'] = 1.0
         if has_armature: # Allow up to 2x bigger bounds for skinned mesh
             o['scale_pos'] *= 2.0
-        
+
         scale_pos = o['scale_pos']
         invscale_pos = (1 / scale_pos) * 32767
 

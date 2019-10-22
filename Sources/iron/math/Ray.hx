@@ -3,24 +3,24 @@ package iron.math;
 import kha.FastFloat;
 
 class Ray {
-	
+
 	public var origin:Vec4;
 	public var direction:Vec4;
-	
+
 	public function new(origin:Vec4 = null, direction:Vec4 = null) {
-		this.origin = origin == null ? new Vec4() : origin;		
+		this.origin = origin == null ? new Vec4() : origin;
 		this.direction = direction == null ? new Vec4() : direction;
 	}
-	
+
 	public function at(t:FastFloat):Vec4 {
 		var result = new Vec4();
 		return result.setFrom(direction).mult(t).add(origin);
 	}
-	
+
 	public function distanceToPoint(point:Vec4):FastFloat {
 		var v1 = new Vec4();
 		var directionDistance = v1.subvecs(point, this.origin).dot(this.direction);
-		
+
 		// Point behind the ray
 		if (directionDistance < 0) {
 			return this.origin.distanceTo(point);
@@ -30,11 +30,11 @@ class Ray {
 
 		return v1.distanceTo(point);
 	}
-	
+
 	public function intersectsSphere(sphereCenter:Vec4, sphereRadius:FastFloat):Bool {
 		return distanceToPoint(sphereCenter) <= sphereRadius;
-	}	
-	
+	}
+
 	public function intersectsPlane(plane:Plane):Bool {
 		// Check if the ray lies on the plane first
 		var distToPoint = plane.distanceToPoint(this.origin);
@@ -46,7 +46,7 @@ class Ray {
 		// Ray origin is behind the plane (and is pointing behind it)
 		return false;
 	}
-	
+
 	public function distanceToPlane(plane:Plane):FastFloat {
 		var denominator = plane.normal.dot(this.direction);
 		if (denominator == 0) {
@@ -64,17 +64,17 @@ class Ray {
 		// Return if the ray never intersects the plane
 		return t >= 0 ? t :  -1;
 	}
-	
+
 	public function intersectPlane(plane:Plane):Vec4 {
 		var t = this.distanceToPlane(plane);
 		if (t == -1) return null;
 		return this.at(t);
 	}
-	
+
 	public function intersectsBox(center:Vec4, dim:Vec4):Bool {
 		return this.intersectBox(center, dim) != null;
 	}
-	
+
 	public function intersectBox(center:Vec4, dim:Vec4):Vec4 {
 		// http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
 		var tmin, tmax, tymin, tymax, tzmin, tzmax;
@@ -99,7 +99,7 @@ class Ray {
 			tmin = (boxMinX - origin.x) * invdirx;
 			tmax = (boxMaxX - origin.x) * invdirx;
 		}
-		else { 
+		else {
 			tmin = (boxMaxX - origin.x) * invdirx;
 			tmax = (boxMinX - origin.x) * invdirx;
 		}
@@ -116,7 +116,7 @@ class Ray {
 		if ((tmin > tymax) || (tymin > tmax)) return null;
 
 		// These lines also handle the case where tmin or tmax is NaN
-		// (result of 0 * Infinity). x !== x returns true if x is NaN		
+		// (result of 0 * Infinity). x !== x returns true if x is NaN
 		if (tymin > tmin || tmin != tmin) tmin = tymin;
 		if (tymax < tmax || tmax != tmax) tmax = tymax;
 
@@ -138,7 +138,7 @@ class Ray {
 
 		return this.at(tmin >= 0 ? tmin : tmax);
 	}
-	
+
 	public function intersectTriangle(a:Vec4, b:Vec4, c:Vec4, backfaceCulling:Bool):Vec4 {
 		// Compute the offset origin, edges, and normal
 		var diff = new Vec4();
@@ -158,7 +158,7 @@ class Ray {
 		//   |Dot(D,N)|*t = -sign(Dot(D,N))*Dot(Q,N)
 		var DdN = this.direction.dot(normal);
 		var sign;
-		
+
 		if (DdN > 0) {
 			if (backfaceCulling) return null;
 			sign = 1;

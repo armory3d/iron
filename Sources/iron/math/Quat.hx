@@ -107,7 +107,7 @@ class Quat {
 	 * @param	q The quaternion to multiply this one with.
 	 * @return	This quaternion.
 	 */
-	inline public function mult(q:Quat):Quat {	
+	inline public function mult(q:Quat):Quat {
 		return multquats(this, q);
 	}
 

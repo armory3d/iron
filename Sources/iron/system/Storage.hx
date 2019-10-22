@@ -3,7 +3,7 @@ package iron.system;
 import kha.StorageFile;
 
 class Storage {
-	
+
 	static var file:StorageFile = null;
 	public static var data(get, set):Dynamic;
 	static var _data:Dynamic = null;
@@ -16,7 +16,7 @@ class Storage {
 			save();
 		}
 	}
-	
+
 	public static function save() {
 		if (file != null) {
 			file.writeObject(_data);
