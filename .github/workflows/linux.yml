@@ -9,11 +9,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Get iron_examples
-      run: git clone --recursive https://github.com/armory3d/iron_examples
-    - name: Get Kha
-      run: git clone --recursive https://github.com/kode/Kha
-    - name: Get Node.js
-      run: git clone https://github.com/Kode/nodejs_bin --depth 1
+    - name: Get Submodules
+      run: |
+        git clone --recursive https://github.com/armory3d/iron_examples
+        cd iron_examples/mesh
+        git clone --recursive https://github.com/kode/Kha
+        git clone https://github.com/Kode/nodejs_bin --depth 1
     - name: Compile
-      run: nodejs_bin/node-linux64 Kha/make.js -g opengl --from iron_examples/mesh
+      run: |
+        cd iron_examples/mesh
+        nodejs_bin/node-linux64 Kha/make.js -g opengl
