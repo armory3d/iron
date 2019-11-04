@@ -336,7 +336,7 @@ class Pen extends VirtualInput {
 
 class Keyboard extends VirtualInput {
 
-	static var keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'period', 'comma', 'space', 'backspace', 'tab', 'enter', 'shift', 'control', 'alt', 'escape', 'delete', 'back', 'up', 'right', 'left', 'down', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12'];
+	static var keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'space', 'backspace', 'tab', 'enter', 'shift', 'control', 'alt', 'escape', 'delete', 'up', 'down', 'left', 'right', 'back', ',', '.', ':', ';', '<', '=', '>', '?', '!', '"', '#', '$', '%', '&', '_', '(', ')', '*', '|', '{', '}', '[', ']', '~', '/', '\\', '@', '+', '-', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12'];
 	var keysDown = new Map<String, Bool>();
 	var keysStarted = new Map<String, Bool>();
 	var keysReleased = new Map<String, Bool>();
@@ -413,17 +413,40 @@ class Keyboard extends VirtualInput {
 		else if (key == KeyCode.Left) return "left";
 		else if (key == KeyCode.Right) return "right";
 		else if (key == KeyCode.Back) return "back";
-		else if (key == KeyCode.Comma) return "comma";
-		else if (key == KeyCode.Period) return "period";
+		else if (key == KeyCode.Comma) return ",";
+		else if (key == KeyCode.Period) return ".";
 		else if (key == KeyCode.Colon) return ":";
 		else if (key == KeyCode.Semicolon) return ";";
 		else if (key == KeyCode.LessThan) return "<";
 		else if (key == KeyCode.Equals) return "=";
 		else if (key == KeyCode.GreaterThan) return ">";
+		else if (key == KeyCode.QuestionMark) return "?";
+		else if (key == KeyCode.Exclamation) return "!";
+		else if (key == KeyCode.DoubleQuote) return '"';
+		else if (key == KeyCode.Hash) return "#";
+		else if (key == KeyCode.Dollar) return "$";
+		else if (key == KeyCode.Percent) return "%";
+		else if (key == KeyCode.Ampersand) return "&";
+		else if (key == KeyCode.Underscore) return "_";
+		else if (key == KeyCode.OpenParen) return "(";
+		else if (key == KeyCode.CloseParen) return ")";
+		else if (key == KeyCode.Asterisk) return "*";
+		else if (key == KeyCode.Pipe) return "|";
+		else if (key == KeyCode.OpenCurlyBracket) return "{";
+		else if (key == KeyCode.CloseCurlyBracket) return "}";
+		else if (key == KeyCode.OpenBracket) return "[";
+		else if (key == KeyCode.CloseBracket) return "]";
+		else if (key == KeyCode.Tilde) return "~";
+		else if (key == KeyCode.Slash) return "/";
+		else if (key == KeyCode.BackSlash) return "\\";
+		else if (key == KeyCode.At) return "@";
 		else if (key == KeyCode.Add) return "+";
 		else if (key == KeyCode.Plus) return "+";
 		else if (key == KeyCode.Subtract) return "-";
 		else if (key == KeyCode.HyphenMinus) return "-";
+		else if (key == KeyCode.Multiply) return "*";
+		else if (key == KeyCode.Divide) return "/";
+		else if (key == KeyCode.Decimal) return ".";
 		else if (key == KeyCode.Zero) return "0";
 		else if (key == KeyCode.Numpad0) return "0";
 		else if (key == KeyCode.One) return "1";
