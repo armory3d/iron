@@ -32,6 +32,11 @@ class Tilesheet {
 		});
 	}
 
+	/**
+	 * Play tilesheet animation
+	 * @param action_ref A string reference of action to be played
+	 * @param onActionComplete A completion handler function to run after action is done playing
+	 */
 	public function play(action_ref:String, onActionComplete:Void->Void = null) {
 		this.onActionComplete = onActionComplete;
 		for (a in raw.actions) if (a.name == action_ref) { action = a; break; }
@@ -39,16 +44,25 @@ class Tilesheet {
 		paused = false;
 	}
 
+	/**
+	 * Pause tilesheet animation
+	 */
 	public function pause() {
 		paused = true;
 	}
 
+	/**
+	 * Resume tilesheet animation
+	 */
 	public function resume() {
 		paused = false;
 	}
 
 	public function remove() {}
 
+	/**
+	 * Update tilesheet animation
+	 */
 	public function update() {
 		if (!ready || paused || action.start >= action.end) return;
 
