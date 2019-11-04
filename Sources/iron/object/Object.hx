@@ -101,6 +101,10 @@ class Object {
 		return null;
 	}
 
+	/**
+	 * Add the Trait to the Object
+	 * @param t The Trait to be added to the game Object
+	 */
 	@:access(iron.Trait)
 	public function addTrait(t:Trait) {
 		traits.push(t);
