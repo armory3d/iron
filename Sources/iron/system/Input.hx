@@ -31,19 +31,25 @@ class Input {
 			for (vb in virtualButtons) vb.started = vb.released = false;
 		}
 	}
-
+	/**
+	 * Get the Mouse object. If it is not registered yet then register a new Mouse.
+	 */
 	public static function getMouse():Mouse {
 		if (!registered) register();
 		if (mouse == null) mouse = new Mouse();
 		return mouse;
 	}
-
+	/**
+	 * Get the Pen object. If it is not registered yet then register a new Pen.
+	 */
 	public static function getPen():Pen {
 		if (!registered) register();
 		if (pen == null) pen = new Pen();
 		return pen;
 	}
-
+	/**
+	 * Get the Surface object. If it is not registered yet then register a new Surface.
+	 */
 	public static function getSurface():Surface {
 		if (!registered) register();
 		// Map to mouse for now..
@@ -59,6 +65,9 @@ class Input {
 		return keyboard;
 	}
 
+	/**
+	 * Get the Gamepad object. If it is not registered yet then register a new Gamepad.
+	 */
 	public static function getGamepad(i = 0):Gamepad {
 		if (i >= 4) return null;
 		if (!registered) register();
@@ -66,12 +75,18 @@ class Input {
 		return gamepads[i].connected ? gamepads[i] : null;
 	}
 
+	/**
+	 * Get the Sensor object. If it is not registered yet then register a new Sensor.
+	 */
 	public static function getSensor():Sensor {
 		if (!registered) register();
 		if (sensor == null) sensor = new Sensor();
 		return sensor;
 	}
 
+	/**
+	 * Get the Virtual Button object. If it is not registered yet then register a new Virtual Button.
+	 */
 	public static function getVirtualButton(virtual:String):VirtualButton {
 		if (!registered) register();
 		if (virtualButtons == null) return null;
@@ -167,18 +182,39 @@ class Mouse extends VirtualInput {
 		return button == "left" ? 0 : (button == "right" ? 1 : 2);
 	}
 
+	/**
+	 * Check if a mouse button is currently pressed.
+	 * 
+	 * @param button A String representing the physical mouse button key to check. Defaults to "left", if not specified.
+	 * @return Bool Returns true or false depending on the mouse button state.
+	 */
 	public function down(button = "left"):Bool {
 		return buttonsDown[buttonIndex(button)];
 	}
 
+	/**
+	 * Check if a mouse button has started being pressed down. Will only be run once until the button is released and pressed again.
+	 * 
+	 * @param button A String representing the physical mouse button key to check. Defaults to "left", if not specified.
+	 * @return Bool Returns true or false depending on the mouse button state.
+	 */
 	public function started(button = "left"):Bool {
 		return buttonsStarted[buttonIndex(button)];
 	}
 
+	/**
+	 * Check if a mouse button has been released from being pressed down. Will only be run once until the mouse button is pressed again and release again.
+	 * 
+	 * @param button A String representing the physical mouse button key to check. Defaults to "left", if not specified.
+	 * @return Bool Returns true or false depending on the mouse button state.
+	 */
 	public function released(button = "left"):Bool {
 		return buttonsReleased[buttonIndex(button)];
 	}
 
+	/**
+	 * Lock mouse to the center of screen
+	 */
 	public function lock() {
 		if (kha.input.Mouse.get().canLock()) {
 			kha.input.Mouse.get().lock();
@@ -186,6 +222,10 @@ class Mouse extends VirtualInput {
 			hidden = true;
 		}
 	}
+
+	/**
+	 * Unlock the mouse
+	 */
 	public function unlock() {
 		if (kha.input.Mouse.get().canLock()) {
 			kha.input.Mouse.get().unlock();
@@ -194,11 +234,17 @@ class Mouse extends VirtualInput {
 		}
 	}
 
+	/**
+	 * Hide the mouse cursor
+	 */
 	public function hide() {
 		kha.input.Mouse.get().hideSystemCursor();
 		hidden = true;
 	}
 
+	/**
+	 * Show the mouse cursor
+	 */
 	public function show() {
 		kha.input.Mouse.get().showSystemCursor();
 		hidden = false;
