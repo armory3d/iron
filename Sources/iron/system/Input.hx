@@ -302,7 +302,7 @@ class Pen extends VirtualInput {
 		return buttonsReleased[buttonIndex(button)];
 	}
 
-	function downListener(x:Float, y:Float, pressure:Float) {
+	function downListener(x:Int, y:Int, pressure:Float) {
 		buttonsDown[0] = true;
 		buttonsStarted[0] = true;
 		this.x = x;
@@ -310,7 +310,7 @@ class Pen extends VirtualInput {
 		this.pressure = pressure;
 	}
 
-	function upListener(x:Float, y:Float, pressure:Float) {
+	function upListener(x:Int, y:Int, pressure:Float) {
 		buttonsDown[0] = false;
 		buttonsReleased[0] = true;
 		this.x = x;
