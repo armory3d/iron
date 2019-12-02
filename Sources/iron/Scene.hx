@@ -447,71 +447,19 @@ class Scene {
 		#end
 		else if (o.type == "mesh_object") {
 			if (o.material_refs == null || o.material_refs.length == 0) {
-				// No material, create empty object
-				var object = addObject(parent);
-				returnObject(object, o, done);
+				createMeshObject(o, format, parent, parentObject, null, done);
 			}
 			else {
 				// Materials
 				var materials = new Vector<MaterialData>(o.material_refs.length);
 				var materialsLoaded = 0;
-
 				for (i in 0...o.material_refs.length) {
 					var ref = o.material_refs[i];
 					Data.getMaterial(sceneName, ref, function(mat:MaterialData) {
 						materials[i] = mat;
 						materialsLoaded++;
-
 						if (materialsLoaded == o.material_refs.length) {
-
-							// Mesh reference
-							var ref = o.data_ref.split('/');
-							var object_file = '';
-							var data_ref = '';
-							if (ref.length == 2) { // File reference
-								object_file = ref[0];
-								data_ref = ref[1];
-							}
-							else { // Local mesh data
-								object_file = sceneName;
-								data_ref = o.data_ref;
-							}
-
-							// Bone objects are stored in armature parent
-							if (parentObject != null && parentObject.bone_actions != null) {
-								var bactions:Array<TSceneFormat> = [];
-								for (ref in parentObject.bone_actions) {
-									Data.getSceneRaw(ref, function(action:TSceneFormat) {
-										bactions.push(action);
-										if (bactions.length == parentObject.bone_actions.length) {
-											var armature:Armature = null;
-											// Check if armature exists
-											for (a in armatures) if (a.uid == parent.uid) { armature = a; break; }
-											// Create new one
-											if (armature == null) {
-												// Unique name if armature was already instantiated for different object
-												for (a in armatures) if (a.name == parent.name) { parent.name += '.' + parent.uid; break; }
-												armature = new Armature(parent.uid, parent.name, bactions);
-												armatures.push(armature);
-											}
-											#if arm_stream
-											streamMeshObject(
-											#else
-											returnMeshObject(
-											#end
-												object_file, data_ref, sceneName, armature, materials, parent, o, done);
-										}
-									});
-								}
-							}
-							else {
-								#if arm_stream
-								streamMeshObject(
-								#else
-								returnMeshObject(
-								#end
-									object_file, data_ref, sceneName, null, materials, parent, o, done);
-							}
+							createMeshObject(o, format, parent, parentObject, materials, done);
 						}
 					});
 				}
@@ -581,6 +529,58 @@ class Scene {
 
 	function isLod(raw:TObj):Bool {
 		return raw != null && raw.lods != null && raw.lods.length > 0;
+	}
+
+	function createMeshObject(o:TObj, format:TSceneFormat, parent:Object, parentObject:TObj, materials:Vector<MaterialData>, done:Object->Void) {
+		// Mesh reference
+		var ref = o.data_ref.split('/');
+		var object_file = '';
+		var data_ref = '';
+		var sceneName = format.name;
+		if (ref.length == 2) { // File reference
+			object_file = ref[0];
+			data_ref = ref[1];
+		}
+		else { // Local mesh data
+			object_file = sceneName;
+			data_ref = o.data_ref;
+		}
+
+		// Bone objects are stored in armature parent
+		if (parentObject != null && parentObject.bone_actions != null) {
+			var bactions:Array<TSceneFormat> = [];
+			for (ref in parentObject.bone_actions) {
+				Data.getSceneRaw(ref, function(action:TSceneFormat) {
+					bactions.push(action);
+					if (bactions.length == parentObject.bone_actions.length) {
+						var armature:Armature = null;
+						// Check if armature exists
+						for (a in armatures) if (a.uid == parent.uid) { armature = a; break; }
+						// Create new one
+						if (armature == null) {
+							// Unique name if armature was already instantiated for different object
+							for (a in armatures) if (a.name == parent.name) { parent.name += '.' + parent.uid; break; }
+							armature = new Armature(parent.uid, parent.name, bactions);
+							armatures.push(armature);
+						}
+						#if arm_stream
+						streamMeshObject(
+						#else
+						returnMeshObject(
+						#end
+							object_file, data_ref, sceneName, armature, materials, parent, o, done);
+					}
+				});
+			}
+		}
+		else {
+			#if arm_stream
+			streamMeshObject(
+			#else
+			returnMeshObject(
+			#end
+				object_file, data_ref, sceneName, null, materials, parent, o, done);
+		}
 	}
 
 	public function returnMeshObject(object_file:String, data_ref:String, sceneName:String, armature:Armature, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
