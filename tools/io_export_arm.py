@@ -1,5 +1,5 @@
 #  Armory Mesh Exporter
-#  http://armory3d.org/
+#  https://armory3d.org/
 #
 #  Based on Open Game Engine Exchange
 #  http://opengex.org/
@@ -16,41 +16,23 @@ bl_info = {
     "location": "File -> Export",
     "description": "Armory mesh data",
     "author": "Armory3D.org",
-    "version": (2019, 6, 0),
-    "blender": (2, 80, 0),
-    "wiki_url": "http://armory3d.org/iron",
+    "version": (2019, 12, 0),
+    "blender": (2, 81, 0),
+    "wiki_url": "https://github.com/armory3d/iron/wiki",
     "tracker_url": "https://github.com/armory3d/iron/issues"
 }
 
-from bpy_extras.io_utils import ExportHelper
-import os
-import bpy
 import math
-from mathutils import *
+import os
 import time
 import numpy as np
+import bpy
+from bpy_extras.io_utils import ExportHelper
+from mathutils import *
 
-NodeTypeNode = 0
 NodeTypeBone = 1
 NodeTypeMesh = 2
-NodeTypeLight = 3
-NodeTypeCamera = 4
-NodeTypeSpeaker = 5
-NodeTypeDecal = 6
-NodeTypeProbe = 7
-AnimationTypeSampled = 0
-AnimationTypeLinear = 1
-AnimationTypeBezier = 2
-ExportEpsilon = 1.0e-6
-
-structIdentifier = ["object", "bone_object", "mesh_object", "light_object", "camera_object", "speaker_object", "decal_object", "probe_object"]
-subtranslationName = ["xloc", "yloc", "zloc"]
-subrotationName = ["xrot", "yrot", "zrot"]
-subscaleName = ["xscl", "yscl", "zscl"]
-deltaSubtranslationName = ["dxloc", "dyloc", "dzloc"]
-deltaSubrotationName = ["dxrot", "dyrot", "dzrot"]
-deltaSubscaleName = ["dxscl", "dyscl", "dzscl"]
-axisName = ["x", "y", "z"]
+structIdentifier = ["object", "bone_object", "mesh_object"]
 
 class ArmoryExporter(bpy.types.Operator, ExportHelper):
     '''Export to Armory format'''
@@ -58,18 +40,358 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
     bl_label = "Export Armory"
     filename_ext = ".arm"
 
+    def execute(self, context):
+        profile_time = time.time()
+        current_frame = context.scene.frame_current
+        current_subframe = context.scene.frame_subframe
+        self.scene = context.scene
+        self.output = {}
+        self.bobjectArray = {}
+        self.bobjectBoneArray = {}
+        self.meshArray = {}
+        self.boneParentArray = {}
+        self.bone_tracks = []
+        self.depsgraph = context.evaluated_depsgraph_get()
+        scene_objects = self.scene.collection.all_objects
+
+        for bobject in scene_objects:
+            if not bobject.parent:
+                self.process_bobject(bobject)
+
+        self.process_skinned_meshes()
+
+        self.output['name'] = self.scene.name
+        self.output['objects'] = []
+        for bo in scene_objects:
+            if not bo.parent:
+                self.export_object(bo, self.scene)
+
+        self.output['mesh_datas'] = []
+        for o in self.meshArray.items():
+            self.export_mesh(o, self.scene)
+
+        self.write_arm(self.filepath, self.output)
+        self.scene.frame_set(current_frame, subframe=current_subframe)
+
+        print('Scene exported in ' + str(time.time() - profile_time))
+
+        return {'FINISHED'}
+
+    def write_arm(self, filepath, output):
+        with open(filepath, 'wb') as f:
+            f.write(packb(output))
+
     def write_matrix(self, matrix):
         return [matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3],
                 matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3],
                 matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3],
                 matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]]
 
-    def write_mesh(self, bobject, o):
-        self.output['mesh_datas'].append(o)
+    def find_bone(self, name):
+        for bobject_ref in self.bobjectBoneArray.items():
+            if bobject_ref[0].name == name:
+                return bobject_ref
+        return None
+
+    def collect_bone_animation(self, armature, name):
+        path = "pose.bones[\"" + name + "\"]."
+        curve_array = []
+        if armature.animation_data:
+            action = armature.animation_data.action
+            if action:
+                for fcurve in action.fcurves:
+                    if fcurve.data_path.startswith(path):
+                        curve_array.append(fcurve)
+        return curve_array
+
+    def export_bone(self, armature, bone, scene, o, action):
+        bobjectRef = self.bobjectBoneArray.get(bone)
+        if bobjectRef:
+            o['type'] = structIdentifier[bobjectRef["objectType"]]
+            o['name'] = bobjectRef["structName"]
+            self.export_bone_transform(armature, bone, scene, o, action)
+        o['children'] = []
+        for subbobject in bone.children:
+            so = {}
+            self.export_bone(armature, subbobject, scene, so, action)
+            o['children'].append(so)
+
+    def export_pose_markers(self, oanim, action):
+        if action.pose_markers == None or len(action.pose_markers) == 0:
+            return
+        oanim['marker_frames'] = []
+        oanim['marker_names'] = []
+        for m in action.pose_markers:
+            oanim['marker_frames'].append(int(m.frame))
+            oanim['marker_names'].append(m.name)
+
+    def process_bone(self, bone):
+        self.bobjectBoneArray[bone] = {"objectType" : NodeTypeBone, "structName" : bone.name}
+        for subbobject in bone.children:
+            self.process_bone(subbobject)
+
+    def process_bobject(self, bobject):
+        if bobject.type != "MESH" and bobject.type != "ARMATURE":
+            return
+
+        btype = NodeTypeMesh if bobject.type == "MESH" else 0
+        self.bobjectArray[bobject] = {"objectType" : btype, "structName" : bobject.name}
+
+        if bobject.type == "ARMATURE":
+            skeleton = bobject.data
+            if skeleton:
+                for bone in skeleton.bones:
+                    if not bone.parent:
+                        self.process_bone(bone)
+
+        for subbobject in bobject.children:
+            self.process_bobject(subbobject)
+
+    def process_skinned_meshes(self):
+        for bobjectRef in self.bobjectArray.items():
+            if bobjectRef[1]["objectType"] == NodeTypeMesh:
+                armature = bobjectRef[0].find_armature()
+                if armature:
+                    for bone in armature.data.bones:
+                        boneRef = self.find_bone(bone.name)
+                        if boneRef:
+                            boneRef[1]["objectType"] = NodeTypeBone
+
+    def export_bone_transform(self, armature, bone, scene, o, action):
+        pose_bone = armature.pose.bones.get(bone.name)
+        transform = bone.matrix_local.copy()
+        if bone.parent is not None:
+            transform = (bone.parent.matrix_local.inverted_safe() @ transform)
+
+        o['transform'] = {}
+        o['transform']['values'] = self.write_matrix(transform)
+
+        curve_array = self.collect_bone_animation(armature, bone.name)
+        animation = len(curve_array) != 0
+
+        if animation and pose_bone:
+            begin_frame = int(action.frame_range[0])
+            end_frame = int(action.frame_range[1])
+            tracko = {}
+            o['anim'] = {}
+            o['anim']['tracks'] = [tracko]
+            tracko['target'] = "transform"
+            tracko['frames'] = []
+            for i in range(begin_frame, end_frame + 1):
+                tracko['frames'].append(i - begin_frame)
+            tracko['values'] = []
+            self.bone_tracks.append((tracko['values'], pose_bone))
+
+    def write_bone_matrices(self, scene, action):
+        begin_frame = int(action.frame_range[0])
+        end_frame = int(action.frame_range[1])
+        if len(self.bone_tracks) > 0:
+            for i in range(begin_frame, end_frame + 1):
+                scene.frame_set(i)
+                for track in self.bone_tracks:
+                    values, pose_bone = track[0], track[1]
+                    parent = pose_bone.parent
+                    if parent:
+                        values += self.write_matrix((parent.matrix.inverted_safe() @ pose_bone.matrix))
+                    else:
+                        values += self.write_matrix(pose_bone.matrix)
+
+    def export_object(self, bobject, scene, parento=None):
+        bobjectRef = self.bobjectArray.get(bobject)
+        if bobjectRef:
+            o = {}
+            o['type'] = structIdentifier[bobjectRef["objectType"]]
+            o['name'] = bobjectRef["structName"]
+            if bobject.parent_type == "BONE":
+                o['parent_bone'] = bobject.parent_bone
+
+            if bobjectRef["objectType"] == NodeTypeMesh:
+                objref = bobject.data
+                if not objref in self.meshArray:
+                    self.meshArray[objref] = {"structName" : objref.name, "objectTable" : [bobject]}
+                else:
+                    self.meshArray[objref]["objectTable"].append(bobject)
+                oid = self.meshArray[objref]["structName"]
+                o['data_ref'] = oid
+                o['dimensions'] = self.calc_aabb(bobject)
+
+            o['transform'] = {}
+            o['transform']['values'] = self.write_matrix(bobject.matrix_local)
+
+            # If the object is parented to a bone and is not relative, then undo the bone's transform
+            if bobject.parent_type == "BONE":
+                armature = bobject.parent.data
+                bone = armature.bones[bobject.parent_bone]
+                o['parent_bone_connected'] = bone.use_connect
+                if bone.use_connect:
+                    bone_translation = Vector((0, bone.length, 0)) + bone.head
+                    o['parent_bone_tail'] = [bone_translation[0], bone_translation[1], bone_translation[2]]
+                else:
+                    bone_translation = bone.tail - bone.head
+                    o['parent_bone_tail'] = [bone_translation[0], bone_translation[1], bone_translation[2]]
+                    pose_bone = bobject.parent.pose.bones[bobject.parent_bone]
+                    bone_translation_pose = pose_bone.tail - pose_bone.head
+                    o['parent_bone_tail_pose'] = [bone_translation_pose[0], bone_translation_pose[1], bone_translation_pose[2]]
+
+            if bobject.type == 'ARMATURE' and bobject.data is not None:
+                bdata = bobject.data
+                action = None
+                adata = bobject.animation_data
+
+                # Active action
+                if adata is not None:
+                    action = adata.action
+                if action is None:
+                    bobject.animation_data_create()
+                    actions = bpy.data.actions
+                    action = actions.get('armory_pose')
+                    if action is None:
+                        action = actions.new(name='armory_pose')
+
+                # Collect export actions
+                export_actions = [action]
+                if hasattr(adata, 'nla_tracks') and adata.nla_tracks is not None:
+                    for track in adata.nla_tracks:
+                        if track.strips is None:
+                            continue
+                        for strip in track.strips:
+                            if strip.action is None:
+                                continue
+                            if strip.action.name == action.name:
+                                continue
+                            export_actions.append(strip.action)
+
+                basename = os.path.basename(self.filepath)[:-4]
+                armatureid = bdata.name
+                o['bone_actions'] = []
+                for action in export_actions:
+                    o['bone_actions'].append(basename + '_' + action.name)
+
+                orig_action = bobject.animation_data.action
+                for action in export_actions:
+                    bobject.animation_data.action = action
+                    bones = []
+                    self.bone_tracks = []
+                    for bone in bdata.bones:
+                        if not bone.parent:
+                            boneo = {}
+                            self.export_bone(bobject, bone, scene, boneo, action)
+                            bones.append(boneo)
+                    self.write_bone_matrices(scene, action)
+                    if len(bones) > 0 and 'anim' in bones[0]:
+                        self.export_pose_markers(bones[0]['anim'], action)
+                    # Save action separately
+                    action_obj = {}
+                    action_obj['name'] = action.name
+                    action_obj['objects'] = bones
+                    self.write_arm(self.filepath[:-4] + '_' + action.name + '.arm', action_obj)
+
+                bobject.animation_data.action = orig_action
+
+            if parento is None:
+                self.output['objects'].append(o)
+            else:
+                parento['children'].append(o)
+
+            if not hasattr(o, 'children') and len(bobject.children) > 0:
+                o['children'] = []
+
+        for subbobject in bobject.children:
+            self.export_object(subbobject, scene, o)
+
+    def export_skin(self, bobject, armature, exportMesh, o):
+        # This function exports all skinning data, which includes the skeleton
+        # and per-vertex bone influence data
+        oskin = {}
+        o['skin'] = oskin
+
+        # Write the skin bind pose transform
+        otrans = {}
+        oskin['transform'] = otrans
+        otrans['values'] = self.write_matrix(bobject.matrix_world)
+
+        bone_array = armature.data.bones
+        bone_count = len(bone_array)
+        max_bones = 128
+        if bone_count > max_bones:
+            bone_count = max_bones
+
+        # Write the bone object reference array
+        oskin['bone_ref_array'] = np.empty(bone_count, dtype=object)
+        oskin['bone_len_array'] = np.empty(bone_count, dtype='<f4')
+
+        for i in range(bone_count):
+            boneRef = self.find_bone(bone_array[i].name)
+            if boneRef:
+                oskin['bone_ref_array'][i] = boneRef[1]["structName"]
+                oskin['bone_len_array'][i] = bone_array[i].length
+            else:
+                oskin['bone_ref_array'][i] = ""
+                oskin['bone_len_array'][i] = 0.0
+
+        # Write the bind pose transform array
+        oskin['transformsI'] = []
+        for i in range(bone_count):
+            skeletonI = (armature.matrix_world @ bone_array[i].matrix_local).inverted_safe()
+            skeletonI = (skeletonI @ bobject.matrix_world)
+            oskin['transformsI'].append(self.write_matrix(skeletonI))
+
+        # Export the per-vertex bone influence data
+        group_remap = []
+        for group in bobject.vertex_groups:
+            for i in range(bone_count):
+                if bone_array[i].name == group.name:
+                    group_remap.append(i)
+                    break
+            else:
+                group_remap.append(-1)
+
+        bone_count_array = np.empty(len(exportMesh.loops), dtype='<i2')
+        bone_index_array = np.empty(len(exportMesh.loops) * 4, dtype='<i2')
+        bone_weight_array = np.empty(len(exportMesh.loops) * 4, dtype='<f4')
+
+        vertices = bobject.data.vertices
+        count = 0
+        for index, l in enumerate(exportMesh.loops):
+            bone_count = 0
+            total_weight = 0.0
+            bone_values = []
+            for g in vertices[l.vertex_index].groups:
+                bone_index = group_remap[g.group]
+                bone_weight = g.weight
+                if bone_index >= 0: #and bone_weight != 0.0:
+                    bone_values.append((bone_weight, bone_index))
+                    total_weight += bone_weight
+                    bone_count += 1
+
+            if bone_count > 4:
+                bone_count = 4
+                bone_values.sort(reverse=True)
+                bone_values = bone_values[:4]
+
+            bone_count_array[index] = bone_count
+            for bv in bone_values:
+                bone_weight_array[count] = bv[0]
+                bone_index_array[count] = bv[1]
+                count += 1
+
+            if total_weight != 0.0 and total_weight != 1.0:
+                normalizer = 1.0 / total_weight
+                for i in range(bone_count):
+                    bone_weight_array[count - i - 1] *= normalizer
+
+        bone_index_array = bone_index_array[:count]
+        bone_weight_array = bone_weight_array[:count]
+        bone_weight_array *= 32767
+        bone_weight_array = np.array(bone_weight_array, dtype='<i2')
+
+        oskin['bone_count_array'] = bone_count_array
+        oskin['bone_index_array'] = bone_index_array
+        oskin['bone_weight_array'] = bone_weight_array
 
     def calc_aabb(self, bobject):
         aabb_center = 0.125 * sum((Vector(b) for b in bobject.bound_box), Vector())
-        bobject.data.arm_aabb = [ \
+        return [ \
             abs((bobject.bound_box[6][0] - bobject.bound_box[0][0]) / 2 + abs(aabb_center[0])) * 2, \
             abs((bobject.bound_box[6][1] - bobject.bound_box[0][1]) / 2 + abs(aabb_center[1])) * 2, \
             abs((bobject.bound_box[6][2] - bobject.bound_box[0][2]) / 2 + abs(aabb_center[2])) * 2  \
@@ -77,16 +399,16 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
 
     def export_mesh_data(self, exportMesh, bobject, o, has_armature=False):
         exportMesh.calc_normals_split()
-        # exportMesh.calc_loop_triangles()
+        exportMesh.calc_loop_triangles()
 
         loops = exportMesh.loops
         num_verts = len(loops)
         num_uv_layers = len(exportMesh.uv_layers)
+        num_colors = len(exportMesh.vertex_colors)
         has_tex = num_uv_layers > 0
         has_tex1 = num_uv_layers > 1
-        num_colors = len(exportMesh.vertex_colors)
         has_col = num_colors > 0
-        has_tang = has_tex
+        has_tang = False
 
         pdata = np.empty(num_verts * 4, dtype='<f4') # p.xyz, n.z
         ndata = np.empty(num_verts * 2, dtype='<f4') # n.xy
@@ -94,28 +416,29 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
             t0map = 0 # Get active uvmap
             t0data = np.empty(num_verts * 2, dtype='<f4')
             uv_layers = exportMesh.uv_layers
-            if uv_layers != None:
-                if 'UVMap_baked' in uv_layers:
-                    for i in range(0, len(uv_layers)):
-                        if uv_layers[i].name == 'UVMap_baked':
-                            t0map = i
-                            break
-                else:
-                    for i in range(0, len(uv_layers)):
-                        if uv_layers[i].active_render:
-                            t0map = i
-                            break
+            if uv_layers is not None:
+                for i in range(0, len(uv_layers)):
+                    if uv_layers[i].active_render:
+                        t0map = i
+                        break
             if has_tex1:
                 t1map = 1 if t0map == 0 else 0
                 t1data = np.empty(num_verts * 2, dtype='<f4')
             # Scale for packed coords
             maxdim = 1.0
-            lay0 = uv_layers[t0map] # TODO: handle t1map
+            lay0 = uv_layers[t0map]
             for v in lay0.data:
                 if abs(v.uv[0]) > maxdim:
                     maxdim = abs(v.uv[0])
                 if abs(v.uv[1]) > maxdim:
                     maxdim = abs(v.uv[1])
+            if has_tex1:
+                lay1 = uv_layers[t1map]
+                for v in lay1.data:
+                    if abs(v.uv[0]) > maxdim:
+                        maxdim = abs(v.uv[0])
+                    if abs(v.uv[1]) > maxdim:
+                        maxdim = abs(v.uv[1])
             if maxdim > 1:
                 o['scale_tex'] = maxdim
                 invscale_tex = (1 / o['scale_tex']) * 32767
@@ -128,7 +451,8 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
             cdata = np.empty(num_verts * 3, dtype='<f4')
 
         # Scale for packed coords
-        maxdim = max(bobject.data.arm_aabb[0], max(bobject.data.arm_aabb[1], bobject.data.arm_aabb[2]))
+        aabb = self.calc_aabb(bobject)
+        maxdim = max(aabb[0], max(aabb[1], aabb[2]))
         if maxdim > 2:
             o['scale_pos'] = maxdim / 2
         else:
@@ -144,6 +468,8 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
             lay0 = exportMesh.uv_layers[t0map]
             if has_tex1:
                 lay1 = exportMesh.uv_layers[t1map]
+        if has_col:
+            vcol0 = exportMesh.vertex_colors[0].data
 
         for i, loop in enumerate(loops):
             v = verts[loop.vertex_index]
@@ -173,10 +499,11 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
                     tangdata[i3 + 1] = tang[1]
                     tangdata[i3 + 2] = tang[2]
             if has_col:
+                col = vcol0[loop.index].color
                 i3 = i * 3
-                cdata[i3    ] = pow(v.col[0], 2.2)
-                cdata[i3 + 1] = pow(v.col[1], 2.2)
-                cdata[i3 + 2] = pow(v.col[2], 2.2)
+                cdata[i3    ] = col[0]
+                cdata[i3 + 1] = col[1]
+                cdata[i3 + 2] = col[2]
 
         mats = exportMesh.materials
         poly_map = []
@@ -186,6 +513,14 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
             poly_map[poly.material_index].append(poly)
 
         o['index_arrays'] = []
+
+        # map polygon indices to triangle loops
+        tri_loops = {}
+        for loop in exportMesh.loop_triangles:
+            if loop.polygon_index not in tri_loops:
+                tri_loops[loop.polygon_index] = []
+            tri_loops[loop.polygon_index].append(loop)
+
         for index, polys in enumerate(poly_map):
             tris = 0
             for poly in polys:
@@ -196,19 +531,11 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
 
             i = 0
             for poly in polys:
-                first = poly.loop_start
-                total = poly.loop_total
-                if total == 3:
-                    prim[i    ] = loops[first    ].index
-                    prim[i + 1] = loops[first + 1].index
-                    prim[i + 2] = loops[first + 2].index
+                for loop in tri_loops[poly.index]:
+                    prim[i    ] = loops[loop.loops[0]].index
+                    prim[i + 1] = loops[loop.loops[1]].index
+                    prim[i + 2] = loops[loop.loops[2]].index
                     i += 3
-                else:
-                    for j in range(total - 2):
-                        prim[i    ] = loops[first + total - 1].index
-                        prim[i + 1] = loops[first + j        ].index
-                        prim[i + 2] = loops[first + j + 1    ].index
-                        i += 3
 
             ia = {}
             ia['values'] = prim
@@ -251,47 +578,28 @@ class ArmoryExporter(bpy.types.Operator, ExportHelper):
         if has_tang:
             o['vertex_arrays'].append({ 'attrib': 'tang', 'values': tangdata })
 
-    def export_mesh(self, bobject, scene):
+    def export_mesh(self, objectRef, scene):
         # This function exports a single mesh object
-        print('Exporting mesh ' + bobject.data.name)
-
+        table = objectRef[1]["objectTable"]
+        bobject = table[0]
+        oid = objectRef[1]["structName"]
         o = {}
-        o['name'] = bobject.name
-        mesh = bobject.data
+        o['name'] = oid
+        mesh = objectRef[0]
+        structFlag = False
 
         armature = bobject.find_armature()
         apply_modifiers = not armature
+
         bobject_eval = bobject.evaluated_get(self.depsgraph) if apply_modifiers else bobject
         exportMesh = bobject_eval.to_mesh()
 
-        self.calc_aabb(bobject)
         self.export_mesh_data(exportMesh, bobject, o, has_armature=armature != None)
-        # if armature:
-            # self.export_skin(bobject, armature, exportMesh, o)
+        if armature:
+            self.export_skin(bobject, armature, exportMesh, o)
 
-        self.write_mesh(bobject, o)
+        self.output['mesh_datas'].append(o)
         bobject_eval.to_mesh_clear()
-
-    def export_objects(self, scene):
-        meshes = []
-        self.output['mesh_datas'] = [];
-        for o in scene.objects:
-            if o.type == 'MESH' and o.data != None and o.data not in meshes:
-                meshes.append(o.data)
-                self.export_mesh(o, scene)
-
-    def write_arm(self, filepath, output):
-        with open(filepath, 'wb') as f:
-            f.write(packb(output))
-
-    def execute(self, context):
-        profile_time = time.time()
-        self.depsgraph = context.evaluated_depsgraph_get()
-        self.output = {}
-        self.export_objects(context.scene)
-        self.write_arm(self.filepath, self.output)
-        print('Scene exported in ' + str(time.time() - profile_time))
-        return {'FINISHED'}
 
 def menu_func(self, context):
     self.layout.operator(ArmoryExporter.bl_idname, text="Armory (.arm)")
