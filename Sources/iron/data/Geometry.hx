@@ -200,13 +200,13 @@ class Geometry {
 			}
 			// GPU skinning
 			if (bonea != null) { // Bone indices
-				vertices.set(++di, bonea[i * 4]);
+				vertices.set(++di, bonea[i * 4    ]);
 				vertices.set(++di, bonea[i * 4 + 1]);
 				vertices.set(++di, bonea[i * 4 + 2]);
 				vertices.set(++di, bonea[i * 4 + 3]);
 			}
 			if (weighta != null) { // Weights
-				vertices.set(++di, weighta[i * 4]);
+				vertices.set(++di, weighta[i * 4    ]);
 				vertices.set(++di, weighta[i * 4 + 1]);
 				vertices.set(++di, weighta[i * 4 + 2]);
 				vertices.set(++di, weighta[i * 4 + 3]);

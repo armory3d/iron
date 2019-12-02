@@ -14,7 +14,7 @@ import iron.data.Data;
 
 class BoneAnimation extends Animation {
 
-	public static var skinMaxBones = 50;
+	public static var skinMaxBones = 128;
 
 	// Skinning
 	public var object:MeshObject;
