@@ -299,6 +299,40 @@ class Mat4 {
 		return this;
 	}
 
+	inline public function transformMath(m:Mat4):Mat4 {
+		var a00 = _00; var a01 = _01; var a02 = _02;
+		var a10 = _10; var a11 = _11; var a12 = _12;
+		var a20 = _20; var a21 = _21; var a22 = _22;
+		
+		var b0 = m._00; var b1 = m._10; var b2 = m._20;
+		_00 = a00 * b0 + a01 * b1 + a02 * b2;
+		_10 = a10 * b0 + a11 * b1 + a12 * b2;
+		_20 = a20 * b0 + a21 * b1 + a22 * b2;
+		
+		b0 = m._01; b1 = m._11; b2 = m._21;
+		_01 = a00 * b0 + a01 * b1 + a02 * b2;
+		_11 = a10 * b0 + a11 * b1 + a12 * b2;
+		_21 = a20 * b0 + a21 * b1 + a22 * b2;
+
+		b0 = m._02; b1 = m._12; b2 = m._22;
+		_02 = a00 * b0 + a01 * b1 + a02 * b2;
+		_12 = a10 * b0 + a11 * b1 + a12 * b2;
+		_22 = a20 * b0 + a21 * b1 + a22 * b2;
+
+		b0 = m._03; b1 = m._13; b2 = m._23;
+		_03 = a00 * b0 + a01 * b1 + a02 * b2;
+		_13 = a10 * b0 + a11 * b1 + a12 * b2;
+		_23 = a20 * b0 + a21 * b1 + a22 * b2;
+		
+		_30 += m._30;
+		_31 += m._31;
+		_32 += m._32;
+	
+		return this;
+	}
+
+
+
 	/**
 	 * Invert a matrix and store the result in this one.
 	 * @param	m The matrix to invert.
