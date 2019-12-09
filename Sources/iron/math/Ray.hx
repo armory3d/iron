@@ -4,20 +4,20 @@ import kha.FastFloat;
 
 class Ray {
 
-	public var origin:Vec4;
-	public var direction:Vec4;
+	public var origin: Vec4;
+	public var direction: Vec4;
 
-	public function new(origin:Vec4 = null, direction:Vec4 = null) {
+	public function new(origin: Vec4 = null, direction: Vec4 = null) {
 		this.origin = origin == null ? new Vec4() : origin;
 		this.direction = direction == null ? new Vec4() : direction;
 	}
 
-	public function at(t:FastFloat):Vec4 {
+	public function at(t: FastFloat): Vec4 {
 		var result = new Vec4();
 		return result.setFrom(direction).mult(t).add(origin);
 	}
 
-	public function distanceToPoint(point:Vec4):FastFloat {
+	public function distanceToPoint(point: Vec4): FastFloat {
 		var v1 = new Vec4();
 		var directionDistance = v1.subvecs(point, this.origin).dot(this.direction);
 
@@ -31,11 +31,11 @@ class Ray {
 		return v1.distanceTo(point);
 	}
 
-	public function intersectsSphere(sphereCenter:Vec4, sphereRadius:FastFloat):Bool {
+	public function intersectsSphere(sphereCenter: Vec4, sphereRadius: FastFloat): Bool {
 		return distanceToPoint(sphereCenter) <= sphereRadius;
 	}
 
-	public function intersectsPlane(plane:Plane):Bool {
+	public function intersectsPlane(plane: Plane): Bool {
 		// Check if the ray lies on the plane first
 		var distToPoint = plane.distanceToPoint(this.origin);
 		if (distToPoint == 0) return true;
@@ -47,7 +47,7 @@ class Ray {
 		return false;
 	}
 
-	public function distanceToPlane(plane:Plane):FastFloat {
+	public function distanceToPlane(plane: Plane): FastFloat {
 		var denominator = plane.normal.dot(this.direction);
 		if (denominator == 0) {
 			// Line is coplanar, return origin
@@ -62,20 +62,20 @@ class Ray {
 		var t = -(this.origin.dot(plane.normal) + plane.constant) / denominator;
 
 		// Return if the ray never intersects the plane
-		return t >= 0 ? t :  -1;
+		return t >= 0 ? t : -1;
 	}
 
-	public function intersectPlane(plane:Plane):Vec4 {
+	public function intersectPlane(plane: Plane): Vec4 {
 		var t = this.distanceToPlane(plane);
 		if (t == -1) return null;
 		return this.at(t);
 	}
 
-	public function intersectsBox(center:Vec4, dim:Vec4):Bool {
+	public function intersectsBox(center: Vec4, dim: Vec4): Bool {
 		return this.intersectBox(center, dim) != null;
 	}
 
-	public function intersectBox(center:Vec4, dim:Vec4):Vec4 {
+	public function intersectBox(center: Vec4, dim: Vec4): Vec4 {
 		// http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
 		var tmin, tmax, tymin, tymax, tzmin, tzmax;
 
@@ -139,7 +139,7 @@ class Ray {
 		return this.at(tmin >= 0 ? tmin : tmax);
 	}
 
-	public function intersectTriangle(a:Vec4, b:Vec4, c:Vec4, backfaceCulling:Bool):Vec4 {
+	public function intersectTriangle(a: Vec4, b: Vec4, c: Vec4, backfaceCulling: Bool): Vec4 {
 		// Compute the offset origin, edges, and normal
 		var diff = new Vec4();
 		var edge1 = new Vec4();
@@ -206,13 +206,13 @@ class Plane {
 	public var normal = new Vec4(1.0, 0.0, 0.0);
 	public var constant = 0.0;
 
-	public function new() { }
+	public function new() {}
 
-	public function distanceToPoint(point:Vec4):FastFloat {
+	public function distanceToPoint(point: Vec4): FastFloat {
 		return normal.dot(point) + constant;
 	}
 
-	public function set(normal:Vec4, point:Vec4):Plane {
+	public function set(normal: Vec4, point: Vec4): Plane {
 		this.normal.setFrom(normal);
 		constant = -point.dot(this.normal);
 		return this;

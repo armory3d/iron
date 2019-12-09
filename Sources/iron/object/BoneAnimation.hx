@@ -17,26 +17,26 @@ class BoneAnimation extends Animation {
 	public static var skinMaxBones = 128;
 
 	// Skinning
-	public var object:MeshObject;
-	public var data:MeshData;
-	public var skinBuffer:Float32Array;
+	public var object: MeshObject;
+	public var data: MeshData;
+	public var skinBuffer: Float32Array;
 
-	var skeletonBones:Array<TObj> = null;
-	var skeletonMats:Array<Mat4> = null;
-	var skeletonBonesBlend:Array<TObj> = null;
-	var skeletonMatsBlend:Array<Mat4> = null;
-	var absMats:Array<Mat4> = null;
-	var applyParent:Array<Bool> = null;
-	var matsFast:Array<Mat4> = [];
-	var matsFastSort:Array<Int> = [];
-	var matsFastBlend:Array<Mat4> = [];
-	var matsFastBlendSort:Array<Int> = [];
+	var skeletonBones: Array<TObj> = null;
+	var skeletonMats: Array<Mat4> = null;
+	var skeletonBonesBlend: Array<TObj> = null;
+	var skeletonMatsBlend: Array<Mat4> = null;
+	var absMats: Array<Mat4> = null;
+	var applyParent: Array<Bool> = null;
+	var matsFast: Array<Mat4> = [];
+	var matsFastSort: Array<Int> = [];
+	var matsFastBlend: Array<Mat4> = [];
+	var matsFastBlendSort: Array<Int> = [];
 
-	var boneChildren:Map<String, Array<Object>> = null; // Parented to bone
+	var boneChildren: Map<String, Array<Object>> = null; // Parented to bone
 
-	var constraintTargets:Array<Object> = null;
-	var constraintTargetsI:Array<Mat4> = null;
-	var constraintMats:Map<TObj, Mat4> = null;
+	var constraintTargets: Array<Object> = null;
+	var constraintTargetsI: Array<Mat4> = null;
+	var constraintMats: Map<TObj, Mat4> = null;
 
 	static var m = Mat4.identity(); // Skinning matrix
 	static var m1 = Mat4.identity();
@@ -53,7 +53,7 @@ class BoneAnimation extends Animation {
 	static var v1 = new Vec4();
 	static var v2 = new Vec4();
 
-	public function new(armatureName = '') {
+	public function new(armatureName = "") {
 		super();
 		this.isSampled = false;
 		for (a in Scene.active.armatures) {
@@ -64,7 +64,7 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	public function setSkin(mo:MeshObject) {
+	public function setSkin(mo: MeshObject) {
 		this.object = mo;
 		this.data = mo != null ? mo.data : null;
 		this.isSkinned = data != null ? data.isSkinned : false;
@@ -78,20 +78,20 @@ class BoneAnimation extends Animation {
 
 			var refs = mo.parent.raw.bone_actions;
 			if (refs != null && refs.length > 0) {
-				Data.getSceneRaw(refs[0], function(action:TSceneFormat) { play(action.name); });
+				Data.getSceneRaw(refs[0], function(action: TSceneFormat) { play(action.name); });
 			}
 		}
 	}
 
-	public function addBoneChild(bone:String, o:Object) {
+	public function addBoneChild(bone: String, o: Object) {
 		if (boneChildren == null) boneChildren = new Map();
-		var ar:Array<Object> = boneChildren.get(bone);
+		var ar: Array<Object> = boneChildren.get(bone);
 		if (ar == null) { ar = []; boneChildren.set(bone, ar); }
 		ar.push(o);
 	}
 
 	@:access(iron.object.Transform)
-	function updateBoneChildren(bone:TObj, bm:Mat4) {
+	function updateBoneChildren(bone: TObj, bm: Mat4) {
 		var ar = boneChildren.get(bone.name);
 		if (ar == null) return;
 		for (o in ar) {
@@ -114,7 +114,7 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	function numParents(b:TObj):Int {
+	function numParents(b: TObj): Int {
 		var i = 0;
 		var p = b.parent;
 		while (p != null) { i++; p = p.parent; }
@@ -146,7 +146,7 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	function setAction(action:String) {
+	function setAction(action: String) {
 		if (isSkinned) {
 			skeletonBones = data.geom.actions.get(action);
 			skeletonMats = data.geom.mats.get(action);
@@ -162,7 +162,7 @@ class BoneAnimation extends Animation {
 		setMats();
 	}
 
-	function setActionBlend(action:String) {
+	function setActionBlend(action: String) {
 		if (isSkinned) {
 			skeletonBonesBlend = skeletonBones;
 			skeletonMatsBlend = skeletonMats;
@@ -178,15 +178,15 @@ class BoneAnimation extends Animation {
 		setMats();
 	}
 
-	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.2, speed = 1.0, loop = true) {
+	override public function play(action = "", onComplete: Void->Void = null, blendTime = 0.2, speed = 1.0, loop = true) {
 		super.play(action, onComplete, blendTime, speed, loop);
-		if (action != '') {
+		if (action != "") {
 			blendTime > 0 ? setActionBlend(action) : setAction(action);
 		}
 		blendFactor = 0.0;
 	}
 
-	override public function blend(action1:String, action2:String, factor:FastFloat) {
+	override public function blend(action1: String, action2: String, factor: FastFloat) {
 		if (factor == 0.0) {
 			setAction(action1);
 			return;
@@ -196,7 +196,7 @@ class BoneAnimation extends Animation {
 		super.blend(action1, action2, factor);
 	}
 
-	override public function update(delta:FastFloat) {
+	override public function update(delta: FastFloat) {
 		if (!isSkinned && skeletonBones == null) setAction(armature.actions[0].name);
 		if (object != null && (!object.visible || object.culled)) return;
 		if (skeletonBones == null || skeletonBones.length == 0) return;
@@ -251,7 +251,7 @@ class BoneAnimation extends Animation {
 		#end
 	}
 
-	function multParent(i:Int, fasts:Array<Mat4>, bones:Array<TObj>, mats:Array<Mat4>) {
+	function multParent(i: Int, fasts: Array<Mat4>, bones: Array<TObj>, mats: Array<Mat4>) {
 		var f = fasts[i];
 		if (applyParent != null && !applyParent[i]) { f.setFrom(mats[i]); return; }
 		var p = bones[i].parent;
@@ -259,7 +259,7 @@ class BoneAnimation extends Animation {
 		(p == null || bi == -1) ? f.setFrom(mats[i]) : f.multmats(fasts[bi], mats[i]);
 	}
 
-	function multParents(m:Mat4, i:Int, bones:Array<TObj>, mats:Array<Mat4>) {
+	function multParents(m: Mat4, i: Int, bones: Array<TObj>, mats: Array<Mat4>) {
 		var bone = bones[i];
 		var p = bone.parent;
 		while (p != null) {
@@ -281,7 +281,7 @@ class BoneAnimation extends Animation {
 			for (c in cs) {
 				var o = Scene.active.getChild(c.target);
 				constraintTargets.push(o);
-				var m:Mat4 = null;
+				var m: Mat4 = null;
 				if (o != null) {
 					m = Mat4.fromFloat32Array(o.raw.transform.values);
 					m.getInverse(m);
@@ -310,13 +310,13 @@ class BoneAnimation extends Animation {
 	}
 
 	// Do inverse kinematics here
-	var onUpdates:Array<Void->Void> = null;
-	public function notifyOnUpdate(f:Void->Void) {
+	var onUpdates: Array<Void->Void> = null;
+	public function notifyOnUpdate(f: Void->Void) {
 		if (onUpdates == null) onUpdates = [];
 		onUpdates.push(f);
 	}
 
-	public function removeUpdate(f:Void->Void) {
+	public function removeUpdate(f: Void->Void) {
 		onUpdates.remove(f);
 	}
 
@@ -333,7 +333,7 @@ class BoneAnimation extends Animation {
 	function updateSkinGpu() {
 		var bones = skeletonBones;
 
-		var s:FastFloat = blendCurrent / blendTime;
+		var s: FastFloat = blendCurrent / blendTime;
 		s = s * s * (3.0 - 2.0 * s); // Smoothstep
 		if (blendFactor != 0.0) s = 1.0 - blendFactor;
 
@@ -374,7 +374,7 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	function updateSkinBuffer(m:Mat4, i:Int) {
+	function updateSkinBuffer(m: Mat4, i: Int) {
 		// Dual quat skinning
 		m.decompose(vpos, q1, vscl);
 		q1.normalize();
@@ -390,33 +390,33 @@ class BoneAnimation extends Animation {
 		skinBuffer[i * 8 + 7] = q2.w * 0.5;
 	}
 
-	public override function totalFrames():Int {
+	public override function totalFrames(): Int {
 		if (skeletonBones == null) return 0;
 		var track = skeletonBones[0].anim.tracks[0];
 		return Std.int(track.frames[track.frames.length - 1] - track.frames[0]);
 	}
 
-	public function getBone(name:String):TObj {
+	public function getBone(name: String): TObj {
 		if (skeletonBones == null) return null;
 		for (b in skeletonBones) if (b.name == name) return b;
 		return null;
 	}
 
-	function getBoneIndex(bone:TObj, bones:Array<TObj> = null):Int {
+	function getBoneIndex(bone: TObj, bones: Array<TObj> = null): Int {
 		if (bones == null) bones = skeletonBones;
 		if (bones != null) for (i in 0...bones.length) if (bones[i] == bone) return i;
 		return -1;
 	}
 
-	public function getBoneMat(bone:TObj):Mat4 {
+	public function getBoneMat(bone: TObj): Mat4 {
 		return skeletonMats != null ? skeletonMats[getBoneIndex(bone)] : null;
 	}
 
-	public function getBoneMatBlend(bone:TObj):Mat4 {
+	public function getBoneMatBlend(bone: TObj): Mat4 {
 		return skeletonMatsBlend != null ? skeletonMatsBlend[getBoneIndex(bone)] : null;
 	}
 
-	public function getAbsMat(bone:TObj):Mat4 {
+	public function getAbsMat(bone: TObj): Mat4 {
 		// With applied blending
 		if (skeletonMats == null) return null;
 		if (absMats == null) {
@@ -426,7 +426,7 @@ class BoneAnimation extends Animation {
 		return absMats[getBoneIndex(bone)];
 	}
 
-	public function getWorldMat(bone:TObj):Mat4 {
+	public function getWorldMat(bone: TObj): Mat4 {
 		if (skeletonMats == null) return null;
 		if (applyParent == null) { applyParent = []; for (m in skeletonMats) applyParent.push(true); }
 		var i = getBoneIndex(bone);
@@ -436,17 +436,17 @@ class BoneAnimation extends Animation {
 		return wm;
 	}
 
-	public function getBoneLen(bone:TObj):FastFloat {
+	public function getBoneLen(bone: TObj): FastFloat {
 		var refs = data.geom.skeletonBoneRefs;
 		var lens = data.geom.skeletonBoneLens;
 		for (i in 0...refs.length) if (refs[i] == bone.name) return lens[i];
 		return 0.0;
 	}
 
-	public function solveIK(effector:TObj, goal:Vec4, precission = 0.1, maxIterations = 6) {
+	public function solveIK(effector: TObj, goal: Vec4, precission = 0.1, maxIterations = 6) {
 		// FABRIK - Forward and backward reaching inverse kinematics solver
-		var bones:Array<TObj> = [];
-		var lengths:Array<FastFloat> = [];
+		var bones: Array<TObj> = [];
+		var lengths: Array<FastFloat> = [];
 		var start = effector;
 		while (start.parent != null) {
 			bones.push(start);
@@ -463,7 +463,7 @@ class BoneAnimation extends Animation {
 		var dist = Vec4.distance(goal, startLoc);
 
 		// Bones length
-		var x:FastFloat = 0.0;
+		var x: FastFloat = 0.0;
 		for (l in lengths) x += l;
 
 		v1.set(0, 1, 0);
@@ -499,7 +499,7 @@ class BoneAnimation extends Animation {
 
 		// Solve IK
 		var vec = new Vec4();
-		var locs:Array<Vec4> = [];
+		var locs: Array<Vec4> = [];
 		for (b in bones) locs.push(getWorldMat(b).getLoc());
 
 		for (i in 0...maxIterations) {

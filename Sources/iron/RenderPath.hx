@@ -20,7 +20,7 @@ import iron.object.Uniforms;
 
 class RenderPath {
 
-	public static var active:RenderPath;
+	public static var active: RenderPath;
 
 	public var frameScissor = false;
 	public var frameScissorX = 0;
@@ -29,43 +29,43 @@ class RenderPath {
 	public var frameScissorH = 0;
 	public var frameTime = 0.0;
 	public var frame = 0;
-	public var currentTarget:RenderTarget = null;
-	public var currentFace:Int;
-	public var light:LightObject = null;
-	public var sun:LightObject = null;
-	public var point:LightObject = null;
+	public var currentTarget: RenderTarget = null;
+	public var currentFace: Int;
+	public var light: LightObject = null;
+	public var sun: LightObject = null;
+	public var point: LightObject = null;
 	#if rp_probes
 	public var currentProbeIndex = 0;
 	#end
 	public var isProbePlanar = false;
 	public var isProbeCube = false;
 	public var isProbe = false;
-	public var currentG:Graphics = null;
-	public var frameG:Graphics;
+	public var currentG: Graphics = null;
+	public var frameG: Graphics;
 	public var drawOrder = DrawOrder.Distance;
 	public var paused = false;
-	public var ready(get, null):Bool;
-	function get_ready():Bool { return loading == 0; }
-	public var commands:Void->Void = null;
-	public var renderTargets:Map<String, RenderTarget> = new Map();
-	public var depthToRenderTarget:Map<String, RenderTarget> = new Map();
-	public var currentW:Int;
-	public var currentH:Int;
-	public var currentD:Int;
+	public var ready(get, null): Bool;
+	function get_ready(): Bool { return loading == 0; }
+	public var commands: Void->Void = null;
+	public var renderTargets: Map<String, RenderTarget> = new Map();
+	public var depthToRenderTarget: Map<String, RenderTarget> = new Map();
+	public var currentW: Int;
+	public var currentH: Int;
+	public var currentD: Int;
 	var lastW = 0;
 	var lastH = 0;
-	var bindParams:Array<String>;
-	var meshesSorted:Bool;
+	var bindParams: Array<String>;
+	var meshesSorted: Bool;
 	var scissorSet = false;
 	var viewportScaled = false;
 	var lastFrameTime = 0.0;
 	var loading = 0;
-	var cachedShaderContexts:Map<String, CachedShaderContext> = new Map();
-	var depthBuffers:Array<{name:String, format:String}> = [];
+	var cachedShaderContexts: Map<String, CachedShaderContext> = new Map();
+	var depthBuffers: Array<{name: String, format: String}> = [];
 
 	#if rp_voxelao
 	public var voxelized = 0;
-	public var onVoxelize:Void->Bool = null;
+	public var onVoxelize: Void->Bool = null;
 	public function voxelize() { // Returns true if scene should be voxelized
 		if (onVoxelize != null) return onVoxelize();
 		#if arm_voxelgi_revox
@@ -85,13 +85,13 @@ class RenderPath {
 	public static var numTrisShadow = 0;
 	#end
 
-	public static function setActive(renderPath:RenderPath) {
+	public static function setActive(renderPath: RenderPath) {
 		active = renderPath;
 	}
 
 	public function new() {}
 
-	public function renderFrame(g:Graphics) {
+	public function renderFrame(g: Graphics) {
 		if (!ready || paused || iron.App.w() == 0 || iron.App.h() == 0) return;
 
 		#if arm_resizable
@@ -140,7 +140,7 @@ class RenderPath {
 		if (!isProbe) frame++;
 	}
 
-	public function setTarget(target:String, additional:Array<String> = null, viewportScale = 1.0) {
+	public function setTarget(target: String, additional: Array<String> = null, viewportScale = 1.0) {
 		if (target == "") { // Framebuffer
 			currentD = 1;
 			currentTarget = null;
@@ -166,7 +166,7 @@ class RenderPath {
 		else { // Render target
 			var rt = renderTargets.get(target);
 			currentTarget = rt;
-			var additionalImages:Array<kha.Canvas> = null;
+			var additionalImages: Array<kha.Canvas> = null;
 			if (additional != null) {
 				additionalImages = [];
 				for (s in additional) {
@@ -195,12 +195,12 @@ class RenderPath {
 		bindParams = null;
 	}
 
-	public function setDepthFrom(target:String, from:String) {
+	public function setDepthFrom(target: String, from: String) {
 		var rt = renderTargets.get(target);
 		rt.image.setDepthStencilFrom(renderTargets.get(from).image);
 	}
 
-	inline function begin(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null, face = -1) {
+	inline function begin(g: Graphics, additionalRenderTargets: Array<kha.Canvas> = null, face = -1) {
 		if (currentG != null) end();
 		currentG = g;
 		face >= 0 ? g.beginFace(face) : g.begin(additionalRenderTargets);
@@ -213,11 +213,11 @@ class RenderPath {
 		bindParams = null;
 	}
 
-	public function setCurrentViewport(viewW:Int, viewH:Int) {
+	public function setCurrentViewport(viewW: Int, viewH: Int) {
 		currentG.viewport(iron.App.x(), currentH - (viewH - iron.App.y()), viewW, viewH);
 	}
 
-	public function setCurrentScissor(viewW:Int, viewH:Int) {
+	public function setCurrentScissor(viewW: Int, viewH: Int) {
 		currentG.scissor(iron.App.x(), currentH - (viewH - iron.App.y()), viewW, viewH);
 		scissorSet = true;
 	}
@@ -226,12 +226,12 @@ class RenderPath {
 		frameG.scissor(frameScissorX, currentH - (frameScissorH - frameScissorY), frameScissorW, frameScissorH);
 	}
 
-	public function setViewport(viewW:Int, viewH:Int) {
+	public function setViewport(viewW: Int, viewH: Int) {
 		setCurrentViewport(viewW, viewH);
 		setCurrentScissor(viewW, viewH);
 	}
 
-	public function clearTarget(colorFlag:Null<Int> = null, depthFlag:Null<Float> = null) {
+	public function clearTarget(colorFlag: Null<Int> = null, depthFlag: Null<Float> = null) {
 		if (colorFlag == -1) {
 			if (Scene.active.world != null) colorFlag = Scene.active.world.raw.background_color;
 			else if (Scene.active.camera != null) {
@@ -242,29 +242,29 @@ class RenderPath {
 		currentG.clear(colorFlag, depthFlag, null);
 	}
 
-	public function clearImage(target:String, color:Int) {
+	public function clearImage(target: String, color: Int) {
 		var rt = renderTargets.get(target);
 		rt.image.clear(0, 0, 0, rt.image.width, rt.image.height, rt.image.depth, color);
 	}
 
-	public function generateMipmaps(target:String) {
+	public function generateMipmaps(target: String) {
 		var rt = renderTargets.get(target);
 		rt.image.generateMipmaps(1000);
 	}
 
-	public static function sortMeshesDistance(meshes:Array<MeshObject>) {
-		meshes.sort(function(a, b):Int {
+	public static function sortMeshesDistance(meshes: Array<MeshObject>) {
+		meshes.sort(function(a, b): Int {
 			return a.cameraDistance >= b.cameraDistance ? 1 : -1;
 		});
 	}
 
-	public static function sortMeshesShader(meshes:Array<MeshObject>) {
-		meshes.sort(function(a, b):Int {
+	public static function sortMeshesShader(meshes: Array<MeshObject>) {
+		meshes.sort(function(a, b): Int {
 			return a.materials[0].name >= b.materials[0].name ? 1 : -1;
 		});
 	}
 
-	public function drawMeshes(context:String) {
+	public function drawMeshes(context: String) {
 		var isShadows = context == "shadowmap";
 		if (isShadows) {
 			// Disabled shadow casting for this light
@@ -305,7 +305,7 @@ class RenderPath {
 	}
 
 	@:access(iron.object.MeshObject)
-	function submitDraw(context:String) {
+	function submitDraw(context: String) {
 		var camera = Scene.active.camera;
 		var meshes = Scene.active.meshes;
 		MeshObject.lastPipeline = null;
@@ -335,8 +335,8 @@ class RenderPath {
 	}
 
 	#if arm_debug
-	static var contextEvents:Map<String, Array<Graphics->Int->Int->Void>> = null;
-	public static function notifyOnContext(name:String, onContext:Graphics->Int->Int->Void) {
+	static var contextEvents: Map<String, Array<Graphics->Int->Int->Void>> = null;
+	public static function notifyOnContext(name: String, onContext: Graphics->Int->Int->Void) {
 		if (contextEvents == null) contextEvents = new Map();
 		var ar = contextEvents.get(name);
 		if (ar == null) { ar = []; contextEvents.set(name, ar); }
@@ -345,7 +345,7 @@ class RenderPath {
 	#end
 
 	#if rp_decals
-	public function drawDecals(context:String) {
+	public function drawDecals(context: String) {
 		if (ConstData.boxVB == null) ConstData.createBoxData();
 		for (decal in Scene.active.decals) {
 			decal.render(currentG, context, bindParams);
@@ -354,9 +354,9 @@ class RenderPath {
 	}
 	#end
 
-	public function drawSkydome(handle:String) {
+	public function drawSkydome(handle: String) {
 		if (ConstData.skydomeVB == null) ConstData.createSkydomeData();
-		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		var cc: CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc.context == null) return; // World data not specified
 		currentG.setPipeline(cc.context.pipeState);
 		Uniforms.setContextConstants(currentG, cc.context, bindParams);
@@ -372,9 +372,9 @@ class RenderPath {
 	}
 
 	#if rp_probes
-	public function drawVolume(object:Object, handle:String) {
+	public function drawVolume(object: Object, handle: String) {
 		if (ConstData.boxVB == null) ConstData.createBoxData();
-		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		var cc: CachedShaderContext = cachedShaderContexts.get(handle);
 		currentG.setPipeline(cc.context.pipeState);
 		Uniforms.setContextConstants(currentG, cc.context, bindParams);
 		Uniforms.setObjectConstants(currentG, cc.context, object);
@@ -385,15 +385,15 @@ class RenderPath {
 	}
 	#end
 
-	public function bindTarget(target:String, uniform:String) {
+	public function bindTarget(target: String, uniform: String) {
 		if (bindParams != null) { bindParams.push(target); bindParams.push(uniform); }
 		else bindParams = [target, uniform];
 	}
 
 	// Full-screen triangle
-	public function drawShader(handle:String) {
+	public function drawShader(handle: String) {
 		// file/data_name/context
-		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		var cc: CachedShaderContext = cachedShaderContexts.get(handle);
 		if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
 		currentG.setPipeline(cc.context.pipeState);
 		Uniforms.setContextConstants(currentG, cc.context, bindParams);
@@ -405,12 +405,12 @@ class RenderPath {
 		end();
 	}
 
-	public function getComputeShader(handle:String):kha.compute.Shader {
+	public function getComputeShader(handle: String): kha.compute.Shader {
 		return Reflect.field(kha.Shaders, handle + "_comp");
 	}
 
 	#if arm_vr
-	public function drawStereo(drawMeshes:Void->Void) {
+	public function drawStereo(drawMeshes: Void->Void) {
 		var vr = kha.vr.VrInterface.instance;
 		var appw = iron.App.w();
 		var apph = iron.App.h();
@@ -448,9 +448,9 @@ class RenderPath {
 	}
 	#end
 
-	public function loadShader(handle:String) {
+	public function loadShader(handle: String) {
 		loading++;
-		var cc:CachedShaderContext = cachedShaderContexts.get(handle);
+		var cc: CachedShaderContext = cachedShaderContexts.get(handle);
 		if (cc != null) { loading--; return; }
 
 		cc = new CachedShaderContext();
@@ -460,10 +460,10 @@ class RenderPath {
 		var shaderPath = handle.split("/");
 
 		#if arm_json
-		shaderPath[0] += '.json';
+		shaderPath[0] += ".json";
 		#end
 
-		Data.getShader(shaderPath[0], shaderPath[1], function(res:ShaderData) {
+		Data.getShader(shaderPath[0], shaderPath[1], function(res: ShaderData) {
 			cc.context = res.getContext(shaderPath[2]);
 			loading--;
 		});
@@ -478,13 +478,17 @@ class RenderPath {
 		for (rt in renderTargets) {
 			if (rt.raw.width > 0 ||
 				rt.depthStencilFrom == "" ||
-				rt == depthToRenderTarget.get(rt.depthStencilFrom)) continue;
+				rt == depthToRenderTarget.get(rt.depthStencilFrom)) {
+				continue;
+			}
 
-			var nodepth:RenderTarget = null;
+			var nodepth: RenderTarget = null;
 			for (rt2 in renderTargets) {
 				if (rt2.raw.width > 0 ||
 					rt2.depthStencilFrom != "" ||
-					depthToRenderTarget.get(rt2.raw.depth_buffer) != null) continue;
+					depthToRenderTarget.get(rt2.raw.depth_buffer) != null) {
+					continue;
+				}
 
 				nodepth = rt2;
 				break;
@@ -511,25 +515,24 @@ class RenderPath {
 		}
 	}
 
-	public function createRenderTarget(t:RenderTargetRaw):RenderTarget {
+	public function createRenderTarget(t: RenderTargetRaw): RenderTarget {
 		var rt = createTarget(t);
 		renderTargets.set(t.name, rt);
 		return rt;
 	}
 
-	public function createDepthBuffer(name:String, format:String = null) {
+	public function createDepthBuffer(name: String, format: String = null) {
 		depthBuffers.push({name: name, format: format});
 	}
 
-	function createTarget(t:RenderTargetRaw):RenderTarget {
+	function createTarget(t: RenderTargetRaw): RenderTarget {
 		var rt = new RenderTarget(t);
 		// With depth buffer
 		if (t.depth_buffer != null) {
 			rt.hasDepth = true;
 			var depthTarget = depthToRenderTarget.get(t.depth_buffer);
 
-			// Create new one
-			if (depthTarget == null) {
+			if (depthTarget == null) { // Create new one
 				for (db in depthBuffers) {
 					if (db.name == t.depth_buffer) {
 						depthToRenderTarget.set(db.name, rt);
@@ -539,16 +542,14 @@ class RenderPath {
 					}
 				}
 			}
-			// Reuse
-			else {
+			else { // Reuse
 				rt.depthStencil = DepthStencilFormat.NoDepthAndStencil;
 				rt.depthStencilFrom = t.depth_buffer;
 				rt.image = createImage(t, rt.depthStencil);
 				rt.image.setDepthStencilFrom(depthTarget.image);
 			}
 		}
-		// No depth buffer
-		else {
+		else { // No depth buffer
 			rt.hasDepth = false;
 			if (t.depth != null && t.depth > 1) rt.is3D = true;
 			if (t.is_cubemap) {
@@ -565,7 +566,7 @@ class RenderPath {
 		return rt;
 	}
 
-	function createImage(t:RenderTargetRaw, depthStencil:DepthStencilFormat):Image {
+	function createImage(t: RenderTargetRaw, depthStencil: DepthStencilFormat): Image {
 		var width = t.width == 0 ? iron.App.w() : t.width;
 		var height = t.height == 0 ? iron.App.h() : t.height;
 		var depth = t.depth != null ? t.depth : 0;
@@ -606,13 +607,13 @@ class RenderPath {
 		}
 	}
 
-	function createCubeMap(t:RenderTargetRaw, depthStencil:DepthStencilFormat):CubeMap {
+	function createCubeMap(t: RenderTargetRaw, depthStencil: DepthStencilFormat): CubeMap {
 		return CubeMap.createRenderTarget(t.width,
 			t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32,
 			depthStencil);
 	}
 
-	inline function getTextureFormat(s:String):TextureFormat {
+	inline function getTextureFormat(s: String): TextureFormat {
 		switch (s) {
 		case "RGBA32": return TextureFormat.RGBA32;
 		case "RGBA64": return TextureFormat.RGBA64;
@@ -625,7 +626,7 @@ class RenderPath {
 		}
 	}
 
-	inline function getDepthStencilFormat(s:String):DepthStencilFormat {
+	inline function getDepthStencilFormat(s: String): DepthStencilFormat {
 		if (s == null || s == "") return DepthStencilFormat.DepthOnly;
 		switch (s) {
 		case "DEPTH24": return DepthStencilFormat.DepthOnly;
@@ -636,30 +637,30 @@ class RenderPath {
 }
 
 class RenderTargetRaw {
-	public var name:String;
-	public var width:Int;
-	public var height:Int;
-	public var format:String = null;
-	public var scale:Null<Float> = null;
-	public var displayp:Null<Int> = null; // Set to 1080p/...
-	public var depth_buffer:String = null; // 2D texture
-	public var mipmaps:Null<Bool> = null;
-	public var depth:Null<Int> = null; // 3D texture
-	public var is_image:Null<Bool> = null; // Image
-	public var is_cubemap:Null<Bool> = null; // Cubemap
+	public var name: String;
+	public var width: Int;
+	public var height: Int;
+	public var format: String = null;
+	public var scale: Null<Float> = null;
+	public var displayp: Null<Int> = null; // Set to 1080p/...
+	public var depth_buffer: String = null; // 2D texture
+	public var mipmaps: Null<Bool> = null;
+	public var depth: Null<Int> = null; // 3D texture
+	public var is_image: Null<Bool> = null; // Image
+	public var is_cubemap: Null<Bool> = null; // Cubemap
 	public function new() {}
 }
 
 class RenderTarget {
-	public var raw:RenderTargetRaw;
-	public var depthStencil:DepthStencilFormat;
+	public var raw: RenderTargetRaw;
+	public var depthStencil: DepthStencilFormat;
 	public var depthStencilFrom = "";
-	public var image:Image = null; // RT or image
-	public var cubeMap:CubeMap = null;
+	public var image: Image = null; // RT or image
+	public var cubeMap: CubeMap = null;
 	public var hasDepth = false;
 	public var is3D = false; // sampler2D / sampler3D
 	public var isCubeMap = false;
-	public function new(raw:RenderTargetRaw) { this.raw = raw; }
+	public function new(raw: RenderTargetRaw) { this.raw = raw; }
 	public function unload() {
 		if (image != null) image.unload();
 		if (cubeMap != null) cubeMap.unload();
@@ -667,7 +668,7 @@ class RenderTarget {
 }
 
 class CachedShaderContext {
-	public var context:ShaderContext;
+	public var context: ShaderContext;
 	public function new() {}
 }
 

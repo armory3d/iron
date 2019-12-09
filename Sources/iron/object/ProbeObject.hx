@@ -14,24 +14,24 @@ class ProbeObject extends Object {
 
 #if rp_probes
 
-	public var data:ProbeData;
-	public var renderTarget:kha.Image = null;
-	public var camera:CameraObject = null;
+	public var data: ProbeData;
+	public var renderTarget: kha.Image = null;
+	public var camera: CameraObject = null;
 	public var ready = false;
 
 	// Cubemap update
 	public var perFrame = false; // Update probe every frame
 	public var redraw = true; // Update probe next frame
 
-	var m1:Mat4;
-	var m2:Mat4;
-	var proben:Vec4;
-	var probep:Vec4;
+	var m1: Mat4;
+	var m2: Mat4;
+	var proben: Vec4;
+	var probep: Vec4;
 	// static var v = new Vec4();
 	static var p = new Vec4();
 	static var q = new Vec4();
 
-	public function new(data:ProbeData) {
+	public function new(data: ProbeData) {
 		super();
 		this.data = data;
 		Scene.active.probes.push(this);
@@ -60,14 +60,14 @@ class ProbeObject extends Object {
 
 			// var aspect = transform.scale.x / transform.scale.y;
 			var aspect = iron.App.w() / iron.App.h(); // TODO
-			var craw:TCameraData = {
+			var craw: TCameraData = {
 				name: raw.name + "_Camera",
 				near_plane: Scene.active.camera.data.raw.near_plane,
 				far_plane: Scene.active.camera.data.raw.far_plane,
 				fov: Scene.active.camera.data.raw.fov,
 				aspect: aspect
 			};
-			new CameraData(craw, function(cdata:CameraData) {
+			new CameraData(craw, function(cdata: CameraData) {
 				camera = new CameraObject(cdata);
 				camera.renderTarget = kha.Image.createRenderTarget(
 					iron.App.w(), // TODO
@@ -91,14 +91,14 @@ class ProbeObject extends Object {
 			transform.scale.z *= transform.dim.z;
 			transform.buildMatrix();
 
-			var craw:TCameraData = {
+			var craw: TCameraData = {
 				name: data.raw.name + "_Camera",
 				near_plane: Scene.active.camera.data.raw.near_plane,
 				far_plane: Scene.active.camera.data.raw.far_plane,
 				fov: 1.5708, // pi/2
 				aspect: 1.0
 			};
-			new CameraData(craw, function(cdata:CameraData) {
+			new CameraData(craw, function(cdata: CameraData) {
 				camera = new CameraObject(cdata);
 				camera.renderTargetCube = CubeMap.createRenderTarget(
 					1024, // TODO
@@ -119,7 +119,7 @@ class ProbeObject extends Object {
 		}
 	}
 
-	static function reflect(m:Mat4, n:Vec4, p:Vec4) {
+	static function reflect(m: Mat4, n: Vec4, p: Vec4) {
 		var c = -p.dot(n);
 		m._00 = 1 - 2 * n.x * n.x;
 		m._10 =   - 2 * n.x * n.y;
@@ -139,11 +139,11 @@ class ProbeObject extends Object {
 		m._33 = 1;
 	}
 
-	static inline function sign(f:Float):Float {
+	static inline function sign(f: Float): Float {
 		return f > 0.0 ? 1.0 : f < 0.0 ? -1.0 : 0.0;
 	}
 
-	static function obliqueProjection(m:Mat4, plane:Vec4) {
+	static function obliqueProjection(m: Mat4, plane: Vec4) {
 		// http://www.terathon.com/code/oblique.html
 		p.x = (sign(plane.x) + m._20) / m._00;
 		p.y = (sign(plane.y) + m._21) / m._11;
@@ -156,7 +156,7 @@ class ProbeObject extends Object {
 		m._32 = q.w;
 	}
 
-	function cullProbe(camera:CameraObject):Bool {
+	function cullProbe(camera: CameraObject): Bool {
 		if (camera.data.raw.frustum_culling) {
 			if (!CameraObject.sphereInFrustum(camera.frustumPlanes, transform, 1.0)) {
 				culled = true;
@@ -167,7 +167,7 @@ class ProbeObject extends Object {
 		return culled;
 	}
 
-	public function render(g:Graphics, activeCamera:CameraObject) {
+	public function render(g: Graphics, activeCamera: CameraObject) {
 		if (camera == null || !ready || !RenderPath.active.ready || !visible || cullProbe(activeCamera)) return;
 
 		if (data.raw.type == "planar") {

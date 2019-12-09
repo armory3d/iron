@@ -14,68 +14,68 @@ import iron.data.SceneFormat;
 
 class Geometry {
 #if arm_deinterleaved
-	public var vertexBuffers:Array<VertexBuffer>;
+	public var vertexBuffers: Array<VertexBuffer>;
 #else
-	public var vertexBuffer:VertexBuffer;
-	public var vertexBufferMap:Map<String, VertexBuffer> = new Map();
+	public var vertexBuffer: VertexBuffer;
+	public var vertexBufferMap: Map<String, VertexBuffer> = new Map();
 #end
-	public var indexBuffers:Array<IndexBuffer>;
+	public var indexBuffers: Array<IndexBuffer>;
 	public var start = 0; // For drawIndexedVertices
 	public var count = -1;
 	public var name = "";
 
 	public var ready = false;
-	public var vertices:Int16Array;
-	public var indices:Array<Uint32Array>;
+	public var vertices: Int16Array;
+	public var indices: Array<Uint32Array>;
 	public var numTris = 0;
-	public var materialIndices:Array<Int>;
-	public var struct:VertexStructure;
-	public var structLength:Int;
-	public var structStr:String;
-	public var usage:Usage;
+	public var materialIndices: Array<Int>;
+	public var struct: VertexStructure;
+	public var structLength: Int;
+	public var structStr: String;
+	public var usage: Usage;
 
-	public var instancedVB:VertexBuffer = null;
+	public var instancedVB: VertexBuffer = null;
 	public var instanced = false;
 	public var instanceCount = 0;
 
-	public var positions:Int16Array;
-	public var normals:Int16Array;
-	public var uvs:Int16Array;
-	public var uvs1:Int16Array;
-	public var cols:Int16Array;
-	public var tangents:Int16Array;
-	public var bones:Int16Array;
-	public var weights:Int16Array;
-	var data:MeshData;
+	public var positions: Int16Array;
+	public var normals: Int16Array;
+	public var uvs: Int16Array;
+	public var uvs1: Int16Array;
+	public var cols: Int16Array;
+	public var tangents: Int16Array;
+	public var bones: Int16Array;
+	public var weights: Int16Array;
+	var data: MeshData;
 
-	public var aabb:Vec4 = null;
-	public var aabbMin:Vec4 = null;
-	public var aabbMax:Vec4 = null;
+	public var aabb: Vec4 = null;
+	public var aabbMin: Vec4 = null;
+	public var aabbMax: Vec4 = null;
 
 	// Skinned
-	public var skinBoneCounts:Int16Array = null;
-	public var skinBoneIndices:Int16Array = null;
-	public var skinBoneWeights:Int16Array = null;
+	public var skinBoneCounts: Int16Array = null;
+	public var skinBoneIndices: Int16Array = null;
+	public var skinBoneWeights: Int16Array = null;
 
-	public var skeletonTransformsI:Array<Mat4> = null;
-	public var skeletonBoneRefs:Array<String> = null;
-	public var skeletonBoneLens:Float32Array = null;
+	public var skeletonTransformsI: Array<Mat4> = null;
+	public var skeletonBoneRefs: Array<String> = null;
+	public var skeletonBoneLens: Float32Array = null;
 
-	public var actions:Map<String, Array<TObj>> = null;
-	public var mats:Map<String, Array<Mat4>> = null;
+	public var actions: Map<String, Array<TObj>> = null;
+	public var mats: Map<String, Array<Mat4>> = null;
 
-	public function new(data:MeshData,
-						indices:Array<Uint32Array>,
-						materialIndices:Array<Int>,
-						positions:Int16Array,
-						normals:Int16Array,
-						uvs:Int16Array,
-						uvs1:Int16Array,
-						cols:Int16Array,
-						tangents:Int16Array = null,
-						bones:Int16Array = null,
-						weights:Int16Array = null,
-						usage:Usage = null) {
+	public function new(data: MeshData,
+						indices: Array<Uint32Array>,
+						materialIndices: Array<Int>,
+						positions: Int16Array,
+						normals: Int16Array,
+						uvs: Int16Array,
+						uvs1: Int16Array,
+						cols: Int16Array,
+						tangents: Int16Array = null,
+						bones: Int16Array = null,
+						weights: Int16Array = null,
+						usage: Usage = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
 
@@ -96,7 +96,7 @@ class Geometry {
 		// pos=4, nor=2, tex=2, col=4, tang=4, bone=4, weight=4
 		struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
 		structLength = Std.int(struct.byteSize() / 2);
-		structStr = '';
+		structStr = "";
 		for (e in struct.elements) structStr += e.name;
 	}
 
@@ -109,7 +109,7 @@ class Geometry {
 		for (buf in indexBuffers) buf.delete();
 	}
 
-	static function getVertexStructure(pos = false, nor = false, tex = false, tex1 = false, col = false, tang = false, bone = false, weight = false):VertexStructure {
+	static function getVertexStructure(pos = false, nor = false, tex = false, tex1 = false, col = false, tang = false, bone = false, weight = false): VertexStructure {
 		var structure = new VertexStructure();
 		if (pos) structure.add("pos", VertexData.Short4Norm); // p.xyz + n.z
 		if (nor) structure.add("nor", VertexData.Short2Norm); // n.xy
@@ -122,11 +122,11 @@ class Geometry {
 		return structure;
 	}
 
-	public function applyScale(sx:Float, sy:Float, sz:Float) {
+	public function applyScale(sx: Float, sy: Float, sz: Float) {
 		data.scalePos *= sx;
 	}
 
-	public function setupInstanced(data:Float32Array, instancedType:Int, usage:Usage) {
+	public function setupInstanced(data: Float32Array, instancedType: Int, usage: Usage) {
 		var structure = new VertexStructure();
 		structure.instanced = true;
 		instanced = true;
@@ -146,19 +146,19 @@ class Geometry {
 		instancedVB.unlock();
 	}
 
-	public function copyVertices(vertices:Int16Array, offset = 0, fakeUVs = false) {
+	public function copyVertices(vertices: Int16Array, offset = 0, fakeUVs = false) {
 		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights, offset, fakeUVs);
 	}
 
-	static function buildVertices(vertices:Int16Array,
-								  pa:Int16Array = null,
-								  na:Int16Array = null,
-								  uva:Int16Array = null,
-								  uva1:Int16Array = null,
-								  ca:Int16Array = null,
-								  tanga:Int16Array = null,
-								  bonea:Int16Array = null,
-								  weighta:Int16Array = null,
+	static function buildVertices(vertices: Int16Array,
+								  pa: Int16Array = null,
+								  na: Int16Array = null,
+								  uva: Int16Array = null,
+								  uva1: Int16Array = null,
+								  ca: Int16Array = null,
+								  tanga: Int16Array = null,
+								  bonea: Int16Array = null,
+								  weighta: Int16Array = null,
 								  offset = 0,
 								  fakeUVs = false) {
 
@@ -214,7 +214,7 @@ class Geometry {
 		}
 	}
 
-	public function getVerticesLength():Int {
+	public function getVerticesLength(): Int {
 		var res = positions.length;
 		if (normals != null) res += normals.length;
 		if (uvs != null) res += uvs.length;
@@ -227,29 +227,29 @@ class Geometry {
 	}
 
 #if arm_deinterleaved
-	public function get(vs:Array<TVertexElement>):Array<VertexBuffer> {
+	public function get(vs: Array<TVertexElement>): Array<VertexBuffer> {
 		var vbs = [];
 		for (e in vs) {
-			if (e.name == 'pos') { if (vertexBuffers[0] != null) vbs.push(vertexBuffers[0]); }
-			else if (e.name == 'nor') { if (vertexBuffers[1] != null) vbs.push(vertexBuffers[1]); }
-			else if (e.name == 'tex') { if (vertexBuffers[2] != null) vbs.push(vertexBuffers[2]); }
-			else if (e.name == 'tex1') { if (vertexBuffers[3] != null) vbs.push(vertexBuffers[3]); }
-			else if (e.name == 'col') { if (vertexBuffers[4] != null) vbs.push(vertexBuffers[4]); }
-			else if (e.name == 'tang') { if (vertexBuffers[5] != null) vbs.push(vertexBuffers[5]); }
-			else if (e.name == 'bone') { if (vertexBuffers[6] != null) vbs.push(vertexBuffers[6]); }
-			else if (e.name == 'weight') { if (vertexBuffers[7] != null) vbs.push(vertexBuffers[7]); }
-			else if (e.name == 'ipos') { if (instancedVB != null) vbs.push(instancedVB); }
+			if (e.name == "pos") { if (vertexBuffers[0] != null) vbs.push(vertexBuffers[0]); }
+			else if (e.name == "nor") { if (vertexBuffers[1] != null) vbs.push(vertexBuffers[1]); }
+			else if (e.name == "tex") { if (vertexBuffers[2] != null) vbs.push(vertexBuffers[2]); }
+			else if (e.name == "tex1") { if (vertexBuffers[3] != null) vbs.push(vertexBuffers[3]); }
+			else if (e.name == "col") { if (vertexBuffers[4] != null) vbs.push(vertexBuffers[4]); }
+			else if (e.name == "tang") { if (vertexBuffers[5] != null) vbs.push(vertexBuffers[5]); }
+			else if (e.name == "bone") { if (vertexBuffers[6] != null) vbs.push(vertexBuffers[6]); }
+			else if (e.name == "weight") { if (vertexBuffers[7] != null) vbs.push(vertexBuffers[7]); }
+			else if (e.name == "ipos") { if (instancedVB != null) vbs.push(instancedVB); }
 		}
 		return vbs;
 	}
 #else
-	function hasAttrib(s:String, vs:Array<TVertexElement>):Bool {
+	function hasAttrib(s: String, vs: Array<TVertexElement>): Bool {
 		for (e in vs) if (e.name == s) return true;
 		return false;
 	}
 
-	public function get(vs:Array<TVertexElement>):VertexBuffer {
-		var s = '';
+	public function get(vs: Array<TVertexElement>): VertexBuffer {
+		var s = "";
 		for (e in vs) s += e.name;
 		var vb = vertexBufferMap.get(s);
 		if (vb == null) {
@@ -317,7 +317,7 @@ class Geometry {
 	}
 
 #if arm_deinterleaved
-	function makeDeinterleavedVB(data:Int16Array, name:String, structLength:Int) {
+	function makeDeinterleavedVB(data: Int16Array, name: String, structLength: Int) {
 		var struct = new VertexStructure();
 		struct.add(name, structLength == 2 ? VertexData.Short2Norm : VertexData.Short4Norm);
 
@@ -331,25 +331,25 @@ class Geometry {
 	}
 #end
 
-	public function getVerticesCount():Int {
+	public function getVerticesCount(): Int {
 		return Std.int(positions.length / 4);
 	}
 
 	// Skinned
-	public function addArmature(armature:Armature) {
+	public function addArmature(armature: Armature) {
 		for (a in armature.actions) {
 			addAction(a.bones, a.name);
 		}
 	}
 
-	public function addAction(bones:Array<TObj>, name:String) {
+	public function addAction(bones: Array<TObj>, name: String) {
 		if (bones == null) return;
 		if (actions == null) {
 			actions = new Map();
 			mats = new Map();
 		}
 		if (actions.get(name) != null) return;
-		var actionBones:Array<TObj> = [];
+		var actionBones: Array<TObj> = [];
 
 		// Set bone references
 		for (s in skeletonBoneRefs) {
@@ -361,14 +361,14 @@ class Geometry {
 		}
 		actions.set(name, actionBones);
 
-		var actionMats:Array<Mat4> = [];
+		var actionMats: Array<Mat4> = [];
 		for (b in actionBones) {
 			actionMats.push(Mat4.fromFloat32Array(b.transform.values));
 		}
 		mats.set(name, actionMats);
 	}
 
-	public function initSkeletonTransforms(transformsI:Array<Float32Array>) {
+	public function initSkeletonTransforms(transformsI: Array<Float32Array>) {
 		skeletonTransformsI = [];
 		for (t in transformsI) {
 			var mi = Mat4.fromFloat32Array(t);

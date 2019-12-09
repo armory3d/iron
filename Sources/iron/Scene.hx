@@ -30,48 +30,48 @@ using StringTools;
 
 class Scene {
 
-	public static var active:Scene = null;
-	public static var global:Object = null;
+	public static var active: Scene = null;
+	public static var global: Object = null;
 	static var uidCounter = 0;
-	public var uid:Int;
-	public var raw:TSceneFormat;
-	public var root:Object;
-	public var sceneParent:Object;
-	public var camera:CameraObject;
-	public var world:WorldData;
+	public var uid: Int;
+	public var raw: TSceneFormat;
+	public var root: Object;
+	public var sceneParent: Object;
+	public var camera: CameraObject;
+	public var world: WorldData;
 
 	#if arm_batch
-	public var meshBatch:MeshBatch = null;
+	public var meshBatch: MeshBatch = null;
 	#end
 	#if arm_stream
-	public var sceneStream:SceneStream = null;
+	public var sceneStream: SceneStream = null;
 	#end
 	#if arm_terrain
-	public var terrainStream:TerrainStream = null;
+	public var terrainStream: TerrainStream = null;
 	#end
 	#if rp_decals
-	public var decals:Array<DecalObject>;
+	public var decals: Array<DecalObject>;
 	#end
 	#if rp_probes
-	public var probes:Array<ProbeObject>;
+	public var probes: Array<ProbeObject>;
 	#end
-	public var meshes:Array<MeshObject>;
-	public var lights:Array<LightObject>;
-	public var cameras:Array<CameraObject>;
+	public var meshes: Array<MeshObject>;
+	public var lights: Array<LightObject>;
+	public var cameras: Array<CameraObject>;
 	#if arm_audio
-	public var speakers:Array<SpeakerObject>;
+	public var speakers: Array<SpeakerObject>;
 	#end
-	public var empties:Array<Object>;
-	public var animations:Array<Animation>;
-	public var armatures:Array<Armature>;
-	var groups:Map<String, Array<Object>> = null;
+	public var empties: Array<Object>;
+	public var animations: Array<Animation>;
+	public var armatures: Array<Armature>;
+	var groups: Map<String, Array<Object>> = null;
 
-	public var embedded:Map<String, kha.Image>;
+	public var embedded: Map<String, kha.Image>;
 
-	public var ready:Bool; // Async in progress
+	public var ready: Bool; // Async in progress
 
-	public var traitInits:Array<Void->Void> = [];
-	public var traitRemoves:Array<Void->Void> = [];
+	public var traitInits: Array<Void->Void> = [];
+	public var traitRemoves: Array<Void->Void> = [];
 
 	public function new() {
 		uid = uidCounter++;
@@ -104,16 +104,16 @@ class Scene {
 		if (global == null) global = new Object();
 	}
 
-	public static function create(format:TSceneFormat, done:Object->Void) {
+	public static function create(format: TSceneFormat, done: Object->Void) {
 		active = new Scene();
 		active.ready = false;
 		active.raw = format;
 
-		Data.getWorld(format.name, format.world_ref, function(world:WorldData) {
+		Data.getWorld(format.name, format.world_ref, function(world: WorldData) {
 			active.world = world;
 
 			// Startup scene
-			active.addScene(format.name, null, function(sceneObject:Object) {
+			active.addScene(format.name, null, function(sceneObject: Object) {
 
 				#if arm_terrain
 				if (format.terrain_ref != null)  {
@@ -138,11 +138,11 @@ class Scene {
 	}
 
 	#if arm_patch
-	public static var getRenderPath:Void->RenderPath;
+	public static var getRenderPath: Void->RenderPath;
 	public static function patch() {
 		Data.deleteAll();
 		var cameraTransform = Scene.active.camera.transform;
-		Scene.setActive(Scene.active.raw.name, function(o:Object) {
+		Scene.setActive(Scene.active.raw.name, function(o: Object) {
 			RenderPath.setActive(getRenderPath());
 			Scene.active.camera.transform = cameraTransform;
 		});
@@ -178,12 +178,12 @@ class Scene {
 	}
 
 	static var framePassed = true;
-	public static function setActive(sceneName:String, done:Object->Void = null) {
+	public static function setActive(sceneName: String, done: Object->Void = null) {
 		if (!framePassed) return;
 		framePassed = false;
 		if (Scene.active != null) Scene.active.remove();
-		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
-			Scene.create(format, function(o:Object) {
+		Data.getSceneRaw(sceneName, function(format: TSceneFormat) {
+			Scene.create(format, function(o: Object) {
 				if (done != null) done(o);
 				#if rp_voxelao // Revoxelize
 				RenderPath.active.voxelized = 0;
@@ -204,7 +204,7 @@ class Scene {
 		for (e in empties) if (e != null && e.parent != null) e.transform.update();
 	}
 
-	public function renderFrame(g:kha.graphics4.Graphics) {
+	public function renderFrame(g: kha.graphics4.Graphics) {
 		if (!ready || RenderPath.active == null) return;
 		framePassed = true;
 
@@ -223,48 +223,48 @@ class Scene {
 	}
 
 	// Objects
-	public function addObject(parent:Object = null):Object {
+	public function addObject(parent: Object = null): Object {
 		var object = new Object();
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 
-	public function getChild(name:String):Object {
+	public function getChild(name: String): Object {
 		return root.getChild(name);
 	}
 
-	public function getTrait(c:Class<Trait>):Dynamic {
+	public function getTrait(c: Class<Trait>): Dynamic {
 		return root.children.length > 0 ? root.children[0].getTrait(c) : null;
 	}
 
-	public function getMesh(name:String):MeshObject {
+	public function getMesh(name: String): MeshObject {
 		for (m in meshes) if (m.name == name) return m;
 		return null;
 	}
 
-	public function getLight(name:String):LightObject {
+	public function getLight(name: String): LightObject {
 		for (l in lights) if (l.name == name) return l;
 		return null;
 	}
 
-	public function getCamera(name:String):CameraObject {
+	public function getCamera(name: String): CameraObject {
 		for (c in cameras) if (c.name == name) return c;
 		return null;
 	}
 
 	#if arm_audio
-	public function getSpeaker(name:String):SpeakerObject {
+	public function getSpeaker(name: String): SpeakerObject {
 		for (s in speakers) if (s.name == name) return s;
 		return null;
 	}
 	#end
 
-	public function getEmpty(name:String):Object {
+	public function getEmpty(name: String): Object {
 		for (e in empties) if (e.name == name) return e;
 		return null;
 	}
 
-	public function getGroup(name:String):Array<Object> {
+	public function getGroup(name: String): Array<Object> {
 		if (groups == null) groups = new Map();
 		var g = groups.get(name);
 		if (g == null) {
@@ -280,34 +280,34 @@ class Scene {
 		return g;
 	}
 
-	public function addMeshObject(data:MeshData, materials:Vector<MaterialData>, parent:Object = null):MeshObject {
+	public function addMeshObject(data: MeshData, materials: Vector<MaterialData>, parent: Object = null): MeshObject {
 		var object = new MeshObject(data, materials);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 
-	public function addLightObject(data:LightData, parent:Object = null):LightObject {
+	public function addLightObject(data: LightData, parent: Object = null): LightObject {
 		var object = new LightObject(data);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 
 	#if rp_probes
-	public function addProbeObject(data:ProbeData, parent:Object = null):ProbeObject {
+	public function addProbeObject(data: ProbeData, parent: Object = null): ProbeObject {
 		var object = new ProbeObject(data);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 	#end
 
-	public function addCameraObject(data:CameraData, parent:Object = null):CameraObject {
+	public function addCameraObject(data: CameraData, parent: Object = null): CameraObject {
 		var object = new CameraObject(data);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
 	}
 
 	#if arm_audio
-	public function addSpeakerObject(data:TSpeakerData, parent:Object = null):SpeakerObject {
+	public function addSpeakerObject(data: TSpeakerData, parent: Object = null): SpeakerObject {
 		var object = new SpeakerObject(data);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
@@ -315,7 +315,7 @@ class Scene {
 	#end
 
 	#if rp_decals
-	public function addDecalObject(material:MaterialData, parent:Object = null):DecalObject {
+	public function addDecalObject(material: MaterialData, parent: Object = null): DecalObject {
 		var object = new DecalObject(material);
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
@@ -325,12 +325,12 @@ class Scene {
 	#if arm_stream
 	var objectsTraversed = 0;
 	#end
-	public function addScene(sceneName:String, parent:Object, done:Object->Void) {
+	public function addScene(sceneName: String, parent: Object, done: Object->Void) {
 		if (parent == null) {
 			parent = addObject();
 			parent.name = sceneName;
 		}
-		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
+		Data.getSceneRaw(sceneName, function(format: TSceneFormat) {
 			createTraits(format.traits, parent); // Scene traits
 			loadEmbeddedData(format.embedded_datas, function() { // Additional scene assets
 				#if arm_stream
@@ -339,7 +339,7 @@ class Scene {
 				var objectsTraversed = 0;
 				#end
 				var objectsCount = getObjectsCount(format.objects);
-				function traverseObjects(parent:Object, objects:Array<TObj>, parentObject:TObj, done:Void->Void) {
+				function traverseObjects(parent: Object, objects: Array<TObj>, parentObject: TObj, done: Void->Void) {
 					if (objects == null) return;
 					for (i in 0...objects.length) {
 						var o = objects[i];
@@ -348,7 +348,7 @@ class Scene {
 							continue; // Do not auto-create this object
 						}
 
-						createObject(o, format, parent, parentObject, function(object:Object) {
+						createObject(o, format, parent, parentObject, function(object: Object) {
 							if (object != null) traverseObjects(object, o.children, o, done);
 							if (++objectsTraversed == objectsCount) done();
 						});
@@ -367,7 +367,7 @@ class Scene {
 		});
 	}
 
-	function getObjectsCount(objects:Array<TObj>, discardNoSpawn = true):Int {
+	function getObjectsCount(objects: Array<TObj>, discardNoSpawn = true): Int {
 		if (objects == null) return 0;
 		var result = objects.length;
 		for (o in objects) {
@@ -378,19 +378,18 @@ class Scene {
 	}
 
 	/**
-	 * Spawn a new object instance in the Scene.
-	 *
-	 * @param	name The String name of the Object as defined in blender.
-	 * @param	parent The parent object this new object should be attached to. (Optional use null to just add to the Scene without a parent).
-	 * @param	done A completion handler function to run after the spawn is complete. Example might want to change properties of the object after spawning.
-	 * @param	spawnChildren Also spawn the children of the newly spawned object. (Optional default is true).
-	 */
-	public function spawnObject(name:String, parent:Object, done:Object->Void, spawnChildren = true) {
+	  Spawn a new object instance in the Scene.
+	  @param	name The String name of the Object as defined in blender.
+	  @param	parent The parent object this new object should be attached to. (Optional use null to just add to the Scene without a parent).
+	  @param	done A completion handler function to run after the spawn is complete. Example might want to change properties of the object after spawning.
+	  @param	spawnChildren Also spawn the children of the newly spawned object. (Optional default is true).
+	**/
+	public function spawnObject(name: String, parent: Object, done: Object->Void, spawnChildren = true) {
 		var objectsTraversed = 0;
 		var obj = getObj(raw, name);
 		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
-		function spawnObjectTree(obj:TObj, parent:Object, parentObject:TObj, done:Object->Void) {
-			createObject(obj, raw, parent, parentObject, function(object:Object) {
+		function spawnObjectTree(obj: TObj, parent: Object, parentObject: TObj, done: Object->Void) {
+			createObject(obj, raw, parent, parentObject, function(object: Object) {
 				if (spawnChildren && obj.children != null) {
 					for (child in obj.children) spawnObjectTree(child, object, obj, done);
 				}
@@ -400,19 +399,19 @@ class Scene {
 		spawnObjectTree(obj, parent, null, done);
 	}
 
-	public function parseObject(sceneName:String, objectName:String, parent:Object, done:Object->Void) {
-		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
-			var o:TObj = getObj(format, objectName);
+	public function parseObject(sceneName: String, objectName: String, parent: Object, done: Object->Void) {
+		Data.getSceneRaw(sceneName, function(format: TSceneFormat) {
+			var o: TObj = getObj(format, objectName);
 			if (o == null) done(null);
 			createObject(o, format, parent, null, done);
 		});
 	}
 
-	public static function getObj(format:TSceneFormat, name:String):TObj {
+	public static function getObj(format: TSceneFormat, name: String): TObj {
 		return traverseObjs(format.objects, name);
 	}
 
-	static function traverseObjs(children:Array<TObj>, name:String):TObj {
+	static function traverseObjs(children: Array<TObj>, name: String): TObj {
 		for (o in children) {
 			if (o.name == name) return o;
 			if (o.children != null) {
@@ -423,23 +422,23 @@ class Scene {
 		return null;
 	}
 
-	public function createObject(o:TObj, format:TSceneFormat, parent:Object, parentObject:TObj, done:Object->Void) {
+	public function createObject(o: TObj, format: TSceneFormat, parent: Object, parentObject: TObj, done: Object->Void) {
 		var sceneName = format.name;
 		if (o.type == "camera_object") {
-			Data.getCamera(sceneName, o.data_ref, function(b:CameraData) {
+			Data.getCamera(sceneName, o.data_ref, function(b: CameraData) {
 				var object = addCameraObject(b, parent);
 				returnObject(object, o, done);
 			});
 		}
 		else if (o.type == "light_object") {
-			Data.getLight(sceneName, o.data_ref, function(b:LightData) {
+			Data.getLight(sceneName, o.data_ref, function(b: LightData) {
 				var object = addLightObject(b, parent);
 				returnObject(object, o, done);
 			});
 		}
 		#if rp_probes
 		else if (o.type == "probe_object") {
-			Data.getProbe(sceneName, o.data_ref, function(b:ProbeData) {
+			Data.getProbe(sceneName, o.data_ref, function(b: ProbeData) {
 				var object = addProbeObject(b, parent);
 				returnObject(object, o, done);
 			});
@@ -455,7 +454,7 @@ class Scene {
 				var materialsLoaded = 0;
 				for (i in 0...o.material_refs.length) {
 					var ref = o.material_refs[i];
-					Data.getMaterial(sceneName, ref, function(mat:MaterialData) {
+					Data.getMaterial(sceneName, ref, function(mat: MaterialData) {
 						materials[i] = mat;
 						materialsLoaded++;
 						if (materialsLoaded == o.material_refs.length) {
@@ -474,7 +473,7 @@ class Scene {
 		#if rp_decals
 		else if (o.type == "decal_object") {
 			if (o.material_refs != null && o.material_refs.length > 0) {
-				Data.getMaterial(sceneName, o.material_refs[0], function(material:MaterialData) {
+				Data.getMaterial(sceneName, o.material_refs[0], function(material: MaterialData) {
 					var object = addDecalObject(material, parent);
 					returnObject(object, o, done);
 				});
@@ -487,14 +486,14 @@ class Scene {
 		#end
 		else if (o.type == "object") {
 			var object = addObject(parent);
-			returnObject(object, o, function(ro:Object){
+			returnObject(object, o, function(ro: Object){
 				if (o.group_ref != null) { // Instantiate group objects
 					var spawned = 0;
 					var object_refs = getGroupObjectRefs(o.group_ref);
 					if (object_refs.length == 0) done(ro);
 					else {
 						for (s in object_refs) {
-							spawnObject(s, ro, function(so:Object) {
+							spawnObject(s, ro, function(so: Object) {
 								if (++spawned == object_refs.length) done(ro);
 							});
 						}
@@ -506,19 +505,19 @@ class Scene {
 		else done(null);
 	}
 
-	function getGroupObjectRefs(group_ref:String):Array<String> {
+	function getGroupObjectRefs(group_ref: String): Array<String> {
 		for (g in raw.groups) if (g.name == group_ref) return g.object_refs;
 		return null;
 	}
 
 #if arm_stream
-	function childCount(o:TObj):Int {
+	function childCount(o: TObj): Int {
 		var i = o.children.length;
 		if (o.children != null) for (c in o.children) i += childCount(c);
 		return i;
 	}
 
-	function streamMeshObject(object_file:String, data_ref:String, sceneName:String, armature:Armature, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
+	function streamMeshObject(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, o: TObj, done: Object->Void) {
 		sceneStream.add(object_file, data_ref, sceneName, armature, materials, parent, o);
 		// TODO: Increase objectsTraversed by full children count
 		if (o.children != null) objectsTraversed += o.children.length;
@@ -527,15 +526,15 @@ class Scene {
 	}
 #end
 
-	function isLod(raw:TObj):Bool {
+	function isLod(raw: TObj): Bool {
 		return raw != null && raw.lods != null && raw.lods.length > 0;
 	}
 
-	function createMeshObject(o:TObj, format:TSceneFormat, parent:Object, parentObject:TObj, materials:Vector<MaterialData>, done:Object->Void) {
+	function createMeshObject(o: TObj, format: TSceneFormat, parent: Object, parentObject: TObj, materials: Vector<MaterialData>, done: Object->Void) {
 		// Mesh reference
-		var ref = o.data_ref.split('/');
-		var object_file = '';
-		var data_ref = '';
+		var ref = o.data_ref.split("/");
+		var object_file = "";
+		var data_ref = "";
 		var sceneName = format.name;
 		if (ref.length == 2) { // File reference
 			object_file = ref[0];
@@ -548,18 +547,18 @@ class Scene {
 
 		// Bone objects are stored in armature parent
 		if (parentObject != null && parentObject.bone_actions != null) {
-			var bactions:Array<TSceneFormat> = [];
+			var bactions: Array<TSceneFormat> = [];
 			for (ref in parentObject.bone_actions) {
-				Data.getSceneRaw(ref, function(action:TSceneFormat) {
+				Data.getSceneRaw(ref, function(action: TSceneFormat) {
 					bactions.push(action);
 					if (bactions.length == parentObject.bone_actions.length) {
-						var armature:Armature = null;
+						var armature: Armature = null;
 						// Check if armature exists
 						for (a in armatures) if (a.uid == parent.uid) { armature = a; break; }
 						// Create new one
 						if (armature == null) {
 							// Unique name if armature was already instantiated for different object
-							for (a in armatures) if (a.name == parent.name) { parent.name += '.' + parent.uid; break; }
+							for (a in armatures) if (a.name == parent.name) { parent.name += "." + parent.uid; break; }
 							armature = new Armature(parent.uid, parent.name, bactions);
 							armatures.push(armature);
 						}
@@ -583,11 +582,11 @@ class Scene {
 		}
 	}
 
-	public function returnMeshObject(object_file:String, data_ref:String, sceneName:String, armature:Armature, materials:Vector<MaterialData>, parent:Object, o:TObj, done:Object->Void) {
-		Data.getMesh(object_file, data_ref, function(mesh:MeshData) {
+	public function returnMeshObject(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, o: TObj, done: Object->Void) {
+		Data.getMesh(object_file, data_ref, function(mesh: MeshData) {
 			if (mesh.isSkinned) {
 				var g = mesh.geom;
-				armature != null ? g.addArmature(armature) : g.addAction(mesh.format.objects, 'none');
+				armature != null ? g.addArmature(armature) : g.addAction(mesh.format.objects, "none");
 			}
 			var object = addMeshObject(mesh, materials, parent);
 			#if arm_batch
@@ -609,16 +608,16 @@ class Scene {
 		});
 	}
 
-	function returnObject(object:Object, o:TObj, done:Object->Void) {
+	function returnObject(object: Object, o: TObj, done: Object->Void) {
 		// Load object actions
 		if (object != null && o.object_actions != null) {
-			var oactions:Array<TSceneFormat> = [];
+			var oactions: Array<TSceneFormat> = [];
 			while (oactions.length < o.object_actions.length) oactions.push(null);
 			var actionsLoaded = 0;
 			for (i in 0...o.object_actions.length) {
 				var ref = o.object_actions[i];
 				if (ref == "null") { actionsLoaded++; continue; } // No startup action set
-				Data.getSceneRaw(ref, function(action:TSceneFormat) {
+				Data.getSceneRaw(ref, function(action: TSceneFormat) {
 					oactions[i] = action;
 					actionsLoaded++;
 					if (actionsLoaded == o.object_actions.length) {
@@ -630,7 +629,7 @@ class Scene {
 		else returnObjectLoaded(object, o, null, done);
 	}
 
-	function returnObjectLoaded(object:Object, o:TObj, oactions:Array<TSceneFormat>, done:Object->Void) {
+	function returnObjectLoaded(object: Object, o: TObj, oactions: Array<TSceneFormat>, done: Object->Void) {
 		if (object != null) {
 			object.raw = o;
 			object.name = o.name;
@@ -649,7 +648,7 @@ class Scene {
 		done(object);
 	}
 
-	static function generateTransform(object:TObj, transform:Transform) {
+	static function generateTransform(object: TObj, transform: Transform) {
 		transform.world = object.transform != null ? iron.math.Mat4.fromFloat32Array(object.transform.values) : iron.math.Mat4.identity();
 		transform.world.decompose(transform.loc, transform.rot, transform.scale);
 		// Whether to apply parent matrix
@@ -657,12 +656,12 @@ class Scene {
 		if (transform.object.parent != null) transform.update();
 	}
 
-	static function createTraits(traits:Array<TTrait>, object:Object) {
+	static function createTraits(traits: Array<TTrait>, object: Object) {
 		if (traits == null) return;
 		for (t in traits) {
 			if (t.type == "Script") {
 				// Assign arguments if any
-				var args:Array<Dynamic> = [];
+				var args: Array<Dynamic> = [];
 				if (t.parameters != null) {
 					for (param in t.parameters) {
 						args.push(parseArg(param));
@@ -687,7 +686,7 @@ class Scene {
 		}
 	}
 
- 	static function parseArg(str:String):Dynamic {
+ 	static function parseArg(str: String): Dynamic {
 		if (str == "true") return true;
 		else if (str == "false") return false;
 		else if (str == "null") return null;
@@ -698,7 +697,7 @@ class Scene {
 			str = str.replace("[", "");
 			str = str.replace("]", "");
 			str = str.replace(" ", "");
-			var ar:Dynamic = [];
+			var ar: Dynamic = [];
 			var vals = str.split(",");
 			for (v in vals) ar.push(parseArg(v));
 			return ar;
@@ -710,7 +709,7 @@ class Scene {
 		}
 	}
 
-	static function createConstraints(constraints:Array<TConstraint>, object:Object) {
+	static function createConstraints(constraints: Array<TConstraint>, object: Object) {
 		if (constraints == null) return;
 		object.constraints = [];
 		for (c in constraints) {
@@ -719,13 +718,13 @@ class Scene {
 		}
 	}
 
-	static function createTraitClassInstance(traitName:String, args:Array<Dynamic>):Dynamic {
+	static function createTraitClassInstance(traitName: String, args: Array<Dynamic>): Dynamic {
 		var cname = Type.resolveClass(traitName);
 		if (cname == null) return null;
 		return Type.createInstance(cname, args);
 	}
 
-	function loadEmbeddedData(datas:Array<String>, done:Void->Void) {
+	function loadEmbeddedData(datas: Array<String>, done: Void->Void) {
 		if (datas == null) { done(); return; }
 		var loaded = 0;
 		for (file in datas) {
@@ -736,9 +735,9 @@ class Scene {
 		}
 	}
 
-	public function embedData(file:String, done:Void->Void) {
-		if (file.endsWith('.raw')) {
-			Data.getBlob(file, function(blob:kha.Blob) {
+	public function embedData(file: String, done: Void->Void) {
+		if (file.endsWith(".raw")) {
+			Data.getBlob(file, function(blob: kha.Blob) {
 				// Raw 3D texture bytes
 				var b = blob.toBytes();
 				var w = Std.int(Math.pow(b.length, 1 / 3)) + 1;
@@ -748,7 +747,7 @@ class Scene {
 			});
 		}
 		else {
-			Data.getImage(file, function(image:kha.Image) {
+			Data.getImage(file, function(image: kha.Image) {
 				embedded.set(file, image);
 				done();
 			});
@@ -756,16 +755,16 @@ class Scene {
 	}
 
 	// Hooks
-	public function notifyOnInit(f:Void->Void) {
+	public function notifyOnInit(f: Void->Void) {
 		if (ready) f(); // Scene already running
 		else traitInits.push(f);
 	}
 
-	public function removeInit(f:Void->Void) {
+	public function removeInit(f: Void->Void) {
 		traitInits.remove(f);
 	}
 
-	public function notifyOnRemove(f:Void->Void) {
+	public function notifyOnRemove(f: Void->Void) {
 		traitRemoves.push(f);
 	}
 }

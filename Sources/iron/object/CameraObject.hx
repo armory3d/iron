@@ -11,18 +11,18 @@ import iron.data.CameraData;
 
 class CameraObject extends Object {
 
-	public var data:CameraData;
-	public var P:Mat4;
+	public var data: CameraData;
+	public var P: Mat4;
 	#if arm_taa
 	public var noJitterP = Mat4.identity();
 	var frame = 0;
 	#end
-	public var V:Mat4;
-	public var prevV:Mat4 = null;
-	public var VP:Mat4;
-	public var frustumPlanes:Array<FrustumPlane> = null;
-	public var renderTarget:kha.Image = null; // Render camera view to texture
-	public var renderTargetCube:CubeMap = null;
+	public var V: Mat4;
+	public var prevV: Mat4 = null;
+	public var VP: Mat4;
+	public var frustumPlanes: Array<FrustumPlane> = null;
+	public var renderTarget: kha.Image = null; // Render camera view to texture
+	public var renderTargetCube: CubeMap = null;
 	public var currentFace = 0;
 
 	static var temp = new Vec4();
@@ -37,7 +37,7 @@ class CameraObject extends Object {
 	public var rightV = Mat4.identity();
 	#end
 
-	public function new(data:CameraData) {
+	public function new(data: CameraData) {
 		super();
 
 		this.data = data;
@@ -59,7 +59,7 @@ class CameraObject extends Object {
 		Scene.active.cameras.push(this);
 	}
 
-	public function buildProjection(screenAspect:Null<Float> = null) {
+	public function buildProjection(screenAspect: Null<Float> = null) {
 		if (data.raw.ortho != null) {
 			P = Mat4.ortho(data.raw.ortho[0], data.raw.ortho[1], data.raw.ortho[2], data.raw.ortho[3], data.raw.near_plane, data.raw.far_plane);
 		}
@@ -73,14 +73,14 @@ class CameraObject extends Object {
 		#end
 	}
 
-	public override function remove() {
+	override public function remove() {
 		Scene.active.cameras.remove(this);
 		// if (renderTarget != null) renderTarget.unload();
 		// if (renderTargetCube != null) renderTargetCube.unload();
 		super.remove();
 	}
 
-	public function renderFrame(g:Graphics) {
+	public function renderFrame(g: Graphics) {
 		#if arm_taa
 		projectionJitter();
 		#end
@@ -147,7 +147,7 @@ class CameraObject extends Object {
 		}
 	}
 
-	public static function buildViewFrustum(VP:Mat4, frustumPlanes:Array<FrustumPlane>) {
+	public static function buildViewFrustum(VP: Mat4, frustumPlanes: Array<FrustumPlane>) {
 		// Left plane
 		frustumPlanes[0].setComponents(VP._03 + VP._00, VP._13 + VP._10, VP._23 + VP._20, VP._33 + VP._30);
 		// Right plane
@@ -164,7 +164,7 @@ class CameraObject extends Object {
 		for (plane in frustumPlanes) plane.normalize();
 	}
 
-	public static function sphereInFrustum(frustumPlanes:Array<FrustumPlane>, t:Transform, radiusScale = 1.0, offsetX = 0.0, offsetY = 0.0, offsetZ = 0.0):Bool {
+	public static function sphereInFrustum(frustumPlanes: Array<FrustumPlane>, t: Transform, radiusScale = 1.0, offsetX = 0.0, offsetY = 0.0, offsetZ = 0.0): Bool {
 		// Use scale when radius is changing
 		var radius = t.radius * radiusScale;
 		for (plane in frustumPlanes) {
@@ -177,7 +177,7 @@ class CameraObject extends Object {
 		return true;
 	}
 
-	public static function setCubeFace(m:Mat4, eye:Vec4, face:Int, flip = false) {
+	public static function setCubeFace(m: Mat4, eye: Vec4, face: Int, flip = false) {
 		// Set matrix to match cubemap face
 		vcenter.setFrom(eye);
 		var f = flip ? -1.0 : 1.0;
@@ -204,12 +204,12 @@ class CameraObject extends Object {
 		m.setLookAt(eye, vcenter, vup);
 	}
 
-	public inline function right():Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }
-	public inline function up():Vec4 { return new Vec4(transform.local._10, transform.local._11, transform.local._12); }
-	public inline function look():Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
-	public inline function rightWorld():Vec4 { return new Vec4(transform.world._00, transform.world._01, transform.world._02); }
-	public inline function upWorld():Vec4 { return new Vec4(transform.world._10, transform.world._11, transform.world._12); }
-	public inline function lookWorld():Vec4 { return new Vec4(-transform.world._20, -transform.world._21, -transform.world._22); }
+	public inline function right(): Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }
+	public inline function up(): Vec4 { return new Vec4(transform.local._10, transform.local._11, transform.local._12); }
+	public inline function look(): Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
+	public inline function rightWorld(): Vec4 { return new Vec4(transform.world._00, transform.world._01, transform.world._02); }
+	public inline function upWorld(): Vec4 { return new Vec4(transform.world._10, transform.world._11, transform.world._12); }
+	public inline function lookWorld(): Vec4 { return new Vec4(-transform.world._20, -transform.world._21, -transform.world._22); }
 }
 
 class FrustumPlane {
@@ -224,11 +224,11 @@ class FrustumPlane {
 		constant *= inverseNormalLength;
 	}
 
-	public function distanceToSphere(sphereCenter:Vec4, sphereRadius:Float):Float {
+	public function distanceToSphere(sphereCenter: Vec4, sphereRadius: Float): Float {
 		return (normal.dot(sphereCenter) + constant) - sphereRadius;
 	}
 
-	public inline function setComponents(x:Float, y:Float, z:Float, w:Float) {
+	public inline function setComponents(x: Float, y: Float, z: Float, w: Float) {
 		normal.set(x, y, z);
 		constant = w;
 	}

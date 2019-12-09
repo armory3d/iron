@@ -9,18 +9,18 @@ class Tilesheet {
 	public var tileX = 0.0; // Tile offset on tilesheet texture 0-1
 	public var tileY = 0.0;
 
-	public var raw:TTilesheetData;
-	var action:TTilesheetAction = null;
-	var ready:Bool;
+	public var raw: TTilesheetData;
+	var action: TTilesheetAction = null;
+	var ready: Bool;
 
 	var paused = false;
 	var frame = 0;
 	var time = 0.0;
-	var onActionComplete:Void->Void = null;
+	var onActionComplete: Void->Void = null;
 
-	public function new(sceneName:String, tilesheet_ref:String, tilesheet_action_ref:String) {
+	public function new(sceneName: String, tilesheet_ref: String, tilesheet_action_ref: String) {
 		ready = false;
-		Data.getSceneRaw(sceneName, function(format:TSceneFormat) {
+		Data.getSceneRaw(sceneName, function(format: TSceneFormat) {
 			for (ts in format.tilesheet_datas) {
 				if (ts.name == tilesheet_ref) {
 					raw = ts;
@@ -32,7 +32,7 @@ class Tilesheet {
 		});
 	}
 
-	public function play(action_ref:String, onActionComplete:Void->Void = null) {
+	public function play(action_ref: String, onActionComplete: Void->Void = null) {
 		this.onActionComplete = onActionComplete;
 		for (a in raw.actions) if (a.name == action_ref) { action = a; break; }
 		setFrame(action.start);
@@ -60,7 +60,7 @@ class Tilesheet {
 		}
 	}
 
-	function setFrame(f:Int) {
+	function setFrame(f: Int) {
 		frame = f;
 		time = 0;
 

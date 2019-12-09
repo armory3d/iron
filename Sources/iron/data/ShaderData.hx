@@ -19,12 +19,12 @@ using StringTools;
 
 class ShaderData {
 
-	public var name:String;
-	public var raw:TShaderData;
+	public var name: String;
+	public var raw: TShaderData;
 
-	public var contexts:Array<ShaderContext> = [];
+	public var contexts: Array<ShaderContext> = [];
 
-	public function new(raw:TShaderData, done:ShaderData->Void, overrideContext:TShaderOverride = null) {
+	public function new(raw: TShaderData, done: ShaderData->Void, overrideContext: TShaderOverride = null) {
 		this.raw = raw;
 		this.name = raw.name;
 
@@ -33,7 +33,7 @@ class ShaderData {
 
 		for (i in 0...raw.contexts.length) {
 			var c = raw.contexts[i];
-			new ShaderContext(c, function(con:ShaderContext) {
+			new ShaderContext(c, function(con: ShaderContext) {
 				contexts[i] = con;
 				contextsLoaded++;
 				if (contextsLoaded == raw.contexts.length) done(this);
@@ -41,9 +41,9 @@ class ShaderData {
 		}
 	}
 
-	public static function parse(file:String, name:String, done:ShaderData->Void, overrideContext:TShaderOverride = null) {
-		Data.getSceneRaw(file, function(format:TSceneFormat) {
-			var raw:TShaderData = Data.getShaderRawByName(format.shader_datas, name);
+	public static function parse(file: String, name: String, done: ShaderData->Void, overrideContext: TShaderOverride = null) {
+		Data.getSceneRaw(file, function(format: TSceneFormat) {
+			var raw: TShaderData = Data.getShaderRawByName(format.shader_datas, name);
 			if (raw == null) {
 				trace('Shader data "$name" not found!');
 				done(null);
@@ -56,24 +56,24 @@ class ShaderData {
 		for (c in contexts) c.delete();
 	}
 
-	public function getContext(name:String):ShaderContext {
+	public function getContext(name: String): ShaderContext {
 		for (c in contexts) if (c.raw.name == name) return c;
 		return null;
 	}
 }
 
 class ShaderContext {
-	public var raw:TShaderContext;
+	public var raw: TShaderContext;
 
-	public var pipeState:PipelineState;
-	public var constants:Array<ConstantLocation>;
-	public var textureUnits:Array<TextureUnit>;
-	public var overrideContext:TShaderOverride;
+	public var pipeState: PipelineState;
+	public var constants: Array<ConstantLocation>;
+	public var textureUnits: Array<TextureUnit>;
+	public var overrideContext: TShaderOverride;
 
-	var structure:VertexStructure;
+	var structure: VertexStructure;
 	var instancingType = 0;
 
-	public function new(raw:TShaderContext, done:ShaderContext->Void, overrideContext:TShaderOverride = null) {
+	public function new(raw: TShaderContext, done: ShaderContext->Void, overrideContext: TShaderOverride = null) {
 		this.raw = raw;
 		#if kha_direct3d12
 		if (raw.name == "voxel") { done(this); return; }
@@ -83,14 +83,13 @@ class ShaderContext {
 		compile(done);
 	}
 
-	public function compile(done:ShaderContext->Void) {
+	public function compile(done: ShaderContext->Void) {
 		if (pipeState != null) pipeState.delete();
 		pipeState = new PipelineState();
 		constants = [];
 		textureUnits = [];
 
-		// Instancing
-		if (instancingType > 0) {
+		if (instancingType > 0) { // Instancing
 			var instStruct = new VertexStructure();
 			instStruct.add("ipos", VertexData.Float3);
 			if (instancingType == 2 || instancingType == 4) {
@@ -102,8 +101,7 @@ class ShaderContext {
 			instStruct.instanced = true;
 			pipeState.inputLayout = [structure, instStruct];
 		}
-		// Regular
-		else {
+		else { // Regular
 			pipeState.inputLayout = [structure];
 		}
 
@@ -156,13 +154,13 @@ class ShaderContext {
 			if (raw.tesscontrol_shader != null) numShaders++;
 			if (raw.tesseval_shader != null) numShaders++;
 
-			function loadShader(file:String, type:Int) {
+			function loadShader(file: String, type: Int) {
 				#if kha_opengl
-				var path = '../krom-resources/' + file + '.glsl';
+				var path = "../krom-resources/" + file + ".glsl";
 				#else
-				var path = '../krom-resources/' + file + '.d3d11';
+				var path = "../krom-resources/" + file + ".d3d11";
 				#end
-				Data.getBlob(path, function(b:kha.Blob) {
+				Data.getBlob(path, function(b: kha.Blob) {
 					if (type == 0) pipeState.vertexShader = new VertexShader([b], [file]);
 					else if (type == 1) pipeState.fragmentShader = new FragmentShader([b], [file]);
 					else if (type == 2) pipeState.geometryShader = new kha.graphics4.GeometryShader([b], [file]);
@@ -198,7 +196,7 @@ class ShaderContext {
 		}
 	}
 
-	function finishCompile(done:ShaderContext->Void) {
+	function finishCompile(done: ShaderContext->Void) {
 		// Override specified values
 		if (overrideContext != null) {
 			if (overrideContext.cull_mode != null) {
@@ -219,7 +217,7 @@ class ShaderContext {
 		done(this);
 	}
 
-	public static function parseData(data:String):VertexData {
+	public static function parseData(data: String): VertexData {
 		if (data == "float1") return VertexData.Float1;
 		else if (data == "float2") return VertexData.Float2;
 		else if (data == "float3") return VertexData.Float3;
@@ -236,13 +234,13 @@ class ShaderContext {
 		var iscl = false;
 		for (elem in raw.vertex_elements) {
 			#if cpp
-			if (Reflect.field(elem, 'name') == 'ipos') { ipos = true; continue; }
-			if (Reflect.field(elem, 'name') == 'irot') { irot = true; continue; }
-			if (Reflect.field(elem, 'name') == 'iscl') { iscl = true; continue; }
+			if (Reflect.field(elem, "name") == "ipos") { ipos = true; continue; }
+			if (Reflect.field(elem, "name") == "irot") { irot = true; continue; }
+			if (Reflect.field(elem, "name") == "iscl") { iscl = true; continue; }
 			#else
-			if (elem.name == 'ipos') { ipos = true; continue; }
-			if (elem.name == 'irot') { irot = true; continue; }
-			if (elem.name == 'iscl') { iscl = true; continue; }
+			if (elem.name == "ipos") { ipos = true; continue; }
+			if (elem.name == "irot") { irot = true; continue; }
+			if (elem.name == "iscl") { iscl = true; continue; }
 			#end
 			structure.add(elem.name, parseData(elem.data));
 		}
@@ -261,8 +259,8 @@ class ShaderContext {
 		pipeState.delete();
 	}
 
-	function getCompareMode(s:String):CompareMode {
-		switch(s) {
+	function getCompareMode(s: String): CompareMode {
+		switch (s) {
 		case "always": return CompareMode.Always;
 		case "never": return CompareMode.Never;
 		case "less": return CompareMode.Less;
@@ -275,16 +273,16 @@ class ShaderContext {
 		}
 	}
 
-	function getCullMode(s:String):CullMode {
-		switch(s) {
+	function getCullMode(s: String): CullMode {
+		switch (s) {
 		case "none": return CullMode.None;
 		case "clockwise": return CullMode.Clockwise;
 		default: return CullMode.CounterClockwise;
 		}
 	}
 
-	function getBlendingOperation(s:String):BlendingOperation {
-		switch(s) {
+	function getBlendingOperation(s: String): BlendingOperation {
+		switch (s) {
 		case "add": return BlendingOperation.Add;
 		case "subtract": return BlendingOperation.Subtract;
 		case "reverse_subtract": return BlendingOperation.ReverseSubtract;
@@ -294,8 +292,8 @@ class ShaderContext {
 		}
 	}
 
-	function getBlendingFactor(s:String):BlendingFactor {
-		switch(s) {
+	function getBlendingFactor(s: String): BlendingFactor {
+		switch (s) {
 		case "blend_one": return BlendingFactor.BlendOne;
 		case "blend_zero": return BlendingFactor.BlendZero;
 		case "source_alpha": return BlendingFactor.SourceAlpha;
@@ -310,40 +308,40 @@ class ShaderContext {
 		}
 	}
 
-	function getTextureAddresing(s:String):TextureAddressing {
-		switch(s) {
+	function getTextureAddresing(s: String): TextureAddressing {
+		switch (s) {
 		case "repeat": return TextureAddressing.Repeat;
 		case "mirror": return TextureAddressing.Mirror;
 		default: return TextureAddressing.Clamp;
 		}
 	}
 
-	function getTextureFilter(s:String):TextureFilter {
-		switch(s) {
+	function getTextureFilter(s: String): TextureFilter {
+		switch (s) {
 		case "point": return TextureFilter.PointFilter;
 		case "linear": return TextureFilter.LinearFilter;
 		default: return TextureFilter.AnisotropicFilter;
 		}
 	}
 
-	function getMipmapFilter(s:String):MipMapFilter {
-		switch(s) {
+	function getMipmapFilter(s: String): MipMapFilter {
+		switch (s) {
 		case "no": return MipMapFilter.NoMipFilter;
 		case "point": return MipMapFilter.PointMipFilter;
 		default: return MipMapFilter.LinearMipFilter;
 		}
 	}
 
-	function addConstant(c:TShaderConstant) {
+	function addConstant(c: TShaderConstant) {
 		constants.push(pipeState.getConstantLocation(c.name));
 	}
 
-	function addTexture(tu:TTextureUnit) {
+	function addTexture(tu: TTextureUnit) {
 		var unit = pipeState.getTextureUnit(tu.name);
 		textureUnits.push(unit);
 	}
 
-	public function setTextureParameters(g:kha.graphics4.Graphics, unitIndex:Int, tex:TBindTexture) {
+	public function setTextureParameters(g: kha.graphics4.Graphics, unitIndex: Int, tex: TBindTexture) {
 		// This function is called for samplers set using material context
 		var unit = textureUnits[unitIndex];
 		g.setTextureParameters(unit,

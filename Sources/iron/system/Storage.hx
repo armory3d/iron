@@ -4,9 +4,9 @@ import kha.StorageFile;
 
 class Storage {
 
-	static var file:StorageFile = null;
-	public static var data(get, set):Dynamic;
-	static var _data:Dynamic = null;
+	static var file: StorageFile = null;
+	public static var data(get, set): Dynamic;
+	static var _data: Dynamic = null;
 
 	static function init() {
 		file = kha.Storage.defaultFile();
@@ -27,11 +27,11 @@ class Storage {
 		_data = {};
 	}
 
-	public static function set_data(d:Dynamic):Dynamic {
+	public static function set_data(d: Dynamic): Dynamic {
 		return _data = d;
 	}
 
-	public static function get_data():Dynamic {
+	public static function get_data(): Dynamic {
 		if (file == null) init();
 		return _data;
 	}

@@ -42,16 +42,16 @@ class Uniforms {
 	public static var helpVec2 = new Vec4();
 	public static var helpQuat = new Quat(); // Keep at identity
 
-	public static var externalTextureLinks:Array<Object->MaterialData->String->kha.Image> = null;
-	public static var externalMat4Links:Array<Object->MaterialData->String->Mat4> = null;
-	public static var externalVec4Links:Array<Object->MaterialData->String->Vec4> = null;
-	public static var externalVec3Links:Array<Object->MaterialData->String->Vec4> = null;
-	public static var externalVec2Links:Array<Object->MaterialData->String->Vec4> = null;
-	public static var externalFloatLinks:Array<Object->MaterialData->String->Null<kha.FastFloat>> = null;
-	public static var externalFloatsLinks:Array<Object->MaterialData->String->Float32Array> = null;
-	public static var externalIntLinks:Array<Object->MaterialData->String->Null<Int>> = null;
-	public static var posUnpack:Null<kha.FastFloat> = null;
-	public static var texUnpack:Null<kha.FastFloat> = null;
+	public static var externalTextureLinks: Array<Object->MaterialData->String->kha.Image> = null;
+	public static var externalMat4Links: Array<Object->MaterialData->String->Mat4> = null;
+	public static var externalVec4Links: Array<Object->MaterialData->String->Vec4> = null;
+	public static var externalVec3Links: Array<Object->MaterialData->String->Vec4> = null;
+	public static var externalVec2Links: Array<Object->MaterialData->String->Vec4> = null;
+	public static var externalFloatLinks: Array<Object->MaterialData->String->Null<kha.FastFloat>> = null;
+	public static var externalFloatsLinks: Array<Object->MaterialData->String->Float32Array> = null;
+	public static var externalIntLinks: Array<Object->MaterialData->String->Null<Int>> = null;
+	public static var posUnpack: Null<kha.FastFloat> = null;
+	public static var texUnpack: Null<kha.FastFloat> = null;
 
 	#if (rp_resolution_filter == "Point")
 	public static var defaultFilter = TextureFilter.PointFilter;
@@ -59,7 +59,7 @@ class Uniforms {
 	public static var defaultFilter = TextureFilter.LinearFilter;
 	#end
 
-	public static function setContextConstants(g:Graphics, context:ShaderContext, bindParams:Array<String>) {
+	public static function setContextConstants(g: Graphics, context: ShaderContext, bindParams: Array<String>) {
 		if (context.raw.constants != null) {
 			for (i in 0...context.raw.constants.length) {
 				var c = context.raw.constants[i];
@@ -92,7 +92,7 @@ class Uniforms {
 
 				if (tulink.charAt(0) == "$") { // Link to embedded data
 					g.setTexture(context.textureUnits[j], Scene.active.embedded.get(tulink.substr(1)));
-					if (tulink.endsWith('.raw')) { // Raw 3D texture
+					if (tulink.endsWith(".raw")) { // Raw 3D texture
 						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 					}
 					else { // 2D texture
@@ -122,7 +122,7 @@ class Uniforms {
 		}
 	}
 
-	public static function setObjectConstants(g:Graphics, context:ShaderContext, object:Object) {
+	public static function setObjectConstants(g: Graphics, context: ShaderContext, object: Object) {
 		if (context.raw.constants != null) {
 			for (i in 0...context.raw.constants.length) {
 				var c = context.raw.constants[i];
@@ -150,7 +150,7 @@ class Uniforms {
 		}
 	}
 
-	static function bindRenderTarget(g:Graphics, rt:RenderTarget, context:ShaderContext, samplerID:String, attachDepth:Bool) {
+	static function bindRenderTarget(g: Graphics, rt: RenderTarget, context: ShaderContext, samplerID: String, attachDepth: Bool) {
 		if (rt != null) {
 			var tus = context.raw.texture_units;
 
@@ -221,14 +221,14 @@ class Uniforms {
 		}
 	}
 
-	static function setContextConstant(g:Graphics, location:ConstantLocation, c:TShaderConstant):Bool {
+	static function setContextConstant(g: Graphics, location: ConstantLocation, c: TShaderConstant): Bool {
 		if (c.link == null) return true;
 
 		var camera = Scene.active.camera;
 		var light = RenderPath.active.light;
 
 		if (c.type == "mat4") {
-			var m:Mat4 = null;
+			var m: Mat4 = null;
 			if (c.link == "_viewMatrix") {
 				#if arm_centerworld
 				m = vmat(camera.V);
@@ -300,7 +300,7 @@ class Uniforms {
 			}
 		}
 		else if (c.type == "vec4") {
-			var v:Vec4 = null;
+			var v: Vec4 = null;
 			helpVec.set(0, 0, 0);
 			#if arm_debug
 			if (c.link == "_input") {
@@ -315,7 +315,7 @@ class Uniforms {
 			}
 		}
 		else if (c.type == "vec3") {
-			var v:Vec4 = null;
+			var v: Vec4 = null;
 			helpVec.set(0, 0, 0);
 			if (c.link == "_lightPosition") {
 				if (light != null) {
@@ -379,9 +379,9 @@ class Uniforms {
 			#if arm_ltc
 			else if (c.link == "_lightArea0") {
 				if (light != null && light.data.raw.size != null) {
-					var f2:kha.FastFloat = 0.5;
-					var sx:kha.FastFloat = light.data.raw.size * f2;
-					var sy:kha.FastFloat = light.data.raw.size_y * f2;
+					var f2: kha.FastFloat = 0.5;
+					var sx: kha.FastFloat = light.data.raw.size * f2;
+					var sy: kha.FastFloat = light.data.raw.size_y * f2;
 					helpVec.set(-sx, sy, 0.0);
 					helpVec.applymat(light.transform.world);
 					v = helpVec;
@@ -389,9 +389,9 @@ class Uniforms {
 			}
 			else if (c.link == "_lightArea1") {
 				if (light != null && light.data.raw.size != null) {
-					var f2:kha.FastFloat = 0.5;
-					var sx:kha.FastFloat = light.data.raw.size * f2;
-					var sy:kha.FastFloat = light.data.raw.size_y * f2;
+					var f2: kha.FastFloat = 0.5;
+					var sx: kha.FastFloat = light.data.raw.size * f2;
+					var sy: kha.FastFloat = light.data.raw.size_y * f2;
 					helpVec.set(sx, sy, 0.0);
 					helpVec.applymat(light.transform.world);
 					v = helpVec;
@@ -399,9 +399,9 @@ class Uniforms {
 			}
 			else if (c.link == "_lightArea2") {
 				if (light != null && light.data.raw.size != null) {
-					var f2:kha.FastFloat = 0.5;
-					var sx:kha.FastFloat = light.data.raw.size * f2;
-					var sy:kha.FastFloat = light.data.raw.size_y * f2;
+					var f2: kha.FastFloat = 0.5;
+					var sx: kha.FastFloat = light.data.raw.size * f2;
+					var sy: kha.FastFloat = light.data.raw.size_y * f2;
 					helpVec.set(sx, -sy, 0.0);
 					helpVec.applymat(light.transform.world);
 					v = helpVec;
@@ -409,9 +409,9 @@ class Uniforms {
 			}
 			else if (c.link == "_lightArea3") {
 				if (light != null && light.data.raw.size != null) {
-					var f2:kha.FastFloat = 0.5;
-					var sx:kha.FastFloat = light.data.raw.size * f2;
-					var sy:kha.FastFloat = light.data.raw.size_y * f2;
+					var f2: kha.FastFloat = 0.5;
+					var sx: kha.FastFloat = light.data.raw.size * f2;
+					var sy: kha.FastFloat = light.data.raw.size_y * f2;
 					helpVec.set(-sx, -sy, 0.0);
 					helpVec.applymat(light.transform.world);
 					v = helpVec;
@@ -459,7 +459,7 @@ class Uniforms {
 			}
 		}
 		else if (c.type == "vec2") {
-			var v:Vec4 = null;
+			var v: Vec4 = null;
 			helpVec.set(0, 0, 0);
 			if (c.link == "_vec2x") {
 				v = helpVec;
@@ -554,11 +554,11 @@ class Uniforms {
 			}
 			else if (c.link == "_lightPlaneProj") { // shadowCube
 				if (light != null) {
-					var near:kha.FastFloat = light.data.raw.near_plane;
-					var far:kha.FastFloat = light.data.raw.far_plane;
-					var a:kha.FastFloat = far + near;
-					var b:kha.FastFloat = far - near;
-					var f2:kha.FastFloat = 2.0;
+					var near: kha.FastFloat = light.data.raw.near_plane;
+					var far: kha.FastFloat = light.data.raw.far_plane;
+					var a: kha.FastFloat = far + near;
+					var b: kha.FastFloat = far - near;
+					var f2: kha.FastFloat = 2.0;
 					var c = f2 * far * near;
 					v = helpVec;
 					v.x = a / b;
@@ -587,7 +587,7 @@ class Uniforms {
 			}
 		}
 		else if (c.type == "float") {
-			var f:Null<kha.FastFloat> = null;
+			var f: Null<kha.FastFloat> = null;
 			if (c.link == "_time") {
 				f = Time.time();
 			}
@@ -618,7 +618,7 @@ class Uniforms {
 			}
 		}
 		else if (c.type == "floats") {
-			var fa:Float32Array = null;
+			var fa: Float32Array = null;
 			if (c.link == "_envmapIrradiance") {
 				fa = Scene.active.world == null ? WorldData.getEmptyIrradiance() : Scene.active.world.probe.irradiance;
 			}
@@ -644,7 +644,7 @@ class Uniforms {
 			}
 		}
 		else if (c.type == "int") {
-			var i:Null<Int> = null;
+			var i: Null<Int> = null;
 			if (c.link == "_envmapNumMipmaps") {
 				var w = Scene.active.world;
 				i = w != null ? w.probe.raw.radiance_mipmaps + 1 - 2 : 1; // Include basecolor and exclude 2 scaled mips
@@ -658,14 +658,14 @@ class Uniforms {
 		return false;
 	}
 
-	static function setObjectConstant(g:Graphics, object:Object, location:ConstantLocation, c:TShaderConstant) {
+	static function setObjectConstant(g: Graphics, object: Object, location: ConstantLocation, c: TShaderConstant) {
 		if (c.link == null) return;
 
 		var camera = Scene.active.camera;
 		var light = RenderPath.active.light;
 
 		if (c.type == "mat4") {
-			var m:Mat4 = null;
+			var m: Mat4 = null;
 			if (c.link == "_worldMatrix") {
 				#if arm_centerworld
 				m = wmat(object.transform.worldUnpack, camera);
@@ -774,7 +774,7 @@ class Uniforms {
 				}
 			}
 			else if (c.link.startsWith("_biasLightWorldViewProjectionMatrixSpot")) {
-				var light = getSpot(c.link.charCodeAt(c.link.length - 1) - '0'.code);
+				var light = getSpot(c.link.charCodeAt(c.link.length - 1) - "0".code);
 				if (light != null) {
 					object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.worldUnpack);
 					helpMat.multmat(light.VP);
@@ -783,7 +783,7 @@ class Uniforms {
 				}
 			}
 			else if (c.link.startsWith("_biasLightViewProjectionMatrixSpot")) {
-				var light = getSpot(c.link.charCodeAt(c.link.length - 1) - '0'.code);
+				var light = getSpot(c.link.charCodeAt(c.link.length - 1) - "0".code);
 				if (light != null) {
 					helpMat.setFrom(light.VP);
 					helpMat.multmat(biasMat);
@@ -817,7 +817,7 @@ class Uniforms {
 			g.setMatrix(location, m.self);
 		}
 		else if (c.type == "mat3") {
-			var m:Mat3 = null;
+			var m: Mat3 = null;
 			if (c.link == "_normalMatrix") {
 				helpMat.getInverse(object.transform.world);
 				helpMat.transpose3x3();
@@ -837,7 +837,7 @@ class Uniforms {
 			g.setMatrix3(location, m.self);
 		}
 		else if (c.type == "vec4") {
-			var v:Vec4 = null;
+			var v: Vec4 = null;
 			helpVec.set(0, 0, 0);
 			// External
 			if (externalVec4Links != null) {
@@ -851,7 +851,7 @@ class Uniforms {
 			g.setFloat4(location, v.x, v.y, v.z, v.w);
 		}
 		else if (c.type == "vec3") {
-			var v:Vec4 = null;
+			var v: Vec4 = null;
 			helpVec.set(0, 0, 0);
 			if (c.link == "_dim") { // Model space
 				var d = object.transform.dim;
@@ -865,7 +865,6 @@ class Uniforms {
 				helpVec.set((d.x / s.x) / 2, (d.y / s.y) / 2, (d.z / s.z) / 2);
 				v = helpVec;
 			}
-			// External
 			else if (externalVec3Links != null) {
 				for (f in externalVec3Links) {
 					v = f(object, currentMat(object), c.link);
@@ -877,14 +876,13 @@ class Uniforms {
 			g.setFloat3(location, v.x, v.y, v.z);
 		}
 		else if (c.type == "vec2") {
-			var vx:Null<kha.FastFloat> = null;
-			var vy:kha.FastFloat = 0;
+			var vx: Null<kha.FastFloat> = null;
+			var vy: kha.FastFloat = 0;
 			if (c.link == "_tilesheetOffset") {
 				var ts = cast(object, MeshObject).tilesheet;
 				vx = ts.tileX;
 				vy = ts.tileY;
 			}
-			// External
 			else if (externalVec2Links != null) {
 				for (fn in externalVec2Links) {
 					var v = fn(object, currentMat(object), c.link);
@@ -900,7 +898,7 @@ class Uniforms {
 			g.setFloat2(location, vx, vy);
 		}
 		else if (c.type == "float") {
-			var f:Null<kha.FastFloat> = null;
+			var f: Null<kha.FastFloat> = null;
 			if (c.link == "_objectInfoIndex") {
 				f = object.uid;
 			}
@@ -916,7 +914,6 @@ class Uniforms {
 			else if (c.link == "_texUnpack") {
 				f = texUnpack != null ? texUnpack : 1.0;
 			}
-			// External
 			else if (externalFloatLinks != null) {
 				for (fn in externalFloatLinks) {
 					var res = fn(object, currentMat(object), c.link);
@@ -931,7 +928,7 @@ class Uniforms {
 			g.setFloat(location, f);
 		}
 		else if (c.type == "floats") {
-			var fa:Float32Array = null;
+			var fa: Float32Array = null;
 			#if arm_skin
 			if (c.link == "_skinBones") {
 				if (object.animation != null) fa = cast(object.animation, BoneAnimation).skinBuffer;
@@ -949,11 +946,10 @@ class Uniforms {
 			g.setFloats(location, fa);
 		}
 		else if (c.type == "int") {
-			var i:Null<Int> = null;
+			var i: Null<Int> = null;
 			if (c.link == "_uid") {
 				i = object.uid;
 			}
-			// External
 			else if (externalIntLinks != null) {
 				for (fn in externalIntLinks) {
 					var res = fn(object, currentMat(object), c.link);
@@ -969,7 +965,7 @@ class Uniforms {
 		}
 	}
 
-	public static function setMaterialConstants(g:Graphics, context:ShaderContext, materialContext:MaterialContext) {
+	public static function setMaterialConstants(g: Graphics, context: ShaderContext, materialContext: MaterialContext) {
 		if (materialContext.raw.bind_constants != null) {
 			for (i in 0...materialContext.raw.bind_constants.length) {
 				var matc = materialContext.raw.bind_constants[i];
@@ -1004,7 +1000,7 @@ class Uniforms {
 		}
 	}
 
-	static function getSpot(index:Int):LightObject {
+	static function getSpot(index: Int): LightObject {
 		var i = 0;
 		for (l in Scene.active.lights) {
 			if (l.data.raw.type != "spot" && l.data.raw.type != "area") continue;
@@ -1014,7 +1010,7 @@ class Uniforms {
 		return null;
 	}
 
-	static function currentMat(object:Object):MaterialData {
+	static function currentMat(object: Object): MaterialData {
 		if (object != null && Std.is(object, iron.object.MeshObject)) {
 			var mo = cast(object, MeshObject);
 			return mo.materials[mo.materialIndex];
@@ -1022,7 +1018,7 @@ class Uniforms {
 		return null;
 	}
 
-	static function setMaterialConstant(g:Graphics, location:ConstantLocation, c:TShaderConstant, matc:TBindConstant) {
+	static function setMaterialConstant(g: Graphics, location: ConstantLocation, c: TShaderConstant, matc: TBindConstant) {
 		switch (c.type) {
 		case "vec4": g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);
 		case "vec3": g.setFloat3(location, matc.vec3[0], matc.vec3[1], matc.vec3[2]);
@@ -1034,9 +1030,9 @@ class Uniforms {
 	}
 
 	#if arm_centerworld
-	static var mm1:Mat4 = Mat4.identity();
-	static var mm2:Mat4 = Mat4.identity();
-	static function wmat(m:Mat4, cam:CameraObject):Mat4 {
+	static var mm1: Mat4 = Mat4.identity();
+	static var mm2: Mat4 = Mat4.identity();
+	static function wmat(m: Mat4, cam: CameraObject): Mat4 {
 		var t = cam.transform;
 		mm1.setFrom(m);
 		mm1._30 -= t.worldx();
@@ -1044,7 +1040,7 @@ class Uniforms {
 		mm1._32 -= t.worldz();
 		return mm1;
 	}
-	static function vmat(m:Mat4):Mat4 {
+	static function vmat(m: Mat4): Mat4 {
 		mm2.setFrom(m);
 		mm2._30 = 0;
 		mm2._31 = 0;

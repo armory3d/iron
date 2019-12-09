@@ -4,19 +4,19 @@ import iron.data.SceneFormat;
 import iron.math.Mat4;
 
 class Armature {
-	public var uid:Int;
-	public var name:String;
-	public var actions:Array<TAction> = [];
+	public var uid: Int;
+	public var name: String;
+	public var actions: Array<TAction> = [];
 	var matsReady = false;
 
-	public function new(uid:Int, name:String, actions:Array<TSceneFormat>) {
+	public function new(uid: Int, name: String, actions: Array<TSceneFormat>) {
 		this.uid = uid;
 		this.name = name;
 
 		for (a in actions) {
 			for (o in a.objects) setParents(o);
-			var bones:Array<TObj> = [];
-			traverseBones(a.objects, function(object:TObj) { bones.push(object); });
+			var bones: Array<TObj> = [];
+			traverseBones(a.objects, function(object: TObj) { bones.push(object); });
 			this.actions.push({ name: a.name, bones: bones, mats: null });
 		}
 	}
@@ -34,12 +34,12 @@ class Armature {
 		}
 	}
 
-	public function getAction(name:String):TAction {
+	public function getAction(name: String): TAction {
 		for (a in actions) if (a.name == name) return a;
 		return null;
 	}
 
-	static function setParents(object:TObj) {
+	static function setParents(object: TObj) {
 		if (object.children == null) return;
 		for (o in object.children) {
 			o.parent = object;
@@ -47,13 +47,13 @@ class Armature {
 		}
 	}
 
-	static function traverseBones(objects:Array<TObj>, callback:TObj->Void) {
+	static function traverseBones(objects: Array<TObj>, callback: TObj->Void) {
 		for (i in 0...objects.length) {
 			traverseBonesStep(objects[i], callback);
 		}
 	}
 
-	static function traverseBonesStep(object:TObj, callback:TObj->Void) {
+	static function traverseBonesStep(object: TObj, callback: TObj->Void) {
 		if (object.type == "bone_object") callback(object);
 		if (object.children == null) return;
 		for (i in 0...object.children.length) {
@@ -63,7 +63,7 @@ class Armature {
 }
 
 typedef TAction = {
-	var name:String;
-	var bones:Array<TObj>;
-	var mats:Array<Mat4>;
+	var name: String;
+	var bones: Array<TObj>;
+	var mats: Array<Mat4>;
 }

@@ -12,28 +12,28 @@ import iron.data.SceneFormat;
 
 class MeshObject extends Object {
 
-	public var data:MeshData = null;
-	public var materials:Vector<MaterialData>;
+	public var data: MeshData = null;
+	public var materials: Vector<MaterialData>;
 	public var materialIndex = 0;
 	#if arm_particles
-	public var particleSystems:Array<ParticleSystem> = null; // Particle owner
-	public var particleChildren:Array<MeshObject> = null;
-	public var particleOwner:MeshObject = null; // Particle object
+	public var particleSystems: Array<ParticleSystem> = null; // Particle owner
+	public var particleChildren: Array<MeshObject> = null;
+	public var particleOwner: MeshObject = null; // Particle object
 	public var particleIndex = -1;
 	#end
-	public var cameraDistance:Float;
+	public var cameraDistance: Float;
 	public var screenSize = 0.0;
 	public var frustumCulling = true;
-	public var tilesheet:Tilesheet = null;
-	public var skip_context:String = null; // Do not draw this context
-	public var force_context:String = null; // Draw only this context
-	static var lastPipeline:PipelineState = null;
+	public var tilesheet: Tilesheet = null;
+	public var skip_context: String = null; // Do not draw this context
+	public var force_context: String = null; // Draw only this context
+	static var lastPipeline: PipelineState = null;
 
 	#if arm_veloc
 	public var prevMatrix = Mat4.identity();
 	#end
 
-	public function new(data:MeshData, materials:Vector<MaterialData>) {
+	public function new(data: MeshData, materials: Vector<MaterialData>) {
 		super();
 
 		this.materials = materials;
@@ -41,7 +41,7 @@ class MeshObject extends Object {
 		Scene.active.meshes.push(this);
 	}
 
-	public function setData(data:MeshData) {
+	public function setData(data: MeshData) {
 		this.data = data;
 		data.refcount++;
 
@@ -55,13 +55,13 @@ class MeshObject extends Object {
 
 	#if arm_batch
 	@:allow(iron.Scene)
-	function batch(isLod:Bool) {
+	function batch(isLod: Bool) {
 		var batched = Scene.active.meshBatch.addMesh(this, isLod);
 		if (!batched) data.geom.build();
 	}
 	#end
 
-	public override function remove() {
+	override public function remove() {
 		#if arm_batch
 		Scene.active.meshBatch.removeMesh(this);
 		#end
@@ -81,7 +81,7 @@ class MeshObject extends Object {
 		super.remove();
 	}
 
-	public override function setupAnimation(oactions:Array<TSceneFormat> = null) {
+	override public function setupAnimation(oactions: Array<TSceneFormat> = null) {
 		#if arm_skin
 		var hasAction = parent != null && parent.raw != null && parent.raw.bone_actions != null;
 		if (hasAction) {
@@ -95,22 +95,22 @@ class MeshObject extends Object {
 	}
 
 	#if arm_particles
-	public function setupParticleSystem(sceneName:String, pref:TParticleReference) {
+	public function setupParticleSystem(sceneName: String, pref: TParticleReference) {
 		if (particleSystems == null) particleSystems = [];
 		var psys = new ParticleSystem(sceneName, pref);
 		particleSystems.push(psys);
 	}
 	#end
 
-	public function setupTilesheet(sceneName:String, tilesheet_ref:String, tilesheet_action_ref:String) {
+	public function setupTilesheet(sceneName: String, tilesheet_ref: String, tilesheet_action_ref: String) {
 		tilesheet = new Tilesheet(sceneName, tilesheet_ref, tilesheet_action_ref);
 	}
 
-	inline function isLodMaterial() {
+	inline function isLodMaterial(): Bool {
 		return (raw != null && raw.lod_material != null && raw.lod_material == true);
 	}
 
-	function setCulled(isShadow:Bool, b:Bool):Bool {
+	function setCulled(isShadow: Bool, b: Bool): Bool {
 		isShadow ? culledShadow = b : culledMesh = b;
 		culled = culledMesh && culledShadow;
 		#if arm_debug
@@ -119,7 +119,7 @@ class MeshObject extends Object {
 		return b;
 	}
 
-	public function cullMaterial(context:String):Bool {
+	public function cullMaterial(context: String): Bool {
 		// Skip render if material does not contain current context
 		var mats = materials;
 		if (!isLodMaterial() && !validContext(mats, context)) return true;
@@ -138,7 +138,7 @@ class MeshObject extends Object {
 		return setCulled(isShadow, false);
 	}
 
-	function cullMesh(context:String, camera:CameraObject, light:LightObject):Bool {
+	function cullMesh(context: String, camera: CameraObject, light: LightObject): Bool {
 		if (camera == null) return false;
 
 		if (camera.data.raw.frustum_culling && frustumCulling) {
@@ -170,7 +170,7 @@ class MeshObject extends Object {
 		return culled;
 	}
 
-	function skipContext(context:String, mat:MaterialData):Bool {
+	function skipContext(context: String, mat: MaterialData): Bool {
 		if (mat.raw.skip_context != null &&
 			mat.raw.skip_context == context) {
 			return true;
@@ -178,7 +178,7 @@ class MeshObject extends Object {
 		return false;
 	}
 
-	function getContexts(context:String, materials:Vector<MaterialData>, materialContexts:Array<MaterialContext>, shaderContexts:Array<ShaderContext>) {
+	function getContexts(context: String, materials: Vector<MaterialData>, materialContexts: Array<MaterialContext>, shaderContexts: Array<ShaderContext>) {
 		for (mat in materials) {
 			var found = false;
 			for (i in 0...mat.raw.contexts.length) {
@@ -196,7 +196,7 @@ class MeshObject extends Object {
 		}
 	}
 
-	public function render(g:Graphics, context:String, bindParams:Array<String>) {
+	public function render(g: Graphics, context: String, bindParams: Array<String>) {
 
 		if (data == null || !data.geom.ready) return; // Data not yet streamed
 		if (!visible) return; // Skip render if object is hidden
@@ -208,10 +208,10 @@ class MeshObject extends Object {
 			if (particleChildren == null) {
 				particleChildren = [];
 				for (psys in particleSystems) {
-					// var c:MeshObject = cast Scene.active.getChild(psys.data.raw.instance_object);
-					Scene.active.spawnObject(psys.data.raw.instance_object, null, function(o:Object) {
+					// var c: MeshObject = cast Scene.active.getChild(psys.data.raw.instance_object);
+					Scene.active.spawnObject(psys.data.raw.instance_object, null, function(o: Object) {
 						if (o != null) {
-							var c:MeshObject = cast o;
+							var c: MeshObject = cast o;
 							particleChildren.push(c);
 							c.particleOwner = this;
 							c.particleIndex = particleChildren.length - 1;
@@ -254,8 +254,8 @@ class MeshObject extends Object {
 		if (isLodMaterial() && !validContext(mats, context)) return;
 
 		// Get context
-		var materialContexts:Array<MaterialContext> = [];
-		var shaderContexts:Array<ShaderContext> = [];
+		var materialContexts: Array<MaterialContext> = [];
+		var shaderContexts: Array<ShaderContext> = [];
 		getContexts(context, mats, materialContexts, shaderContexts);
 
 		Uniforms.posUnpack = data.scalePos;
@@ -324,17 +324,17 @@ class MeshObject extends Object {
 		#end
 	}
 
-	function validContext(mats:Vector<MaterialData>, context:String):Bool {
+	function validContext(mats: Vector<MaterialData>, context: String): Bool {
 		for (mat in mats) if (mat.getContext(context) != null) return true;
 		return false;
 	}
 
-	public inline function computeCameraDistance(camX:Float, camY:Float, camZ:Float) {
+	public inline function computeCameraDistance(camX: Float, camY: Float, camZ: Float) {
 		// Render path mesh sorting
 		cameraDistance = Vec4.distancef(camX, camY, camZ, transform.worldx(), transform.worldy(), transform.worldz());
 	}
 
-	public inline function computeScreenSize(camera:CameraObject) {
+	public inline function computeScreenSize(camera: CameraObject) {
 		// Approx..
 		// var rp = camera.renderPath;
 		// var screenVolume = rp.currentW * rp.currentH;

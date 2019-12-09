@@ -7,20 +7,20 @@ import iron.data.SceneFormat;
 
 class MeshData {
 
-	public var name:String;
-	public var raw:TMeshData;
-	public var format:TSceneFormat;
-	public var geom:Geometry;
+	public var name: String;
+	public var raw: TMeshData;
+	public var format: TSceneFormat;
+	public var geom: Geometry;
 	public var start = 0; // Batched
 	public var count = -1;
 	public var refcount = 0; // Number of users
-	public var handle:String; // Handle used to retrieve this object in Data
-	public var scalePos:kha.FastFloat = 1.0;
-	public var scaleTex:kha.FastFloat = 1.0;
+	public var handle: String; // Handle used to retrieve this object in Data
+	public var scalePos: kha.FastFloat = 1.0;
+	public var scaleTex: kha.FastFloat = 1.0;
 
-	public var isSkinned:Bool;
+	public var isSkinned: Bool;
 
-	public function new(raw:TMeshData, done:MeshData->Void) {
+	public function new(raw: TMeshData, done: MeshData->Void) {
 		this.raw = raw;
 		this.name = raw.name;
 
@@ -28,8 +28,8 @@ class MeshData {
 		if (raw.scale_tex != null) scaleTex = raw.scale_tex;
 
 		// Mesh data
-		var indices:Array<Uint32Array> = [];
-		var materialIndices:Array<Int> = [];
+		var indices: Array<Uint32Array> = [];
+		var materialIndices: Array<Int> = [];
 		for (ind in raw.index_arrays) {
 			indices.push(ind.values);
 			materialIndices.push(ind.material);
@@ -51,8 +51,8 @@ class MeshData {
 		if (raw.dynamic_usage != null && raw.dynamic_usage == true) parsedUsage = Usage.DynamicUsage;
 		var usage = parsedUsage;
 
-		var bonea:Int16Array = null; // Store bone indices and weights per vertex
-		var weighta:Int16Array = null;
+		var bonea: Int16Array = null; // Store bone indices and weights per vertex
+		var weighta: Int16Array = null;
 		if (isSkinned) {
 			var l = Std.int(pa.length / 4) * 4;
 			bonea = new Int16Array(l);
@@ -89,15 +89,15 @@ class MeshData {
 		geom.delete();
 	}
 
-	public static function parse(name:String, id:String, done:MeshData->Void) {
-		Data.getSceneRaw(name, function(format:TSceneFormat) {
-			var raw:TMeshData = Data.getMeshRawByName(format.mesh_datas, id);
+	public static function parse(name: String, id: String, done: MeshData->Void) {
+		Data.getSceneRaw(name, function(format: TSceneFormat) {
+			var raw: TMeshData = Data.getMeshRawByName(format.mesh_datas, id);
 			if (raw == null) {
 				trace('Mesh data "$id" not found!');
 				done(null);
 			}
 
-			new MeshData(raw, function(dat:MeshData) {
+			new MeshData(raw, function(dat: MeshData) {
 				dat.format = format;
 				// Skinned
 				if (raw.skin != null) {
@@ -113,7 +113,7 @@ class MeshData {
 		});
 	}
 
-	function getVertexArrayValues(attrib:String):Int16Array {
+	function getVertexArrayValues(attrib: String): Int16Array {
 		for (va in raw.vertex_arrays) if (va.attrib == attrib) return va.values;
 		return null;
 	}

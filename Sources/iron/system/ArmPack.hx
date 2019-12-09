@@ -31,13 +31,13 @@ import iron.data.SceneFormat;
 
 class ArmPack {
 
-	public static inline function decode(b:Bytes):Dynamic {
+	public static inline function decode(b: Bytes): Dynamic {
 		var i = new BytesInput(b);
 		i.bigEndian = false;
 		return read(i);
 	}
 
-	static function read(i:BytesInput, key = "", parentKey = ""):Dynamic {
+	static function read(i: BytesInput, key = "", parentKey = ""): Dynamic {
 		try {
 			var b = i.readByte();
 			switch (b) {
@@ -72,44 +72,40 @@ class ArmPack {
 				}
 			}
 		}
-		catch (e:Eof) {}
+		catch (e: Eof) {}
 		return null;
 	}
 
-	static function readArray(i:BytesInput, length:Int, key = "", parentKey = ""):Dynamic {
+	static function readArray(i: BytesInput, length: Int, key = "", parentKey = ""): Dynamic {
 		var b = i.readByte();
 		i.position--;
 
-		// Typed float32
-		if (b == 0xca) {
+		if (b == 0xca) { // Typed float32
 			i.position++;
 			var a = new Float32Array(length);
 			for (x in 0...length) a[x] = i.readFloat();
 			return a;
 		}
-		// Typed int32
-		else if (b == 0xd2) {
+		else if (b == 0xd2) { // Typed int32
 			i.position++;
 			var a = new Uint32Array(length);
 			for (x in 0...length) a[x] = i.readInt32();
 			return a;
 		}
-		// Typed int16
-		else if (b == 0xd1) {
+		else if (b == 0xd1) { // Typed int16
 			i.position++;
 			var a = new Int16Array(length);
 			for (x in 0...length) a[x] = i.readInt16();
 			return a;
 		}
-		// Dynamic type-value
-		else {
-			var a:Array<Dynamic> = [];
-			for(x in 0...length) a.push(read(i, key, parentKey));
+		else { // Dynamic type-value
+			var a: Array<Dynamic> = [];
+			for (x in 0...length) a.push(read(i, key, parentKey));
 			return a;
 		}
 	}
 
-	static function readMap(i:BytesInput, length:Int, key = "", parentKey = ""):Dynamic {
+	static function readMap(i: BytesInput, length: Int, key = "", parentKey = ""): Dynamic {
 		#if js
 		var out = {};
 		#else
@@ -124,7 +120,7 @@ class ArmPack {
 	}
 
 	#if (!js)
-	static function getClass(key:String, parentKey:String):Class<Dynamic> {
+	static function getClass(key: String, parentKey: String): Class<Dynamic> {
 		return switch (key) {
 		case "": TSceneFormat;
 		case "mesh_datas": TMeshData;
@@ -166,14 +162,14 @@ class ArmPack {
 	}
 	#end
 
-	public static inline function encode(d:Dynamic):Bytes {
+	public static inline function encode(d: Dynamic): Bytes {
 		var o = new BytesOutput();
 		o.bigEndian = false;
 		write(o, d);
 		return o.getBytes();
 	}
 
-	static function write(o:BytesOutput, d:Dynamic) {
+	static function write(o: BytesOutput, d: Dynamic) {
 		switch (Type.typeof(d)) {
 			case TNull: o.writeByte(0xc0);
 			case TBool: o.writeByte(d ? 0xc3 : 0xc2);

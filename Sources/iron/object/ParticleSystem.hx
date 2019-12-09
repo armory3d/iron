@@ -11,10 +11,10 @@ import iron.system.Time;
 import iron.math.Mat4;
 
 class ParticleSystem {
-	public var data:ParticleData;
+	public var data: ParticleData;
 	public var speed = 1.0;
-	var particles:Array<Particle>;
-	var ready:Bool;
+	var particles: Array<Particle>;
+	var ready: Bool;
 	var frameRate = 24;
 	var lifetime = 0.0;
 	var animtime = 0.0;
@@ -22,29 +22,29 @@ class ParticleSystem {
 	var spawnRate = 0.0;
 	var seed = 0;
 
-	var r:TParticleData;
-	var gx:Float;
-	var gy:Float;
-	var gz:Float;
-	var alignx:Float;
-	var aligny:Float;
-	var alignz:Float;
-	var dimx:Float;
-	var dimy:Float;
-	var tilesx:Int;
-	var tilesy:Int;
-	var tilesFramerate:Int;
+	var r: TParticleData;
+	var gx: Float;
+	var gy: Float;
+	var gz: Float;
+	var alignx: Float;
+	var aligny: Float;
+	var alignz: Float;
+	var dimx: Float;
+	var dimy: Float;
+	var tilesx: Int;
+	var tilesy: Int;
+	var tilesFramerate: Int;
 
 	var count = 0;
 	var lap = 0;
 	var lapTime = 0.0;
 	var m = Mat4.identity();
 
-	public function new(sceneName:String, pref:TParticleReference) {
+	public function new(sceneName: String, pref: TParticleReference) {
 		seed = pref.seed;
 		particles = [];
 		ready = false;
-		Data.getParticle(sceneName, pref.particle, function(b:ParticleData) {
+		Data.getParticle(sceneName, pref.particle, function(b: ParticleData) {
 			data = b;
 			r = data.raw;
 			if (Scene.active.raw.gravity != null) {
@@ -68,7 +68,7 @@ class ParticleSystem {
 		});
 	}
 
-	public function update(object:MeshObject, owner:MeshObject) {
+	public function update(object: MeshObject, owner: MeshObject) {
 		if (!ready || object == null || speed == 0.0) return;
 
 		// Copy owner transform but discard scale
@@ -96,7 +96,7 @@ class ParticleSystem {
 		updateGpu(object, owner);
 	}
 
-	public function getData():Mat4 {
+	public function getData(): Mat4 {
 		var hair = r.type == 1;
 		m._00 = r.loop ? animtime : -animtime;
 		m._01 = hair ? 1 / particles.length : spawnRate;
@@ -117,12 +117,12 @@ class ParticleSystem {
 		return m;
 	}
 
-	function updateGpu(object:MeshObject, owner:MeshObject) {
+	function updateGpu(object: MeshObject, owner: MeshObject) {
 		if (!object.data.geom.instanced) setupGeomGpu(object, owner);
 		// GPU particles transform is attached to owner object
 	}
 
-	function setupGeomGpu(object:MeshObject, owner:MeshObject) {
+	function setupGeomGpu(object: MeshObject, owner: MeshObject) {
 		var instancedData = new Float32Array(particles.length * 3);
 		var i = 0;
 		if (r.emit_from == 0) { // Vert, Face
@@ -146,7 +146,7 @@ class ParticleSystem {
 		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);
 	}
 
-	function fhash(n:Int):Float {
+	function fhash(n: Int): Float {
 		var s = n + 1.0;
 		s *= 9301.0 % s;
 		s = (s * 9301.0 + 49297.0) % 233280.0;
@@ -157,12 +157,12 @@ class ParticleSystem {
 }
 
 class Particle {
-	public var i:Int;
+	public var i: Int;
 	public var x = 0.0;
 	public var y = 0.0;
 	public var z = 0.0;
-	public var cameraDistance:Float;
-	public function new(i:Int) { this.i = i; }
+	public var cameraDistance: Float;
+	public function new(i: Int) { this.i = i; }
 }
 
 #end

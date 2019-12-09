@@ -8,18 +8,18 @@ import kha.graphics4.VertexData;
 
 class ConstData {
 
-	public static var screenAlignedVB:VertexBuffer = null;
-	public static var screenAlignedIB:IndexBuffer = null;
+	public static var screenAlignedVB: VertexBuffer = null;
+	public static var screenAlignedIB: IndexBuffer = null;
 	#if (rp_decals || rp_probes)
-	public static var boxVB:VertexBuffer = null;
-	public static var boxIB:IndexBuffer = null;
+	public static var boxVB: VertexBuffer = null;
+	public static var boxIB: IndexBuffer = null;
 	#end
 	#if arm_deinterleaved
-	public static var skydomeVB:Array<VertexBuffer> = null;
+	public static var skydomeVB: Array<VertexBuffer> = null;
 	#else
-	public static var skydomeVB:VertexBuffer = null;
+	public static var skydomeVB: VertexBuffer = null;
 	#end
-	public static var skydomeIB:IndexBuffer = null;
+	public static var skydomeIB: IndexBuffer = null;
 
 	public static function createScreenAlignedData() {
 		// Over-sized triangle

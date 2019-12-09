@@ -17,8 +17,8 @@ import iron.data.SceneFormat;
 @:access(iron.object.MeshObject)
 class MeshBatch {
 
-	var buckets:Map<ShaderData, Bucket> = new Map();
-	public var nonBatched:Array<MeshObject> = [];
+	var buckets: Map<ShaderData, Bucket> = new Map();
+	public var nonBatched: Array<MeshObject> = [];
 
 	public function new() {}
 
@@ -26,7 +26,7 @@ class MeshBatch {
 		for (b in buckets) remove();
 	}
 
-	public static function isBatchable(m:MeshObject):Bool {
+	public static function isBatchable(m: MeshObject): Bool {
 		var batch =
 			m.materials != null &&
 			m.materials.length == 1 &&
@@ -34,7 +34,7 @@ class MeshBatch {
 		return batch;
 	}
 
-	public function addMesh(m:MeshObject, isLod:Bool):Bool {
+	public function addMesh(m: MeshObject, isLod: Bool): Bool {
 		if (!isBatchable(m) || isLod) { // No instancing, multimat or lod batching
 			nonBatched.push(m);
 			return false;
@@ -50,14 +50,14 @@ class MeshBatch {
 		return true;
 	}
 
-	public function removeMesh(m:MeshObject) {
+	public function removeMesh(m: MeshObject) {
 		var shader = m.materials[0].shader;
 		var b = buckets.get(shader);
 		if (b != null) b.removeMesh(m);
 		else nonBatched.remove(m);
 	}
 
-	public function render(g:Graphics, context:String, bindParams:Array<String>) {
+	public function render(g: Graphics, context: String, bindParams: Array<String>) {
 
 		for (b in buckets) {
 
@@ -82,8 +82,8 @@ class MeshBatch {
 				if (m.cullMesh(context, Scene.active.camera, RenderPath.active.light)) continue;
 
 				// Get context
-				var materialContexts:Array<MaterialContext> = [];
-				var shaderContexts:Array<ShaderContext> = [];
+				var materialContexts: Array<MaterialContext> = [];
+				var shaderContexts: Array<ShaderContext> = [];
 				m.getContexts(context, m.materials, materialContexts, shaderContexts);
 
 				Uniforms.posUnpack = m.data.scalePos;
@@ -124,13 +124,13 @@ class MeshBatch {
 class Bucket {
 
 	public var batched = false;
-	public var shader:ShaderData;
-	var vertexBuffer:VertexBuffer;
-	var vertexBufferMap:Map<String, VertexBuffer> = new Map();
-	public var indexBuffer:IndexBuffer;
-	public var meshes:Array<MeshObject> = [];
+	public var shader: ShaderData;
+	var vertexBuffer: VertexBuffer;
+	var vertexBufferMap: Map<String, VertexBuffer> = new Map();
+	public var indexBuffer: IndexBuffer;
+	public var meshes: Array<MeshObject> = [];
 
-	public function new(shader:ShaderData) {
+	public function new(shader: ShaderData) {
 		this.shader = shader;
 	}
 
@@ -140,15 +140,15 @@ class Bucket {
 		meshes = [];
 	}
 
-	public function addMesh(m:MeshObject) {
+	public function addMesh(m: MeshObject) {
 		meshes.push(m);
 	}
 
-	public function removeMesh(m:MeshObject) {
+	public function removeMesh(m: MeshObject) {
 		meshes.remove(m);
 	}
 
-	function copyAttribute(attribSize:Int, count:Int, to:Int16Array, toStride:Int, toOffset:Int, from:Int16Array, fromStride:Int, fromOffset:Int) {
+	function copyAttribute(attribSize: Int, count: Int, to: Int16Array, toStride: Int, toOffset: Int, from: Int16Array, fromStride: Int, fromOffset: Int) {
 		for (i in 0...count) {
 			for (j in 0...attribSize) {
 				to.set(i * toStride + toOffset + j, from.get(i * fromStride + fromOffset + j));
@@ -156,7 +156,7 @@ class Bucket {
 		}
 	}
 
-	function extractVertexBuffer(elems:Array<TVertexElement>):VertexBuffer {
+	function extractVertexBuffer(elems: Array<TVertexElement>): VertexBuffer {
 		// Build vertex buffer for specific context
 		var vs = new VertexStructure();
 		for (e in elems) vs.add(e.name, ShaderContext.parseData(e.data));
@@ -183,8 +183,8 @@ class Bucket {
 		return vb;
 	}
 
-	public function getVertexBuffer(elems:Array<TVertexElement>):VertexBuffer {
-		var s = '';
+	public function getVertexBuffer(elems: Array<TVertexElement>): VertexBuffer {
+		var s = "";
 		for (e in elems) s += e.name;
 		var vb = vertexBufferMap.get(s);
 		if (vb == null) {
@@ -194,7 +194,7 @@ class Bucket {
 		return vb;
 	}
 
-	function vertexCount(g:Geometry, hasUVs:Bool):Int {
+	function vertexCount(g: Geometry, hasUVs: Bool): Int {
 		var vcount = g.getVerticesLength();
 		if (hasUVs && g.uvs == null) {
 			vcount += Std.int(g.positions.length / 4) * 2;
@@ -212,7 +212,7 @@ class Bucket {
 		// Unique mesh datas
 		var vcount = 0;
 		var icount = 0;
-		var mdatas:Array<MeshData> = [];
+		var mdatas: Array<MeshData> = [];
 		for (m in meshes) {
 			var mdFound = false;
 			for (md in mdatas) {
@@ -246,7 +246,7 @@ class Bucket {
 		}
 		vertexBuffer.unlock();
 
-		var s = '';
+		var s = "";
 		for (e in vs.elements) s += e.name;
 		vertexBufferMap.set(s, vertexBuffer);
 

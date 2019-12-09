@@ -9,9 +9,9 @@ class DecalObject extends Object {
 
 #if rp_decals
 
-	public var material:MaterialData;
+	public var material: MaterialData;
 
-	public function new(material:MaterialData) {
+	public function new(material: MaterialData) {
 		super();
 		this.material = material;
 		Scene.active.decals.push(this);
@@ -23,7 +23,7 @@ class DecalObject extends Object {
 	}
 
 	// Called before rendering decal in render path
-	public function render(g:Graphics, context:String, bindParams:Array<String>) {
+	public function render(g: Graphics, context: String, bindParams: Array<String>) {
 
 		// Check context skip
 		if (material.raw.skip_context != null &&
@@ -33,7 +33,7 @@ class DecalObject extends Object {
 
 		transform.update();
 
-		var materialContext:MaterialContext = null;
+		var materialContext: MaterialContext = null;
 		for (i in 0...material.raw.contexts.length) {
 			if (material.raw.contexts[i].name == context) {
 				materialContext = material.contexts[i]; // Single material decals

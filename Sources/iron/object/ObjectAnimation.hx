@@ -9,34 +9,34 @@ import iron.data.SceneFormat;
 
 class ObjectAnimation extends Animation {
 
-	public var object:Object;
-	var oactions:Array<TSceneFormat>;
-	var oaction:TObj;
-	var s0:FastFloat = 0.0;
+	public var object: Object;
+	var oactions: Array<TSceneFormat>;
+	var oaction: TObj;
+	var s0: FastFloat = 0.0;
 	var bezierFrameIndex = -1;
 
-	public function new(object:Object, oactions:Array<TSceneFormat>) {
+	public function new(object: Object, oactions: Array<TSceneFormat>) {
 		this.object = object;
 		this.oactions = oactions;
 		isSkinned = false;
 		super();
 	}
 
-	function getAction(action:String):TObj {
+	function getAction(action: String): TObj {
 		for (a in oactions) if (a != null && a.objects[0].name == action) return a.objects[0];
 		return null;
 	}
 
-	override public function play(action = '', onComplete:Void->Void = null, blendTime = 0.0, speed = 1.0, loop = true) {
+	override public function play(action = "", onComplete: Void->Void = null, blendTime = 0.0, speed = 1.0, loop = true) {
 		super.play(action, onComplete, blendTime, speed, loop);
-		if (this.action == '' && oactions[0] != null) this.action = oactions[0].objects[0].name;
+		if (this.action == "" && oactions[0] != null) this.action = oactions[0].objects[0].name;
 		oaction = getAction(this.action);
 		if (oaction != null) {
 			isSampled = oaction.sampled != null && oaction.sampled;
 		}
 	}
 
-	public override function update(delta:FastFloat) {
+	override public function update(delta: FastFloat) {
 		if (!object.visible || object.culled || oaction == null) return;
 
 		#if arm_debug
@@ -57,27 +57,27 @@ class ObjectAnimation extends Animation {
 		object.transform.buildMatrix();
 	}
 
-	inline function interpolateLinear(t:FastFloat, t1:FastFloat, t2:FastFloat, v1:FastFloat, v2:FastFloat):FastFloat {
+	inline function interpolateLinear(t: FastFloat, t1: FastFloat, t2: FastFloat, v1: FastFloat, v2: FastFloat): FastFloat {
 		var s = (t - t1) / (t2 - t1);
 		return (1.0 - s) * v1 + s * v2;
 	}
 
-	// inline function interpolateTcb():FastFloat { return 0.0; }
+	// inline function interpolateTcb(): FastFloat { return 0.0; }
 
-	override function isTrackEnd(track:TTrack):Bool {
+	override function isTrackEnd(track: TTrack): Bool {
 		return speed > 0 ?
 			frameIndex >= track.frames.length - 2 :
 			frameIndex <= 0;
 	}
 
-	inline function checkFrameIndexT(frameValues:Uint32Array, t:FastFloat):Bool {
+	inline function checkFrameIndexT(frameValues: Uint32Array, t: FastFloat): Bool {
 		return speed > 0 ?
 			frameIndex < frameValues.length - 2 && t > frameValues[frameIndex + 1] * frameTime :
 			frameIndex > 1 && t > frameValues[frameIndex - 1] * frameTime;
 	}
 
 	@:access(iron.object.Transform)
-	function updateTransformAnim(anim:TAnimation, transform:Transform) {
+	function updateTransformAnim(anim: TAnimation, transform: Transform) {
 		if (anim == null) return;
 
 		var total = anim.end * frameTime - anim.begin * frameTime;
@@ -150,7 +150,7 @@ class ObjectAnimation extends Animation {
 		}
 	}
 
-	public override function totalFrames():Int {
+	override public function totalFrames(): Int {
 		if (oaction == null || oaction.anim == null) return 0;
 		return oaction.anim.end - oaction.anim.begin;
 	}

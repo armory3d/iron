@@ -10,12 +10,12 @@ class SpeakerObject extends Object {
 
 #if arm_audio
 
-	public var data:TSpeakerData;
-	var sound:kha.Sound = null;
-	var channels:Array<AudioChannel> = [];
+	public var data: TSpeakerData;
+	var sound: kha.Sound = null;
+	var channels: Array<AudioChannel> = [];
 	var paused = false;
 
-	public function new(data:TSpeakerData) {
+	public function new(data: TSpeakerData) {
 		super();
 
 		this.data = data;
@@ -24,7 +24,7 @@ class SpeakerObject extends Object {
 
 		if (data.sound == "") return;
 
-		Data.getSound(data.sound, function(sound:kha.Sound) {
+		Data.getSound(data.sound, function(sound: kha.Sound) {
 			this.sound = sound;
 			App.notifyOnInit(init);
 		});

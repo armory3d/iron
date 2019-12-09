@@ -1,14 +1,14 @@
 package iron.system;
 
 class Tween {
-	static inline var DEFAULT_OVERSHOOT:Float = 1.70158;
+	static inline var DEFAULT_OVERSHOOT: Float = 1.70158;
 
-	static var eases:Array<Float->Float> = [easeLinear, easeSineIn, easeSineOut, easeSineInOut, easeQuadIn,
+	static var eases: Array<Float->Float> = [easeLinear, easeSineIn, easeSineOut, easeSineInOut, easeQuadIn,
 											easeQuadOut, easeQuadInOut, easeCubicIn, easeCubicOut, easeCubicInOut,
 											easeQuartIn, easeQuartOut, easeQuartInOut, easeQuintIn, easeQuintOut,
 											easeQuintInOut, easeExpoIn, easeExpoOut, easeExpoInOut, easeCircIn,
 											easeCircOut, easeCircInOut, easeBackIn, easeBackOut, easeBackInOut];
-	static var anims:Array<TAnim> = [];
+	static var anims: Array<TAnim> = [];
 
 	static var registered = false;
 	static inline function register() {
@@ -17,7 +17,7 @@ class Tween {
 		App.notifyOnReset(function() { App.notifyOnUpdate(update); reset(); });
 	}
 
-	public static function to(anim:TAnim):TAnim {
+	public static function to(anim: TAnim): TAnim {
 		if (!registered) register();
 		anim._time = 0;
 		anim.isPlaying = (anim.delay != null && anim.delay > 0.0) ? false : true;
@@ -28,7 +28,7 @@ class Tween {
 
 			anim._comps = []; anim._x = []; anim._y = []; anim._z = []; anim._w = []; anim._normalize = [];
 			for (p in Reflect.fields(anim.props)) {
-				var val:Dynamic = Reflect.getProperty(anim.target, p);
+				var val: Dynamic = Reflect.getProperty(anim.target, p);
 				if (Std.is(val, iron.math.Vec4) || Std.is(val, iron.math.Quat)) {
 					anim._comps.push(4);
 					anim._x.push(val.x);
@@ -51,11 +51,11 @@ class Tween {
 		return anim;
 	}
 
-	public static function timer(delay:Float, done:Void->Void):TAnim {
+	public static function timer(delay: Float, done: Void->Void): TAnim {
 		return to({ target: null, props: null, duration: 0, delay: delay, done: done });
 	}
 
-	public static function stop(anim:TAnim) {
+	public static function stop(anim: TAnim) {
 		anim.isPlaying = false;
 		anims.remove(anim);
 	}
@@ -90,27 +90,27 @@ class Tween {
 					if (k > 1) k = 1;
 
 					if (a._comps[i] == 1) {
-						var fromVal:Float = a._x[i];
-						var toVal:Float = Reflect.getProperty(a.props, p);
-						var val:Float = fromVal + (toVal - fromVal) * eases[a.ease](k);
+						var fromVal: Float = a._x[i];
+						var toVal: Float = Reflect.getProperty(a.props, p);
+						var val: Float = fromVal + (toVal - fromVal) * eases[a.ease](k);
 						Reflect.setProperty(a.target, p, val);
 					}
 					else { // _comps[i] == 4
 						var obj = Reflect.getProperty(a.props, p);
-						var toX:Float = Reflect.getProperty(obj, "x");
-						var toY:Float = Reflect.getProperty(obj, "y");
-						var toZ:Float = Reflect.getProperty(obj, "z");
-						var toW:Float = Reflect.getProperty(obj, "w");
+						var toX: Float = Reflect.getProperty(obj, "x");
+						var toY: Float = Reflect.getProperty(obj, "y");
+						var toZ: Float = Reflect.getProperty(obj, "z");
+						var toW: Float = Reflect.getProperty(obj, "w");
 						if (a._normalize[i]) {
 							var qdot = (a._x[i] * toX) + (a._y[i] * toY) + (a._z[i] * toZ) + (a._w[i] * toW);
 							if (qdot < 0.0) {
 								toX = -toX; toY = -toY; toZ = -toZ; toW = -toW;
 							}
 						}
-						var x:Float = a._x[i] + (toX - a._x[i]) * eases[a.ease](k);
-						var y:Float = a._y[i] + (toY - a._y[i]) * eases[a.ease](k);
-						var z:Float = a._z[i] + (toZ - a._z[i]) * eases[a.ease](k);
-						var w:Float = a._w[i] + (toW - a._w[i]) * eases[a.ease](k);
+						var x: Float = a._x[i] + (toX - a._x[i]) * eases[a.ease](k);
+						var y: Float = a._y[i] + (toY - a._y[i]) * eases[a.ease](k);
+						var z: Float = a._z[i] + (toZ - a._z[i]) * eases[a.ease](k);
+						var w: Float = a._w[i] + (toW - a._w[i]) * eases[a.ease](k);
 						if (a._normalize[i]) {
 							var l = Math.sqrt(x * x + y * y + z * z + w * w);
 							if (l > 0.0) {
@@ -139,50 +139,50 @@ class Tween {
 		}
 	}
 
-	public static function easeLinear(k:Float):Float { return k; }
-	public static function easeSineIn(k:Float):Float { if(k == 0){ return 0; } else if(k == 1){ return 1; } else { return 1 - Math.cos(k * Math.PI / 2); } }
-	public static function easeSineOut(k:Float):Float { if(k == 0){ return 0; } else if(k == 1){ return 1; } else { return Math.sin(k * (Math.PI * 0.5)); } }
-	public static function easeSineInOut(k:Float):Float { if(k == 0){ return 0; } else if(k == 1){ return 1; } else { return -0.5 * (Math.cos(Math.PI * k) - 1); } }
-	public static function easeQuadIn(k:Float):Float { return k * k; }
-	public static function easeQuadOut(k:Float):Float { return -k * (k - 2); }
-	public static function easeQuadInOut(k:Float):Float { return (k < 0.5) ? 2 * k * k : -2 * ((k -= 1) * k) + 1; }
-	public static function easeCubicIn(k:Float):Float { return k * k * k; }
-	public static function easeCubicOut(k:Float):Float { return (k = k - 1) * k * k + 1; }
-	public static function easeCubicInOut(k:Float):Float { return ((k *= 2) < 1) ? 0.5 * k * k * k : 0.5 * ((k -= 2) * k * k + 2); }
-	public static function easeQuartIn(k:Float):Float { return (k *= k) * k; }
-	public static function easeQuartOut(k:Float):Float { return 1 - (k = (k = k - 1) * k) * k; }
-	public static function easeQuartInOut(k:Float):Float { return ((k *= 2) < 1) ? 0.5 * (k *= k) * k : -0.5 * ((k = (k -= 2) * k) * k - 2); }
-	public static function easeQuintIn(k:Float):Float { return k * (k *= k) * k; }
-	public static function easeQuintOut(k:Float):Float { return (k = k - 1) * (k *= k) * k + 1; }
-	public static function easeQuintInOut(k:Float):Float { return ((k *= 2) < 1) ? 0.5 * k * (k *= k) * k : 0.5 * (k -= 2) * (k *= k) * k + 1; }
-	public static function easeExpoIn(k:Float):Float { return k == 0 ? 0 : Math.pow(2, 10 * (k - 1)); }
-	public static function easeExpoOut(k:Float):Float { return k == 1 ? 1 : (1 - Math.pow(2, -10 * k)); }
-	public static function easeExpoInOut(k:Float):Float { if (k == 0) { return 0; } if (k == 1) { return 1; } if ((k /= 1 / 2.0) < 1.0) { return 0.5 * Math.pow(2, 10 * (k - 1)); } return 0.5 * (2 - Math.pow(2, -10 * --k)); }
-	public static function easeCircIn(k:Float):Float { return -(Math.sqrt(1 - k * k) - 1); }
-	public static function easeCircOut(k:Float):Float { return Math.sqrt(1 - (k - 1) * (k - 1)); }
-	public static function easeCircInOut(k:Float):Float { return k <= .5 ? (Math.sqrt(1 - k * k * 4) - 1) / -2 : (Math.sqrt(1 - (k * 2 - 2) * (k * 2 - 2)) + 1) / 2; }
-	public static function easeBackIn(k:Float):Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return k * k * ((DEFAULT_OVERSHOOT + 1) * k - DEFAULT_OVERSHOOT); } }
-	public static function easeBackOut(k:Float):Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return ((k = k - 1) * k * ((DEFAULT_OVERSHOOT + 1) * k + DEFAULT_OVERSHOOT) + 1); } }
-	public static function easeBackInOut(k:Float):Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else if ((k *= 2) < 1) { return (0.5 * (k * k * (((DEFAULT_OVERSHOOT * 1.525) + 1) * k - DEFAULT_OVERSHOOT * 1.525))); } else { return (0.5 * ((k -= 2) * k * (((DEFAULT_OVERSHOOT * 1.525) + 1) * k + DEFAULT_OVERSHOOT * 1.525) + 2)); } }
+	public static function easeLinear(k: Float): Float { return k; }
+	public static function easeSineIn(k: Float): Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return 1 - Math.cos(k * Math.PI / 2); } }
+	public static function easeSineOut(k: Float): Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return Math.sin(k * (Math.PI * 0.5)); } }
+	public static function easeSineInOut(k: Float): Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return -0.5 * (Math.cos(Math.PI * k) - 1); } }
+	public static function easeQuadIn(k: Float): Float { return k * k; }
+	public static function easeQuadOut(k: Float): Float { return -k * (k - 2); }
+	public static function easeQuadInOut(k: Float): Float { return (k < 0.5) ? 2 * k * k : -2 * ((k -= 1) * k) + 1; }
+	public static function easeCubicIn(k: Float): Float { return k * k * k; }
+	public static function easeCubicOut(k: Float): Float { return (k = k - 1) * k * k + 1; }
+	public static function easeCubicInOut(k: Float): Float { return ((k *= 2) < 1) ? 0.5 * k * k * k : 0.5 * ((k -= 2) * k * k + 2); }
+	public static function easeQuartIn(k: Float): Float { return (k *= k) * k; }
+	public static function easeQuartOut(k: Float): Float { return 1 - (k = (k = k - 1) * k) * k; }
+	public static function easeQuartInOut(k: Float): Float { return ((k *= 2) < 1) ? 0.5 * (k *= k) * k : -0.5 * ((k = (k -= 2) * k) * k - 2); }
+	public static function easeQuintIn(k: Float): Float { return k * (k *= k) * k; }
+	public static function easeQuintOut(k: Float): Float { return (k = k - 1) * (k *= k) * k + 1; }
+	public static function easeQuintInOut(k: Float): Float { return ((k *= 2) < 1) ? 0.5 * k * (k *= k) * k : 0.5 * (k -= 2) * (k *= k) * k + 1; }
+	public static function easeExpoIn(k: Float): Float { return k == 0 ? 0 : Math.pow(2, 10 * (k - 1)); }
+	public static function easeExpoOut(k: Float): Float { return k == 1 ? 1 : (1 - Math.pow(2, -10 * k)); }
+	public static function easeExpoInOut(k: Float): Float { if (k == 0) { return 0; } if (k == 1) { return 1; } if ((k /= 1 / 2.0) < 1.0) { return 0.5 * Math.pow(2, 10 * (k - 1)); } return 0.5 * (2 - Math.pow(2, -10 * --k)); }
+	public static function easeCircIn(k: Float): Float { return -(Math.sqrt(1 - k * k) - 1); }
+	public static function easeCircOut(k: Float): Float { return Math.sqrt(1 - (k - 1) * (k - 1)); }
+	public static function easeCircInOut(k: Float): Float { return k <= .5 ? (Math.sqrt(1 - k * k * 4) - 1) / -2 : (Math.sqrt(1 - (k * 2 - 2) * (k * 2 - 2)) + 1) / 2; }
+	public static function easeBackIn(k: Float): Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return k * k * ((DEFAULT_OVERSHOOT + 1) * k - DEFAULT_OVERSHOOT); } }
+	public static function easeBackOut(k: Float): Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return ((k = k - 1) * k * ((DEFAULT_OVERSHOOT + 1) * k + DEFAULT_OVERSHOOT) + 1); } }
+	public static function easeBackInOut(k: Float): Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else if ((k *= 2) < 1) { return (0.5 * (k * k * (((DEFAULT_OVERSHOOT * 1.525) + 1) * k - DEFAULT_OVERSHOOT * 1.525))); } else { return (0.5 * ((k -= 2) * k * (((DEFAULT_OVERSHOOT * 1.525) + 1) * k + DEFAULT_OVERSHOOT * 1.525) + 2)); } }
 }
 
 typedef TAnim = {
-	var target:Dynamic;
-	var props:Dynamic;
-	var duration:Float;
-	@:optional var isPlaying:Null<Bool>;
-	@:optional var done:Void->Void;
-	@:optional var tick:Void->Void;
-	@:optional var delay:Null<Float>;
-	@:optional var ease:Null<Ease>;
+	var target: Dynamic;
+	var props: Dynamic;
+	var duration: Float;
+	@:optional var isPlaying: Null<Bool>;
+	@:optional var done: Void->Void;
+	@:optional var tick: Void->Void;
+	@:optional var delay: Null<Float>;
+	@:optional var ease: Null<Ease>;
 	// Internal
-	@:optional var _time:Null<Float>;
-	@:optional var _comps:Array<Int>;
-	@:optional var _x:Array<Float>;
-	@:optional var _y:Array<Float>;
-	@:optional var _z:Array<Float>;
-	@:optional var _w:Array<Float>;
-	@:optional var _normalize:Array<Bool>;
+	@:optional var _time: Null<Float>;
+	@:optional var _comps: Array<Int>;
+	@:optional var _x: Array<Float>;
+	@:optional var _y: Array<Float>;
+	@:optional var _z: Array<Float>;
+	@:optional var _w: Array<Float>;
+	@:optional var _normalize: Array<Bool>;
 }
 
 @:enum abstract Ease(Int) from Int to Int {

@@ -14,19 +14,19 @@ import iron.Scene;
 
 class TerrainStream {
 
-	public var sectors:Array<MeshObject> = [];
-	public var heightTextures:Array<kha.Image> = [];
+	public var sectors: Array<MeshObject> = [];
+	public var heightTextures: Array<kha.Image> = [];
 	public var ready = false;
-	public var onReady:Void->Void = null;
+	public var onReady: Void->Void = null;
 
-	var raw:TTerrainData;
-	var planes:Array<MeshData> = [];
-	var materials:Vector<MaterialData>;
+	var raw: TTerrainData;
+	var planes: Array<MeshData> = [];
+	var materials: Vector<MaterialData>;
 
-	public function new(raw:TTerrainData) {
+	public function new(raw: TTerrainData) {
 		this.raw = raw;
 
-		Data.getMaterial(Scene.active.raw.name, raw.material_ref, function(mat:MaterialData) {
+		Data.getMaterial(Scene.active.raw.name, raw.material_ref, function(mat: MaterialData) {
 			materials = Vector.fromData([mat]);
 
 			var imagesLoaded = 0;
@@ -34,7 +34,7 @@ class TerrainStream {
 			for (i in 0...numSectors) {
 				var j = i + 1;
 				var ext = j < 10 ? "0" + j : "" + j;
-				Data.getImage("heightmap_" + ext + ".png", function(image:kha.Image) {
+				Data.getImage("heightmap_" + ext + ".png", function(image: kha.Image) {
 					heightTextures[i] = image;
 					imagesLoaded++;
 					if (imagesLoaded == numSectors) {
@@ -45,7 +45,7 @@ class TerrainStream {
 		});
 	}
 
-	public function notifyOnReady(f:Void->Void) {
+	public function notifyOnReady(f: Void->Void) {
 		onReady = f;
 		if (ready) onReady();
 	}
@@ -67,7 +67,7 @@ class TerrainStream {
 		if (onReady != null) onReady();
 	}
 
-	function makePlane(index:Int, sizeX:Float, sizeY:Float, vertsX:Int, vertsY:Int) {
+	function makePlane(index: Int, sizeX: Float, sizeY: Float, vertsX: Int, vertsY: Int) {
 		// Pack positions to (-1, 1) range
 		var halfX = sizeX / 2;
 		var halfY = sizeY / 2;
@@ -107,12 +107,12 @@ class TerrainStream {
 		}
 
 		// Positions, normals and indices
-		var pos:TVertexArray = { attrib: "pos", values: posa };
-		var nor:TVertexArray = { attrib: "nor", values: nora };
-		var tex:TVertexArray = { attrib: "tex", values: texa };
-		var ind:TIndexArray = { material: 0, values: inda };
+		var pos: TVertexArray = { attrib: "pos", values: posa };
+		var nor: TVertexArray = { attrib: "nor", values: nora };
+		var tex: TVertexArray = { attrib: "tex", values: texa };
+		var ind: TIndexArray = { material: 0, values: inda };
 
-		var rawmeshData:TMeshData = {
+		var rawmeshData: TMeshData = {
 			name: "Terrain",
 			vertex_arrays: [pos, nor, tex],
 			index_arrays: [ind],
@@ -120,13 +120,13 @@ class TerrainStream {
 			scale_tex: 1.0
 		};
 
-		new MeshData(rawmeshData, function(data:MeshData) {
+		new MeshData(rawmeshData, function(data: MeshData) {
 			planes[index] = data;
 			data.geom.calculateAABB();
 		});
 	}
 
-	function makeSector(index:Int) {
+	function makeSector(index: Int) {
 		var object = Scene.active.addMeshObject(planes[0], materials);
 		sectors[index] = object;
 		object.uid = index;
@@ -142,11 +142,11 @@ class TerrainStream {
 
 	public function remove() {}
 
-	public function update(camera:CameraObject) {
+	public function update(camera: CameraObject) {
 		if (!ready) return;
 	}
 
-	function textureLink(object:Object, mat:MaterialData, link:String):kha.Image {
+	function textureLink(object: Object, mat: MaterialData, link: String): kha.Image {
 		if (link == "_TerrainHeight") {
 			return heightTextures[object.uid];
 		}

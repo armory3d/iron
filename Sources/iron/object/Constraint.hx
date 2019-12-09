@@ -3,14 +3,14 @@ package iron.object;
 import iron.data.SceneFormat;
 
 class Constraint {
-	var raw:TConstraint;
-	var target:Transform = null;
+	var raw: TConstraint;
+	var target: Transform = null;
 
-	public function new(constr:TConstraint) {
+	public function new(constr: TConstraint) {
 		raw = constr;
 	}
 
-	public function apply(transform:Transform) {
+	public function apply(transform: Transform) {
 		if (target == null && raw.target != null) target = Scene.active.getChild(raw.target).transform;
 
 		if (raw.type == "COPY_LOCATION") {

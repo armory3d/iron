@@ -19,9 +19,9 @@ class SceneStream {
 
 	var loadDistance = -1;
 	var unloadDistance = -1;
-	var sectors:Array<StreamSector>; // 100x100 groups
+	var sectors: Array<StreamSector>; // 100x100 groups
 
-	public function sceneTotal():Int {
+	public function sceneTotal(): Int {
 		return sectors[0].handles.length;
 	}
 
@@ -31,16 +31,16 @@ class SceneStream {
 
 	public function remove() {}
 
-	public function add(object_file:String, data_ref:String, sceneName:String, armature:Armature, materials:Vector<MaterialData>, parent:Object, obj:TObj) {
+	public function add(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, obj: TObj) {
 		sectors[0].handles.push({object_file: object_file, data_ref: data_ref, sceneName: sceneName, armature: armature, materials: materials, parent: parent, obj: obj, object: null, loading: false});
 	}
 
-	function setup(camera:CameraObject) {
+	function setup(camera: CameraObject) {
 		loadDistance = Std.int(camera.data.raw.far_plane * 1.1);
 		unloadDistance = Std.int(camera.data.raw.far_plane * 1.5);
 	}
 
-	public function update(camera:CameraObject) {
+	public function update(camera: CameraObject) {
 		if (loadDistance == -1) setup(camera);
 
 		if (loading >= loadMax) return; // Busy loading..
@@ -70,19 +70,17 @@ class SceneStream {
 				// TODO: handle scale & rot
 			}
 
-			// Load mesh
-			if (cameraDistance < loadDistance && h.object == null && !h.loading) {
+			if (cameraDistance < loadDistance && h.object == null && !h.loading) { // Load mesh
 				h.loading = true;
 				loading++;
-				iron.Scene.active.returnMeshObject(h.object_file, h.data_ref, h.sceneName, h.armature, h.materials, h.parent, h.obj, function(object:Object) {
+				iron.Scene.active.returnMeshObject(h.object_file, h.data_ref, h.sceneName, h.armature, h.materials, h.parent, h.obj, function(object: Object) {
 					h.object = cast(object, MeshObject);
 					h.loading = false;
 					loading--;
 				});
 				if (loading >= loadMax) return;
 			}
-			// Unload mesh
-			else if (cameraDistance > unloadDistance && h.object != null) {
+			else if (cameraDistance > unloadDistance && h.object != null) { // Unload mesh
 				h.object.remove();
 				if (h.object.data.refcount <= 0) {
 					iron.data.Data.deleteMesh(h.object_file + h.data_ref);
@@ -94,20 +92,20 @@ class SceneStream {
 }
 
 typedef TMeshHandle = {
-	var object_file:String;
-	var data_ref:String;
-	var sceneName:String;
-	var armature:Armature;
-	var materials:Vector<MaterialData>;
-	var parent:Object;
-	var obj:TObj;
-	var object:MeshObject;
-	var loading:Bool;
+	var object_file: String;
+	var data_ref: String;
+	var sceneName: String;
+	var armature: Armature;
+	var materials: Vector<MaterialData>;
+	var parent: Object;
+	var obj: TObj;
+	var object: MeshObject;
+	var loading: Bool;
 }
 
 class StreamSector {
 	public function new() {}
-	public var handles:Array<TMeshHandle> = []; // Mesh objects
+	public var handles: Array<TMeshHandle> = []; // Mesh objects
 }
 
 #end

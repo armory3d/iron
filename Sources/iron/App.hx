@@ -3,43 +3,43 @@ package iron;
 class App {
 
 	#if arm_appwh
-	public static inline function w():Int { return arm.App.w(); }
-	public static inline function h():Int { return arm.App.h(); }
-	public static inline function x():Int { return arm.App.x(); }
-	public static inline function y():Int { return arm.App.y(); }
+	public static inline function w(): Int { return arm.App.w(); }
+	public static inline function h(): Int { return arm.App.h(); }
+	public static inline function x(): Int { return arm.App.x(); }
+	public static inline function y(): Int { return arm.App.y(); }
 	#else
-	public static inline function w():Int { return kha.System.windowWidth(); }
-	public static inline function h():Int { return kha.System.windowHeight(); }
-	public static inline function x():Int { return 0; }
-	public static inline function y():Int { return 0; }
+	public static inline function w(): Int { return kha.System.windowWidth(); }
+	public static inline function h(): Int { return kha.System.windowHeight(); }
+	public static inline function x(): Int { return 0; }
+	public static inline function y(): Int { return 0; }
 	#end
 
-	static var onResets:Array<Void->Void> = null;
-	static var onEndFrames:Array<Void->Void> = null;
-	static var traitInits:Array<Void->Void> = [];
-	static var traitUpdates:Array<Void->Void> = [];
-	static var traitLateUpdates:Array<Void->Void> = [];
-	static var traitRenders:Array<kha.graphics4.Graphics->Void> = [];
-	static var traitRenders2D:Array<kha.graphics2.Graphics->Void> = [];
-	public static var framebuffer:kha.Framebuffer;
+	static var onResets: Array<Void->Void> = null;
+	static var onEndFrames: Array<Void->Void> = null;
+	static var traitInits: Array<Void->Void> = [];
+	static var traitUpdates: Array<Void->Void> = [];
+	static var traitLateUpdates: Array<Void->Void> = [];
+	static var traitRenders: Array<kha.graphics4.Graphics->Void> = [];
+	static var traitRenders2D: Array<kha.graphics2.Graphics->Void> = [];
+	public static var framebuffer: kha.Framebuffer;
 	public static var pauseUpdates = false;
 
 	#if arm_debug
-	static var startTime:Float;
-	public static var updateTime:Float;
-	public static var renderPathTime:Float;
+	static var startTime: Float;
+	public static var updateTime: Float;
+	public static var renderPathTime: Float;
 	#end
 	#if arm_resizable
 	static var lastw = -1;
 	static var lasth = -1;
-	public static var onResize:Void->Void = null;
+	public static var onResize: Void->Void = null;
 	#end
 
-	public static function init(_appReady:Void->Void) {
+	public static function init(_appReady: Void->Void) {
 		new App(_appReady);
 	}
 
-	function new(_appReady:Void->Void) {
+	function new(_appReady: Void->Void) {
 		_appReady();
 
 		kha.System.notifyOnFrames(render);
@@ -107,7 +107,7 @@ class App {
 		#end
 	}
 
-	static function render(frames:Array<kha.Framebuffer>) {
+	static function render(frames: Array<kha.Framebuffer>) {
 		var frame = frames[0];
 		framebuffer = frame;
 
@@ -138,7 +138,7 @@ class App {
 		#end
 	}
 
-	static function render2D(frame:kha.Framebuffer) {
+	static function render2D(frame: kha.Framebuffer) {
 		if (traitRenders2D.length > 0) {
 			frame.g2.begin(false);
 			for (f in traitRenders2D) { traitRenders2D.length > 0 ? f(frame.g2) : break; }
@@ -147,61 +147,61 @@ class App {
 	}
 
 	// Hooks
-	public static function notifyOnInit(f:Void->Void) {
+	public static function notifyOnInit(f: Void->Void) {
 		traitInits.push(f);
 	}
 
-	public static function removeInit(f:Void->Void) {
+	public static function removeInit(f: Void->Void) {
 		traitInits.remove(f);
 	}
 
-	public static function notifyOnUpdate(f:Void->Void) {
+	public static function notifyOnUpdate(f: Void->Void) {
 		traitUpdates.push(f);
 	}
 
-	public static function removeUpdate(f:Void->Void) {
+	public static function removeUpdate(f: Void->Void) {
 		traitUpdates.remove(f);
 	}
 
-	public static function notifyOnLateUpdate(f:Void->Void) {
+	public static function notifyOnLateUpdate(f: Void->Void) {
 		traitLateUpdates.push(f);
 	}
 
-	public static function removeLateUpdate(f:Void->Void) {
+	public static function removeLateUpdate(f: Void->Void) {
 		traitLateUpdates.remove(f);
 	}
 
-	public static function notifyOnRender(f:kha.graphics4.Graphics->Void) {
+	public static function notifyOnRender(f: kha.graphics4.Graphics->Void) {
 		traitRenders.push(f);
 	}
 
-	public static function removeRender(f:kha.graphics4.Graphics->Void) {
+	public static function removeRender(f: kha.graphics4.Graphics->Void) {
 		traitRenders.remove(f);
 	}
 
-	public static function notifyOnRender2D(f:kha.graphics2.Graphics->Void) {
+	public static function notifyOnRender2D(f: kha.graphics2.Graphics->Void) {
 		traitRenders2D.push(f);
 	}
 
-	public static function removeRender2D(f:kha.graphics2.Graphics->Void) {
+	public static function removeRender2D(f: kha.graphics2.Graphics->Void) {
 		traitRenders2D.remove(f);
 	}
 
-	public static function notifyOnReset(f:Void->Void) {
+	public static function notifyOnReset(f: Void->Void) {
 		if (onResets == null) onResets = [];
 		onResets.push(f);
 	}
 
-	public static function removeReset(f:Void->Void) {
+	public static function removeReset(f: Void->Void) {
 		onResets.remove(f);
 	}
 
-	public static function notifyOnEndFrame(f:Void->Void) {
+	public static function notifyOnEndFrame(f: Void->Void) {
 		if (onEndFrames == null) onEndFrames = [];
 		onEndFrames.push(f);
 	}
 
-	public static function removeEndFrame(f:Void->Void) {
+	public static function removeEndFrame(f: Void->Void) {
 		onEndFrames.remove(f);
 	}
 }

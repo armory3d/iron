@@ -5,13 +5,13 @@ import kha.input.KeyCode;
 class Input {
 
 	public static var occupied = false;
-	static var mouse:Mouse = null;
-	static var pen:Pen = null;
-	static var keyboard:Keyboard = null;
-	static var gamepads:Array<Gamepad> = [];
-	static var sensor:Sensor = null;
+	static var mouse: Mouse = null;
+	static var pen: Pen = null;
+	static var keyboard: Keyboard = null;
+	static var gamepads: Array<Gamepad> = [];
+	static var sensor: Sensor = null;
 	static var registered = false;
-	public static var virtualButtons:Map<String, VirtualButton> = null; // Button name
+	public static var virtualButtons: Map<String, VirtualButton> = null; // Button name
 
 	public static function reset() {
 		occupied = false;
@@ -32,47 +32,47 @@ class Input {
 		}
 	}
 
-	public static function getMouse():Mouse {
+	public static function getMouse(): Mouse {
 		if (!registered) register();
 		if (mouse == null) mouse = new Mouse();
 		return mouse;
 	}
 
-	public static function getPen():Pen {
+	public static function getPen(): Pen {
 		if (!registered) register();
 		if (pen == null) pen = new Pen();
 		return pen;
 	}
 
-	public static function getSurface():Surface {
+	public static function getSurface(): Surface {
 		if (!registered) register();
 		// Map to mouse for now..
 		return getMouse();
 	}
 
 	/**
-	 * Get the Keyboard object. If it is not registered yet then register a new Keyboard.
-	 */
-	public static function getKeyboard():Keyboard {
+	  Get the Keyboard object. If it is not registered yet then register a new Keyboard.
+	**/
+	public static function getKeyboard(): Keyboard {
 		if (!registered) register();
 		if (keyboard == null) keyboard = new Keyboard();
 		return keyboard;
 	}
 
-	public static function getGamepad(i = 0):Gamepad {
+	public static function getGamepad(i = 0): Gamepad {
 		if (i >= 4) return null;
 		if (!registered) register();
 		while (gamepads.length <= i) gamepads.push(new Gamepad(gamepads.length));
 		return gamepads[i].connected ? gamepads[i] : null;
 	}
 
-	public static function getSensor():Sensor {
+	public static function getSensor(): Sensor {
 		if (!registered) register();
 		if (sensor == null) sensor = new Sensor();
 		return sensor;
 	}
 
-	public static function getVirtualButton(virtual:String):VirtualButton {
+	public static function getVirtualButton(virtual: String): VirtualButton {
 		if (!registered) register();
 		if (virtualButtons == null) return null;
 		return virtualButtons.get(virtual);
@@ -93,9 +93,9 @@ class VirtualButton {
 }
 
 class VirtualInput {
-	var virtualButtons:Map<String, VirtualButton> = null; // Button id
+	var virtualButtons: Map<String, VirtualButton> = null; // Button id
 
-	public function setVirtual(virtual:String, button:String) {
+	public function setVirtual(virtual: String, button: String) {
 		if (Input.virtualButtons == null) Input.virtualButtons = new Map<String, VirtualButton>();
 
 		var vb = Input.virtualButtons.get(virtual);
@@ -108,14 +108,14 @@ class VirtualInput {
 		virtualButtons.set(button, vb);
 	}
 
-	function downVirtual(button:String) {
+	function downVirtual(button: String) {
 		if (virtualButtons != null) {
 			var vb = virtualButtons.get(button);
 			if (vb != null) { vb.down = true; vb.started = true; }
 		}
 	}
 
-	function upVirtual(button:String) {
+	function upVirtual(button: String) {
 		if (virtualButtons != null) {
 			var vb = virtualButtons.get(button);
 			if (vb != null) { vb.down = false; vb.released = true; }
@@ -127,7 +127,7 @@ typedef Surface = Mouse;
 
 class Mouse extends VirtualInput {
 
-	static var buttons = ['left', 'right', 'middle'];
+	static var buttons = ["left", "right", "middle"];
 	var buttonsDown = [false, false, false];
 	var buttonsStarted = [false, false, false];
 	var buttonsReleased = [false, false, false];
@@ -163,19 +163,19 @@ class Mouse extends VirtualInput {
 		endFrame();
 	}
 
-	function buttonIndex(button:String) {
+	function buttonIndex(button: String): Int {
 		return button == "left" ? 0 : (button == "right" ? 1 : 2);
 	}
 
-	public function down(button = "left"):Bool {
+	public function down(button = "left"): Bool {
 		return buttonsDown[buttonIndex(button)];
 	}
 
-	public function started(button = "left"):Bool {
+	public function started(button = "left"): Bool {
 		return buttonsStarted[buttonIndex(button)];
 	}
 
-	public function released(button = "left"):Bool {
+	public function released(button = "left"): Bool {
 		return buttonsReleased[buttonIndex(button)];
 	}
 
@@ -204,7 +204,7 @@ class Mouse extends VirtualInput {
 		hidden = false;
 	}
 
-	function downListener(index:Int, x:Int, y:Int) {
+	function downListener(index: Int, x: Int, y: Int) {
 		buttonsDown[index] = true;
 		buttonsStarted[index] = true;
 		this.x = x;
@@ -216,7 +216,7 @@ class Mouse extends VirtualInput {
 		downVirtual(buttons[index]);
 	}
 
-	function upListener(index:Int, x:Int, y:Int) {
+	function upListener(index: Int, x: Int, y: Int) {
 		buttonsDown[index] = false;
 		buttonsReleased[index] = true;
 		this.x = x;
@@ -225,7 +225,7 @@ class Mouse extends VirtualInput {
 		upVirtual(buttons[index]);
 	}
 
-	function moveListener(x:Int, y:Int, movementX:Int, movementY:Int) {
+	function moveListener(x: Int, y: Int, movementX: Int, movementY: Int) {
 		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
 		if (locked) {
 			// Can be called multiple times per frame
@@ -243,17 +243,17 @@ class Mouse extends VirtualInput {
 		moved = true;
 	}
 
-	function wheelListener(delta:Int) {
+	function wheelListener(delta: Int) {
 		wheelDelta = delta;
 	}
 
-	inline function get_viewX() { return x - iron.App.x(); }
-	inline function get_viewY() { return y - iron.App.y(); }
+	inline function get_viewX(): Float { return x - iron.App.x(); }
+	inline function get_viewY(): Float { return y - iron.App.y(); }
 }
 
 class Pen extends VirtualInput {
 
-	static var buttons = ['tip'];
+	static var buttons = ["tip"];
 	var buttonsDown = [false];
 	var buttonsStarted = [false];
 	var buttonsReleased = [false];
@@ -286,23 +286,23 @@ class Pen extends VirtualInput {
 		endFrame();
 	}
 
-	function buttonIndex(button:String) {
+	function buttonIndex(button: String): Int {
 		return 0;
 	}
 
-	public function down(button = "tip"):Bool {
+	public function down(button = "tip"): Bool {
 		return buttonsDown[buttonIndex(button)];
 	}
 
-	public function started(button = "tip"):Bool {
+	public function started(button = "tip"): Bool {
 		return buttonsStarted[buttonIndex(button)];
 	}
 
-	public function released(button = "tip"):Bool {
+	public function released(button = "tip"): Bool {
 		return buttonsReleased[buttonIndex(button)];
 	}
 
-	function downListener(x:Int, y:Int, pressure:Float) {
+	function downListener(x: Int, y: Int, pressure: Float) {
 		buttonsDown[0] = true;
 		buttonsStarted[0] = true;
 		this.x = x;
@@ -310,7 +310,7 @@ class Pen extends VirtualInput {
 		this.pressure = pressure;
 	}
 
-	function upListener(x:Int, y:Int, pressure:Float) {
+	function upListener(x: Int, y: Int, pressure: Float) {
 		buttonsDown[0] = false;
 		buttonsReleased[0] = true;
 		this.x = x;
@@ -318,7 +318,7 @@ class Pen extends VirtualInput {
 		this.pressure = pressure;
 	}
 
-	function moveListener(x:Int, y:Int, pressure:Float) {
+	function moveListener(x: Int, y: Int, pressure: Float) {
 		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
 		this.movementX = x - lastX;
 		this.movementY = y - lastY;
@@ -330,18 +330,18 @@ class Pen extends VirtualInput {
 		this.pressure = pressure;
 	}
 
-	inline function get_viewX() { return x - iron.App.x(); }
-	inline function get_viewY() { return y - iron.App.y(); }
+	inline function get_viewX(): Float { return x - iron.App.x(); }
+	inline function get_viewY(): Float { return y - iron.App.y(); }
 }
 
 class Keyboard extends VirtualInput {
 
-	static var keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'space', 'backspace', 'tab', 'enter', 'shift', 'control', 'alt', 'escape', 'delete', 'up', 'down', 'left', 'right', 'back', ',', '.', ':', ';', '<', '=', '>', '?', '!', '"', '#', '$', '%', '&', '_', '(', ')', '*', '|', '{', '}', '[', ']', '~', '/', '\\', '@', '+', '-', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12'];
+	static var keys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "space", "backspace", "tab", "enter", "shift", "control", "alt", "escape", "delete", "up", "down", "left", "right", "back", ",", ".", ":", ";", "<", "=", ">", "?", "!", '"', "#", "$", "%", "&", "_", "(", ")", "*", "|", "{", "}", "[", "]", "~", "/", "\\", "@", "+", "-", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"];
 	var keysDown = new Map<String, Bool>();
 	var keysStarted = new Map<String, Bool>();
 	var keysReleased = new Map<String, Bool>();
 
-	var keysFrame:Array<String> = [];
+	var keysFrame: Array<String> = [];
 
 	public function new() {
 		reset();
@@ -369,36 +369,33 @@ class Keyboard extends VirtualInput {
 	}
 
 	/**
-	 * Check if a key is currently pressed.
-	 *
-	 * @param	key A String representing the physical keyboard key to check.
-	 * @return	Bool. Returns true or false depending on the keyboard state.
-	 */
-	public function down(key:String):Bool {
+	  Check if a key is currently pressed.
+	  @param	key A String representing the physical keyboard key to check.
+	  @return	Bool. Returns true or false depending on the keyboard state.
+	**/
+	public function down(key: String): Bool {
 		return keysDown.get(key);
 	}
 
 	/**
-	 * Check if a key has started being pressed down. Will only be run once until the key is released and pressed again.
-	 *
-	 * @param	key A String representing the physical keyboard key to check.
-	 * @return	Bool. Returns true or false depending on the keyboard state.
-	 */
-	public function started(key:String):Bool {
+	  Check if a key has started being pressed down. Will only be run once until the key is released and pressed again.
+	  @param	key A String representing the physical keyboard key to check.
+	  @return	Bool. Returns true or false depending on the keyboard state.
+	**/
+	public function started(key: String): Bool {
 		return keysStarted.get(key);
 	}
 
 	/**
-	 * Check if a key has been released from being pressed down. Will only be run once until the key is pressed again and release again.
-	 *
-	 * @param	key A String representing the physical keyboard key to check.
-	 * @return	Bool. Returns true or false depending on the keyboard state.
-	 */
-	public function released(key:String):Bool {
+	  Check if a key has been released from being pressed down. Will only be run once until the key is pressed again and release again.
+	  @param	key A String representing the physical keyboard key to check.
+	  @return	Bool. Returns true or false depending on the keyboard state.
+	**/
+	public function released(key: String): Bool {
 		return keysReleased.get(key);
 	}
 
-	public static function keyCode(key: KeyCode):String {
+	public static function keyCode(key: KeyCode): String {
 		if (key == KeyCode.Space) return "space";
 		else if (key == KeyCode.Backspace) return "backspace";
 		else if (key == KeyCode.Tab) return "tab";
@@ -516,15 +513,15 @@ class GamepadStick {
 
 class Gamepad extends VirtualInput {
 
-	public static var buttonsPS = ['cross', 'circle', 'square', 'triangle', 'l1', 'r1', 'l2', 'r2', 'share', 'options', 'l3', 'r3', 'up', 'down', 'left', 'right', 'home', 'touchpad'];
-	public static var buttonsXBOX = ['a', 'b', 'x', 'y', 'l1', 'r1', 'l2', 'r2', 'share', 'options', 'l3', 'r3', 'up', 'down', 'left', 'right', 'home', 'touchpad'];
+	public static var buttonsPS = ["cross", "circle", "square", "triangle", "l1", "r1", "l2", "r2", "share", "options", "l3", "r3", "up", "down", "left", "right", "home", "touchpad"];
+	public static var buttonsXBOX = ["a", "b", "x", "y", "l1", "r1", "l2", "r2", "share", "options", "l3", "r3", "up", "down", "left", "right", "home", "touchpad"];
 	public static var buttons = buttonsPS;
 
-	var buttonsDown:Array<Float> = []; // Intensity 0 - 1
-	var buttonsStarted:Array<Bool> = [];
-	var buttonsReleased:Array<Bool> = [];
+	var buttonsDown: Array<Float> = []; // Intensity 0 - 1
+	var buttonsStarted: Array<Bool> = [];
+	var buttonsReleased: Array<Bool> = [];
 
-	var buttonsFrame:Array<Int> = [];
+	var buttonsFrame: Array<Int> = [];
 
 	public var leftStick = new GamepadStick();
 	public var rightStick = new GamepadStick();
@@ -532,7 +529,7 @@ class Gamepad extends VirtualInput {
 	public var connected = false;
 	var num = 0;
 
-	public function new(i:Int, virtual = false) {
+	public function new(i: Int, virtual = false) {
 		for (s in buttons) {
 			buttonsDown.push(0.0);
 			buttonsStarted.push(false);
@@ -580,28 +577,28 @@ class Gamepad extends VirtualInput {
 		endFrame();
 	}
 
-	public static function keyCode(button:Int):String {
+	public static function keyCode(button: Int): String {
 		return buttons[button];
 	}
 
-	function buttonIndex(button:String):Int {
+	function buttonIndex(button: String): Int {
 		for (i in 0...buttons.length) if (buttons[i] == button) return i;
 		return 0;
 	}
 
-	public function down(button:String):Float {
+	public function down(button: String): Float {
 		return buttonsDown[buttonIndex(button)];
 	}
 
-	public function started(button:String):Bool {
+	public function started(button: String): Bool {
 		return buttonsStarted[buttonIndex(button)];
 	}
 
-	public function released(button:String):Bool {
+	public function released(button: String): Bool {
 		return buttonsReleased[buttonIndex(button)];
 	}
 
-	function axisListener(axis:Int, value:Float) {
+	function axisListener(axis: Int, value: Float) {
 		var stick = axis <= 1 ? leftStick : rightStick;
 
 		if (axis == 0 || axis == 2) { // X
@@ -617,7 +614,7 @@ class Gamepad extends VirtualInput {
 		stick.moved = true;
 	}
 
-	function buttonListener(button:Int, value:Float) {
+	function buttonListener(button: Int, value: Float) {
 		buttonsFrame.push(button);
 
 		buttonsDown[button] = value;
@@ -639,7 +636,7 @@ class Sensor {
 		kha.input.Sensor.get(kha.input.SensorType.Accelerometer).notify(listener);
 	}
 
-	function listener(x:Float, y:Float, z:Float) {
+	function listener(x: Float, y: Float, z: Float) {
 		this.x = x;
 		this.y = y;
 		this.z = z;

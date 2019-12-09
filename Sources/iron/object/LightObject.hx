@@ -10,20 +10,20 @@ import iron.object.CameraObject;
 
 class LightObject extends Object {
 
-	public var data:LightData;
+	public var data: LightData;
 
 	// Cascades
 	public static var cascadeCount = 1;
 	public static var cascadeSplitFactor = 0.8;
 	public static var cascadeBounds = 1.0;
 	#if arm_csm
-	var cascadeData:Float32Array = null;
-	var cascadeVP:Array<Mat4>;
-	var camSlicedP:Array<Mat4> = null;
-	var cascadeSplit:Array<kha.FastFloat>;
+	var cascadeData: Float32Array = null;
+	var cascadeVP: Array<Mat4>;
+	var camSlicedP: Array<Mat4> = null;
+	var cascadeSplit: Array<kha.FastFloat>;
 	var bias = Mat4.identity();
 	#else
-	var camSlicedP:Mat4 = null;
+	var camSlicedP: Mat4 = null;
 	#end
 
 	// Clusters
@@ -34,24 +34,24 @@ class LightObject extends Object {
 	static inline var maxLights = 16;
 	static inline var maxLightsCluster = 4; // Mirror shader constant
 	static inline var clusterNear = 3.0;
-	public static var lightsArray:Float32Array = null;
+	public static var lightsArray: Float32Array = null;
 	#if arm_spot
-	public static var lightsArraySpot:Float32Array = null;
+	public static var lightsArraySpot: Float32Array = null;
 	#end
-	public static var clustersData:kha.Image = null;
+	public static var clustersData: kha.Image = null;
 	static var lpos = new Vec4();
 	#end // arm_clusters
 
-	public var V:Mat4 = Mat4.identity();
-	public var P:Mat4 = null;
-	public var VP:Mat4 = Mat4.identity();
+	public var V: Mat4 = Mat4.identity();
+	public var P: Mat4 = null;
+	public var VP: Mat4 = Mat4.identity();
 
-	public var frustumPlanes:Array<FrustumPlane> = null;
-	static var corners:Array<Vec4> = null;
+	public var frustumPlanes: Array<FrustumPlane> = null;
+	static var corners: Array<Vec4> = null;
 	static var m = Mat4.identity();
 	static var eye = new Vec4();
 
-	public function new(data:LightData) {
+	public function new(data: LightData) {
 		super();
 
 		this.data = data;
@@ -76,7 +76,7 @@ class LightObject extends Object {
 		Scene.active.lights.push(this);
 	}
 
-	public override function remove() {
+	override public function remove() {
 		if (Scene.active != null) Scene.active.lights.remove(this);
 		super.remove();
 	}
@@ -92,7 +92,7 @@ class LightObject extends Object {
 		corners[7].set(1.0, 1.0, -1.0);
 	}
 
-	public function buildMatrix(camera:CameraObject) {
+	public function buildMatrix(camera: CameraObject) {
 		transform.buildMatrix();
 		if (data.raw.type == "sun") { // Cover camera frustum
 			#if (!arm_csm) // Otherwise set cascades on mesh draw
@@ -105,9 +105,9 @@ class LightObject extends Object {
 		}
 	}
 
-	static inline function mix(a:Float, b:Float, f:Float):Float { return a * (1 - f) + b * f; }
+	static inline function mix(a: Float, b: Float, f: Float): Float { return a * (1 - f) + b * f; }
 
-	public function setCascade(camera:CameraObject, cascade:Int) {
+	public function setCascade(camera: CameraObject, cascade: Int) {
 
 		#if arm_vr
 		m.setFrom(camera.leftV);
@@ -235,7 +235,7 @@ class LightObject extends Object {
 		#end
 	}
 
-	function updateViewFrustum(camera:CameraObject) {
+	function updateViewFrustum(camera: CameraObject) {
 		VP.multmats(P, V);
 
 		// Frustum culling enabled
@@ -248,7 +248,7 @@ class LightObject extends Object {
 		}
 	}
 
-	public function setCubeFace(face:Int, camera:CameraObject) {
+	public function setCubeFace(face: Int, camera: CameraObject) {
 		// Set matrix to match cubemap face
 		eye.set(transform.worldx(), transform.worldy(), transform.worldz());
 		#if (!kha_opengl && !kha_webgl)
@@ -261,7 +261,7 @@ class LightObject extends Object {
 	}
 
 	#if arm_csm
-	public function getCascadeData():Float32Array {
+	public function getCascadeData(): Float32Array {
 		// Cascade mats + split distances
 		if (cascadeData == null) {
 			cascadeData = new Float32Array(cascadeCount * 16 + 4);
@@ -303,20 +303,20 @@ class LightObject extends Object {
 
 	#if arm_clusters
 
-	static function getRadius(strength:kha.FastFloat):kha.FastFloat {
+	static function getRadius(strength: kha.FastFloat): kha.FastFloat {
 		// (1.0 / (dist * dist)) * strength = 0.01
 		return Math.sqrt(strength / 0.004);
 	}
 
-	static function distSliceX(f:Float, lpos:Vec4):Float {
+	static function distSliceX(f: Float, lpos: Vec4): Float {
 		return (lpos.x - f * lpos.z) / Math.sqrt(1.0 + f * f);
 	}
 
-	static function distSliceY(f:Float, lpos:Vec4):Float {
+	static function distSliceY(f: Float, lpos: Vec4): Float {
 		return (lpos.y - f * lpos.z) / Math.sqrt(1.0 + f * f);
 	}
 
-	static function sliceToDist(camera:CameraObject, z:Int):Float {
+	static function sliceToDist(camera: CameraObject, z: Int): Float {
 		var cnear = clusterNear + camera.data.raw.near_plane;
 		if (z == 0) return camera.data.raw.near_plane;
 		else if (z == 1) return cnear;
@@ -326,12 +326,12 @@ class LightObject extends Object {
 		}
 	}
 
-	public static function updateClusters(camera:CameraObject) {
+	public static function updateClusters(camera: CameraObject) {
 		// Reference: https://newq.net/publications/more/s2015-many-lights-course
 		var lights = Scene.active.lights;
 
 		#if arm_spot // Point lamps first
-		lights.sort(function(a, b):Int {
+		lights.sort(function(a, b): Int {
 			return a.data.raw.type >= b.data.raw.type ? 1 : -1;
 		});
 		#end
@@ -463,7 +463,7 @@ class LightObject extends Object {
 
 	#end // arm_clusters
 
-	public inline function right():Vec4 { return new Vec4(V._00, V._10, V._20); }
-	public inline function up():Vec4 { return new Vec4(V._01, V._11, V._21); }
-	public inline function look():Vec4 { return new Vec4(V._02, V._12, V._22); }
+	public inline function right(): Vec4 { return new Vec4(V._00, V._10, V._20); }
+	public inline function up(): Vec4 { return new Vec4(V._01, V._11, V._21); }
+	public inline function look(): Vec4 { return new Vec4(V._02, V._12, V._22); }
 }

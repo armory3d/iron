@@ -5,11 +5,11 @@ import iron.math.Mat4;
 #if arm_vr
 class VR {
 
-	static var undistortionMatrix:Mat4 = null;
+	static var undistortionMatrix: Mat4 = null;
 
 	public function new() {}
 
-	public static function getUndistortionMatrix():Mat4 {
+	public static function getUndistortionMatrix(): Mat4 {
 		if (undistortionMatrix == null) {
 			undistortionMatrix = Mat4.identity();
 		}
@@ -17,25 +17,25 @@ class VR {
 		return undistortionMatrix;
 	}
 
-	public static function getMaxRadiusSq():Float {
+	public static function getMaxRadiusSq(): Float {
 		return 0.0;
 	}
 
 	public static function initButton() {
-		function vrDownListener(index:Int, x:Float, y:Float) {
+		function vrDownListener(index: Int, x: Float, y: Float) {
 			var vr = kha.vr.VrInterface.instance;
 			if (vr == null || !vr.IsVrEnabled() || vr.IsPresenting()) return;
-			var w:Float = iron.App.w();
-			var h:Float = iron.App.h();
+			var w: Float = iron.App.w();
+			var h: Float = iron.App.h();
 			if (x < w - 150 || y < h - 150) return;
 			vr.onVRRequestPresent();
 		}
 
-		function vrRender2D(g:kha.graphics2.Graphics) {
+		function vrRender2D(g: kha.graphics2.Graphics) {
 			var vr = kha.vr.VrInterface.instance;
 			if (vr == null || !vr.IsVrEnabled() || vr.IsPresenting()) return;
-			var w:Float = iron.App.w();
-			var h:Float = iron.App.h();
+			var w: Float = iron.App.w();
+			var h: Float = iron.App.h();
 			g.color = 0xffff0000;
 			g.fillRect(w - 150, h - 150, 140, 140);
 		}
