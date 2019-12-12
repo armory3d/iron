@@ -89,8 +89,9 @@ class Probe {
 
 					radiance = rad;
 					while (radianceMipmaps.length < raw.radiance_mipmaps) radianceMipmaps.push(null);
-					var ext = raw.radiance.substring(raw.radiance.length - 4);
-					var base = raw.radiance.substring(0, raw.radiance.length - 4);
+					var dot = raw.radiance.lastIndexOf(".");
+					var ext = raw.radiance.substring(dot);
+					var base = raw.radiance.substring(0, dot);
 
 					var mipsLoaded = 0;
 					for (i in 0...raw.radiance_mipmaps) {
