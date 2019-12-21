@@ -62,6 +62,7 @@ class RenderPath {
 	var loading = 0;
 	var cachedShaderContexts: Map<String, CachedShaderContext> = new Map();
 	var depthBuffers: Array<{name: String, format: String}> = [];
+	var additionalTargets: Array<kha.Canvas>;
 
 	#if rp_voxelao
 	public var voxelized = 0;
@@ -203,6 +204,7 @@ class RenderPath {
 	inline function begin(g: Graphics, additionalRenderTargets: Array<kha.Canvas> = null, face = -1) {
 		if (currentG != null) end();
 		currentG = g;
+		additionalTargets = additionalRenderTargets;
 		face >= 0 ? g.beginFace(face) : g.begin(additionalRenderTargets);
 	}
 
@@ -415,31 +417,34 @@ class RenderPath {
 		var appw = iron.App.w();
 		var apph = iron.App.h();
 		var halfw = Std.int(appw / 2);
+		var g = currentG;
 
 		if (vr != null && vr.IsPresenting()) {
 			// Left eye
 			Scene.active.camera.V.setFrom(Scene.active.camera.leftV);
 			Scene.active.camera.P.self = vr.GetProjectionMatrix(0);
-			currentG.viewport(0, 0, halfw, apph);
+			g.viewport(0, 0, halfw, apph);
 			drawMeshes();
 
 			// Right eye
+			begin(g, additionalTargets);
 			Scene.active.camera.V.setFrom(Scene.active.camera.rightV);
 			Scene.active.camera.P.self = vr.GetProjectionMatrix(1);
-			currentG.viewport(halfw, 0, halfw, apph);
+			g.viewport(halfw, 0, halfw, apph);
 			drawMeshes();
 		}
 		else { // Simulate
 			Scene.active.camera.buildProjection(halfw / apph);
 
 			// Left eye
-			currentG.viewport(0, 0, halfw, apph);
+			g.viewport(0, 0, halfw, apph);
 			drawMeshes();
 
 			// Right eye
+			begin(g, additionalTargets);
 			Scene.active.camera.transform.move(Scene.active.camera.right(), 0.032);
 			Scene.active.camera.buildMatrix();
-			currentG.viewport(halfw, 0, halfw, apph);
+			g.viewport(halfw, 0, halfw, apph);
 			drawMeshes();
 
 			Scene.active.camera.transform.move(Scene.active.camera.right(), -0.032);
