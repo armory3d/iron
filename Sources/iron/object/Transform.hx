@@ -35,15 +35,15 @@ class Transform {
 	**/
 	public var scale: Vec4;
 	/**
-	  Uniform scale factor for world matrix.
+	  Uniform scale factor for 'world' matrix.
 	**/
 	public var scaleWorld: kha.FastFloat = 1.0;
 	/**
-	  The world matrix with scaleWorld applied (read-only).
+	  The world matrix with 'scaleWorld' applied (read-only).
 	**/
 	public var worldUnpack: Mat4;
 	/**
-	  Flag to rebuild the world matrix on next update.
+	  Flag to rebuild the 'world' matrix on next update.
 	**/
 	public var dirty: Bool;
 	/**
