@@ -35,15 +35,15 @@ class Transform {
 	**/
 	public var scale: Vec4;
 	/**
-	  Uniform scale factor for world matrix.
+	  Uniform scale factor for `world` matrix.
 	**/
 	public var scaleWorld: kha.FastFloat = 1.0;
 	/**
-	  The world matrix with scaleWorld applied (read-only).
+	  The world matrix with `scaleWorld` applied (read-only).
 	**/
 	public var worldUnpack: Mat4;
 	/**
-	  Flag to rebuild the world matrix on next update.
+	  Flag to rebuild the `world` matrix on next update.
 	**/
 	public var dirty: Bool;
 	/**
@@ -321,4 +321,29 @@ class Transform {
 	  @return The world z location.
 	**/
 	public inline function worldz(): kha.FastFloat { return world._32; }
+
+	/**
+	 * Returns the world (global) position.
+	 * @return Vec4
+	 */
+	public inline function getWorldPosition(): Vec4 {
+		return new Vec4(worldx(), worldy(), worldz(), 1.0);
+	}
+
+	/**
+	 * Returns the given local vector in world coordinates
+	 * @param localVec
+	 * @return Vec4
+	 */
+	public inline function getWorldVecFromLocal(localVec: Vec4): Vec4 {
+		return localVec.clone().applymat4(worldUnpack);
+	}
+	/**
+	 * Returns the given world vector in local coordinates
+	 * @param worldVec
+	 * @return Vec4
+	 */
+	public inline function getLocalVecFromWorld(worldVec: Vec4): Vec4 {
+		return worldVec.clone().applymat4(local);
+	}
 }
