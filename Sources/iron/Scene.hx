@@ -515,8 +515,8 @@ class Scene {
 					else {
 						for (s in object_refs) {
 							spawnObject(s, ro, function(spawnedObject: Object) {
-								Apply collection/group instance offset to all
-								top-level parents of that group
+								// Apply collection/group instance offset to all
+								// top-level parents of that group
 								if (!isObjectInGroup(o.group_ref, spawnedObject.parent)) {
 									for (group in format.groups) {
 										if (group.name == o.group_ref) {
