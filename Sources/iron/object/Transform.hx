@@ -289,13 +289,6 @@ class Transform {
 		return r;
 	}
 
-	public function overlap(t2: Transform): Bool {
-		var t1 = this;
-		return t1.worldx() + t1.dim.x / 2 > t2.worldx() - t2.dim.x / 2 && t1.worldx() - t1.dim.x / 2 < t2.worldx() + t2.dim.x / 2 &&
-			   t1.worldy() + t1.dim.y / 2 > t2.worldy() - t2.dim.y / 2 && t1.worldy() - t1.dim.y / 2 < t2.worldy() + t2.dim.y / 2 &&
-			   t1.worldz() + t1.dim.z / 2 > t2.worldz() - t2.dim.z / 2 && t1.worldz() - t1.dim.z / 2 < t2.worldz() + t2.dim.z / 2;
-	}
-
 	/**
 	  @return	The look vector (positive local y axis) in world space.
 	**/
@@ -321,29 +314,4 @@ class Transform {
 	  @return The world z location.
 	**/
 	public inline function worldz(): kha.FastFloat { return world._32; }
-
-	/**
-	 * Returns the world (global) position.
-	 * @return Vec4
-	 */
-	public inline function getWorldPosition(): Vec4 {
-		return new Vec4(worldx(), worldy(), worldz(), 1.0);
-	}
-
-	/**
-	 * Returns the given local vector in world coordinates
-	 * @param localVec
-	 * @return Vec4
-	 */
-	public inline function getWorldVecFromLocal(localVec: Vec4): Vec4 {
-		return localVec.clone().applymat4(worldUnpack);
-	}
-	/**
-	 * Returns the given world vector in local coordinates
-	 * @param worldVec
-	 * @return Vec4
-	 */
-	public inline function getLocalVecFromWorld(worldVec: Vec4): Vec4 {
-		return worldVec.clone().applymat4(local);
-	}
 }
