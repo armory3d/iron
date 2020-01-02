@@ -429,6 +429,7 @@ typedef TGroup = {
 @:structInit class TGroup {
 #end
 	public var name: String;
+	public var instance_offset: Array<Float>;
 	public var object_refs: Array<String>;
 }
 

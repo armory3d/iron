@@ -338,6 +338,7 @@ class Scene {
 				#else
 				var objectsTraversed = 0;
 				#end
+
 				var objectsCount = getObjectsCount(format.objects);
 				function traverseObjects(parent: Object, objects: Array<TObj>, parentObject: TObj, done: Void->Void) {
 					if (objects == null) return;
@@ -357,8 +358,7 @@ class Scene {
 
 				if (format.objects == null || format.objects.length == 0) {
 					done(parent);
-				}
-				else {
+				} else {
 					traverseObjects(parent, format.objects, null, function() { // Scene objects
 						done(parent);
 					});
@@ -386,14 +386,20 @@ class Scene {
 	**/
 	public function spawnObject(name: String, parent: Object, done: Object->Void, spawnChildren = true) {
 		var objectsTraversed = 0;
-		var obj = getObj(raw, name);
+		var obj = getRawObjectByName(raw, name);
 		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
 		function spawnObjectTree(obj: TObj, parent: Object, parentObject: TObj, done: Object->Void) {
 			createObject(obj, raw, parent, parentObject, function(object: Object) {
 				if (spawnChildren && obj.children != null) {
 					for (child in obj.children) spawnObjectTree(child, object, obj, done);
 				}
-				if (++objectsTraversed == objectsCount && done != null) done(object);
+				if (++objectsTraversed == objectsCount && done != null) {
+					// Retrieve the originally spawned object from the current
+					// child object to ensure done() is called with the right
+					// object
+					while (object.name != name) object = object.parent;
+					done(object);
+				}
 			});
 		}
 		spawnObjectTree(obj, parent, null, done);
@@ -401,16 +407,30 @@ class Scene {
 
 	public function parseObject(sceneName: String, objectName: String, parent: Object, done: Object->Void) {
 		Data.getSceneRaw(sceneName, function(format: TSceneFormat) {
-			var o: TObj = getObj(format, objectName);
+			var o: TObj = getRawObjectByName(format, objectName);
 			if (o == null) done(null);
 			createObject(o, format, parent, null, done);
 		});
 	}
 
-	public static function getObj(format: TSceneFormat, name: String): TObj {
+	/**
+	 * Returns an object in scene data format ('TObj') based on its name.
+	 *
+	 * Returns 'null' if the object does not exist.
+	 * @param format The raw scene data
+	 * @param name The name of the object
+	 * @return TObj
+	 */
+	public static function getRawObjectByName(format: TSceneFormat, name: String): TObj {
 		return traverseObjs(format.objects, name);
 	}
 
+	/**
+	 * Searches the given 'TObj' array for an object with the given name and returns that object.
+	 * @param children The array in which to search
+	 * @param name The name of the object
+	 * @return TObj
+	 */
 	static function traverseObjs(children: Array<TObj>, name: String): TObj {
 		for (o in children) {
 			if (o.name == name) return o;
@@ -424,6 +444,7 @@ class Scene {
 
 	public function createObject(o: TObj, format: TSceneFormat, parent: Object, parentObject: TObj, done: Object->Void) {
 		var sceneName = format.name;
+
 		if (o.type == "camera_object") {
 			Data.getCamera(sceneName, o.data_ref, function(b: CameraData) {
 				var object = addCameraObject(b, parent);
@@ -493,7 +514,21 @@ class Scene {
 					if (object_refs.length == 0) done(ro);
 					else {
 						for (s in object_refs) {
-							spawnObject(s, ro, function(so: Object) {
+							spawnObject(s, ro, function(spawnedObject: Object) {
+								// Apply collection/group instance offset to all
+								// top-level parents of that group
+								if (!isObjectInGroup(o.group_ref, spawnedObject.parent)) {
+									for (group in format.groups) {
+										if (group.name == o.group_ref) {
+											spawnedObject.transform.translate(
+												-group.instance_offset[0],
+												-group.instance_offset[1],
+												-group.instance_offset[2]
+											);
+											break;
+										}
+									}
+								}
 								if (++spawned == object_refs.length) done(ro);
 							});
 						}
@@ -505,9 +540,76 @@ class Scene {
 		else done(null);
 	}
 
+	/**
+	 * Returns all object names of the given group.
+	 *
+	 * Returns `null` if the group does not exist.
+	 * @param group_ref The name of the group
+	 * @return Array<String>
+	 */
 	function getGroupObjectRefs(group_ref: String): Array<String> {
-		for (g in raw.groups) if (g.name == group_ref) return g.object_refs;
+		for (g in active.raw.groups) if (g.name == group_ref) return g.object_refs;
 		return null;
+	}
+
+	/**
+	 * Returns all objects in scene data format (`TObj`) of the given group.
+	 *
+	 * If the group does not exist or is empty, an empty array is returned.
+	 * @param groupRef The name of the group
+	 * @return Array<TObj>
+	 */
+	function getGroupObjectsRaw(groupRef: String): Array<TObj> {
+		var objectRefs = getGroupObjectRefs(groupRef);
+		var objects: Array<TObj> = new Array<TObj>();
+
+		if (objectRefs == null) return objects;
+
+		for (objRef in objectRefs) {
+			var rawObj = getRawObjectByName(raw, objRef);
+			objects.push(rawObj);
+
+			var childRefs = getChildObjectsRaw(rawObj);
+			objects = objects.concat(childRefs);
+		}
+		return objects;
+	}
+
+	/**
+	 * Returns all child objects of the given raw object in scene data format ('TObj').
+	 *
+	 * If the object has no children, an empty array is returned.
+	 * @param rawObj The object
+	 * @param recursive (Optional) If 'true', return also children of children and so on...
+	 * @return Array<TObj>
+	 */
+	function getChildObjectsRaw(rawObj: TObj, ?recursive:Bool = true): Array<TObj> {
+		var children = rawObj.children;
+		if (children == null) return new Array<TObj>();
+		children = children.copy();
+
+		if (recursive) {
+			for (child in rawObj.children) {
+				var childRefs = getChildObjectsRaw(child);
+				children = children.concat(childRefs);
+			}
+		}
+		return children;
+	}
+
+	/**
+	 * Checks if an object is an element of the given group.
+	 * @param groupRef The name of the group
+	 * @param object The object
+	 * @return Bool
+	 */
+	function isObjectInGroup(groupRef: String, object: Object): Bool {
+		for (obj in getGroupObjectsRaw(groupRef)) {
+			if (obj.name == object.name) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 #if arm_stream
