@@ -358,7 +358,8 @@ class Scene {
 
 				if (format.objects == null || format.objects.length == 0) {
 					done(parent);
-				} else {
+				}
+				else {
 					traverseObjects(parent, format.objects, null, function() { // Scene objects
 						done(parent);
 					});
