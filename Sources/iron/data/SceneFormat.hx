@@ -469,7 +469,7 @@ typedef TTrait = {
 	public var type: String;
 	public var class_name: String;
 	@:optional public var parameters: Array<String>; // constructor params
-	@:optional public var props: Array<String>; // name - value list
+	@:optional public var props: Array<Dynamic>; // name - value list
 }
 
 #if js

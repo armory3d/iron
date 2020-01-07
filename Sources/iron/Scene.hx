@@ -779,9 +779,8 @@ class Scene {
 					for (i in 0...Std.int(t.props.length / 2)) {
 						var pname = t.props[i * 2];
 						var pval = t.props[i * 2 + 1];
-						if (pval != "") {
-							Reflect.setProperty(traitInst, pname, parseArg(pval));
-						}
+
+						Reflect.setProperty(traitInst, pname, pval);
 					}
 				}
 				object.addTrait(traitInst);
