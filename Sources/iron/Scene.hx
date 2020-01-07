@@ -779,12 +779,21 @@ class Scene {
 					for (i in 0...Std.int(t.props.length / 3)) {
 						var pname = t.props[i * 3];
 						var ptype = t.props[i * 3 + 1];
-						var pval = t.props[i * 3 + 2];
+						var pval:Dynamic = t.props[i * 3 + 2];
 
-						if (ptype.endsWith("Object") && pval != "") {
+						if (StringTools.endsWith(ptype, "Object") && pval != "") {
 							Reflect.setProperty(traitInst, pname, Scene.active.getChild(pval));
 						} else {
-							Reflect.setProperty(traitInst, pname, pval);
+							switch (ptype) {
+								case "Vec2":
+									Reflect.setProperty(traitInst, pname, new iron.math.Vec2(pval[0], pval[1]));
+								case "Vec3":
+									Reflect.setProperty(traitInst, pname, new iron.math.Vec3(pval[0], pval[1], pval[2]));
+								case "Vec4":
+									Reflect.setProperty(traitInst, pname, new iron.math.Vec4(pval[0], pval[1], pval[2], pval[3]));
+								default:
+									Reflect.setProperty(traitInst, pname, pval);
+							}
 						}
 
 					}
