@@ -776,11 +776,17 @@ class Scene {
 					continue;
 				}
 				if (t.props != null) {
-					for (i in 0...Std.int(t.props.length / 2)) {
-						var pname = t.props[i * 2];
-						var pval = t.props[i * 2 + 1];
+					for (i in 0...Std.int(t.props.length / 3)) {
+						var pname = t.props[i * 3];
+						var ptype = t.props[i * 3 + 1];
+						var pval = t.props[i * 3 + 2];
 
-						Reflect.setProperty(traitInst, pname, pval);
+						if (ptype == "Object") {
+							Reflect.setProperty(traitInst, pname, Scene.active.getChild(pval));
+						} else {
+							Reflect.setProperty(traitInst, pname, pval);
+						}
+
 					}
 				}
 				object.addTrait(traitInst);
