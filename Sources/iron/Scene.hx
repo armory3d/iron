@@ -781,7 +781,7 @@ class Scene {
 						var ptype = t.props[i * 3 + 1];
 						var pval = t.props[i * 3 + 2];
 
-						if (ptype == "Object") {
+						if (ptype.endsWith("Object") && pval != "") {
 							Reflect.setProperty(traitInst, pname, Scene.active.getChild(pval));
 						} else {
 							Reflect.setProperty(traitInst, pname, pval);
