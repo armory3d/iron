@@ -775,6 +775,8 @@ class Scene {
 					trace("Error: Trait '" + t.class_name + "' referenced in object '" + object.name + "' not found");
 					continue;
 				}
+
+				// Set trait properties
 				if (t.props != null) {
 					for (i in 0...Std.int(t.props.length / 3)) {
 						var pname = t.props[i * 3];
