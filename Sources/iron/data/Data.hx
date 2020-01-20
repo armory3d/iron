@@ -341,7 +341,7 @@ class Data {
 
 		loadingBlobs.set(file, [done]); // Start loading
 
-		var p = (file.charAt(0) == "/" || file.charAt(1) == ":") ? file : dataPath + file;
+		var p = isAbsolute(file) ? file : dataPath + file;
 
 		kha.Assets.loadBlobFromPath(p, function(b: kha.Blob) {
 			cachedBlobs.set(file, b);
@@ -371,7 +371,7 @@ class Data {
 
 		loadingImages.set(file, [done]);
 
-		var p = (file.charAt(0) == "/" || file.charAt(1) == ":") ? file : dataPath + file;
+		var p = isAbsolute(file) ? file : dataPath + file;
 
 		// TODO: process format in Kha
 		kha.Assets.loadImageFromPath(p, readable, function(b: kha.Image) {
@@ -408,7 +408,7 @@ class Data {
 
 		loadingSounds.set(file, [done]);
 
-		var p = (file.charAt(0) == "/" || file.charAt(1) == ":") ? file : dataPath + file;
+		var p = isAbsolute(file) ? file : dataPath + file;
 
 		kha.Assets.loadSoundFromPath(p, function(b: kha.Sound) {
 			#if arm_soundcompress
@@ -446,7 +446,7 @@ class Data {
 
 		loadingVideos.set(file, [done]);
 
-		var p = (file.charAt(0) == "/" || file.charAt(1) == ":") ? file : dataPath + file;
+		var p = isAbsolute(file) ? file : dataPath + file;
 
 		kha.Assets.loadVideoFromPath(p, function(b: kha.Video) {
 			cachedVideos.set(file, b);
@@ -472,7 +472,7 @@ class Data {
 
 		loadingFonts.set(file, [done]);
 
-		var p = (file.charAt(0) == "/" || file.charAt(1) == ":") ? file : dataPath + file;
+		var p = isAbsolute(file) ? file : dataPath + file;
 
 		kha.Assets.loadFontFromPath(p, function(b: kha.Font) {
 			cachedFonts.set(file, b);
@@ -487,5 +487,9 @@ class Data {
 		if (font == null) return;
 		font.unload();
 		cachedFonts.remove(handle);
+	}
+
+	public static function isAbsolute(file: String): Bool {
+		return file.charAt(0) == "/" || file.charAt(1) == ":" || (file.charAt(0) == "\\" && file.charAt(1) == "\\");
 	}
 }
