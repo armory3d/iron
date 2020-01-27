@@ -340,8 +340,9 @@ class Keyboard extends VirtualInput {
 	var keysDown = new Map<String, Bool>();
 	var keysStarted = new Map<String, Bool>();
 	var keysReleased = new Map<String, Bool>();
-
 	var keysFrame: Array<String> = [];
+	var repeatKey = false;
+	var repeatTime = 0.0;
 
 	public function new() {
 		reset();
@@ -356,6 +357,12 @@ class Keyboard extends VirtualInput {
 			}
 			keysFrame.splice(0, keysFrame.length);
 		}
+
+		if (kha.Scheduler.time() - repeatTime > 0.05) {
+			repeatTime = kha.Scheduler.time();
+			repeatKey = true;
+		}
+		else repeatKey = false;
 	}
 
 	public function reset() {
@@ -393,6 +400,15 @@ class Keyboard extends VirtualInput {
 	**/
 	public function released(key: String): Bool {
 		return keysReleased.get(key);
+	}
+
+	/**
+	  Check every repeat period if a key is currently pressed.
+	  @param	key A String representing the physical keyboard key to check.
+	  @return	Bool. Returns true or false depending on the keyboard state.
+	**/
+	public function repeat(key: String): Bool {
+		return keysStarted.get(key) || (repeatKey && keysDown.get(key));
 	}
 
 	public static function keyCode(key: KeyCode): String {
@@ -484,6 +500,7 @@ class Keyboard extends VirtualInput {
 		keysFrame.push(s);
 		keysStarted.set(s, true);
 		keysDown.set(s, true);
+		repeatTime = kha.Scheduler.time() + 0.4;
 
 		downVirtual(s);
 	}
