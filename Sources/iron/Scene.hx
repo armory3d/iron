@@ -114,6 +114,9 @@ class Scene {
 
 			// Startup scene
 			active.addScene(format.name, null, function(sceneObject: Object) {
+				for (object in sceneObject.getChildren(true)) {
+					createTraits(getRawObjectByName(format, object.name).traits, object);
+				}
 
 				#if arm_terrain
 				if (format.terrain_ref != null)  {
@@ -760,7 +763,6 @@ class Scene {
 				object.properties = new Map();
 				for (p in o.properties) object.properties.set(p.name, p.value);
 			}
-			createTraits(o.traits, object);
 		}
 		done(object);
 	}
