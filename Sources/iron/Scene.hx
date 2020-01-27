@@ -229,6 +229,20 @@ class Scene {
 		return object;
 	}
 
+	/**
+	 * Returns the children of the scene.
+	 *
+	 * If 'recursive' is set to `false`, only direct children will be included
+	 * in the returned array. If `recursive` is `true`, children of children and
+	 * so on will be included too.
+	 *
+	 * @param recursive = false Include children of children
+	 * @return Array<Object>
+	 */
+	public function getChildren(?recursive = false): Array<Object> {
+		return root.getChildren(recursive);
+	}
+
 	public function getChild(name: String): Object {
 		return root.getChild(name);
 	}
