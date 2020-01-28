@@ -73,6 +73,8 @@ class Scene {
 	public var traitInits: Array<Void->Void> = [];
 	public var traitRemoves: Array<Void->Void> = [];
 
+	var initializing: Bool; // Is the scene in its initialization phase?
+
 	public function new() {
 		uid = uidCounter++;
 		#if arm_batch
@@ -101,6 +103,7 @@ class Scene {
 		root.name = "Root";
 		traitInits = [];
 		traitRemoves = [];
+		initializing = true;
 		if (global == null) global = new Object();
 	}
 
@@ -135,6 +138,7 @@ class Scene {
 				active.traitInits = [];
 
 				active.sceneParent = sceneObject;
+				active.initializing = false;
 				done(sceneObject);
 			});
 		});
@@ -763,6 +767,10 @@ class Scene {
 				object.properties = new Map();
 				for (p in o.properties) object.properties.set(p.name, p.value);
 			}
+
+			// If the scene is still initializing, traits will be created later
+			// to ensure that object references for trait properties are valid
+			if (!active.initializing) createTraits(o.traits, object);
 		}
 		done(object);
 	}
