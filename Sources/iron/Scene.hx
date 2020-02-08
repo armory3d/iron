@@ -73,6 +73,8 @@ class Scene {
 	public var traitInits: Array<Void->Void> = [];
 	public var traitRemoves: Array<Void->Void> = [];
 
+	var initializing: Bool; // Is the scene in its initialization phase?
+
 	public function new() {
 		uid = uidCounter++;
 		#if arm_batch
@@ -101,6 +103,7 @@ class Scene {
 		root.name = "Root";
 		traitInits = [];
 		traitRemoves = [];
+		initializing = true;
 		if (global == null) global = new Object();
 	}
 
@@ -114,6 +117,9 @@ class Scene {
 
 			// Startup scene
 			active.addScene(format.name, null, function(sceneObject: Object) {
+				for (object in sceneObject.getChildren(true)) {
+					createTraits(getRawObjectByName(format, object.name).traits, object);
+				}
 
 				#if arm_terrain
 				if (format.terrain_ref != null)  {
@@ -132,6 +138,7 @@ class Scene {
 				active.traitInits = [];
 
 				active.sceneParent = sceneObject;
+				active.initializing = false;
 				done(sceneObject);
 			});
 		});
@@ -227,6 +234,20 @@ class Scene {
 		var object = new Object();
 		parent != null ? parent.addChild(object) : root.addChild(object);
 		return object;
+	}
+
+	/**
+	 * Returns the children of the scene.
+	 *
+	 * If 'recursive' is set to `false`, only direct children will be included
+	 * in the returned array. If `recursive` is `true`, children of children and
+	 * so on will be included too.
+	 *
+	 * @param recursive = false Include children of children
+	 * @return Array<Object>
+	 */
+	public function getChildren(?recursive = false): Array<Object> {
+		return root.getChildren(recursive);
 	}
 
 	public function getChild(name: String): Object {
@@ -746,7 +767,10 @@ class Scene {
 				object.properties = new Map();
 				for (p in o.properties) object.properties.set(p.name, p.value);
 			}
-			createTraits(o.traits, object);
+
+			// If the scene is still initializing, traits will be created later
+			// to ensure that object references for trait properties are valid
+			if (!active.initializing) createTraits(o.traits, object);
 		}
 		done(object);
 	}

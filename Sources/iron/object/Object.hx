@@ -87,6 +87,26 @@ class Object {
 		return null;
 	}
 
+	/**
+	 * Returns the children of the object.
+	 *
+	 * If 'recursive' is set to `false`, only direct children will be included
+	 * in the returned array. If `recursive` is `true`, children of children and
+	 * so on will be included too.
+	 *
+	 * @param recursive = false Include children of children
+	 * @return Array<Object>
+	 */
+	public function getChildren(?recursive = false): Array<Object> {
+		if (!recursive) return children;
+
+		var retChildren = children.copy();
+		for (child in children) {
+			retChildren = retChildren.concat(child.getChildren(recursive));
+		}
+		return retChildren;
+	}
+
 	public function getChildOfType<T: Object>(type: Class<T>): T {
 		if (Std.is(this, type)) return cast this;
 		else {
