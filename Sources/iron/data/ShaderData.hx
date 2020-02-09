@@ -75,7 +75,7 @@ class ShaderContext {
 
 	public function new(raw: TShaderContext, done: ShaderContext->Void, overrideContext: TShaderOverride = null) {
 		this.raw = raw;
-		#if kha_direct3d12
+		#if (!rp_voxelao)
 		if (raw.name == "voxel") { done(this); return; }
 		#end
 		this.overrideContext = overrideContext;
