@@ -341,13 +341,7 @@ class Data {
 
 		loadingBlobs.set(file, [done]); // Start loading
 
-		var p = isAbsolute(file) ? file : dataPath + file;
-
-		#if (!arm_data_dir)
-		p = baseName(p);
-		#end
-
-		kha.Assets.loadBlobFromPath(p, function(b: kha.Blob) {
+		kha.Assets.loadBlobFromPath(resolvePath(file), function(b: kha.Blob) {
 			cachedBlobs.set(file, b);
 			for (f in loadingBlobs.get(file)) f(b);
 			loadingBlobs.remove(file);
@@ -375,14 +369,7 @@ class Data {
 
 		loadingImages.set(file, [done]);
 
-		var p = isAbsolute(file) ? file : dataPath + file;
-
-		#if (!arm_data_dir)
-		p = baseName(p);
-		#end
-
-		// TODO: process format in Kha
-		kha.Assets.loadImageFromPath(p, readable, function(b: kha.Image) {
+		kha.Assets.loadImageFromPath(resolvePath(file), readable, function(b: kha.Image) {
 			cachedImages.set(file, b);
 			for (f in loadingImages.get(file)) f(b);
 			loadingImages.remove(file);
@@ -416,13 +403,7 @@ class Data {
 
 		loadingSounds.set(file, [done]);
 
-		var p = isAbsolute(file) ? file : dataPath + file;
-
-		#if (!arm_data_dir)
-		p = baseName(p);
-		#end
-
-		kha.Assets.loadSoundFromPath(p, function(b: kha.Sound) {
+		kha.Assets.loadSoundFromPath(resolvePath(file), function(b: kha.Sound) {
 			#if arm_soundcompress
 			b.uncompress(function () {
 			#end
@@ -458,13 +439,7 @@ class Data {
 
 		loadingVideos.set(file, [done]);
 
-		var p = isAbsolute(file) ? file : dataPath + file;
-
-		#if (!arm_data_dir)
-		p = baseName(p);
-		#end
-
-		kha.Assets.loadVideoFromPath(p, function(b: kha.Video) {
+		kha.Assets.loadVideoFromPath(resolvePath(file), function(b: kha.Video) {
 			cachedVideos.set(file, b);
 			for (f in loadingVideos.get(file)) f(b);
 			loadingVideos.remove(file);
@@ -488,13 +463,7 @@ class Data {
 
 		loadingFonts.set(file, [done]);
 
-		var p = isAbsolute(file) ? file : dataPath + file;
-
-		#if (!arm_data_dir)
-		p = baseName(p);
-		#end
-
-		kha.Assets.loadFontFromPath(p, function(b: kha.Font) {
+		kha.Assets.loadFontFromPath(resolvePath(file), function(b: kha.Font) {
 			cachedFonts.set(file, b);
 			for (f in loadingFonts.get(file)) f(b);
 			loadingFonts.remove(file);
@@ -513,11 +482,24 @@ class Data {
 		return file.charAt(0) == "/" || file.charAt(1) == ":" || (file.charAt(0) == "\\" && file.charAt(1) == "\\");
 	}
 
+	static inline function isUp(file: String): Bool {
+		return file.charAt(0) == "." && file.charAt(1) == ".";
+	}
+
 	/**
 	  Extract filename from path.
 	*/
 	static inline function baseName(path: String): String {
 		var slash = path.lastIndexOf("/");
 		return slash >= 0 ? path.substr(slash + 1) : path;
+	}
+
+	static inline function resolvePath(file: String): String {
+		if (isAbsolute(file) || isUp(file)) return file;
+		#if arm_data_dir
+		return dataPath + file;
+		#else
+		return baseName(file);
+		#end
 	}
 }
