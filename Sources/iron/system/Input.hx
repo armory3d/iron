@@ -502,6 +502,13 @@ class Keyboard extends VirtualInput {
 		keysDown.set(s, true);
 		repeatTime = kha.Scheduler.time() + 0.4;
 
+		#if kha_android_rmb // Detect right mouse button on Android..
+		if (code == KeyCode.Back) {
+			var m = Input.getMouse();
+			@:privateAccess m.downListener(1, Std.int(m.x), Std.int(m.y));
+		}
+		#end
+
 		downVirtual(s);
 	}
 
@@ -510,6 +517,13 @@ class Keyboard extends VirtualInput {
 		keysFrame.push(s);
 		keysReleased.set(s, true);
 		keysDown.set(s, false);
+
+		#if kha_android_rmb
+		if (code == KeyCode.Back) {
+			var m = Input.getMouse();
+			@:privateAccess m.upListener(1, Std.int(m.x), Std.int(m.y));
+		}
+		#end
 
 		upVirtual(s);
 	}
