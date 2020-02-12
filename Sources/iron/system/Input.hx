@@ -266,6 +266,7 @@ class Pen extends VirtualInput {
 	public var movementX(default, null) = 0.0;
 	public var movementY(default, null) = 0.0;
 	public var pressure(default, null) = 0.0;
+	public var connected = false;
 	var lastX = -1.0;
 	var lastY = -1.0;
 
@@ -328,6 +329,7 @@ class Pen extends VirtualInput {
 		this.y = y;
 		moved = true;
 		this.pressure = pressure;
+		connected = true;
 	}
 
 	inline function get_viewX(): Float { return x - iron.App.x(); }
