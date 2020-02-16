@@ -48,8 +48,14 @@ class Data {
 	static var loadingVideos: Map<String, Array<kha.Video->Void>> = new Map();
 	static var loadingFonts: Map<String, Array<kha.Font->Void>> = new Map();
 
+	#if krom_windows
+	public static inline var sep = "\\";
+	#else
+	public static inline var sep = "/";
+	#end
+
 	#if arm_data_dir
-	public static var dataPath = "./data/";
+	public static var dataPath = "." + sep + "data" + sep;
 	#else
 	public static var dataPath = "";
 	#end
@@ -490,7 +496,7 @@ class Data {
 	  Extract filename from path.
 	*/
 	static inline function baseName(path: String): String {
-		var slash = path.lastIndexOf("/");
+		var slash = path.lastIndexOf(sep);
 		return slash >= 0 ? path.substr(slash + 1) : path;
 	}
 
