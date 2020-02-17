@@ -147,6 +147,9 @@ class Mouse extends VirtualInput {
 
 	public function new() {
 		kha.input.Mouse.get().notify(downListener, upListener, moveListener, wheelListener);
+		#if (kha_android || kha_ios)
+		if (kha.input.Surface.get() != null) kha.input.Surface.get().notify(onTouchDown, onTouchUp, onTouchMove);
+		#end
 	}
 
 	public function endFrame() {
@@ -246,6 +249,19 @@ class Mouse extends VirtualInput {
 	function wheelListener(delta: Int) {
 		wheelDelta = delta;
 	}
+
+	#if (kha_android || kha_ios)
+	public function onTouchDown(index: Int, x: Int, y: Int) {
+		// Two fingers down - right mouse button
+		if (index == 1) { upListener(0, x, y); downListener(1, x, y); }
+	}
+
+	public function onTouchUp(index: Int, x: Int, y: Int) {
+		if (index == 1) upListener(1, x, y);
+	}
+
+	public function onTouchMove(index: Int, x: Int, y: Int) {}
+	#end
 
 	inline function get_viewX(): Float { return x - iron.App.x(); }
 	inline function get_viewY(): Float { return y - iron.App.y(); }
@@ -508,7 +524,7 @@ class Keyboard extends VirtualInput {
 		#if kha_android_rmb // Detect right mouse button on Android..
 		if (code == KeyCode.Back) {
 			var m = Input.getMouse();
-			@:privateAccess m.downListener(1, Std.int(m.x), Std.int(m.y));
+			@:privateAccess if (!m.buttonsDown[1]) m.downListener(1, Std.int(m.x), Std.int(m.y));
 		}
 		#end
 
