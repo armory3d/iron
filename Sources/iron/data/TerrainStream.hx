@@ -107,9 +107,9 @@ class TerrainStream {
 		}
 
 		// Positions, normals and indices
-		var pos: TVertexArray = { attrib: "pos", values: posa };
-		var nor: TVertexArray = { attrib: "nor", values: nora };
-		var tex: TVertexArray = { attrib: "tex", values: texa };
+		var pos: TVertexArray = { attrib: "pos", values: posa, data: "short4norm" };
+		var nor: TVertexArray = { attrib: "nor", values: nora, data: "short2norm" };
+		var tex: TVertexArray = { attrib: "tex", values: texa, data: "short2norm" };
 		var ind: TIndexArray = { material: 0, values: inda };
 
 		var rawmeshData: TMeshData = {
