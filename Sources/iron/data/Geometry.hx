@@ -11,10 +11,11 @@ import kha.arrays.Int16Array;
 import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.data.SceneFormat;
+import iron.data.MeshData;
 
 class Geometry {
 #if arm_deinterleaved
-	public var vertexBuffers: Array<VertexBuffer>;
+	public var vertexBuffers: Array<InterleavedVertexBuffer>;
 #else
 	public var vertexBuffer: VertexBuffer;
 	public var vertexBufferMap: Map<String, VertexBuffer> = new Map();
@@ -38,14 +39,10 @@ class Geometry {
 	public var instanced = false;
 	public var instanceCount = 0;
 
-	public var positions: Int16Array;
-	public var normals: Int16Array;
-	public var uvs: Int16Array;
-	public var uvs1: Int16Array;
-	public var cols: Int16Array;
-	public var tangents: Int16Array;
-	public var bones: Int16Array;
-	public var weights: Int16Array;
+	public var positions: TVertexArray;
+	public var vertexArrays: Array<TVertexArray>;
+	var uvs = false;
+	var cols = false;
 	var data: MeshData;
 
 	public var aabb: Vec4 = null;
@@ -67,14 +64,6 @@ class Geometry {
 	public function new(data: MeshData,
 						indices: Array<Uint32Array>,
 						materialIndices: Array<Int>,
-						positions: Int16Array,
-						normals: Int16Array,
-						uvs: Int16Array,
-						uvs1: Int16Array,
-						cols: Int16Array,
-						tangents: Int16Array = null,
-						bones: Int16Array = null,
-						weights: Int16Array = null,
 						usage: Usage = null) {
 
 		if (usage == null) usage = Usage.StaticUsage;
@@ -83,18 +72,13 @@ class Geometry {
 		this.materialIndices = materialIndices;
 		this.usage = usage;
 
-		this.positions = positions;
-		this.normals = normals;
-		this.uvs = uvs;
-		this.uvs1 = uvs1;
-		this.cols = cols;
-		this.tangents = tangents;
-		this.bones = bones;
-		this.weights = weights;
+		this.vertexArrays = data.raw.vertex_arrays;
+		this.positions = getVArray('pos');
+		this.uvs = getVArray('tex') != null;
+		this.cols = getVArray('col') != null;
 		this.data = data;
 
-		// pos=4, nor=2, tex=2, col=4, tang=4, bone=4, weight=4
-		struct = getVertexStructure(positions != null, normals != null, uvs != null, uvs1 != null, cols != null, tangents != null, bones != null, weights != null);
+		struct = getVertexStructure(vertexArrays);
 		structLength = Std.int(struct.byteSize() / 2);
 		structStr = "";
 		for (e in struct.elements) structStr += e.name;
@@ -102,28 +86,40 @@ class Geometry {
 
 	public function delete() {
 #if arm_deinterleaved
-		for (buf in vertexBuffers) if (buf != null) buf.delete();
+		for (buf in vertexBuffers) if (buf.buffer != null) buf.buffer.delete();
 #else
 		for (buf in vertexBufferMap) if (buf != null) buf.delete();
 #end
 		for (buf in indexBuffers) buf.delete();
 	}
 
-	static function getVertexStructure(pos = false, nor = false, tex = false, tex1 = false, col = false, tang = false, bone = false, weight = false): VertexStructure {
+	static function getVertexStructure(vertexArrays: Array<TVertexArray>): VertexStructure {
 		var structure = new VertexStructure();
-		if (pos) structure.add("pos", VertexData.Short4Norm); // p.xyz + n.z
-		if (nor) structure.add("nor", VertexData.Short2Norm); // n.xy
-		if (tex) structure.add("tex", VertexData.Short2Norm);
-		if (tex1) structure.add("tex1", VertexData.Short2Norm);
-		if (col) structure.add("col", VertexData.Short4Norm); // 3+1 padding
-		if (tang) structure.add("tang", VertexData.Short4Norm); //3+1 padding
-		if (bone) structure.add("bone", VertexData.Short4Norm);
-		if (weight) structure.add("weight", VertexData.Short4Norm);
+		for (i in 0...vertexArrays.length){
+			structure.add(vertexArrays[i].attrib, getVertexData(vertexArrays[i].data));
+		}
+			
 		return structure;
+	}
+
+	static function getVertexData(data: String): VertexData {
+		var d = null;
+		switch data {
+			case "short4norm": d = VertexData.Short4Norm;
+			case "short2norm": d = VertexData.Short2Norm;
+		}
+		return d;
 	}
 
 	public function applyScale(sx: Float, sy: Float, sz: Float) {
 		data.scalePos *= sx;
+	}
+
+	public function getVArray(name: String): TVertexArray {
+		for (i in 0...vertexArrays.length)
+			if (vertexArrays[i].attrib == name)
+				return vertexArrays[i];
+		return null;
 	}
 
 	public function setupInstanced(data: Float32Array, instancedType: Int, usage: Usage) {
@@ -147,82 +143,34 @@ class Geometry {
 	}
 
 	public function copyVertices(vertices: Int16Array, offset = 0, fakeUVs = false) {
-		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights, offset, fakeUVs);
+		buildVertices(vertices, vertexArrays, offset, fakeUVs);
 	}
 
 	static function buildVertices(vertices: Int16Array,
-								  pa: Int16Array = null,
-								  na: Int16Array = null,
-								  uva: Int16Array = null,
-								  uva1: Int16Array = null,
-								  ca: Int16Array = null,
-								  tanga: Int16Array = null,
-								  bonea: Int16Array = null,
-								  weighta: Int16Array = null,
+								  vertexArrays: Array<TVertexArray>,
 								  offset = 0,
-								  fakeUVs = false) {
-
-		var numVertices = Std.int(pa.length / 4);
+								  fakeUVs = false,
+								  uvsIndex = -1) {	
+		var numVertices = verticesCount(vertexArrays[0]);
 		var di = -1 + offset;
 		for (i in 0...numVertices) {
-			vertices.set(++di, pa[i * 4    ]); // Positions
-			vertices.set(++di, pa[i * 4 + 1]);
-			vertices.set(++di, pa[i * 4 + 2]);
-			vertices.set(++di, pa[i * 4 + 3]); // n.z
-			if (na != null) { // Normals
-				vertices.set(++di, na[i * 2    ]); // n.x
-				vertices.set(++di, na[i * 2 + 1]); // n.y
-			}
-			if (uva != null) { // Texture coords
-				vertices.set(++di, uva[i * 2    ]);
-				vertices.set(++di, uva[i * 2 + 1]);
-			}
-			else if (fakeUVs) {
-				vertices.set(++di, 0);
-				vertices.set(++di, 0);
-			}
-			if (uva1 != null) { // Texture coords 1
-				vertices.set(++di, uva1[i * 2    ]);
-				vertices.set(++di, uva1[i * 2 + 1]);
-			}
-			if (ca != null) { // Colors
-				vertices.set(++di, ca[i * 3    ]);
-				vertices.set(++di, ca[i * 3 + 1]);
-				vertices.set(++di, ca[i * 3 + 2]);
-				vertices.set(++di, 0); // Padding
-			}
-			// Normal mapping
-			if (tanga != null) { // Tangents
-				vertices.set(++di, tanga[i * 3    ]);
-				vertices.set(++di, tanga[i * 3 + 1]);
-				vertices.set(++di, tanga[i * 3 + 2]);
-				vertices.set(++di, 0); // Padding
-			}
-			// GPU skinning
-			if (bonea != null) { // Bone indices
-				vertices.set(++di, bonea[i * 4    ]);
-				vertices.set(++di, bonea[i * 4 + 1]);
-				vertices.set(++di, bonea[i * 4 + 2]);
-				vertices.set(++di, bonea[i * 4 + 3]);
-			}
-			if (weighta != null) { // Weights
-				vertices.set(++di, weighta[i * 4    ]);
-				vertices.set(++di, weighta[i * 4 + 1]);
-				vertices.set(++di, weighta[i * 4 + 2]);
-				vertices.set(++di, weighta[i * 4 + 3]);
+			for (va in 0...vertexArrays.length) {
+				if (fakeUVs && va == uvsIndex) { // add fake uvs if uvs where "asked" for but not found
+					vertices.set(++di, 0);
+					vertices.set(++di, 0);
+					continue;
+				}
+				var l = vertexArrays[va].size;
+				for (o in 0...l) vertices.set(++di, vertexArrays[va].values[i * l + o]);
+				if (vertexArrays[va].padding != null)     vertices.set(++di, 0);
 			}
 		}
 	}
 
 	public function getVerticesLength(): Int {
-		var res = positions.length;
-		if (normals != null) res += normals.length;
-		if (uvs != null) res += uvs.length;
-		if (uvs1 != null) res += uvs1.length;
-		if (cols != null) res += cols.length;
-		if (tangents != null) res += tangents.length;
-		if (bones != null) res += bones.length;
-		if (weights != null) res += weights.length;
+		var res = 0;
+		for (i in 0...vertexArrays.length)
+			res += vertexArrays[i].values.length;
 		return res;
 	}
 
@@ -230,46 +178,47 @@ class Geometry {
 	public function get(vs: Array<TVertexElement>): Array<VertexBuffer> {
 		var vbs = [];
 		for (e in vs) {
-			if (e.name == "pos") { if (vertexBuffers[0] != null) vbs.push(vertexBuffers[0]); }
-			else if (e.name == "nor") { if (vertexBuffers[1] != null) vbs.push(vertexBuffers[1]); }
-			else if (e.name == "tex") { if (vertexBuffers[2] != null) vbs.push(vertexBuffers[2]); }
-			else if (e.name == "tex1") { if (vertexBuffers[3] != null) vbs.push(vertexBuffers[3]); }
-			else if (e.name == "col") { if (vertexBuffers[4] != null) vbs.push(vertexBuffers[4]); }
-			else if (e.name == "tang") { if (vertexBuffers[5] != null) vbs.push(vertexBuffers[5]); }
-			else if (e.name == "bone") { if (vertexBuffers[6] != null) vbs.push(vertexBuffers[6]); }
-			else if (e.name == "weight") { if (vertexBuffers[7] != null) vbs.push(vertexBuffers[7]); }
-			else if (e.name == "ipos") { if (instancedVB != null) vbs.push(instancedVB); }
+			for (v in 0...vertexBuffers.length)
+				if (vertexBuffers[v].name == e.name){
+					vbs.push(vertexBuffers[v].buffer);
+					continue;
+				}
+			if (e.name == "ipos") 
+				if (instancedVB != null) 
+					vbs.push(instancedVB);
 		}
 		return vbs;
 	}
 #else
-	function hasAttrib(s: String, vs: Array<TVertexElement>): Bool {
-		for (e in vs) if (e.name == s) return true;
-		return false;
-	}
-
+	
 	public function get(vs: Array<TVertexElement>): VertexBuffer {
-		var s = "";
-		for (e in vs) s += e.name;
-		var vb = vertexBufferMap.get(s);
+		var key = "";
+		for (e in vs) key += e.name;
+		var vb = vertexBufferMap.get(key);
 		if (vb == null) {
-			// Multi-mat mesh with different vertex structures
-			var apos = hasAttrib("pos", vs);
-			var anor = hasAttrib("nor", vs);
-			var atex = hasAttrib("tex", vs);
-			var atex1 = hasAttrib("tex1", vs);
-			var acol = hasAttrib("col", vs);
-			var atang = hasAttrib("tang", vs);
-			var abone = hasAttrib("bone", vs);
-			var aweight = hasAttrib("weight", vs);
-			var struct = getVertexStructure(apos, anor, atex, atex1, acol, atang, abone, aweight);
-			vb = new VertexBuffer(Std.int(positions.length / 4), struct, usage);
+			var nVertexArrays = [];
+			var atex = false;
+			var texOffset = -1;
+			var acol = false;
+			for (e in 0...vs.length){
+				if (vs[e].name == "tex") {
+					atex = true;
+					texOffset = e; 
+				}
+				if (vs[e].name == "col") acol = true;
+				for (va in 0...vertexArrays.length)
+					if (vs[e].name == vertexArrays[va].attrib)
+						nVertexArrays.push(vertexArrays[va]);
+			}
+			// Multi-mat mesh with different vertex structures		
+			var struct = getVertexStructure(nVertexArrays);
+			vb = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
 			vertices = vb.lockInt16();
-			buildVertices(vertices, apos ? positions : null, anor ? normals : null, atex ? uvs : null, atex1 ? uvs1 : null, acol ? cols : null, atang ? tangents : null, abone ? bones : null, aweight ? weights : null, 0, atex && uvs == null);
+			buildVertices(vertices, nVertexArrays, 0, atex && !uvs, texOffset);
 			vb.unlock();
-			vertexBufferMap.set(s, vb);
-			if (atex && uvs == null) trace("Armory Warning: Geometry " + name + " is missing UV map");
-			if (acol && cols == null) trace("Armory Warning: Geometry " + name + " is missing vertex colors");
+			vertexBufferMap.set(key, vb);
+			if (atex && !uvs) trace("Armory Warning: Geometry " + name + " is missing UV map");
+			if (acol && !cols) trace("Armory Warning: Geometry " + name + " is missing vertex colors");
 		}
 		return vb;
 	}
@@ -279,20 +228,18 @@ class Geometry {
 		if (ready) return;
 
 #if arm_deinterleaved
-		vertexBuffers = [null, null, null, null, null, null, null, null];
-		vertexBuffers[0] = makeDeinterleavedVB(positions, "pos", 4);
-		if (normals != null) vertexBuffers[1] = makeDeinterleavedVB(normals, "nor", 2);
-		if (uvs != null) vertexBuffers[2] = makeDeinterleavedVB(uvs, "tex", 2);
-		if (uvs1 != null) vertexBuffers[3] = makeDeinterleavedVB(uvs1, "tex1", 2);
-		if (cols != null) vertexBuffers[4] = makeDeinterleavedVB(cols, "col", 4);
-		if (tangents != null) vertexBuffers[5] = makeDeinterleavedVB(tangents, "tang", 4);
-		if (bones != null) vertexBuffers[6] = makeDeinterleavedVB(bones, "bone", 4);
-		if (weights != null) vertexBuffers[7] = makeDeinterleavedVB(weights, "weight", 4);
+		var vaLength = vertexArrays.length;
+		vertexBuffers = [];
+		for (i in 0...vaLength) 
+			vertexBuffers.push({
+				name: vertexArrays[i].attrib,
+				buffer: makeDeinterleavedVB(vertexArrays[i].values, vertexArrays[i].attrib, vertexArrays[i].size)
+			});
 #else
 
-		vertexBuffer = new VertexBuffer(Std.int(positions.length / 4), struct, usage);
+		vertexBuffer = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
 		vertices = vertexBuffer.lockInt16();
-		buildVertices(vertices, positions, normals, uvs, uvs1, cols, tangents, bones, weights);
+		buildVertices(vertices, vertexArrays);
 		vertexBuffer.unlock();
 		vertexBufferMap.set(structStr, vertexBuffer);
 #end
@@ -332,7 +279,11 @@ class Geometry {
 #end
 
 	public function getVerticesCount(): Int {
-		return Std.int(positions.length / 4);
+		return Std.int(positions.values.length / positions.size);
+	}
+
+	inline static function verticesCount(arr: TVertexArray): Int {
+		return Std.int(arr.values.length / arr.size);
 	}
 
 	// Skinned
@@ -381,13 +332,13 @@ class Geometry {
 		aabbMax = new Vec4(0.01, 0.01, 0.01);
 		aabb = new Vec4();
 		var i = 0;
-		while (i < positions.length) {
-			if (positions[i    ] > aabbMax.x) aabbMax.x = positions[i];
-			if (positions[i + 1] > aabbMax.y) aabbMax.y = positions[i + 1];
-			if (positions[i + 2] > aabbMax.z) aabbMax.z = positions[i + 2];
-			if (positions[i    ] < aabbMin.x) aabbMin.x = positions[i];
-			if (positions[i + 1] < aabbMin.y) aabbMin.y = positions[i + 1];
-			if (positions[i + 2] < aabbMin.z) aabbMin.z = positions[i + 2];
+		while (i < positions.values.length) {
+			if (positions.values[i    ] > aabbMax.x) aabbMax.x = positions.values[i];
+			if (positions.values[i + 1] > aabbMax.y) aabbMax.y = positions.values[i + 1];
+			if (positions.values[i + 2] > aabbMax.z) aabbMax.z = positions.values[i + 2];
+			if (positions.values[i    ] < aabbMin.x) aabbMin.x = positions.values[i];
+			if (positions.values[i + 1] < aabbMin.y) aabbMin.y = positions.values[i + 1];
+			if (positions.values[i + 2] < aabbMin.z) aabbMin.z = positions.values[i + 2];
 			i += 4;
 		}
 		aabb.x = (Math.abs(aabbMin.x) + Math.abs(aabbMax.x)) / 32767 * data.scalePos;
@@ -458,4 +409,13 @@ class Geometry {
 		// 	tangents[i * 3 + 2] = v.z;
 		// }
 	}
+}
+
+#if js
+typedef InterleavedVertexBuffer = {
+#else
+@:structInit class InterleavedVertexBuffer {
+#end
+	public var name: String;
+	public var buffer: VertexBuffer;
 }

@@ -129,10 +129,10 @@ class ParticleSystem {
 			var pa = owner.data.geom.positions;
 			var sc = owner.data.scalePos;
 			for (p in particles) {
-				var j = Std.int(fhash(i) * (pa.length / 4));
-				instancedData.set(i, pa[j * 4    ] / 32767 * sc); i++;
-				instancedData.set(i, pa[j * 4 + 1] / 32767 * sc); i++;
-				instancedData.set(i, pa[j * 4 + 2] / 32767 * sc); i++;
+				var j = Std.int(fhash(i) * (pa.values.length / pa.size));
+				instancedData.set(i, pa.values[j * pa.size    ] / 32767 * sc); i++;
+				instancedData.set(i, pa.values[j * pa.size + 1] / 32767 * sc); i++;
+				instancedData.set(i, pa.values[j * pa.size + 2] / 32767 * sc); i++;
 			}
 		}
 		else { // Volume
