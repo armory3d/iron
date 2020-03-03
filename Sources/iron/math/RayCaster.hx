@@ -102,7 +102,7 @@ class RayCaster {
 
 		// Convert to uv
 		if (hit != null) {
-			var normals = obj.data.geom.normals;
+			var normals = obj.data.geom.normals.values;
 			nor.set(normals[0], normals[1], normals[2]); // Raw normal
 
 			var a = nor.x;

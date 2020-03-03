@@ -40,9 +40,10 @@ class Geometry {
 	public var instanceCount = 0;
 
 	public var positions: TVertexArray;
+	public var normals: TVertexArray;
 	public var vertexArrays: Array<TVertexArray>;
-	var uvs = false;
-	var cols = false;
+	public var uvs = false;
+	public var cols = false;
 	var data: MeshData;
 
 	public var aabb: Vec4 = null;
@@ -74,6 +75,7 @@ class Geometry {
 
 		this.vertexArrays = data.raw.vertex_arrays;
 		this.positions = getVArray('pos');
+		this.normals = getVArray('nor');
 		this.uvs = getVArray('tex') != null;
 		this.cols = getVArray('col') != null;
 		this.data = data;
@@ -98,7 +100,7 @@ class Geometry {
 		for (i in 0...vertexArrays.length){
 			structure.add(vertexArrays[i].attrib, getVertexData(vertexArrays[i].data));
 		}
-			
+
 		return structure;
 	}
 
@@ -150,7 +152,7 @@ class Geometry {
 								  vertexArrays: Array<TVertexArray>,
 								  offset = 0,
 								  fakeUVs = false,
-								  uvsIndex = -1) {	
+								  uvsIndex = -1) {
 		var numVertices = verticesCount(vertexArrays[0]);
 		var di = -1 + offset;
 		for (i in 0...numVertices) {
@@ -183,14 +185,14 @@ class Geometry {
 					vbs.push(vertexBuffers[v].buffer);
 					continue;
 				}
-			if (e.name == "ipos") 
-				if (instancedVB != null) 
+			if (e.name == "ipos")
+				if (instancedVB != null)
 					vbs.push(instancedVB);
 		}
 		return vbs;
 	}
 #else
-	
+
 	public function get(vs: Array<TVertexElement>): VertexBuffer {
 		var key = "";
 		for (e in vs) key += e.name;
@@ -203,14 +205,14 @@ class Geometry {
 			for (e in 0...vs.length){
 				if (vs[e].name == "tex") {
 					atex = true;
-					texOffset = e; 
+					texOffset = e;
 				}
 				if (vs[e].name == "col") acol = true;
 				for (va in 0...vertexArrays.length)
 					if (vs[e].name == vertexArrays[va].attrib)
 						nVertexArrays.push(vertexArrays[va]);
 			}
-			// Multi-mat mesh with different vertex structures		
+			// Multi-mat mesh with different vertex structures
 			var struct = getVertexStructure(nVertexArrays);
 			vb = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
 			vertices = vb.lockInt16();
@@ -230,7 +232,7 @@ class Geometry {
 #if arm_deinterleaved
 		var vaLength = vertexArrays.length;
 		vertexBuffers = [];
-		for (i in 0...vaLength) 
+		for (i in 0...vaLength)
 			vertexBuffers.push({
 				name: vertexArrays[i].attrib,
 				buffer: makeDeinterleavedVB(vertexArrays[i].values, vertexArrays[i].attrib, vertexArrays[i].size)
