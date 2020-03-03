@@ -72,6 +72,9 @@ typedef TVertexArray = {
 #end
 	public var attrib: String;
 	public var values: Int16Array;
+	public var data: String; // short4norm, short2norm
+	@:optional public var padding: Int;
+	@:optional public var size: Int;
 }
 
 #if js
@@ -513,4 +516,5 @@ typedef TTrack = {
 	public var target: String;
 	public var frames: Uint32Array;
 	public var values: Float32Array; // sampled - full matrix transforms, non-sampled - values
+	@:optional public var ref_values: Array<Array<String>>; // ref values
 }

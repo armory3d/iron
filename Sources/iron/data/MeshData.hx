@@ -1,6 +1,7 @@
 package iron.data;
 
 import kha.graphics4.Usage;
+import kha.graphics4.VertexData;
 import kha.arrays.Int16Array;
 import kha.arrays.Uint32Array;
 import iron.data.SceneFormat;
@@ -35,32 +36,37 @@ class MeshData {
 			materialIndices.push(ind.material);
 		}
 
-		// Mandatory vertex array names for now
-		var pa = getVertexArrayValues("pos");
-		var na = getVertexArrayValues("nor");
-		var uva = getVertexArrayValues("tex");
-		var uva1 = getVertexArrayValues("tex1");
-		var ca = getVertexArrayValues("col");
-		var tanga = getVertexArrayValues("tang");
-
 		// Skinning
 		isSkinned = raw.skin != null;
-
+		var vertexArrays = raw.vertex_arrays;
+		// prepare vertex array for skinning and fill size data
+		for (i in 0...vertexArrays.length)
+			vertexArrays[i].size = getVertexSize(vertexArrays[i].data, getPadding(vertexArrays[i].padding));
+		if (isSkinned)
+			for (i in 1...3) {
+				vertexArrays.push({
+					attrib: i == 1 ? "bone" : "weight",
+					values: null,
+					data: "short4norm",
+					size: 4
+				});
+			}
 		// Usage, also used for instanced data
 		var parsedUsage = Usage.StaticUsage;
 		if (raw.dynamic_usage != null && raw.dynamic_usage == true) parsedUsage = Usage.DynamicUsage;
 		var usage = parsedUsage;
 
-		var bonea: Int16Array = null; // Store bone indices and weights per vertex
-		var weighta: Int16Array = null;
 		if (isSkinned) {
-			var l = Std.int(pa.length / 4) * 4;
+			var bonea = null;
+			var weighta = null;
+			var vertex_length = Std.int(vertexArrays[0].values.length / vertexArrays[0].size);
+			var l = vertex_length * 4;
 			bonea = new Int16Array(l);
 			weighta = new Int16Array(l);
 
 			var index = 0;
 			var ai = 0;
-			for (i in 0...Std.int(pa.length / 4)) {
+			for (i in 0...vertex_length) {
 				var boneCount = raw.skin.bone_count_array[i];
 				for (j in index...(index + boneCount)) {
 					bonea[ai] = raw.skin.bone_index_array[j];
@@ -75,11 +81,12 @@ class MeshData {
 				}
 				index += boneCount;
 			}
+			vertexArrays[vertexArrays.length - 2].values = bonea;
+			vertexArrays[vertexArrays.length - 1].values = weighta;
 		}
 
 		// Make vertex buffers
-		geom = new Geometry(this, indices, materialIndices,
-							pa, na, uva, uva1, ca, tanga, bonea, weighta, usage);
+		geom = new Geometry(this, indices, materialIndices, usage);
 		geom.name = name;
 
 		done(this);
@@ -113,8 +120,17 @@ class MeshData {
 		});
 	}
 
-	function getVertexArrayValues(attrib: String): Int16Array {
-		for (va in raw.vertex_arrays) if (va.attrib == attrib) return va.values;
-		return null;
+	function getVertexSize(vertex_data: String, padding: Int = 0): Int {
+		var len = 0;
+		switch vertex_data {
+			case "short4norm": len = 4;
+			case "short2norm": len = 2;
+		}
+		return len - padding;
+	}
+	// ugly hack for now so it works, this function shouldn't exist 
+	inline function getPadding(padding: Int): Int {
+		return padding != null ? 1 : 0;
 	}
 }
+
