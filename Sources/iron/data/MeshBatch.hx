@@ -197,7 +197,7 @@ class Bucket {
 	function vertexCount(g: Geometry, hasUVs: Bool): Int {
 		var vcount = g.getVerticesLength();
 		if (hasUVs && g.uvs == null) {
-			vcount += Std.int(g.positions.length / 4) * 2;
+			vcount += Std.int(g.positions.values.length / 4) * 2;
 		}
 		return vcount;
 	}
