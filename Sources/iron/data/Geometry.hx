@@ -41,9 +41,9 @@ class Geometry {
 
 	public var positions: TVertexArray;
 	public var normals: TVertexArray;
+	public var uvs: TVertexArray;
+	public var cols: TVertexArray;
 	public var vertexArrays: Array<TVertexArray>;
-	public var uvs = false;
-	public var cols = false;
 	var data: MeshData;
 
 	public var aabb: Vec4 = null;
@@ -62,11 +62,7 @@ class Geometry {
 	public var actions: Map<String, Array<TObj>> = null;
 	public var mats: Map<String, Array<Mat4>> = null;
 
-	public function new(data: MeshData,
-						indices: Array<Uint32Array>,
-						materialIndices: Array<Int>,
-						usage: Usage = null) {
-
+	public function new(data: MeshData, indices: Array<Uint32Array>, materialIndices: Array<Int>, usage: Usage = null) {
 		if (usage == null) usage = Usage.StaticUsage;
 
 		this.indices = indices;
@@ -76,8 +72,8 @@ class Geometry {
 		this.vertexArrays = data.raw.vertex_arrays;
 		this.positions = getVArray('pos');
 		this.normals = getVArray('nor');
-		this.uvs = getVArray('tex') != null;
-		this.cols = getVArray('col') != null;
+		this.uvs = getVArray('tex');
+		this.cols = getVArray('col');
 		this.data = data;
 
 		struct = getVertexStructure(vertexArrays);
@@ -100,17 +96,15 @@ class Geometry {
 		for (i in 0...vertexArrays.length){
 			structure.add(vertexArrays[i].attrib, getVertexData(vertexArrays[i].data));
 		}
-
 		return structure;
 	}
 
 	static function getVertexData(data: String): VertexData {
-		var d = null;
-		switch data {
-			case "short4norm": d = VertexData.Short4Norm;
-			case "short2norm": d = VertexData.Short2Norm;
+		switch (data) {
+			case "short4norm": return VertexData.Short4Norm;
+			case "short2norm": return VertexData.Short2Norm;
+			default: return VertexData.Short4Norm;
 		}
-		return d;
 	}
 
 	public function applyScale(sx: Float, sy: Float, sz: Float) {
@@ -118,9 +112,11 @@ class Geometry {
 	}
 
 	public function getVArray(name: String): TVertexArray {
-		for (i in 0...vertexArrays.length)
-			if (vertexArrays[i].attrib == name)
+		for (i in 0...vertexArrays.length) {
+			if (vertexArrays[i].attrib == name) {
 				return vertexArrays[i];
+			}
+		}
 		return null;
 	}
 
@@ -148,31 +144,34 @@ class Geometry {
 		buildVertices(vertices, vertexArrays, offset, fakeUVs);
 	}
 
-	static function buildVertices(vertices: Int16Array,
-								  vertexArrays: Array<TVertexArray>,
-								  offset = 0,
-								  fakeUVs = false,
-								  uvsIndex = -1) {
+	static function buildVertices(vertices: Int16Array, vertexArrays: Array<TVertexArray>, offset = 0, fakeUVs = false, uvsIndex = -1) {
 		var numVertices = verticesCount(vertexArrays[0]);
 		var di = -1 + offset;
 		for (i in 0...numVertices) {
 			for (va in 0...vertexArrays.length) {
-				if (fakeUVs && va == uvsIndex) { // add fake uvs if uvs where "asked" for but not found
+				if (fakeUVs && va == uvsIndex) { // Add fake uvs if uvs where "asked" for but not found
 					vertices.set(++di, 0);
 					vertices.set(++di, 0);
 					continue;
 				}
 				var l = vertexArrays[va].size;
-				for (o in 0...l) vertices.set(++di, vertexArrays[va].values[i * l + o]);
-				if (vertexArrays[va].padding != null)     vertices.set(++di, 0);
+				for (o in 0...l) {
+					vertices.set(++di, vertexArrays[va].values[i * l + o]);
+				}
+				if (vertexArrays[va].padding != null) {
+					if (vertexArrays[va].padding == 1) {
+						vertices.set(++di, 0);
+					}
+				}
 			}
 		}
 	}
 
 	public function getVerticesLength(): Int {
 		var res = 0;
-		for (i in 0...vertexArrays.length)
+		for (i in 0...vertexArrays.length) {
 			res += vertexArrays[i].values.length;
+		}
 		return res;
 	}
 
@@ -185,9 +184,9 @@ class Geometry {
 					vbs.push(vertexBuffers[v].buffer);
 					continue;
 				}
-			if (e.name == "ipos")
-				if (instancedVB != null)
-					vbs.push(instancedVB);
+			if (e.name == "ipos" && instancedVB != null) {
+				vbs.push(instancedVB);
+			}
 		}
 		return vbs;
 	}
@@ -207,20 +206,24 @@ class Geometry {
 					atex = true;
 					texOffset = e;
 				}
-				if (vs[e].name == "col") acol = true;
-				for (va in 0...vertexArrays.length)
-					if (vs[e].name == vertexArrays[va].attrib)
+				if (vs[e].name == "col") {
+					acol = true;
+				}
+				for (va in 0...vertexArrays.length) {
+					if (vs[e].name == vertexArrays[va].attrib) {
 						nVertexArrays.push(vertexArrays[va]);
+					}
+				}
 			}
 			// Multi-mat mesh with different vertex structures
 			var struct = getVertexStructure(nVertexArrays);
 			vb = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
 			vertices = vb.lockInt16();
-			buildVertices(vertices, nVertexArrays, 0, atex && !uvs, texOffset);
+			buildVertices(vertices, nVertexArrays, 0, atex && uvs == null, texOffset);
 			vb.unlock();
 			vertexBufferMap.set(key, vb);
-			if (atex && !uvs) trace("Armory Warning: Geometry " + name + " is missing UV map");
-			if (acol && !cols) trace("Armory Warning: Geometry " + name + " is missing vertex colors");
+			if (atex && uvs == null) trace("Armory Warning: Geometry " + name + " is missing UV map");
+			if (acol && cols == null) trace("Armory Warning: Geometry " + name + " is missing vertex colors");
 		}
 		return vb;
 	}

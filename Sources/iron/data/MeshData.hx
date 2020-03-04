@@ -38,19 +38,17 @@ class MeshData {
 
 		// Skinning
 		isSkinned = raw.skin != null;
+
+		// Prepare vertex array for skinning and fill size data
 		var vertexArrays = raw.vertex_arrays;
-		// prepare vertex array for skinning and fill size data
-		for (i in 0...vertexArrays.length)
+		if (isSkinned) {
+			vertexArrays.push({ attrib: "bone", values: null, data: "short4norm" });
+			vertexArrays.push({ attrib: "weight", values: null, data: "short4norm" });
+		}
+		for (i in 0...vertexArrays.length) {
 			vertexArrays[i].size = getVertexSize(vertexArrays[i].data, getPadding(vertexArrays[i].padding));
-		if (isSkinned)
-			for (i in 1...3) {
-				vertexArrays.push({
-					attrib: i == 1 ? "bone" : "weight",
-					values: null,
-					data: "short4norm",
-					size: 4
-				});
-			}
+		}
+
 		// Usage, also used for instanced data
 		var parsedUsage = Usage.StaticUsage;
 		if (raw.dynamic_usage != null && raw.dynamic_usage == true) parsedUsage = Usage.DynamicUsage;
@@ -121,16 +119,15 @@ class MeshData {
 	}
 
 	function getVertexSize(vertex_data: String, padding: Int = 0): Int {
-		var len = 0;
-		switch vertex_data {
-			case "short4norm": len = 4;
-			case "short2norm": len = 2;
+		switch (vertex_data) {
+			case "short4norm": return 4 - padding;
+			case "short2norm": return 2 - padding;
+			default: return 0;
 		}
-		return len - padding;
 	}
-	// ugly hack for now so it works, this function shouldn't exist 
-	inline function getPadding(padding: Int): Int {
-		return padding != null ? 1 : 0;
+
+	inline function getPadding(padding: Null<Int>): Int {
+		return padding != null ? padding : 0;
 	}
 }
 
