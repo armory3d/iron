@@ -73,8 +73,8 @@ typedef TVertexArray = {
 	public var attrib: String;
 	public var values: Int16Array;
 	public var data: String; // short4norm, short2norm
-	@:optional public var padding: Int;
-	@:optional public var size: Int;
+	@:optional public var padding: Null<Int>;
+	@:optional public var size: Null<Int>;
 }
 
 #if js
