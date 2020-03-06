@@ -430,6 +430,14 @@ class Uniforms {
 				helpVec = camera.lookWorld().normalize();
 				v = helpVec;
 			}
+			else if (c.link == "_cameraUp") {
+				helpVec = camera.upWorld().normalize();
+				v = helpVec;
+			}
+			else if (c.link == "_cameraRight") {
+				helpVec = camera.rightWorld().normalize();
+				v = helpVec;
+			}
 			else if (c.link == "_backgroundCol") {
 				if (camera.data.raw.clear_color != null) helpVec.set(camera.data.raw.clear_color[0], camera.data.raw.clear_color[1], camera.data.raw.clear_color[2]);
 				v = helpVec;
