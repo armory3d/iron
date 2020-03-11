@@ -149,12 +149,11 @@ class Geometry {
 		var di = -1 + offset;
 		for (i in 0...numVertices) {
 			for (va in 0...vertexArrays.length) {
+				var l = vertexArrays[va].size;
 				if (fakeUVs && va == uvsIndex) { // Add fake uvs if uvs where "asked" for but not found
-					vertices.set(++di, 0);
-					vertices.set(++di, 0);
+					for (j in 0...l) vertices.set(++di, 0);
 					continue;
 				}
-				var l = vertexArrays[va].size;
 				for (o in 0...l) {
 					vertices.set(++di, vertexArrays[va].values[i * l + o]);
 				}
