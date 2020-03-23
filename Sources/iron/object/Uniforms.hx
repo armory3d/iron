@@ -973,7 +973,8 @@ class Uniforms {
 		}
 	}
 
-	public static function setMaterialConstants(g: Graphics, context: ShaderContext, materialContext: MaterialContext) {
+	public static function setMaterialConstants(g: Graphics, context: ShaderContext, materialContext: MaterialContext,
+												overrideBindConstants:Array<TBindConstant>) {
 		if (materialContext.raw.bind_constants != null) {
 			for (i in 0...materialContext.raw.bind_constants.length) {
 				var matc = materialContext.raw.bind_constants[i];
@@ -986,6 +987,14 @@ class Uniforms {
 				}
 				if (pos == -1) continue;
 				var c = context.raw.constants[pos];
+				if (overrideBindConstants != null) {
+					for (i in 0...overrideBindConstants.length) {
+						if (matc.name == overrideBindConstants[i].name){
+							matc = overrideBindConstants[i];
+							break;
+						}
+					}
+				}
 
 				setMaterialConstant(g, context.constants[pos], c, matc);
 			}

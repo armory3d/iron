@@ -286,7 +286,7 @@ class MeshObject extends Object {
 			Uniforms.setContextConstants(g, scontext, bindParams); //
 			Uniforms.setObjectConstants(g, scontext, this);
 			if (materialContexts.length > mi) {
-				Uniforms.setMaterialConstants(g, scontext, materialContexts[mi]);
+				Uniforms.setMaterialConstants(g, scontext, materialContexts[mi], ldata.geom.indexArraysOverrides[i]);
 			}
 
 			// VB / IB

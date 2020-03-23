@@ -31,9 +31,13 @@ class MeshData {
 		// Mesh data
 		var indices: Array<Uint32Array> = [];
 		var materialIndices: Array<Int> = [];
-		for (ind in raw.index_arrays) {
-			indices.push(ind.values);
-			materialIndices.push(ind.material);
+		var indexArraysOverrides:Array<Array<TBindConstant>> = [];
+		for (i in 0...raw.index_arrays.length) {
+			indices.push(raw.index_arrays[i].values);
+			materialIndices.push(raw.index_arrays[i].material);
+			if (raw.index_arrays_overrides != null) {
+				indexArraysOverrides.push(raw.index_arrays_overrides[i]);
+			}
 		}
 
 		// Skinning
@@ -84,7 +88,7 @@ class MeshData {
 		}
 
 		// Make vertex buffers
-		geom = new Geometry(this, indices, materialIndices, usage);
+		geom = new Geometry(this, indices, materialIndices, indexArraysOverrides, usage);
 		geom.name = name;
 
 		done(this);

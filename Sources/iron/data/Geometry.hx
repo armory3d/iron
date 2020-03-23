@@ -30,6 +30,7 @@ class Geometry {
 	public var indices: Array<Uint32Array>;
 	public var numTris = 0;
 	public var materialIndices: Array<Int>;
+	public var indexArraysOverrides: Array<Array<TBindConstant>>;
 	public var struct: VertexStructure;
 	public var structLength: Int;
 	public var structStr: String;
@@ -62,11 +63,13 @@ class Geometry {
 	public var actions: Map<String, Array<TObj>> = null;
 	public var mats: Map<String, Array<Mat4>> = null;
 
-	public function new(data: MeshData, indices: Array<Uint32Array>, materialIndices: Array<Int>, usage: Usage = null) {
+	public function new(data: MeshData, indices: Array<Uint32Array>, materialIndices: Array<Int>,
+		indexArraysOverrides: Array<Array<TBindConstant>>, usage: Usage = null) {
 		if (usage == null) usage = Usage.StaticUsage;
 
 		this.indices = indices;
 		this.materialIndices = materialIndices;
+		this.indexArraysOverrides = indexArraysOverrides;
 		this.usage = usage;
 
 		this.vertexArrays = data.raw.vertex_arrays;

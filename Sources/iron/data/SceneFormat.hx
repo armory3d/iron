@@ -42,6 +42,7 @@ typedef TMeshData = {
 	public var name: String;
 	public var vertex_arrays: Array<TVertexArray>;
 	public var index_arrays: Array<TIndexArray>;
+	@:optional public var index_arrays_overrides: Array<Array<TBindConstant>>;
 	@:optional public var dynamic_usage: Null<Bool>;
 	@:optional public var skin: TSkin;
 	@:optional public var instanced_data: Float32Array;
