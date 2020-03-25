@@ -619,6 +619,9 @@ class Uniforms {
 			else if (c.link == "_frameScale") {
 				f = RenderPath.active.frameTime / Time.delta;
 			}
+			else if (c.link == "_fieldOfView") {
+				f = camera.data.raw.fov;
+			}
 
 			if (f != null) {
 				g.setFloat(location, f);
