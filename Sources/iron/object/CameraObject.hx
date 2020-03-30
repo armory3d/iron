@@ -87,9 +87,6 @@ class CameraObject extends Object {
 
 		buildMatrix();
 
-		// First time setting up previous V, prevents first frame flicker
-		if (prevV == null) { prevV = Mat4.identity(); prevV.setFrom(V); }
-
 		RenderPath.active.renderFrame(g);
 
 		prevV.setFrom(V);
@@ -145,6 +142,9 @@ class CameraObject extends Object {
 		if (data.raw.frustum_culling) {
 			buildViewFrustum(VP, frustumPlanes);
 		}
+
+		// First time setting up previous V, prevents first frame flicker
+		if (prevV == null) { prevV = Mat4.identity(); prevV.setFrom(V); }
 	}
 
 	public static function buildViewFrustum(VP: Mat4, frustumPlanes: Array<FrustumPlane>) {
