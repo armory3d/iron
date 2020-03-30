@@ -82,6 +82,8 @@ class Input {
 		registered = true;
 		App.notifyOnEndFrame(endFrame);
 		App.notifyOnReset(reset);
+		// Reset mouse delta on foreground
+		kha.System.notifyOnApplicationState(function() { getMouse().reset(); }, null, null, null, null);
 	}
 }
 
