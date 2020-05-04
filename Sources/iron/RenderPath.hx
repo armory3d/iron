@@ -52,6 +52,7 @@ class RenderPath {
 	public var currentW: Int;
 	public var currentH: Int;
 	public var currentD: Int;
+	public var clearShader: String = null;
 	var lastW = 0;
 	var lastH = 0;
 	var bindParams: Array<String>;
@@ -241,7 +242,18 @@ class RenderPath {
 				if (cc != null) colorFlag = kha.Color.fromFloats(cc[0], cc[1], cc[2]);
 			}
 		}
-		currentG.clear(colorFlag, depthFlag, null);
+		if (clearShader != null) {
+			// file/data_name/context
+			var cc: CachedShaderContext = cachedShaderContexts.get(clearShader);
+			if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
+			currentG.setPipeline(cc.context.pipeState);
+			currentG.setVertexBuffer(ConstData.screenAlignedVB);
+			currentG.setIndexBuffer(ConstData.screenAlignedIB);
+			currentG.drawIndexedVertices();
+		}
+		else {
+			currentG.clear(colorFlag, depthFlag, null);
+		}
 	}
 
 	public function clearImage(target: String, color: Int) {
