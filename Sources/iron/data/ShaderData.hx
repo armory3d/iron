@@ -14,6 +14,7 @@ import kha.graphics4.TextureFilter;
 import kha.graphics4.MipMapFilter;
 import kha.graphics4.VertexShader;
 import kha.graphics4.FragmentShader;
+import kha.graphics4.TextureFormat;
 import iron.data.SceneFormat;
 using StringTools;
 
@@ -125,6 +126,10 @@ class ShaderContext {
 		if (raw.color_writes_green != null) for (i in 0...raw.color_writes_green.length) pipeState.colorWriteMasksGreen[i] = raw.color_writes_green[i];
 		if (raw.color_writes_blue != null) for (i in 0...raw.color_writes_blue.length) pipeState.colorWriteMasksBlue[i] = raw.color_writes_blue[i];
 		if (raw.color_writes_alpha != null) for (i in 0...raw.color_writes_alpha.length) pipeState.colorWriteMasksAlpha[i] = raw.color_writes_alpha[i];
+
+		// Color attachment format
+		if (raw.color_attachment_count != null) pipeState.colorAttachmentCount = raw.color_attachment_count;
+		if (raw.color_attachment != null) for (i in 0...8) pipeState.colorAttachments[i] = getTextureFormat(raw.color_attachment);
 
 		// Conservative raster for voxelization
 		if (raw.conservative_raster != null) pipeState.conservativeRasterization = raw.conservative_raster;
@@ -329,6 +334,19 @@ class ShaderContext {
 		case "no": return MipMapFilter.NoMipFilter;
 		case "point": return MipMapFilter.PointMipFilter;
 		default: return MipMapFilter.LinearMipFilter;
+		}
+	}
+
+	function getTextureFormat(s: String): TextureFormat {
+		switch (s) {
+		case "RGBA32": return TextureFormat.RGBA32;
+		case "RGBA64": return TextureFormat.RGBA64;
+		case "RGBA128": return TextureFormat.RGBA128;
+		case "DEPTH16": return TextureFormat.DEPTH16;
+		case "R32": return TextureFormat.A32;
+		case "R16": return TextureFormat.A16;
+		case "R8": return TextureFormat.L8;
+		default: return TextureFormat.RGBA32;
 		}
 	}
 
