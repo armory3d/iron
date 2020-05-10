@@ -128,8 +128,10 @@ class ShaderContext {
 		if (raw.color_writes_alpha != null) for (i in 0...raw.color_writes_alpha.length) pipeState.colorWriteMasksAlpha[i] = raw.color_writes_alpha[i];
 
 		// Color attachment format
-		if (raw.color_attachment_count != null) pipeState.colorAttachmentCount = raw.color_attachment_count;
-		if (raw.color_attachment != null) for (i in 0...8) pipeState.colorAttachments[i] = getTextureFormat(raw.color_attachment);
+		if (raw.color_attachments != null) {
+			pipeState.colorAttachmentCount = raw.color_attachments.length;
+			for (i in 0...raw.color_attachments.length) pipeState.colorAttachments[i] = getTextureFormat(raw.color_attachments[i]);
+		}
 
 		// Conservative raster for voxelization
 		if (raw.conservative_raster != null) pipeState.conservativeRasterization = raw.conservative_raster;
