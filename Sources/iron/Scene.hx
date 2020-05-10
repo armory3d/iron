@@ -401,12 +401,14 @@ class Scene {
 
 	/**
 	  Spawn a new object instance in the Scene.
+	  @param	raw The scene format to spawn the object from. (Optional default is raw data from active scene)
 	  @param	name The String name of the Object as defined in blender.
 	  @param	parent The parent object this new object should be attached to. (Optional use null to just add to the Scene without a parent).
 	  @param	done A completion handler function to run after the spawn is complete. Example might want to change properties of the object after spawning.
 	  @param	spawnChildren Also spawn the children of the newly spawned object. (Optional default is true).
 	**/
-	public function spawnObject(name: String, parent: Object, done: Object->Void, spawnChildren = true) {
+	public function spawnObject(?raw : TSceneFormat, name: String, parent: Object, done: Object->Void, spawnChildren = true) {
+		if( raw == null ) raw = Scene.active.raw;
 		var objectsTraversed = 0;
 		var obj = getRawObjectByName(raw, name);
 		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
