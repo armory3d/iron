@@ -352,7 +352,6 @@ typedef TParticleData = {
 	public var name: String;
 	public var type: Int; // 0 - Emitter, Hair
 	public var loop: Bool;
-	public var render_emitter: Bool;
 	public var count: Int;
 	public var frame_start: FastFloat;
 	public var frame_end: FastFloat;
@@ -390,6 +389,7 @@ typedef TObj = {
 	public var transform: TTransform;
 	@:optional public var material_refs: Array<String>;
 	@:optional public var particle_refs: Array<TParticleReference>;
+	@:optional public var render_emitter: Bool;
 	@:optional public var is_particle: Null<Bool>; // This object is used as a particle object
 	@:optional public var children: Array<TObj>;
 	@:optional public var group_ref: String; // instance_type

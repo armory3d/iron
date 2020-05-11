@@ -197,7 +197,6 @@ class MeshObject extends Object {
 	}
 
 	public function render(g: Graphics, context: String, bindParams: Array<String>) {
-
 		if (data == null || !data.geom.ready) return; // Data not yet streamed
 		if (!visible) return; // Skip render if object is hidden
 		if (cullMesh(context, Scene.active.camera, RenderPath.active.light)) return;
@@ -217,12 +216,11 @@ class MeshObject extends Object {
 							c.particleIndex = particleChildren.length - 1;
 						}
 					});
-
 				}
 			}
 			for (i in 0...particleSystems.length) particleSystems[i].update(particleChildren[i], this);
 		}
-		if (particleSystems != null && particleSystems.length > 0 && !particleSystems[0].data.raw.render_emitter) return;
+		if (particleSystems != null && particleSystems.length > 0 && !raw.render_emitter) return;
 		#end
 		if (tilesheet != null) tilesheet.update();
 		if (cullMaterial(context)) return;
