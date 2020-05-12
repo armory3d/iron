@@ -52,7 +52,10 @@ class RenderPath {
 	public var currentW: Int;
 	public var currentH: Int;
 	public var currentD: Int;
+	#if kha_metal
 	public var clearShader: String = null;
+	public var clearColor: kha.Color = 0x000000ff;
+	#end
 	var lastW = 0;
 	var lastH = 0;
 	var bindParams: Array<String>;
@@ -242,18 +245,24 @@ class RenderPath {
 				if (cc != null) colorFlag = kha.Color.fromFloats(cc[0], cc[1], cc[2]);
 			}
 		}
+		#if kha_metal
 		if (clearShader != null) {
-			// file/data_name/context
-			var cc: CachedShaderContext = cachedShaderContexts.get(clearShader);
+			clearColor = colorFlag != null ? colorFlag : 0x000000ff;
+			var ext = "";
+			/*if (colorFlag != null)*/ ext += "_color";
+			/*if (depthFlag != null)*/ ext += "_depth";
+			ext += "_" + currentTarget.raw.format.toLowerCase();
+			var cc: CachedShaderContext = cachedShaderContexts.get(clearShader + ext);
 			if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
 			currentG.setPipeline(cc.context.pipeState);
+			Uniforms.setContextConstants(currentG, cc.context, bindParams);
 			currentG.setVertexBuffer(ConstData.screenAlignedVB);
 			currentG.setIndexBuffer(ConstData.screenAlignedIB);
 			currentG.drawIndexedVertices();
 		}
-		else {
-			currentG.clear(colorFlag, depthFlag, null);
-		}
+		#else
+		currentG.clear(colorFlag, depthFlag, null);
+		#end
 	}
 
 	public function clearImage(target: String, color: Int) {
