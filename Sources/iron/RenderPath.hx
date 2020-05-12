@@ -54,7 +54,7 @@ class RenderPath {
 	public var currentD: Int;
 	#if kha_metal
 	public var clearShader: String = null;
-	public var clearColor: kha.Color = 0x000000ff;
+	public var clearColor: kha.Color = 0xff000000;
 	#end
 	var lastW = 0;
 	var lastH = 0;
@@ -247,10 +247,10 @@ class RenderPath {
 		}
 		#if kha_metal
 		if (clearShader != null) {
-			clearColor = colorFlag != null ? colorFlag : 0x000000ff;
+			clearColor = colorFlag != null ? colorFlag : 0xff000000;
 			var ext = "";
-			/*if (colorFlag != null)*/ ext += "_color";
-			/*if (depthFlag != null)*/ ext += "_depth";
+			if (colorFlag != null) ext += "_color";
+			if (depthFlag != null) ext += "_depth";
 			ext += "_" + currentTarget.raw.format.toLowerCase();
 			var cc: CachedShaderContext = cachedShaderContexts.get(clearShader + ext);
 			if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
