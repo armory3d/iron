@@ -275,11 +275,6 @@ class MeshObject extends Object {
 			if (scontext == null) continue;
 			var elems = scontext.raw.vertex_elements;
 
-			// Always set pipeline for metal as it is not retained
-			#if kha_metal
-			lastPipeline = null;
-			#end
-
 			// Uniforms
 			if (scontext.pipeState != lastPipeline) {
 				g.setPipeline(scontext.pipeState);
