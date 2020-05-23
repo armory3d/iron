@@ -438,6 +438,9 @@ class Keyboard extends VirtualInput {
 		else if (key == KeyCode.Return) return "enter";
 		else if (key == KeyCode.Shift) return "shift";
 		else if (key == KeyCode.Control) return "control";
+		#if kha_darwin
+		else if (key == KeyCode.Meta) return "control";
+		#end
 		else if (key == KeyCode.Alt) return "alt";
 		else if (key == KeyCode.Escape) return "escape";
 		else if (key == KeyCode.Delete) return "delete";
