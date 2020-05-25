@@ -226,6 +226,7 @@ typedef TShaderContext = {
 	@:optional public var color_writes_blue: Array<Bool>;
 	@:optional public var color_writes_alpha: Array<Bool>;
 	@:optional public var color_attachments: Array<String>; // RGBA32, RGBA64, R8
+	@:optional public var depth_attachment: String; // DEPTH32
 	@:optional public var conservative_raster: Null<Bool>;
 	@:optional public var shader_from_source: Null<Bool>; // Build shader at runtime using fromSource()
 }
