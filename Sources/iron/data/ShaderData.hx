@@ -15,6 +15,7 @@ import kha.graphics4.MipMapFilter;
 import kha.graphics4.VertexShader;
 import kha.graphics4.FragmentShader;
 import kha.graphics4.TextureFormat;
+import kha.graphics4.DepthStencilFormat;
 import iron.data.SceneFormat;
 using StringTools;
 
@@ -131,6 +132,13 @@ class ShaderContext {
 		if (raw.color_attachments != null) {
 			pipeState.colorAttachmentCount = raw.color_attachments.length;
 			for (i in 0...raw.color_attachments.length) pipeState.colorAttachments[i] = getTextureFormat(raw.color_attachments[i]);
+		}
+
+		// Depth attachment format
+		if (raw.depth_attachment != null) {
+			#if (krom_windows || krom_linux || krom_darwin)
+			pipeState.depthStencilAttachment = getDepthStencilFormat(raw.depth_attachment);
+			#end
 		}
 
 		// Conservative raster for voxelization
@@ -349,6 +357,14 @@ class ShaderContext {
 		case "R16": return TextureFormat.A16;
 		case "R8": return TextureFormat.L8;
 		default: return TextureFormat.RGBA32;
+		}
+	}
+
+	function getDepthStencilFormat(s: String): DepthStencilFormat {
+		switch (s) {
+		case "DEPTH32": return DepthStencilFormat.DepthOnly;
+		case "NONE": return DepthStencilFormat.NoDepthAndStencil;
+		default: return DepthStencilFormat.DepthOnly;
 		}
 	}
 
