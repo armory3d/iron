@@ -12,12 +12,12 @@ class Wasm {
 	function new(blob: kha.Blob, importObject: Dynamic) {
 		// Switch to WebAssembly.instantiateStreaming when available
 		var data = blob.toBytes().getData();
-		untyped __js__('var module = new WebAssembly.Module({0});', data);
+		js.Syntax.code('var module = new WebAssembly.Module({0});', data);
 		if (importObject == null) {
-			untyped __js__('{0} = new WebAssembly.Instance(module).exports;', exports);
+			js.Syntax.code('{0} = new WebAssembly.Instance(module).exports;', exports);
 		}
 		else {
-			untyped __js__('{0} = new WebAssembly.Instance(module, {1}).exports;', exports, importObject);
+			js.Syntax.code('{0} = new WebAssembly.Instance(module, {1}).exports;', exports, importObject);
 		}
 	}
 
@@ -29,15 +29,15 @@ class Wasm {
 	}
 
 	public function getMemory(offset: Int, length: Int): js.lib.Uint8Array {
-		return untyped __js__('new Uint8Array({0}.memory.buffer, {1}, {2});', exports, offset, length);
+		return js.Syntax.code('new Uint8Array({0}.memory.buffer, {1}, {2});', exports, offset, length);
 	}
 
 	public function getMemoryF32(offset: Int, length: Int): kha.arrays.Float32Array {
-		return untyped __js__('new Float32Array({0}.memory.buffer, {1}, {2});', exports, offset, length);
+		return js.Syntax.code('new Float32Array({0}.memory.buffer, {1}, {2});', exports, offset, length);
 	}
 
 	public function getMemoryU32(offset: Int, length: Int): kha.arrays.Uint32Array {
-		return untyped __js__('new Uint32Array({0}.memory.buffer, {1}, {2});', exports, offset, length);
+		return js.Syntax.code('new Uint32Array({0}.memory.buffer, {1}, {2});', exports, offset, length);
 	}
 }
 
