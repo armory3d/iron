@@ -275,7 +275,7 @@ class Transform {
 	/**
 	  Check whether the transform has changed at all since the last time
 	  this function was called.
-	  @return	`true` iff the transform has changed.
+	  @return	`true` if the transform has changed.
 	**/
 	public function diff(): Bool {
 		if (lastWorld == null) { lastWorld = Mat4.identity().setFrom(world); return false; }
