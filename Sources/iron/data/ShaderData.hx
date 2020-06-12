@@ -136,7 +136,7 @@ class ShaderContext {
 
 		// Depth attachment format
 		if (raw.depth_attachment != null) {
-			#if (krom_windows || krom_linux || krom_darwin)
+			#if (krom_windows || krom_linux || krom_darwin || krom_android || krom_ios)
 			pipeState.depthStencilAttachment = getDepthStencilFormat(raw.depth_attachment);
 			#end
 		}
