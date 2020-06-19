@@ -76,6 +76,7 @@ class SpeakerObject extends Object {
 	}
 
 	public override function remove() {
+		stop();
 		if (Scene.active != null) Scene.active.speakers.remove(this);
 		super.remove();
 	}
