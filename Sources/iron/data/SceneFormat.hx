@@ -386,6 +386,7 @@ typedef TObj = {
 #end
 	public var type: String; // object, mesh_object, light_object, camera_object, speaker_object, decal_object
 	public var name: String;
+	public var sceneOfOrigin: String;
 	public var data_ref: String;
 	public var transform: TTransform;
 	@:optional public var material_refs: Array<String>;
