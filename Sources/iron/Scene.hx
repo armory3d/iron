@@ -503,7 +503,7 @@ class Scene {
 					var ref = o.material_refs[i];
 					if (o.sceneOfOrigin == null)
 						o.sceneOfOrigin = sceneName;
-					Data.getMaterial(sceneName, ref, function(mat: MaterialData) {
+					Data.getMaterial(o.sceneOfOrigin, ref, function(mat: MaterialData) {
 						materials[i] = mat;
 						materialsLoaded++;
 						if (materialsLoaded == o.material_refs.length) {
