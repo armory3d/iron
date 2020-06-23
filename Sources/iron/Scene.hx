@@ -466,6 +466,10 @@ class Scene {
 
 	public function createObject(o: TObj, format: TSceneFormat, parent: Object, parentObject: TObj, done: Object->Void) {
 		var sceneName = format.name;
+		
+		if (active.raw.objects.indexOf(o) == -1) {
+			active.raw.objects.push(o);
+		}
 
 		if (o.type == "camera_object") {
 			Data.getCamera(sceneName, o.data_ref, function(b: CameraData) {
@@ -497,6 +501,8 @@ class Scene {
 				var materialsLoaded = 0;
 				for (i in 0...o.material_refs.length) {
 					var ref = o.material_refs[i];
+					if (o.sceneOfOrigin == null)
+						o.sceneOfOrigin = sceneName;
 					Data.getMaterial(sceneName, ref, function(mat: MaterialData) {
 						materials[i] = mat;
 						materialsLoaded++;
