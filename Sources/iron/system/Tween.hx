@@ -177,48 +177,62 @@ class Tween {
 	public static function easeBounceIn(k: Float): Float { return 1 - easeBounceOut( 1 - k ); }
 	public static function easeBounceOut(k: Float): Float { return if( k < ( 1 / 2.75 ) ) { 7.5625 * k * k; } else if( k < ( 2 / 2.75 ) ) { 7.5625 * ( k -= ( 1.5 / 2.75 ) ) * k + 0.75; } else if( k < ( 2.5 / 2.75 ) ) { 7.5625 * ( k -= ( 2.25 / 2.75 ) ) * k + 0.9375; } else { 7.5625 * ( k -= ( 2.625 / 2.75 ) ) * k + 0.984375; } }
 	public static function easeBounceInOut(k: Float): Float { return (k < 0.5) ? easeBounceIn( k * 2 ) * 0.5 : easeBounceOut( k * 2 - 1 ) * 0.5 + 0.5; }
-	
+
 	public static function easeElasticIn(k: Float): Float {
-		var s : Null<Float> = null;
+		var s: Null<Float> = null;
 		var a = 0.1, p = 0.4;
-		if( k == 0 )
+		if (k == 0) {
 			return 0;
-		if( k == 1 )
+		}
+		if (k == 1) {
 			return 1;
-		if( a < 1 ) {
+		}
+		if (a < 1) {
 			a = 1;
 			s = p / 4;
-		} else
-			s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
-		return - ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
+		}
+		else {
+			s = p * Math.asin(1 / a) / (2 * Math.PI);
+		}
+		return -(a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
 	}
+
 	public static function easeElasticOut(k: Float): Float {
-		var s : Null<Float> = null;
+		var s: Null<Float> = null;
 		var a = 0.1, p = 0.4;
-		if( k == 0 )
+		if (k == 0) {
 			return 0;
-		if( k == 1 )
+		}
+		if (k == 1) {
 			return 1;
-		if( a < 1 ) {
+		}
+		if (a < 1) {
 			a = 1;
 			s = p / 4;
-		} else
-			s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
-		return ( a * Math.pow( 2, - 10 * k) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) + 1 );
+		}
+		else {
+			s = p * Math.asin(1 / a) / (2 * Math.PI);
+		}
+		return (a * Math.pow(2, -10 * k) * Math.sin((k - s) * (2 * Math.PI) / p) + 1);
 	}
+
 	public static function easeElasticInOut(k: Float): Float {
 		var s, a = 0.1, p = 0.4;
-		if ( k == 0 )
+		if (k == 0) {
 			return 0;
-		if ( k == 1 )
+		}
+		if (k == 1) {
 			return 1;
-		if ( a != 0 || a < 1 ) {
+		}
+		if (a != 0 || a < 1) {
 			a = 1;
 			s = p / 4;
-		} else
-			s = p * Math.asin( 1 / a ) / ( 2 * Math.PI );
-		if ( ( k *= 2 ) < 1 ) return - 0.5 * ( a * Math.pow( 2, 10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) );
-		return a * Math.pow( 2, -10 * ( k -= 1 ) ) * Math.sin( ( k - s ) * ( 2 * Math.PI ) / p ) * 0.5 + 1;
+		}
+		else {
+			s = p * Math.asin(1 / a) / (2 * Math.PI);
+		}
+		if ((k *= 2) < 1) return - 0.5 * (a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
+		return a * Math.pow(2, -10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p) * 0.5 + 1;
 	}
 }
 
