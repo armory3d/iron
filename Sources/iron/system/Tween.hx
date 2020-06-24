@@ -174,9 +174,9 @@ class Tween {
 	public static function easeBackIn(k: Float): Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return k * k * ((DEFAULT_OVERSHOOT + 1) * k - DEFAULT_OVERSHOOT); } }
 	public static function easeBackOut(k: Float): Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else { return ((k = k - 1) * k * ((DEFAULT_OVERSHOOT + 1) * k + DEFAULT_OVERSHOOT) + 1); } }
 	public static function easeBackInOut(k: Float): Float { if (k == 0) { return 0; } else if (k == 1) { return 1; } else if ((k *= 2) < 1) { return (0.5 * (k * k * (((DEFAULT_OVERSHOOT * 1.525) + 1) * k - DEFAULT_OVERSHOOT * 1.525))); } else { return (0.5 * ((k -= 2) * k * (((DEFAULT_OVERSHOOT * 1.525) + 1) * k + DEFAULT_OVERSHOOT * 1.525) + 2)); } }
-	public static function easeBounceIn(k: Float): Float { return 1 - easeBounceOut( 1 - k ); }
-	public static function easeBounceOut(k: Float): Float { return if( k < ( 1 / 2.75 ) ) { 7.5625 * k * k; } else if( k < ( 2 / 2.75 ) ) { 7.5625 * ( k -= ( 1.5 / 2.75 ) ) * k + 0.75; } else if( k < ( 2.5 / 2.75 ) ) { 7.5625 * ( k -= ( 2.25 / 2.75 ) ) * k + 0.9375; } else { 7.5625 * ( k -= ( 2.625 / 2.75 ) ) * k + 0.984375; } }
-	public static function easeBounceInOut(k: Float): Float { return (k < 0.5) ? easeBounceIn( k * 2 ) * 0.5 : easeBounceOut( k * 2 - 1 ) * 0.5 + 0.5; }
+	public static function easeBounceIn(k: Float): Float { return 1 - easeBounceOut(1 - k); }
+	public static function easeBounceOut(k: Float): Float { return if (k < (1 / 2.75)) { 7.5625 * k * k; } else if (k < (2 / 2.75)) { 7.5625 * (k -= (1.5 / 2.75)) * k + 0.75; } else if (k < (2.5 / 2.75)) { 7.5625 * (k -= (2.25 / 2.75)) * k + 0.9375; } else { 7.5625 * (k -= (2.625 / 2.75)) * k + 0.984375; } }
+	public static function easeBounceInOut(k: Float): Float { return (k < 0.5) ? easeBounceIn(k * 2) * 0.5 : easeBounceOut(k * 2 - 1) * 0.5 + 0.5; }
 
 	public static function easeElasticIn(k: Float): Float {
 		var s: Null<Float> = null;
