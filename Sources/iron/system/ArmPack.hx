@@ -179,8 +179,9 @@ class ArmPack {
 				switch (Type.getClassName(c)) {
 					case "String": {
 						o.writeByte(0xdb);
-						o.writeInt32(d.length);
-						o.writeString(d);
+						var b = Bytes.ofString(d);
+						o.writeInt32(b.length);
+						o.writeFullBytes(b, 0, b.length);
 					}
 					case "Array", null: { // kha.arrays give null
 						o.writeByte(0xdd);
@@ -217,8 +218,9 @@ class ArmPack {
 				o.writeInt32(f.length);
 				for (k in f) {
 					o.writeByte(0xdb);
-					o.writeInt32(k.length);
-					o.writeString(k);
+					var b = Bytes.ofString(k);
+					o.writeInt32(b.length);
+					o.writeFullBytes(b, 0, b.length);
 					write(o, Reflect.field(d, k));
 				}
 			}
