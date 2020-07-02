@@ -207,7 +207,7 @@ class ArmPack {
 					case "haxe.io.Bytes": {
 						o.writeByte(0xc6);
 						o.writeInt32(d.length);
-						o.write(d);
+						o.writeFullBytes(d, 0, d.length);
 					}
 					default: {}
 				}
