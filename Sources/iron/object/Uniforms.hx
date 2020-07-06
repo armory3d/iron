@@ -110,6 +110,7 @@ class Uniforms {
 					var w = Scene.active.world;
 					if (w != null) {
 						g.setTexture(context.textureUnits[j], w.envmap);
+						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 					}
 				}
 				#if arm_clusters
