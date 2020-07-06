@@ -190,7 +190,9 @@ class Scene {
 		framePassed = false;
 
 		if (Scene.active != null) {
+			#if (rp_background == "World")
 			RenderPath.active.unloadShader("shader_datas/World_" + Scene.active.raw.world_ref + "/World_" + Scene.active.raw.world_ref);
+			#end
 			Scene.active.remove();
 		}
 
