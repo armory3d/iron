@@ -191,7 +191,9 @@ class Scene {
 
 		if (Scene.active != null) {
 			#if (rp_background == "World")
-			RenderPath.active.unloadShader("shader_datas/World_" + Scene.active.raw.world_ref + "/World_" + Scene.active.raw.world_ref);
+			if (Scene.active.raw.world_ref != null) {
+				RenderPath.active.unloadShader("shader_datas/World_" + Scene.active.raw.world_ref + "/World_" + Scene.active.raw.world_ref);
+			}
 			#end
 			Scene.active.remove();
 		}
@@ -204,7 +206,7 @@ class Scene {
 				#end
 
 				#if (rp_background == "World")
-				if (format.world_datas != null) {
+				if (format.world_ref != null) {
 					RenderPath.active.loadShader("shader_datas/World_" + format.world_ref + "/World_" + format.world_ref);
 				}
 				#end
