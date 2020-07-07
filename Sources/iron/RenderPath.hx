@@ -495,6 +495,15 @@ class RenderPath {
 		});
 	}
 
+	public function unloadShader(handle: String) {
+		cachedShaderContexts.remove(handle);
+
+		// file/data_name/context
+		var shaderPath = handle.split("/");
+		// Todo: Handle context overrides (see Data.getShader())
+		Data.cachedShaders.remove(shaderPath[1]);
+	}
+
 	public function unload() { for (rt in renderTargets) rt.unload(); }
 
 	public function resize() {

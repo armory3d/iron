@@ -188,12 +188,27 @@ class Scene {
 	public static function setActive(sceneName: String, done: Object->Void = null) {
 		if (!framePassed) return;
 		framePassed = false;
-		if (Scene.active != null) Scene.active.remove();
+
+		if (Scene.active != null) {
+			#if (rp_background == "World")
+			if (Scene.active.raw.world_ref != null) {
+				RenderPath.active.unloadShader("shader_datas/World_" + Scene.active.raw.world_ref + "/World_" + Scene.active.raw.world_ref);
+			}
+			#end
+			Scene.active.remove();
+		}
+
 		Data.getSceneRaw(sceneName, function(format: TSceneFormat) {
 			Scene.create(format, function(o: Object) {
 				if (done != null) done(o);
 				#if rp_voxelao // Revoxelize
 				RenderPath.active.voxelized = 0;
+				#end
+
+				#if (rp_background == "World")
+				if (format.world_ref != null) {
+					RenderPath.active.loadShader("shader_datas/World_" + format.world_ref + "/World_" + format.world_ref);
+				}
 				#end
 			});
 		});
