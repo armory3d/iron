@@ -5,15 +5,16 @@ package iron.data;
 class Wasm {
 
 	public var exports: Dynamic;
-
-	public static function instance(blob: kha.Blob, importObject: Dynamic = null): Wasm {
-		var exports : Dynamic = (importObject == null) ? {} : importObject.exports;
-		return new Wasm(
-			new js.lib.webassembly.Instance(
-				new js.lib.webassembly.Module(blob.toBytes().getData()),
-				exports
-			).exports
-		);
+	
+	public static inline function instance(blob: kha.Blob, importObject: Dynamic = null): Wasm {
+		var data = blob.toBytes().getData();
+		var module = new js.lib.webassembly.Module(data);
+		var exports : Dynamic = if (importObject == null) {
+			new js.lib.webassembly.Instance(module).exports;
+		} else {
+			new js.lib.webassembly.Instance(module, importObject).exports;
+		}
+		return new Wasm(exports);
 	}
 
 	#if kha_html5_js
