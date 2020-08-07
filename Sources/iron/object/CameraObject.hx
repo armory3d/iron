@@ -31,20 +31,10 @@ class CameraObject extends Object {
 	static var vcenter = new Vec4();
 	static var vup = new Vec4();
 
-	#if arm_vr
-	var helpMat = Mat4.identity();
-	public var leftV = Mat4.identity();
-	public var rightV = Mat4.identity();
-	#end
-
 	public function new(data: CameraData) {
 		super();
 
 		this.data = data;
-
-		#if arm_vr
-		iron.system.VR.initButton();
-		#end
 
 		buildProjection();
 
@@ -119,25 +109,7 @@ class CameraObject extends Object {
 		}
 
 		V.getInverse(transform.world);
-
-		#if arm_vr
-		var vr = kha.vr.VrInterface.instance;
-		if (vr != null && vr.IsPresenting()) {
-			leftV.setFrom(V);
-			helpMat.self = vr.GetViewMatrix(0);
-			leftV.multmat(helpMat);
-
-			rightV.setFrom(V);
-			helpMat.self = vr.GetViewMatrix(1);
-			rightV.multmat(helpMat);
-		}
-		else {
-			leftV.setFrom(V);
-		}
-		VP.multmats(P, leftV);
-		#else
 		VP.multmats(P, V);
-		#end
 
 		if (data.raw.frustum_culling) {
 			buildViewFrustum(VP, frustumPlanes);

@@ -109,11 +109,7 @@ class LightObject extends Object {
 
 	public function setCascade(camera: CameraObject, cascade: Int) {
 
-		#if arm_vr
-		m.setFrom(camera.leftV);
-		#else
 		m.setFrom(camera.V);
-		#end
 
 		#if arm_csm
 		if (camSlicedP == null) {
