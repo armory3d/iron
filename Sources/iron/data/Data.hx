@@ -3,6 +3,7 @@ package iron.data;
 import haxe.Json;
 import iron.data.SceneFormat;
 import iron.system.ArmPack;
+import iron.system.Lz4;
 using StringTools;
 
 // Global data list and asynchronous data loading
@@ -255,13 +256,19 @@ class Data {
 		var ext = (compressed || isJson || file.endsWith(".arm")) ? "" : ".arm";
 
 		getBlob(file + ext, function(b: kha.Blob) {
+			var parsed: TSceneFormat = null;
+
+			#if arm_compress
 			if (compressed) {
-				#if arm_compress
-				#end
+				var bytes = b.toBytes();
+
+				// First 8 bytes contain data size for decoding
+				var packedSize = haxe.Int64.toInt(bytes.getInt64(0));
+
+				parsed = ArmPack.decode(Lz4.decode(bytes.sub(8, bytes.length - 8), packedSize));
 			}
 
-			var parsed: TSceneFormat = null;
-			if (isJson) {
+			else #end if (isJson) {
 				var s = b.toString();
 				parsed = s.charAt(0) == "{" ? Json.parse(s) : ArmPack.decode(b.toBytes());
 			}
