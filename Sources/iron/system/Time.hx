@@ -16,8 +16,11 @@ class Time {
 
 	static var frequency = 60;
 
-	public static function update() {
+	public static function init() {
 		frequency = kha.Display.primary != null ? kha.Display.primary.frequency : 60;
+	}
+
+	public static function update() {
 		realDelta = realTime() - last;
 		last = realTime();
 	}

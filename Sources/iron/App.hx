@@ -42,6 +42,7 @@ class App {
 	function new(_appReady: Void->Void) {
 		_appReady();
 
+		iron.system.Time.init();
 		kha.System.notifyOnFrames(render);
 		kha.Scheduler.addTimeTask(update, 0, iron.system.Time.delta);
 	}
