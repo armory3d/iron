@@ -141,7 +141,9 @@ class Uniforms {
 					for (f in externalTextureLinks) {
 						var image = f(object, currentMat(object), tulink);
 						if (image != null) {
-							g.setTexture(context.textureUnits[j], image);
+							tulink.endsWith("_depth") ?
+								g.setTextureDepth(context.textureUnits[j], image) :
+								g.setTexture(context.textureUnits[j], image);
 							// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
 							break;
 						}
