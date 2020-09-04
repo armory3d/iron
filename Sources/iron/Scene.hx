@@ -546,35 +546,44 @@ class Scene {
 			var object = addObject(parent);
 			returnObject(object, o, function(ro: Object){
 				if (o.group_ref != null) { // Instantiate group objects
-					var spawned = 0;
-					var object_refs = getGroupObjectRefs(o.group_ref);
-					if (object_refs.length == 0) done(ro);
-					else {
-						for (s in object_refs) {
-							spawnObject(s, ro, function(spawnedObject: Object) {
-								// Apply collection/group instance offset to all
-								// top-level parents of that group
-								if (!isObjectInGroup(o.group_ref, spawnedObject.parent)) {
-									for (group in format.groups) {
-										if (group.name == o.group_ref) {
-											spawnedObject.transform.translate(
-												-group.instance_offset[0],
-												-group.instance_offset[1],
-												-group.instance_offset[2]
-											);
-											break;
-										}
-									}
-								}
-								if (++spawned == object_refs.length) done(ro);
-							});
-						}
-					}
+					spawnGroup(format, o.group_ref, ro, function() { done(ro); });
 				}
 				else done(ro);
 			});
 		}
 		else done(null);
+	}
+
+	function spawnGroup(format: TSceneFormat, groupRef: String, groupOwner: Object, done: Void->Void, ?failed: Void->Void) {
+		var spawned = 0;
+		var object_refs = getGroupObjectRefs(groupRef);
+
+		if (object_refs == null) { // Group doesn't exist
+			if (failed != null) failed();
+		}
+		else if (object_refs.length == 0) done();
+		else {
+			for (object_ref in object_refs) {
+				// Spawn top-level collection objects and their children
+				spawnObject(object_ref, groupOwner, function(spawnedObject: Object) {
+					// Apply collection/group instance offset to all
+					// top-level parents of that group
+					if (!isObjectInGroup(groupRef, spawnedObject.parent)) {
+						for (group in format.groups) {
+							if (group.name == groupRef) {
+								spawnedObject.transform.translate(
+									-group.instance_offset[0],
+									-group.instance_offset[1],
+									-group.instance_offset[2]
+								);
+								break;
+							}
+						}
+					}
+					if (++spawned == object_refs.length) done();
+				});
+			}
+		}
 	}
 
 	/**
