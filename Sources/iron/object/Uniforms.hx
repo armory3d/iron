@@ -144,7 +144,7 @@ class Uniforms {
 							tulink.endsWith("_depth") ?
 								g.setTextureDepth(context.textureUnits[j], image) :
 								g.setTexture(context.textureUnits[j], image);
-							// g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 							break;
 						}
 					}
