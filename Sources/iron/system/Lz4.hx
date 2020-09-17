@@ -161,59 +161,59 @@ class Lz4 {
 		var iBuf: Uint8Array = new Uint8Array(cast b.getData());
 		var iLen = iBuf.length;
 		var oBuf = new Uint8Array(oLen);
-	    var iPos = 0;
-	    var oPos = 0;
+		var iPos = 0;
+		var oPos = 0;
 
-	    while (iPos < iLen) {
-	        var token = iBuf[iPos++];
+		while (iPos < iLen) {
+			var token = iBuf[iPos++];
 
-	        // Literals
-	        var clen = token >>> 4;
+			// Literals
+			var clen = token >>> 4;
 
-	        // Length of literals
-	        if (clen != 0) {
-	            if (clen == 15) {
-	                var l = 0;
-	                while (true) {
-	                    l = iBuf[iPos++];
-	                    if (l != 255) break;
-	                    clen += 255;
-	                }
-	                clen += l;
-	            }
+			// Length of literals
+			if (clen != 0) {
+				if (clen == 15) {
+					var l = 0;
+					while (true) {
+						l = iBuf[iPos++];
+						if (l != 255) break;
+						clen += 255;
+					}
+					clen += l;
+				}
 
-	            // Copy literals
-	            var end = iPos + clen;
-	            while (iPos < end) {
-	                oBuf[oPos++] = iBuf[iPos++];
-	            }
-	            if (iPos == iLen) break;
-	        }
+				// Copy literals
+				var end = iPos + clen;
+				while (iPos < end) {
+					oBuf[oPos++] = iBuf[iPos++];
+				}
+				if (iPos == iLen) break;
+			}
 
-	        // Match
-	        var mOffset = iBuf[iPos + 0] | (iBuf[iPos + 1] << 8);
-	        if (mOffset == 0 || mOffset > oPos) return null;
-	        iPos += 2;
+			// Match
+			var mOffset = iBuf[iPos + 0] | (iBuf[iPos + 1] << 8);
+			if (mOffset == 0 || mOffset > oPos) return null;
+			iPos += 2;
 
-	        // Length of match
-	        clen = (token & 0x0f) + 4;
-	        if (clen == 19) {
-	            var l = 0;
-	            while (true) {
-	                l = iBuf[iPos++];
-	                if (l != 255) break;
-	                clen += 255;
-	            }
-	            clen += l;
-	        }
+			// Length of match
+			clen = (token & 0x0f) + 4;
+			if (clen == 19) {
+				var l = 0;
+				while (true) {
+					l = iBuf[iPos++];
+					if (l != 255) break;
+					clen += 255;
+				}
+				clen += l;
+			}
 
-	        // Copy match
-	        var mPos = oPos - mOffset;
-	        var end = oPos + clen;
-	        while (oPos < end) {
-	            oBuf[oPos++] = oBuf[mPos++];
-	        }
-	    }
+			// Copy match
+			var mPos = oPos - mOffset;
+			var end = oPos + clen;
+			while (oPos < end) {
+				oBuf[oPos++] = oBuf[mPos++];
+			}
+		}
 
 		return Bytes.ofData(cast oBuf);
 	}
