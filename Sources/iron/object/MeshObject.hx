@@ -291,7 +291,7 @@ class MeshObject extends Object {
 			#if arm_deinterleaved
 			g.setVertexBuffers(ldata.geom.get(elems));
 			#else
-			if (ldata.geom.instanced) {
+			if (ldata.geom.instancedVB != null) {
 				g.setVertexBuffers([ldata.geom.get(elems), ldata.geom.instancedVB]);
 			}
 			else {
