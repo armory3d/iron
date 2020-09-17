@@ -588,5 +588,26 @@ class Mat4 {
 
 	public function toString(): String {
         return '[[$_00, $_10, $_20, $_30], [$_01, $_11, $_21, $_31], [$_02, $_12, $_22, $_32], [$_03, $_13, $_23, $_33]]';
-    }
+	}
+
+	public function toFloat32Array(): kha.arrays.Float32Array {
+		var array = new kha.arrays.Float32Array(16);
+		array[0] = _00;
+		array[1] = _10;
+		array[2] = _20;
+		array[3] = _30;
+		array[4] = _01;
+		array[5] = _11;
+		array[6] = _21;
+		array[7] = _31;
+		array[8] = _02;
+		array[9] = _12;
+		array[10] = _22;
+		array[11] = _32;
+		array[12] = _03;
+		array[13] = _13;
+		array[14] = _23;
+		array[15] = _33;
+		return array;
+	}
 }
