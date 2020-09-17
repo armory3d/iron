@@ -22,8 +22,8 @@
 package iron.system;
 
 import haxe.io.Bytes;
-import js.lib.Int32Array;
-import js.lib.Uint8Array;
+import kha.arrays.Uint8Array;
+import kha.arrays.Int32Array;
 
 class Lz4 {
 
@@ -35,7 +35,7 @@ class Lz4 {
 
 	public static function encode(b: Bytes): Bytes {
 		var iBuf = new Uint8Array(cast b.getData());
-		var iLen = iBuf.byteLength;
+		var iLen = iBuf.length;
 		if (iLen >= 0x7e000000) { trace("LZ4 range error"); return null; }
 
 		// "The last match must start at least 12 bytes before end of block"
@@ -45,7 +45,9 @@ class Lz4 {
 		var lastLiteralPos = iLen - 5;
 
 		if (hashTable == null) hashTable = new Int32Array(65536);
-		hashTable.fill(-65536);
+		for (i in 0...hashTable.length) {
+			hashTable[i] = -65536;
+		}
 
 		var oLen = encodeBound(iLen);
 		var oBuf = new Uint8Array(oLen);
@@ -147,12 +149,17 @@ class Lz4 {
 			oBuf[oPos++] = iBuf[anchorPos++];
 		}
 
-		return Bytes.ofData(cast new Uint8Array(oBuf.buffer, 0, oPos));
+		var out = new Uint8Array(oPos);
+		for (i in 0...oPos) {
+			out[i] = oBuf[i];
+		}
+
+		return Bytes.ofData(cast out);
 	}
 
 	public static function decode(b: Bytes, oLen: Int): Bytes {
 		var iBuf: Uint8Array = new Uint8Array(cast b.getData());
-		var iLen = iBuf.byteLength;
+		var iLen = iBuf.length;
 		var oBuf = new Uint8Array(oLen);
 	    var iPos = 0;
 	    var oPos = 0;
@@ -208,6 +215,6 @@ class Lz4 {
 	        }
 	    }
 
-		return Bytes.ofData(cast oBuf.buffer);
+		return Bytes.ofData(cast oBuf);
 	}
 }
