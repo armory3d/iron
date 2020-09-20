@@ -34,7 +34,14 @@ class Lz4 {
 	}
 
 	public static function encode(b: Bytes): Bytes {
+		#if js
 		var iBuf = new Uint8Array(cast b.getData());
+
+		#else
+		var iBuf: Uint8Array = new Uint8Array(b.length);
+		for (i in 0...b.length) iBuf[i] = b.get(i);
+		#end
+
 		var iLen = iBuf.length;
 		if (iLen >= 0x7e000000) { trace("LZ4 range error"); return null; }
 
@@ -149,16 +156,30 @@ class Lz4 {
 			oBuf[oPos++] = iBuf[anchorPos++];
 		}
 
-		var out = new Uint8Array(oPos);
-		for (i in 0...oPos) {
-			out[i] = oBuf[i];
-		}
+		#if js
+		return Bytes.ofData(untyped oBuf.subarray(0, oPos).buffer);
 
-		return Bytes.ofData(cast out);
+		#elseif hl
+		return oBuf.getData().toBytes(oPos);
+
+		#else
+		var bOut = Bytes.alloc(oPos);
+		for (i in 0...oPos) {
+			bOut.set(i, oBuf[i]);
+		}
+		return bOut;
+		#end
 	}
 
 	public static function decode(b: Bytes, oLen: Int): Bytes {
+		#if js
 		var iBuf: Uint8Array = new Uint8Array(cast b.getData());
+
+		#else
+		var iBuf: Uint8Array = new Uint8Array(b.length);
+		for (i in 0...b.length) iBuf[i] = b.get(i);
+		#end
+
 		var iLen = iBuf.length;
 		var oBuf = new Uint8Array(oLen);
 		var iPos = 0;
@@ -215,6 +236,18 @@ class Lz4 {
 			}
 		}
 
-		return Bytes.ofData(cast oBuf);
+		#if js
+		return Bytes.ofData(untyped oBuf.buffer);
+
+		#elseif hl
+		return oBuf.getData().toBytes(oBuf.length);
+
+		#else
+		var bOut = Bytes.alloc(oLen);
+		for (i in 0...oLen) {
+			bOut.set(i, oBuf[i]);
+		}
+		return bOut;
+		#end
 	}
 }
