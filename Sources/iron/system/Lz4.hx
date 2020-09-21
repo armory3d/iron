@@ -21,11 +21,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package iron.system;
 
-#if js
-
 import haxe.io.Bytes;
-import js.lib.Int32Array;
-import js.lib.Uint8Array;
+import kha.arrays.Uint8Array;
+import kha.arrays.Int32Array;
 
 class Lz4 {
 
@@ -36,8 +34,15 @@ class Lz4 {
 	}
 
 	public static function encode(b: Bytes): Bytes {
+		#if js
 		var iBuf = new Uint8Array(cast b.getData());
-		var iLen = iBuf.byteLength;
+
+		#else
+		var iBuf: Uint8Array = new Uint8Array(b.length);
+		for (i in 0...b.length) iBuf[i] = b.get(i);
+		#end
+
+		var iLen = iBuf.length;
 		if (iLen >= 0x7e000000) { trace("LZ4 range error"); return null; }
 
 		// "The last match must start at least 12 bytes before end of block"
@@ -47,7 +52,9 @@ class Lz4 {
 		var lastLiteralPos = iLen - 5;
 
 		if (hashTable == null) hashTable = new Int32Array(65536);
-		hashTable.fill(-65536);
+		for (i in 0...hashTable.length) {
+			hashTable[i] = -65536;
+		}
 
 		var oLen = encodeBound(iLen);
 		var oBuf = new Uint8Array(oLen);
@@ -149,69 +156,98 @@ class Lz4 {
 			oBuf[oPos++] = iBuf[anchorPos++];
 		}
 
-		return Bytes.ofData(cast new Uint8Array(oBuf.buffer, 0, oPos));
+		#if js
+		return Bytes.ofData(untyped oBuf.subarray(0, oPos).buffer);
+
+		#elseif hl
+		return oBuf.getData().toBytes(oPos);
+
+		#else
+		var bOut = Bytes.alloc(oPos);
+		for (i in 0...oPos) {
+			bOut.set(i, oBuf[i]);
+		}
+		return bOut;
+		#end
 	}
 
 	public static function decode(b: Bytes, oLen: Int): Bytes {
+		#if js
 		var iBuf: Uint8Array = new Uint8Array(cast b.getData());
-		var iLen = iBuf.byteLength;
+
+		#else
+		var iBuf: Uint8Array = new Uint8Array(b.length);
+		for (i in 0...b.length) iBuf[i] = b.get(i);
+		#end
+
+		var iLen = iBuf.length;
 		var oBuf = new Uint8Array(oLen);
-	    var iPos = 0;
-	    var oPos = 0;
+		var iPos = 0;
+		var oPos = 0;
 
-	    while (iPos < iLen) {
-	        var token = iBuf[iPos++];
+		while (iPos < iLen) {
+			var token = iBuf[iPos++];
 
-	        // Literals
-	        var clen = token >>> 4;
+			// Literals
+			var clen = token >>> 4;
 
-	        // Length of literals
-	        if (clen != 0) {
-	            if (clen == 15) {
-	                var l = 0;
-	                while (true) {
-	                    l = iBuf[iPos++];
-	                    if (l != 255) break;
-	                    clen += 255;
-	                }
-	                clen += l;
-	            }
+			// Length of literals
+			if (clen != 0) {
+				if (clen == 15) {
+					var l = 0;
+					while (true) {
+						l = iBuf[iPos++];
+						if (l != 255) break;
+						clen += 255;
+					}
+					clen += l;
+				}
 
-	            // Copy literals
-	            var end = iPos + clen;
-	            while (iPos < end) {
-	                oBuf[oPos++] = iBuf[iPos++];
-	            }
-	            if (iPos == iLen) break;
-	        }
+				// Copy literals
+				var end = iPos + clen;
+				while (iPos < end) {
+					oBuf[oPos++] = iBuf[iPos++];
+				}
+				if (iPos == iLen) break;
+			}
 
-	        // Match
-	        var mOffset = iBuf[iPos + 0] | (iBuf[iPos + 1] << 8);
-	        if (mOffset == 0 || mOffset > oPos) return null;
-	        iPos += 2;
+			// Match
+			var mOffset = iBuf[iPos + 0] | (iBuf[iPos + 1] << 8);
+			if (mOffset == 0 || mOffset > oPos) return null;
+			iPos += 2;
 
-	        // Length of match
-	        clen = (token & 0x0f) + 4;
-	        if (clen == 19) {
-	            var l = 0;
-	            while (true) {
-	                l = iBuf[iPos++];
-	                if (l != 255) break;
-	                clen += 255;
-	            }
-	            clen += l;
-	        }
+			// Length of match
+			clen = (token & 0x0f) + 4;
+			if (clen == 19) {
+				var l = 0;
+				while (true) {
+					l = iBuf[iPos++];
+					if (l != 255) break;
+					clen += 255;
+				}
+				clen += l;
+			}
 
-	        // Copy match
-	        var mPos = oPos - mOffset;
-	        var end = oPos + clen;
-	        while (oPos < end) {
-	            oBuf[oPos++] = oBuf[mPos++];
-	        }
-	    }
+			// Copy match
+			var mPos = oPos - mOffset;
+			var end = oPos + clen;
+			while (oPos < end) {
+				oBuf[oPos++] = oBuf[mPos++];
+			}
+		}
 
-		return Bytes.ofData(cast oBuf.buffer);
+		#if js
+		return Bytes.ofData(untyped oBuf.buffer);
+
+		#elseif hl
+		return oBuf.getData().toBytes(oBuf.length);
+
+		#else
+		var bOut = Bytes.alloc(oLen);
+		for (i in 0...oLen) {
+			bOut.set(i, oBuf[i]);
+		}
+		return bOut;
+		#end
 	}
 }
-
-#end
