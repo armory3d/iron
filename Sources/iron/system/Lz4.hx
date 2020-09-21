@@ -157,7 +157,7 @@ class Lz4 {
 		}
 
 		#if js
-		return Bytes.ofData(untyped oBuf.subarray(0, oPos).buffer);
+		return Bytes.ofData(untyped oBuf.buffer.slice(0, oPos));
 
 		#elseif hl
 		return oBuf.getData().toBytes(oPos);
