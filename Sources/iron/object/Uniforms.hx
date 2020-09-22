@@ -1070,7 +1070,7 @@ class Uniforms {
 	}
 
 	static function currentMat(object: Object): MaterialData {
-		if (object != null && Std.is(object, iron.object.MeshObject)) {
+		if (object != null && Std.isOfType(object, iron.object.MeshObject)) {
 			var mo = cast(object, MeshObject);
 			return mo.materials[mo.materialIndex];
 		}

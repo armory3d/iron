@@ -39,13 +39,13 @@ class Tween {
 			anim._comps = []; anim._x = []; anim._y = []; anim._z = []; anim._w = []; anim._normalize = [];
 			for (p in Reflect.fields(anim.props)) {
 				var val: Dynamic = Reflect.getProperty(anim.target, p);
-				if (Std.is(val, iron.math.Vec4) || Std.is(val, iron.math.Quat)) {
+				if (Std.isOfType(val, iron.math.Vec4) || Std.isOfType(val, iron.math.Quat)) {
 					anim._comps.push(4);
 					anim._x.push(val.x);
 					anim._y.push(val.y);
 					anim._z.push(val.z);
 					anim._w.push(val.w);
-					anim._normalize.push(Std.is(val, iron.math.Quat));
+					anim._normalize.push(Std.isOfType(val, iron.math.Quat));
 				}
 				else {
 					anim._comps.push(1);
@@ -90,7 +90,7 @@ class Tween {
 
 			if (a.target != null) {
 
-				if (Std.is(a.target, iron.object.Transform)) a.target.dirty = true;
+				if (Std.isOfType(a.target, iron.object.Transform)) a.target.dirty = true;
 
 				// Way too much Reflect trickery..
 				var ps = Reflect.fields(a.props);
