@@ -386,8 +386,6 @@ class Scene {
 						}
 
 						createObject(o, format, parent, parentObject, function(object: Object) {
-							trace('traversing');
-							//if (object != null) 
 							traverseObjects(object, o.children, o, done);
 							if (++objectsTraversed == objectsCount) done();
 						});
@@ -668,11 +666,7 @@ class Scene {
 	}
 
 	function streamMeshObject(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>,parent: Object, parentObj: TObj, o: TObj, done: Object->Void) {
-		trace(object_file);
 		sceneStream.add(object_file, data_ref, sceneName, armature, materials, parent, parentObj, o);
-		// TODO: Increase objectsTraversed by full children count
-		//if (o.children != null) objectsTraversed += o.children.length;
-		// Return immediately and stream progressively
 		returnObject(null, null, done);
 	}
 #end
@@ -724,7 +718,6 @@ class Scene {
 			}
 		}
 		else {
-			trace(object_file);
 			#if arm_stream
 			streamMeshObject(
 			#else
