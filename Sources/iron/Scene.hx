@@ -386,7 +386,7 @@ class Scene {
 						}
 
 						createObject(o, format, parent, parentObject, function(object: Object) {
-							if (object != null) traverseObjects(object, o.children, o, done);
+							traverseObjects(object, o.children, o, done);
 							if (++objectsTraversed == objectsCount) done();
 						});
 					}
@@ -665,11 +665,8 @@ class Scene {
 		return i;
 	}
 
-	function streamMeshObject(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, o: TObj, done: Object->Void) {
-		sceneStream.add(object_file, data_ref, sceneName, armature, materials, parent, o);
-		// TODO: Increase objectsTraversed by full children count
-		if (o.children != null) objectsTraversed += o.children.length;
-		// Return immediately and stream progressively
+	function streamMeshObject(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>,parent: Object, parentObj: TObj, o: TObj, done: Object->Void) {
+		sceneStream.add(object_file, data_ref, sceneName, armature, materials, parent, parentObj, o);
 		returnObject(null, null, done);
 	}
 #end
@@ -715,7 +712,7 @@ class Scene {
 						#else
 						returnMeshObject(
 						#end
-							object_file, data_ref, sceneName, armature, materials, parent, o, done);
+							object_file, data_ref, sceneName, armature, materials, parent, parentObject, o, done);
 					}
 				});
 			}
@@ -726,11 +723,11 @@ class Scene {
 			#else
 			returnMeshObject(
 			#end
-				object_file, data_ref, sceneName, null, materials, parent, o, done);
+				object_file, data_ref, sceneName, null, materials, parent, parentObject, o, done);
 		}
 	}
 
-	public function returnMeshObject(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, o: TObj, done: Object->Void) {
+	public function returnMeshObject(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, parentObject: TObj, o: TObj, done: Object->Void) {
 		Data.getMesh(object_file, data_ref, function(mesh: MeshData) {
 			if (mesh.isSkinned) {
 				var g = mesh.geom;

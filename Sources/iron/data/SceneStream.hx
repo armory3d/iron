@@ -31,8 +31,8 @@ class SceneStream {
 
 	public function remove() {}
 
-	public function add(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, obj: TObj) {
-		sectors[0].handles.push({object_file: object_file, data_ref: data_ref, sceneName: sceneName, armature: armature, materials: materials, parent: parent, obj: obj, object: null, loading: false});
+	public function add(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, parentObject:TObj, obj: TObj) {
+		sectors[0].handles.push({object_file: object_file, data_ref: data_ref, sceneName: sceneName, armature: armature, materials: materials, parent: parent, parentObject: parentObject, obj: obj, object: null, loading: false});
 	}
 
 	function setup(camera: CameraObject) {
@@ -71,9 +71,16 @@ class SceneStream {
 			}
 
 			if (cameraDistance < loadDistance && h.object == null && !h.loading) { // Load mesh
+				//Wait for the parent object to be added to scene
+				if(h.parent == null){
+					if(Scene.active.getChild(h.parentObject.name) == null) return;
+					h.parent = Scene.active.getChild(h.parentObject.name);
+				}
+				
+				//Start loading
 				h.loading = true;
 				loading++;
-				iron.Scene.active.returnMeshObject(h.object_file, h.data_ref, h.sceneName, h.armature, h.materials, h.parent, h.obj, function(object: Object) {
+				iron.Scene.active.returnMeshObject(h.object_file, h.data_ref, h.sceneName, h.armature, h.materials, h.parent, h.parentObject, h.obj, function(object: Object) {
 					h.object = cast(object, MeshObject);
 					h.loading = false;
 					loading--;
@@ -81,11 +88,17 @@ class SceneStream {
 				if (loading >= loadMax) return;
 			}
 			else if (cameraDistance > unloadDistance && h.object != null) { // Unload mesh
+				//remove Objects
 				h.object.remove();
 				if (h.object.data.refcount <= 0) {
 					iron.data.Data.deleteMesh(h.object_file + h.data_ref);
 				}
 				h.object = null;
+
+				//Clear Parents
+				if(h.parent.name != Scene.active.raw.name){
+					h.parent = null;
+				}
 			}
 		}
 	}
@@ -98,6 +111,7 @@ typedef TMeshHandle = {
 	var armature: Armature;
 	var materials: Vector<MaterialData>;
 	var parent: Object;
+	var parentObject: TObj;
 	var obj: TObj;
 	var object: MeshObject;
 	var loading: Bool;
