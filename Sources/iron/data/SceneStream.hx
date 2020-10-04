@@ -71,13 +71,13 @@ class SceneStream {
 			}
 
 			if (cameraDistance < loadDistance && h.object == null && !h.loading) { // Load mesh
-				//Wait for the parent object to be added to scene
-				if(h.parent == null){
-					if(Scene.active.getChild(h.parentObject.name) == null) return;
+				// Wait for the parent object to be added to scene
+				if (h.parent == null) {
+					if (Scene.active.getChild(h.parentObject.name) == null) return;
 					h.parent = Scene.active.getChild(h.parentObject.name);
 				}
-				
-				//Start loading
+
+				// Start loading
 				h.loading = true;
 				loading++;
 				iron.Scene.active.returnMeshObject(h.object_file, h.data_ref, h.sceneName, h.armature, h.materials, h.parent, h.parentObject, h.obj, function(object: Object) {
@@ -88,14 +88,14 @@ class SceneStream {
 				if (loading >= loadMax) return;
 			}
 			else if (cameraDistance > unloadDistance && h.object != null) { // Unload mesh
-				//remove Objects
+				// Remove objects
 				h.object.remove();
 				if (h.object.data.refcount <= 0) {
 					iron.data.Data.deleteMesh(h.object_file + h.data_ref);
 				}
 				h.object = null;
 
-				//Clear Parents
+				// Clear parents
 				if(h.parent.name != Scene.active.raw.name){
 					h.parent = null;
 				}

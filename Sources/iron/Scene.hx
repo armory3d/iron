@@ -665,7 +665,7 @@ class Scene {
 		return i;
 	}
 
-	function streamMeshObject(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>,parent: Object, parentObj: TObj, o: TObj, done: Object->Void) {
+	function streamMeshObject(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, parentObj: TObj, o: TObj, done: Object->Void) {
 		sceneStream.add(object_file, data_ref, sceneName, armature, materials, parent, parentObj, o);
 		returnObject(null, null, done);
 	}
