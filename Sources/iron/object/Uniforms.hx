@@ -813,6 +813,24 @@ class Uniforms {
 						m = helpMat;
 					}
 				}
+				#if rp_probes
+				case "_probeViewProjectionMatrix": {
+					helpMat.setFrom(Scene.active.probes[RenderPath.active.currentProbeIndex].camera.V);
+					helpMat.multmat(Scene.active.probes[RenderPath.active.currentProbeIndex].camera.P);
+					m = helpMat;
+				}
+				#end
+				#if arm_particles
+				case "_particleData": {
+					var mo = cast(object, MeshObject);
+					if (mo.particleOwner != null && mo.particleOwner.particleSystems != null) {
+						m = mo.particleOwner.particleSystems[mo.particleIndex].getData();
+					}
+				}
+				#end
+			}
+
+			if (m == null) {
 				if (c.link.startsWith("_biasLightWorldViewProjectionMatrixSpot")) {
 					var light = getSpot(c.link.charCodeAt(c.link.length - 1) - "0".code);
 					if (light != null) {
@@ -830,21 +848,6 @@ class Uniforms {
 						m = helpMat;
 					}
 				}
-				#if rp_probes
-				case "_probeViewProjectionMatrix": {
-					helpMat.setFrom(Scene.active.probes[RenderPath.active.currentProbeIndex].camera.V);
-					helpMat.multmat(Scene.active.probes[RenderPath.active.currentProbeIndex].camera.P);
-					m = helpMat;
-				}
-				#end
-				#if arm_particles
-				case "_particleData": {
-					var mo = cast(object, MeshObject);
-					if (mo.particleOwner != null && mo.particleOwner.particleSystems != null) {
-						m = mo.particleOwner.particleSystems[mo.particleIndex].getData();
-					}
-				}
-				#end
 			}
 
 			if (m == null && externalMat4Links != null) {
