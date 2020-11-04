@@ -35,14 +35,12 @@ class App {
 	public static var onResize: Void->Void = null;
 	#end
 
-	public static function init(_appReady: Void->Void) {
-		new App(_appReady);
+	public static function init(done: Void->Void) {
+		new App(done);
 	}
 
-	function new(_appReady: Void->Void) {
-		_appReady();
-
-		iron.system.Time.init();
+	function new(done: Void->Void) {
+		done();
 		kha.System.notifyOnFrames(render);
 		kha.Scheduler.addTimeTask(update, 0, iron.system.Time.delta);
 	}
