@@ -382,6 +382,19 @@ class Data {
 
 		loadingImages.set(file, [done]);
 
+		#if arm_image_embed
+		var imageBlob = cachedBlobs.get(file);
+		if (imageBlob != null) {
+			kha.Image.fromEncodedBytes(imageBlob.bytes, ".k", function(b: kha.Image) {
+				cachedImages.set(file, b);
+				for (f in loadingImages.get(file)) f(b);
+				loadingImages.remove(file);
+				assetsLoaded++;
+			}, null, readable);
+			return;
+		}
+		#end
+
 		kha.Assets.loadImageFromPath(resolvePath(file), readable, function(b: kha.Image) {
 			cachedImages.set(file, b);
 			for (f in loadingImages.get(file)) f(b);
