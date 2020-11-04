@@ -10,11 +10,11 @@ class Tilesheet {
 	public var tileY = 0.0;
 
 	public var raw: TTilesheetData;
-	var action: TTilesheetAction = null;
+	public var action: TTilesheetAction = null;
 	var ready: Bool;
 
-	var paused = false;
-	var frame = 0;
+	public var paused = false;
+	public var frame = 0;
 	var time = 0.0;
 	var onActionComplete: Void->Void = null;
 
