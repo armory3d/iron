@@ -12,6 +12,7 @@ class LightObject extends Object {
 
 	public var data: LightData;
 
+	#if rp_shadowmap
 	// Cascades
 	public static var cascadeCount = 1;
 	public static var cascadeSplitFactor = 0.8;
@@ -25,6 +26,7 @@ class LightObject extends Object {
 	#else
 	var camSlicedP: Mat4 = null;
 	#end
+	#end // rp_shadowmap
 
 	// Clusters
 	#if arm_clusters
@@ -47,9 +49,11 @@ class LightObject extends Object {
 	public var VP: Mat4 = Mat4.identity();
 
 	public var frustumPlanes: Array<FrustumPlane> = null;
-	static var corners: Array<Vec4> = null;
 	static var m = Mat4.identity();
 	static var eye = new Vec4();
+	#if rp_shadowmap
+	static var corners: Array<Vec4> = null;
+	#end
 
 	public function new(data: LightData) {
 		super();
@@ -60,11 +64,15 @@ class LightObject extends Object {
 		var fov = data.raw.fov;
 
 		if (type == "sun") {
+			#if rp_shadowmap
 			if (corners == null) {
 				corners = [];
 				for (i in 0...8) corners.push(new Vec4());
 			}
 			P = Mat4.identity();
+			#else
+			P = Mat4.ortho(-1, 1, -1, 1, data.raw.near_plane, data.raw.far_plane);
+			#end
 		}
 		else if (type == "point" || type == "area") {
 			P = Mat4.persp(fov, 1, data.raw.near_plane, data.raw.far_plane);
@@ -81,7 +89,25 @@ class LightObject extends Object {
 		super.remove();
 	}
 
-	static function setCorners() {
+	public function buildMatrix(camera: CameraObject) {
+		transform.buildMatrix();
+		if (data.raw.type == "sun") { // Cover camera frustum
+			#if (rp_shadowmap && !arm_csm) // Otherwise set cascades on mesh draw
+			setCascade(camera, 0);
+			#else
+			V.getInverse(transform.world);
+			updateViewFrustum(camera);
+			#end
+		}
+		else { // Point, spot, area
+			V.getInverse(transform.world);
+			updateViewFrustum(camera);
+		}
+	}
+
+	#if rp_shadowmap
+
+	static inline function setCorners() {
 		corners[0].set(-1.0, -1.0, 1.0);
 		corners[1].set(-1.0, -1.0, -1.0);
 		corners[2].set(-1.0, 1.0, 1.0);
@@ -90,19 +116,6 @@ class LightObject extends Object {
 		corners[5].set(1.0, -1.0, -1.0);
 		corners[6].set(1.0, 1.0, 1.0);
 		corners[7].set(1.0, 1.0, -1.0);
-	}
-
-	public function buildMatrix(camera: CameraObject) {
-		transform.buildMatrix();
-		if (data.raw.type == "sun") { // Cover camera frustum
-			#if (!arm_csm) // Otherwise set cascades on mesh draw
-			setCascade(camera, 0);
-			#end
-		}
-		else { // Point, spot, area
-			V.getInverse(transform.world);
-			updateViewFrustum(camera);
-		}
 	}
 
 	static inline function mix(a: Float, b: Float, f: Float): Float { return a * (1 - f) + b * f; }
@@ -230,6 +243,7 @@ class LightObject extends Object {
 		cascadeVP[cascade].setFrom(VP);
 		#end
 	}
+	#end // rp_shadowmap
 
 	function updateViewFrustum(camera: CameraObject) {
 		VP.multmats(P, V);
