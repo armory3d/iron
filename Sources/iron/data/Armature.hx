@@ -1,5 +1,7 @@
 package iron.data;
 
+#if arm_skin
+
 import iron.data.SceneFormat;
 import iron.math.Mat4;
 
@@ -67,3 +69,5 @@ typedef TAction = {
 	var bones: Array<TObj>;
 	var mats: Array<Mat4>;
 }
+
+#end

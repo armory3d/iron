@@ -63,7 +63,9 @@ class Scene {
 	#end
 	public var empties: Array<Object>;
 	public var animations: Array<Animation>;
+	#if arm_skin
 	public var armatures: Array<Armature>;
+	#end
 	var groups: Map<String, Array<Object>> = null;
 
 	public var embedded: Map<String, kha.Image>;
@@ -97,7 +99,9 @@ class Scene {
 		#end
 		empties = [];
 		animations = [];
+		#if arm_skin
 		armatures = [];
+		#end
 		embedded = new Map();
 		root = new Object();
 		root.name = "Root";
@@ -691,6 +695,7 @@ class Scene {
 		}
 
 		// Bone objects are stored in armature parent
+		#if arm_skin
 		if (parentObject != null && parentObject.bone_actions != null) {
 			var bactions: Array<TSceneFormat> = [];
 			for (ref in parentObject.bone_actions) {
@@ -717,22 +722,26 @@ class Scene {
 				});
 			}
 		}
-		else {
+		else { #end // arm_skin
 			#if arm_stream
 			streamMeshObject(
 			#else
 			returnMeshObject(
 			#end
 				object_file, data_ref, sceneName, null, materials, parent, parentObject, o, done);
+		#if arm_skin
 		}
+		#end
 	}
 
-	public function returnMeshObject(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, parentObject: TObj, o: TObj, done: Object->Void) {
+	public function returnMeshObject(object_file: String, data_ref: String, sceneName: String, armature: #if arm_skin Armature #else Null<Int> #end, materials: Vector<MaterialData>, parent: Object, parentObject: TObj, o: TObj, done: Object->Void) {
 		Data.getMesh(object_file, data_ref, function(mesh: MeshData) {
+			#if arm_skin
 			if (mesh.isSkinned) {
 				var g = mesh.geom;
 				armature != null ? g.addArmature(armature) : g.addAction(mesh.format.objects, "none");
 			}
+			#end
 			var object = addMeshObject(mesh, materials, parent);
 			#if arm_batch
 			var lod = isLod(o) || (parent != null && isLod(parent.raw));

@@ -105,6 +105,7 @@ class MeshData {
 			new MeshData(raw, function(dat: MeshData) {
 				dat.format = format;
 				// Skinned
+				#if arm_skin
 				if (raw.skin != null) {
 					dat.geom.skinBoneCounts = raw.skin.bone_count_array;
 					dat.geom.skinBoneIndices = raw.skin.bone_index_array;
@@ -113,6 +114,7 @@ class MeshData {
 					dat.geom.skeletonBoneLens = raw.skin.bone_len_array;
 					dat.geom.initSkeletonTransforms(raw.skin.transformsI);
 				}
+				#end
 				done(dat);
 			});
 		});

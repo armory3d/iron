@@ -51,6 +51,7 @@ class Geometry {
 	public var aabbMax: Vec4 = null;
 
 	// Skinned
+#if arm_skin
 	public var skinBoneCounts: Int16Array = null;
 	public var skinBoneIndices: Int16Array = null;
 	public var skinBoneWeights: Int16Array = null;
@@ -61,6 +62,7 @@ class Geometry {
 
 	public var actions: Map<String, Array<TObj>> = null;
 	public var mats: Map<String, Array<Mat4>> = null;
+#end
 
 	public function new(data: MeshData, indices: Array<Uint32Array>, materialIndices: Array<Int>, usage: Usage = null) {
 		if (usage == null) usage = Usage.StaticUsage;
@@ -291,6 +293,7 @@ class Geometry {
 	}
 
 	// Skinned
+#if arm_skin
 	public function addArmature(armature: Armature) {
 		for (a in armature.actions) {
 			addAction(a.bones, a.name);
@@ -330,6 +333,7 @@ class Geometry {
 			skeletonTransformsI.push(mi);
 		}
 	}
+#end
 
 	public function calculateAABB() {
 		aabbMin = new Vec4(-0.01, -0.01, -0.01);

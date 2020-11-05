@@ -6,14 +6,15 @@ import iron.math.Vec4;
 import iron.math.Mat4;
 import iron.math.Quat;
 import iron.data.SceneFormat;
-import iron.data.Armature;
 
 class Animation {
 
 	public var isSkinned: Bool;
 	public var isSampled: Bool;
 	public var action = "";
-	public var armature: Armature; // Bone
+	#if arm_skin
+	public var armature: iron.data.Armature; // Bone
+	#end
 
 	// Lerp
 	static var m1 = Mat4.identity();
