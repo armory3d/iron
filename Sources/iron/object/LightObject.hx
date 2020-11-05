@@ -37,6 +37,7 @@ class LightObject extends Object {
 	static inline var maxLightsCluster = 4; // Mirror shader constant
 	static inline var clusterNear = 3.0;
 	public static var lightsArray: Float32Array = null;
+	public static var lWVPSpotMatrixArray: Float32Array = null;
 	#if arm_spot
 	public static var lightsArraySpot: Float32Array = null;
 	#end
@@ -467,6 +468,48 @@ class LightObject extends Object {
 				lightsArraySpot[i * 4 + 3] = b;
 			}
 			#end
+			i++;
+		}
+	}
+
+	static var helpMat = Mat4.identity();
+	public static function updateLWVPMatrixArray(object: Object) {
+		if (lWVPSpotMatrixArray == null) {
+			lWVPSpotMatrixArray = new Float32Array(maxLightsCluster * 16);
+		}
+
+		var lights = Scene.active.lights;
+		var n = lights.length > maxLightsCluster ? maxLightsCluster : lights.length;
+		var i = 0;
+
+		for (l in lights) {
+			if (!l.visible)
+				continue;
+			if (l.data.raw.type != "spot")
+				continue;
+			if (i >= n)
+				break;
+
+			(object == null) ? helpMat.setIdentity() : helpMat.setFrom(object.transform.worldUnpack);
+			helpMat.multmat(l.VP);
+			helpMat.multmat(iron.object.Uniforms.biasMat);
+
+			lWVPSpotMatrixArray[i * 16] = helpMat._00;
+			lWVPSpotMatrixArray[i * 16 + 1] = helpMat._10;
+			lWVPSpotMatrixArray[i * 16 + 2] = helpMat._20;
+			lWVPSpotMatrixArray[i * 16 + 3] = helpMat._30;
+			lWVPSpotMatrixArray[i * 16 + 4] = helpMat._01;
+			lWVPSpotMatrixArray[i * 16 + 5] = helpMat._11;
+			lWVPSpotMatrixArray[i * 16 + 6] = helpMat._21;
+			lWVPSpotMatrixArray[i * 16 + 7] = helpMat._31;
+			lWVPSpotMatrixArray[i * 16 + 8] = helpMat._02;
+			lWVPSpotMatrixArray[i * 16 + 9] = helpMat._12;
+			lWVPSpotMatrixArray[i * 16 + 10] = helpMat._22;
+			lWVPSpotMatrixArray[i * 16 + 11] = helpMat._32;
+			lWVPSpotMatrixArray[i * 16 + 12] = helpMat._03;
+			lWVPSpotMatrixArray[i * 16 + 13] = helpMat._13;
+			lWVPSpotMatrixArray[i * 16 + 14] = helpMat._23;
+			lWVPSpotMatrixArray[i * 16 + 15] = helpMat._33;
 			i++;
 		}
 	}

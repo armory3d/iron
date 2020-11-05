@@ -992,6 +992,11 @@ class Uniforms {
 					}
 				}
 				#end
+				case "_biasLightWorldViewProjectionMatrixSpotArray":
+				{
+					LightObject.updateLWVPMatrixArray(object);
+					fa = LightObject.lWVPSpotMatrixArray;
+				}
 			}
 
 			if (fa == null && externalFloatsLinks != null) {
