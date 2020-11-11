@@ -31,6 +31,38 @@ class Quat {
 		return this;
 	}
 
+	public inline function add(q: Quat): Quat {
+		this.x += q.x;
+		this.y += q.y;
+		this.z += q.z;
+		this.w += q.w;
+		return this;
+	}
+
+	public inline function addquat(a: Quat, b: Quat): Quat {
+		this.x = a.x + b.x;
+		this.y = a.y + b.y;
+		this.z = a.z + b.z;
+		this.w = a.w + b.w;
+		return this;
+	}
+
+	public inline function sub(q: Quat): Quat {
+		this.x -= q.x;
+		this.y -= q.y;
+		this.z -= q.z;
+		this.w -= q.w;
+		return this;
+	}
+
+	public inline function subquat(a: Quat, b: Quat): Quat {
+		this.x = a.x - b.x;
+		this.y = a.y - b.y;
+		this.z = a.z - b.z;
+		this.w = a.w - b.w;
+		return this;
+	}
+
 	public inline function fromAxisAngle(axis: Vec4, angle: FastFloat): Quat {
 		var s: FastFloat = Math.sin(angle * 0.5);
 		x = axis.x * s;
@@ -102,6 +134,23 @@ class Quat {
 		return this;
 	}
 
+	// Multiply this quaternion by float.
+	public inline function scale(scale: FastFloat): Quat {
+		this.x *= scale;
+		this.y *= scale;
+		this.z *= scale;
+		this.w *= scale;
+		return this;
+	}
+
+	public inline function scalequat(q: Quat, scale: FastFloat): Quat {
+		q.x *= scale;
+		q.y *= scale;
+		q.z *= scale;
+		q.w *= scale;
+		return q;
+	}
+
 	/**
 	  Multiply this quaternion by another.
 	  @param	q The quaternion to multiply this one with.
@@ -125,6 +174,11 @@ class Quat {
 		z = q1w * q2z + q1x * q2y - q1y * q2x + q1z * q2w;
 		w = q1w * q2w - q1x * q2x - q1y * q2y - q1z * q2z;
 		return this;
+	}
+
+	// Module
+	public inline function module(): FastFloat {
+		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
 	}
 
 	/**
@@ -227,6 +281,28 @@ class Quat {
 		z = fromz + (to.z - fromz) * s;
 		w = fromw + (to.w - fromw) * s;
 		return normalize();
+	}
+	
+	// Slerp is shorthand for spherical linear interpolation
+	public inline function slerp(from: Quat, to: Quat, t: FastFloat): Quat {
+		var epsilon: Float = 0.0005;
+		
+		var dot = from.dot(to);
+		if (dot > 1 - epsilon) {
+			var result: Quat = to.add((from.sub(to)).scale(t));
+			result.normalize();
+			return result;
+		}
+		if (dot < 0) dot = 0;
+		if (dot > 1) dot = 1;
+
+		var theta0: Float = Math.acos(dot);
+		var theta: Float = theta0 * t;
+		var q2: Quat = to.sub(scale(dot));
+		q2.normalize();
+		var result: Quat = scale(Math.cos(theta)).add(q2.scale(Math.sin(theta)));		
+		result.normalize();
+		return result;
 	}
 
 	/**
