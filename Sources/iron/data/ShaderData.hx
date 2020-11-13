@@ -26,6 +26,11 @@ class ShaderData {
 
 	public var contexts: Array<ShaderContext> = [];
 
+	#if (arm_noembed && kha_krom)
+	public static var shaderPath = "../krom-resources/";
+	public static inline var shaderExt = #if kha_vulkan ".spirv" #elseif kha_opengl ".glsl" #elseif kha_metal ".metal" #else ".d3d11" #end ;
+	#end
+
 	public function new(raw: TShaderData, done: ShaderData->Void, overrideContext: TShaderOverride = null) {
 		this.raw = raw;
 		this.name = raw.name;
@@ -170,11 +175,7 @@ class ShaderContext {
 			if (raw.tesseval_shader != null) numShaders++;
 
 			function loadShader(file: String, type: Int) {
-				#if kha_opengl
-				var path = "../krom-resources/" + file + ".glsl";
-				#else
-				var path = "../krom-resources/" + file + ".d3d11";
-				#end
+				var path = ShaderData.shaderPath + file + ShaderData.shaderExt;
 				Data.getBlob(path, function(b: kha.Blob) {
 					if (type == 0) pipeState.vertexShader = new VertexShader([b], [file]);
 					else if (type == 1) pipeState.fragmentShader = new FragmentShader([b], [file]);
@@ -190,6 +191,15 @@ class ShaderContext {
 			if (raw.geometry_shader != null) loadShader(raw.geometry_shader, 2);
 			if (raw.tesscontrol_shader != null) loadShader(raw.tesscontrol_shader, 3);
 			if (raw.tesseval_shader != null) loadShader(raw.tesseval_shader, 4);
+
+			#elseif arm_shader_embed
+
+			pipeState.fragmentShader = kha.Shaders.getFragment(raw.fragment_shader);
+			pipeState.vertexShader = kha.Shaders.getVertex(raw.vertex_shader);
+			if (raw.geometry_shader != null) {
+				pipeState.geometryShader = kha.Shaders.getGeometry(raw.geometry_shader);
+			}
+			finishCompile(done);
 
 			#else
 
