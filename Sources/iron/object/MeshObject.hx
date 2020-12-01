@@ -229,6 +229,9 @@ class MeshObject extends Object {
 		var mats = materials;
 		var lod = this;
 		if (raw != null && raw.lods != null && raw.lods.length > 0) {
+			if( lod_screen_size == null ) {
+				lod_screen_size = raw.lod_screen_size;
+			}
 			computeScreenSize(Scene.active.camera);
 			initLods();
 			if (context == "voxel") {
@@ -338,8 +341,8 @@ class MeshObject extends Object {
 		// var screenVolume = rp.currentW * rp.currentH;
 		var tr = transform;
 		var volume = tr.dim.x * tr.dim.y * tr.dim.z;
-		screenSize = volume * (1.0 / cameraDistance);
-		screenSize = screenSize > 1.0 ? 1.0 : screenSize;
+		screenSize = volume * (lod_screen_size / cameraDistance);
+		screenSize = screenSize > lod_screen_size ? lod_screen_size : screenSize;
 	}
 
 	inline function initLods() {

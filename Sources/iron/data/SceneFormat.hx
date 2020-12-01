@@ -395,6 +395,7 @@ typedef TObj = {
 	@:optional public var children: Array<TObj>;
 	@:optional public var group_ref: String; // instance_type
 	@:optional public var lods: Array<TLod>;
+	@:optional public var lod_screen_size: Null<Float>;
 	@:optional public var lod_material: Null<Bool>;
 	@:optional public var traits: Array<TTrait>;
 	@:optional public var properties: Array<TProperty>;
