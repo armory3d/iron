@@ -527,8 +527,8 @@ class GamepadAxisComponent extends InputAxisComponent {
 		var leftMovY = gamepad.leftStick.movementY;
 
 		// Avoid division by zero
-		var rightTrigger = gamepad.down("r2") > 0.0 ? (gamepad.down("r2") - parent.pressure) / (1 - parent.pressure): 0.0;
-		var leftTrigger = gamepad.down("l2") > 0.0 ? (gamepad.down("r2") - parent.pressure) / (1 - parent.pressure): 0.0;
+		var rightTrigger = gamepad.down("r2") > 0.0 ? (gamepad.down("r2") - parent.pressure) / (1 - parent.pressure) : 0.0;
+		var leftTrigger = gamepad.down("l2") > 0.0 ? (gamepad.down("r2") - parent.pressure) / (1 - parent.pressure) : 0.0;
 
 		switch (positiveKey) {
 			case "right stick moved x": if (rightMovX > parent.deadzone) scale++;
