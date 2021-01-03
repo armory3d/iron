@@ -1,4 +1,4 @@
-package iron.system;
+package arm.inputmap;
 
 import kha.FastFloat;
 import iron.math.Vec4;
@@ -97,7 +97,7 @@ class InputMap {
 }
 
 class InputAction {
-	static var components: Map<InputActionComponent, String>;
+	static var components = new Map<InputActionComponent, String>();
 
 	final parent: InputMap;
 	public final index: Int;
@@ -154,7 +154,6 @@ class InputAction {
 	* @return Void
 	**/
 	public function addCustomComponent(tag: String, component: InputActionComponent): Void {
-		if (components == null) components = new Map<InputActionComponent, String>();
 		components[component] = tag;
 	}
 
@@ -487,19 +486,26 @@ class MouseAxisComponent extends InputAxisComponent {
 
 	public inline override function get(): FastFloat {
 		scale = 0.0;
-		var movX: FastFloat = mouse.movementX;
-		var movY: FastFloat = mouse.movementY;
+		var movX = mouse.movementX;
+		var movY = mouse.movementY;
+		var wheelMov = mouse.wheelDelta;
 
 		switch (positiveKey) {
 			case "moved x": if (movX > parent.deadzone) scale++;
+			case "movement x": if (movX > parent.deadzone) return movX - parent.deadzone;
 			case "moved y":	if (movY > parent.deadzone) scale++;
-			case "movement x": if (movX > parent.deadzone || movX < -parent.deadzone) return movX - parent.deadzone;
-			case "movement y": if (movY > parent.deadzone || movY < -parent.deadzone) return movY - parent.deadzone;
+			case "movement y": if (movY > parent.deadzone) return movY - parent.deadzone;
+			case "wheel moved": if (wheelMov > parent.deadzone) scale ++;
+			case "wheel movement": if (wheelMov > parent.deadzone) return wheelMov - parent.deadzone;
 			default: if (mouse.down(positiveKey)) scale++;
 		}
 		switch (negativeKey) {
 			case "moved x": if (movX < -parent.deadzone) scale--;
+			case "movement x": if (movX < -parent.deadzone) return movX + parent.deadzone;
 			case "moved y": if (movY < -parent.deadzone) scale--;
+			case "movement y": if (movY < -parent.deadzone) return movY + parent.deadzone;
+			case "wheel moved": if (wheelMov > parent.deadzone) scale --;
+			case "wheel movement": if (wheelMov > parent.deadzone) return wheelMov + parent.deadzone;
 			default: if (mouse.down(negativeKey)) scale--;
 		}
 		return scale;
@@ -530,23 +536,29 @@ class GamepadAxisComponent extends InputAxisComponent {
 
 		switch (positiveKey) {
 			case "right stick moved x": if (rightMovX > parent.deadzone) scale++;
+			case "right stick movement x": if (rightMovX > parent.deadzone) return rightMovX - parent.deadzone;
 			case "right stick moved y": if (rightMovY > parent.deadzone) scale++;
-			case "right stick movement x": if (rightMovX > parent.deadzone || rightMovX < -parent.deadzone) return rightMovX - parent.deadzone;
-			case "right stick movement y": if (rightMovY > parent.deadzone || rightMovY < -parent.deadzone) return rightMovY - parent.deadzone;
+			case "right stick movement y": if (rightMovY > parent.deadzone) return rightMovY - parent.deadzone;
 			case "left stick moved x": if (leftMovX > parent.deadzone) scale++;
+			case "left stick movement x": if (leftMovX > parent.deadzone) return leftMovX - parent.deadzone;
 			case "left stick moved y": if (leftMovY > parent.deadzone) scale++;
-			case "left stick movement x": if (leftMovX > parent.deadzone || leftMovX < -parent.deadzone) return leftMovX - parent.deadzone;
-			case "left stick movement y": if (leftMovY > parent.deadzone || leftMovY < -parent.deadzone) return leftMovY - parent.deadzone;
-			case "right trigger": return rightTrigger;
-			case "left trigger": return leftTrigger;
+			case "left stick movement y": if (leftMovY > parent.deadzone) return leftMovY - parent.deadzone;
+			case "right trigger": scale += rightTrigger;
+			case "left trigger": scale += leftTrigger;
 			default: if (gamepad.down(positiveKey) > parent.pressure) scale++;
 		}
 
 		switch (positiveKey) {
 			case "right stick moved x": if (rightMovX < -parent.deadzone) scale--;
+			case "right stick movement x": if (rightMovX < -parent.deadzone) return rightMovX + parent.deadzone;
 			case "right stick moved y": if (rightMovY < -parent.deadzone) scale--;
+			case "right stick movement y": if (rightMovY < -parent.deadzone) return rightMovY + parent.deadzone;
 			case "left stick moved x": if (leftMovX < -parent.deadzone) scale--;
+			case "left stick movement x": if (leftMovX < -parent.deadzone) return leftMovX + parent.deadzone;
 			case "left stick moved y": if (leftMovY < -parent.deadzone) scale--;
+			case "left stick movement y": if (leftMovY < -parent.deadzone) return leftMovY + parent.deadzone;
+			case "right trigger": scale -= rightTrigger;
+			case "left trigger": scale -= leftTrigger;
 			default: if (gamepad.down(positiveKey) < -parent.pressure) scale--;
 		}
 
