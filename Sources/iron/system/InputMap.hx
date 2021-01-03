@@ -1,4 +1,4 @@
-package arm.inputmap;
+package iron.system;
 
 import kha.FastFloat;
 import iron.math.Vec4;
