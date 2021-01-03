@@ -458,7 +458,7 @@ class InputAxisComponent {
 }
 
 class KeyboardAxisComponent extends InputAxisComponent {
-	final keyboard: Keyboard = Input.getKeyboard();
+	final keyboard = Input.getKeyboard();
 
 	public function new(parent: InputAxis, positiveKey: String, negativeKey: String): Void {
 		super(parent, positiveKey, negativeKey);
@@ -476,7 +476,7 @@ class KeyboardAxisComponent extends InputAxisComponent {
 }
 
 class MouseAxisComponent extends InputAxisComponent {
-	final mouse: Mouse = Input.getMouse();
+	final mouse = Input.getMouse();
 
 	public function new(parent: InputAxis, positiveKey: String, negativeKey: String): Void {
 		super(parent, positiveKey, negativeKey);
@@ -525,8 +525,8 @@ class GamepadAxisComponent extends InputAxisComponent {
 		var leftMovY = gamepad.leftStick.movementY;
 
 		// Avoid division by zero
-		var rightTrigger = gamepad.down("r2") > 0.0 ? (gamepad.down("r2") - parent.pressure) / (1 - parent.pressure): 0.0;
-		var leftTrigger = gamepad.down("l2") > 0.0 ? (gamepad.down("r2") - parent.pressure) / (1 - parent.pressure): 0.0;
+		var rightTrigger = gamepad.down("r2") > 0.0 ? (gamepad.down("r2") - parent.pressure) / (1 - parent.pressure) : 0.0;
+		var leftTrigger = gamepad.down("l2") > 0.0 ? (gamepad.down("r2") - parent.pressure) / (1 - parent.pressure) : 0.0;
 
 		switch (positiveKey) {
 			case "right stick moved x": if (rightMovX > parent.deadzone) scale++;
