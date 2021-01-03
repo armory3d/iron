@@ -16,8 +16,8 @@ class InputMap {
 	}
 
 	/**
-	* Set the current tag of this input map
-	* @param tag The "children" input components with this tag will be checked
+	* Set the tag that this input map will look for
+	* @param tag The tag name
 	* @return Void
 	**/
 	public function setCurrentTag(tag: String): Void {
@@ -25,10 +25,10 @@ class InputMap {
 	}
 
 	/**
-	* Create a new input axis in this input map
-	* @param name The name of the created input axis
-	* @param pressure The required pressure to activate triggers in the created input axis
-	* @param deadzone The minimum amount of displacement of mouse movement and gamepad sticks in the created input axis
+	* Create input axis in the input map
+	* @param name The name of the input axis
+	* @param pressure The pressure required to activate pressure sensitivity buttons
+	* @param deadzone The displacement required to activate gamepad sticks and catch mouse movement
 	* @return Void
 	**/
 	public function createAxis(name: String, ?pressure: FastFloat, ?deadzone: FastFloat): Void {
@@ -38,10 +38,10 @@ class InputMap {
 	}
 
 	/**
-	* Create a new input action in this input map
-	* @param name The name of the created input action
-	* @param pressure The required pressure to activate triggers in the created input axis
-	* @param deadzone The minimum amount of displacement of mouse movement and gamepad sticks in the created input action.
+	* Create input action in the input map
+	* @param name The name of the input action
+	* @param pressure The pressure required to activate pressure sensitivity buttons
+	* @param deadzone The displacement required to activate gamepad sticks and catch mouse movement
 	* @return Void
 	**/
 	public function createAction(name: String, ?pressure: FastFloat, ?deadzone: FastFloat): Void {
@@ -51,8 +51,8 @@ class InputMap {
 	}
 
 	/**
-	* Get an axis map present in this input map by its name
-	* @param name The name of the target input axis
+	* Get the input axis present in the input map by its name
+	* @param name The name of the input axis
 	* @return InputAxis
 	**/
 	public inline function getAxis(name: String): InputAxis {
@@ -60,8 +60,8 @@ class InputMap {
 	}
 
 	/**
-	* Get an action map present in this input map by its name
-	* @param name The name of the target input action
+	* Get the input action present in the input map by its name
+	* @param name The name of the input action
 	* @return InputAction
 	**/
 	public inline function getAction(name: String): InputAction {
@@ -69,8 +69,8 @@ class InputMap {
 	}
 
 	/**
-	* Get the vector of an axis map present in this input map by its name
-	* @param name The name of the target input axis
+	* Get the vector of the given input axis
+	* @param name The name of the input axis
 	* @return Vec4
 	**/
 	public inline function getVec(name: String): Vec4 {
@@ -78,8 +78,8 @@ class InputMap {
 	}
 
 	/**
-	* Check if the given action begins to be pressed
-	* @param name The name of the target input action
+	* Check if the given input action is started
+	* @param name The name of the input action
 	* @return Bool
 	**/
 	public inline function isActionPressed(name: String): Bool {
@@ -87,7 +87,7 @@ class InputMap {
 	}
 
 	/**
-	* Check if the given action is released
+	* Check if the given input action is released
 	* @param name The name of the target input action
 	* @return Bool
 	**/
@@ -112,10 +112,10 @@ class InputAction {
 	}
 
 	/**
-	* Add a keyboard input component to this action map
-	* @param tag The input component is checked only if its tag is the same as this action map parent
+	* Add a keyboard input component
+	* @param tag The input component tag
 	* @param key The key that should be started or released
-	* @param modifiers The keys that should be down to the specified key have effect
+	* @param modifiers The keys that should be down before activate the main key
 	* @return Void
 	**/
 	public function addKeyboardComponent(tag: String, key: String, ?modifiers): Void {
@@ -124,10 +124,10 @@ class InputAction {
 	}
 
 	/**
-	* Add a mouse input component to this action map
-	* @param tag The input component is checked only if its tag is the same as this action map parent
+	* Add a mouse input component
+	* @param tag The input component tag
 	* @param button The button that should be started or released
-	* @param modifiers The buttons that should be down to the specified key have effect
+	* @param modifiers The buttons that should be down before activate the main key
 	* @return Void
 	**/
 	public function addMouseComponent(tag: String, button: String, ?modifiers): Void {
@@ -136,10 +136,10 @@ class InputAction {
 	}
 
 	/**
-	* Add a gamepad input component to this action map
-	* @param tag The input component is checked only if its tag is the same as this action map parent
+	* Add a gamepad input component
+	* @param tag The input component tag
 	* @param button The button that should be started or released
-	* @param modifiers The buttons that should be down to the specified key have effect
+	* @param modifiers The buttons that should be down before activate the main key
 	* @return Void
 	**/
 	public function addGamepadComponent(tag: String, button: String, ?modifiers): Void {
@@ -148,9 +148,9 @@ class InputAction {
 	}
 
 	/**
-	* Add a custom input component to this action map
-	* @param component The component to be added to this action
-	* @param tag The input component is checked only if its tag is the same as this action map parent
+	* Add a custom input component
+	* @param tag The input component tag
+	* @param component The constructed input component
 	* @return Void
 	**/
 	public function addCustomComponent(tag: String, component: InputActionComponent): Void {
@@ -159,7 +159,7 @@ class InputAction {
 	}
 
 	/**
-	* Remove a component from this action map
+	* Remove an input component
 	* @param component The component to be removed
 	* @return Void
 	**/
@@ -326,11 +326,11 @@ class InputAxis {
 	}
 
 	/**
-	* Add a keyboard input component to this axis map
-	* @param position The position of this component return in the result vector ("x" or "y")
-	* @param tag The input component is checked only if its tag is the same as this axis map parent
-	* @param positiveKey The key that will increment value to this input component return
-	* @param negativeKey The key that will decrement value to this input component return
+	* Add a keyboard input component
+	* @param position The position that the added input component will be in the returned vector ("x" or "y")
+	* @param tag The input component tag
+	* @param positiveKey The key that when pressed will sum +1
+	* @param negativeKey The key that when pressed will sum -1
 	* @return Void
 	**/
 	public function addKeyboardComponent(position: String, tag: String, positiveKey: String, ?negativeKey: String): Void {
@@ -339,11 +339,11 @@ class InputAxis {
 	}
 
 	/**
-	* Add a mouse input component to this axis map
-	* @param position The position of this component return in the result vector ("x" or "y")
-	* @param tag The input component is checked only if its tag is the same as this axis map parent
-	* @param positiveButton The button that will increment value to this input component return
-	* @param negativeButton The button that will decrement value to this input component return
+	* Add a mouse input component
+	* @param position The position that the added input component will be in the returned vector ("x" or "y")
+	* @param tag The input component tag
+	* @param positiveButton The key that when pressed will sum +1
+	* @param negativeButton The key that when pressed will sum -1
 	* @return Void
 	**/
 	public function addMouseComponent(position: String, tag: String, positiveButton: String, ?negativeButton: String): Void {
@@ -352,11 +352,11 @@ class InputAxis {
 	}
 
 	/**
-	* Add a gamepad input component to this axis map
-	* @param position The position of this component return in the result vector ("x" or "y")
-	* @param tag The input component is checked only if its tag is the same as this axis map parent
-	* @param positiveButton The button that will increment value to this input component return
-	* @param negativeButton The button that will decrement value to this input component return
+	* Add a gamepad input component
+	* @param position The position that the added input component will be in the returned vector ("x" or "y")
+	* @param tag The input component tag
+	* @param positiveButton The key that when pressed will sum +1
+	* @param negativeButton The key that when pressed will sum -1
 	* @return Void
 	**/
 	public function addGamepadComponent(position: String, tag: String, positiveButton: String, ?negativeButton: String): Void {
@@ -365,10 +365,9 @@ class InputAxis {
 	}
 
 	/**
-	* Add a custom input component to this axis map
-	* @param position The position of this component return in the result vector ("x" or "y")
-	* @param tag The input component is checked only if its tag is the same as this axis map parent
-	* @param component The input component to be added to this axis map
+	* Add a custom input component
+	* @param tag The input component tag
+	* @param component The constructed input component
 	* @return Void
 	**/
 	public function addCustomComponent(position: String, tag: String, component: InputAxisComponent): Void {
@@ -379,9 +378,8 @@ class InputAxis {
 	}
 
 	/**
-	* Remove a component from this axis map
-	* @param position The position where the specified component is
-	* @param component The input component to be removed
+	* Remove an input component
+	* @param component The component to be removed
 	* @return Void
 	**/
 	public function removeComponent(position: String, component: InputAxisComponent): Void {
@@ -392,7 +390,7 @@ class InputAxis {
 	}
 
 	/**
-	* Scale the vector returned by this input axis
+	* Set the scale of the returned vector
 	* @param x The scale of the components in the position x
 	* @param y The scale of the components in the positon y
 	* @return Void
@@ -403,7 +401,7 @@ class InputAxis {
 	}
 
 	/**
-	* Normalize the vector returned by this input axis
+	* Enable the returned vector normalization
 	* @return Void
 	**/
 	public function enableNormalize(): Void {
@@ -411,7 +409,7 @@ class InputAxis {
 	}
 
 	/**
-	* Disable the normalization of the vector returned by this input axis
+	* Disable the returned vector normalization
 	* @return Void
 	**/
 	public function disableNormalize(): Void {
@@ -419,7 +417,7 @@ class InputAxis {
 	}
 
 	/**
-	* Get this input axis vector
+	* Get the input axis vector
 	* @return Void
 	**/
 	public inline function get(): Vec4 {
