@@ -423,6 +423,7 @@ typedef TObj = {
 	@:optional public var tilesheet_ref: String;
 	@:optional public var tilesheet_action_ref: String;
 	@:optional public var sampled: Null<Bool>; // Object action
+	@:optional public var is_IK_FK: Null<Bool>;//Bone IK or FK
 }
 
 #if js
