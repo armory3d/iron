@@ -479,7 +479,8 @@ class RenderPath {
 
 		// Make sure depth buffer is attached to single target only and gets released once
 		for (rt in renderTargets) {
-			if (rt.raw.width > 0 ||
+			if (rt == null ||
+				rt.raw.width > 0 ||
 				rt.depthStencilFrom == "" ||
 				rt == depthToRenderTarget.get(rt.depthStencilFrom)) {
 				continue;
@@ -487,7 +488,8 @@ class RenderPath {
 
 			var nodepth: RenderTarget = null;
 			for (rt2 in renderTargets) {
-				if (rt2.raw.width > 0 ||
+				if (rt2 == null ||
+					rt2.raw.width > 0 ||
 					rt2.depthStencilFrom != "" ||
 					depthToRenderTarget.get(rt2.raw.depth_buffer) != null) {
 					continue;
@@ -504,7 +506,7 @@ class RenderPath {
 
 		// Resize textures
 		for (rt in renderTargets) {
-			if (rt.raw.width == 0) {
+			if (rt != null && rt.raw.width == 0) {
 				rt.image.unload();
 				rt.image = createImage(rt.raw, rt.depthStencil);
 			}
@@ -512,7 +514,7 @@ class RenderPath {
 
 		// Attach depth buffers
 		for (rt in renderTargets) {
-			if (rt.depthStencilFrom != "") {
+			if (rt != null && rt.depthStencilFrom != "") {
 				rt.image.setDepthStencilFrom(depthToRenderTarget.get(rt.depthStencilFrom).image);
 			}
 		}
