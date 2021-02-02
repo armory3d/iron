@@ -279,7 +279,7 @@ class LightObject extends Object {
 	public function setCubeFace(face: Int, camera: CameraObject) {
 		// Set matrix to match cubemap face
 		eye.set(transform.worldx(), transform.worldy(), transform.worldz());
-		#if (!kha_opengl && !kha_webgl)
+		#if (!kha_opengl && !kha_webgl && !arm_shadowmap_atlas)
 		var flip = (face == 2 || face == 3) ? true : false; // Flip +Y, -Y
 		#else
 		var flip = false;
