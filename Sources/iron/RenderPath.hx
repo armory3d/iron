@@ -507,7 +507,7 @@ class RenderPath {
 		// Resize textures
 		for (rt in renderTargets) {
 			if (rt != null && rt.raw.width == 0) {
-				rt.image.unload();
+				App.notifyOnInit(rt.image.unload);
 				rt.image = createImage(rt.raw, rt.depthStencil);
 			}
 		}
