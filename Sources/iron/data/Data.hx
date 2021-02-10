@@ -56,7 +56,11 @@ class Data {
 	#end
 
 	#if arm_data_dir
+	#if krom_android
+	public static var dataPath = "data" + sep;
+	#else
 	public static var dataPath = "." + sep + "data" + sep;
+	#end
 	#else
 	public static var dataPath = "";
 	#end
