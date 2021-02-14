@@ -667,6 +667,11 @@ class Uniforms {
 					fa = LightObject.lightsArraySpot;
 				}
 				#end
+				#if arm_shadowmap_atlas
+				case "_pointLightsAtlasArray": {
+					fa = LightObject.pointLightsData;
+				}
+				#end
 				#end // arm_clusters
 				#if arm_csm
 				case "_cascadeData": {
@@ -992,6 +997,11 @@ class Uniforms {
 					}
 				}
 				#end
+				#if arm_clusters
+				case "_biasLightWorldViewProjectionMatrixSpotArray": {
+					fa = LightObject.updateLWVPMatrixArray(object, "spot");
+				}
+				#end // arm_clusters
 			}
 
 			if (fa == null && externalFloatsLinks != null) {

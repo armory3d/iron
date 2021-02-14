@@ -199,6 +199,99 @@ class RenderPath {
 		}
 		bindParams = null;
 	}
+	// allow setting a target with manual end() calling, this is to render multiple times to the same image (atlas)
+	public function setTargetStream(target:String, additional:Array<String> = null, viewportScale = 1.0) {
+		if (target == "") { // Framebuffer
+			currentD = 1;
+			currentTarget = null;
+			currentFace = -1;
+			if (isProbeCube) {
+				currentW = Scene.active.camera.renderTargetCube.width;
+				currentH = Scene.active.camera.renderTargetCube.height;
+				beginStream(frameG, Scene.active.camera.currentFace);
+			} else { // Screen, planar probe
+				currentW = iron.App.w();
+				currentH = iron.App.h();
+				if (frameScissor)
+					setFrameScissor();
+				beginStream(frameG);
+				#if arm_appwh
+				if (!isProbe) {
+					setCurrentViewport(iron.App.w(), iron.App.h());
+					setCurrentScissor(iron.App.w(), iron.App.h());
+				}
+				#end
+			}
+		} else { // Render target
+			var rt = renderTargets.get(target);
+			currentTarget = rt;
+			var additionalImages:Array<kha.Canvas> = null;
+			if (additional != null) {
+				additionalImages = [];
+				for (s in additional) {
+					var t = renderTargets.get(s);
+					additionalImages.push(t.image);
+				}
+			}
+			var targetG = rt.isCubeMap ? rt.cubeMap.g4 : rt.image.g4;
+			currentW = rt.isCubeMap ? rt.cubeMap.width : rt.image.width;
+			currentH = rt.isCubeMap ? rt.cubeMap.height : rt.image.height;
+			if (rt.is3D)
+				currentD = rt.image.depth;
+			beginStream(targetG, additionalImages, currentFace);
+		}
+		if (viewportScale != 1.0) {
+			viewportScaled = true;
+			var viewW = Std.int(currentW * viewportScale);
+			var viewH = Std.int(currentH * viewportScale);
+			currentG.viewport(0, viewH, viewW, viewH);
+			currentG.scissor(0, viewH, viewW, viewH);
+		} else if (viewportScaled) { // Reset viewport
+			viewportScaled = false;
+			setCurrentViewport(currentW, currentH);
+			setCurrentScissor(currentW, currentH);
+		}
+		bindParams = null;
+	}
+
+	inline function beginStream(g:Graphics, additionalRenderTargets:Array<kha.Canvas> = null, face = -1) {
+		currentG = g;
+		additionalTargets = additionalRenderTargets;
+		face >= 0 ? g.beginFace(face) : g.begin(additionalRenderTargets);
+	}
+
+	public function endStream() {
+		if (scissorSet) {
+			currentG.disableScissor();
+			scissorSet = false;
+		}
+		currentG.end();
+		currentG = null;
+		bindParams = null;
+	}
+
+	public function drawMeshesStream(context:String) {
+		// Single face attached
+		if (currentFace >= 0 && light != null)
+			light.setCubeFace(currentFace, Scene.active.camera);
+
+		#if arm_clusters
+		if (context == "mesh")
+			LightObject.updateClusters(Scene.active.camera);
+		#end
+
+		submitDraw(context);
+
+		#if arm_debug
+		// Callbacks to specific context
+		if (contextEvents != null) {
+			var ar = contextEvents.get(context);
+			if (ar != null)
+				for (i in 0...ar.length)
+					ar[i](currentG, i, ar.length);
+		}
+		#end
+	}
 
 	public function setDepthFrom(target: String, from: String) {
 		var rt = renderTargets.get(target);
@@ -217,6 +310,10 @@ class RenderPath {
 		currentG.end();
 		currentG = null;
 		bindParams = null;
+	}
+
+	public function setCurrentViewportWithOffset(viewW:Int, viewH:Int, offsetX: Int, offsetY: Int) {
+		currentG.viewport(iron.App.x() + offsetX, currentH - viewH + iron.App.y() - offsetY, viewW, viewH);
 	}
 
 	public function setCurrentViewport(viewW: Int, viewH: Int) {
