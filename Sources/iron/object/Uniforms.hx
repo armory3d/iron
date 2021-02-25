@@ -22,7 +22,7 @@ using StringTools;
 // Structure for setting shader uniforms
 class Uniforms {
 
-	#if (kha_opengl || kha_webgl || arm_shadowmap_atlas)
+	#if (kha_opengl || (arm_shadowmap_atlas && !kha_webgl))
 	public static var biasMat = new Mat4(
 		0.5, 0.0, 0.0, 0.5,
 		0.0, 0.5, 0.0, 0.5,
