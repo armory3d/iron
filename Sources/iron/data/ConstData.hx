@@ -69,12 +69,15 @@ class ConstData {
 	#end
 
 	public static function createSkydomeData() {
+		var pos = skydomePos;
+		var nor = skydomeNor;
+
 		#if arm_deinterleaved
+		skydomeVB = [];
+
 		var structure = new VertexStructure();
 		structure.add("pos", VertexData.Float3);
 		var structLength = Std.int(structure.byteSize() / 4);
-		var pos = skydomePos;
-		skydomeVB = [];
 		skydomeVB[0] = new VertexBuffer(Std.int(pos.length / 3), structure, Usage.StaticUsage);
 		var vertices = skydomeVB[0].lock();
 		for (i in 0...Std.int(vertices.length / structLength)) {
@@ -83,12 +86,12 @@ class ConstData {
 			vertices.set(i * structLength + 2, pos[i * 3 + 2]);
 		}
 		skydomeVB[0].unlock();
+
 		structure = new VertexStructure();
 		structure.add("nor", VertexData.Float3);
 		structLength = Std.int(structure.byteSize() / 4);
-		var nor = skydomeNor;
-		skydomeVB[1] = new VertexBuffer(Std.int(pos.length / 3), structure, Usage.StaticUsage);
-		var vertices = skydomeVB[1].lock();
+		skydomeVB[1] = new VertexBuffer(Std.int(nor.length / 3), structure, Usage.StaticUsage);
+		vertices = skydomeVB[1].lock();
 		for (i in 0...Std.int(vertices.length / structLength)) {
 			vertices.set(i * structLength, nor[i * 3]);
 			vertices.set(i * structLength + 1, nor[i * 3 + 1]);
@@ -100,8 +103,6 @@ class ConstData {
 		structure.add("pos", VertexData.Float3);
 		structure.add("nor", VertexData.Float3);
 		var structLength = Std.int(structure.byteSize() / 4);
-		var pos = skydomePos;
-		var nor = skydomeNor;
 		skydomeVB = new VertexBuffer(Std.int(pos.length / 3), structure, Usage.StaticUsage);
 		var vertices = skydomeVB.lock();
 		for (i in 0...Std.int(vertices.length / structLength)) {
