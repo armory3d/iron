@@ -314,6 +314,12 @@ class LightObject extends Object {
 			helpMat._30 = this.tileOffsetX[i];
 			helpMat._31 = this.tileOffsetY[i];
 			bias.multmat(helpMat);
+			#if (!kha_opengl)
+			helpMat.setIdentity();
+			helpMat._11 = -1.0;
+			helpMat._31 = 1.0;
+			bias.multmat(helpMat);
+			#end
 			#end
 			m.multmat(bias);
 			cascadeData[i * 16] = m._00;
@@ -558,6 +564,12 @@ class LightObject extends Object {
 				helpMat._30 = light.tileOffsetX[0];
 				helpMat._31 = light.tileOffsetY[0];
 				m.multmat(helpMat);
+				#if (!kha_opengl)
+				helpMat.setIdentity();
+				helpMat._11 = -1.0;
+				helpMat._31 = 1.0;
+				m.multmat(helpMat);
+				#end
 				#end
 
 				LWVPMatrixArray[i * 16    ] = m._00;

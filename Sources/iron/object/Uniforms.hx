@@ -22,7 +22,7 @@ using StringTools;
 // Structure for setting shader uniforms
 class Uniforms {
 
-	#if (kha_opengl || kha_webgl || arm_shadowmap_atlas)
+	#if (kha_opengl || (arm_shadowmap_atlas && !kha_webgl))
 	public static var biasMat = new Mat4(
 		0.5, 0.0, 0.0, 0.5,
 		0.0, 0.5, 0.0, 0.5,
@@ -815,6 +815,23 @@ class Uniforms {
 						object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.worldUnpack);
 						helpMat.multmat(light.VP);
 						helpMat.multmat(biasMat);
+						#if arm_shadowmap_atlas
+						// tile matrix
+						helpMat2.setIdentity();
+						// scale [0-1] coords to [0-tilescale]
+						helpMat2._00 = light.tileScale[0];
+						helpMat2._11 = light.tileScale[0];
+						// offset coordinate start from [0, 0] to [tile-start-x, tile-start-y]
+						helpMat2._30 = light.tileOffsetX[0];
+						helpMat2._31 = light.tileOffsetY[0];
+						helpMat.multmat(helpMat2);
+						#if (!kha_opengl)
+						helpMat2.setIdentity();
+						helpMat2._11 = -1.0;
+						helpMat2._31 = 1.0;
+						helpMat.multmat(helpMat2);
+						#end
+						#end
 						m = helpMat;
 					}
 				}
