@@ -551,8 +551,7 @@ class LightObject extends Object {
 				break;
 			if (discardLightCulled(light)) continue;
 			if (light.data.raw.type == type) {
-				(object == null) ? m.setIdentity() : m.setFrom(object.transform.worldUnpack);
-				m.multmat(light.VP);
+				m.setFrom(light.VP);
 				m.multmat(Uniforms.biasMat);
 				#if arm_shadowmap_atlas
 				// tile matrix
