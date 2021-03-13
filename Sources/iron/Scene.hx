@@ -419,18 +419,20 @@ class Scene {
 	}
 
 	/**
-	  Spawn a new object instance in the Scene.
-	  @param	name The String name of the Object as defined in blender.
-	  @param	parent The parent object this new object should be attached to. (Optional use null to just add to the Scene without a parent).
-	  @param	done A completion handler function to run after the spawn is complete. Example might want to change properties of the object after spawning.
-	  @param	spawnChildren Also spawn the children of the newly spawned object. (Optional default is true).
+		Spawn a new object instance in the scene.
+		@param	name The name of the object as defined in Blender.
+		@param	parent The parent object this new object should be attached to (optional, use `null` to add to the scene without a parent).
+		@param	done Function to run after the spawn is completed (optional). Useful to change properties of the object after spawning.
+		@param	spawnChildren Also spawn the children of the newly spawned object (optional, default is `true`).
+		@param	srcRaw If not `null`, spawn the object from the given scene data instead of using the scene this function is called on. Useful to spawn objects from other scenes.
 	**/
-	public function spawnObject(name: String, parent: Object, done: Object->Void, spawnChildren = true) {
+	public function spawnObject(name: String, parent: Null<Object>, done: Null<Object->Void>, spawnChildren = true, srcRaw: Null<TSceneFormat> = null) {
+		if (srcRaw == null) srcRaw = raw;
 		var objectsTraversed = 0;
-		var obj = getRawObjectByName(raw, name);
+		var obj = getRawObjectByName(srcRaw, name);
 		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
 		function spawnObjectTree(obj: TObj, parent: Object, parentObject: TObj, done: Object->Void) {
-			createObject(obj, raw, parent, parentObject, function(object: Object) {
+			createObject(obj, srcRaw, parent, parentObject, function(object: Object) {
 				if (spawnChildren && obj.children != null) {
 					for (child in obj.children) spawnObjectTree(child, object, obj, done);
 				}
