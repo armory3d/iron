@@ -264,6 +264,11 @@ typedef TTextureUnit = {
 	public var name: String;
 	@:optional public var is_image: Null<Bool>; // image2D
 	@:optional public var link: String;
+	@:optional public var addressing_u: String;
+	@:optional public var addressing_v: String;
+	@:optional public var filter_min: String;
+	@:optional public var filter_mag: String;
+	@:optional public var mipmap_filter: String;
 }
 
 #if js

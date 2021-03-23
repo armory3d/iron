@@ -140,15 +140,21 @@ class Uniforms {
 		if (externalTextureLinks != null) {
 			if (context.raw.texture_units != null) {
 				for (j in 0...context.raw.texture_units.length) {
-					var tulink = context.raw.texture_units[j].link;
-					if (tulink == null) continue;
+					var tu = context.raw.texture_units[j];
+					if (tu.link == null) continue;
+					var tuAddrU = getTextureAddressing(tu.addressing_u);
+					var tuAddrV = getTextureAddressing(tu.addressing_v);
+					var tuFilterMin = getTextureFilter(tu.filter_min);
+					var tuFilterMag = getTextureFilter(tu.filter_mag);
+					var tuMipMapFilter = getMipMapFilter(tu.mipmap_filter);
+
 					for (f in externalTextureLinks) {
-						var image = f(object, currentMat(object), tulink);
+						var image = f(object, currentMat(object), tu.link);
 						if (image != null) {
-							tulink.endsWith("_depth") ?
+							tu.link.endsWith("_depth") ?
 								g.setTextureDepth(context.textureUnits[j], image) :
 								g.setTexture(context.textureUnits[j], image);
-							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+							g.setTextureParameters(context.textureUnits[j], tuAddrU, tuAddrV, tuFilterMin, tuFilterMag, tuMipMapFilter);
 							break;
 						}
 					}
@@ -1137,4 +1143,28 @@ class Uniforms {
 		return mm2;
 	}
 	#end
+
+	static inline function getTextureAddressing(s: Null<String>): TextureAddressing {
+		return switch (s) {
+			case "clamp": TextureAddressing.Clamp;
+			case "mirror": TextureAddressing.Mirror;
+			default: TextureAddressing.Repeat;
+		}
+	}
+
+	static inline function getTextureFilter(s: Null<String>): TextureFilter {
+		return switch (s) {
+			case "anisotropic": TextureFilter.AnisotropicFilter;
+			case "point": TextureFilter.PointFilter;
+			default: TextureFilter.LinearFilter;
+		}
+	}
+
+	static inline function getMipMapFilter(s: Null<String>): MipMapFilter {
+		return switch (s) {
+			case "linear": MipMapFilter.LinearMipFilter;
+			case "point": MipMapFilter.PointMipFilter;
+			default: MipMapFilter.NoMipFilter;
+		}
+	}
 }
