@@ -312,6 +312,7 @@ typedef TWorldData = {
 	@:optional public var turbidity: Null<FastFloat>;
 	@:optional public var ground_albedo: Null<FastFloat>;
 	@:optional public var envmap: String;
+	@:optional public var nishita_density: Float32Array; // Rayleigh, Mie, ozone
 }
 
 #if js
