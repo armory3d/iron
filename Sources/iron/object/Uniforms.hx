@@ -681,7 +681,12 @@ class Uniforms {
 				#end // arm_clusters
 				#if arm_csm
 				case "_cascadeData": {
-					if (light != null) fa = light.getCascadeData();
+					for (l in Scene.active.lights) {
+						if (l.data.raw.type == "sun") {
+							fa = l.getCascadeData();
+							break;
+						}
+					}
 				}
 				#end
 			}
