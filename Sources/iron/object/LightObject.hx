@@ -14,6 +14,7 @@ class LightObject extends Object {
 
 	#if rp_shadowmap
 	#if arm_shadowmap_atlas
+	public var tileNotifyOnRemove: Void -> Void;
 	public var lightInAtlas = false;
 	public var culledLight = false;
 	public static var pointLightsData: kha.arrays.Float32Array = null;
@@ -104,6 +105,14 @@ class LightObject extends Object {
 
 	override public function remove() {
 		if (Scene.active != null) Scene.active.lights.remove(this);
+		#if rp_shadowmap
+		#if arm_shadowmap_atlas
+		if (tileNotifyOnRemove != null) {
+			tileNotifyOnRemove();
+			tileNotifyOnRemove = null;
+		}
+		#end
+		#end
 		super.remove();
 	}
 
