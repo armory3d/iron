@@ -28,6 +28,7 @@ class App {
 	static var startTime: Float;
 	public static var updateTime: Float;
 	public static var renderPathTime: Float;
+	public static var endFrameCallbacks: Array<Void->Void> = [];
 	#end
 	#if arm_resizable
 	static var lastw = -1;
@@ -87,6 +88,7 @@ class App {
 
 		#if arm_debug
 		iron.object.Animation.endFrame();
+		for (cb in endFrameCallbacks) cb();
 		updateTime = kha.Scheduler.realTime() - startTime;
 		#end
 
