@@ -1,0 +1,21 @@
+name: Krom
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Get Submodules
+      run: |
+        git clone https://github.com/armory3d/iron_examples
+        git clone --recursive https://github.com/armory3d/Kha.git --depth 1 iron_examples/mesh/Kha
+        git clone https://github.com/armory3d/iron.git --depth 1 iron_examples/mesh/Libraries/iron
+        git clone https://github.com/armory3d/nodejs_bin.git --depth 1 iron_examples/mesh/nodejs_bin
+    - name: Compile
+      run: |
+        cd iron_examples/mesh
+        nodejs_bin/node-linux64 Kha/make.js krom --shaderversion 330
