@@ -13,7 +13,7 @@ jobs:
       run: |
         git clone https://github.com/armory3d/iron_examples
         git clone --recursive https://github.com/armory3d/Kha.git --depth 1 iron_examples/mesh/Kha
-        git clone https://github.com/armory3d/iron.git --depth 1 iron_examples/mesh/Libraries/iron
+        git clone https://github.com/armory3d/iron.git --depth 1 iron_examples/iron
         git clone https://github.com/armory3d/nodejs_bin.git --depth 1 iron_examples/mesh/nodejs_bin
     - name: Compile
       run: |
