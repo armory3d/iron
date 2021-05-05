@@ -5,10 +5,7 @@ import iron.object.Object;
 class Trait {
 
 	public var name: String = "";
-	/**
-	  Object this trait belongs to.
-	**/
-	public var object: Object;
+	public var object: Object; // Object this trait belongs to
 
 	var _add: Array<Void->Void> = null;
 	var _init: Array<Void->Void> = null;

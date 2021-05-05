@@ -156,9 +156,17 @@ class Vec3 {
 		return this;
 	}
 
-	public static inline function xAxis(): Vec3 { return new Vec3(1.0, 0.0, 0.0); }
-	public static inline function yAxis(): Vec3 { return new Vec3(0.0, 1.0, 0.0); }
-	public static inline function zAxis(): Vec3 { return new Vec3(0.0, 0.0, 1.0); }
+	public static inline function xAxis(): Vec3 {
+		return new Vec3(1.0, 0.0, 0.0);
+	}
+
+	public static inline function yAxis(): Vec3 {
+		return new Vec3(0.0, 1.0, 0.0);
+	}
+
+	public static inline function zAxis(): Vec3 {
+		return new Vec3(0.0, 0.0, 1.0);
+	}
 
 	public function toString(): String {
 		return "(" + this.x + ", " + this.y + ", " + this.z + ")";

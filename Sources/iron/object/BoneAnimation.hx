@@ -86,7 +86,10 @@ class BoneAnimation extends Animation {
 	public function addBoneChild(bone: String, o: Object) {
 		if (boneChildren == null) boneChildren = new Map();
 		var ar: Array<Object> = boneChildren.get(bone);
-		if (ar == null) { ar = []; boneChildren.set(bone, ar); }
+		if (ar == null) {
+			ar = [];
+			boneChildren.set(bone, ar);
+		}
 		ar.push(o);
 	}
 
@@ -117,7 +120,10 @@ class BoneAnimation extends Animation {
 	function numParents(b: TObj): Int {
 		var i = 0;
 		var p = b.parent;
-		while (p != null) { i++; p = p.parent; }
+		while (p != null) {
+			i++;
+			p = p.parent;
+		}
 		return i;
 	}
 
@@ -210,7 +216,10 @@ class BoneAnimation extends Animation {
 
 		var lastBones = skeletonBones;
 		for (b in skeletonBones) {
-			if (b.anim != null) { updateTrack(b.anim); break; }
+			if (b.anim != null) {
+				updateTrack(b.anim);
+				break;
+			}
 		}
 		// Action has been changed by onComplete
 		if (lastBones != skeletonBones) return;
@@ -220,7 +229,10 @@ class BoneAnimation extends Animation {
 		}
 		if (blendTime > 0 && skeletonBonesBlend != null) {
 			for (b in skeletonBonesBlend) {
-				if (b.anim != null) { updateTrack(b.anim); break; }
+				if (b.anim != null) {
+					updateTrack(b.anim);
+					break;
+				}
 			}
 			for (i in 0...skeletonBonesBlend.length) {
 				updateAnimSampled(skeletonBonesBlend[i].anim, skeletonMatsBlend[i]);
@@ -253,7 +265,10 @@ class BoneAnimation extends Animation {
 
 	function multParent(i: Int, fasts: Array<Mat4>, bones: Array<TObj>, mats: Array<Mat4>) {
 		var f = fasts[i];
-		if (applyParent != null && !applyParent[i]) { f.setFrom(mats[i]); return; }
+		if (applyParent != null && !applyParent[i]) {
+			f.setFrom(mats[i]);
+			return;
+		}
 		var p = bones[i].parent;
 		var bi = getBoneIndex(p, bones);
 		(p == null || bi == -1) ? f.setFrom(mats[i]) : f.multmats(fasts[bi], mats[i]);
@@ -299,7 +314,10 @@ class BoneAnimation extends Animation {
 			if (o == null) continue;
 			if (c.type == "CHILD_OF") {
 				var m = constraintMats.get(bone);
-				if (m == null) { m = Mat4.identity(); constraintMats.set(bone, m); }
+				if (m == null) {
+					m = Mat4.identity();
+					constraintMats.set(bone, m);
+				}
 				m.setFrom(object.parent.transform.world); // Armature transform
 				m.multmat(constraintTargetsI[i]); // Roll back initial hitbox transform
 				m.multmat(o.transform.world); // Current hitbox transform
@@ -342,7 +360,10 @@ class BoneAnimation extends Animation {
 
 			if (constraintMats != null) {
 				var m = constraintMats.get(bones[i]);
-				if (m != null) { updateSkinBuffer(m, i); continue; }
+				if (m != null) {
+					updateSkinBuffer(m, i);
+					continue;
+				}
 			}
 
 			m.setFrom(matsFast[i]);
@@ -428,7 +449,10 @@ class BoneAnimation extends Animation {
 
 	public function getWorldMat(bone: TObj): Mat4 {
 		if (skeletonMats == null) return null;
-		if (applyParent == null) { applyParent = []; for (m in skeletonMats) applyParent.push(true); }
+		if (applyParent == null) {
+			applyParent = [];
+			for (m in skeletonMats) applyParent.push(true);
+		}
 		var i = getBoneIndex(bone);
 		wm.setFrom(skeletonMats[i]);
 		multParents(wm, i, skeletonBones, skeletonMats);
@@ -457,7 +481,9 @@ class BoneAnimation extends Animation {
 
 		// Distance to goal
 		var armsc = object.parent.transform.scale; // Transform goal to armature space
-		goal.x *= 1 / armsc.x; goal.y *= 1 / armsc.y; goal.z *= 1 / armsc.z;
+		goal.x *= 1 / armsc.x;
+		goal.y *= 1 / armsc.y;
+		goal.z *= 1 / armsc.z;
 		var startLoc = getWorldMat(start).getLoc();
 		startLoc.z -= getBoneLen(start.parent); // Fix this
 		var dist = Vec4.distance(goal, startLoc);

@@ -106,7 +106,10 @@ class ObjectAnimation extends Animation {
 			if (time > total) {
 				if (onComplete != null) onComplete();
 				if (loop) rewind(track);
-				else { frameIndex -= sign; paused = true; }
+				else {
+					frameIndex -= sign;
+					paused = true;
+				}
 				return;
 			}
 

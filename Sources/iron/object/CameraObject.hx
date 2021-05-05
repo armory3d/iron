@@ -89,8 +89,14 @@ class CameraObject extends Object {
 		P.setFrom(noJitterP);
 		var x = 0.0;
 		var y = 0.0;
-		if (frame % 2 == 0) { x = 0.25; y = 0.25; }
-		else { x = -0.25; y = -0.25; }
+		if (frame % 2 == 0) {
+			x = 0.25;
+			y = 0.25;
+		}
+		else {
+			x = -0.25;
+			y = -0.25;
+		}
 		P._20 += x / w;
 		P._21 += y / h;
 		frame++;
@@ -116,7 +122,10 @@ class CameraObject extends Object {
 		}
 
 		// First time setting up previous V, prevents first frame flicker
-		if (prevV == null) { prevV = Mat4.identity(); prevV.setFrom(V); }
+		if (prevV == null) {
+			prevV = Mat4.identity();
+			prevV.setFrom(V);
+		}
 	}
 
 	public static function buildViewFrustum(VP: Mat4, frustumPlanes: Array<FrustumPlane>) {
@@ -154,34 +163,51 @@ class CameraObject extends Object {
 		vcenter.setFrom(eye);
 		var f = flip ? -1.0 : 1.0;
 		switch (face) {
-		case 0: // x+
-			vcenter.addf(1.0 * f, 0.0, 0.0);
-			vup.set(0.0, -1.0 * f, 0.0);
-		case 1: // x-
-			vcenter.addf(-1.0 * f, 0.0, 0.0);
-			vup.set(0.0, -1.0 * f, 0.0);
-		case 2: // y+
-			vcenter.addf(0.0, 1.0 * f, 0.0);
-			vup.set(0.0, 0.0, 1.0 * f);
-		case 3: // y-
-			vcenter.addf(0.0, -1.0 * f, 0.0);
-			vup.set(0.0, 0.0, -1.0 * f);
-		case 4: // z+
-			vcenter.addf(0.0, 0.0, 1.0 * f);
-			vup.set(0.0, -1.0 * f, 0.0);
-		case 5: // z-
-			vcenter.addf(0.0, 0.0, -1.0 * f);
-			vup.set(0.0, -1.0 * f, 0.0);
+			case 0: // x+
+				vcenter.addf(1.0 * f, 0.0, 0.0);
+				vup.set(0.0, -1.0 * f, 0.0);
+			case 1: // x-
+				vcenter.addf(-1.0 * f, 0.0, 0.0);
+				vup.set(0.0, -1.0 * f, 0.0);
+			case 2: // y+
+				vcenter.addf(0.0, 1.0 * f, 0.0);
+				vup.set(0.0, 0.0, 1.0 * f);
+			case 3: // y-
+				vcenter.addf(0.0, -1.0 * f, 0.0);
+				vup.set(0.0, 0.0, -1.0 * f);
+			case 4: // z+
+				vcenter.addf(0.0, 0.0, 1.0 * f);
+				vup.set(0.0, -1.0 * f, 0.0);
+			case 5: // z-
+				vcenter.addf(0.0, 0.0, -1.0 * f);
+				vup.set(0.0, -1.0 * f, 0.0);
 		}
 		m.setLookAt(eye, vcenter, vup);
 	}
 
-	public inline function right(): Vec4 { return new Vec4(transform.local._00, transform.local._01, transform.local._02); }
-	public inline function up(): Vec4 { return new Vec4(transform.local._10, transform.local._11, transform.local._12); }
-	public inline function look(): Vec4 { return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22); }
-	public inline function rightWorld(): Vec4 { return new Vec4(transform.world._00, transform.world._01, transform.world._02); }
-	public inline function upWorld(): Vec4 { return new Vec4(transform.world._10, transform.world._11, transform.world._12); }
-	public inline function lookWorld(): Vec4 { return new Vec4(-transform.world._20, -transform.world._21, -transform.world._22); }
+	public inline function right(): Vec4 {
+		return new Vec4(transform.local._00, transform.local._01, transform.local._02);
+	}
+
+	public inline function up(): Vec4 {
+		return new Vec4(transform.local._10, transform.local._11, transform.local._12);
+	}
+
+	public inline function look(): Vec4 {
+		return new Vec4(-transform.local._20, -transform.local._21, -transform.local._22);
+	}
+
+	public inline function rightWorld(): Vec4 {
+		return new Vec4(transform.world._00, transform.world._01, transform.world._02);
+	}
+
+	public inline function upWorld(): Vec4 {
+		return new Vec4(transform.world._10, transform.world._11, transform.world._12);
+	}
+
+	public inline function lookWorld(): Vec4 {
+		return new Vec4(-transform.world._20, -transform.world._21, -transform.world._22);
+	}
 }
 
 class FrustumPlane {

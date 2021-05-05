@@ -201,9 +201,17 @@ class Vec4 {
 		return this;
 	}
 
-	public static inline function xAxis(): Vec4 { return new Vec4(1.0, 0.0, 0.0); }
-	public static inline function yAxis(): Vec4 { return new Vec4(0.0, 1.0, 0.0); }
-	public static inline function zAxis(): Vec4 { return new Vec4(0.0, 0.0, 1.0); }
+	public static inline function xAxis(): Vec4 {
+		return new Vec4(1.0, 0.0, 0.0);
+	}
+
+	public static inline function yAxis(): Vec4 {
+		return new Vec4(0.0, 1.0, 0.0);
+	}
+
+	public static inline function zAxis(): Vec4 {
+		return new Vec4(0.0, 0.0, 1.0);
+	}
 
 	public function toString(): String {
 		return "(" + this.x + ", " + this.y + ", " + this.z + ", " + this.w + ")";

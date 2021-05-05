@@ -457,23 +457,22 @@ class Scene {
 	}
 
 	/**
-	 * Returns an object in scene data format ('TObj') based on its name.
-	 *
-	 * Returns 'null' if the object does not exist.
-	 * @param format The raw scene data
-	 * @param name The name of the object
-	 * @return TObj
-	 */
+		Returns an object in scene data format ('TObj') based on its name.
+		Returns 'null' if the object does not exist.
+		@param format The raw scene data
+		@param name The name of the object
+		@return TObj
+	**/
 	public static function getRawObjectByName(format: TSceneFormat, name: String): TObj {
 		return traverseObjs(format.objects, name);
 	}
 
 	/**
-	 * Searches the given 'TObj' array for an object with the given name and returns that object.
-	 * @param children The array in which to search
-	 * @param name The name of the object
-	 * @return TObj
-	 */
+		Searches the given 'TObj' array for an object with the given name and returns that object.
+		@param children The array in which to search
+		@param name The name of the object
+		@return TObj
+	**/
 	static function traverseObjs(children: Array<TObj>, name: String): TObj {
 		for (o in children) {
 			if (o.name == name) return o;
@@ -567,7 +566,9 @@ class Scene {
 		if (object_refs == null) { // Group doesn't exist
 			if (failed != null) failed();
 		}
-		else if (object_refs.length == 0) done();
+		else if (object_refs.length == 0) {
+			done();
+		}
 		else {
 			for (object_ref in object_refs) {
 				// Spawn top-level collection objects and their children
@@ -593,24 +594,22 @@ class Scene {
 	}
 
 	/**
-	 * Returns all object names of the given group.
-	 *
-	 * Returns `null` if the group does not exist.
-	 * @param group_ref The name of the group
-	 * @return Array<String>
-	 */
+		Returns all object names of the given group.
+		Returns `null` if the group does not exist.
+		@param group_ref The name of the group
+		@return Array<String>
+	**/
 	function getGroupObjectRefs(group_ref: String): Array<String> {
 		for (g in active.raw.groups) if (g.name == group_ref) return g.object_refs;
 		return null;
 	}
 
 	/**
-	 * Returns all objects in scene data format (`TObj`) of the given group.
-	 *
-	 * If the group does not exist or is empty, an empty array is returned.
-	 * @param groupRef The name of the group
-	 * @return Array<TObj>
-	 */
+		Returns all objects in scene data format (`TObj`) of the given group.
+		If the group does not exist or is empty, an empty array is returned.
+		@param groupRef The name of the group
+		@return Array<TObj>
+	**/
 	function getGroupObjectsRaw(groupRef: String): Array<TObj> {
 		var objectRefs = getGroupObjectRefs(groupRef);
 		var objects: Array<TObj> = new Array<TObj>();
@@ -628,13 +627,12 @@ class Scene {
 	}
 
 	/**
-	 * Returns all child objects of the given raw object in scene data format ('TObj').
-	 *
-	 * If the object has no children, an empty array is returned.
-	 * @param rawObj The object
-	 * @param recursive (Optional) If 'true', return also children of children and so on...
-	 * @return Array<TObj>
-	 */
+		Returns all child objects of the given raw object in scene data format ('TObj').
+		If the object has no children, an empty array is returned.
+		@param rawObj The object
+		@param recursive (Optional) If 'true', return also children of children and so on...
+		@return Array<TObj>
+	**/
 	function getChildObjectsRaw(rawObj: TObj, ?recursive:Bool = true): Array<TObj> {
 		var children = rawObj.children;
 		if (children == null) return new Array<TObj>();
@@ -650,11 +648,11 @@ class Scene {
 	}
 
 	/**
-	 * Checks if an object is an element of the given group.
-	 * @param groupRef The name of the group
-	 * @param object The object
-	 * @return Bool
-	 */
+		Checks if an object is an element of the given group.
+		@param groupRef The name of the group
+		@param object The object
+		@return Bool
+	**/
 	function isObjectInGroup(groupRef: String, object: Object): Bool {
 		for (obj in getGroupObjectsRaw(groupRef)) {
 			if (obj.name == object.name) {
@@ -706,11 +704,21 @@ class Scene {
 					if (bactions.length == parentObject.bone_actions.length) {
 						var armature: Armature = null;
 						// Check if armature exists
-						for (a in armatures) if (a.uid == parent.uid) { armature = a; break; }
+						for (a in armatures) {
+							if (a.uid == parent.uid) {
+								armature = a;
+								break;
+							}
+						}
 						// Create new one
 						if (armature == null) {
 							// Unique name if armature was already instantiated for different object
-							for (a in armatures) if (a.name == parent.name) { parent.name += "." + parent.uid; break; }
+							for (a in armatures) {
+								if (a.name == parent.name) {
+									parent.name += "." + parent.uid;
+									break;
+								}
+							}
 							armature = new Armature(parent.uid, parent.name, bactions);
 							armatures.push(armature);
 						}
@@ -772,7 +780,10 @@ class Scene {
 			var actionsLoaded = 0;
 			for (i in 0...o.object_actions.length) {
 				var ref = o.object_actions[i];
-				if (ref == "null") { actionsLoaded++; continue; } // No startup action set
+				if (ref == "null") { // No startup action set
+					actionsLoaded++;
+					continue;
+				}
 				Data.getSceneRaw(ref, function(action: TSceneFormat) {
 					oactions[i] = action;
 					actionsLoaded++;
@@ -841,7 +852,8 @@ class Scene {
 
 						if (StringTools.endsWith(ptype, "Object") && pval != "") {
 							Reflect.setProperty(traitInst, pname, Scene.active.getChild(pval));
-						} else {
+						}
+						else {
 							switch (ptype) {
 								case "Vec2":
 									Reflect.setProperty(traitInst, pname, new iron.math.Vec2(pval[0], pval[1]));
@@ -853,7 +865,6 @@ class Scene {
 									Reflect.setProperty(traitInst, pname, pval);
 							}
 						}
-
 					}
 				}
 				object.addTrait(traitInst);

@@ -15,11 +15,11 @@ class LightData {
 
 	public static inline function typeToInt(s: String): Int {
 		switch (s) {
-		case "sun": return 0;
-		case "point": return 1;
-		case "spot": return 2;
-		case "area": return 3;
-		default: return 0;
+			case "sun": return 0;
+			case "point": return 1;
+			case "spot": return 2;
+			case "area": return 3;
+			default: return 0;
 		}
 	}
 

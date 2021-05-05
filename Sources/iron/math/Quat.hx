@@ -134,7 +134,7 @@ class Quat {
 		return this;
 	}
 
-	// Multiply this quaternion by float.
+	// Multiply this quaternion by float
 	public inline function scale(scale: FastFloat): Quat {
 		this.x *= scale;
 		this.y *= scale;
@@ -152,19 +152,19 @@ class Quat {
 	}
 
 	/**
-	  Multiply this quaternion by another.
-	  @param	q The quaternion to multiply this one with.
-	  @return	This quaternion.
+		Multiply this quaternion by another.
+		@param	q The quaternion to multiply this one with.
+		@return	This quaternion.
 	**/
 	public inline function mult(q: Quat): Quat {
 		return multquats(this, q);
 	}
 
 	/**
-	  Multiply two other quaternions and store the result in this one.
-	  @param	q1 The first operand.
-	  @param	q2 The second operand.
-	  @return	This quaternion.
+		Multiply two other quaternions and store the result in this one.
+		@param	q1 The first operand.
+		@param	q2 The second operand.
+		@return	This quaternion.
 	**/
 	public inline function multquats(q1: Quat, q2: Quat): Quat {
 		var q1x = q1.x; var q1y = q1.y; var q1z = q1.z; var q1w = q1.w;
@@ -176,14 +176,13 @@ class Quat {
 		return this;
 	}
 
-	// Module
 	public inline function module(): FastFloat {
 		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
 	}
 
 	/**
-	  Scale this quaternion to have a magnitude of 1.
-	  @return	This quaternion.
+		Scale this quaternion to have a magnitude of 1.
+		@return	This quaternion.
 	**/
 	public inline function normalize(): Quat {
 		var l = Math.sqrt(x * x + y * y + z * z + w * w);
@@ -204,9 +203,9 @@ class Quat {
 	}
 
 	/**
-	  Copy the rotation of another quaternion to this one.
-	  @param	q A quaternion to copy.
-	  @return	This quaternion.
+		Copy the rotation of another quaternion to this one.
+		@param	q A quaternion to copy.
+		@return	This quaternion.
 	**/
 	public inline function setFrom(q: Quat): Quat {
 		x = q.x;
@@ -217,8 +216,8 @@ class Quat {
 	}
 
 	/**
-	  Convert this quaternion to a YZX Euler.
-	  @return	A new YZX Euler that represents the same rotation as this
+		Convert this quaternion to a YZX Euler.
+		@return	A new YZX Euler that represents the same rotation as this
 				quaternion.
 	**/
 	public inline function getEuler(): Vec4 {
@@ -231,11 +230,11 @@ class Quat {
 	}
 
 	/**
-	  Set this quaternion to the rotation represented by a YZX Euler.
-	  @param	x The Euler's x component.
-	  @param	y The Euler's y component.
-	  @param	z The Euler's z component.
-	  @return	This quaternion.
+		Set this quaternion to the rotation represented by a YZX Euler.
+		@param	x The Euler's x component.
+		@param	y The Euler's y component.
+		@param	z The Euler's z component.
+		@return	This quaternion.
 	**/
 	public inline function fromEuler(x: FastFloat, y: FastFloat, z: FastFloat): Quat {
 		var f = x / 2;
@@ -256,13 +255,13 @@ class Quat {
 	}
 
 	/**
-	  Linearly interpolate between two other quaterions, and store the
-	  result in this one. This is not a so-called slerp operation.
-	  @param	from The quaterion to interpolate from.
-	  @param	to The quaterion to interpolate to.
-	  @param	s The amount to interpolate, with 0 being `from` and 1 being
+		Linearly interpolate between two other quaterions, and store the
+		result in this one. This is not a so-called slerp operation.
+		@param	from The quaterion to interpolate from.
+		@param	to The quaterion to interpolate to.
+		@param	s The amount to interpolate, with 0 being `from` and 1 being
 				`to`, and 0.5 being half way between the two.
-	  @return	This quaternion.
+		@return	This quaternion.
 	**/
 	public inline function lerp(from: Quat, to: Quat, s: FastFloat): Quat {
 		var fromx = from.x;
@@ -282,11 +281,11 @@ class Quat {
 		w = fromw + (to.w - fromw) * s;
 		return normalize();
 	}
-	
+
 	// Slerp is shorthand for spherical linear interpolation
 	public inline function slerp(from: Quat, to: Quat, t: FastFloat): Quat {
 		var epsilon: Float = 0.0005;
-		
+
 		var dot = from.dot(to);
 		if (dot > 1 - epsilon) {
 			var result: Quat = to.add((from.sub(to)).scale(t));
@@ -300,15 +299,15 @@ class Quat {
 		var theta: Float = theta0 * t;
 		var q2: Quat = to.sub(scale(dot));
 		q2.normalize();
-		var result: Quat = scale(Math.cos(theta)).add(q2.scale(Math.sin(theta)));		
+		var result: Quat = scale(Math.cos(theta)).add(q2.scale(Math.sin(theta)));
 		result.normalize();
 		return result;
 	}
 
 	/**
-	  Find the dot product of this quaternion with another.
-	  @param	q The other quaternion.
-	  @return	The dot product.
+		Find the dot product of this quaternion with another.
+		@param	q The other quaternion.
+		@return	The dot product.
 	**/
 	public inline function dot(q: Quat): FastFloat {
 		return (x * q.x) + (y * q.y) + (z * q.z) + (w * q.w);

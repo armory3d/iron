@@ -43,7 +43,10 @@ class Lz4 {
 		#end
 
 		var iLen = iBuf.length;
-		if (iLen >= 0x7e000000) { trace("LZ4 range error"); return null; }
+		if (iLen >= 0x7e000000) {
+			trace("LZ4 range error");
+			return null;
+		}
 
 		// "The last match must start at least 12 bytes before end of block"
 		var lastMatchPos = iLen - 12;

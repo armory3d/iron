@@ -162,10 +162,12 @@ class Ray {
 		if (DdN > 0) {
 			if (backfaceCulling) return null;
 			sign = 1;
-		} else if (DdN < 0) {
+		}
+		else if (DdN < 0) {
 			sign = -1;
 			DdN = -DdN;
-		} else {
+		}
+		else {
 			return null;
 		}
 

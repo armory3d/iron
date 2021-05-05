@@ -118,8 +118,13 @@ class Vec2 {
 		return this;
 	}
 
-	public static inline function xAxis(): Vec2 { return new Vec2(1.0, 0.0); }
-	public static inline function yAxis(): Vec2 { return new Vec2(0.0, 1.0); }
+	public static inline function xAxis(): Vec2 {
+		return new Vec2(1.0, 0.0);
+	}
+
+	public static inline function yAxis(): Vec2 {
+		return new Vec2(0.0, 1.0);
+	}
 
 	public function toString(): String {
 		return "(" + this.x + ", " + this.y + ")";

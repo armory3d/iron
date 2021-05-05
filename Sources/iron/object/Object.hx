@@ -30,16 +30,16 @@ class Object {
 
 	public function new() {
 		uid = uidCounter++;
-		urandom = seededRandom(); //Math.random();
+		urandom = seededRandom(); // Math.random();
 		transform = new Transform(this);
 		isEmpty = Type.getClass(this) == Object;
 		if (isEmpty && Scene.active != null) Scene.active.empties.push(this);
 	}
 
 	/**
-	  Add a game Object as a child of this game Object.
-	  @param	o The game Object instance to be added as a child.
-	  @param	parentInverse Optional (default false) change the scale of the child object to be relative to the parents 3D space or use the original scale.
+		Add a game Object as a child of this game Object.
+		@param	o The game Object instance to be added as a child.
+		@param	parentInverse Optional (default false) change the scale of the child object to be relative to the parents 3D space or use the original scale.
 	**/
 	public function addChild(o: Object, parentInverse = false) {
 		if (o.parent == this) return;
@@ -49,9 +49,9 @@ class Object {
 	}
 
 	/**
-	  Remove a child game Object from it's parentage. Does not remove the object from the scene.
-	  @param	o The game Object instance to be removed.
-	  @param	keepTransform Optional (defaut false) keep the transform given by the parent or revert to the objects default.
+		Remove a child game Object from it's parentage. Does not remove the object from the scene.
+		@param	o The game Object instance to be removed.
+		@param	keepTransform Optional (defaut false) keep the transform given by the parent or revert to the objects default.
 	**/
 	public function removeChild(o: Object, keepTransform = false) {
 		if (keepTransform) o.transform.applyParent();
@@ -61,20 +61,23 @@ class Object {
 	}
 
 	/**
-	  Removes the game object from the scene.
+		Removes the game object from the scene.
 	**/
 	public function remove() {
 		if (isEmpty && Scene.active != null) Scene.active.empties.remove(this);
 		if (animation != null) animation.remove();
 		while (children.length > 0) children[0].remove();
 		while (traits.length > 0) traits[0].remove();
-		if (parent != null) { parent.children.remove(this); parent = null; }
+		if (parent != null) {
+			parent.children.remove(this);
+			parent = null;
+		}
 	}
 
 	/**
-	  Get a child game Object of this game Object. Using the childs name property as a lookup.
-	  @param	name A string matching the name property of the game Object to fetch.
-	  @return	Object or null
+		Get a child game Object of this game Object. Using the childs name property as a lookup.
+		@param	name A string matching the name property of the game Object to fetch.
+		@return	Object or null
 	**/
 	public function getChild(name: String): Object {
 		if (this.name == name) return this;
@@ -88,15 +91,13 @@ class Object {
 	}
 
 	/**
-	 * Returns the children of the object.
-	 *
-	 * If 'recursive' is set to `false`, only direct children will be included
-	 * in the returned array. If `recursive` is `true`, children of children and
-	 * so on will be included too.
-	 *
-	 * @param recursive = false Include children of children
-	 * @return Array<Object>
-	 */
+		Returns the children of the object.
+		If 'recursive' is set to `false`, only direct children will be included
+		in the returned array. If `recursive` is `true`, children of children and
+		so on will be included too.
+		@param recursive = false Include children of children
+		@return Array<Object>
+	**/
 	public function getChildren(?recursive = false): Array<Object> {
 		if (!recursive) return children;
 
@@ -130,8 +131,8 @@ class Object {
 	}
 
 	/**
-	  Remove the Trait from the Object.
-	  @param	t The Trait to be removed from the game Object.
+		Remove the Trait from the Object.
+		@param	t The Trait to be removed from the game Object.
 	**/
 	@:access(iron.Trait)
 	public function removeTrait(t: Trait) {
@@ -163,9 +164,9 @@ class Object {
 	}
 
 	/**
-	  Get the Trait instance that is attached to this game Object.
-	  @param	c The class of type Trait to attempt to retrieve.
-	  @return	Trait or null
+		Get the Trait instance that is attached to this game Object.
+		@param	c The class of type Trait to attempt to retrieve.
+		@return	Trait or null
 	**/
 	public function getTrait<T: Trait>(c: Class<T>): T {
 		for (t in traits) if (Type.getClass(t) == cast c) return cast t;
@@ -178,7 +179,9 @@ class Object {
 		return null;
 	}
 	#else
-	public function getParentArmature(name: String): Animation { return null; }
+	public function getParentArmature(name: String): Animation {
+		return null;
+	}
 	#end
 
 	public function setupAnimation(oactions: Array<TSceneFormat> = null) {

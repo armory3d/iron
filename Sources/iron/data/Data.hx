@@ -97,10 +97,16 @@ class Data {
 	public static function getMesh(file: String, name: String, done: MeshData->Void) {
 		var handle = file + name;
 		var cached = cachedMeshes.get(handle);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingMeshes.get(handle);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingMeshes.set(handle, [done]);
 
@@ -123,10 +129,16 @@ class Data {
 	public static function getLight(file: String, name: String, done: LightData->Void) {
 		var handle = file + name;
 		var cached = cachedLights.get(handle);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingLights.get(handle);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingLights.set(handle, [done]);
 
@@ -141,10 +153,16 @@ class Data {
 	public static function getProbe(file: String, name: String, done: ProbeData->Void) {
 		var handle = file + name;
 		var cached = cachedProbes.get(handle);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingProbes.get(handle);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingProbes.set(handle, [done]);
 
@@ -159,10 +177,16 @@ class Data {
 	public static function getCamera(file: String, name: String, done: CameraData->Void) {
 		var handle = file + name;
 		var cached = cachedCameras.get(handle);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingCameras.get(handle);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingCameras.set(handle, [done]);
 
@@ -176,10 +200,16 @@ class Data {
 	public static function getMaterial(file: String, name: String, done: MaterialData->Void) {
 		var handle = file + name;
 		var cached = cachedMaterials.get(handle);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingMaterials.get(handle);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingMaterials.set(handle, [done]);
 
@@ -193,10 +223,16 @@ class Data {
 	public static function getParticle(file: String, name: String, done: ParticleData->Void) {
 		var handle = file + name;
 		var cached = cachedParticles.get(handle);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingParticles.get(handle);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingParticles.set(handle, [done]);
 
@@ -208,14 +244,23 @@ class Data {
 	}
 
 	public static function getWorld(file: String, name: String, done: WorldData->Void) {
-		if (name == null) { done(null); return; } // No world defined in scene
+		if (name == null) { // No world defined in scene
+			done(null);
+			return;
+		}
 
 		var handle = file + name;
 		var cached = cachedWorlds.get(handle);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingWorlds.get(handle);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingWorlds.set(handle, [done]);
 
@@ -231,10 +276,16 @@ class Data {
 		var cacheName = name;
 		if (overrideContext != null) cacheName += "2";
 		var cached = cachedShaders.get(cacheName); // Shader must have unique name
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingShaders.get(cacheName);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingShaders.set(cacheName, [done]);
 
@@ -247,10 +298,16 @@ class Data {
 
 	public static function getSceneRaw(file: String, done: TSceneFormat->Void) {
 		var cached = cachedSceneRaws.get(file);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingSceneRaws.get(file);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingSceneRaws.set(file, [done]);
 
@@ -351,10 +408,16 @@ class Data {
 	// Raw assets
 	public static function getBlob(file: String, done: kha.Blob->Void) {
 		var cached = cachedBlobs.get(file); // Is already cached
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingBlobs.get(file); // Is already being loaded
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingBlobs.set(file, [done]); // Start loading
 
@@ -379,10 +442,16 @@ class Data {
 		#end
 
 		var cached = cachedImages.get(file);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingImages.get(file);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingImages.set(file, [done]);
 
@@ -426,10 +495,16 @@ class Data {
 		#end
 
 		var cached = cachedSounds.get(file);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingSounds.get(file);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingSounds.set(file, [done]);
 
@@ -462,10 +537,16 @@ class Data {
 		file = file.substring(0, file.length - 4) + ".webm";
 		#end
 		var cached = cachedVideos.get(file);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingVideos.get(file);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingVideos.set(file, [done]);
 
@@ -486,10 +567,16 @@ class Data {
 
 	public static function getFont(file: String, done: kha.Font->Void) {
 		var cached = cachedFonts.get(file);
-		if (cached != null) { done(cached); return; }
+		if (cached != null) {
+			done(cached);
+			return;
+		}
 
 		var loading = loadingFonts.get(file);
-		if (loading != null) { loading.push(done); return; }
+		if (loading != null) {
+			loading.push(done);
+			return;
+		}
 
 		loadingFonts.set(file, [done]);
 

@@ -213,7 +213,10 @@ class RenderPath {
 	}
 
 	inline function end() {
-		if (scissorSet) { currentG.disableScissor(); scissorSet = false; }
+		if (scissorSet) {
+			currentG.disableScissor();
+			scissorSet = false;
+		}
 		currentG.end();
 		currentG = null;
 		bindParams = null;
@@ -259,7 +262,9 @@ class RenderPath {
 		}
 		#else
 		if (colorFlag == -1) { // -1 == 0xffffffff
-			if (Scene.active.world != null) colorFlag = Scene.active.world.raw.background_color;
+			if (Scene.active.world != null) {
+				colorFlag = Scene.active.world.raw.background_color;
+			}
 			else if (Scene.active.camera != null) {
 				var cc = Scene.active.camera.data.raw.clear_color;
 				if (cc != null) colorFlag = kha.Color.fromFloats(cc[0], cc[1], cc[2]);
@@ -413,7 +418,10 @@ class RenderPath {
 	#end
 
 	public function bindTarget(target: String, uniform: String) {
-		if (bindParams != null) { bindParams.push(target); bindParams.push(uniform); }
+		if (bindParams != null) {
+			bindParams.push(target);
+			bindParams.push(uniform);
+		}
 		else bindParams = [target, uniform];
 	}
 
@@ -449,7 +457,10 @@ class RenderPath {
 	public function loadShader(handle: String) {
 		loading++;
 		var cc: CachedShaderContext = cachedShaderContexts.get(handle);
-		if (cc != null) { loading--; return; }
+		if (cc != null) {
+			loading--;
+			return;
+		}
 
 		cc = new CachedShaderContext();
 		cachedShaderContexts.set(handle, cc);
@@ -476,7 +487,9 @@ class RenderPath {
 		Data.cachedShaders.remove(shaderPath[1]);
 	}
 
-	public function unload() { for (rt in renderTargets) rt.unload(); }
+	public function unload() {
+		for (rt in renderTargets) rt.unload();
+	}
 
 	public function resize() {
 		if (kha.System.windowWidth() == 0 || kha.System.windowHeight() == 0) return;
@@ -624,23 +637,23 @@ class RenderPath {
 
 	inline function getTextureFormat(s: String): TextureFormat {
 		switch (s) {
-		case "RGBA32": return TextureFormat.RGBA32;
-		case "RGBA64": return TextureFormat.RGBA64;
-		case "RGBA128": return TextureFormat.RGBA128;
-		case "DEPTH16": return TextureFormat.DEPTH16;
-		case "R32": return TextureFormat.A32;
-		case "R16": return TextureFormat.A16;
-		case "R8": return TextureFormat.L8;
-		default: return TextureFormat.RGBA32;
+			case "RGBA32": return TextureFormat.RGBA32;
+			case "RGBA64": return TextureFormat.RGBA64;
+			case "RGBA128": return TextureFormat.RGBA128;
+			case "DEPTH16": return TextureFormat.DEPTH16;
+			case "R32": return TextureFormat.A32;
+			case "R16": return TextureFormat.A16;
+			case "R8": return TextureFormat.L8;
+			default: return TextureFormat.RGBA32;
 		}
 	}
 
 	inline function getDepthStencilFormat(s: String): DepthStencilFormat {
 		if (s == null || s == "") return DepthStencilFormat.DepthOnly;
 		switch (s) {
-		case "DEPTH24": return DepthStencilFormat.DepthOnly;
-		case "DEPTH16": return DepthStencilFormat.Depth16;
-		default: return DepthStencilFormat.DepthOnly;
+			case "DEPTH24": return DepthStencilFormat.DepthOnly;
+			case "DEPTH16": return DepthStencilFormat.Depth16;
+			default: return DepthStencilFormat.DepthOnly;
 		}
 	}
 

@@ -20,9 +20,9 @@ class LightObject extends Object {
 	public static var pointLightsData: kha.arrays.Float32Array = null;
 	public var shadowMapScale = 0.0;
 	// Data used in uniforms
-	public var tileOffsetX: Array<Float> = [ 0.0 ];
-	public var tileOffsetY: Array<Float> = [ 0.0 ];
-	public var tileScale: Array<Float> = [ 1.0 ];
+	public var tileOffsetX: Array<Float> = [0.0];
+	public var tileOffsetY: Array<Float> = [0.0];
+	public var tileScale: Array<Float> = [1.0];
 	#end
 	// Cascades
 	public static var cascadeCount = 1;
@@ -145,10 +145,11 @@ class LightObject extends Object {
 		corners[7].set(1.0, 1.0, -1.0);
 	}
 
-	static inline function mix(a: Float, b: Float, f: Float): Float { return a * (1 - f) + b * f; }
+	static inline function mix(a: Float, b: Float, f: Float): Float {
+		return a * (1 - f) + b * f;
+	}
 
 	public function setCascade(camera: CameraObject, cascade: Int) {
-
 		m.setFrom(camera.V);
 
 		#if arm_csm
@@ -358,18 +359,18 @@ class LightObject extends Object {
 
 	#if arm_clusters
 
-	// centralize discarding conditions when iterating over lights
-	// important to avoid issues later with "misaligned" data in uniforms (lightsArray, clusterData, LWVPSpotArray)
+	// Centralize discarding conditions when iterating over lights
+	// Important to avoid issues later with "misaligned" data in uniforms (lightsArray, clusterData, LWVPSpotArray)
 	public inline static function discardLight(light: LightObject) {
 		return !light.visible || light.data.raw.strength == 0.0 || light.data.raw.type == "sun";
 	}
-	// discarding conditions but with culling included
+	// Discarding conditions but with culling included
 	public inline static function discardLightCulled(light: LightObject) {
 		return #if arm_shadowmap_atlas light.culledLight || #end discardLight(light);
 	}
 
 	#if (arm_shadowmap_atlas && arm_shadowmap_atlas_lod)
-	// arbitrary function to map from [0-16] to [1.0-0.0]
+	// Arbitrary function to map from [0-16] to [1.0-0.0]
 	public inline static function zToShadowMapScale(z: Int, max: Int): Float {
  		return 0.25 * Math.sqrt(-z + max);
 	}
@@ -475,9 +476,10 @@ class LightObject extends Object {
 			#if arm_shadowmap_atlas
 			l.culledLight = maxZ < 0 || minX > maxX || minY > maxY;
 			l.shadowMapScale = l.culledLight ? 0.0 : #if arm_shadowmap_atlas_lod zToShadowMapScale(minZ, slicesZ) #else 1.0 #end;
-			// discard lights that are outside of the view
-			if (l.culledLight)
+			// Discard lights that are outside of the view
+			if (l.culledLight) {
 				continue;
+			}
 			#end
 			// Mark affected clusters
 			for (z in minZ...maxZ + 1) {
@@ -563,8 +565,9 @@ class LightObject extends Object {
 		var i = 0;
 
 		for (light in lights) {
-			if (i >= n)
+			if (i >= n) {
 				break;
+			}
 			if (discardLightCulled(light)) continue;
 			if (light.data.raw.type == type) {
 				m.setFrom(light.VP);
@@ -638,7 +641,15 @@ class LightObject extends Object {
 	}
 	#end // arm_clusters
 
-	public inline function right(): Vec4 { return new Vec4(V._00, V._10, V._20); }
-	public inline function up(): Vec4 { return new Vec4(V._01, V._11, V._21); }
-	public inline function look(): Vec4 { return new Vec4(V._02, V._12, V._22); }
+	public inline function right(): Vec4 {
+		return new Vec4(V._00, V._10, V._20);
+	}
+
+	public inline function up(): Vec4 {
+		return new Vec4(V._01, V._11, V._21);
+	}
+
+	public inline function look(): Vec4 {
+		return new Vec4(V._02, V._12, V._22);
+	}
 }

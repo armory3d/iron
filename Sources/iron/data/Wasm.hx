@@ -5,15 +5,13 @@ package iron.data;
 class Wasm {
 
 	public var exports: Dynamic;
-	
+
 	public static inline function instance(blob: kha.Blob, importObject: Dynamic = null): Wasm {
 		var data = blob.toBytes().getData();
 		var module = new js.lib.webassembly.Module(data);
-		var exports : Dynamic = if (importObject == null) {
-			new js.lib.webassembly.Instance(module).exports;
-		} else {
+		var exports: Dynamic = importObject == null ?
+			new js.lib.webassembly.Instance(module).exports :
 			new js.lib.webassembly.Instance(module, importObject).exports;
-		}
 		return new Wasm(exports);
 	}
 
@@ -21,18 +19,20 @@ class Wasm {
 	public static function instantiateStreaming(blob: kha.Blob, importObject: Dynamic = null, done: Wasm->Void) {
 		js.lib.WebAssembly.instantiateStreaming(new js.html.Response(blob.toBytes().getData(), {
 			headers: new js.html.Headers({"Content-Type": "application/wasm"})
-		} ), importObject ).then( m -> done(new Wasm(m.instance.exports)));
+		}), importObject).then(m -> done(new Wasm(m.instance.exports)));
 	}
 	#end
 
-	function new( exports : Dynamic ) {
+	function new(exports: Dynamic) {
 		this.exports = exports;
 	}
 
 	public function getString(i: Int): String { // Retrieve string from memory pointer
 		var mem = getMemory(i, 32);
 		var s = "";
-		for (i in 0...32) { mem[i] == 0 ? break : s += String.fromCharCode(mem[i]); }
+		for (i in 0...32) {
+			mem[i] == 0 ? break : s += String.fromCharCode(mem[i]);
+		}
 		return s;
 	}
 

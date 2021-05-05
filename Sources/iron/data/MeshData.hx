@@ -18,7 +18,6 @@ class MeshData {
 	public var handle: String; // Handle used to retrieve this object in Data
 	public var scalePos: kha.FastFloat = 1.0;
 	public var scaleTex: kha.FastFloat = 1.0;
-
 	public var isSkinned: Bool;
 
 	public function new(raw: TMeshData, done: MeshData->Void) {

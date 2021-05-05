@@ -170,7 +170,10 @@ class Particle {
 	public var y = 0.0;
 	public var z = 0.0;
 	public var cameraDistance: Float;
-	public function new(i: Int) { this.i = i; }
+
+	public function new(i: Int) {
+		this.i = i;
+	}
 }
 
 #end

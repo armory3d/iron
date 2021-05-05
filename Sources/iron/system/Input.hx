@@ -120,7 +120,10 @@ class VirtualInput {
 	function upVirtual(button: String) {
 		if (virtualButtons != null) {
 			var vb = virtualButtons.get(button);
-			if (vb != null) { vb.down = false; vb.released = true; }
+			if (vb != null) {
+				vb.down = false;
+				vb.released = true;
+			}
 		}
 	}
 }
@@ -215,7 +218,10 @@ class Mouse extends VirtualInput {
 		this.x = x;
 		this.y = y;
 		#if (kha_android || kha_ios || kha_webgl) // For movement delta using touch
-		if (index == 0) { lastX = x; lastY = y; }
+		if (index == 0) {
+			lastX = x;
+			lastY = y;
+		}
 		#end
 
 		downVirtual(buttons[index]);
@@ -231,7 +237,10 @@ class Mouse extends VirtualInput {
 	}
 
 	function moveListener(x: Int, y: Int, movementX: Int, movementY: Int) {
-		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
+		if (lastX == -1.0 && lastY == -1.0) { // First frame init
+			lastX = x;
+			lastY = y;
+		}
 		if (locked) {
 			// Can be called multiple times per frame
 			this.movementX += movementX;
@@ -254,8 +263,10 @@ class Mouse extends VirtualInput {
 
 	#if (kha_android || kha_ios)
 	public function onTouchDown(index: Int, x: Int, y: Int) {
-		// Two fingers down - right mouse button
-		if (index == 1) { upListener(0, x, y); downListener(1, x, y); }
+		if (index == 1) { // Two fingers down - right mouse button
+			upListener(0, x, y);
+			downListener(1, x, y);
+		}
 	}
 
 	public function onTouchUp(index: Int, x: Int, y: Int) {
@@ -265,8 +276,13 @@ class Mouse extends VirtualInput {
 	public function onTouchMove(index: Int, x: Int, y: Int) {}
 	#end
 
-	inline function get_viewX(): Float { return x - iron.App.x(); }
-	inline function get_viewY(): Float { return y - iron.App.y(); }
+	inline function get_viewX(): Float {
+		return x - iron.App.x();
+	}
+
+	inline function get_viewY(): Float {
+		return y - iron.App.y();
+	}
 }
 
 class Pen extends VirtualInput {
@@ -338,7 +354,10 @@ class Pen extends VirtualInput {
 	}
 
 	function moveListener(x: Int, y: Int, pressure: Float) {
-		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
+		if (lastX == -1.0 && lastY == -1.0) { // First frame init
+			lastX = x;
+			lastY = y;
+		}
 		this.movementX = x - lastX;
 		this.movementY = y - lastY;
 		lastX = x;
@@ -350,8 +369,13 @@ class Pen extends VirtualInput {
 		connected = true;
 	}
 
-	inline function get_viewX(): Float { return x - iron.App.x(); }
-	inline function get_viewY(): Float { return y - iron.App.y(); }
+	inline function get_viewX(): Float {
+		return x - iron.App.x();
+	}
+
+	inline function get_viewY(): Float {
+		return y - iron.App.y();
+	}
 }
 
 class Keyboard extends VirtualInput {
@@ -396,36 +420,36 @@ class Keyboard extends VirtualInput {
 	}
 
 	/**
-	  Check if a key is currently pressed.
-	  @param	key A String representing the physical keyboard key to check.
-	  @return	Bool. Returns true or false depending on the keyboard state.
+		Check if a key is currently pressed.
+		@param	key A String representing the physical keyboard key to check.
+		@return	Bool. Returns true or false depending on the keyboard state.
 	**/
 	public function down(key: String): Bool {
 		return keysDown.get(key);
 	}
 
 	/**
-	  Check if a key has started being pressed down. Will only be run once until the key is released and pressed again.
-	  @param	key A String representing the physical keyboard key to check.
-	  @return	Bool. Returns true or false depending on the keyboard state.
+		Check if a key has started being pressed down. Will only be run once until the key is released and pressed again.
+		@param	key A String representing the physical keyboard key to check.
+		@return	Bool. Returns true or false depending on the keyboard state.
 	**/
 	public function started(key: String): Bool {
 		return keysStarted.get(key);
 	}
 
 	/**
-	  Check if a key has been released from being pressed down. Will only be run once until the key is pressed again and release again.
-	  @param	key A String representing the physical keyboard key to check.
-	  @return	Bool. Returns true or false depending on the keyboard state.
+		Check if a key has been released from being pressed down. Will only be run once until the key is pressed again and release again.
+		@param	key A String representing the physical keyboard key to check.
+		@return	Bool. Returns true or false depending on the keyboard state.
 	**/
 	public function released(key: String): Bool {
 		return keysReleased.get(key);
 	}
 
 	/**
-	  Check every repeat period if a key is currently pressed.
-	  @param	key A String representing the physical keyboard key to check.
-	  @return	Bool. Returns true or false depending on the keyboard state.
+		Check every repeat period if a key is currently pressed.
+		@param	key A String representing the physical keyboard key to check.
+		@return	Bool. Returns true or false depending on the keyboard state.
 	**/
 	public function repeat(key: String): Bool {
 		return keysStarted.get(key) || (repeatKey && keysDown.get(key));
