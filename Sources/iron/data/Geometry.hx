@@ -95,7 +95,7 @@ class Geometry {
 
 	static function getVertexStructure(vertexArrays: Array<TVertexArray>): VertexStructure {
 		var structure = new VertexStructure();
-		for (i in 0...vertexArrays.length){
+		for (i in 0...vertexArrays.length) {
 			structure.add(vertexArrays[i].attrib, getVertexData(vertexArrays[i].data));
 		}
 		return structure;
@@ -181,7 +181,7 @@ class Geometry {
 		var vbs = [];
 		for (e in vs) {
 			for (v in 0...vertexBuffers.length)
-				if (vertexBuffers[v].name == e.name){
+				if (vertexBuffers[v].name == e.name) {
 					vbs.push(vertexBuffers[v].buffer);
 					continue;
 				}
@@ -202,7 +202,7 @@ class Geometry {
 			var atex = false;
 			var texOffset = -1;
 			var acol = false;
-			for (e in 0...vs.length){
+			for (e in 0...vs.length) {
 				if (vs[e].name == "tex") {
 					atex = true;
 					texOffset = e;

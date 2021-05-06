@@ -95,7 +95,7 @@ class SceneStream {
 				h.object = null;
 
 				// Clear parents
-				if (h.parent.name != Scene.active.raw.name){
+				if (h.parent.name != Scene.active.raw.name) {
 					h.parent = null;
 				}
 			}
