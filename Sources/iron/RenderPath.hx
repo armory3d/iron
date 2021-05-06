@@ -371,7 +371,10 @@ class RenderPath {
 	public static function notifyOnContext(name: String, onContext: Graphics->Int->Int->Void) {
 		if (contextEvents == null) contextEvents = new Map();
 		var ar = contextEvents.get(name);
-		if (ar == null) { ar = []; contextEvents.set(name, ar); }
+		if (ar == null) {
+			ar = [];
+			contextEvents.set(name, ar);
+		}
 		ar.push(onContext);
 	}
 	#end

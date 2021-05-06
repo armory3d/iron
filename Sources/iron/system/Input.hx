@@ -113,7 +113,10 @@ class VirtualInput {
 	function downVirtual(button: String) {
 		if (virtualButtons != null) {
 			var vb = virtualButtons.get(button);
-			if (vb != null) { vb.down = true; vb.started = true; }
+			if (vb != null) {
+				vb.down = true;
+				vb.started = true;
+			}
 		}
 	}
 

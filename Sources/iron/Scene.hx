@@ -911,7 +911,10 @@ class Scene {
 	}
 
 	function loadEmbeddedData(datas: Array<String>, done: Void->Void) {
-		if (datas == null) { done(); return; }
+		if (datas == null) {
+			done();
+			return;
+		}
 		var loaded = 0;
 		for (file in datas) {
 			embedData(file, function() {

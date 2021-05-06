@@ -557,17 +557,23 @@ class Mat4 {
 		@return	The right vector; the positive x axis of the space defined by
 				this matrix.
 	**/
-	public inline function right(): Vec4 { return new Vec4(_00, _01, _02); }
+	public inline function right(): Vec4 {
+		return new Vec4(_00, _01, _02);
+	}
 	/**
 		@return	The look vector; the positive y axis of the space defined by
 				this matrix.
 	**/
-	public inline function look(): Vec4 { return new Vec4(_10, _11, _12); }
+	public inline function look(): Vec4 {
+		return new Vec4(_10, _11, _12);
+	}
 	/**
 		@return	The up vector; the positive z axis of the space defined by
 				this matrix.
 	**/
-	public inline function up(): Vec4 { return new Vec4(_20, _21, _22); }
+	public inline function up(): Vec4 {
+		return new Vec4(_20, _21, _22);
+	}
 
 	public var _00(get, set): FastFloat; inline function get__00(): FastFloat { return self._00; } inline function set__00(f: FastFloat): FastFloat { return self._00 = f; }
 	public var _01(get, set): FastFloat; inline function get__01(): FastFloat { return self._01; } inline function set__01(f: FastFloat): FastFloat { return self._01 = f; }

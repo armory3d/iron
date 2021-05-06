@@ -182,7 +182,10 @@ class Animation {
 	public function notifyOnMarker(name: String, onMarker: Void->Void) {
 		if (markerEvents == null) markerEvents = new Map();
 		var ar = markerEvents.get(name);
-		if (ar == null) { ar = []; markerEvents.set(name, ar); }
+		if (ar == null) {
+			ar = [];
+			markerEvents.set(name, ar);
+		}
 		ar.push(onMarker);
 	}
 
