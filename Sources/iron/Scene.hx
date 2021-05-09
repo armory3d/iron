@@ -122,7 +122,7 @@ class Scene {
 			// Startup scene
 			active.addScene(format.name, null, function(sceneObject: Object) {
 				for (object in sceneObject.getChildren(true)) {
-					createTraits(getRawObjectByName(format, object.name).traits, object);
+					createTraits(object.raw.traits, object);
 				}
 
 				#if arm_terrain
@@ -431,8 +431,12 @@ class Scene {
 		var objectsTraversed = 0;
 		var obj = getRawObjectByName(srcRaw, name);
 		var objectsCount = spawnChildren ? getObjectsCount([obj], false) : 1;
+		var rootId = -1;
 		function spawnObjectTree(obj: TObj, parent: Object, parentObject: TObj, done: Object->Void) {
 			createObject(obj, srcRaw, parent, parentObject, function(object: Object) {
+				if (rootId == -1) {
+					rootId = object.uid;
+				}
 				if (spawnChildren && obj.children != null) {
 					for (child in obj.children) spawnObjectTree(child, object, obj, done);
 				}
@@ -440,7 +444,9 @@ class Scene {
 					// Retrieve the originally spawned object from the current
 					// child object to ensure done() is called with the right
 					// object
-					while (object.name != name) object = object.parent;
+					while (object.uid != rootId) {
+						object = object.parent;
+					}
 					done(object);
 				}
 			});
