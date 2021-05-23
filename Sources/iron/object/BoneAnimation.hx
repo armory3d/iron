@@ -11,6 +11,7 @@ import iron.data.MeshData;
 import iron.data.SceneFormat;
 import iron.data.Armature;
 import iron.data.Data;
+import iron.math.Ray;
 
 class BoneAnimation extends Animation {
 
@@ -225,7 +226,7 @@ class BoneAnimation extends Animation {
 		if (lastBones != skeletonBones) return;
 
 		for (i in 0...skeletonBones.length) {
-			updateAnimSampled(skeletonBones[i].anim, skeletonMats[i]);
+			if(! skeletonBones[i].is_IK_FK_only) updateAnimSampled(skeletonBones[i].anim, skeletonMats[i]);
 		}
 		if (blendTime > 0 && skeletonBonesBlend != null) {
 			for (b in skeletonBonesBlend) {
@@ -241,8 +242,13 @@ class BoneAnimation extends Animation {
 
 		updateConstraints();
 
-		// Do inverse kinematics here
-		if (onUpdates != null) for (f in onUpdates) f();
+		// Do Forward Kinematic and Inverse kinematics here
+		if (onUpdates != null) {
+			for (f in 0...onUpdates.length) {
+				var tempFunc = onUpdates[0];
+				tempFunc();
+			}
+		}
 
 		// Calc absolute bones
 		for (i in 0...skeletonBones.length) {
@@ -467,110 +473,324 @@ class BoneAnimation extends Animation {
 		return 0.0;
 	}
 
-	public function solveIK(effector: TObj, goal: Vec4, precission = 0.1, maxIterations = 6) {
-		// FABRIK - Forward and backward reaching inverse kinematics solver
+	//Returns bone length with scale applied
+	public function getBoneAbsLen(bone: TObj): FastFloat {
+		var refs = data.geom.skeletonBoneRefs;
+		var lens = data.geom.skeletonBoneLens;
+		var scale = object.parent.transform.world.getScale().z;
+		for (i in 0...refs.length) if (refs[i] == bone.name) return lens[i] * scale;
+		return 0.0;
+	}
+
+	//Returns bone matrix in world space
+	public function getAbsWorldMat(bone: TObj) : Mat4 {
+		var wm = getWorldMat(bone);
+		wm.multmat(object.parent.transform.world);
+
+		return wm;
+	}
+
+	public function solveIK(effector: TObj, goal: Vec4, precision = 0.01, maxIterations = 100, chainLenght: Int = 0 , pole: Vec4 = null, rollAngle: Float = 0.0) {
+
+		//Array of bones to solve IK for, effector at 0
 		var bones: Array<TObj> = [];
+
+		//Array of bones lengths, effector length at 0
 		var lengths: Array<FastFloat> = [];
-		var start = effector;
-		while (start.parent != null) {
-			bones.push(start);
-			lengths.push(getBoneLen(start));
-			start = start.parent;
+
+		//Array of bones matrices in world coordinates, effector at 0
+		var boneWorldMats: Array<Mat4>;
+		
+		var tempLoc = new Vec4();
+		var tempRot = new Quat();
+		var tempRot2 = new Quat();
+		var tempScl = new Vec4();
+		var roll = new Quat().fromEuler(0, rollAngle, 0);
+
+		//Maximum possible chain length = 100
+		if (chainLenght < 1) chainLenght = 100;
+
+		//Store all bones and lengths in array
+		var tip = effector;
+		bones.push(tip);
+		lengths.push(getBoneAbsLen(tip));
+		var root = tip;
+
+		while (root.parent != null){
+
+			if(bones.length > chainLenght - 1) break;
+			bones.push(root.parent);
+			lengths.push(getBoneAbsLen(root.parent));
+			root = root.parent;	
 		}
-		start = bones[bones.length - 1];
 
-		// Distance to goal
-		var armsc = object.parent.transform.scale; // Transform goal to armature space
-		goal.x *= 1 / armsc.x;
-		goal.y *= 1 / armsc.y;
-		goal.z *= 1 / armsc.z;
-		var startLoc = getWorldMat(start).getLoc();
-		startLoc.z -= getBoneLen(start.parent); // Fix this
-		var dist = Vec4.distance(goal, startLoc);
+		//Root Bone
+		root = bones[bones.length-1]; 
 
-		// Bones length
-		var x: FastFloat = 0.0;
-		for (l in lengths) x += l;
+		//World matrix of root bone
+		var rootWorldMat = getWorldMat(root).clone();
+		//World matrix of Armature
+		var armatureMat = object.parent.transform.world.clone();
+		//Apply armature transform to world matrix
+		rootWorldMat.multmat(armatureMat);
+		//Distance from Root to Goal
+		var dist = Vec4.distance(goal, rootWorldMat.getLoc());
 
-		v1.set(0, 1, 0);
+		// total bones length
+		var totalLength: FastFloat = 0.0;
+		for (l in lengths) totalLength += l;
 
 		// Unreachable distance
-		if (dist > x) {
-			// Point to goal
-			var m = getBoneMat(start);
-			var w = getWorldMat(start);
-			var iw = Mat4.identity();
-			iw.getInverse(w);
+		if (dist > totalLength) {
 
-			m.setFrom(w);
-			m.decompose(vpos, q1, vscl);
-			v2.setFrom(goal).sub(startLoc).normalize();
-			q1.fromTo(v1, v2);
-			m.compose(vpos, q1, vscl);
-			m.multmat(iw);
+			//Calculate unit vector from root to goal
+			var newLook = goal.clone();
+			newLook.sub(rootWorldMat.getLoc());
+			newLook.normalize();
 
-			for (i in 0...bones.length - 1) {
-				// Cancel child bone rotation
-				var b = bones[i];
-				var m = skeletonMats[getBoneIndex(b)];
-				m.decompose(vpos, q1, vscl);
-				m.compose(vpos, new Quat(), vscl);
+			//Rotate root bone to point at goal
+			rootWorldMat.decompose(tempLoc, tempRot, tempScl);
+			tempRot2.fromTo(rootWorldMat.look().normalize(), newLook);
+			tempRot2.mult(tempRot);
+			tempRot2.mult(roll);
+			rootWorldMat.compose(tempLoc, tempRot2, tempScl);
+			
+			//Set bone matrix in local space from world space
+			setBoneMatFromWorldMat(rootWorldMat, root);
+			
+			//Set child bone rotations to zero
+			for(i in 0...bones.length - 1)
+			{
+				getBoneMat(bones[i]).decompose(tempLoc, tempRot, tempScl);
+				getBoneMat(bones[i]).compose(tempLoc, roll, tempScl);
 			}
-
-			// Restore apply parent
-			for (b in bones) applyParent[getBoneIndex(b)] = true;
 
 			return;
 		}
 
-		// Solve IK
-		var vec = new Vec4();
-		var locs: Array<Vec4> = [];
-		for (b in bones) locs.push(getWorldMat(b).getLoc());
+		//Reachable distance
 
-		for (i in 0...maxIterations) {
-			// Backward
+		//Get all bone mats in world space
+		boneWorldMats = getWorldMatsFast(effector, bones.length);
+
+		//Array of bone locations in world space. Root location at [0]
+		var boneWorldLocs : Array<Vec4> = [];
+		for (b in boneWorldMats) boneWorldLocs.push(b.getLoc());
+
+		//Solve FABRIK
+		var vec = new Vec4();
+		var startLoc = boneWorldLocs[0].clone();	
+		var l = boneWorldLocs.length;
+		var testLength = 0;
+
+		for(iter in 0...maxIterations){
+		
+			//Backward
 			vec.setFrom(goal);
-			vec.sub(locs[0]);
+			vec.sub(boneWorldLocs[l - 1]);
 			vec.normalize();
 			vec.mult(lengths[0]);
-			locs[0].setFrom(goal);
-			locs[0].sub(vec);
-			for (j in 1...locs.length) {
-				vec.setFrom(locs[j]);
-				vec.sub(locs[j - 1]);
+			boneWorldLocs[l - 1].setFrom(goal);
+			boneWorldLocs[l - 1].sub(vec);
+
+			for (j in 1...l) {
+				vec.setFrom(boneWorldLocs[l - 1 - j]);
+				vec.sub(boneWorldLocs[l - j]);
 				vec.normalize();
 				vec.mult(lengths[j]);
-				locs[j].setFrom(locs[j - 1]);
-				locs[j].add(vec);
+				boneWorldLocs[l - 1 - j].setFrom(boneWorldLocs[l - j]);
+				boneWorldLocs[l - 1 - j].add(vec);
 			}
-			// Forward
-			locs[locs.length - 1].setFrom(startLoc);
-			var l = locs.length;
+
+			//Forward
+			boneWorldLocs[0].setFrom(startLoc);
 			for (j in 1...l) {
-				vec.setFrom(locs[l - j - 1]);
-				vec.sub(locs[l - j]);
+				vec.setFrom(boneWorldLocs[j]);
+				vec.sub(boneWorldLocs[j - 1]);
 				vec.normalize();
 				vec.mult(lengths[l - j]);
-				locs[l - j - 1].setFrom(locs[l - j]);
-				locs[l - j - 1].add(vec);
+				boneWorldLocs[j].setFrom(boneWorldLocs[j - 1]);
+				boneWorldLocs[j].add(vec);
 			}
-			if (Vec4.distance(locs[0], goal) <= precission) break;
+
+			if (Vec4.distance(boneWorldLocs[l - 1], goal) - lengths[0] <= precision) break;
+
 		}
 
-		for (b in bones) applyParent[getBoneIndex(b)] = false;
+		//Pole rotation implementation
+		if(pole!= null)
+		for(i in 1...boneWorldLocs.length - 1){
 
-		for (i in 0...bones.length) {
-			var m = getBoneMat(bones[i]);
-			m.decompose(vpos, q1, vscl);
-			var l1 = i == 0 ? locs[i] : locs[i - 1];
-			var l2 = i == 0 ? locs[i + 1] : locs[i];
-			v2.setFrom(l1).sub(l2).normalize();
-			q1.fromTo(v1, v2);
-			vec.setFrom(locs[i]);
-			m.compose(vec, q1, vscl);
+			boneWorldLocs[i] = moveTowardPole(boneWorldLocs[i - 1].clone(), boneWorldLocs[i].clone(), boneWorldLocs[i + 1].clone(), pole.clone());
 		}
+		
+
+		//Correct Rotations
+
+		//Applying locations and rotations
+		var tempLook = new Vec4();
+		var tempLoc2 = new Vec4();
+
+		for(i in 0...l - 1){
+
+			//Decompose matrix
+			boneWorldMats[i].decompose(tempLoc, tempRot, tempScl);
+			
+			//Rotate to point to parent bone
+			tempLoc2.setFrom(boneWorldLocs[i + 1]);
+			tempLoc2.sub(boneWorldLocs[i]);
+			tempLoc2.normalize();
+			tempLook.setFrom(boneWorldMats[i].look());
+			tempLook.normalize();
+			tempRot2.fromTo(tempLook, tempLoc2);
+			tempRot2.mult(tempRot);
+			tempRot2.mult(roll);
+
+			//Compose matrix with new rotation and location
+			boneWorldMats[i].compose(boneWorldLocs[i], tempRot2, tempScl);
+
+			//Set bone matrix in local space from world space
+			setBoneMatFromWorldMat(boneWorldMats[i], bones[bones.length - 1 - i]);
+		}
+
+		//Decompose matrix
+		boneWorldMats[l - 1].decompose(tempLoc, tempRot, tempScl);
+
+		//Rotate to point to goal
+		tempLoc2.setFrom(goal);
+		tempLoc2.sub(tempLoc);
+		tempLoc2.normalize();
+		tempLook.setFrom(boneWorldMats[l - 1].look());
+		tempLook.normalize();
+		tempRot2.fromTo(tempLook, tempLoc2);
+		tempRot2.mult(tempRot);
+		tempRot2.mult(roll);
+
+		//Compose matrix with new rotation and location
+		boneWorldMats[l - 1].compose(boneWorldLocs[l - 1], tempRot2, tempScl);
+		
+		//Set bone matrix in local space from world space
+		setBoneMatFromWorldMat(boneWorldMats[l - 1], bones[0]);		
+
+		return;
+
 	}
+
+	public function moveTowardPole(bone0Pos: Vec4, bone1Pos: Vec4, bone2Pos: Vec4, polePos: Vec4): Vec4 {
+		
+		//Setup projection plane at current bone's parent
+		var plane = new Plane();
+
+		//Plane normal from parent of current bone to 
+		//Child of current bone
+		var planeNormal = new Vec4().setFrom(bone2Pos);
+		planeNormal.sub(bone0Pos);
+		planeNormal.normalize();
+		plane.set(planeNormal, bone0Pos);
+
+		//Create and project ray from current bone to plane
+		var rayPos = new Vec4();
+		rayPos.setFrom(bone1Pos);
+		var rayDir = new Vec4();
+		rayDir.sub(planeNormal);
+		rayDir.normalize();
+		var rayBone = new Ray(rayPos, rayDir);
+
+		//Projection point of current bone on plane
+		//If pole does not project on the plane
+		if( ! rayBone.intersectsPlane(plane)) {
+
+			rayBone.direction = planeNormal;
+		}
+
+		var bone1Proj = rayBone.intersectPlane(plane);
+
+		//Create and project ray from pole to plane
+		rayPos.setFrom(polePos);
+		var rayPole = new Ray(rayPos, rayDir);
+
+		//If pole does not project on the plane
+		if( ! rayPole.intersectsPlane(plane)) {
+
+			rayPole.direction = planeNormal;
+		}
+
+		//Projection point of pole on plane
+		var poleProj = rayPole.intersectPlane(plane);
+		
+		//Caclulate unit vectors from pole projection to parent bone
+		var poleProjNormal = new Vec4();
+		poleProjNormal.setFrom(bone0Pos);
+		poleProjNormal.sub(poleProj);
+		poleProjNormal.normalize();
+
+		//Calculate unit vector from current bone projection to parent bone
+		var bone1ProjNormal = new Vec4();
+		bone1ProjNormal.setFrom(bone0Pos);
+		bone1ProjNormal.sub(bone1Proj);
+		bone1ProjNormal.normalize();
+
+		//Calculate rotation quaternion
+		var rotQuat = new Quat();
+		rotQuat.fromTo(bone1ProjNormal, poleProjNormal);
+
+		//Apply quaternion to current bone location
+		var bone1Res = new Vec4().setFrom(bone1Pos);
+		bone1Res.sub(bone0Pos);
+		bone1Res.applyQuat(rotQuat);
+		bone1Res.add(bone0Pos);
+
+		//Return new location of current bone
+		return bone1Res;
+
+	}
+
+	//Returns an array of bone matrices in world space
+	public function getWorldMatsFast(tip: TObj, chainLength: Int): Array<Mat4> {
+
+		var wmArray: Array<Mat4> = [];
+		var armatureMat:Mat4 = object.parent.transform.world;
+
+		var root = tip;
+		var numP = chainLength;
+		for(i in 0...chainLength){
+
+			var wm = getAbsWorldMat(root);
+			wmArray[chainLength - 1 - i] = wm.clone();
+			root = root.parent;
+			numP--;
+		}
+
+		//Root bone at [0]
+		return wmArray;
+	}
+
+	//Set bone transforms in world space
+	public function setBoneMatFromWorldMat(wm: Mat4, bone: TObj) {
+
+		var invMat:Mat4 = Mat4.identity();
+		var tempMat:Mat4 = wm.clone();
+		invMat.getInverse(object.parent.transform.world);
+		tempMat.multmat(invMat);
+		var bones:Array<TObj> = [];
+		var pBone = bone;
+		while(pBone.parent != null)
+		{
+			bones.push(pBone.parent);
+			pBone = pBone.parent;
+		}
+
+		for(i in 0...bones.length)
+		{
+			var x = bones.length - 1;
+			invMat.getInverse(getBoneMat(bones[x - i]));
+			tempMat.multmat(invMat);
+		}
+		
+		getBoneMat(bone).setFrom(tempMat);
+		
+	}
+
 }
 
 #end
