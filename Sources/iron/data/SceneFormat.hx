@@ -254,6 +254,7 @@ typedef TShaderConstant = {
 	@:optional public var float: Null<FastFloat>;
 	@:optional public var bool: Null<Bool>;
 	@:optional public var int: Null<Int>;
+	@:optional public var is_arm_parameter: Null<Bool>;
 }
 
 #if js
@@ -269,6 +270,8 @@ typedef TTextureUnit = {
 	@:optional public var filter_min: String;
 	@:optional public var filter_mag: String;
 	@:optional public var mipmap_filter: String;
+	@:optional public var default_image_file: String;
+	@:optional public var is_arm_parameter: Null<Bool>;
 }
 
 #if js
