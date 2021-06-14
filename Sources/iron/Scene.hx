@@ -26,6 +26,7 @@ import iron.data.TerrainStream;
 import iron.data.SceneStream;
 import iron.data.MeshBatch;
 import iron.system.Time;
+import iron.data.UniformsManager;
 using StringTools;
 
 class Scene {
@@ -526,6 +527,7 @@ class Scene {
 					Data.getMaterial(sceneName, ref, function(mat: MaterialData) {
 						materials[i] = mat;
 						materialsLoaded++;
+						UniformsManager.registerShaderUniforms(mat); // Register shader material parameters to map
 						if (materialsLoaded == o.material_refs.length) {
 							createMeshObject(o, format, parent, parentObject, materials, done);
 						}
