@@ -1,9 +1,6 @@
 package iron.data;
 
-import haxe.macro.Expr.Case;
-import kha.math.Vector4;
 import kha.Image;
-import haxe.ds.Map;
 import iron.math.Vec4;
 import iron.data.MaterialData;
 import iron.Scene;
