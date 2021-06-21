@@ -460,7 +460,6 @@ class Keyboard extends VirtualInput {
 
 	public static function keyCode(key: KeyCode): String {
 		return switch(key) {
-			default: String.fromCharCode(cast key).toLowerCase();
 			case KeyCode.Space: "space";
 			case KeyCode.Backspace: "backspace";
 			case KeyCode.Tab: "tab";
@@ -546,6 +545,7 @@ class Keyboard extends VirtualInput {
 			case KeyCode.F10: "f10";
 			case KeyCode.F11: "f11";
 			case KeyCode.F12: "f12";
+			default: String.fromCharCode(cast key).toLowerCase();
 		}
 	}
 
