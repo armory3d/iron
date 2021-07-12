@@ -267,16 +267,38 @@ class Mouse extends VirtualInput {
 	#if (kha_android || kha_ios)
 	public function onTouchDown(index: Int, x: Int, y: Int) {
 		if (index == 1) { // Two fingers down - right mouse button
-			upListener(0, x, y);
-			downListener(1, x, y);
+			buttonsDown[0] = false;
+			downListener(1, Std.int(this.x), Std.int(this.y));
+			pinchStarted = true;
+		}
+		else if (index == 2) { // Three fingers down - middle mouse button
+			buttonsDown[1] = false;
+			downListener(2, Std.int(this.x), Std.int(this.y));
 		}
 	}
 
 	public function onTouchUp(index: Int, x: Int, y: Int) {
-		if (index == 1) upListener(1, x, y);
+		if (index == 1) upListener(1, Std.int(this.x), Std.int(this.y));
+		else if (index == 2) upListener(2, Std.int(this.x), Std.int(this.y));
 	}
 
-	public function onTouchMove(index: Int, x: Int, y: Int) {}
+	var pinchDistance: Float;
+	var pinchStarted = false;
+
+	public function onTouchMove(index: Int, x: Int, y: Int) {
+		// Pinch to zoom - mouse wheel
+		if (index == 1) {
+			var lastDistance = pinchDistance;
+			var dx = this.x - x;
+			var dy = this.y - y;
+			pinchDistance = Math.sqrt(dx * dx + dy * dy);
+			if (!pinchStarted) {
+				wheelDelta = Std.int((lastDistance - pinchDistance) / 10);
+				if (wheelDelta != 0) buttonsDown[1] = false;
+			}
+			pinchStarted = false;
+		}
+	}
 	#end
 
 	inline function get_viewX(): Float {
