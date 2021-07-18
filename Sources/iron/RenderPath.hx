@@ -641,7 +641,11 @@ class RenderPath {
 	inline function getTextureFormat(s: String): TextureFormat {
 		switch (s) {
 			case "RGBA32": return TextureFormat.RGBA32;
+			#if (rp_hdr && kha_html5)
+			case "RGBA64": return TextureFormat.RGBA32;
+			#else
 			case "RGBA64": return TextureFormat.RGBA64;
+			#end
 			case "RGBA128": return TextureFormat.RGBA128;
 			case "DEPTH16": return TextureFormat.DEPTH16;
 			case "R32": return TextureFormat.A32;
