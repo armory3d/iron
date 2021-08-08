@@ -5,7 +5,9 @@ import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
+#if kha_html5
 import kha.arrays.ByteArray;
+#end
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
 import kha.arrays.Int16Array;
