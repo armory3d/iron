@@ -40,6 +40,10 @@ class ParticleSystem {
 	var lapTime = 0.0;
 	var m = Mat4.identity();
 
+	var ownerLoc = new Vec4();
+	var ownerRot = new Quat();
+	var ownerScl = new Vec4();
+
 	public function new(sceneName: String, pref: TParticleReference) {
 		seed = pref.seed;
 		particles = [];
@@ -79,9 +83,14 @@ class ParticleSystem {
 	public function update(object: MeshObject, owner: MeshObject) {
 		if (!ready || object == null || speed == 0.0) return;
 
-		// Copy owner transform but discard scale
-		object.transform.loc = owner.transform.loc;
-		object.transform.rot = owner.transform.rot;
+		// Copy owner world transform but discard scale
+		owner.transform.world.decompose(ownerLoc, ownerRot, ownerScl);
+		object.transform.loc = ownerLoc;
+		object.transform.rot = ownerRot;
+
+		// Set particle size per particle system
+		object.transform.scale = new Vec4(r.particle_size, r.particle_size, r.particle_size, 1);
+		
 		object.transform.buildMatrix();
 		owner.transform.buildMatrix();
 		object.transform.dim.setFrom(owner.transform.dim);
