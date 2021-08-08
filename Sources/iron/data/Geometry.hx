@@ -5,6 +5,7 @@ import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
+import kha.arrays.ByteArray;
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
 import kha.arrays.Int16Array;
@@ -26,7 +27,11 @@ class Geometry {
 	public var name = "";
 
 	public var ready = false;
+	#if kha_html5
+	public var vertices: ByteArray;
+	#else
 	public var vertices: Int16Array;
+	#end
 	public var indices: Array<Uint32Array>;
 	public var numTris = 0;
 	public var materialIndices: Array<Int>;
@@ -219,7 +224,11 @@ class Geometry {
 			// Multi-mat mesh with different vertex structures
 			var struct = getVertexStructure(nVertexArrays);
 			vb = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
+			#if kha_html5
+			vertices = vb.lock();
+			#else
 			vertices = vb.lockInt16();
+			#end
 			buildVertices(vertices, nVertexArrays, 0, atex && uvs == null, texOffset);
 			vb.unlock();
 			vertexBufferMap.set(key, vb);
@@ -244,7 +253,11 @@ class Geometry {
 #else
 
 		vertexBuffer = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
+		#if kha_html5
+		vertices = vertexBuffer.lock();
+		#else
 		vertices = vertexBuffer.lockInt16();
+		#end
 		buildVertices(vertices, vertexArrays);
 		vertexBuffer.unlock();
 		vertexBufferMap.set(structStr, vertexBuffer);
