@@ -9,6 +9,8 @@ import iron.data.ParticleData;
 import iron.data.SceneFormat;
 import iron.system.Time;
 import iron.math.Mat4;
+import iron.math.Quat;
+import iron.math.Vec4;
 
 class ParticleSystem {
 	public var data: ParticleData;
@@ -147,9 +149,9 @@ class ParticleSystem {
 			var sc = owner.data.scalePos;
 			for (p in particles) {
 				var j = Std.int(fhash(i) * (pa.values.length / pa.size));
-				instancedData.set(i, pa.values[j * pa.size    ] / 32767 * sc); i++;
-				instancedData.set(i, pa.values[j * pa.size + 1] / 32767 * sc); i++;
-				instancedData.set(i, pa.values[j * pa.size + 2] / 32767 * sc); i++;
+				instancedData.set(i, pa.values[j * pa.size    ] / 32767 * sc / r.particle_size); i++;
+				instancedData.set(i, pa.values[j * pa.size + 1] / 32767 * sc / r.particle_size); i++;
+				instancedData.set(i, pa.values[j * pa.size + 2] / 32767 * sc / r.particle_size); i++;
 			}
 		}
 		else { // Volume
@@ -159,7 +161,6 @@ class ParticleSystem {
 				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
 			}
 		}
-		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
 		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);
 	}
 
