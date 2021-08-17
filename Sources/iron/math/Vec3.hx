@@ -134,7 +134,7 @@ class Vec3 {
 		return this;
 	}
 
-	public inline function exp(v: Vec4): Vec4 {
+	public inline function exp(v: Vec3): Vec3 {
 		x = Math.exp(v.x);
 		y = Math.exp(v.y);
 		z = Math.exp(v.z);
