@@ -259,7 +259,9 @@ class Quat {
 
 	/**
 		Convert this quaternion to an Euler of arbitrary order.
-		@param	the order of the euler to obtain (in blender order, opposite from mathematical order)
+		@param	the order of the euler to obtain
+			(in blender order, opposite from mathematical order)
+			can be "XYZ", "XZY", "YXZ", "YZX", "ZXY", or "ZYX".
 		@return	A new YZX Euler that represents the same rotation as this
 				quaternion.
 	**/
@@ -270,23 +272,23 @@ class Quat {
 	// note2: it seems that this engine transforms a vector by using vector×matrix instead of matrix×vector, meaning that the outer transformations are on the RIGHT.
 	//	(…Except for quaternions, where the outer quaternions are on the LEFT.)
 	//	anywho, the way the elements of the matrix are ordered makes sense (first digit-> row ID, second digit->column ID) in this system.
-	public static function toEulerOrdered(p:String): Vec4{
+	public inline function toEulerOrdered(p:String): Vec4{
 		// normalize quat ?
 		
-		var q0:Float = SQRT2 * this.w;
-		var q1:Float = SQRT2 * this.x;
-		var q2:Float = SQRT2 * this.y;
-		var q3:Float = SQRT2 * this.z;
+		var q0:FastFloat = SQRT2 * this.w;
+		var q1:FastFloat = SQRT2 * this.x;
+		var q2:FastFloat = SQRT2 * this.y;
+		var q3:FastFloat = SQRT2 * this.z;
 
-		var qda:Float = q0 * q1;
-		var qdb:Float = q0 * q2;
-		var qdc:Float = q0 * q3;
-		var qaa:Float = q1 * q1;
-		var qab:Float = q1 * q2;
-		var qac:Float = q1 * q3;
-		var qbb:Float = q2 * q2;
-		var qbc:Float = q2 * q3;
-		var qcc:Float = q3 * q3;
+		var qda:FastFloat = q0 * q1;
+		var qdb:FastFloat = q0 * q2;
+		var qdc:FastFloat = q0 * q3;
+		var qaa:FastFloat = q1 * q1;
+		var qab:FastFloat = q1 * q2;
+		var qac:FastFloat = q1 * q3;
+		var qbb:FastFloat = q2 * q2;
+		var qbc:FastFloat = q2 * q3;
+		var qcc:FastFloat = q3 * q3;
 
 		var m = new Mat3(
 			// OK, *this* matrix is transposed with respect to what armory expects.
@@ -307,8 +309,8 @@ class Quat {
 		
 		// now define what is necessary to perform look-ups in that matrix
 		var ml:Array<Array<FastFloat>> = [[m._00, m._10, m._20],
-										  [m._01, m._11, m._21],
-										  [m._02, m._12, m._22]];
+		                                  [m._01, m._11, m._21],
+		                                  [m._02, m._12, m._22]];
 		var eull:Array<FastFloat> = [0, 0, 0];
 										  
 		var i:Int = p.charCodeAt(0) - "X".charCodeAt(0);
@@ -326,7 +328,7 @@ class Quat {
 		else if (p.charAt(2)=="Y") k=1;
 		else k=2;
 		
-		var cy:Float = Math.sqrt(ml[i][i]*ml[i][i] + ml[i][j]*ml[i][j]);
+		var cy:FastFloat = Math.sqrt(ml[i][i]*ml[i][i] + ml[i][j]*ml[i][j]);
 		
 		var eul1 = new Vec4();
 
@@ -351,7 +353,6 @@ class Quat {
 		}
 		return eul1;
 	}
-}
 
 
 	/**
@@ -359,10 +360,12 @@ class Quat {
 		@param	x The Euler's x component.
 		@param	y The Euler's y component.
 		@param	z The Euler's z component.
-		@param	order: the (blender) order of the euler (which is the OPPOSITE of the mathematical order)
+		@param	order: the (blender) order of the euler
+			(which is the OPPOSITE of the mathematical order)
+			can be "XYZ", "XZY", "YXZ", "YZX", "ZXY", or "ZYX".
 		@return	This quaternion.
 	**/
-	public function fromEulerOrdered(e:Vec4, order:String):Quat {
+	public inline function fromEulerOrdered(e:Vec4, order:String):Quat {
 		var c1 = Math.cos(e.x / 2);
 		var c2 = Math.cos(e.y / 2);
 		var c3 = Math.cos(e.z / 2);
