@@ -201,6 +201,7 @@ class MeshObject extends Object {
 		if (!visible) return; // Skip render if object is hidden
 		if (cullMesh(context, Scene.active.camera, RenderPath.active.light)) return;
 		var meshContext = raw != null ? context == "mesh" : false;
+
 		#if arm_particles
 		if (raw != null && raw.is_particle && particleOwner == null) return; // Instancing not yet set-up by particle system owner
 		if (particleSystems != null && meshContext) {
@@ -218,10 +219,13 @@ class MeshObject extends Object {
 					});
 				}
 			}
-			for (i in 0...particleSystems.length) particleSystems[i].update(particleChildren[i], this);
+			for (i in 0...particleSystems.length) {
+				particleSystems[i].update(particleChildren[i], this);
+			}
 		}
 		if (particleSystems != null && particleSystems.length > 0 && !raw.render_emitter) return;
 		#end
+
 		if (tilesheet != null) tilesheet.update();
 		if (cullMaterial(context)) return;
 

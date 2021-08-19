@@ -28,6 +28,7 @@ class App {
 	static var startTime: Float;
 	public static var updateTime: Float;
 	public static var renderPathTime: Float;
+	public static var endFrameCallbacks: Array<Void->Void> = [];
 	#end
 	#if arm_resizable
 	static var lastw = -1;
@@ -68,7 +69,9 @@ class App {
 		var l = traitUpdates.length;
 		while (i < l) {
 			if (traitInits.length > 0) {
-				for (f in traitInits) { traitInits.length > 0 ? f() : break; }
+				for (f in traitInits) {
+					traitInits.length > 0 ? f() : break;
+				}
 				traitInits.splice(0, traitInits.length);
 			}
 			traitUpdates[i]();
@@ -87,12 +90,16 @@ class App {
 
 		#if arm_debug
 		iron.object.Animation.endFrame();
+		for (cb in endFrameCallbacks) cb();
 		updateTime = kha.Scheduler.realTime() - startTime;
 		#end
 
 		#if arm_resizable
 		// Rebuild projection on window resize
-		if (lastw == -1) { lastw = App.w(); lasth = App.h(); }
+		if (lastw == -1) {
+			lastw = App.w();
+			lasth = App.h();
+		}
 		if (lastw != App.w() || lasth != App.h()) {
 			if (onResize != null) onResize();
 			else {
@@ -122,13 +129,17 @@ class App {
 		#end
 
 		if (traitInits.length > 0) {
-			for (f in traitInits) { traitInits.length > 0 ? f() : break; }
+			for (f in traitInits) {
+				traitInits.length > 0 ? f() : break;
+			}
 			traitInits.splice(0, traitInits.length);
 		}
 
 		Scene.active.renderFrame(frame.g4);
 
-		for (f in traitRenders) { traitRenders.length > 0 ? f(frame.g4) : break; }
+		for (f in traitRenders) {
+			traitRenders.length > 0 ? f(frame.g4) : break;
+		}
 
 		render2D(frame);
 
@@ -140,7 +151,9 @@ class App {
 	static function render2D(frame: kha.Framebuffer) {
 		if (traitRenders2D.length > 0) {
 			frame.g2.begin(false);
-			for (f in traitRenders2D) { traitRenders2D.length > 0 ? f(frame.g2) : break; }
+			for (f in traitRenders2D) {
+				traitRenders2D.length > 0 ? f(frame.g2) : break;
+			}
 			frame.g2.end();
 		}
 	}

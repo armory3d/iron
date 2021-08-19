@@ -254,6 +254,7 @@ typedef TShaderConstant = {
 	@:optional public var float: Null<FastFloat>;
 	@:optional public var bool: Null<Bool>;
 	@:optional public var int: Null<Int>;
+	@:optional public var is_arm_parameter: Null<Bool>;
 }
 
 #if js
@@ -264,6 +265,13 @@ typedef TTextureUnit = {
 	public var name: String;
 	@:optional public var is_image: Null<Bool>; // image2D
 	@:optional public var link: String;
+	@:optional public var addressing_u: String;
+	@:optional public var addressing_v: String;
+	@:optional public var filter_min: String;
+	@:optional public var filter_mag: String;
+	@:optional public var mipmap_filter: String;
+	@:optional public var default_image_file: String;
+	@:optional public var is_arm_parameter: Null<Bool>;
 }
 
 #if js
@@ -307,6 +315,7 @@ typedef TWorldData = {
 	@:optional public var turbidity: Null<FastFloat>;
 	@:optional public var ground_albedo: Null<FastFloat>;
 	@:optional public var envmap: String;
+	@:optional public var nishita_density: Float32Array; // Rayleigh, Mie, ozone
 }
 
 #if js
@@ -417,6 +426,7 @@ typedef TObj = {
 	@:optional public var tilesheet_ref: String;
 	@:optional public var tilesheet_action_ref: String;
 	@:optional public var sampled: Null<Bool>; // Object action
+	@:optional public var is_ik_fk_only: Null<Bool>; // Bone IK or FK only
 }
 
 #if js

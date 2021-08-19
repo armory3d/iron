@@ -137,8 +137,13 @@ class Animation {
 
 		// End of track
 		if (isTrackEnd(track)) {
-			if (loop || blendTime > 0) rewind(track);
-			else { frameIndex -= sign; paused = true; }
+			if (loop || blendTime > 0) {
+				rewind(track);
+			}
+			else {
+				frameIndex -= sign;
+				paused = true;
+			}
 			if (onComplete != null && blendTime == 0) onComplete();
 		}
 	}
@@ -177,7 +182,10 @@ class Animation {
 	public function notifyOnMarker(name: String, onMarker: Void->Void) {
 		if (markerEvents == null) markerEvents = new Map();
 		var ar = markerEvents.get(name);
-		if (ar == null) { ar = []; markerEvents.set(name, ar); }
+		if (ar == null) {
+			ar = [];
+			markerEvents.set(name, ar);
+		}
 		ar.push(onMarker);
 	}
 
@@ -185,14 +193,26 @@ class Animation {
 		markerEvents.get(name).remove(onMarker);
 	}
 
-	public function currentFrame(): Int { return Std.int(time / frameTime); }
-	public function totalFrames(): Int { return 0; }
+	public function currentFrame(): Int {
+		return Std.int(time / frameTime);
+	}
+
+	public function totalFrames(): Int {
+		return 0;
+	}
 
 	#if arm_debug
 	public static var animationTime = 0.0;
 	static var startTime = 0.0;
-	static function beginProfile() { startTime = kha.Scheduler.realTime(); }
-	static function endProfile() { animationTime += kha.Scheduler.realTime() - startTime; }
-	public static function endFrame() { animationTime = 0; }
+
+	static function beginProfile() {
+		startTime = kha.Scheduler.realTime();
+	}
+	static function endProfile() {
+		animationTime += kha.Scheduler.realTime() - startTime;
+	}
+	public static function endFrame() {
+		animationTime = 0;
+	}
 	#end
 }

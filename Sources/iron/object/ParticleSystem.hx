@@ -9,6 +9,8 @@ import iron.data.ParticleData;
 import iron.data.SceneFormat;
 import iron.system.Time;
 import iron.math.Mat4;
+import iron.math.Quat;
+import iron.math.Vec4;
 
 class ParticleSystem {
 	public var data: ParticleData;
@@ -39,6 +41,10 @@ class ParticleSystem {
 	var lap = 0;
 	var lapTime = 0.0;
 	var m = Mat4.identity();
+
+	var ownerLoc = new Vec4();
+	var ownerRot = new Quat();
+	var ownerScl = new Vec4();
 
 	public function new(sceneName: String, pref: TParticleReference) {
 		seed = pref.seed;
@@ -79,9 +85,14 @@ class ParticleSystem {
 	public function update(object: MeshObject, owner: MeshObject) {
 		if (!ready || object == null || speed == 0.0) return;
 
-		// Copy owner transform but discard scale
-		object.transform.loc = owner.transform.loc;
-		object.transform.rot = owner.transform.rot;
+		// Copy owner world transform but discard scale
+		owner.transform.world.decompose(ownerLoc, ownerRot, ownerScl);
+		object.transform.loc = ownerLoc;
+		object.transform.rot = ownerRot;
+
+		// Set particle size per particle system
+		object.transform.scale = new Vec4(r.particle_size, r.particle_size, r.particle_size, 1);
+		
 		object.transform.buildMatrix();
 		owner.transform.buildMatrix();
 		object.transform.dim.setFrom(owner.transform.dim);
@@ -138,9 +149,9 @@ class ParticleSystem {
 			var sc = owner.data.scalePos;
 			for (p in particles) {
 				var j = Std.int(fhash(i) * (pa.values.length / pa.size));
-				instancedData.set(i, pa.values[j * pa.size    ] / 32767 * sc); i++;
-				instancedData.set(i, pa.values[j * pa.size + 1] / 32767 * sc); i++;
-				instancedData.set(i, pa.values[j * pa.size + 2] / 32767 * sc); i++;
+				instancedData.set(i, pa.values[j * pa.size    ] / 32767 * sc / r.particle_size); i++;
+				instancedData.set(i, pa.values[j * pa.size + 1] / 32767 * sc / r.particle_size); i++;
+				instancedData.set(i, pa.values[j * pa.size + 2] / 32767 * sc / r.particle_size); i++;
 			}
 		}
 		else { // Volume
@@ -150,7 +161,6 @@ class ParticleSystem {
 				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
 			}
 		}
-		if (r.particle_size != 1.0) object.data.geom.applyScale(r.particle_size, r.particle_size, r.particle_size);
 		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);
 	}
 
@@ -170,7 +180,10 @@ class Particle {
 	public var y = 0.0;
 	public var z = 0.0;
 	public var cameraDistance: Float;
-	public function new(i: Int) { this.i = i; }
+
+	public function new(i: Int) {
+		this.i = i;
+	}
 }
 
 #end

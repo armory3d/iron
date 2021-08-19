@@ -42,8 +42,10 @@ class SpeakerObject extends Object {
 			return;
 		}
 		var channel = Audio.play(sound, data.loop, data.stream);
-		channels.push(channel);
-		if (data.attenuation > 0 && channels.length == 1) App.notifyOnUpdate(update);
+		if (channel != null) {
+			channels.push(channel);
+			if (data.attenuation > 0 && channels.length == 1) App.notifyOnUpdate(update);
+		}
 	}
 
 	public function pause() {

@@ -82,11 +82,8 @@ class Probe {
 
 		setIrradiance(function(irr: Float32Array) {
 			irradiance = irr;
-
 			if (raw.radiance != null) {
-
 				Data.getImage(raw.radiance, function(rad: kha.Image) {
-
 					radiance = rad;
 					while (radianceMipmaps.length < raw.radiance_mipmaps) radianceMipmaps.push(null);
 					var dot = raw.radiance.lastIndexOf(".");

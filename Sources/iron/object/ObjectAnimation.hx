@@ -84,7 +84,11 @@ class ObjectAnimation extends Animation {
 
 		if (anim.has_delta) {
 			var t = transform;
-			if (t.dloc == null) { t.dloc = new Vec4(); t.drot = new Quat(); t.dscale = new Vec4(); }
+			if (t.dloc == null) {
+				t.dloc = new Vec4();
+				t.drot = new Quat();
+				t.dscale = new Vec4();
+			}
 			t.dloc.set(0, 0, 0);
 			t.dscale.set(0, 0, 0);
 			t._deulerX = t._deulerY = t._deulerZ = 0.0;
@@ -106,7 +110,10 @@ class ObjectAnimation extends Animation {
 			if (time > total) {
 				if (onComplete != null) onComplete();
 				if (loop) rewind(track);
-				else { frameIndex -= sign; paused = true; }
+				else {
+					frameIndex -= sign;
+					paused = true;
+				}
 				return;
 			}
 

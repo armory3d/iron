@@ -16,7 +16,6 @@ class SceneStream {
 	var checkPos = 0;
 	var loadMax = 8; // Max objects loaded at once
 	var loading = 0; // Objects being loaded
-
 	var loadDistance = -1;
 	var unloadDistance = -1;
 	var sectors: Array<StreamSector>; // 100x100 groups
@@ -96,7 +95,7 @@ class SceneStream {
 				h.object = null;
 
 				// Clear parents
-				if(h.parent.name != Scene.active.raw.name){
+				if (h.parent.name != Scene.active.raw.name) {
 					h.parent = null;
 				}
 			}

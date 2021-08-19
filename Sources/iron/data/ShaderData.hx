@@ -23,12 +23,11 @@ class ShaderData {
 
 	public var name: String;
 	public var raw: TShaderData;
-
 	public var contexts: Array<ShaderContext> = [];
 
 	#if (arm_noembed && kha_krom)
 	public static var shaderPath = "../krom-resources/";
-	public static inline var shaderExt = #if kha_vulkan ".spirv" #elseif kha_opengl ".glsl" #elseif kha_metal ".metal" #else ".d3d11" #end ;
+	public static inline var shaderExt = #if kha_vulkan ".spirv" #elseif krom_android ".essl" #elseif kha_opengl ".glsl" #elseif kha_metal ".metal" #else ".d3d11" #end ;
 	#end
 
 	public function new(raw: TShaderData, done: ShaderData->Void, overrideContext: TShaderOverride = null) {
@@ -71,7 +70,6 @@ class ShaderData {
 
 class ShaderContext {
 	public var raw: TShaderContext;
-
 	public var pipeState: PipelineState;
 	public var constants: Array<ConstantLocation>;
 	public var textureUnits: Array<TextureUnit>;
@@ -83,7 +81,10 @@ class ShaderContext {
 	public function new(raw: TShaderContext, done: ShaderContext->Void, overrideContext: TShaderOverride = null) {
 		this.raw = raw;
 		#if (!rp_voxelao)
-		if (raw.name == "voxel") { done(this); return; }
+		if (raw.name == "voxel") {
+			done(this);
+			return;
+		}
 		#end
 		this.overrideContext = overrideContext;
 		parseVertexStructure();
@@ -286,95 +287,95 @@ class ShaderContext {
 
 	function getCompareMode(s: String): CompareMode {
 		switch (s) {
-		case "always": return CompareMode.Always;
-		case "never": return CompareMode.Never;
-		case "less": return CompareMode.Less;
-		case "less_equal": return CompareMode.LessEqual;
-		case "greater": return CompareMode.Greater;
-		case "greater_equal": return CompareMode.GreaterEqual;
-		case "equal": return CompareMode.Equal;
-		case "not_equal": return CompareMode.NotEqual;
-		default: return CompareMode.Less;
+			case "always": return CompareMode.Always;
+			case "never": return CompareMode.Never;
+			case "less": return CompareMode.Less;
+			case "less_equal": return CompareMode.LessEqual;
+			case "greater": return CompareMode.Greater;
+			case "greater_equal": return CompareMode.GreaterEqual;
+			case "equal": return CompareMode.Equal;
+			case "not_equal": return CompareMode.NotEqual;
+			default: return CompareMode.Less;
 		}
 	}
 
 	function getCullMode(s: String): CullMode {
 		switch (s) {
-		case "none": return CullMode.None;
-		case "clockwise": return CullMode.Clockwise;
-		default: return CullMode.CounterClockwise;
+			case "none": return CullMode.None;
+			case "clockwise": return CullMode.Clockwise;
+			default: return CullMode.CounterClockwise;
 		}
 	}
 
 	function getBlendingOperation(s: String): BlendingOperation {
 		switch (s) {
-		case "add": return BlendingOperation.Add;
-		case "subtract": return BlendingOperation.Subtract;
-		case "reverse_subtract": return BlendingOperation.ReverseSubtract;
-		case "min": return BlendingOperation.Min;
-		case "max": return BlendingOperation.Max;
-		default: return BlendingOperation.Add;
+			case "add": return BlendingOperation.Add;
+			case "subtract": return BlendingOperation.Subtract;
+			case "reverse_subtract": return BlendingOperation.ReverseSubtract;
+			case "min": return BlendingOperation.Min;
+			case "max": return BlendingOperation.Max;
+			default: return BlendingOperation.Add;
 		}
 	}
 
 	function getBlendingFactor(s: String): BlendingFactor {
 		switch (s) {
-		case "blend_one": return BlendingFactor.BlendOne;
-		case "blend_zero": return BlendingFactor.BlendZero;
-		case "source_alpha": return BlendingFactor.SourceAlpha;
-		case "destination_alpha": return BlendingFactor.DestinationAlpha;
-		case "inverse_source_alpha": return BlendingFactor.InverseSourceAlpha;
-		case "inverse_destination_alpha": return BlendingFactor.InverseDestinationAlpha;
-		case "source_color": return BlendingFactor.SourceColor;
-		case "destination_color": return BlendingFactor.DestinationColor;
-		case "inverse_source_color": return BlendingFactor.InverseSourceColor;
-		case "inverse_destination_color": return BlendingFactor.InverseDestinationColor;
-		default: return BlendingFactor.Undefined;
+			case "blend_one": return BlendingFactor.BlendOne;
+			case "blend_zero": return BlendingFactor.BlendZero;
+			case "source_alpha": return BlendingFactor.SourceAlpha;
+			case "destination_alpha": return BlendingFactor.DestinationAlpha;
+			case "inverse_source_alpha": return BlendingFactor.InverseSourceAlpha;
+			case "inverse_destination_alpha": return BlendingFactor.InverseDestinationAlpha;
+			case "source_color": return BlendingFactor.SourceColor;
+			case "destination_color": return BlendingFactor.DestinationColor;
+			case "inverse_source_color": return BlendingFactor.InverseSourceColor;
+			case "inverse_destination_color": return BlendingFactor.InverseDestinationColor;
+			default: return BlendingFactor.Undefined;
 		}
 	}
 
 	function getTextureAddresing(s: String): TextureAddressing {
 		switch (s) {
-		case "repeat": return TextureAddressing.Repeat;
-		case "mirror": return TextureAddressing.Mirror;
-		default: return TextureAddressing.Clamp;
+			case "repeat": return TextureAddressing.Repeat;
+			case "mirror": return TextureAddressing.Mirror;
+			default: return TextureAddressing.Clamp;
 		}
 	}
 
 	function getTextureFilter(s: String): TextureFilter {
 		switch (s) {
-		case "point": return TextureFilter.PointFilter;
-		case "linear": return TextureFilter.LinearFilter;
-		default: return TextureFilter.AnisotropicFilter;
+			case "point": return TextureFilter.PointFilter;
+			case "linear": return TextureFilter.LinearFilter;
+			default: return TextureFilter.AnisotropicFilter;
 		}
 	}
 
 	function getMipmapFilter(s: String): MipMapFilter {
 		switch (s) {
-		case "no": return MipMapFilter.NoMipFilter;
-		case "point": return MipMapFilter.PointMipFilter;
-		default: return MipMapFilter.LinearMipFilter;
+			case "no": return MipMapFilter.NoMipFilter;
+			case "point": return MipMapFilter.PointMipFilter;
+			default: return MipMapFilter.LinearMipFilter;
 		}
 	}
 
 	function getTextureFormat(s: String): TextureFormat {
 		switch (s) {
-		case "RGBA32": return TextureFormat.RGBA32;
-		case "RGBA64": return TextureFormat.RGBA64;
-		case "RGBA128": return TextureFormat.RGBA128;
-		case "DEPTH16": return TextureFormat.DEPTH16;
-		case "R32": return TextureFormat.A32;
-		case "R16": return TextureFormat.A16;
-		case "R8": return TextureFormat.L8;
-		default: return TextureFormat.RGBA32;
+			case "RGBA32": return TextureFormat.RGBA32;
+			case "RGBA64": return TextureFormat.RGBA64;
+			case "RGBA128": return TextureFormat.RGBA128;
+			case "DEPTH16": return TextureFormat.DEPTH16;
+			case "R32": return TextureFormat.A32;
+			case "R16": return TextureFormat.A16;
+			case "R8": return TextureFormat.L8;
+			default: return TextureFormat.RGBA32;
 		}
 	}
 
 	function getDepthStencilFormat(s: String): DepthStencilFormat {
 		switch (s) {
-		case "DEPTH32": return DepthStencilFormat.DepthOnly;
-		case "NONE": return DepthStencilFormat.NoDepthAndStencil;
-		default: return DepthStencilFormat.DepthOnly;
+			case "DEPTH32": return DepthStencilFormat.DepthOnly;
+			case "NONE": return DepthStencilFormat.NoDepthAndStencil;
+			default: return DepthStencilFormat.DepthOnly;
 		}
 	}
 

@@ -34,7 +34,12 @@ class Tilesheet {
 
 	public function play(action_ref: String, onActionComplete: Void->Void = null) {
 		this.onActionComplete = onActionComplete;
-		for (a in raw.actions) if (a.name == action_ref) { action = a; break; }
+		for (a in raw.actions) {
+			if (a.name == action_ref) {
+				action = a;
+				break;
+			}
+		}
 		setFrame(action.start);
 		paused = false;
 	}

@@ -97,6 +97,12 @@ class Vec2 {
 		return this;
 	}
 
+	public inline function exp(v: Vec2): Vec2 {
+		x = Math.exp(v.x);
+		y = Math.exp(v.y);
+		return this;
+	}
+
 	public static inline function distance(v1: Vec2, v2: Vec2): FastFloat {
 		return distancef(v1.x, v1.y, v2.x, v2.y);
 	}
@@ -118,8 +124,13 @@ class Vec2 {
 		return this;
 	}
 
-	public static inline function xAxis(): Vec2 { return new Vec2(1.0, 0.0); }
-	public static inline function yAxis(): Vec2 { return new Vec2(0.0, 1.0); }
+	public static inline function xAxis(): Vec2 {
+		return new Vec2(1.0, 0.0);
+	}
+
+	public static inline function yAxis(): Vec2 {
+		return new Vec2(0.0, 1.0);
+	}
 
 	public function toString(): String {
 		return "(" + this.x + ", " + this.y + ")";

@@ -134,6 +134,13 @@ class Vec3 {
 		return this;
 	}
 
+	public inline function exp(v: Vec3): Vec3 {
+		x = Math.exp(v.x);
+		y = Math.exp(v.y);
+		z = Math.exp(v.z);
+		return this;
+	}
+
 	public static inline function distance(v1: Vec3, v2: Vec3): FastFloat {
 		return distancef(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 	}
@@ -156,9 +163,17 @@ class Vec3 {
 		return this;
 	}
 
-	public static inline function xAxis(): Vec3 { return new Vec3(1.0, 0.0, 0.0); }
-	public static inline function yAxis(): Vec3 { return new Vec3(0.0, 1.0, 0.0); }
-	public static inline function zAxis(): Vec3 { return new Vec3(0.0, 0.0, 1.0); }
+	public static inline function xAxis(): Vec3 {
+		return new Vec3(1.0, 0.0, 0.0);
+	}
+
+	public static inline function yAxis(): Vec3 {
+		return new Vec3(0.0, 1.0, 0.0);
+	}
+
+	public static inline function zAxis(): Vec3 {
+		return new Vec3(0.0, 0.0, 1.0);
+	}
 
 	public function toString(): String {
 		return "(" + this.x + ", " + this.y + ", " + this.z + ")";

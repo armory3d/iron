@@ -13,6 +13,17 @@ class LightObject extends Object {
 	public var data: LightData;
 
 	#if rp_shadowmap
+	#if arm_shadowmap_atlas
+	public var tileNotifyOnRemove: Void -> Void;
+	public var lightInAtlas = false;
+	public var culledLight = false;
+	public static var pointLightsData: kha.arrays.Float32Array = null;
+	public var shadowMapScale = 0.0;
+	// Data used in uniforms
+	public var tileOffsetX: Array<Float> = [0.0];
+	public var tileOffsetY: Array<Float> = [0.0];
+	public var tileScale: Array<Float> = [1.0];
+	#end
 	// Cascades
 	public static var cascadeCount = 1;
 	public static var cascadeSplitFactor = 0.8;
@@ -28,13 +39,17 @@ class LightObject extends Object {
 	#end
 	#end // rp_shadowmap
 
+	#if (arm_csm || arm_clusters)
+	static var helpMat = Mat4.identity();
+	#end
+
 	// Clusters
 	#if arm_clusters
 	static var slicesX = 16;
 	static var slicesY = 16;
 	static var slicesZ = 16;
-	static inline var maxLights = 16;
-	static inline var maxLightsCluster = 4; // Mirror shader constant
+	static inline var maxLights = getMaxLights();
+	public static inline var maxLightsCluster = getMaxLightsCluster(); // Mirror shader constant
 	static inline var clusterNear = 3.0;
 	public static var lightsArray: Float32Array = null;
 	#if arm_spot
@@ -42,6 +57,7 @@ class LightObject extends Object {
 	#end
 	public static var clustersData: kha.Image = null;
 	static var lpos = new Vec4();
+	public static var LWVPMatrixArray: Float32Array = null;
 	#end // arm_clusters
 
 	public var V: Mat4 = Mat4.identity();
@@ -73,6 +89,9 @@ class LightObject extends Object {
 			#else
 			P = Mat4.ortho(-1, 1, -1, 1, data.raw.near_plane, data.raw.far_plane);
 			#end
+			#if arm_shadowmap_atlas
+			this.shadowMapScale = 1.0;
+			#end
 		}
 		else if (type == "point" || type == "area") {
 			P = Mat4.persp(fov, 1, data.raw.near_plane, data.raw.far_plane);
@@ -86,6 +105,14 @@ class LightObject extends Object {
 
 	override public function remove() {
 		if (Scene.active != null) Scene.active.lights.remove(this);
+		#if rp_shadowmap
+		#if arm_shadowmap_atlas
+		if (tileNotifyOnRemove != null) {
+			tileNotifyOnRemove();
+			tileNotifyOnRemove = null;
+		}
+		#end
+		#end
 		super.remove();
 	}
 
@@ -118,10 +145,11 @@ class LightObject extends Object {
 		corners[7].set(1.0, 1.0, -1.0);
 	}
 
-	static inline function mix(a: Float, b: Float, f: Float): Float { return a * (1 - f) + b * f; }
+	static inline function mix(a: Float, b: Float, f: Float): Float {
+		return a * (1 - f) + b * f;
+	}
 
 	public function setCascade(camera: CameraObject, cascade: Int) {
-
 		m.setFrom(camera.V);
 
 		#if arm_csm
@@ -261,7 +289,7 @@ class LightObject extends Object {
 	public function setCubeFace(face: Int, camera: CameraObject) {
 		// Set matrix to match cubemap face
 		eye.set(transform.worldx(), transform.worldy(), transform.worldz());
-		#if (!kha_opengl && !kha_webgl)
+		#if (!kha_opengl && !kha_webgl && !arm_shadowmap_atlas)
 		var flip = (face == 2 || face == 3) ? true : false; // Flip +Y, -Y
 		#else
 		var flip = false;
@@ -282,9 +310,27 @@ class LightObject extends Object {
 		for (i in 0...cascadeCount) {
 			m.setFrom(cascadeVP[i]);
 			bias.setFrom(Uniforms.biasMat);
+			#if (!arm_shadowmap_atlas)
 			bias._00 /= cascadeCount; // Atlas offset
 			bias._30 /= cascadeCount;
 			bias._30 += i * (1 / cascadeCount);
+			#else
+			// tile matrix
+			helpMat.setIdentity();
+			// scale [0-1] coords to [0-tilescale]
+			helpMat._00 = this.tileScale[i];
+			helpMat._11 = this.tileScale[i];
+			// offset coordinate start from [0, 0] to [tile-start-x, tile-start-y]
+			helpMat._30 = this.tileOffsetX[i];
+			helpMat._31 = this.tileOffsetY[i];
+			bias.multmat(helpMat);
+			#if (!kha_opengl)
+			helpMat.setIdentity();
+			helpMat._11 = -1.0;
+			helpMat._31 = 1.0;
+			bias.multmat(helpMat);
+			#end
+			#end
 			m.multmat(bias);
 			cascadeData[i * 16] = m._00;
 			cascadeData[i * 16 + 1] = m._01;
@@ -313,26 +359,47 @@ class LightObject extends Object {
 
 	#if arm_clusters
 
+	// Centralize discarding conditions when iterating over lights
+	// Important to avoid issues later with "misaligned" data in uniforms (lightsArray, clusterData, LWVPSpotArray)
+	public inline static function discardLight(light: LightObject) {
+		return !light.visible || light.data.raw.strength == 0.0 || light.data.raw.type == "sun";
+	}
+	// Discarding conditions but with culling included
+	public inline static function discardLightCulled(light: LightObject) {
+		return #if arm_shadowmap_atlas light.culledLight || #end discardLight(light);
+	}
+
+	#if (arm_shadowmap_atlas && arm_shadowmap_atlas_lod)
+	// Arbitrary function to map from [0-16] to [1.0-0.0]
+	public inline static function zToShadowMapScale(z: Int, max: Int): Float {
+ 		return 0.25 * Math.sqrt(-z + max);
+	}
+	#end
+
 	static function getRadius(strength: kha.FastFloat): kha.FastFloat {
 		// (1.0 / (dist * dist)) * strength = 0.01
 		return Math.sqrt(strength / 0.004);
 	}
 
-	static function distSliceX(f: Float, lpos: Vec4): Float {
+	inline static function distSliceX(f: Float, lpos: Vec4): Float {
 		return (lpos.x - f * lpos.z) / Math.sqrt(1.0 + f * f);
 	}
 
-	static function distSliceY(f: Float, lpos: Vec4): Float {
+	inline static function distSliceY(f: Float, lpos: Vec4): Float {
 		return (lpos.y - f * lpos.z) / Math.sqrt(1.0 + f * f);
 	}
 
 	static function sliceToDist(camera: CameraObject, z: Int): Float {
 		var cnear = clusterNear + camera.data.raw.near_plane;
-		if (z == 0) return camera.data.raw.near_plane;
-		else if (z == 1) return cnear;
-		else {
-			var depthl = (z - 1) / (slicesZ - 1);
-			return Math.exp(depthl * Math.log(camera.data.raw.far_plane - cnear + 1.0)) + cnear - 1.0;
+		switch (z) {
+			case 0:
+				return camera.data.raw.near_plane;
+			case 1:
+				return cnear;
+			default: {
+				var depthl = (z - 1) / (slicesZ - 1);
+				return Math.exp(depthl * Math.log(camera.data.raw.far_plane - cnear + 1.0)) + cnear - 1.0;
+			}
 		}
 	}
 
@@ -346,8 +413,6 @@ class LightObject extends Object {
 		});
 		#end
 
-		updateLightsArray(); // TODO: only update on light change
-
 		if (clustersData == null) {
 			var lines = #if (arm_spot) 2 #else 1 #end;
 			clustersData = kha.Image.create(slicesX * slicesY * slicesZ, lines + maxLightsCluster, TextureFormat.L8, Usage.DynamicUsage);
@@ -356,10 +421,12 @@ class LightObject extends Object {
 		var bytes = clustersData.lock();
 
 		var stride = slicesX * slicesY * slicesZ;
-		for (i in 0...stride) bytes.set(i, 0);
-		#if arm_spot
-		for (i in 0...stride) bytes.set(i + stride * (maxLightsCluster + 1), 0);
-		#end
+		for (i in 0...stride) {
+			bytes.set(i, 0);
+			#if arm_spot
+			bytes.set(i + stride * (maxLightsCluster + 1), 0);
+			#end
+		}
 
 		var fovtan = Math.tan(camera.data.raw.fov * 0.5);
 		var stepY = (2.0 * fovtan) / slicesY;
@@ -369,7 +436,7 @@ class LightObject extends Object {
 		var n = lights.length > maxLights ? maxLights : lights.length;
 		var i = 0;
 		for (l in lights) {
-			if (!l.visible || l.data.raw.strength == 0.0 || l.data.raw.type == "sun") continue;
+			if (discardLight(l)) continue;
 			if (i >= n) break;
 			// Light bounds
 			lpos.set(l.transform.worldx(), l.transform.worldy(), l.transform.worldz());
@@ -406,6 +473,14 @@ class LightObject extends Object {
 				if (sliceToDist(camera, maxZ - 1) <= lpos.z + radius) break;
 				maxZ--;
 			}
+			#if arm_shadowmap_atlas
+			l.culledLight = maxZ < 0 || minX > maxX || minY > maxY;
+			l.shadowMapScale = l.culledLight ? 0.0 : #if arm_shadowmap_atlas_lod zToShadowMapScale(minZ, slicesZ) #else 1.0 #end;
+			// Discard lights that are outside of the view
+			if (l.culledLight) {
+				continue;
+			}
+			#end
 			// Mark affected clusters
 			for (z in minZ...maxZ + 1) {
 				for (y in minY...maxY + 1) {
@@ -430,11 +505,13 @@ class LightObject extends Object {
 			i++;
 		}
 		clustersData.unlock();
+
+		updateLightsArray(); // TODO: only update on light change
 	}
 
 	static function updateLightsArray() {
 		if (lightsArray == null) { // vec4x3 - 1: pos, a, color, b, 2: dir, c
-			lightsArray = new Float32Array(maxLights * 4 * 2);
+			lightsArray = new Float32Array(maxLights * 4 * 3);
 			#if arm_spot
 			lightsArraySpot = new Float32Array(maxLights * 4);
 			#end
@@ -443,22 +520,29 @@ class LightObject extends Object {
 		var n = lights.length > maxLights ? maxLights : lights.length;
 		var i = 0;
 		for (l in lights) {
-			if (!l.visible || l.data.raw.type == "sun") continue;
+			if (discardLightCulled(l)) continue;
 			if (i >= n) break;
-			lightsArray[i * 8    ] = l.transform.worldx();
-			lightsArray[i * 8 + 1] = l.transform.worldy();
-			lightsArray[i * 8 + 2] = l.transform.worldz();
-			lightsArray[i * 8 + 3] = l.data.raw.shadows_bias;
+			// light position
+			lightsArray[i * 12    ] = l.transform.worldx();
+			lightsArray[i * 12 + 1] = l.transform.worldy();
+			lightsArray[i * 12 + 2] = l.transform.worldz();
+			lightsArray[i * 12 + 3] = 0.0; // padding
+			// light color
 			var f = l.data.raw.strength;
-			lightsArray[i * 8 + 4] = l.data.raw.color[0] * f;
-			lightsArray[i * 8 + 5] = l.data.raw.color[1] * f;
-			lightsArray[i * 8 + 6] = l.data.raw.color[2] * f;
-			// lightsArray[i * 8 + 7] = ;
+			lightsArray[i * 12 + 4] = l.data.raw.color[0] * f;
+			lightsArray[i * 12 + 5] = l.data.raw.color[1] * f;
+			lightsArray[i * 12 + 6] = l.data.raw.color[2] * f;
+			lightsArray[i * 12 + 7] = 0.0; // padding
+			// other data
+			lightsArray[i * 12 + 8] = l.data.raw.shadows_bias; // bias
+			lightsArray[i * 12 + 9] = 0.0; // cutoff for detecting spot
+			lightsArray[i * 12 + 10] = l.data.raw.cast_shadow ? 1.0 : 0.0; // hasShadows
+			lightsArray[i * 12 + 11] = 0.0; // padding
 			#if arm_spot
 			if (l.data.raw.type == "spot") {
 				// a: cutoff, b: cutoff - exponent
-				var a = l.data.raw.type == "spot" ? l.data.raw.spot_size : 0.0;
-				lightsArray[i * 8 + 7] = a;
+				var a = l.data.raw.spot_size;
+				lightsArray[i * 12 + 9] = a;
 				var dir = l.look();
 				lightsArraySpot[i * 4    ] = dir.x;
 				lightsArraySpot[i * 4 + 1] = dir.y;
@@ -471,9 +555,101 @@ class LightObject extends Object {
 		}
 	}
 
+	public static function updateLWVPMatrixArray(object: Object, type: String) {
+		if (LWVPMatrixArray == null) {
+			LWVPMatrixArray = new Float32Array(maxLightsCluster * 16);
+		}
+
+		var lights = Scene.active.lights;
+		var n = lights.length > maxLightsCluster ? maxLightsCluster : lights.length;
+		var i = 0;
+
+		for (light in lights) {
+			if (i >= n) {
+				break;
+			}
+			if (discardLightCulled(light)) continue;
+			if (light.data.raw.type == type) {
+				m.setFrom(light.VP);
+				m.multmat(Uniforms.biasMat);
+				#if arm_shadowmap_atlas
+				// tile matrix
+				helpMat.setIdentity();
+				// scale [0-1] coords to [0-tilescale]
+				helpMat._00 = light.tileScale[0];
+				helpMat._11 = light.tileScale[0];
+				// offset coordinate start from [0, 0] to [tile-start-x, tile-start-y]
+				helpMat._30 = light.tileOffsetX[0];
+				helpMat._31 = light.tileOffsetY[0];
+				m.multmat(helpMat);
+				#if (!kha_opengl)
+				helpMat.setIdentity();
+				helpMat._11 = -1.0;
+				helpMat._31 = 1.0;
+				m.multmat(helpMat);
+				#end
+				#end
+
+				LWVPMatrixArray[i * 16    ] = m._00;
+				LWVPMatrixArray[i * 16 + 1] = m._01;
+				LWVPMatrixArray[i * 16 + 2] = m._02;
+				LWVPMatrixArray[i * 16 + 3] = m._03;
+				LWVPMatrixArray[i * 16 + 4] = m._10;
+				LWVPMatrixArray[i * 16 + 5] = m._11;
+				LWVPMatrixArray[i * 16 + 6] = m._12;
+				LWVPMatrixArray[i * 16 + 7] = m._13;
+				LWVPMatrixArray[i * 16 + 8] = m._20;
+				LWVPMatrixArray[i * 16 + 9] = m._21;
+				LWVPMatrixArray[i * 16 + 10] = m._22;
+				LWVPMatrixArray[i * 16 + 11] = m._23;
+				LWVPMatrixArray[i * 16 + 12] = m._30;
+				LWVPMatrixArray[i * 16 + 13] = m._31;
+				LWVPMatrixArray[i * 16 + 14] = m._32;
+				LWVPMatrixArray[i * 16 + 15] = m._33;
+			}
+			i++;
+		}
+		return LWVPMatrixArray;
+	}
+
+	public static inline function getMaxLights(): Int {
+		#if (rp_max_lights == 8)
+		return 8;
+		#elseif (rp_max_lights == 16)
+		return 16;
+		#elseif (rp_max_lights == 32)
+		return 32;
+		#elseif (rp_max_lights == 64)
+		return 64;
+		#else
+		return 4;
+		#end
+	}
+
+	public static inline function getMaxLightsCluster(): Int {
+		#if (rp_max_lights_cluster == 8)
+		return 8;
+		#elseif (rp_max_lights_cluster == 16)
+		return 16;
+		#elseif (rp_max_lights_cluster == 32)
+		return 32;
+		#elseif (rp_max_lights_cluster == 64)
+		return 64;
+		#else
+		return 4;
+		#end
+	}
 	#end // arm_clusters
 
-	public inline function right(): Vec4 { return new Vec4(V._00, V._10, V._20); }
-	public inline function up(): Vec4 { return new Vec4(V._01, V._11, V._21); }
-	public inline function look(): Vec4 { return new Vec4(V._02, V._12, V._22); }
+	public inline function right(): Vec4 {
+		return new Vec4(V._00, V._10, V._20);
+	}
+
+	public inline function up(): Vec4 {
+		return new Vec4(V._01, V._11, V._21);
+	}
+
+	public inline function look(): Vec4 {
+		return new Vec4(V._02, V._12, V._22);
+	}
 }

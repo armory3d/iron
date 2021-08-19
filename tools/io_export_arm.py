@@ -2,7 +2,7 @@
 #  https://armory3d.org/
 #
 #  Based on Open Game Engine Exchange
-#  http://opengex.org/
+#  https://opengex.org/
 #  Export plugin for Blender by Eric Lengyel
 #  Copyright 2015, Terathon Software LLC
 #

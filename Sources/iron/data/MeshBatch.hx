@@ -60,7 +60,6 @@ class MeshBatch {
 	public function render(g: Graphics, context: String, bindParams: Array<String>) {
 
 		for (b in buckets) {
-
 			if (!b.batched) b.batch();
 			if (b.meshes.length > 0 && b.meshes[0].cullMaterial(context)) continue;
 
@@ -207,7 +206,12 @@ class Bucket {
 
 		// Ensure same vertex structure for batched meshes
 		var hasUVs = false;
-		for (m in meshes) if (m.data.geom.uvs != null) { hasUVs = true; break; }
+		for (m in meshes) {
+			if (m.data.geom.uvs != null) {
+				hasUVs = true;
+				break;
+			}
+		}
 
 		// Unique mesh datas
 		var vcount = 0;

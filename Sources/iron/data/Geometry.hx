@@ -5,6 +5,9 @@ import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
+#if kha_html5
+import kha.arrays.ByteArray;
+#end
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
 import kha.arrays.Int16Array;
@@ -26,7 +29,11 @@ class Geometry {
 	public var name = "";
 
 	public var ready = false;
+	#if kha_html5
+	public var vertices: ByteArray;
+	#else
 	public var vertices: Int16Array;
+	#end
 	public var indices: Array<Uint32Array>;
 	public var numTris = 0;
 	public var materialIndices: Array<Int>;
@@ -95,7 +102,7 @@ class Geometry {
 
 	static function getVertexStructure(vertexArrays: Array<TVertexArray>): VertexStructure {
 		var structure = new VertexStructure();
-		for (i in 0...vertexArrays.length){
+		for (i in 0...vertexArrays.length) {
 			structure.add(vertexArrays[i].attrib, getVertexData(vertexArrays[i].data));
 		}
 		return structure;
@@ -181,7 +188,7 @@ class Geometry {
 		var vbs = [];
 		for (e in vs) {
 			for (v in 0...vertexBuffers.length)
-				if (vertexBuffers[v].name == e.name){
+				if (vertexBuffers[v].name == e.name) {
 					vbs.push(vertexBuffers[v].buffer);
 					continue;
 				}
@@ -202,7 +209,7 @@ class Geometry {
 			var atex = false;
 			var texOffset = -1;
 			var acol = false;
-			for (e in 0...vs.length){
+			for (e in 0...vs.length) {
 				if (vs[e].name == "tex") {
 					atex = true;
 					texOffset = e;
@@ -219,7 +226,11 @@ class Geometry {
 			// Multi-mat mesh with different vertex structures
 			var struct = getVertexStructure(nVertexArrays);
 			vb = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
+			#if kha_html5
+			vertices = vb.lock();
+			#else
 			vertices = vb.lockInt16();
+			#end
 			buildVertices(vertices, nVertexArrays, 0, atex && uvs == null, texOffset);
 			vb.unlock();
 			vertexBufferMap.set(key, vb);
@@ -244,7 +255,11 @@ class Geometry {
 #else
 
 		vertexBuffer = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
+		#if kha_html5
+		vertices = vertexBuffer.lock();
+		#else
 		vertices = vertexBuffer.lockInt16();
+		#end
 		buildVertices(vertices, vertexArrays);
 		vertexBuffer.unlock();
 		vertexBufferMap.set(structStr, vertexBuffer);

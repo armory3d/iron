@@ -113,14 +113,20 @@ class VirtualInput {
 	function downVirtual(button: String) {
 		if (virtualButtons != null) {
 			var vb = virtualButtons.get(button);
-			if (vb != null) { vb.down = true; vb.started = true; }
+			if (vb != null) {
+				vb.down = true;
+				vb.started = true;
+			}
 		}
 	}
 
 	function upVirtual(button: String) {
 		if (virtualButtons != null) {
 			var vb = virtualButtons.get(button);
-			if (vb != null) { vb.down = false; vb.released = true; }
+			if (vb != null) {
+				vb.down = false;
+				vb.released = true;
+			}
 		}
 	}
 }
@@ -129,7 +135,7 @@ typedef Surface = Mouse;
 
 class Mouse extends VirtualInput {
 
-	static var buttons = ["left", "right", "middle"];
+	public static var buttons = ["left", "right", "middle"];
 	var buttonsDown = [false, false, false];
 	var buttonsStarted = [false, false, false];
 	var buttonsReleased = [false, false, false];
@@ -215,7 +221,10 @@ class Mouse extends VirtualInput {
 		this.x = x;
 		this.y = y;
 		#if (kha_android || kha_ios || kha_webgl) // For movement delta using touch
-		if (index == 0) { lastX = x; lastY = y; }
+		if (index == 0) {
+			lastX = x;
+			lastY = y;
+		}
 		#end
 
 		downVirtual(buttons[index]);
@@ -231,7 +240,10 @@ class Mouse extends VirtualInput {
 	}
 
 	function moveListener(x: Int, y: Int, movementX: Int, movementY: Int) {
-		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
+		if (lastX == -1.0 && lastY == -1.0) { // First frame init
+			lastX = x;
+			lastY = y;
+		}
 		if (locked) {
 			// Can be called multiple times per frame
 			this.movementX += movementX;
@@ -254,19 +266,48 @@ class Mouse extends VirtualInput {
 
 	#if (kha_android || kha_ios)
 	public function onTouchDown(index: Int, x: Int, y: Int) {
-		// Two fingers down - right mouse button
-		if (index == 1) { upListener(0, x, y); downListener(1, x, y); }
+		if (index == 1) { // Two fingers down - right mouse button
+			buttonsDown[0] = false;
+			downListener(1, Std.int(this.x), Std.int(this.y));
+			pinchStarted = true;
+		}
+		else if (index == 2) { // Three fingers down - middle mouse button
+			buttonsDown[1] = false;
+			downListener(2, Std.int(this.x), Std.int(this.y));
+		}
 	}
 
 	public function onTouchUp(index: Int, x: Int, y: Int) {
-		if (index == 1) upListener(1, x, y);
+		if (index == 1) upListener(1, Std.int(this.x), Std.int(this.y));
+		else if (index == 2) upListener(2, Std.int(this.x), Std.int(this.y));
 	}
 
-	public function onTouchMove(index: Int, x: Int, y: Int) {}
+	var pinchDistance: Float;
+	var pinchStarted = false;
+
+	public function onTouchMove(index: Int, x: Int, y: Int) {
+		// Pinch to zoom - mouse wheel
+		if (index == 1) {
+			var lastDistance = pinchDistance;
+			var dx = this.x - x;
+			var dy = this.y - y;
+			pinchDistance = Math.sqrt(dx * dx + dy * dy);
+			if (!pinchStarted) {
+				wheelDelta = Std.int((lastDistance - pinchDistance) / 10);
+				if (wheelDelta != 0) buttonsDown[1] = false;
+			}
+			pinchStarted = false;
+		}
+	}
 	#end
 
-	inline function get_viewX(): Float { return x - iron.App.x(); }
-	inline function get_viewY(): Float { return y - iron.App.y(); }
+	inline function get_viewX(): Float {
+		return x - iron.App.x();
+	}
+
+	inline function get_viewY(): Float {
+		return y - iron.App.y();
+	}
 }
 
 class Pen extends VirtualInput {
@@ -338,7 +379,10 @@ class Pen extends VirtualInput {
 	}
 
 	function moveListener(x: Int, y: Int, pressure: Float) {
-		if (lastX == -1.0 && lastY == -1.0) { lastX = x; lastY = y; } // First frame init
+		if (lastX == -1.0 && lastY == -1.0) { // First frame init
+			lastX = x;
+			lastY = y;
+		}
 		this.movementX = x - lastX;
 		this.movementY = y - lastY;
 		lastX = x;
@@ -350,13 +394,18 @@ class Pen extends VirtualInput {
 		connected = true;
 	}
 
-	inline function get_viewX(): Float { return x - iron.App.x(); }
-	inline function get_viewY(): Float { return y - iron.App.y(); }
+	inline function get_viewX(): Float {
+		return x - iron.App.x();
+	}
+
+	inline function get_viewY(): Float {
+		return y - iron.App.y();
+	}
 }
 
 class Keyboard extends VirtualInput {
 
-	static var keys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "space", "backspace", "tab", "enter", "shift", "control", "alt", "win", "escape", "delete", "up", "down", "left", "right", "back", ",", ".", ":", ";", "<", "=", ">", "?", "!", '"', "#", "$", "%", "&", "_", "(", ")", "*", "|", "{", "}", "[", "]", "~", "`", "/", "\\", "@", "+", "-", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"];
+	public static var keys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "space", "backspace", "tab", "enter", "shift", "control", "alt", "win", "escape", "delete", "up", "down", "left", "right", "back", ",", ".", ":", ";", "<", "=", ">", "?", "!", '"', "#", "$", "%", "&", "_", "(", ")", "*", "|", "{", "}", "[", "]", "~", "`", "/", "\\", "@", "+", "-", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"];
 	var keysDown = new Map<String, Bool>();
 	var keysStarted = new Map<String, Bool>();
 	var keysReleased = new Map<String, Bool>();
@@ -396,128 +445,130 @@ class Keyboard extends VirtualInput {
 	}
 
 	/**
-	  Check if a key is currently pressed.
-	  @param	key A String representing the physical keyboard key to check.
-	  @return	Bool. Returns true or false depending on the keyboard state.
+		Check if a key is currently pressed.
+		@param	key A String representing the physical keyboard key to check.
+		@return	Bool. Returns true or false depending on the keyboard state.
 	**/
 	public function down(key: String): Bool {
 		return keysDown.get(key);
 	}
 
 	/**
-	  Check if a key has started being pressed down. Will only be run once until the key is released and pressed again.
-	  @param	key A String representing the physical keyboard key to check.
-	  @return	Bool. Returns true or false depending on the keyboard state.
+		Check if a key has started being pressed down. Will only be run once until the key is released and pressed again.
+		@param	key A String representing the physical keyboard key to check.
+		@return	Bool. Returns true or false depending on the keyboard state.
 	**/
 	public function started(key: String): Bool {
 		return keysStarted.get(key);
 	}
 
 	/**
-	  Check if a key has been released from being pressed down. Will only be run once until the key is pressed again and release again.
-	  @param	key A String representing the physical keyboard key to check.
-	  @return	Bool. Returns true or false depending on the keyboard state.
+		Check if a key has been released from being pressed down. Will only be run once until the key is pressed again and release again.
+		@param	key A String representing the physical keyboard key to check.
+		@return	Bool. Returns true or false depending on the keyboard state.
 	**/
 	public function released(key: String): Bool {
 		return keysReleased.get(key);
 	}
 
 	/**
-	  Check every repeat period if a key is currently pressed.
-	  @param	key A String representing the physical keyboard key to check.
-	  @return	Bool. Returns true or false depending on the keyboard state.
+		Check every repeat period if a key is currently pressed.
+		@param	key A String representing the physical keyboard key to check.
+		@return	Bool. Returns true or false depending on the keyboard state.
 	**/
 	public function repeat(key: String): Bool {
 		return keysStarted.get(key) || (repeatKey && keysDown.get(key));
 	}
 
 	public static function keyCode(key: KeyCode): String {
-		if (key == KeyCode.Space) return "space";
-		else if (key == KeyCode.Backspace) return "backspace";
-		else if (key == KeyCode.Tab) return "tab";
-		else if (key == KeyCode.Return) return "enter";
-		else if (key == KeyCode.Shift) return "shift";
-		else if (key == KeyCode.Control) return "control";
-		#if kha_darwin
-		else if (key == KeyCode.Meta) return "control";
-		#end
-		else if (key == KeyCode.Alt) return "alt";
-		else if (key == KeyCode.Win) return "win";
-		else if (key == KeyCode.Escape) return "escape";
-		else if (key == KeyCode.Delete) return "delete";
-		else if (key == KeyCode.Up) return "up";
-		else if (key == KeyCode.Down) return "down";
-		else if (key == KeyCode.Left) return "left";
-		else if (key == KeyCode.Right) return "right";
-		else if (key == KeyCode.Back) return "back";
-		else if (key == KeyCode.Comma) return ",";
-		else if (key == KeyCode.Period) return ".";
-		else if (key == KeyCode.Colon) return ":";
-		else if (key == KeyCode.Semicolon) return ";";
-		else if (key == KeyCode.LessThan) return "<";
-		else if (key == KeyCode.Equals) return "=";
-		else if (key == KeyCode.GreaterThan) return ">";
-		else if (key == KeyCode.QuestionMark) return "?";
-		else if (key == KeyCode.Exclamation) return "!";
-		else if (key == KeyCode.DoubleQuote) return '"';
-		else if (key == KeyCode.Hash) return "#";
-		else if (key == KeyCode.Dollar) return "$";
-		else if (key == KeyCode.Percent) return "%";
-		else if (key == KeyCode.Ampersand) return "&";
-		else if (key == KeyCode.Underscore) return "_";
-		else if (key == KeyCode.OpenParen) return "(";
-		else if (key == KeyCode.CloseParen) return ")";
-		else if (key == KeyCode.Asterisk) return "*";
-		else if (key == KeyCode.Pipe) return "|";
-		else if (key == KeyCode.OpenCurlyBracket) return "{";
-		else if (key == KeyCode.CloseCurlyBracket) return "}";
-		else if (key == KeyCode.OpenBracket) return "[";
-		else if (key == KeyCode.CloseBracket) return "]";
-		else if (key == KeyCode.Tilde) return "~";
-		else if (key == KeyCode.BackQuote) return "`";
-		else if (key == KeyCode.Slash) return "/";
-		else if (key == KeyCode.BackSlash) return "\\";
-		else if (key == KeyCode.At) return "@";
-		else if (key == KeyCode.Add) return "+";
-		else if (key == KeyCode.Plus) return "+";
-		else if (key == KeyCode.Subtract) return "-";
-		else if (key == KeyCode.HyphenMinus) return "-";
-		else if (key == KeyCode.Multiply) return "*";
-		else if (key == KeyCode.Divide) return "/";
-		else if (key == KeyCode.Decimal) return ".";
-		else if (key == KeyCode.Zero) return "0";
-		else if (key == KeyCode.Numpad0) return "0";
-		else if (key == KeyCode.One) return "1";
-		else if (key == KeyCode.Numpad1) return "1";
-		else if (key == KeyCode.Two) return "2";
-		else if (key == KeyCode.Numpad2) return "2";
-		else if (key == KeyCode.Three) return "3";
-		else if (key == KeyCode.Numpad3) return "3";
-		else if (key == KeyCode.Four) return "4";
-		else if (key == KeyCode.Numpad4) return "4";
-		else if (key == KeyCode.Five) return "5";
-		else if (key == KeyCode.Numpad5) return "5";
-		else if (key == KeyCode.Six) return "6";
-		else if (key == KeyCode.Numpad6) return "6";
-		else if (key == KeyCode.Seven) return "7";
-		else if (key == KeyCode.Numpad7) return "7";
-		else if (key == KeyCode.Eight) return "8";
-		else if (key == KeyCode.Numpad8) return "8";
-		else if (key == KeyCode.Nine) return "9";
-		else if (key == KeyCode.Numpad9) return "9";
-		else if (key == KeyCode.F1) return "f1";
-		else if (key == KeyCode.F2) return "f2";
-		else if (key == KeyCode.F3) return "f3";
-		else if (key == KeyCode.F4) return "f4";
-		else if (key == KeyCode.F5) return "f5";
-		else if (key == KeyCode.F6) return "f6";
-		else if (key == KeyCode.F7) return "f7";
-		else if (key == KeyCode.F8) return "f8";
-		else if (key == KeyCode.F9) return "f9";
-		else if (key == KeyCode.F10) return "f10";
-		else if (key == KeyCode.F11) return "f11";
-		else if (key == KeyCode.F12) return "f12";
-		else return String.fromCharCode(cast key).toLowerCase();
+		return switch(key) {
+			case KeyCode.Space: "space";
+			case KeyCode.Backspace: "backspace";
+			case KeyCode.Tab: "tab";
+			case KeyCode.Return: "enter";
+			case KeyCode.Shift: "shift";
+			case KeyCode.Control: "control";
+			#if kha_darwin
+			case KeyCode.Meta: "control";
+			#end
+			case KeyCode.Alt: "alt";
+			case KeyCode.Win: "win";
+			case KeyCode.Escape: "escape";
+			case KeyCode.Delete: "delete";
+			case KeyCode.Up: "up";
+			case KeyCode.Down: "down";
+			case KeyCode.Left: "left";
+			case KeyCode.Right: "right";
+			case KeyCode.Back: "back";
+			case KeyCode.Comma: ",";
+			case KeyCode.Period: ".";
+			case KeyCode.Colon: ":";
+			case KeyCode.Semicolon: ";";
+			case KeyCode.LessThan: "<";
+			case KeyCode.Equals: "=";
+			case KeyCode.GreaterThan: ">";
+			case KeyCode.QuestionMark: "?";
+			case KeyCode.Exclamation: "!";
+			case KeyCode.DoubleQuote: '"';
+			case KeyCode.Hash: "#";
+			case KeyCode.Dollar: "$";
+			case KeyCode.Percent: "%";
+			case KeyCode.Ampersand: "&";
+			case KeyCode.Underscore: "_";
+			case KeyCode.OpenParen: "(";
+			case KeyCode.CloseParen: ")";
+			case KeyCode.Asterisk: "*";
+			case KeyCode.Pipe: "|";
+			case KeyCode.OpenCurlyBracket: "{";
+			case KeyCode.CloseCurlyBracket: "}";
+			case KeyCode.OpenBracket: "[";
+			case KeyCode.CloseBracket: "]";
+			case KeyCode.Tilde: "~";
+			case KeyCode.BackQuote: "`";
+			case KeyCode.Slash: "/";
+			case KeyCode.BackSlash: "\\";
+			case KeyCode.At: "@";
+			case KeyCode.Add: "+";
+			case KeyCode.Plus: "+";
+			case KeyCode.Subtract: "-";
+			case KeyCode.HyphenMinus: "-";
+			case KeyCode.Multiply: "*";
+			case KeyCode.Divide: "/";
+			case KeyCode.Decimal: ".";
+			case KeyCode.Zero: "0";
+			case KeyCode.Numpad0: "0";
+			case KeyCode.One: "1";
+			case KeyCode.Numpad1: "1";
+			case KeyCode.Two: "2";
+			case KeyCode.Numpad2: "2";
+			case KeyCode.Three: "3";
+			case KeyCode.Numpad3: "3";
+			case KeyCode.Four: "4";
+			case KeyCode.Numpad4: "4";
+			case KeyCode.Five: "5";
+			case KeyCode.Numpad5: "5";
+			case KeyCode.Six: "6";
+			case KeyCode.Numpad6: "6";
+			case KeyCode.Seven: "7";
+			case KeyCode.Numpad7: "7";
+			case KeyCode.Eight: "8";
+			case KeyCode.Numpad8: "8";
+			case KeyCode.Nine: "9";
+			case KeyCode.Numpad9: "9";
+			case KeyCode.F1: "f1";
+			case KeyCode.F2: "f2";
+			case KeyCode.F3: "f3";
+			case KeyCode.F4: "f4";
+			case KeyCode.F5: "f5";
+			case KeyCode.F6: "f6";
+			case KeyCode.F7: "f7";
+			case KeyCode.F8: "f8";
+			case KeyCode.F9: "f9";
+			case KeyCode.F10: "f10";
+			case KeyCode.F11: "f11";
+			case KeyCode.F12: "f12";
+			default: String.fromCharCode(cast key).toLowerCase();
+		}
 	}
 
 	function downListener(code: KeyCode) {

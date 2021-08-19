@@ -16,11 +16,11 @@ class Mat4 {
 	}
 
 	/**
-	  Set the transform from a location, rotation and scale.
-	  @param	loc The location to use.
-	  @param	quat The rotation to use.
-	  @param	sc The scale to use.
-	  @return	This matrix.
+		Set the transform from a location, rotation and scale.
+		@param	loc The location to use.
+		@param	quat The rotation to use.
+		@param	sc The scale to use.
+		@return	This matrix.
 	**/
 	public inline function compose(loc: Vec4, quat: Quat, sc: Vec4): Mat4 {
 		fromQuat(quat);
@@ -30,12 +30,12 @@ class Mat4 {
 	}
 
 	/**
-	  Decompose this matrix into its location, rotation and scale components.
-	  Additional transforms (skew, projection) will be ignored.
-	  @param	loc A vector to write the location to.
-	  @param	quat A quaternion to write the rotation to.
-	  @param	scale A vector to write the scale to.
-	  @return	This matrix.
+		Decompose this matrix into its location, rotation and scale components.
+		Additional transforms (skew, projection) will be ignored.
+		@param	loc A vector to write the location to.
+		@param	quat A quaternion to write the rotation to.
+		@param	scale A vector to write the scale to.
+		@return	This matrix.
 	**/
 	public inline function decompose(loc: Vec4, quat: Quat, scale: Vec4): Mat4 {
 		loc.x = _30; loc.y = _31; loc.z = _32;
@@ -60,9 +60,9 @@ class Mat4 {
 	}
 
 	/**
-	  Set the location component of this matrix.
-	  @param	v The location to use.
-	  @return	This matrix.
+		Set the location component of this matrix.
+		@param	v The location to use.
+		@return	This matrix.
 	**/
 	public inline function setLoc(v: Vec4): Mat4 {
 		_30 = v.x;
@@ -72,10 +72,10 @@ class Mat4 {
 	}
 
 	/**
-	  Set the transform to a rotation from a quaternion. Other existing
-	  transforms will be removed.
-	  @param	q The rotation to use.
-	  @return	This matrix.
+		Set the transform to a rotation from a quaternion. Other existing
+		transforms will be removed.
+		@param	q The rotation to use.
+		@return	This matrix.
 	**/
 	public inline function fromQuat(q: Quat): Mat4 {
 		var x = q.x; var y = q.y; var z = q.z; var w = q.w;
@@ -108,12 +108,12 @@ class Mat4 {
 	}
 
 	/**
-	  Set all components of this matrix from an array.
-	  @param	a The 16-component array to use. Components should be in the
+		Set all components of this matrix from an array.
+		@param	a The 16-component array to use. Components should be in the
 				same order as for `Mat4.new()`.
-	  @param	offset An offset index to the start of the data in the array.
+		@param	offset An offset index to the start of the data in the array.
 				Defaults to 0.
-	  @return	A new matrix.
+		@return	A new matrix.
 	**/
 	public static inline function fromFloat32Array(a: kha.arrays.Float32Array, offset = 0): Mat4 {
 		return new Mat4(
@@ -125,9 +125,9 @@ class Mat4 {
 	}
 
 	/**
-	  Create a matrix that represents no transform - located at the origin,
-	  zero rotation, and a uniform scale of 1.
-	  @return	A new matrix.
+		Create a matrix that represents no transform - located at the origin,
+		zero rotation, and a uniform scale of 1.
+		@return	A new matrix.
 	**/
 	public static inline function identity(): Mat4 {
 		return new Mat4(
@@ -139,8 +139,8 @@ class Mat4 {
 	}
 
 	/**
-	  Set this matrix to the identity (see `identity()`).
-	  @return	This matrix.
+		Set this matrix to the identity (see `identity()`).
+		@return	This matrix.
 	**/
 	public inline function setIdentity(): Mat4 {
 		_00 = 1.0; _01 = 0.0; _02 = 0.0; _03 = 0.0;
@@ -151,11 +151,11 @@ class Mat4 {
 	}
 
 	/**
-	  Reset this matrix to the identity and set its location.
-	  @param	x The x location.
-	  @param	y The y location.
-	  @param	z The z location.
-	  @return	This matrix.
+		Reset this matrix to the identity and set its location.
+		@param	x The x location.
+		@param	y The y location.
+		@param	z The z location.
+		@return	This matrix.
 	**/
 	public inline function initTranslate(x: FastFloat = 0.0, y: FastFloat = 0.0, z: FastFloat = 0.0): Mat4 {
 		_00 = 1.0; _01 = 0.0; _02 = 0.0; _03 = 0.0;
@@ -166,11 +166,11 @@ class Mat4 {
 	}
 
 	/**
-	  Apply an additional translation to this matrix.
-	  @param	x The distance to move in the x direction.
-	  @param	y The distance to move in the x direction.
-	  @param	z The distance to move in the x direction.
-	  @return	This matrix
+		Apply an additional translation to this matrix.
+		@param	x The distance to move in the x direction.
+		@param	y The distance to move in the x direction.
+		@param	z The distance to move in the x direction.
+		@return	This matrix
 	**/
 	public inline function translate(x: FastFloat, y: FastFloat, z: FastFloat): Mat4 {
 		_00 += x * _03; _01 += y * _03; _02 += z * _03;
@@ -181,9 +181,9 @@ class Mat4 {
 	}
 
 	/**
-	  Apply an additional scale to this matrix.
-	  @param	v The vector to scale by.
-	  @return	This matrix.
+		Apply an additional scale to this matrix.
+		@param	v The vector to scale by.
+		@return	This matrix.
 	**/
 	public inline function scale(v: Vec4): Mat4 {
 		var x = v.x; var y = v.y; var z = v.z;
@@ -300,9 +300,9 @@ class Mat4 {
 	}
 
 	/**
-	  Invert a matrix and store the result in this one.
-	  @param	m The matrix to invert.
-	  @return	This matrix.
+		Invert a matrix and store the result in this one.
+		@param	m The matrix to invert.
+		@return	This matrix.
 	**/
 	public inline function getInverse(m: Mat4): Mat4 {
 		var a00 = m._00; var a01 = m._01; var a02 = m._02; var a03 = m._03;
@@ -347,8 +347,8 @@ class Mat4 {
 	}
 
 	/**
-	  Transpose this matrix.
-	  @return	This matrix.
+		Transpose this matrix.
+		@return	This matrix.
 	**/
 	public inline function transpose(): Mat4 {
 		var f = _01; _01 = _10; _10 = f;
@@ -368,8 +368,8 @@ class Mat4 {
 	}
 
 	/**
-	  Create a copy of this matrix.
-	  @return	A new matrix.
+		Create a copy of this matrix.
+		@return	A new matrix.
 	**/
 	public inline function clone(): Mat4 {
 		return new Mat4(
@@ -397,16 +397,16 @@ class Mat4 {
 	}
 
 	/**
-	  Get the location component.
-	  @return	A new vector.
+		Get the location component.
+		@return	A new vector.
 	**/
 	public inline function getLoc(): Vec4 {
 		return new Vec4(_30, _31, _32, _33);
 	}
 
 	/**
-	  Get the scale component.
-	  @return	A new vector.
+		Get the scale component.
+		@return	A new vector.
 	**/
 	public inline function getScale(): Vec4 {
 		return new Vec4(
@@ -417,9 +417,9 @@ class Mat4 {
 	}
 
 	/**
-	  Multiply this vector by a scalar.
-	  @param	s The value to multiply by.
-	  @return	This matrix.
+		Multiply this vector by a scalar.
+		@param	s The value to multiply by.
+		@return	This matrix.
 	**/
 	public inline function mult(s: FastFloat): Mat4 {
 		_00 *= s; _10 *= s; _20 *= s; _30 *= s;
@@ -430,9 +430,9 @@ class Mat4 {
 	}
 
 	/**
-	  Convert this matrix to a rotation matrix, and discard location and
-	  scale information.
-	  @return	This matrix.
+		Convert this matrix to a rotation matrix, and discard location and
+		scale information.
+		@return	This matrix.
 	**/
 	public inline function toRotation(): Mat4 {
 		var scale = 1.0 / helpVec.set(_00, _01, _02).length();
@@ -458,12 +458,12 @@ class Mat4 {
 	}
 
 	/**
-	  Create a new perspective projection matrix.
-	  @param	fovY The vertical field of view.
-	  @param	aspect The aspect ratio.
-	  @param	zn The depth of the near floor of the frustum.
-	  @param	zf The depth of the far floor of the frustum.
-	  @return	A new matrix.
+		Create a new perspective projection matrix.
+		@param	fovY The vertical field of view.
+		@param	aspect The aspect ratio.
+		@param	zn The depth of the near floor of the frustum.
+		@param	zf The depth of the far floor of the frustum.
+		@return	A new matrix.
 	**/
 	public static inline function persp(fovY: FastFloat, aspect: FastFloat, zn: FastFloat, zf: FastFloat): Mat4 {
 		var uh = 1.0 / Math.tan(fovY / 2);
@@ -477,14 +477,14 @@ class Mat4 {
 	}
 
 	/**
-	  Create a new orthographic projection matrix.
-	  @param	left The left of the box.
-	  @param	right The right of the box.
-	  @param	bottom The bottom of the box.
-	  @param	top The top of the box.
-	  @param	near The depth of the near floor of the box.
-	  @param	far The depth of the far floor of the box.
-	  @return	A new matrix.
+		Create a new orthographic projection matrix.
+		@param	left The left of the box.
+		@param	right The right of the box.
+		@param	bottom The bottom of the box.
+		@param	top The top of the box.
+		@param	near The depth of the near floor of the box.
+		@param	far The depth of the far floor of the box.
+		@return	A new matrix.
 	**/
 	public static inline function ortho(left: FastFloat, right: FastFloat, bottom: FastFloat, top: FastFloat, near: FastFloat, far: FastFloat): Mat4 {
 		var rl = right - left;
@@ -545,8 +545,8 @@ class Mat4 {
 	}
 
 	/**
-	  Apply an additional rotation to this matrix.
-	  @param	q The quaternion to rotate by.
+		Apply an additional rotation to this matrix.
+		@param	q The quaternion to rotate by.
 	**/
 	public inline function applyQuat(q: Quat) {
 		helpMat.fromQuat(q);
@@ -554,20 +554,26 @@ class Mat4 {
 	}
 
 	/**
-	  @return	The right vector; the positive x axis of the space defined by
+		@return	The right vector; the positive x axis of the space defined by
 				this matrix.
 	**/
-	public inline function right(): Vec4 { return new Vec4(_00, _01, _02); }
+	public inline function right(): Vec4 {
+		return new Vec4(_00, _01, _02);
+	}
 	/**
-	  @return	The look vector; the positive y axis of the space defined by
+		@return	The look vector; the positive y axis of the space defined by
 				this matrix.
 	**/
-	public inline function look(): Vec4 { return new Vec4(_10, _11, _12); }
+	public inline function look(): Vec4 {
+		return new Vec4(_10, _11, _12);
+	}
 	/**
-	  @return	The up vector; the positive z axis of the space defined by
+		@return	The up vector; the positive z axis of the space defined by
 				this matrix.
 	**/
-	public inline function up(): Vec4 { return new Vec4(_20, _21, _22); }
+	public inline function up(): Vec4 {
+		return new Vec4(_20, _21, _22);
+	}
 
 	public var _00(get, set): FastFloat; inline function get__00(): FastFloat { return self._00; } inline function set__00(f: FastFloat): FastFloat { return self._00 = f; }
 	public var _01(get, set): FastFloat; inline function get__01(): FastFloat { return self._01; } inline function set__01(f: FastFloat): FastFloat { return self._01 = f; }

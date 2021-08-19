@@ -22,7 +22,7 @@ using StringTools;
 // Structure for setting shader uniforms
 class Uniforms {
 
-	#if (kha_opengl || kha_webgl)
+	#if (kha_opengl || (kha_webgl && !arm_shadowmap_atlas) || (!kha_webgl && arm_shadowmap_atlas))
 	public static var biasMat = new Mat4(
 		0.5, 0.0, 0.0, 0.5,
 		0.0, 0.5, 0.0, 0.5,
@@ -140,15 +140,21 @@ class Uniforms {
 		if (externalTextureLinks != null) {
 			if (context.raw.texture_units != null) {
 				for (j in 0...context.raw.texture_units.length) {
-					var tulink = context.raw.texture_units[j].link;
-					if (tulink == null) continue;
+					var tu = context.raw.texture_units[j];
+					if (tu.link == null) continue;
+					var tuAddrU = getTextureAddressing(tu.addressing_u);
+					var tuAddrV = getTextureAddressing(tu.addressing_v);
+					var tuFilterMin = getTextureFilter(tu.filter_min);
+					var tuFilterMag = getTextureFilter(tu.filter_mag);
+					var tuMipMapFilter = getMipMapFilter(tu.mipmap_filter);
+
 					for (f in externalTextureLinks) {
-						var image = f(object, currentMat(object), tulink);
+						var image = f(object, currentMat(object), tu.link);
 						if (image != null) {
-							tulink.endsWith("_depth") ?
+							tu.link.endsWith("_depth") ?
 								g.setTextureDepth(context.textureUnits[j], image) :
 								g.setTexture(context.textureUnits[j], image);
-							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Repeat, TextureAddressing.Repeat, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+							g.setTextureParameters(context.textureUnits[j], tuAddrU, tuAddrV, tuFilterMin, tuFilterMag, tuMipMapFilter);
 							break;
 						}
 					}
@@ -667,10 +673,20 @@ class Uniforms {
 					fa = LightObject.lightsArraySpot;
 				}
 				#end
+				#if arm_shadowmap_atlas
+				case "_pointLightsAtlasArray": {
+					fa = LightObject.pointLightsData;
+				}
+				#end
 				#end // arm_clusters
 				#if arm_csm
 				case "_cascadeData": {
-					if (light != null) fa = light.getCascadeData();
+					for (l in Scene.active.lights) {
+						if (l.data.raw.type == "sun") {
+							fa = l.getCascadeData();
+							break;
+						}
+					}
 				}
 				#end
 			}
@@ -811,6 +827,35 @@ class Uniforms {
 						helpMat.multmat(light.VP);
 						helpMat.multmat(biasMat);
 						m = helpMat;
+					}
+				}
+				case "_biasLightWorldViewProjectionMatrixSun": {
+					for (l in iron.Scene.active.lights) {
+						if (l.data.raw.type == "sun") {
+							// object is null for DrawQuad
+							object == null ? helpMat.setIdentity() : helpMat.setFrom(object.transform.worldUnpack);
+							helpMat.multmat(l.VP);
+							helpMat.multmat(biasMat);
+							#if arm_shadowmap_atlas
+							// tile matrix
+							helpMat2.setIdentity();
+							// scale [0-1] coords to [0-tilescale]
+							helpMat2._00 = l.tileScale[0];
+							helpMat2._11 = l.tileScale[0];
+							// offset coordinate start from [0, 0] to [tile-start-x, tile-start-y]
+							helpMat2._30 = l.tileOffsetX[0];
+							helpMat2._31 = l.tileOffsetY[0];
+							helpMat.multmat(helpMat2);
+							#if (!kha_opengl)
+							helpMat2.setIdentity();
+							helpMat2._11 = -1.0;
+							helpMat2._31 = 1.0;
+							helpMat.multmat(helpMat2);
+							#end
+							#end
+							m = helpMat;
+							break;
+						}
 					}
 				}
 				#if rp_probes
@@ -992,6 +1037,11 @@ class Uniforms {
 					}
 				}
 				#end
+				#if arm_clusters
+				case "_biasLightWorldViewProjectionMatrixSpotArray": {
+					fa = LightObject.updateLWVPMatrixArray(object, "spot");
+				}
+				#end // arm_clusters
 			}
 
 			if (fa == null && externalFloatsLinks != null) {
@@ -1082,12 +1132,12 @@ class Uniforms {
 
 	static function setMaterialConstant(g: Graphics, location: ConstantLocation, c: TShaderConstant, matc: TBindConstant) {
 		switch (c.type) {
-		case "vec4": g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);
-		case "vec3": g.setFloat3(location, matc.vec3[0], matc.vec3[1], matc.vec3[2]);
-		case "vec2": g.setFloat2(location, matc.vec2[0], matc.vec2[1]);
-		case "float": g.setFloat(location,  matc.float);
-		case "bool": g.setBool(location, matc.bool);
-		case "int": g.setInt(location, matc.int);
+			case "vec4": g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);
+			case "vec3": g.setFloat3(location, matc.vec3[0], matc.vec3[1], matc.vec3[2]);
+			case "vec2": g.setFloat2(location, matc.vec2[0], matc.vec2[1]);
+			case "float": g.setFloat(location,  matc.float);
+			case "bool": g.setBool(location, matc.bool);
+			case "int": g.setInt(location, matc.int);
 		}
 	}
 
@@ -1110,4 +1160,28 @@ class Uniforms {
 		return mm2;
 	}
 	#end
+
+	static inline function getTextureAddressing(s: Null<String>): TextureAddressing {
+		return switch (s) {
+			case "clamp": TextureAddressing.Clamp;
+			case "mirror": TextureAddressing.Mirror;
+			default: TextureAddressing.Repeat;
+		}
+	}
+
+	static inline function getTextureFilter(s: Null<String>): TextureFilter {
+		return switch (s) {
+			case "anisotropic": TextureFilter.AnisotropicFilter;
+			case "point": TextureFilter.PointFilter;
+			default: TextureFilter.LinearFilter;
+		}
+	}
+
+	static inline function getMipMapFilter(s: Null<String>): MipMapFilter {
+		return switch (s) {
+			case "linear": MipMapFilter.LinearMipFilter;
+			case "point": MipMapFilter.PointMipFilter;
+			default: MipMapFilter.NoMipFilter;
+		}
+	}
 }

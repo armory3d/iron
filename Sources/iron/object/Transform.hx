@@ -6,58 +6,58 @@ import iron.math.Quat;
 
 class Transform {
 	/**
-	  The world matrix (read-only).
+		The world matrix (read-only).
 	**/
 	public var world: Mat4;
 	/**
-	  Prevent applying parent matrix.
+		Prevent applying parent matrix.
 	**/
 	public var localOnly = false;
 	/**
-	  The local matrix. If you modify this, call `decompose()` to update the
-	  `loc`, `rot` and `scale` fields, or `buildMatrix()` to update
-	  everything.
+		The local matrix. If you modify this, call `decompose()` to update the
+		`loc`, `rot` and `scale` fields, or `buildMatrix()` to update
+		everything.
 	**/
 	public var local: Mat4;
 	/**
-	  The local translation. Changes to this field should be applied by
-	  calling `buildMatrix()`.
+		The local translation. Changes to this field should be applied by
+		calling `buildMatrix()`.
 	**/
 	public var loc: Vec4;
 	/**
-	  The local rotation. Changes to this field should be applied by
-	  calling `buildMatrix()`.
+		The local rotation. Changes to this field should be applied by
+		calling `buildMatrix()`.
 	**/
 	public var rot: Quat;
 	/**
-	  The local scale. Changes to this field should be applied by
-	  calling `buildMatrix()`.
+		The local scale. Changes to this field should be applied by
+		calling `buildMatrix()`.
 	**/
 	public var scale: Vec4;
 	/**
-	  Uniform scale factor for `world` matrix.
+		Uniform scale factor for `world` matrix.
 	**/
 	public var scaleWorld: kha.FastFloat = 1.0;
 	/**
-	  The world matrix with `scaleWorld` applied (read-only).
+		The world matrix with `scaleWorld` applied (read-only).
 	**/
 	public var worldUnpack: Mat4;
 	/**
-	  Flag to rebuild the `world` matrix on next update.
+		Flag to rebuild the `world` matrix on next update.
 	**/
 	public var dirty: Bool;
 	/**
-	  The object that is effected by this transform.
+		The object that is effected by this transform.
 	**/
 	public var object: Object;
 	/**
-	  The dimensions of the object in local space (without parent, prepended
-	  or appended matrices applied).
+		The dimensions of the object in local space (without parent, prepended
+		or appended matrices applied).
 	**/
 	public var dim: Vec4;
 	/**
-	  The radius of the smallest sphere that encompasses the object in local
-	  space.
+		The radius of the smallest sphere that encompasses the object in local
+		space.
 	**/
 	public var radius: kha.FastFloat;
 
@@ -86,9 +86,9 @@ class Transform {
 	}
 
 	/**
-	  Reset to a null transform: zero location and rotation, and a uniform
-	  scale of one. Other fields such as prepended matrices and bone parents
-	  will not be changed.
+		Reset to a null transform: zero location and rotation, and a uniform
+		scale of one. Other fields such as prepended matrices and bone parents
+		will not be changed.
 	**/
 	public function reset() {
 		world = Mat4.identity();
@@ -103,7 +103,7 @@ class Transform {
 	}
 
 	/**
-	  Rebuild the matrices, if needed.
+		Rebuild the matrices, if needed.
 	**/
 	public function update() {
 		if (dirty) buildMatrix();
@@ -119,9 +119,9 @@ class Transform {
 	}
 
 	/**
-	  Update the transform matrix based on `loc`, `rot`, and `scale`. If any
-	  change is made to `loc`, `rot`, or `scale` `buildMatrix()` must be
-	  called to update the objects transform.
+		Update the transform matrix based on `loc`, `rot`, and `scale`. If any
+		change is made to `loc`, `rot`, or `scale` `buildMatrix()` must be
+		called to update the objects transform.
 	**/
 	public function buildMatrix() {
 		dloc == null ? local.compose(loc, rot, scale) : composeDelta();
@@ -165,10 +165,10 @@ class Transform {
 	}
 
 	/**
-	  Move the game Object by the defined amount relative to its current location.
-	  @param	x Amount to move on the local x axis.
-	  @param	y Amount to move on the local y axis.
-	  @param	z Amount to move on the local z axis.
+		Move the game Object by the defined amount relative to its current location.
+		@param	x Amount to move on the local x axis.
+		@param	y Amount to move on the local y axis.
+		@param	z Amount to move on the local z axis.
 	**/
 	public function translate(x: kha.FastFloat, y: kha.FastFloat, z: kha.FastFloat) {
 		loc.x += x;
@@ -178,8 +178,8 @@ class Transform {
 	}
 
 	/**
-	  Set the local matrix and update `loc`, `rot`, `scale` and `world`.
-	  @param	mat The new local matrix.
+		Set the local matrix and update `loc`, `rot`, `scale` and `world`.
+		@param	mat The new local matrix.
 	**/
 	public function setMatrix(mat: Mat4) {
 		local.setFrom(mat);
@@ -188,9 +188,9 @@ class Transform {
 	}
 
 	/**
-	  Apply another transform to this one, i.e. multiply this transform's
-	  local matrix by another.
-	  @param	mat The other transform to apply.
+		Apply another transform to this one, i.e. multiply this transform's
+		local matrix by another.
+		@param	mat The other transform to apply.
 	**/
 	public function multMatrix(mat: Mat4) {
 		local.multmat(mat);
@@ -199,18 +199,18 @@ class Transform {
 	}
 
 	/**
-	  Update the `loc`, `rot` and `scale` fields according to the local
-	  matrix. You may need to call this after directly mutating the local
-	  matrix.
+		Update the `loc`, `rot` and `scale` fields according to the local
+		matrix. You may need to call this after directly mutating the local
+		matrix.
 	**/
 	public function decompose() {
 		local.decompose(loc, rot, scale);
 	}
 
 	/**
-	  Rotate around an axis.
-	  @param	axis The axis to rotate around.
-	  @param	f The magnitude of the rotation in radians.
+		Rotate around an axis.
+		@param	axis The axis to rotate around.
+		@param	f The magnitude of the rotation in radians.
 	**/
 	public function rotate(axis: Vec4, f: kha.FastFloat) {
 		q.fromAxisAngle(axis, f);
@@ -219,9 +219,9 @@ class Transform {
 	}
 
 	/**
-	  Apply a scaled translation in local space.
-	  @param	axis The direction to move.
-	  @param	f A multiplier for the movement. If `axis` is a unit
+		Apply a scaled translation in local space.
+		@param	axis The direction to move.
+		@param	f A multiplier for the movement. If `axis` is a unit
 	  			vector, then this is the distance to move.
 	**/
 	public function move(axis: Vec4, f = 1.0) {
@@ -230,10 +230,10 @@ class Transform {
 	}
 
 	/**
-	  Set the rotation of the object in radians.
-	  @param	x Set the x axis rotation in radians.
-	  @param	y Set the y axis rotation in radians.
-	  @param	z Set the z axis rotation in radians.
+		Set the rotation of the object in radians.
+		@param	x Set the x axis rotation in radians.
+		@param	y Set the y axis rotation in radians.
+		@param	z Set the z axis rotation in radians.
 	**/
 	public function setRotation(x: kha.FastFloat, y: kha.FastFloat, z: kha.FastFloat) {
 		rot.fromEuler(x, y, z);
@@ -248,7 +248,10 @@ class Transform {
 	}
 
 	function computeDim() {
-		if (object.raw == null) { computeRadius(); return; }
+		if (object.raw == null) {
+			computeRadius();
+			return;
+		}
 		var d = object.raw.dimensions;
 		if (d == null) dim.set(2 * scale.x, 2 * scale.y, 2 * scale.z);
 		else dim.set(d[0] * scale.x, d[1] * scale.y, d[2] * scale.z);
@@ -273,12 +276,15 @@ class Transform {
 	}
 
 	/**
-	  Check whether the transform has changed at all since the last time
-	  this function was called.
-	  @return	`true` if the transform has changed.
+		Check whether the transform has changed at all since the last time
+		this function was called.
+		@return	`true` if the transform has changed.
 	**/
 	public function diff(): Bool {
-		if (lastWorld == null) { lastWorld = Mat4.identity().setFrom(world); return false; }
+		if (lastWorld == null) {
+			lastWorld = Mat4.identity().setFrom(world);
+			return false;
+		}
 		var a = world;
 		var b = lastWorld;
 		var r = a._00 != b._00 || a._01 != b._01 || a._02 != b._02 || a._03 != b._03 ||
@@ -290,28 +296,44 @@ class Transform {
 	}
 
 	/**
-	  @return	The look vector (positive local y axis) in world space.
+		@return	The look vector (positive local y axis) in world space.
 	**/
-	public inline function look(): Vec4 { return world.look(); }
-	/**
-	  @return	The right vector (positive local x axis) in world space.
-	**/
-	public inline function right(): Vec4 { return world.right(); }
-	/**
-	  @return	The up vector (positive local z axis) in world space.
-	**/
-	public inline function up(): Vec4 { return world.up(); }
+	public inline function look(): Vec4 {
+		return world.look();
+	}
 
 	/**
-	  @return The world x location.
+		@return	The right vector (positive local x axis) in world space.
 	**/
-	public inline function worldx(): kha.FastFloat { return world._30; }
+	public inline function right(): Vec4 {
+		return world.right();
+	}
+
 	/**
-	  @return The world y location.
+		@return	The up vector (positive local z axis) in world space.
 	**/
-	public inline function worldy(): kha.FastFloat { return world._31; }
+	public inline function up(): Vec4 {
+		return world.up();
+	}
+
 	/**
-	  @return The world z location.
+		@return The world x location.
 	**/
-	public inline function worldz(): kha.FastFloat { return world._32; }
+	public inline function worldx(): kha.FastFloat {
+		return world._30;
+	}
+
+	/**
+		@return The world y location.
+	**/
+	public inline function worldy(): kha.FastFloat {
+		return world._31;
+	}
+
+	/**
+		@return The world z location.
+	**/
+	public inline function worldz(): kha.FastFloat {
+		return world._32;
+	}
 }
