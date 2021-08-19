@@ -15,6 +15,8 @@ class Quat {
 	static var helpMat = Mat4.identity();
 	static var xAxis = Vec4.xAxis();
 	static var yAxis = Vec4.yAxis();
+	
+	static inline var SQRT2:FastFloat = 1.4142135623730951;
 
 	public inline function new(x: FastFloat = 0.0, y: FastFloat = 0.0, z: FastFloat = 0.0, w: FastFloat = 1.0) {
 		this.x = x;
@@ -217,7 +219,7 @@ class Quat {
 	}
 
 	/**
-	  Convert this quaternion to a YZX Euler.
+	  Convert this quaternion to a YZX Euler (note: XZY in blender order terms).
 	  @return	A new YZX Euler that represents the same rotation as this
 				quaternion.
 	**/
@@ -231,7 +233,7 @@ class Quat {
 	}
 
 	/**
-	  Set this quaternion to the rotation represented by a YZX Euler.
+	  Set this quaternion to the rotation represented by a YZX Euler (XZY in blender terms).
 	  @param	x The Euler's x component.
 	  @param	y The Euler's y component.
 	  @param	z The Euler's z component.
@@ -254,6 +256,147 @@ class Quat {
 		this.w = c1 * c2 * c3 - s1 * s2 * s3;
 		return this;
 	}
+
+
+	/**
+	  Convert this quaternion to an Euler of arbitrary order.
+	  @param	the order of the euler to obtain (in blender order, opposite from mathematical order)
+	  @return	A new YZX Euler that represents the same rotation as this
+				quaternion.
+	**/
+	// this method use matrices as a middle ground
+	// (and is copied from blender's internal code in mathutils)
+	// note: there are two possible eulers for the same rotation, blender defines the 'best' as the one with the smallest sum of absolute components
+	//	should we actually make that choice, or is just getting one of them randomly good?
+	// note2: it seems that this engine transforms a vector by using vector×matrix instead of matrix×vector, meaning that the outer transformations are on the RIGHT.
+	//	(…Except for quaternions, where the outer quaternions are on the LEFT.)
+	//	anywho, the way the elements of the matrix are ordered makes sense (first digit-> row ID, second digit->column ID) in this system.
+	public static function toEulerOrdered(p:String): Vec4{
+		// normalize quat ?
+		
+		var q0:Float = SQRT2 * this.w;
+		var q1:Float = SQRT2 * this.x;
+		var q2:Float = SQRT2 * this.y;
+		var q3:Float = SQRT2 * this.z;
+
+		var qda:Float = q0 * q1;
+		var qdb:Float = q0 * q2;
+		var qdc:Float = q0 * q3;
+		var qaa:Float = q1 * q1;
+		var qab:Float = q1 * q2;
+		var qac:Float = q1 * q3;
+		var qbb:Float = q2 * q2;
+		var qbc:Float = q2 * q3;
+		var qcc:Float = q3 * q3;
+
+		var m = new Mat3(
+			// OK, *this* matrix is transposed with respect to what armory expects.
+			// it is transposed again in the next step though
+
+			(1.0 - qbb - qcc),
+			(qdc + qab),
+			(-qdb + qac),
+
+			(-qdc + qab),
+			(1.0 - qaa - qcc),
+			(qda + qbc),
+
+			(qdb + qac),
+			(-qda + qbc),
+			(1.0 - qaa - qbb)
+		);
+		
+		// now define what is necessary to perform look-ups in that matrix
+		var ml:Array<Array<FastFloat>> = [[m._00, m._10, m._20],
+										  [m._01, m._11, m._21],
+										  [m._02, m._12, m._22]];
+		var eull:Array<FastFloat> = [0, 0, 0];
+										  
+		var i:Int = p.charCodeAt(0) - "X".charCodeAt(0);
+		var j:Int = p.charCodeAt(1) - "X".charCodeAt(0);
+		var k:Int = p.charCodeAt(2) - "X".charCodeAt(0);
+		
+		// now the dumber version (isolating code)
+		if (p.charAt(0)=="X") i=0;
+		else if (p.charAt(0)=="Y") i=1;
+		else i=2;
+		if (p.charAt(1)=="X") j=0;
+		else if (p.charAt(1)=="Y") j=1;
+		else j=2;
+		if (p.charAt(2)=="X") k=0;
+		else if (p.charAt(2)=="Y") k=1;
+		else k=2;
+		
+		var cy:Float = Math.sqrt(ml[i][i]*ml[i][i] + ml[i][j]*ml[i][j]);
+		
+		var eul1 = new Vec4();
+
+		if (cy > 16.0 * 1e-3){
+			eull[i] = Math.atan2(ml[j][k], ml[k][k]);
+			eull[j] = Math.atan2(-ml[i][k], cy);
+			eull[k] = Math.atan2(ml[i][j], ml[i][i]);
+		}
+		else {
+			eull[i] = Math.atan2(-ml[k][j], ml[j][j]);
+			eull[j] = Math.atan2(-ml[i][k], cy);
+			eull[k] = 0; //2*Math.PI;
+		}
+		eul1.x = eull[0];
+		eul1.y = eull[1];
+		eul1.z = eull[2];
+		
+		if (p=="XZY" || p=="YXZ" || p=="ZYX"){
+			eul1.x *= -1;
+			eul1.y *= -1;
+			eul1.z *= -1;
+		}
+		return eul1;
+	}
+}
+
+
+	/**
+	  Set this quaternion to the rotation represented by an Euler.
+	  @param	x The Euler's x component.
+	  @param	y The Euler's y component.
+	  @param	z The Euler's z component.
+	  @param	order: the (blender) order of the euler (which is the OPPOSITE of the mathematical order)
+	  @return	This quaternion.
+	**/
+	public function fromEulerOrdered(e:Vec4, order:String):Quat {
+		var c1 = Math.cos(e.x / 2);
+		var c2 = Math.cos(e.y / 2);
+		var c3 = Math.cos(e.z / 2);
+		var s1 = Math.sin(e.x / 2);
+		var s2 = Math.sin(e.y / 2);
+		var s3 = Math.sin(e.z / 2);
+		
+		var qx = new Quat(s1,0,0,c1);
+		var qy = new Quat(0,s2,0,c2);
+		var qz = new Quat(0,0,s3,c3);
+		
+		if (order.charAt(2) =='X')
+			this.setFrom(qx);
+		else if (order.charAt(2)=='Y')
+			this.setFrom(qy);
+		else
+			this.setFrom(qz);
+		if (order.charAt(1)=='X')
+			this.mult(qx);
+		else if (order.charAt(1)=='Y')
+			this.mult(qy);
+		else
+			this.mult(qz);
+		if (order.charAt(0)=='X')
+			this.mult(qx);
+		else if (order.charAt(0) == 'Y')
+			this.mult(qy);
+		else
+			this.mult(qz);
+		
+		return this;
+	}
+
 
 	/**
 	  Linearly interpolate between two other quaterions, and store the
