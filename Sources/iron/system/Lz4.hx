@@ -22,8 +22,13 @@
 package iron.system;
 
 import haxe.io.Bytes;
-import kha.arrays.Uint8Array;
+#if macro
+import haxe.io.Int32Array;
+typedef Uint8Array = haxe.io.UInt8Array;
+#else
 import kha.arrays.Int32Array;
+import kha.arrays.Uint8Array;
+#end
 
 class Lz4 {
 
