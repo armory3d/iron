@@ -584,6 +584,7 @@ class Scene {
 					if (!isObjectInGroup(groupRef, spawnedObject.parent)) {
 						for (group in format.groups) {
 							if (group.name == groupRef) {
+								spawnedObject.transform.applyParent();
 								spawnedObject.transform.translate(
 									-group.instance_offset[0],
 									-group.instance_offset[1],
@@ -593,7 +594,10 @@ class Scene {
 							}
 						}
 					}
-					if (++spawned == object_refs.length) done();
+					if (++spawned == object_refs.length) {
+						groupOwner.transform.reset();
+						done();
+					}
 				});
 			}
 		}
