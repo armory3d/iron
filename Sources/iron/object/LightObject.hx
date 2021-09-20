@@ -105,6 +105,10 @@ class LightObject extends Object {
 
 	override public function remove() {
 		if (Scene.active != null) Scene.active.lights.remove(this);
+		final rp = RenderPath.active;
+		if (rp.light == this) { rp.light = null; }
+		if (rp.point == this) { rp.point = null; }
+		else if (rp.sun == this) { rp.sun = null; }
 		#if rp_shadowmap
 		#if arm_shadowmap_atlas
 		if (tileNotifyOnRemove != null) {
