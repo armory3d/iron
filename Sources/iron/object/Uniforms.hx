@@ -241,7 +241,7 @@ class Uniforms {
 		var light = RenderPath.active.light;
 
 		if (c.type == "mat4") {
-			var m: Mat4 = null;
+			var m: Null<Mat4> = null;
 			switch (c.link) {
 				case "_viewMatrix": {
 					#if arm_centerworld
@@ -307,16 +307,17 @@ class Uniforms {
 					helpMat.multmat(camera.P);
 					m = helpMat;
 				}
+				default:
+					// Unknown uniform
+					return false;
 			}
 
-			if (m != null) {
-				g.setMatrix(location, m.self);
-				return true;
-			}
+			g.setMatrix(location, m != null ? m.self : kha.math.FastMatrix4.identity());
+			return true;
 		}
 		else if (c.type == "vec4") {
-			var v: Vec4 = null;
-			helpVec.set(0, 0, 0);
+			var v: Null<Vec4> = null;
+			helpVec.set(0, 0, 0, 0);
 			switch (c.link) {
 				#if arm_debug
 				case "_input": {
@@ -331,15 +332,19 @@ class Uniforms {
 					v = helpVec;
 				}
 				#end
+				default:
+					return false;
 			}
 
 			if (v != null) {
 				g.setFloat4(location, v.x, v.y, v.z, v.w);
-				return true;
+			} else {
+				g.setFloat4(location, 0, 0, 0, 0);
 			}
+			return true;
 		}
 		else if (c.type == "vec3") {
-			var v: Vec4 = null;
+			var v: Null<Vec4> = null;
 			helpVec.set(0, 0, 0);
 			switch (c.link) {
 				case "_lightPosition": {
@@ -485,15 +490,19 @@ class Uniforms {
 					v = Scene.active.probes[RenderPath.active.currentProbeIndex].transform.world.getLoc();
 				}
 				#end
+				default:
+					return false;
 			}
 
 			if (v != null) {
 				g.setFloat3(location, v.x, v.y, v.z);
-				return true;
+			} else {
+				g.setFloat3(location, 0.0, 0.0, 0.0);
 			}
+			return true;
 		}
 		else if (c.type == "vec2") {
-			var v: Vec4 = null;
+			var v: Null<Vec4> = null;
 			helpVec.set(0, 0, 0);
 			switch (c.link) {
 				case "_vec2x": {
@@ -615,12 +624,16 @@ class Uniforms {
 						v.x = v.y = light.data.raw.shadowmap_size;
 					}
 				}
+				default:
+					return false;
 			}
 
 			if (v != null) {
 				g.setFloat2(location, v.x, v.y);
-				return true;
+			} else {
+				g.setFloat2(location, 0.0, 0.0);
 			}
+			return true;
 		}
 		else if (c.type == "float") {
 			var f: Null<kha.FastFloat> = null;
@@ -651,15 +664,15 @@ class Uniforms {
 				case "_fieldOfView": {
 					f = camera.data.raw.fov;
 				}
+				default:
+					return false;
 			}
 
-			if (f != null) {
-				g.setFloat(location, f);
-				return true;
-			}
+			g.setFloat(location, f != null ? f : 0);
+			return true;
 		}
 		else if (c.type == "floats") {
-			var fa: Float32Array = null;
+			var fa: Null<Float32Array> = null;
 			switch (c.link) {
 				case "_envmapIrradiance": {
 					fa = Scene.active.world == null ? WorldData.getEmptyIrradiance() : Scene.active.world.probe.irradiance;
@@ -703,12 +716,12 @@ class Uniforms {
 					var w = Scene.active.world;
 					i = w != null ? w.probe.raw.radiance_mipmaps + 1 - 2 : 1; // Include basecolor and exclude 2 scaled mips
 				}
+				default:
+					return false;
 			}
 
-			if (i != null) {
-				g.setInt(location, i);
-				return true;
-			}
+			g.setInt(location, i != null ? i : 0);
+			return true;
 		}
 		return false;
 	}
