@@ -193,10 +193,14 @@ class Scene {
 		if (!framePassed) return;
 		framePassed = false;
 
+		// Defer unloading the world shader until the new world shader is loaded
+		// to prevent errors due to a missing world shader inbetween
+		var removeWorldShader: Null<String> = null;
+
 		if (Scene.active != null) {
 			#if (rp_background == "World")
 			if (Scene.active.raw.world_ref != null) {
-				RenderPath.active.unloadShader("shader_datas/World_" + Scene.active.raw.world_ref + "/World_" + Scene.active.raw.world_ref);
+				removeWorldShader = "shader_datas/World_" + Scene.active.raw.world_ref + "/World_" + Scene.active.raw.world_ref;
 			}
 			#end
 			Scene.active.remove();
@@ -210,6 +214,9 @@ class Scene {
 				#end
 
 				#if (rp_background == "World")
+				if (removeWorldShader != null) {
+					RenderPath.active.unloadShader(removeWorldShader);
+				}
 				if (format.world_ref != null) {
 					RenderPath.active.loadShader("shader_datas/World_" + format.world_ref + "/World_" + format.world_ref);
 				}
