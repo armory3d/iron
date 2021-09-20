@@ -24,20 +24,22 @@ import haxe.io.Bytes;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import haxe.io.Eof;
+import iron.data.SceneFormat;
+#if !macro
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
 import kha.arrays.Int16Array;
-import iron.data.SceneFormat;
+#end
 
 class ArmPack {
 
-	public static inline function decode(b: Bytes): Dynamic {
+	public static inline function decode<T>(b: Bytes): T {
 		var i = new BytesInput(b);
 		i.bigEndian = false;
 		return read(i);
 	}
 
-	static function read(i: BytesInput, key = "", parentKey = ""): Dynamic {
+	static function read(i: BytesInput, key = "", parentKey = "") : Any {
 		try {
 			var b = i.readByte();
 			switch (b) {
@@ -76,7 +78,7 @@ class ArmPack {
 		return null;
 	}
 
-	static function readArray(i: BytesInput, length: Int, key = "", parentKey = ""): Dynamic {
+	static function readArray(i: BytesInput, length: Int, key = "", parentKey = ""): Any {
 		var b = i.readByte();
 		i.position--;
 
@@ -105,7 +107,7 @@ class ArmPack {
 		}
 	}
 
-	static function readMap(i: BytesInput, length: Int, key = "", parentKey = ""): Dynamic {
+	static function readMap(i: BytesInput, length: Int, key = "", parentKey = ""): Any {
 		#if js
 		var out = {};
 		#else
@@ -161,6 +163,8 @@ class ArmPack {
 		}
 	}
 	#end
+
+	#if !macro
 
 	public static inline function encode(d: Dynamic): Bytes {
 		var o = new BytesOutput();
@@ -227,4 +231,6 @@ class ArmPack {
 			default: {}
 		}
 	}
+
+	#end
 }

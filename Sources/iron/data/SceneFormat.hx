@@ -1,9 +1,18 @@
 package iron.data;
 
+#if !macro
 import kha.FastFloat;
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
 import kha.arrays.Int16Array;
+#end
+
+#if macro
+typedef Float32Array = haxe.io.Float32Array;
+typedef Uint32Array = haxe.io.UInt32Array;
+typedef Int16Array = haxe.io.UInt16Array;
+typedef FastFloat = Float;
+#end
 
 #if js
 typedef TSceneFormat = {
