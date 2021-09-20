@@ -39,7 +39,7 @@ class ArmPack {
 		return read(i);
 	}
 
-	static function read(i: BytesInput, key = "", parentKey = "") : Any {
+	static function read(i: BytesInput, key = "", parentKey = ""): Any {
 		try {
 			var b = i.readByte();
 			switch (b) {
