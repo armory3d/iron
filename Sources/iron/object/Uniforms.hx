@@ -241,7 +241,7 @@ class Uniforms {
 		var light = RenderPath.active.light;
 
 		if (c.type == "mat4") {
-			var m: Null<Mat4> = null;
+			var m: Mat4 = null;
 			switch (c.link) {
 				case "_viewMatrix": {
 					#if arm_centerworld
@@ -307,8 +307,7 @@ class Uniforms {
 					helpMat.multmat(camera.P);
 					m = helpMat;
 				}
-				default:
-					// Unknown uniform
+				default: // Unknown uniform
 					return false;
 			}
 
@@ -316,7 +315,7 @@ class Uniforms {
 			return true;
 		}
 		else if (c.type == "vec4") {
-			var v: Null<Vec4> = null;
+			var v: Vec4 = null;
 			helpVec.set(0, 0, 0, 0);
 			switch (c.link) {
 				#if arm_debug
@@ -338,13 +337,14 @@ class Uniforms {
 
 			if (v != null) {
 				g.setFloat4(location, v.x, v.y, v.z, v.w);
-			} else {
+			}
+			else {
 				g.setFloat4(location, 0, 0, 0, 0);
 			}
 			return true;
 		}
 		else if (c.type == "vec3") {
-			var v: Null<Vec4> = null;
+			var v: Vec4 = null;
 			helpVec.set(0, 0, 0);
 			switch (c.link) {
 				case "_lightPosition": {
@@ -496,13 +496,14 @@ class Uniforms {
 
 			if (v != null) {
 				g.setFloat3(location, v.x, v.y, v.z);
-			} else {
+			}
+			else {
 				g.setFloat3(location, 0.0, 0.0, 0.0);
 			}
 			return true;
 		}
 		else if (c.type == "vec2") {
-			var v: Null<Vec4> = null;
+			var v: Vec4 = null;
 			helpVec.set(0, 0, 0);
 			switch (c.link) {
 				case "_vec2x": {
@@ -630,7 +631,8 @@ class Uniforms {
 
 			if (v != null) {
 				g.setFloat2(location, v.x, v.y);
-			} else {
+			}
+			else {
 				g.setFloat2(location, 0.0, 0.0);
 			}
 			return true;
@@ -672,7 +674,7 @@ class Uniforms {
 			return true;
 		}
 		else if (c.type == "floats") {
-			var fa: Null<Float32Array> = null;
+			var fa: Float32Array = null;
 			switch (c.link) {
 				case "_envmapIrradiance": {
 					fa = Scene.active.world == null ? WorldData.getEmptyIrradiance() : Scene.active.world.probe.irradiance;

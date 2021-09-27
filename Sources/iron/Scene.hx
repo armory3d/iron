@@ -195,7 +195,7 @@ class Scene {
 
 		// Defer unloading the world shader until the new world shader is loaded
 		// to prevent errors due to a missing world shader inbetween
-		var removeWorldShader: Null<String> = null;
+		var removeWorldShader: String = null;
 
 		if (Scene.active != null) {
 			#if (rp_background == "World")
