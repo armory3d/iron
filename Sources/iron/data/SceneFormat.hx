@@ -57,6 +57,19 @@ typedef TMeshData = {
 	@:optional public var instanced_type: Null<Int>; // off, loc, loc+rot, loc+scale, loc+rot+scale
 	@:optional public var scale_pos: Null<FastFloat>; // Unpack pos from (-1,1) coords
 	@:optional public var scale_tex: Null<FastFloat>; // Unpack tex from (-1,1) coords
+	@:optional public var morph_target: TMorphTarget;
+}
+
+#if js
+typedef TMorphTarget = {
+#else
+@:structInit class TMorphTarget {
+#end
+	public var morph_scale: FastFloat;
+	public var morph_offset: FastFloat;
+	public var num_morph_targets: Int;
+	public var morph_target_ref: Array<String>;
+	public var morph_target_defaults: Float32Array;
 }
 
 #if js
