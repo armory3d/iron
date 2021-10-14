@@ -92,11 +92,13 @@ class Object {
 
 	/**
 		Returns the children of the object.
+		
 		If 'recursive' is set to `false`, only direct children will be included
 		in the returned array. If `recursive` is `true`, children of children and
 		so on will be included too.
+
 		@param recursive = false Include children of children
-		@return Array<Object>
+		@return `Array<Object>`
 	**/
 	public function getChildren(?recursive = false): Array<Object> {
 		if (!recursive) return children;

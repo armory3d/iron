@@ -268,9 +268,9 @@ class Scene {
 	 * If 'recursive' is set to `false`, only direct children will be included
 	 * in the returned array. If `recursive` is `true`, children of children and
 	 * so on will be included too.
-	 *
-	 * @param recursive = false Include children of children
-	 * @return Array<Object>
+	 * 
+	 * @param recursive = `false` Include children of children
+	 * @return `Array<Object>`
 	 */
 	public function getChildren(?recursive = false): Array<Object> {
 		return root.getChildren(recursive);
@@ -614,7 +614,7 @@ class Scene {
 		Returns all object names of the given group.
 		Returns `null` if the group does not exist.
 		@param group_ref The name of the group
-		@return Array<String>
+		@return `Array<String>`
 	**/
 	function getGroupObjectRefs(group_ref: String): Array<String> {
 		for (g in active.raw.groups) if (g.name == group_ref) return g.object_refs;
@@ -625,7 +625,7 @@ class Scene {
 		Returns all objects in scene data format (`TObj`) of the given group.
 		If the group does not exist or is empty, an empty array is returned.
 		@param groupRef The name of the group
-		@return Array<TObj>
+		@return `Array<TObj>`
 	**/
 	function getGroupObjectsRaw(groupRef: String): Array<TObj> {
 		var objectRefs = getGroupObjectRefs(groupRef);
@@ -648,7 +648,7 @@ class Scene {
 		If the object has no children, an empty array is returned.
 		@param rawObj The object
 		@param recursive (Optional) If 'true', return also children of children and so on...
-		@return Array<TObj>
+		@return `Array<TObj>`
 	**/
 	function getChildObjectsRaw(rawObj: TObj, ?recursive:Bool = true): Array<TObj> {
 		var children = rawObj.children;
