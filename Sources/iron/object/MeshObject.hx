@@ -28,6 +28,7 @@ class MeshObject extends Object {
 	public var skip_context: String = null; // Do not draw this context
 	public var force_context: String = null; // Draw only this context
 	static var lastPipeline: PipelineState = null;
+	public var morphTarget: MorphTarget = null;
 
 	#if arm_veloc
 	public var prevMatrix = Mat4.identity();
