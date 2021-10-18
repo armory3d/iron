@@ -65,6 +65,7 @@ typedef TMorphTarget = {
 #else
 @:structInit class TMorphTarget {
 #end
+	public var morph_target_data_file: String;
 	public var morph_scale: FastFloat;
 	public var morph_offset: FastFloat;
 	public var num_morph_targets: Int;
