@@ -95,6 +95,15 @@ class MeshObject extends Object {
 		super.setupAnimation(oactions);
 	}
 
+	override public function setupMorphTargets(){
+
+		if(data.raw.morph_target != null){
+			morphTarget = new MorphTarget(data.raw.morph_target);
+		}
+
+
+	}
+
 	#if arm_particles
 	public function setupParticleSystem(sceneName: String, pref: TParticleReference) {
 		if (particleSystems == null) particleSystems = [];
