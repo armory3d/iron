@@ -863,9 +863,9 @@ class Scene {
 				// Set trait properties
 				if (t.props != null) {
 					for (i in 0...Std.int(t.props.length / 3)) {
-						var pname = t.props[i * 3];
-						var ptype = t.props[i * 3 + 1];
-						var pval:Dynamic = t.props[i * 3 + 2];
+						var pname: String = t.props[i * 3];
+						var ptype: String = t.props[i * 3 + 1];
+						var pval: Dynamic = t.props[i * 3 + 2];
 
 						if (StringTools.endsWith(ptype, "Object") && pval != "") {
 							Reflect.setProperty(traitInst, pname, Scene.active.getChild(pval));
@@ -873,11 +873,14 @@ class Scene {
 						else {
 							switch (ptype) {
 								case "Vec2":
-									Reflect.setProperty(traitInst, pname, new iron.math.Vec2(pval[0], pval[1]));
+									final pVec: kha.arrays.Float32Array = cast pval;
+									Reflect.setProperty(traitInst, pname, new iron.math.Vec2(pVec[0], pVec[1]));
 								case "Vec3":
-									Reflect.setProperty(traitInst, pname, new iron.math.Vec3(pval[0], pval[1], pval[2]));
+									final pVec: kha.arrays.Float32Array = cast pval;
+									Reflect.setProperty(traitInst, pname, new iron.math.Vec3(pVec[0], pVec[1], pVec[2]));
 								case "Vec4":
-									Reflect.setProperty(traitInst, pname, new iron.math.Vec4(pval[0], pval[1], pval[2], pval[3]));
+									final pVec: kha.arrays.Float32Array = cast pval;
+									Reflect.setProperty(traitInst, pname, new iron.math.Vec4(pVec[0], pVec[1], pVec[2], pVec[3]));
 								default:
 									Reflect.setProperty(traitInst, pname, pval);
 							}
