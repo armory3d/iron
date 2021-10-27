@@ -69,6 +69,8 @@ typedef TMorphTarget = {
 	public var morph_scale: FastFloat;
 	public var morph_offset: FastFloat;
 	public var num_morph_targets: Int;
+	public var morph_img_size: Int;
+	public var morph_block_size: Int;
 	public var morph_target_ref: Array<String>;
 	public var morph_target_defaults: Float32Array;
 }

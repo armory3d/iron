@@ -9,6 +9,9 @@ import iron.data.SceneFormat;
 class MorphTarget{
 
     public var data: TMorphTarget;
+    public var numMorphTargets: Int = 0;
+    public var morphImageSize: Int = 0;
+    public var morphBlockSize: Int = 0;
     public var scaling: FastFloat;
     public var offset: FastFloat;
     public var morphWeights: Float32Array;
@@ -21,10 +24,14 @@ class MorphTarget{
         morphWeights = data.morph_target_defaults;
         scaling = data.morph_scale;
         offset = data.morph_offset;
-        Data.getImage(data.morph_target_data_file + "_pos.png", function(img: Image){
+        numMorphTargets = data.num_morph_targets;
+        morphImageSize = data.morph_img_size;
+        morphBlockSize = data.morph_block_size;
+
+        Data.getImage(data.morph_target_data_file + "_morph_pos.png", function(img: Image){
             if(img != null) morphDataPos = img;
         });
-        Data.getImage(data.morph_target_data_file + "_nor.png", function(img: Image){
+        Data.getImage(data.morph_target_data_file + "_morph_nor.png", function(img: Image){
             if(img != null) morphDataNor = img;
         });
         morphMap = new Map();
@@ -40,6 +47,7 @@ class MorphTarget{
     public function setMorphValue(name: String, value: Float){
         var i = morphMap.get(name);
         if(i != null){
+            trace("setting weight of " + i);
             morphWeights.set(i, value);
         }
 
