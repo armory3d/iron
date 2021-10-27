@@ -1022,6 +1022,11 @@ class Uniforms {
 					vx = mt.scaling;
 					vy = mt.offset;
 				}
+				case "_morphDataDim": {
+					var mt = cast(object, MeshObject).morphTarget;
+					vx = mt.numMorphTargets;
+					vy = mt.morphBlockSize/mt.morphImageSize;
+				}
 			}
 
 			if (vx == null && externalVec2Links != null) {
