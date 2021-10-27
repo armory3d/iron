@@ -20,7 +20,6 @@ class MorphTarget{
     public var morphMap: Map<String, Int> = null;
 
     public function new(data: TMorphTarget){
-        trace('new Morph Target called');
         morphWeights = data.morph_target_defaults;
         scaling = data.morph_scale;
         offset = data.morph_offset;
@@ -47,7 +46,6 @@ class MorphTarget{
     public function setMorphValue(name: String, value: Float){
         var i = morphMap.get(name);
         if(i != null){
-            trace("setting weight of " + i);
             morphWeights.set(i, value);
         }
 
