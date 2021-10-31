@@ -1142,6 +1142,12 @@ class Uniforms {
 			var mo = cast(object, MeshObject);
 			return mo.materials[mo.materialIndex];
 		}
+		#if rp_decals
+		if (object != null && Std.isOfType(object, iron.object.DecalObject)) {
+			var mo = cast(object, DecalObject);
+			return mo.material;
+		}
+		#end
 		return null;
 	}
 
