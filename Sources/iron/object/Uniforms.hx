@@ -138,6 +138,7 @@ class Uniforms {
 		// Texture object constants
 		var image: kha.Image = null;
 		if (context.raw.texture_units != null) {
+			#if arm_morph_target
 			for (j in 0...context.raw.texture_units.length) {
 				var tu = context.raw.texture_units[j];
 				if (tu.link == null) continue;
@@ -159,6 +160,7 @@ class Uniforms {
 					}
 				}
 			}
+			#end
 		}
 		// External
 		if (image!= null && externalTextureLinks != null) {
@@ -1017,6 +1019,7 @@ class Uniforms {
 					vx = ts.tileX;
 					vy = ts.tileY;
 				}
+				#if arm_morph_target
 				case "_morphScaleOffset": {
 					var mt = cast(object, MeshObject).morphTarget;
 					vx = mt.scaling;
@@ -1027,6 +1030,7 @@ class Uniforms {
 					vx = mt.numMorphTargets;
 					vy = mt.morphBlockSize/mt.morphImageSize;
 				}
+				#end
 			}
 
 			if (vx == null && externalVec2Links != null) {
@@ -1091,9 +1095,11 @@ class Uniforms {
 					fa = LightObject.updateLWVPMatrixArray(object, "spot");
 				}
 				#end // arm_clusters
+				#if arm_morph_target
 				case "_morphWeights": {
 					fa = cast(object, MeshObject).morphTarget.morphWeights;
 				}
+				#end
 			}
 
 			if (fa == null && externalFloatsLinks != null) {

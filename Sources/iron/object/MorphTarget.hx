@@ -1,5 +1,7 @@
 package iron.object;
 
+#if arm_morph_target
+
 import kha.Image;
 import kha.arrays.Float32Array;
 import kha.FastFloat;
@@ -52,3 +54,5 @@ class MorphTarget{
     }
 
 }
+
+#end

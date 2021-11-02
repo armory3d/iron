@@ -28,7 +28,9 @@ class MeshObject extends Object {
 	public var skip_context: String = null; // Do not draw this context
 	public var force_context: String = null; // Draw only this context
 	static var lastPipeline: PipelineState = null;
+	#if arm_morph_target
 	public var morphTarget: MorphTarget = null;
+	#end
 
 	#if arm_veloc
 	public var prevMatrix = Mat4.identity();
@@ -95,14 +97,13 @@ class MeshObject extends Object {
 		super.setupAnimation(oactions);
 	}
 
+	#if arm_morph_target
 	override public function setupMorphTargets(){
-
 		if(data.raw.morph_target != null){
 			morphTarget = new MorphTarget(data.raw.morph_target);
 		}
-
-
 	}
+	#end
 
 	#if arm_particles
 	public function setupParticleSystem(sceneName: String, pref: TParticleReference) {
