@@ -143,17 +143,17 @@ class Uniforms {
 				var tu = context.raw.texture_units[j];
 				if (tu.link == null) continue;
 
-				if (tu.link == "_morphDataPos"){
+				if (tu.link == "_morphDataPos") {
 					image = cast(object, MeshObject).morphTarget.morphDataPos;
-					if(image != null){
+					if (image != null) {
 						g.setTexture(context.textureUnits[j], image);
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 						break;
 					}
 				}
-				if (tu.link == "_morphDataNor"){
+				if (tu.link == "_morphDataNor") {
 					image = cast(object, MeshObject).morphTarget.morphDataNor;
-					if(image != null){
+					if (image != null) {
 						g.setTexture(context.textureUnits[j], image);
 						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 						break;
@@ -162,6 +162,7 @@ class Uniforms {
 			}
 			#end
 		}
+
 		// External
 		if (image!= null && externalTextureLinks != null) {
 			if (context.raw.texture_units != null) {
@@ -1028,7 +1029,7 @@ class Uniforms {
 				case "_morphDataDim": {
 					var mt = cast(object, MeshObject).morphTarget;
 					vx = mt.numMorphTargets;
-					vy = mt.morphBlockSize/mt.morphImageSize;
+					vy = mt.morphBlockSize / mt.morphImageSize;
 				}
 				#end
 			}

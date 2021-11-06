@@ -201,9 +201,9 @@ class Object {
 		animation = new ObjectAnimation(this, oactions);
 	}
 
-	public function setupMorphTargets() {
-		return;		
-	}
+	#if arm_morph_target
+	public function setupMorphTargets() {}
+	#end
 
 	static var seed = 1; // cpp / js not consistent
 	static function seededRandom(): Float {

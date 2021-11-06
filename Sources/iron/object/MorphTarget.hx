@@ -2,13 +2,13 @@ package iron.object;
 
 #if arm_morph_target
 
-import kha.Image;
 import kha.arrays.Float32Array;
+import kha.Image;
 import kha.FastFloat;
 import iron.data.Data;
 import iron.data.SceneFormat;
 
-class MorphTarget{
+class MorphTarget {
 
     public var data: TMorphTarget;
     public var numMorphTargets: Int = 0;
@@ -21,7 +21,7 @@ class MorphTarget{
     public var morphDataNor: Image;
     public var morphMap: Map<String, Int> = null;
 
-    public function new(data: TMorphTarget){
+    public function new(data: TMorphTarget) {
         morphWeights = data.morph_target_defaults;
         scaling = data.morph_scale;
         offset = data.morph_offset;
@@ -29,30 +29,27 @@ class MorphTarget{
         morphImageSize = data.morph_img_size;
         morphBlockSize = data.morph_block_size;
 
-        Data.getImage(data.morph_target_data_file + "_morph_pos.png", function(img: Image){
-            if(img != null) morphDataPos = img;
+        Data.getImage(data.morph_target_data_file + "_morph_pos.png", function(img: Image) {
+            if (img != null) morphDataPos = img;
         });
-        Data.getImage(data.morph_target_data_file + "_morph_nor.png", function(img: Image){
-            if(img != null) morphDataNor = img;
+        Data.getImage(data.morph_target_data_file + "_morph_nor.png", function(img: Image) {
+            if (img != null) morphDataNor = img;
         });
         morphMap = new Map();
 
         var i = 0;
-        for(name in data.morph_target_ref){
+        for (name in data.morph_target_ref) {
             morphMap.set(name, i);
             i++;
         }
-
     }
 
-    public function setMorphValue(name: String, value: Float){
+    public function setMorphValue(name: String, value: Float) {
         var i = morphMap.get(name);
-        if(i != null){
+        if (i != null) {
             morphWeights.set(i, value);
         }
-
     }
-
 }
 
 #end

@@ -98,8 +98,8 @@ class MeshObject extends Object {
 	}
 
 	#if arm_morph_target
-	override public function setupMorphTargets(){
-		if(data.raw.morph_target != null){
+	override public function setupMorphTargets() {
+		if (data.raw.morph_target != null) {
 			morphTarget = new MorphTarget(data.raw.morph_target);
 		}
 	}
