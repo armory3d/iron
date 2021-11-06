@@ -823,6 +823,7 @@ class Scene {
 			createConstraints(o.constraints, object);
 			generateTransform(o, object.transform);
 			object.setupAnimation(oactions);
+			object.setupMorphTargets();
 			if (o.properties != null) {
 				object.properties = new Map();
 				for (p in o.properties) object.properties.set(p.name, p.value);

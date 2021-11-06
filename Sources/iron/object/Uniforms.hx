@@ -136,8 +136,34 @@ class Uniforms {
 		}
 
 		// Texture object constants
+		var image: kha.Image = null;
+		if (context.raw.texture_units != null) {
+			#if arm_morph_target
+			for (j in 0...context.raw.texture_units.length) {
+				var tu = context.raw.texture_units[j];
+				if (tu.link == null) continue;
+
+				if (tu.link == "_morphDataPos"){
+					image = cast(object, MeshObject).morphTarget.morphDataPos;
+					if(image != null){
+						g.setTexture(context.textureUnits[j], image);
+						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+						break;
+					}
+				}
+				if (tu.link == "_morphDataNor"){
+					image = cast(object, MeshObject).morphTarget.morphDataNor;
+					if(image != null){
+						g.setTexture(context.textureUnits[j], image);
+						g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+						break;
+					}
+				}
+			}
+			#end
+		}
 		// External
-		if (externalTextureLinks != null) {
+		if (image!= null && externalTextureLinks != null) {
 			if (context.raw.texture_units != null) {
 				for (j in 0...context.raw.texture_units.length) {
 					var tu = context.raw.texture_units[j];
@@ -993,6 +1019,18 @@ class Uniforms {
 					vx = ts.tileX;
 					vy = ts.tileY;
 				}
+				#if arm_morph_target
+				case "_morphScaleOffset": {
+					var mt = cast(object, MeshObject).morphTarget;
+					vx = mt.scaling;
+					vy = mt.offset;
+				}
+				case "_morphDataDim": {
+					var mt = cast(object, MeshObject).morphTarget;
+					vx = mt.numMorphTargets;
+					vy = mt.morphBlockSize/mt.morphImageSize;
+				}
+				#end
 			}
 
 			if (vx == null && externalVec2Links != null) {
@@ -1057,6 +1095,11 @@ class Uniforms {
 					fa = LightObject.updateLWVPMatrixArray(object, "spot");
 				}
 				#end // arm_clusters
+				#if arm_morph_target
+				case "_morphWeights": {
+					fa = cast(object, MeshObject).morphTarget.morphWeights;
+				}
+				#end
 			}
 
 			if (fa == null && externalFloatsLinks != null) {

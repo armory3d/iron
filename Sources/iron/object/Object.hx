@@ -201,6 +201,10 @@ class Object {
 		animation = new ObjectAnimation(this, oactions);
 	}
 
+	public function setupMorphTargets() {
+		return;		
+	}
+
 	static var seed = 1; // cpp / js not consistent
 	static function seededRandom(): Float {
 		seed = (seed * 9301 + 49297) % 233280;
