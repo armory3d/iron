@@ -1,5 +1,6 @@
 package iron.data;
 
+import haxe.ds.Vector;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
@@ -18,7 +19,7 @@ import iron.data.MeshData;
 
 class Geometry {
 #if arm_deinterleaved
-	public var vertexBuffers: Array<InterleavedVertexBuffer>;
+	public var vertexBuffers: Vector<InterleavedVertexBuffer>;
 #else
 	public var vertexBuffer: VertexBuffer;
 	public var vertexBufferMap: Map<String, VertexBuffer> = new Map();
@@ -242,12 +243,12 @@ class Geometry {
 
 #if arm_deinterleaved
 		var vaLength = vertexArrays.length;
-		vertexBuffers = [];
+		vertexBuffers = new Vector(vaLength);
 		for (i in 0...vaLength)
-			vertexBuffers.push({
+			vertexBuffers[i] = {
 				name: vertexArrays[i].attrib,
 				buffer: makeDeinterleavedVB(vertexArrays[i].values, vertexArrays[i].attrib, vertexArrays[i].size)
-			});
+			};
 #else
 
 		vertexBuffer = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
