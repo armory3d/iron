@@ -10,6 +10,7 @@ import kha.graphics4.VertexStructure;
 import kha.graphics4.Graphics;
 import iron.object.MeshObject;
 import iron.object.Uniforms;
+import iron.data.Geometry;
 import iron.data.MaterialData;
 import iron.data.ShaderData;
 import iron.data.SceneFormat;
@@ -161,8 +162,8 @@ class Bucket {
 		for (e in elems) vs.add(e.name, ShaderContext.parseData(e.data));
 
 		var vb = new VertexBuffer(vertexBuffer.count(), vs, Usage.StaticUsage);
-		var to = vb.lockInt16();
-		var from = vertexBuffer.lockInt16();
+		var to = Geometry.lockVB(vb);
+		var from = Geometry.lockVB(vertexBuffer);
 
 		var toOffset = 0;
 		var toStride = Std.int(vb.stride() / 2);
@@ -242,7 +243,7 @@ class Bucket {
 
 		// Build shared buffers
 		vertexBuffer = new VertexBuffer(vcount, vs, Usage.StaticUsage);
-		var vertices = vertexBuffer.lockInt16();
+		var vertices = Geometry.lockVB(vertexBuffer);
 		var offset = 0;
 		for (md in mdatas) {
 			md.geom.copyVertices(vertices, offset, hasUVs);
