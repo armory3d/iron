@@ -4,6 +4,7 @@ import kha.FastFloat;
 import iron.object.CameraObject;
 import iron.object.MeshObject;
 import iron.object.Transform;
+import iron.object.Object;
 import iron.math.Ray;
 
 class RayCaster {
@@ -56,6 +57,15 @@ class RayCaster {
 		var s = new Vec4(t.dim.x, t.dim.y, t.dim.z);
 		return ray.intersectBox(c, s);
 	}
+	
+	public static function boxIntersectObject(o: Object, inputX: FastFloat, inputY: FastFloat, camera: CameraObject): Vec4 {
+		var ray = getRay(inputX, inputY, camera);
+
+		var t = o.transform;
+		var c = new Vec4(t.worldx(), t.worldy(), t.worldz());
+		var s = new Vec4(t.dim.x, t.dim.y, t.dim.z);
+		return ray.intersectBox(c, s);
+	}
 
 	public static function closestBoxIntersect(transforms: Array<Transform>, inputX: FastFloat, inputY: FastFloat, camera: CameraObject): Transform {
 		var intersects: Array<Transform> = [];
@@ -83,6 +93,32 @@ class RayCaster {
 		return closest;
 	}
 
+	public static function closestBoxIntersectObject(objects: Array<Object>, inputX: FastFloat, inputY: FastFloat, camera: CameraObject): Object {
+		var intersects: Array<Object> = [];
+
+		// Get intersects
+		for (o in objects) {
+			var intersect = boxIntersectObject(o, inputX, inputY, camera);
+			if (intersect != null) intersects.push(o);
+		}
+
+		// No intersects
+		if (intersects.length == 0) return null;
+
+		// Get closest intersect
+		var closest: Object = null;
+		var minDist = Math.POSITIVE_INFINITY;
+		for (t in intersects) {
+			var dist = Vec4.distance(t.transform.loc, camera.transform.loc);
+			if (dist < minDist) {
+				minDist = dist;
+				closest = t;
+			}
+		}
+
+		return closest;
+	}
+	
 	public static function planeIntersect(normal: Vec4, a: Vec4, inputX: FastFloat, inputY: FastFloat, camera: CameraObject): Vec4 {
 		var ray = getRay(inputX, inputY, camera);
 
