@@ -1,5 +1,6 @@
 package iron.data;
 
+import haxe.ds.Vector;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
@@ -18,7 +19,7 @@ import iron.data.MeshData;
 
 class Geometry {
 #if arm_deinterleaved
-	public var vertexBuffers: Array<InterleavedVertexBuffer>;
+	public var vertexBuffers: Vector<InterleavedVertexBuffer>;
 #else
 	public var vertexBuffer: VertexBuffer;
 	public var vertexBufferMap: Map<String, VertexBuffer> = new Map();
@@ -226,11 +227,7 @@ class Geometry {
 			// Multi-mat mesh with different vertex structures
 			var struct = getVertexStructure(nVertexArrays);
 			vb = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
-			#if kha_html5
-			vertices = vb.lock();
-			#else
-			vertices = vb.lockInt16();
-			#end
+			vertices = lockVB(vb);
 			buildVertices(vertices, nVertexArrays, 0, atex && uvs == null, texOffset);
 			vb.unlock();
 			vertexBufferMap.set(key, vb);
@@ -246,20 +243,16 @@ class Geometry {
 
 #if arm_deinterleaved
 		var vaLength = vertexArrays.length;
-		vertexBuffers = [];
+		vertexBuffers = new Vector(vaLength);
 		for (i in 0...vaLength)
-			vertexBuffers.push({
+			vertexBuffers[i] = {
 				name: vertexArrays[i].attrib,
 				buffer: makeDeinterleavedVB(vertexArrays[i].values, vertexArrays[i].attrib, vertexArrays[i].size)
-			});
+			};
 #else
 
 		vertexBuffer = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
-		#if kha_html5
-		vertices = vertexBuffer.lock();
-		#else
-		vertices = vertexBuffer.lockInt16();
-		#end
+		vertices = lockVB(vertexBuffer);
 		buildVertices(vertices, vertexArrays);
 		vertexBuffer.unlock();
 		vertexBufferMap.set(structStr, vertexBuffer);
@@ -285,16 +278,16 @@ class Geometry {
 	}
 
 #if arm_deinterleaved
-	function makeDeinterleavedVB(data: Int16Array, name: String, structLength: Int) {
+	function makeDeinterleavedVB(data: Int16Array, name: String, structLength: Int): VertexBuffer {
 		var struct = new VertexStructure();
 		struct.add(name, structLength == 2 ? VertexData.Short2Norm : VertexData.Short4Norm);
 
 		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
 
-		var vertices = vertexBuffer.lockInt16();
+		var vertices = lockVB(vertexBuffer);
 		for (i in 0...vertices.length) vertices.set(i, data[i]);
-
 		vertexBuffer.unlock();
+
 		return vertexBuffer;
 	}
 #end
@@ -305,6 +298,14 @@ class Geometry {
 
 	inline static function verticesCount(arr: TVertexArray): Int {
 		return Std.int(arr.values.length / arr.size);
+	}
+
+	public inline static function lockVB(vertexBuffer: VertexBuffer): Int16Array {
+		#if kha_html5
+		return cast vertexBuffer.lock();
+		#else
+		return vertexBuffer.lockInt16();
+		#end
 	}
 
 	// Skinned
