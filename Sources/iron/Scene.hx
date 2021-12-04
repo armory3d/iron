@@ -258,7 +258,7 @@ class Scene {
 	// Objects
 	public function addObject(parent: Object = null): Object {
 		var object = new Object();
-		parent != null ? parent.addChild(object) : root.addChild(object);
+		parent != null ? object.setParent(parent) : object.setParent(root);
 		return object;
 	}
 
@@ -268,7 +268,7 @@ class Scene {
 	 * If 'recursive' is set to `false`, only direct children will be included
 	 * in the returned array. If `recursive` is `true`, children of children and
 	 * so on will be included too.
-	 * 
+	 *
 	 * @param recursive = `false` Include children of children
 	 * @return `Array<Object>`
 	 */
@@ -329,34 +329,34 @@ class Scene {
 
 	public function addMeshObject(data: MeshData, materials: Vector<MaterialData>, parent: Object = null): MeshObject {
 		var object = new MeshObject(data, materials);
-		parent != null ? parent.addChild(object) : root.addChild(object);
+		parent != null ? object.setParent(parent) : object.setParent(root);
 		return object;
 	}
 
 	public function addLightObject(data: LightData, parent: Object = null): LightObject {
 		var object = new LightObject(data);
-		parent != null ? parent.addChild(object) : root.addChild(object);
+		parent != null ? object.setParent(parent) : object.setParent(root);
 		return object;
 	}
 
 	#if rp_probes
 	public function addProbeObject(data: ProbeData, parent: Object = null): ProbeObject {
 		var object = new ProbeObject(data);
-		parent != null ? parent.addChild(object) : root.addChild(object);
+		parent != null ? object.setParent(parent) : object.setParent(root);
 		return object;
 	}
 	#end
 
 	public function addCameraObject(data: CameraData, parent: Object = null): CameraObject {
 		var object = new CameraObject(data);
-		parent != null ? parent.addChild(object) : root.addChild(object);
+		parent != null ? object.setParent(parent) : object.setParent(root);
 		return object;
 	}
 
 	#if arm_audio
 	public function addSpeakerObject(data: TSpeakerData, parent: Object = null): SpeakerObject {
 		var object = new SpeakerObject(data);
-		parent != null ? parent.addChild(object) : root.addChild(object);
+		parent != null ? object.setParent(parent) : object.setParent(root);
 		return object;
 	}
 	#end
@@ -364,7 +364,7 @@ class Scene {
 	#if rp_decals
 	public function addDecalObject(material: MaterialData, parent: Object = null): DecalObject {
 		var object = new DecalObject(material);
-		parent != null ? parent.addChild(object) : root.addChild(object);
+		parent != null ? object.setParent(parent) : object.setParent(root);
 		return object;
 	}
 	#end
