@@ -84,7 +84,7 @@ class Object {
 		@param	keepTransform Optional (defaut false) keep the transform given by the parent or revert to the objects default.
 	**/
 	@:deprecated("removeChild() is deprecated, please use setParent(null) instead")
-	public function removeChild(o: Object, keepTransform = false) {
+	public inline function removeChild(o: Object, keepTransform = false) {
 		o.setParent(null, false, keepTransform);
 	}
 
