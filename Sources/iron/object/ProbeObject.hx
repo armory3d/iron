@@ -76,7 +76,7 @@ class ProbeObject extends Object {
 					DepthStencilFormat.NoDepthAndStencil
 				);
 				camera.name = craw.name;
-				iron.Scene.active.root.addChild(camera);
+				camera.setParent(iron.Scene.active.root);
 				// Make target bindable from render path
 				var rt = new RenderPath.RenderTarget(new RenderPath.RenderTargetRaw());
 				rt.raw.name = raw.name;
@@ -106,7 +106,7 @@ class ProbeObject extends Object {
 					DepthStencilFormat.NoDepthAndStencil
 				);
 				camera.name = craw.name;
-				iron.Scene.active.root.addChild(camera);
+				camera.setParent(iron.Scene.active.root);
 				// Make target bindable from render path
 				var rt = new RenderPath.RenderTarget(new RenderPath.RenderTargetRaw());
 				rt.raw.name = raw.name;

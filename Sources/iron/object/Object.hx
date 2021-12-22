@@ -37,15 +37,45 @@ class Object {
 	}
 
 	/**
+		Set the given `parentObject` as the parent of this object.
+
+		If `parentObject` is `null`, the object is parented to the scene's
+		`sceneParent`, which is the topmost object of the scene tree.
+		If you want to remove it from the scene, use `Object.remove()` instead.
+
+		If `parentObject` is the object on which this function is called,
+		nothing happens.
+
+		@param parentObject The new parent object.
+		@param parentInverse (Optional) Change the scale of the child object to be relative to the new parents 3D space or use the original scale.
+		@param keepTransform (Optional) When unparenting from the old parent, keep the transform given by the old parent or revert to the object's default.
+	**/
+	public function setParent(parentObject: Object, parentInverse = false, keepTransform = false) {
+		if (parentObject == this || parentObject == parent) return;
+
+		if (parent != null) {
+			parent.children.remove(this);
+			if (keepTransform) this.transform.applyParent();
+			this.parent = null; // rebuild matrix without a parent
+			this.transform.buildMatrix();
+		}
+
+		if (parentObject == null) {
+			parentObject = Scene.active.sceneParent;
+		}
+		parent = parentObject;
+		parent.children.push(this);
+		if (parentInverse) this.transform.applyParentInverse();
+	}
+
+	/**
 		Add a game Object as a child of this game Object.
 		@param	o The game Object instance to be added as a child.
 		@param	parentInverse Optional (default false) change the scale of the child object to be relative to the parents 3D space or use the original scale.
 	**/
-	public function addChild(o: Object, parentInverse = false) {
-		if (o.parent == this) return;
-		children.push(o);
-		o.parent = this;
-		if (parentInverse) o.transform.applyParentInverse();
+	@:deprecated("addChild() is deprecated, please use setParent() instead")
+	public inline function addChild(o: Object, parentInverse = false) {
+		o.setParent(this, parentInverse, false);
 	}
 
 	/**
@@ -53,11 +83,9 @@ class Object {
 		@param	o The game Object instance to be removed.
 		@param	keepTransform Optional (defaut false) keep the transform given by the parent or revert to the objects default.
 	**/
-	public function removeChild(o: Object, keepTransform = false) {
-		if (keepTransform) o.transform.applyParent();
-		o.parent = null;
-		o.transform.buildMatrix();
-		children.remove(o);
+	@:deprecated("removeChild() is deprecated, please use setParent(null) instead")
+	public inline function removeChild(o: Object, keepTransform = false) {
+		o.setParent(null, false, keepTransform);
 	}
 
 	/**
@@ -92,7 +120,7 @@ class Object {
 
 	/**
 		Returns the children of the object.
-		
+
 		If 'recursive' is set to `false`, only direct children will be included
 		in the returned array. If `recursive` is `true`, children of children and
 		so on will be included too.
