@@ -93,7 +93,14 @@ class BoneAnimation extends Animation {
 		}
 		ar.push(o);
 	}
-
+	
+	public function removeBoneChild(bone: String, o: Object) {
+		if (boneChildren != null){
+		var ar: Array<Object> = boneChildren.get(bone);
+		if (ar.indexOf(o) != -1) ar.remove(o);
+		}
+	}
+ 
 	@:access(iron.object.Transform)
 	function updateBoneChildren(bone: TObj, bm: Mat4) {
 		var ar = boneChildren.get(bone.name);
