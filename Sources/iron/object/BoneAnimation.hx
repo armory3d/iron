@@ -97,7 +97,7 @@ class BoneAnimation extends Animation {
 	public function removeBoneChild(bone: String, o: Object) {
 		if (boneChildren != null){
 		var ar: Array<Object> = boneChildren.get(bone);
-		if (ar.indexOf(o) != -1) ar.remove(o);
+		ar.remove(o);
 		}
 	}
  
