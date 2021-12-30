@@ -1,19 +1,21 @@
 package iron.object;
 
-import kha.audio1.AudioChannel;
-import iron.math.Vec4;
 import iron.data.Data;
 import iron.data.SceneFormat;
+import iron.math.Vec4;
 import iron.system.Audio;
+import kha.FastFloat;
+import kha.audio1.AudioChannel;
 
 class SpeakerObject extends Object {
 
 #if arm_audio
 
 	public var data: TSpeakerData;
-	var sound: kha.Sound = null;
-	var channels: Array<AudioChannel> = [];
-	var paused = false;
+	public var paused(default,null) = false;
+	public var sound(default,null): kha.Sound = null;
+	public var channels(default,null): Array<AudioChannel> = [];
+	public var volume(default,null) : FastFloat;
 
 	public function new(data: TSpeakerData) {
 		super();
@@ -65,16 +67,16 @@ class SpeakerObject extends Object {
 			App.removeUpdate(update);
 			return;
 		}
+		
+		if(data.attenuation > 0) {
+			final distance = Vec4.distance(Scene.active.camera.transform.world.getLoc(), transform.world.getLoc());
+			volume = 1.0 / (1.0 + data.attenuation * (distance - 1.0));
+			volume *= data.volume;
+		} else {
+			volume = data.volume;
+		}
 
-		var cam = Scene.active.camera;
-		var loc1 = cam.transform.world.getLoc();
-		var loc2 = transform.world.getLoc();
-
-		var d = Vec4.distance(loc1, loc2);
-		d *= data.attenuation;
-		var vol = 1.0 - Math.min(d / 100, 1);
-
-		for (c in channels) c.volume = vol * data.volume;
+		for (c in channels) c.volume = volume;
 	}
 
 	public override function remove() {
