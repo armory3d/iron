@@ -1,21 +1,21 @@
 package iron.object;
 
+import kha.FastFloat;
+import kha.audio1.AudioChannel;
 import iron.data.Data;
 import iron.data.SceneFormat;
 import iron.math.Vec4;
 import iron.system.Audio;
-import kha.FastFloat;
-import kha.audio1.AudioChannel;
 
 class SpeakerObject extends Object {
 
 #if arm_audio
 
 	public var data: TSpeakerData;
-	public var paused(default,null) = false;
-	public var sound(default,null): kha.Sound = null;
-	public var channels(default,null): Array<AudioChannel> = [];
-	public var volume(default,null) : FastFloat;
+	public var paused(default, null) = false;
+	public var sound(default, null): kha.Sound = null;
+	public var channels(default, null): Array<AudioChannel> = [];
+	public var volume(default, null) : FastFloat;
 
 	public function new(data: TSpeakerData) {
 		super();
@@ -68,11 +68,12 @@ class SpeakerObject extends Object {
 			return;
 		}
 		
-		if(data.attenuation > 0) {
+		if (data.attenuation > 0) {
 			final distance = Vec4.distance(Scene.active.camera.transform.world.getLoc(), transform.world.getLoc());
 			volume = 1.0 / (1.0 + data.attenuation * (distance - 1.0));
 			volume *= data.volume;
-		} else {
+		}
+		else {
 			volume = data.volume;
 		}
 
