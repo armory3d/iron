@@ -86,7 +86,7 @@ class BoneAnimation extends Animation {
 
 	public function addBoneChild(bone: String, o: Object) {
 		if (boneChildren == null) boneChildren = new Map();
-		var ar: Array<Object> = boneChildren.get(bone);
+		var ar = boneChildren.get(bone);
 		if (ar == null) {
 			ar = [];
 			boneChildren.set(bone, ar);
@@ -95,9 +95,9 @@ class BoneAnimation extends Animation {
 	}
 	
 	public function removeBoneChild(bone: String, o: Object) {
-		if (boneChildren != null){
-		var ar: Array<Object> = boneChildren.get(bone);
-		ar.remove(o);
+		if (boneChildren != null) {
+			var ar = boneChildren.get(bone);
+			if (ar != null) ar.remove(o);
 		}
 	}
  
