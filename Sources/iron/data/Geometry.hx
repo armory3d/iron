@@ -6,9 +6,7 @@ import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
-#if kha_html5
 import kha.arrays.ByteArray;
-#end
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
 import kha.arrays.Int16Array;
@@ -30,11 +28,7 @@ class Geometry {
 	public var name = "";
 
 	public var ready = false;
-	#if kha_html5
 	public var vertices: ByteArray;
-	#else
-	public var vertices: Int16Array;
-	#end
 	public var indices: Array<Uint32Array>;
 	public var numTris = 0;
 	public var materialIndices: Array<Int>;
@@ -301,11 +295,7 @@ class Geometry {
 	}
 
 	public inline static function lockVB(vertexBuffer: VertexBuffer): Int16Array {
-		#if kha_html5
 		return cast vertexBuffer.lock();
-		#else
-		return vertexBuffer.lockInt16();
-		#end
 	}
 
 	// Skinned
