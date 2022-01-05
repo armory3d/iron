@@ -326,6 +326,29 @@ class Scene {
 		}
 		return g;
 	}
+	
+	public function addObjectToGroup(name: String, o: Object) {
+	if (groups == null) groups = new Map();
+			var g = groups.get(name);
+			if (g == null) {
+				g = [];
+				groups.set(name, g);
+				var refs = getGroupObjectRefs(name);
+				if (refs == null) g.push(o);
+				for (ref in refs) {
+					var c = getChild(ref);
+					if (c != null) g.push(c);
+				}
+			}
+		g.push(o);
+	}
+	
+	public function RemoveObjectFromGroup(name: String, o: Object) {
+		if (groups != null){
+		var ar: Array<Object> = groups.get(name);
+		ar.remove(o);
+		}
+	}
 
 	public function addMeshObject(data: MeshData, materials: Vector<MaterialData>, parent: Object = null): MeshObject {
 		var object = new MeshObject(data, materials);
