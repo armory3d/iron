@@ -67,15 +67,18 @@ class SpeakerObject extends Object {
 			App.removeUpdate(update);
 			return;
 		}
-		
+
 		if (data.attenuation > 0) {
-			final distance = Vec4.distance(Scene.active.camera.transform.world.getLoc(), transform.world.getLoc());
-			volume = 1.0 / (1.0 + data.attenuation * (distance - 1.0));
+			var distance = Vec4.distance(Scene.active.camera.transform.world.getLoc(), transform.world.getLoc());
+			distance = Math.max(Math.min(data.distance_max, distance), data.distance_reference);
+			volume = data.distance_reference / (data.distance_reference + data.attenuation * (distance - data.distance_reference));
 			volume *= data.volume;
-		}
-		else {
+		} else {
 			volume = data.volume;
 		}
+
+		if(volume > data.volume_max) volume = data.volume_max;
+		else if(volume < data.volume_min) volume = data.volume_min;
 
 		for (c in channels) c.volume = volume;
 	}
