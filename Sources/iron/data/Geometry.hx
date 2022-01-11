@@ -140,30 +140,30 @@ class Geometry {
 		instanceCount = Std.int(data.length / Std.int(structure.byteSize() / 4));
 		instancedVB = new VertexBuffer(instanceCount, structure, usage, 1);
 		var vertices = instancedVB.lock();
-		for (i in 0...vertices.length) vertices.set(i, data[i]);
+		for (i in 0...Std.int(vertices.byteLength / 4)) vertices.setFloat32(i * 4, data[i]);
 		instancedVB.unlock();
 	}
 
-	public function copyVertices(vertices: Int16Array, offset = 0, fakeUVs = false) {
+	public function copyVertices(vertices: ByteArray, offset = 0, fakeUVs = false) {
 		buildVertices(vertices, vertexArrays, offset, fakeUVs);
 	}
 
-	static function buildVertices(vertices: Int16Array, vertexArrays: Array<TVertexArray>, offset = 0, fakeUVs = false, uvsIndex = -1) {
+	static function buildVertices(vertices: ByteArray, vertexArrays: Array<TVertexArray>, offset = 0, fakeUVs = false, uvsIndex = -1) {
 		var numVertices = verticesCount(vertexArrays[0]);
 		var di = -1 + offset;
 		for (i in 0...numVertices) {
 			for (va in 0...vertexArrays.length) {
 				var l = vertexArrays[va].size;
 				if (fakeUVs && va == uvsIndex) { // Add fake uvs if uvs where "asked" for but not found
-					for (j in 0...l) vertices.set(++di, 0);
+					for (j in 0...l) vertices.setInt16(++di * 2, 0);
 					continue;
 				}
 				for (o in 0...l) {
-					vertices.set(++di, vertexArrays[va].values[i * l + o]);
+					vertices.setInt16(++di * 2, vertexArrays[va].values[i * l + o]);
 				}
 				if (vertexArrays[va].padding != null) {
 					if (vertexArrays[va].padding == 1) {
-						vertices.set(++di, 0);
+						vertices.setInt16(++di * 2, 0);
 					}
 				}
 			}
@@ -221,7 +221,7 @@ class Geometry {
 			// Multi-mat mesh with different vertex structures
 			var struct = getVertexStructure(nVertexArrays);
 			vb = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
-			vertices = lockVB(vb);
+			vertices = vb.lock();
 			buildVertices(vertices, nVertexArrays, 0, atex && uvs == null, texOffset);
 			vb.unlock();
 			vertexBufferMap.set(key, vb);
@@ -246,7 +246,7 @@ class Geometry {
 #else
 
 		vertexBuffer = new VertexBuffer(Std.int(positions.values.length / positions.size), struct, usage);
-		vertices = lockVB(vertexBuffer);
+		vertices = vertexBuffer.lock();
 		buildVertices(vertices, vertexArrays);
 		vertexBuffer.unlock();
 		vertexBufferMap.set(structStr, vertexBuffer);
@@ -272,14 +272,14 @@ class Geometry {
 	}
 
 #if arm_deinterleaved
-	function makeDeinterleavedVB(data: Int16Array, name: String, structLength: Int): VertexBuffer {
+	function makeDeinterleavedVB(data: ByteArray, name: String, structLength: Int): VertexBuffer {
 		var struct = new VertexStructure();
 		struct.add(name, structLength == 2 ? VertexData.Short2Norm : VertexData.Short4Norm);
 
 		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
 
-		var vertices = lockVB(vertexBuffer);
-		for (i in 0...vertices.length) vertices.set(i, data[i]);
+		var vertices = vertexBuffer.lock();
+		for (i in 0...Std.int(vertices.byteLength / 2)) vertices.setInt16(i * 2, data[i]);
 		vertexBuffer.unlock();
 
 		return vertexBuffer;
@@ -292,10 +292,6 @@ class Geometry {
 
 	inline static function verticesCount(arr: TVertexArray): Int {
 		return Std.int(arr.values.length / arr.size);
-	}
-
-	public inline static function lockVB(vertexBuffer: VertexBuffer): Int16Array {
-		return cast vertexBuffer.lock();
 	}
 
 	// Skinned

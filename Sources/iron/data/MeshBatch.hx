@@ -2,7 +2,7 @@ package iron.data;
 
 #if arm_batch
 
-import kha.arrays.Int16Array;
+import kha.arrays.ByteArray;
 import kha.graphics4.VertexBuffer;
 import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
@@ -148,10 +148,10 @@ class Bucket {
 		meshes.remove(m);
 	}
 
-	function copyAttribute(attribSize: Int, count: Int, to: Int16Array, toStride: Int, toOffset: Int, from: Int16Array, fromStride: Int, fromOffset: Int) {
+	function copyAttribute(attribSize: Int, count: Int, to: ByteArray, toStride: Int, toOffset: Int, from: ByteArray, fromStride: Int, fromOffset: Int) {
 		for (i in 0...count) {
 			for (j in 0...attribSize) {
-				to.set(i * toStride + toOffset + j, from.get(i * fromStride + fromOffset + j));
+				to.setInt16((i * toStride + toOffset + j) * 2, from.getInt16((i * fromStride + fromOffset + j) * 2));
 			}
 		}
 	}
@@ -162,8 +162,8 @@ class Bucket {
 		for (e in elems) vs.add(e.name, ShaderContext.parseData(e.data));
 
 		var vb = new VertexBuffer(vertexBuffer.count(), vs, Usage.StaticUsage);
-		var to = Geometry.lockVB(vb);
-		var from = Geometry.lockVB(vertexBuffer);
+		var to = vb.lock();
+		var from = vertexBuffer.lock();
 
 		var toOffset = 0;
 		var toStride = Std.int(vb.stride() / 2);
@@ -243,7 +243,7 @@ class Bucket {
 
 		// Build shared buffers
 		vertexBuffer = new VertexBuffer(vcount, vs, Usage.StaticUsage);
-		var vertices = Geometry.lockVB(vertexBuffer);
+		var vertices = vertexBuffer.lock();
 		var offset = 0;
 		for (md in mdatas) {
 			md.geom.copyVertices(vertices, offset, hasUVs);
