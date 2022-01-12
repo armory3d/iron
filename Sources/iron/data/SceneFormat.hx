@@ -311,7 +311,11 @@ typedef TSpeakerData = {
 	public var stream: Bool;
 	public var volume: FastFloat;
 	public var pitch: FastFloat;
+	public var volume_min: FastFloat;
+	public var volume_max: FastFloat;
 	public var attenuation: FastFloat;
+	public var distance_max: FastFloat;
+	public var distance_reference: FastFloat;
 	public var play_on_start: Bool;
 }
 
