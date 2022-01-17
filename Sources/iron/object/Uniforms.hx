@@ -762,9 +762,11 @@ class Uniforms {
 					var t = object.transform;
 					helpMat.setFrom(t.worldUnpack);
 					helpMat.multmat(camera.V);
-					helpMat._00 = t.scale.x; helpMat._10 = 0.0;       helpMat._20 = 0.0;
-					helpMat._01 = 0.0;       helpMat._11 = t.scale.y; helpMat._21 = 0.0;
-					helpMat._02 = 0.0;       helpMat._12 = 0.0;       helpMat._22 = t.scale.z;
+					var scl = new Vec4(t.scale.x, t.scale.y, t.scale.z);
+					scl.mult(t.scaleWorld);
+					helpMat._00 = scl.x; helpMat._10 = 0.0;   helpMat._20 = 0.0;
+					helpMat._01 = 0.0;   helpMat._11 = scl.y; helpMat._21 = 0.0;
+					helpMat._02 = 0.0;   helpMat._12 = 0.0;   helpMat._22 = scl.z;
 					helpMat.multmat(camera.P);
 					m = helpMat;
 				}
@@ -772,9 +774,11 @@ class Uniforms {
 					var t = object.transform;
 					helpMat.setFrom(t.worldUnpack);
 					helpMat.multmat(camera.V);
-					helpMat._00 = t.scale.x; helpMat._20 = 0.0;
-					helpMat._01 = 0.0;       helpMat._21 = 0.0;
-					helpMat._02 = 0.0;       helpMat._22 = t.scale.z;
+					var scl = new Vec4(t.scale.x, t.scale.y, t.scale.z);
+					scl.mult(t.scaleWorld);
+					helpMat._00 = scl.x; helpMat._20 = 0.0;
+					helpMat._01 = 0.0;   helpMat._21 = 0.0;
+					helpMat._02 = 0.0;   helpMat._22 = scl.y;
 					helpMat.multmat(camera.P);
 					m = helpMat;
 				}
