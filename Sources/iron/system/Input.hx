@@ -270,6 +270,8 @@ class Mouse extends VirtualInput {
 			buttonsDown[0] = false;
 			downListener(1, Std.int(this.x), Std.int(this.y));
 			pinchStarted = true;
+			pinchTotal = 0.0;
+			pinchDistance = 0.0;
 		}
 		else if (index == 2) { // Three fingers down - middle mouse button
 			buttonsDown[1] = false;
@@ -282,7 +284,8 @@ class Mouse extends VirtualInput {
 		else if (index == 2) upListener(2, Std.int(this.x), Std.int(this.y));
 	}
 
-	var pinchDistance: Float;
+	var pinchDistance = 0.0;
+	var pinchTotal = 0.0;
 	var pinchStarted = false;
 
 	public function onTouchMove(index: Int, x: Int, y: Int) {
@@ -292,9 +295,12 @@ class Mouse extends VirtualInput {
 			var dx = this.x - x;
 			var dy = this.y - y;
 			pinchDistance = Math.sqrt(dx * dx + dy * dy);
+			pinchTotal += lastDistance != 0 ? lastDistance - pinchDistance : 0;
 			if (!pinchStarted) {
-				wheelDelta = Std.int((lastDistance - pinchDistance) / 10);
-				if (wheelDelta != 0) buttonsDown[1] = false;
+				wheelDelta = Std.int(pinchTotal / 10);
+				if (wheelDelta != 0) {
+					pinchTotal = 0.0;
+				}
 			}
 			pinchStarted = false;
 		}
