@@ -398,6 +398,13 @@ class Uniforms {
 						v = helpVec;
 					}
 				}
+				case "_spotRight": {
+					var point = RenderPath.active.point;
+					if (point != null) {
+						helpVec = point.right().normalize();
+						v = helpVec;
+					}
+				}
 				case "_pointColor": {
 					var point = RenderPath.active.point;
 					if (point != null) {
@@ -608,15 +615,6 @@ class Uniforms {
 						v = helpVec;
 						v.x = a / b;
 						v.y = c / b;
-					}
-				}
-				case "_spotData": {
-					// cutoff, cutoff - exponent
-					var point = RenderPath.active.point;
-					if (point != null) {
-						v = helpVec;
-						v.x = point.data.raw.spot_size;
-						v.y = v.x - point.data.raw.spot_blend;
 					}
 				}
 				case "_shadowMapSize": {
@@ -949,6 +947,20 @@ class Uniforms {
 		else if (c.type == "vec4") {
 			var v: Vec4 = null;
 			helpVec.set(0, 0, 0);
+
+			switch (c.link) {
+				case "_spotData": {
+					// spot size (cutoff), spot blend (exponent)
+					var point = RenderPath.active.point;
+					if (point != null) {
+						v = helpVec;
+						v.x = point.data.raw.spot_size;
+						v.y = point.data.raw.spot_blend;
+						v.z = point.transform.scale.x / point.transform.scale.z;
+						v.w = point.transform.scale.y / point.transform.scale.z;
+					}
+				}
+			}
 
 			if (v == null && externalVec4Links != null) {
 				for (fn in externalVec4Links) {
