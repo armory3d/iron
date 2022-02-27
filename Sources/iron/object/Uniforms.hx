@@ -956,8 +956,9 @@ class Uniforms {
 						v = helpVec;
 						v.x = point.data.raw.spot_size;
 						v.y = point.data.raw.spot_blend;
-						v.z = point.transform.scale.x / point.transform.scale.z;
-						v.w = point.transform.scale.y / point.transform.scale.z;
+						var scale = point.transform.scale;
+						v.z = scale.z == 0.0 ? 0.0 : scale.x / scale.z;
+						v.w = scale.z == 0.0 ? 0.0 : scale.y / scale.z;
 					}
 				}
 			}

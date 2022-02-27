@@ -558,8 +558,8 @@ class LightObject extends Object {
 
 				// Premultiply scale with z component
 				var scale = l.transform.scale;
-				lightsArray[i * 12 + 3] = scale.x / scale.z;
-				lightsArray[i * 12 + 7] = scale.y / scale.z;
+				lightsArray[i * 12 + 3] = scale.z == 0.0 ? 0.0 : scale.x / scale.z;
+				lightsArray[i * 12 + 7] = scale.z == 0.0 ? 0.0 : scale.y / scale.z;
 
 				final right = l.right().normalize();
 				lightsArraySpot[i * 8 + 4] = right.x;
