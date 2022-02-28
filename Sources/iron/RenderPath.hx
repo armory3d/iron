@@ -547,7 +547,7 @@ class RenderPath {
 	}
 
 	public function createDepthBuffer(name: String, format: String = null) {
-		depthBuffers.push({name: name, format: format});
+		depthBuffers.push({ name: name, format: format });
 	}
 
 	function createTarget(t: RenderTargetRaw): RenderTarget {

@@ -31,7 +31,7 @@ class SceneStream {
 	public function remove() {}
 
 	public function add(object_file: String, data_ref: String, sceneName: String, armature: Armature, materials: Vector<MaterialData>, parent: Object, parentObject:TObj, obj: TObj) {
-		sectors[0].handles.push({object_file: object_file, data_ref: data_ref, sceneName: sceneName, armature: armature, materials: materials, parent: parent, parentObject: parentObject, obj: obj, object: null, loading: false});
+		sectors[0].handles.push({ object_file: object_file, data_ref: data_ref, sceneName: sceneName, armature: armature, materials: materials, parent: parent, parentObject: parentObject, obj: obj, object: null, loading: false });
 	}
 
 	function setup(camera: CameraObject) {
