@@ -391,6 +391,7 @@ class Uniforms {
 						v = helpVec;
 					}
 				}
+				#if arm_spot
 				case "_spotDirection": {
 					var point = RenderPath.active.point;
 					if (point != null) {
@@ -405,6 +406,7 @@ class Uniforms {
 						v = helpVec;
 					}
 				}
+				#end
 				case "_pointColor": {
 					var point = RenderPath.active.point;
 					if (point != null) {
@@ -893,6 +895,7 @@ class Uniforms {
 			}
 
 			if (m == null) {
+				#if arm_spot
 				if (c.link.startsWith("_biasLightWorldViewProjectionMatrixSpot")) {
 					var light = getSpot(c.link.charCodeAt(c.link.length - 1) - "0".code);
 					if (light != null) {
@@ -910,6 +913,7 @@ class Uniforms {
 						m = helpMat;
 					}
 				}
+				#end
 			}
 
 			if (m == null && externalMat4Links != null) {
@@ -949,6 +953,7 @@ class Uniforms {
 			helpVec.set(0, 0, 0);
 
 			switch (c.link) {
+				#if arm_spot
 				case "_spotData": {
 					// spot size (cutoff), spot blend (exponent)
 					var point = RenderPath.active.point;
@@ -961,6 +966,7 @@ class Uniforms {
 						v.w = scale.z == 0.0 ? 0.0 : scale.y / scale.z;
 					}
 				}
+				#end
 			}
 
 			if (v == null && externalVec4Links != null) {
@@ -1081,7 +1087,7 @@ class Uniforms {
 					}
 				}
 				#end
-				#if arm_clusters
+				#if (arm_clusters && arm_spot)
 				case "_biasLightWorldViewProjectionMatrixSpotArray": {
 					fa = LightObject.updateLWVPMatrixArray(object, "spot");
 				}
@@ -1161,6 +1167,7 @@ class Uniforms {
 		}
 	}
 
+	#if arm_spot
 	static function getSpot(index: Int): LightObject {
 		var i = 0;
 		for (l in Scene.active.lights) {
@@ -1170,6 +1177,7 @@ class Uniforms {
 		}
 		return null;
 	}
+	#end
 
 	static function currentMat(object: Object): MaterialData {
 		if (object != null && Std.isOfType(object, iron.object.MeshObject)) {
