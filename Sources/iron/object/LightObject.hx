@@ -517,7 +517,7 @@ class LightObject extends Object {
 		if (lightsArray == null) { // vec4x3 - 1: pos, a, color, b, 2: dir, c
 			lightsArray = new Float32Array(maxLights * 4 * 3);
 			#if arm_spot
-			lightsArraySpot = new Float32Array(maxLights * 4);
+			lightsArraySpot = new Float32Array(maxLights * 4 * 2);
 			#end
 		}
 		var lights = Scene.active.lights;
@@ -526,33 +526,46 @@ class LightObject extends Object {
 		for (l in lights) {
 			if (discardLightCulled(l)) continue;
 			if (i >= n) break;
+
 			// light position
 			lightsArray[i * 12    ] = l.transform.worldx();
 			lightsArray[i * 12 + 1] = l.transform.worldy();
 			lightsArray[i * 12 + 2] = l.transform.worldz();
-			lightsArray[i * 12 + 3] = 0.0; // padding
+			lightsArray[i * 12 + 3] = 0.0; // padding or spot scale x
+
 			// light color
 			var f = l.data.raw.strength;
 			lightsArray[i * 12 + 4] = l.data.raw.color[0] * f;
 			lightsArray[i * 12 + 5] = l.data.raw.color[1] * f;
 			lightsArray[i * 12 + 6] = l.data.raw.color[2] * f;
-			lightsArray[i * 12 + 7] = 0.0; // padding
+			lightsArray[i * 12 + 7] = 0.0; // padding or spot scale y
+
 			// other data
 			lightsArray[i * 12 + 8] = l.data.raw.shadows_bias; // bias
 			lightsArray[i * 12 + 9] = 0.0; // cutoff for detecting spot
 			lightsArray[i * 12 + 10] = l.data.raw.cast_shadow ? 1.0 : 0.0; // hasShadows
 			lightsArray[i * 12 + 11] = 0.0; // padding
+
 			#if arm_spot
 			if (l.data.raw.type == "spot") {
-				// a: cutoff, b: cutoff - exponent
-				var a = l.data.raw.spot_size;
-				lightsArray[i * 12 + 9] = a;
-				var dir = l.look();
-				lightsArraySpot[i * 4    ] = dir.x;
-				lightsArraySpot[i * 4 + 1] = dir.y;
-				lightsArraySpot[i * 4 + 2] = dir.z;
-				var b = a - l.data.raw.spot_blend;
-				lightsArraySpot[i * 4 + 3] = b;
+				lightsArray[i * 12 + 9] = l.data.raw.spot_size;
+
+				var dir = l.look().normalize();
+				lightsArraySpot[i * 8    ] = dir.x;
+				lightsArraySpot[i * 8 + 1] = dir.y;
+				lightsArraySpot[i * 8 + 2] = dir.z;
+				lightsArraySpot[i * 8 + 3] = l.data.raw.spot_blend;
+
+				// Premultiply scale with z component
+				var scale = l.transform.scale;
+				lightsArray[i * 12 + 3] = scale.z == 0.0 ? 0.0 : scale.x / scale.z;
+				lightsArray[i * 12 + 7] = scale.z == 0.0 ? 0.0 : scale.y / scale.z;
+
+				final right = l.right().normalize();
+				lightsArraySpot[i * 8 + 4] = right.x;
+				lightsArraySpot[i * 8 + 5] = right.y;
+				lightsArraySpot[i * 8 + 6] = right.z;
+				lightsArraySpot[i * 8 + 7] = 0.0; // padding
 			}
 			#end
 			i++;
