@@ -1224,7 +1224,7 @@ class Uniforms {
 	}
 	#end
 
-	static inline function getTextureAddressing(s: Null<String>): TextureAddressing {
+	static inline function getTextureAddressing(s: String): TextureAddressing {
 		return switch (s) {
 			case "clamp": TextureAddressing.Clamp;
 			case "mirror": TextureAddressing.Mirror;
@@ -1232,7 +1232,7 @@ class Uniforms {
 		}
 	}
 
-	static inline function getTextureFilter(s: Null<String>): TextureFilter {
+	static inline function getTextureFilter(s: String): TextureFilter {
 		return switch (s) {
 			case "anisotropic": TextureFilter.AnisotropicFilter;
 			case "point": TextureFilter.PointFilter;
@@ -1240,7 +1240,7 @@ class Uniforms {
 		}
 	}
 
-	static inline function getMipMapFilter(s: Null<String>): MipMapFilter {
+	static inline function getMipMapFilter(s: String): MipMapFilter {
 		return switch (s) {
 			case "linear": MipMapFilter.LinearMipFilter;
 			case "point": MipMapFilter.PointMipFilter;
