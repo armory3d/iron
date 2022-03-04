@@ -136,12 +136,13 @@ class Scene {
 				}
 
 				active.camera = active.getCamera(format.camera_ref);
+				active.sceneParent = sceneObject;
+
 				active.ready = true;
 
 				for (f in active.traitInits) f();
 				active.traitInits = [];
 
-				active.sceneParent = sceneObject;
 				active.initializing = false;
 				done(sceneObject);
 			});
