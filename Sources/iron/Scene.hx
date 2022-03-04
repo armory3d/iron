@@ -126,7 +126,7 @@ class Scene {
 				}
 
 				#if arm_terrain
-				if (format.terrain_ref != null)  {
+				if (format.terrain_ref != null) {
 					active.terrainStream = new TerrainStream(format.terrain_datas[0]);
 				}
 				#end
