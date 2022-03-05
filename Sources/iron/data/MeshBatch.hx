@@ -24,7 +24,7 @@ class MeshBatch {
 	public function new() {}
 
 	public function remove() {
-		for (b in buckets) remove();
+		for (b in buckets) b.remove();
 	}
 
 	public static function isBatchable(m: MeshObject): Bool {
@@ -135,8 +135,9 @@ class Bucket {
 	}
 
 	public function remove() {
-		vertexBuffer.delete();
 		indexBuffer.delete();
+		// this.vertexBuffer is in the map, so it's also deleted here
+		for (buf in vertexBufferMap) buf.delete();
 		meshes = [];
 	}
 
