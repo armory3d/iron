@@ -39,8 +39,13 @@ class Lz4 {
 	}
 
 	public static function encode(b: Bytes): Bytes {
+		#if armorcore
+		var iBuf = new Uint8Array(cast b.getData());
+
+		#else
 		var iBuf: Uint8Array = new Uint8Array(b.length);
 		for (i in 0...b.length) iBuf[i] = b.get(i);
+		#end
 
 		var iLen = iBuf.length;
 		if (iLen >= 0x7e000000) {
@@ -175,8 +180,13 @@ class Lz4 {
 	}
 
 	public static function decode(b: Bytes, oLen: Int): Bytes {
+		#if armorcore
+		var iBuf = new Uint8Array(cast b.getData());
+
+		#else
 		var iBuf: Uint8Array = new Uint8Array(b.length);
 		for (i in 0...b.length) iBuf[i] = b.get(i);
+		#end
 
 		var iLen = iBuf.length;
 		var oBuf = new Uint8Array(oLen);
