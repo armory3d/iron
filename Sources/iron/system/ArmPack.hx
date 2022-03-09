@@ -25,7 +25,7 @@ import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import haxe.io.Eof;
 import iron.data.SceneFormat;
-#if !macro
+#if (!macro)
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
 import kha.arrays.Int16Array;
@@ -164,7 +164,7 @@ class ArmPack {
 	}
 	#end
 
-	#if !macro
+	#if (!macro && armorcore)
 
 	public static inline function encode(d: Dynamic): Bytes {
 		var o = new BytesOutput();
