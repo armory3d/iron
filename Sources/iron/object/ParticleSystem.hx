@@ -10,6 +10,7 @@ import iron.data.SceneFormat;
 import iron.system.Time;
 import iron.math.Mat4;
 import iron.math.Quat;
+import iron.math.Vec3;
 import iron.math.Vec4;
 
 class ParticleSystem {
@@ -92,7 +93,7 @@ class ParticleSystem {
 
 		// Set particle size per particle system
 		object.transform.scale = new Vec4(r.particle_size, r.particle_size, r.particle_size, 1);
-		
+
 		object.transform.buildMatrix();
 		owner.transform.buildMatrix();
 		object.transform.dim.setFrom(owner.transform.dim);
@@ -144,7 +145,7 @@ class ParticleSystem {
 	function setupGeomGpu(object: MeshObject, owner: MeshObject) {
 		var instancedData = new Float32Array(particles.length * 3);
 		var i = 0;
-		if (r.emit_from == 0) { // Vert, Face
+		if (r.emit_from == 0) { // Vert
 			var pa = owner.data.geom.positions;
 			var sc = owner.data.scalePos;
 			for (p in particles) {
@@ -154,11 +155,35 @@ class ParticleSystem {
 				instancedData.set(i, pa.values[j * pa.size + 2] / 32767 * sc / r.particle_size); i++;
 			}
 		}
-		else { // Volume
+		else if (r.emit_from == 1) { // Volume
 			for (p in particles) {
 				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0)); i++;
 				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0)); i++;
 				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
+			}
+		}
+		else if (r.emit_from == 2) { // Face
+			var sc = owner.data.scalePos;
+
+			for (p in particles) {
+				// Choose random index array (there is one per mat) and random face
+				var ia = owner.data.geom.indices[Std.random(owner.data.geom.indices.length)];
+				var faceIndex = Std.random(Std.int(ia.length / 3));
+				var positions = owner.data.geom.positions.values;
+
+				var i0 = ia[faceIndex * 3 + 0];
+				var i1 = ia[faceIndex * 3 + 1];
+				var i2 = ia[faceIndex * 3 + 2];
+
+				var v0 = new Vec3(positions[i0 * 4], positions[i0 * 4 + 1], positions[i0 * 4 + 2]);
+				var v1 = new Vec3(positions[i1 * 4], positions[i1 * 4 + 1], positions[i1 * 4 + 2]);
+				var v2 = new Vec3(positions[i2 * 4], positions[i2 * 4 + 1], positions[i2 * 4 + 2]);
+
+				var pos = randomPointInTriangle(v0, v1, v2);
+
+				instancedData.set(i, pos.x / 32767 * sc / r.particle_size); i++;
+				instancedData.set(i, pos.y / 32767 * sc / r.particle_size); i++;
+				instancedData.set(i, pos.z / 32767 * sc / r.particle_size); i++;
 			}
 		}
 		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);
@@ -172,6 +197,30 @@ class ParticleSystem {
 	}
 
 	public function remove() {}
+
+	/**
+		Generates a random point in the triangle with vertex positions abc.
+
+		Please note that the given position vectors are changed in-place by this
+		function and can be considered garbage afterwards, so make sure to clone
+		them first if needed.
+	**/
+	public static inline function randomPointInTriangle(a: Vec3, b: Vec3, c: Vec3): Vec3 {
+		// Generate a random point in a square where (0, 0) <= (x, y) < (1, 1)
+		var x = Math.random();
+		var y = Math.random();
+
+		if (x + y > 1) {
+			// We're in the upper right triangle in the square, mirror to lower left
+			x = 1 - x;
+			y = 1 - y;
+		}
+
+		// Transform the point to the triangle abc
+		var u = b.sub(a);
+		var v = c.sub(a);
+		return a.add(u.mult(x).add(v.mult(y)));
+	}
 }
 
 class Particle {
