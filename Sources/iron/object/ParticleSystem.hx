@@ -146,32 +146,34 @@ class ParticleSystem {
 		var instancedData = new Float32Array(particles.length * 3);
 		var i = 0;
 
+		var scaleFactorVol = owner.data.scalePos / r.particle_size;
+		var scaleFactorVertFace = 1 / 32767 * scaleFactorVol;
+
 		switch (r.emit_from) {
 			case 0: // Vert
 				var pa = owner.data.geom.positions;
-				var sc = owner.data.scalePos;
+
 				for (p in particles) {
 					var j = Std.int(fhash(i) * (pa.values.length / pa.size));
-					instancedData.set(i, pa.values[j * pa.size    ] / 32767 * sc / r.particle_size); i++;
-					instancedData.set(i, pa.values[j * pa.size + 1] / 32767 * sc / r.particle_size); i++;
-					instancedData.set(i, pa.values[j * pa.size + 2] / 32767 * sc / r.particle_size); i++;
+					instancedData.set(i, pa.values[j * pa.size    ] * scaleFactorVertFace); i++;
+					instancedData.set(i, pa.values[j * pa.size + 1] * scaleFactorVertFace); i++;
+					instancedData.set(i, pa.values[j * pa.size + 2] * scaleFactorVertFace); i++;
 				}
 
 			case 1: // Volume
 				for (p in particles) {
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0)); i++;
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0)); i++;
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0) * scaleFactorVol); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0) * scaleFactorVol); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0) * scaleFactorVol); i++;
 				}
 
 			case 2: // Face
-				var sc = owner.data.scalePos;
+				var positions = owner.data.geom.positions.values;
 
 				for (p in particles) {
 					// Choose random index array (there is one per mat) and random face
 					var ia = owner.data.geom.indices[Std.random(owner.data.geom.indices.length)];
 					var faceIndex = Std.random(Std.int(ia.length / 3));
-					var positions = owner.data.geom.positions.values;
 
 					var i0 = ia[faceIndex * 3 + 0];
 					var i1 = ia[faceIndex * 3 + 1];
@@ -183,9 +185,9 @@ class ParticleSystem {
 
 					var pos = randomPointInTriangle(v0, v1, v2);
 
-					instancedData.set(i, pos.x / 32767 * sc / r.particle_size); i++;
-					instancedData.set(i, pos.y / 32767 * sc / r.particle_size); i++;
-					instancedData.set(i, pos.z / 32767 * sc / r.particle_size); i++;
+					instancedData.set(i, pos.x * scaleFactorVertFace); i++;
+					instancedData.set(i, pos.y * scaleFactorVertFace); i++;
+					instancedData.set(i, pos.z * scaleFactorVertFace); i++;
 				}
 		}
 		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);
