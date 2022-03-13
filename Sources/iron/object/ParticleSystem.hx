@@ -145,46 +145,48 @@ class ParticleSystem {
 	function setupGeomGpu(object: MeshObject, owner: MeshObject) {
 		var instancedData = new Float32Array(particles.length * 3);
 		var i = 0;
-		if (r.emit_from == 0) { // Vert
-			var pa = owner.data.geom.positions;
-			var sc = owner.data.scalePos;
-			for (p in particles) {
-				var j = Std.int(fhash(i) * (pa.values.length / pa.size));
-				instancedData.set(i, pa.values[j * pa.size    ] / 32767 * sc / r.particle_size); i++;
-				instancedData.set(i, pa.values[j * pa.size + 1] / 32767 * sc / r.particle_size); i++;
-				instancedData.set(i, pa.values[j * pa.size + 2] / 32767 * sc / r.particle_size); i++;
-			}
-		}
-		else if (r.emit_from == 1) { // Volume
-			for (p in particles) {
-				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0)); i++;
-				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0)); i++;
-				instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
-			}
-		}
-		else if (r.emit_from == 2) { // Face
-			var sc = owner.data.scalePos;
 
-			for (p in particles) {
-				// Choose random index array (there is one per mat) and random face
-				var ia = owner.data.geom.indices[Std.random(owner.data.geom.indices.length)];
-				var faceIndex = Std.random(Std.int(ia.length / 3));
-				var positions = owner.data.geom.positions.values;
+		switch (r.emit_from) {
+			case 0: // Vert
+				var pa = owner.data.geom.positions;
+				var sc = owner.data.scalePos;
+				for (p in particles) {
+					var j = Std.int(fhash(i) * (pa.values.length / pa.size));
+					instancedData.set(i, pa.values[j * pa.size    ] / 32767 * sc / r.particle_size); i++;
+					instancedData.set(i, pa.values[j * pa.size + 1] / 32767 * sc / r.particle_size); i++;
+					instancedData.set(i, pa.values[j * pa.size + 2] / 32767 * sc / r.particle_size); i++;
+				}
 
-				var i0 = ia[faceIndex * 3 + 0];
-				var i1 = ia[faceIndex * 3 + 1];
-				var i2 = ia[faceIndex * 3 + 2];
+			case 1: // Volume
+				for (p in particles) {
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0)); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0)); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0)); i++;
+				}
 
-				var v0 = new Vec3(positions[i0 * 4], positions[i0 * 4 + 1], positions[i0 * 4 + 2]);
-				var v1 = new Vec3(positions[i1 * 4], positions[i1 * 4 + 1], positions[i1 * 4 + 2]);
-				var v2 = new Vec3(positions[i2 * 4], positions[i2 * 4 + 1], positions[i2 * 4 + 2]);
+			case 2: // Face
+				var sc = owner.data.scalePos;
 
-				var pos = randomPointInTriangle(v0, v1, v2);
+				for (p in particles) {
+					// Choose random index array (there is one per mat) and random face
+					var ia = owner.data.geom.indices[Std.random(owner.data.geom.indices.length)];
+					var faceIndex = Std.random(Std.int(ia.length / 3));
+					var positions = owner.data.geom.positions.values;
 
-				instancedData.set(i, pos.x / 32767 * sc / r.particle_size); i++;
-				instancedData.set(i, pos.y / 32767 * sc / r.particle_size); i++;
-				instancedData.set(i, pos.z / 32767 * sc / r.particle_size); i++;
-			}
+					var i0 = ia[faceIndex * 3 + 0];
+					var i1 = ia[faceIndex * 3 + 1];
+					var i2 = ia[faceIndex * 3 + 2];
+
+					var v0 = new Vec3(positions[i0 * 4], positions[i0 * 4 + 1], positions[i0 * 4 + 2]);
+					var v1 = new Vec3(positions[i1 * 4], positions[i1 * 4 + 1], positions[i1 * 4 + 2]);
+					var v2 = new Vec3(positions[i2 * 4], positions[i2 * 4 + 1], positions[i2 * 4 + 2]);
+
+					var pos = randomPointInTriangle(v0, v1, v2);
+
+					instancedData.set(i, pos.x / 32767 * sc / r.particle_size); i++;
+					instancedData.set(i, pos.y / 32767 * sc / r.particle_size); i++;
+					instancedData.set(i, pos.z / 32767 * sc / r.particle_size); i++;
+				}
 		}
 		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);
 	}
