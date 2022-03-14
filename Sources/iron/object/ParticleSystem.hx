@@ -160,14 +160,7 @@ class ParticleSystem {
 					instancedData.set(i, pa.values[j * pa.size + 2] * scaleFactorVertFace); i++;
 				}
 
-			case 1: // Volume
-				for (p in particles) {
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0) * scaleFactorVol); i++;
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0) * scaleFactorVol); i++;
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0) * scaleFactorVol); i++;
-				}
-
-			case 2: // Face
+			case 1: // Face
 				var positions = owner.data.geom.positions.values;
 
 				for (p in particles) {
@@ -188,6 +181,13 @@ class ParticleSystem {
 					instancedData.set(i, pos.x * scaleFactorVertFace); i++;
 					instancedData.set(i, pos.y * scaleFactorVertFace); i++;
 					instancedData.set(i, pos.z * scaleFactorVertFace); i++;
+				}
+
+			case 2: // Volume
+				for (p in particles) {
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0) * scaleFactorVol); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0) * scaleFactorVol); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0) * scaleFactorVol); i++;
 				}
 		}
 		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);

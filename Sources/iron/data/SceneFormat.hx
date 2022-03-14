@@ -396,7 +396,7 @@ typedef TParticleData = {
 	public var frame_end: FastFloat;
 	public var lifetime: FastFloat;
 	public var lifetime_random: FastFloat;
-	public var emit_from: Int; // 0 - Vert, 1 - Volume, 2 - Face
+	public var emit_from: Int; // 0 - Vert, 1 - Face, 2 - Volume
 	public var object_align_factor: Float32Array;
 	public var factor_random: FastFloat;
 	public var physics_type: Int; // 0 - No, 1 - Newton
