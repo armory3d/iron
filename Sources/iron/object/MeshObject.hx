@@ -15,6 +15,7 @@ class MeshObject extends Object {
 	public var data: MeshData = null;
 	public var materials: Vector<MaterialData>;
 	public var materialIndex = 0;
+	public var depthRead(default, null) = false;
 	#if arm_particles
 	public var particleSystems: Array<ParticleSystem> = null; // Particle owner
 	public var particleChildren: Array<MeshObject> = null;
@@ -345,6 +346,20 @@ class MeshObject extends Object {
 	public inline function computeCameraDistance(camX: Float, camY: Float, camZ: Float) {
 		// Render path mesh sorting
 		cameraDistance = Vec4.distancef(camX, camY, camZ, transform.worldx(), transform.worldy(), transform.worldz());
+	}
+
+	public inline function computeDepthRead() {
+		#if rp_depth_texture
+		depthRead = false;
+		for (material in materials) {
+			for (context in material.contexts) {
+				if (context.raw.depth_read == true) {
+					depthRead = true;
+					break;
+				}
+			}
+		}
+		#end
 	}
 
 	public inline function computeScreenSize(camera: CameraObject) {

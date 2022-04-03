@@ -28,10 +28,12 @@ class MeshBatch {
 	}
 
 	public static function isBatchable(m: MeshObject): Bool {
+		m.computeDepthRead();
 		var batch =
 			m.materials != null &&
 			m.materials.length == 1 &&
-			!m.data.geom.instanced;
+			!m.data.geom.instanced &&
+			!m.depthRead;
 		return batch;
 	}
 
@@ -58,6 +60,7 @@ class MeshBatch {
 		else nonBatched.remove(m);
 	}
 
+	@:access(iron.RenderPath)
 	public function render(g: Graphics, context: String, bindParams: Array<String>) {
 
 		for (b in buckets) {
@@ -111,13 +114,8 @@ class MeshBatch {
 			#end
 		}
 
-		for (m in nonBatched) {
-			m.render(g, context, bindParams);
-
-			#if arm_debug
-			if (m.culled) RenderPath.culled++;
-			#end
-		}
+		// Render non-batched meshes
+		inline RenderPath.meshRenderLoop(g, context, bindParams, nonBatched);
 	}
 }
 

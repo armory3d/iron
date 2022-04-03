@@ -47,6 +47,7 @@ class RenderPath {
 	public var ready(get, null): Bool;
 	function get_ready(): Bool { return loading == 0; }
 	public var commands: Void->Void = null;
+	public var setupDepthTexture: Void->Void = null;
 	public var renderTargets: Map<String, RenderTarget> = new Map();
 	public var depthToRenderTarget: Map<String, RenderTarget> = new Map();
 	public var currentW: Int;
@@ -284,14 +285,28 @@ class RenderPath {
 		rt.image.generateMipmaps(1000);
 	}
 
+	static inline function boolToInt(b: Bool): Int {
+		return b ? 1 : 0;
+	}
+
 	public static function sortMeshesDistance(meshes: Array<MeshObject>) {
 		meshes.sort(function(a, b): Int {
+			#if rp_depth_texture
+			var depthDiff = boolToInt(a.depthRead) - boolToInt(b.depthRead);
+			if (depthDiff != 0) return depthDiff;
+			#end
+
 			return a.cameraDistance >= b.cameraDistance ? 1 : -1;
 		});
 	}
 
 	public static function sortMeshesShader(meshes: Array<MeshObject>) {
 		meshes.sort(function(a, b): Int {
+			#if rp_depth_texture
+			var depthDiff = boolToInt(a.depthRead) - boolToInt(b.depthRead);
+			if (depthDiff != 0) return depthDiff;
+			#end
+
 			return a.materials[0].name >= b.materials[0].name ? 1 : -1;
 		});
 	}
@@ -348,6 +363,7 @@ class RenderPath {
 			var camZ = camera.transform.worldz();
 			for (mesh in meshes) {
 				mesh.computeCameraDistance(camX, camY, camZ);
+				mesh.computeDepthRead();
 			}
 			#if arm_batch
 			sortMeshesDistance(Scene.active.meshBatch.nonBatched);
@@ -360,10 +376,34 @@ class RenderPath {
 		#if arm_batch
 		Scene.active.meshBatch.render(currentG, context, bindParams);
 		#else
-		for (m in meshes) {
-			m.render(currentG, context, bindParams);
-		}
+		inline meshRenderLoop(currentG, context, bindParams, meshes);
 		#end
+	}
+
+	static inline function meshRenderLoop(g: Graphics, context: String, _bindParams: Array<String>, _meshes: Array<MeshObject>) {
+		var isReadingDepth = false;
+
+		for (m in _meshes) {
+			#if rp_depth_texture
+				// First mesh that reads depth
+				if (!isReadingDepth && m.depthRead) {
+					if (context == "mesh") {
+						// Copy the depth buffer so that we can read from it while writing
+						active.setupDepthTexture();
+					}
+					#if rp_depthprepass
+					else if (context == "depth") {
+						// Don't render in depth prepass
+						break;
+					}
+					#end
+
+					isReadingDepth = true;
+				}
+			#end
+
+			m.render(g, context, _bindParams);
+		}
 	}
 
 	#if arm_debug

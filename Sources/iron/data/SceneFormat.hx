@@ -178,6 +178,7 @@ typedef TMaterialContext = {
 @:structInit class TMaterialContext {
 #end
 	public var name: String;
+	@:optional public var depth_read: Null<Bool>;
 	@:optional public var bind_constants: Array<TBindConstant>;
 	@:optional public var bind_textures: Array<TBindTexture>;
 }
