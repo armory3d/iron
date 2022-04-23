@@ -799,6 +799,13 @@ class Uniforms {
 					m = cast(object, MeshObject).prevMatrix;
 				}
 				#end
+				case "_sunWorldMatrix": {
+					var sun = RenderPath.active.sun;
+					if (sun != null) {
+						helpMat.setFrom(sun.transform.worldUnpack);
+						m = helpMat;
+					}
+				}
 				case "_lightWorldViewProjectionMatrix": {
 					if (light != null) {
 						// object is null for DrawQuad
