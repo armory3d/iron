@@ -437,8 +437,10 @@ class Data {
 	}
 
 	public static function getImage(file: String, done: kha.Image->Void, readable = false, format = "RGBA32") {
-		#if (cpp || hl)
-		file = file.substring(0, file.length - 4) + ".k";
+		#if (cpp || hl || armorcore)
+		if (!file.endsWith(".k")) {
+			file = file.substring(0, file.length - 4) + ".k";
+		}
 		#end
 
 		var cached = cachedImages.get(file);
