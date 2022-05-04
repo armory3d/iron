@@ -437,7 +437,7 @@ class Data {
 	}
 
 	public static function getImage(file: String, done: kha.Image->Void, readable = false, format = "RGBA32") {
-		#if (cpp || hl)
+		#if (cpp || hl || arm_use_k_images)
 		if (!file.endsWith(".k")) {
 			file = file.substring(0, file.length - 4) + ".k";
 		}
