@@ -276,10 +276,10 @@ class Geometry {
 		var struct = new VertexStructure();
 		struct.add(name, structLength == 2 ? VertexData.Short2Norm : VertexData.Short4Norm);
 
-		var vertexBuffer = new VertexBuffer(Std.int(data.length / structLength), struct, usage);
+		var vertexBuffer = new VertexBuffer(Std.int(data.byteLength / 2 / structLength), struct, usage);
 
 		var vertices = vertexBuffer.lock();
-		for (i in 0...Std.int(vertices.byteLength / 2)) vertices.setInt16(i * 2, data[i]);
+		for (i in 0...Std.int(vertices.byteLength / 2)) vertices.setInt16(i * 2, data.getInt16(i * 2));
 		vertexBuffer.unlock();
 
 		return vertexBuffer;
