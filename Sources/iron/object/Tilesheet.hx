@@ -1,9 +1,11 @@
 package iron.object;
 
+import iron.Scene;
 import iron.data.Data;
 import iron.data.SceneFormat;
 import iron.system.Time;
 
+@:allow(iron.Scene)
 class Tilesheet {
 
 	public var tileX = 0.0; // Tile offset on tilesheet texture 0-1
@@ -24,6 +26,7 @@ class Tilesheet {
 			for (ts in format.tilesheet_datas) {
 				if (ts.name == tilesheet_ref) {
 					raw = ts;
+					Scene.active.tilesheets.push(this);
 					play(tilesheet_action_ref);
 					ready = true;
 					break;
@@ -52,22 +55,33 @@ class Tilesheet {
 		paused = false;
 	}
 
-	public function remove() {}
+	public function remove() {
+		Scene.active.tilesheets.remove(this);
+	}
 
-	public function update() {
+	function update() {
 		if (!ready || paused || action.start >= action.end) return;
 
-		time += Time.delta;
+		time += Time.realDelta;
 
-		// Next frame
-		if (time >= 1 / raw.framerate) {
-			setFrame(frame + 1);
+		var frameTime = 1 / raw.framerate;
+		var framesToAdvance = 0;
+
+		// Check how many animation frames passed during the last render frame
+		// and catch up if required. The remaining `time` that couldn't fit in
+		// another animation frame will be used in the next `update()`.
+		while (time >= frameTime) {
+			time -= frameTime;
+			framesToAdvance++;
+		}
+
+		if (framesToAdvance != 0) {
+			setFrame(frame + framesToAdvance);
 		}
 	}
 
 	function setFrame(f: Int) {
 		frame = f;
-		time = 0;
 
 		var tx = frame % raw.tilesx;
 		var ty = Std.int(frame / raw.tilesx);

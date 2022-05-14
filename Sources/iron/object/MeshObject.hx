@@ -238,7 +238,6 @@ class MeshObject extends Object {
 		if (particleSystems != null && particleSystems.length > 0 && !raw.render_emitter) return;
 		#end
 
-		if (tilesheet != null) tilesheet.update();
 		if (cullMaterial(context)) return;
 
 		// Get lod
