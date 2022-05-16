@@ -13,6 +13,7 @@ import iron.object.LightObject;
 import iron.object.SpeakerObject;
 import iron.object.DecalObject;
 import iron.object.ProbeObject;
+import iron.object.Tilesheet;
 import iron.data.CameraData;
 import iron.data.MeshData;
 import iron.data.LightData;
@@ -63,6 +64,7 @@ class Scene {
 	#end
 	public var empties: Array<Object>;
 	public var animations: Array<Animation>;
+	public var tilesheets: Array<Tilesheet>;
 	#if arm_skin
 	public var armatures: Array<Armature>;
 	#end
@@ -99,6 +101,7 @@ class Scene {
 		#end
 		empties = [];
 		animations = [];
+		tilesheets = [];
 		#if arm_skin
 		armatures = [];
 		#end
@@ -241,6 +244,10 @@ class Scene {
 	public function renderFrame(g: kha.graphics4.Graphics) {
 		if (!ready || RenderPath.active == null) return;
 		framePassed = true;
+
+		for (tilesheet in tilesheets) {
+			tilesheet.update();
+		}
 
 		// Render probes
 		#if rp_probes
