@@ -146,25 +146,30 @@ class ParticleSystem {
 		var instancedData = new Float32Array(particles.length * 3);
 		var i = 0;
 
-		var scaleFactorVol = owner.data.scalePos / r.particle_size;
-		var scaleFactorVertFace = 1 / 32767 * scaleFactorVol;
+		var scaleFactor = new Vec3(
+			object.transform.dim.x / 2.0 / r.particle_size,
+			object.transform.dim.y / 2.0 / r.particle_size,
+			object.transform.dim.z / 2.0 / r.particle_size
+		);
 
 		switch (r.emit_from) {
 			case 0: // Vert
 				var pa = owner.data.geom.positions;
+				var normFactor = 1 / 32767; // pa.values are not normalized
 
 				for (p in particles) {
 					var j = Std.int(fhash(i) * (pa.values.length / pa.size));
-					instancedData.set(i, pa.values[j * pa.size    ] * scaleFactorVertFace); i++;
-					instancedData.set(i, pa.values[j * pa.size + 1] * scaleFactorVertFace); i++;
-					instancedData.set(i, pa.values[j * pa.size + 2] * scaleFactorVertFace); i++;
+					instancedData.set(i, pa.values[j * pa.size    ] * normFactor * scaleFactor.x); i++;
+					instancedData.set(i, pa.values[j * pa.size + 1] * normFactor * scaleFactor.y); i++;
+					instancedData.set(i, pa.values[j * pa.size + 2] * normFactor * scaleFactor.z); i++;
 				}
 
 			case 1: // Face
 				var positions = owner.data.geom.positions.values;
+				var normFactor = 1 / 32767;
 
 				for (p in particles) {
-					// Choose random index array (there is one per mat) and random face
+					// Choose random index array (there is one per material) and random face
 					var ia = owner.data.geom.indices[Std.random(owner.data.geom.indices.length)];
 					var faceIndex = Std.random(Std.int(ia.length / 3));
 
@@ -178,16 +183,16 @@ class ParticleSystem {
 
 					var pos = randomPointInTriangle(v0, v1, v2);
 
-					instancedData.set(i, pos.x * scaleFactorVertFace); i++;
-					instancedData.set(i, pos.y * scaleFactorVertFace); i++;
-					instancedData.set(i, pos.z * scaleFactorVertFace); i++;
+					instancedData.set(i, pos.x * normFactor * scaleFactor.x); i++;
+					instancedData.set(i, pos.y * normFactor * scaleFactor.y); i++;
+					instancedData.set(i, pos.z * normFactor * scaleFactor.z); i++;
 				}
 
 			case 2: // Volume
 				for (p in particles) {
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.x / 2.0) * scaleFactorVol); i++;
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.y / 2.0) * scaleFactorVol); i++;
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * (object.transform.dim.z / 2.0) * scaleFactorVol); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * scaleFactor.x); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * scaleFactor.y); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * scaleFactor.z); i++;
 				}
 		}
 		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);
