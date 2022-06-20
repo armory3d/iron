@@ -386,7 +386,6 @@ class Scene {
 			parent.name = sceneName;
 		}
 		Data.getSceneRaw(sceneName, function(format: TSceneFormat) {
-			createTraits(format.traits, parent); // Scene traits
 			loadEmbeddedData(format.embedded_datas, function() { // Additional scene assets
 				#if arm_stream
 				objectsTraversed = 0;
@@ -412,10 +411,12 @@ class Scene {
 				}
 
 				if (format.objects == null || format.objects.length == 0) {
+					createTraits(format.traits, parent); // Scene traits
 					done(parent);
 				}
 				else {
 					traverseObjects(parent, format.objects, null, function() { // Scene objects
+						createTraits(format.traits, parent); // Scene traits
 						done(parent);
 					});
 				}
