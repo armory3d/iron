@@ -457,6 +457,7 @@ typedef TObj = {
 	@:optional public var tilesheet_action_ref: String;
 	@:optional public var sampled: Null<Bool>; // Object action
 	@:optional public var is_ik_fk_only: Null<Bool>; // Bone IK or FK only
+	@:optional public var arm_relative_bone_constraints: Null<Bool>; // Use parent relative bone constraints
 }
 
 #if js
