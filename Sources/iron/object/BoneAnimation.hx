@@ -38,6 +38,7 @@ class BoneAnimation extends Animation {
 	var constraintTargets: Array<Object> = null;
 	var constraintTargetsI: Array<Mat4> = null;
 	var constraintMats: Map<TObj, Mat4> = null;
+	var relativeBoneConstraints: Bool = false;
 
 	static var m = Mat4.identity(); // Skinning matrix
 	static var m1 = Mat4.identity();
@@ -82,6 +83,8 @@ class BoneAnimation extends Animation {
 				Data.getSceneRaw(refs[0], function(action: TSceneFormat) { play(action.name); });
 			}
 		}
+		if(object.parent.raw.arm_relative_bone_constraints) relativeBoneConstraints = true;
+
 	}
 
 	public function addBoneChild(bone: String, o: Object) {
@@ -300,10 +303,7 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	function updateConstraints() {
-		if (data == null) return;
-		var cs = data.raw.skin.constraints;
-		if (cs == null) return;
+	function getConstraintsFormScene(cs: Array<TConstraint>){
 		// Init constraints
 		if (constraintTargets == null) {
 			constraintTargets = [];
@@ -319,6 +319,40 @@ class BoneAnimation extends Animation {
 				constraintTargetsI.push(m);
 			}
 			constraintMats = new Map();
+		}
+	}
+
+	function getConstraintsFormParentRelative(cs: Array<TConstraint>){
+		// Init constraints
+		if (constraintTargets == null) {
+			constraintTargets = [];
+			constraintTargetsI = [];
+			//MeshObject -> ArmatureObject -> Collection/Empty
+			var conParent = object.parent.parent;
+			if(conParent == null) return;
+			for (c in cs) {
+				var o = conParent.getChild(c.target);
+				constraintTargets.push(o);
+				var m: Mat4 = null;
+				if (o != null) {
+					m = Mat4.fromFloat32Array(o.raw.transform.values);
+					m.getInverse(m);
+				}
+				constraintTargetsI.push(m);
+			}
+			constraintMats = new Map();
+		}
+	}
+
+	function updateConstraints() {
+		if (data == null) return;
+		var cs = data.raw.skin.constraints;
+		if (cs == null) return;
+		if(relativeBoneConstraints) {
+			getConstraintsFormParentRelative(cs);
+		}
+		else {
+			getConstraintsFormScene(cs);
 		}
 		// Update matrices
 		for (i in 0...cs.length) {
