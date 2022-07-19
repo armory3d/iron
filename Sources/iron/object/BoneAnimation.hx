@@ -322,7 +322,7 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	function getConstraintsFormParentRelative(cs: Array<TConstraint>){
+	function getConstraintsFromParentRelative(cs: Array<TConstraint>){
 		// Init constraints
 		if (constraintTargets == null) {
 			constraintTargets = [];
@@ -349,7 +349,7 @@ class BoneAnimation extends Animation {
 		var cs = data.raw.skin.constraints;
 		if (cs == null) return;
 		if(relativeBoneConstraints) {
-			getConstraintsFormParentRelative(cs);
+			getConstraintsFromParentRelative(cs);
 		}
 		else {
 			getConstraintsFromScene(cs);
