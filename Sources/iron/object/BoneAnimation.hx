@@ -313,7 +313,7 @@ class BoneAnimation extends Animation {
 				constraintTargets.push(o);
 				var m: Mat4 = null;
 				if (o != null) {
-					m = Mat4.fromFloat32Array(o.raw.transform.values);
+					m = Mat4.identity().setFrom(o.transform.world);
 					m.getInverse(m);
 				}
 				constraintTargetsI.push(m);
@@ -335,7 +335,7 @@ class BoneAnimation extends Animation {
 				constraintTargets.push(o);
 				var m: Mat4 = null;
 				if (o != null) {
-					m = Mat4.fromFloat32Array(o.raw.transform.values);
+					m = Mat4.identity().setFrom(o.transform.world);
 					m.getInverse(m);
 				}
 				constraintTargetsI.push(m);
