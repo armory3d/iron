@@ -83,7 +83,7 @@ class BoneAnimation extends Animation {
 				Data.getSceneRaw(refs[0], function(action: TSceneFormat) { play(action.name); });
 			}
 		}
-		if(object.parent.raw.arm_relative_bone_constraints) relativeBoneConstraints = true;
+		if(object.parent.raw.relative_bone_constraints) relativeBoneConstraints = true;
 
 	}
 
@@ -303,7 +303,7 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	function getConstraintsFormScene(cs: Array<TConstraint>){
+	function getConstraintsFromScene(cs: Array<TConstraint>){
 		// Init constraints
 		if (constraintTargets == null) {
 			constraintTargets = [];
@@ -352,7 +352,7 @@ class BoneAnimation extends Animation {
 			getConstraintsFormParentRelative(cs);
 		}
 		else {
-			getConstraintsFormScene(cs);
+			getConstraintsFromScene(cs);
 		}
 		// Update matrices
 		for (i in 0...cs.length) {
