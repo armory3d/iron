@@ -83,7 +83,7 @@ class BoneAnimation extends Animation {
 				Data.getSceneRaw(refs[0], function(action: TSceneFormat) { play(action.name); });
 			}
 		}
-		if(object.parent.raw.relative_bone_constraints) relativeBoneConstraints = true;
+		if (object.parent.raw.relative_bone_constraints) relativeBoneConstraints = true;
 
 	}
 
@@ -303,7 +303,7 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	function getConstraintsFromScene(cs: Array<TConstraint>){
+	function getConstraintsFromScene(cs: Array<TConstraint>) {
 		// Init constraints
 		if (constraintTargets == null) {
 			constraintTargets = [];
@@ -322,14 +322,14 @@ class BoneAnimation extends Animation {
 		}
 	}
 
-	function getConstraintsFromParentRelative(cs: Array<TConstraint>){
+	function getConstraintsFromParentRelative(cs: Array<TConstraint>) {
 		// Init constraints
 		if (constraintTargets == null) {
 			constraintTargets = [];
 			constraintTargetsI = [];
-			//MeshObject -> ArmatureObject -> Collection/Empty
+			// MeshObject -> ArmatureObject -> Collection/Empty
 			var conParent = object.parent.parent;
-			if(conParent == null) return;
+			if (conParent == null) return;
 			for (c in cs) {
 				var o = conParent.getChild(c.target);
 				constraintTargets.push(o);
@@ -348,7 +348,7 @@ class BoneAnimation extends Animation {
 		if (data == null) return;
 		var cs = data.raw.skin.constraints;
 		if (cs == null) return;
-		if(relativeBoneConstraints) {
+		if (relativeBoneConstraints) {
 			getConstraintsFromParentRelative(cs);
 		}
 		else {
