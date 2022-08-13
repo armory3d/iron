@@ -22,7 +22,7 @@ class MorphTarget {
     public var morphMap: Map<String, Int> = null;
 
     public function new(data: TMorphTarget) {
-        morphWeights = data.morph_target_defaults;
+        initWeights(data.morph_target_defaults);
         scaling = data.morph_scale;
         offset = data.morph_offset;
         numMorphTargets = data.num_morph_targets;
@@ -41,6 +41,13 @@ class MorphTarget {
         for (name in data.morph_target_ref) {
             morphMap.set(name, i);
             i++;
+        }
+    }
+
+    inline function initWeights(defaults: Float32Array) {
+        morphWeights = new Float32Array(defaults.length);
+        for(i in 0...morphWeights.length) {
+            morphWeights.set(i, defaults.get(i));
         }
     }
 
