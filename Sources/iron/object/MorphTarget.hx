@@ -46,7 +46,7 @@ class MorphTarget {
 
     inline function initWeights(defaults: Float32Array) {
         morphWeights = new Float32Array(defaults.length);
-        for(i in 0...morphWeights.length) {
+        for (i in 0...morphWeights.length) {
             morphWeights.set(i, defaults.get(i));
         }
     }
