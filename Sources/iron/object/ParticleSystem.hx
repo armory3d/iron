@@ -146,16 +146,16 @@ class ParticleSystem {
 		var instancedData = new Float32Array(particles.length * 3);
 		var i = 0;
 
-		var scaleFactor = new Vec3(
-			object.transform.dim.x / 2.0 / r.particle_size,
-			object.transform.dim.y / 2.0 / r.particle_size,
-			object.transform.dim.z / 2.0 / r.particle_size
-		);
+		var normFactor = 1 / 32767; // pa.values are not normalized
+		var scalePosOwner = owner.data.scalePos;
+		var scalePosParticle = object.data.scalePos;
+		var particleSize = r.particle_size;
+		var scaleFactor = new Vec4().setFrom(owner.transform.scale);
+		scaleFactor.mult(scalePosOwner / (particleSize * scalePosParticle));
 
 		switch (r.emit_from) {
 			case 0: // Vert
 				var pa = owner.data.geom.positions;
-				var normFactor = 1 / 32767; // pa.values are not normalized
 
 				for (p in particles) {
 					var j = Std.int(fhash(i) * (pa.values.length / pa.size));
@@ -166,7 +166,6 @@ class ParticleSystem {
 
 			case 1: // Face
 				var positions = owner.data.geom.positions.values;
-				var normFactor = 1 / 32767;
 
 				for (p in particles) {
 					// Choose random index array (there is one per material) and random face
@@ -189,10 +188,13 @@ class ParticleSystem {
 				}
 
 			case 2: // Volume
+				var scaleFactorVolume = new Vec4().setFrom(object.transform.dim);
+				scaleFactorVolume.mult(0.5 / (particleSize * scalePosParticle));
+
 				for (p in particles) {
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * scaleFactor.x); i++;
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * scaleFactor.y); i++;
-					instancedData.set(i, (Math.random() * 2.0 - 1.0) * scaleFactor.z); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * scaleFactorVolume.x); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * scaleFactorVolume.y); i++;
+					instancedData.set(i, (Math.random() * 2.0 - 1.0) * scaleFactorVolume.z); i++;
 				}
 		}
 		object.data.geom.setupInstanced(instancedData, 1, Usage.StaticUsage);
