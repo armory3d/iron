@@ -920,6 +920,10 @@ class Scene {
 			for (v in vals) ar.push(parseArg(v));
 			return ar;
 		}
+		else if (str.charAt(0) == '{') { //Typedef or Anonymous Structure
+			var tpd = haxe.Json.parse(str);
+			return tpd;
+		}
 		else {
 			var f = Std.parseFloat(str);
 			var i = Std.parseInt(str);
