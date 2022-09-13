@@ -627,7 +627,6 @@ class RenderPath {
 				rt.image = createImage(t, rt.depthStencil);
 			}
 		}
-
 		return rt;
 	}
 
