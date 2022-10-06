@@ -159,6 +159,7 @@ class ArmPack {
 			case "lods": TLod;
 			case "anim": TAnimation;
 			case "tracks": TTrack;
+			case "morph_target": TMorphTarget;
 			case _: TSceneFormat;
 		}
 	}
