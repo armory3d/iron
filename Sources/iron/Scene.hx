@@ -213,7 +213,7 @@ class Scene {
 		Data.getSceneRaw(sceneName, function(format: TSceneFormat) {
 			Scene.create(format, function(o: Object) {
 				if (done != null) done(o);
-				#if rp_voxelao // Revoxelize
+				#if (rp_voxels != "Off") // Revoxelize
 				RenderPath.active.voxelized = 0;
 				#end
 
