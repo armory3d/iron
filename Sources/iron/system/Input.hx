@@ -216,6 +216,8 @@ class Mouse extends VirtualInput {
 	}
 
 	function downListener(index: Int, x: Int, y: Int) {
+		if (Input.getPen().inUse) return;
+
 		buttonsDown[index] = true;
 		buttonsStarted[index] = true;
 		this.x = x;
@@ -231,6 +233,8 @@ class Mouse extends VirtualInput {
 	}
 
 	function upListener(index: Int, x: Int, y: Int) {
+		if (Input.getPen().inUse) return;
+
 		buttonsDown[index] = false;
 		buttonsReleased[index] = true;
 		this.x = x;
@@ -332,6 +336,7 @@ class Pen extends VirtualInput {
 	public var movementY(default, null) = 0.0;
 	public var pressure(default, null) = 0.0;
 	public var connected = false;
+	public var inUse = false;
 	var lastX = -1.0;
 	var lastY = -1.0;
 
@@ -345,6 +350,7 @@ class Pen extends VirtualInput {
 		moved = false;
 		movementX = 0;
 		movementY = 0;
+		inUse = false;
 	}
 
 	public function reset() {
@@ -374,14 +380,21 @@ class Pen extends VirtualInput {
 		this.x = x;
 		this.y = y;
 		this.pressure = pressure;
+
+		@:privateAccess Input.getMouse().downListener(0, x, y);
 	}
 
 	function upListener(x: Int, y: Int, pressure: Float) {
+		if (buttonsStarted[0]) { buttonsStarted[0] = false; inUse = true; return; }
+
 		buttonsDown[0] = false;
 		buttonsReleased[0] = true;
 		this.x = x;
 		this.y = y;
 		this.pressure = pressure;
+
+		@:privateAccess Input.getMouse().upListener(0, x, y);
+		inUse = true; // On pen release, additional mouse down & up events are fired at once - filter those out
 	}
 
 	function moveListener(x: Int, y: Int, pressure: Float) {
