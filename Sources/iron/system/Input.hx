@@ -341,8 +341,8 @@ class Pen extends VirtualInput {
 	var lastY = -1.0;
 
 	public function new() {
-	    var pen = kha.input.Pen.get();
-        if(pen != null) pen.notify(downListener, upListener, moveListener);
+		var pen = kha.input.Pen.get();
+		if (pen != null) pen.notify(downListener, upListener, moveListener);
 	}
 
 	public function endFrame() {
