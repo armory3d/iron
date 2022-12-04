@@ -644,6 +644,9 @@ class Gamepad extends VirtualInput {
 	public static var buttonsXBOX = ["a", "b", "x", "y", "l1", "r1", "l2", "r2", "share", "options", "l3", "r3", "up", "down", "left", "right", "home", "touchpad"];
 	public static var buttons = buttonsPS;
 
+    public var id(get,never) : String;
+    inline function get_id() return kha.input.Gamepad.get(num).id;
+
 	var buttonsDown: Array<Float> = []; // Intensity 0 - 1
 	var buttonsStarted: Array<Bool> = [];
 	var buttonsReleased: Array<Bool> = [];
