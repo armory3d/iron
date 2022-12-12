@@ -394,7 +394,10 @@ class Pen extends VirtualInput {
 		this.y = y;
 		this.pressure = pressure;
 
+		#if (!kha_android && !kha_ios)
 		@:privateAccess Input.getMouse().upListener(0, x, y);
+		#end
+
 		inUse = true; // On pen release, additional mouse down & up events are fired at once - filter those out
 	}
 
