@@ -79,6 +79,9 @@ class Scene {
 
 	var initializing: Bool; // Is the scene in its initialization phase?
 
+	// Pause only the rendering of default/ active camera
+	public var pauseActiveCameraRender: Bool = false;
+
 	public function new() {
 		uid = uidCounter++;
 		#if arm_batch
@@ -260,6 +263,7 @@ class Scene {
 		#end
 
 		// Render active camera
+		if(pauseActiveCameraRender) return;
 		camera != null ? camera.renderFrame(g) : RenderPath.active.renderFrame(g);
 	}
 
