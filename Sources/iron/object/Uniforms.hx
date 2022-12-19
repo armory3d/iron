@@ -324,13 +324,6 @@ class Uniforms {
 					v = helpVec;
 				}
 				#end
-				#if kha_metal
-				case "_clearColor": {
-					var col = RenderPath.active.clearColor;
-					helpVec.set(col.R, col.G, col.B, col.A);
-					v = helpVec;
-				}
-				#end
 				default:
 					return false;
 			}
