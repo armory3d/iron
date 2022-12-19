@@ -135,10 +135,10 @@ typedef Surface = Mouse;
 
 class Mouse extends VirtualInput {
 
-	public static var buttons = ["left", "right", "middle"];
-	var buttonsDown = [false, false, false];
-	var buttonsStarted = [false, false, false];
-	var buttonsReleased = [false, false, false];
+	public static var buttons = ["left", "right", "middle", "side1", "side2"];
+	var buttonsDown = [false, false, false, false, false];
+	var buttonsStarted = [false, false, false, false, false];
+	var buttonsReleased = [false, false, false, false, false];
 
 	public var x(default, null) = 0.0;
 	public var y(default, null) = 0.0;
@@ -175,7 +175,7 @@ class Mouse extends VirtualInput {
 	}
 
 	function buttonIndex(button: String): Int {
-		return button == "left" ? 0 : (button == "right" ? 1 : 2);
+		return button == "left" ? 0 : button == "right" ? 1 : button == "middle" ? 2 : button == "side1" ? 3 : (button == "side2" ? 4 : 2);
 	}
 
 	public function down(button = "left"): Bool {
