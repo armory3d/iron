@@ -175,7 +175,7 @@ class Mouse extends VirtualInput {
 	}
 
 	function buttonIndex(button: String): Int {
-		return button == "left" ? 0 : button == "right" ? 1 : button == "middle" ? 2 : button == "side1" ? 3 : (button == "side2" ? 4 : 2);
+		return button == "left" ? 0 : button == "right" ? 1 : button == "middle" ? 2 : button == "side1" ? 3 : 4;
 	}
 
 	public function down(button = "left"): Bool {
