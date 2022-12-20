@@ -382,11 +382,15 @@ class Pen extends VirtualInput {
 		this.y = y;
 		this.pressure = pressure;
 
+		#if (!kha_android && !kha_ios)
 		@:privateAccess Input.getMouse().downListener(0, x, y);
+		#end
 	}
 
 	function upListener(x: Int, y: Int, pressure: Float) {
+		#if (!kha_android && !kha_ios)
 		if (buttonsStarted[0]) { buttonsStarted[0] = false; inUse = true; return; }
+		#end
 
 		buttonsDown[0] = false;
 		buttonsReleased[0] = true;
@@ -396,9 +400,8 @@ class Pen extends VirtualInput {
 
 		#if (!kha_android && !kha_ios)
 		@:privateAccess Input.getMouse().upListener(0, x, y);
-		#end
-
 		inUse = true; // On pen release, additional mouse down & up events are fired at once - filter those out
+		#end
 	}
 
 	function moveListener(x: Int, y: Int, pressure: Float) {
