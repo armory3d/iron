@@ -161,8 +161,8 @@ class Mouse extends VirtualInput {
 	}
 
 	public function endFrame() {
-		buttonsStarted[0] = buttonsStarted[1] = buttonsStarted[2] = false;
-		buttonsReleased[0] = buttonsReleased[1] = buttonsReleased[2] = false;
+		buttonsStarted[0] = buttonsStarted[1] = buttonsStarted[2] = buttonsStarted[3] = buttonsStarted[4] = false;
+		buttonsReleased[0] = buttonsReleased[1] = buttonsReleased[2] = buttonsReleased[3] = buttonsReleased[4] = false;
 		moved = false;
 		movementX = 0;
 		movementY = 0;
@@ -170,12 +170,13 @@ class Mouse extends VirtualInput {
 	}
 
 	public function reset() {
-		buttonsDown[0] = buttonsDown[1] = buttonsDown[2] = false;
+		buttonsDown[0] = buttonsDown[1] = buttonsDown[2] = buttonsDown[3] = buttonsDown[4] = false;
 		endFrame();
 	}
 
 	function buttonIndex(button: String): Int {
-		return button == "left" ? 0 : button == "right" ? 1 : button == "middle" ? 2 : button == "side1" ? 3 : 4;
+		for (i in 0...buttons.length) if (buttons[i] == button) return i;
+		return 2;
 	}
 
 	public function down(button = "left"): Bool {
