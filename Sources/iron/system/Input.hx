@@ -176,7 +176,7 @@ class Mouse extends VirtualInput {
 
 	function buttonIndex(button: String): Int {
 		for (i in 0...buttons.length) if (buttons[i] == button) return i;
-		return 2;
+		return 0;
 	}
 
 	public function down(button = "left"): Bool {
