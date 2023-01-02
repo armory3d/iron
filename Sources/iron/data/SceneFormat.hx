@@ -367,9 +367,11 @@ typedef TTilesheetData = {
 @:structInit class TTilesheetData {
 #end
 	public var name: String;
+	public var format: String; // GRID, SPARROW
 	public var tilesx: Int;
 	public var tilesy: Int;
 	public var framerate: Int;
+	public var atlas_data: String; // XML text data
 	public var actions: Array<TTilesheetAction>;
 }
 
@@ -382,6 +384,7 @@ typedef TTilesheetAction = {
 	public var start: Int;
 	public var end: Int;
 	public var loop: Bool;
+	public var prefix: String;
 }
 
 #if js

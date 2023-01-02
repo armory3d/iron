@@ -1013,8 +1013,9 @@ class Uniforms {
 			switch (c.link) {
 				case "_tilesheetOffset": {
 					var ts = cast(object, MeshObject).tilesheet;
-					vx = ts.tileX;
-					vy = ts.tileY;
+					vx = ts.tileUVFrameX;
+					vy = ts.tileUVFrameY;
+					trace('tilesheetOffset: (' + vx + ', ' + vy + ')');
 				}
 				#if arm_morph_target
 				case "_morphScaleOffset": {
