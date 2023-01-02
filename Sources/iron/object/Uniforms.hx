@@ -198,6 +198,10 @@ class Uniforms {
 					}
 
 					if (!paramsSet) {
+						if (rt.raw.name.startsWith("bloom")) {
+							// Use bilinear filter for bloom mips to get correct blur
+							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+						}
 						if (samplerID.startsWith("shadowMap")) {
 							if (rt.isCubeMap) {
 								#if (!arm_legacy)
