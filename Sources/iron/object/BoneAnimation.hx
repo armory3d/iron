@@ -66,6 +66,11 @@ class BoneAnimation extends Animation {
 		}
 	}
 
+	public inline function getNumBones(): Int {
+    	if (skeletonBones == null) return 0;
+    	return skeletonBones.length;
+	}
+
 	public function setSkin(mo: MeshObject) {
 		this.object = mo;
 		this.data = mo != null ? mo.data : null;
