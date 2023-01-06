@@ -66,6 +66,7 @@ class Object {
 		parent = parentObject;
 		parent.children.push(this);
 		if (parentInverse) this.transform.applyParentInverse();
+		if(Scene.active.ready) this.transform.buildMatrix();
 	}
 
 	/**
