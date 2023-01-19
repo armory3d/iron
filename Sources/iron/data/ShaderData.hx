@@ -27,7 +27,7 @@ class ShaderData {
 
 	#if (arm_noembed && kha_krom)
 	public static var shaderPath = "../krom-resources/";
-	public static inline var shaderExt = #if kha_vulkan ".spirv" #elseif (krom_android || krom_html5) ".essl" #elseif kha_opengl ".glsl" #elseif kha_metal ".metal" #else ".d3d11" #end ;
+	public static inline var shaderExt = #if kha_vulkan ".spirv" #elseif (krom_android || krom_wasm) ".essl" #elseif kha_opengl ".glsl" #elseif kha_metal ".metal" #else ".d3d11" #end ;
 	#end
 
 	public function new(raw: TShaderData, done: ShaderData->Void, overrideContext: TShaderOverride = null) {
