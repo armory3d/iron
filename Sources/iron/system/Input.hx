@@ -135,10 +135,10 @@ typedef Surface = Mouse;
 
 class Mouse extends VirtualInput {
 
-	public static var buttons = ["left", "right", "middle"];
-	var buttonsDown = [false, false, false];
-	var buttonsStarted = [false, false, false];
-	var buttonsReleased = [false, false, false];
+	public static var buttons = ["left", "right", "middle", "side1", "side2"];
+	var buttonsDown = [false, false, false, false, false];
+	var buttonsStarted = [false, false, false, false, false];
+	var buttonsReleased = [false, false, false, false, false];
 
 	public var x(default, null) = 0.0;
 	public var y(default, null) = 0.0;
@@ -161,8 +161,8 @@ class Mouse extends VirtualInput {
 	}
 
 	public function endFrame() {
-		buttonsStarted[0] = buttonsStarted[1] = buttonsStarted[2] = false;
-		buttonsReleased[0] = buttonsReleased[1] = buttonsReleased[2] = false;
+		buttonsStarted[0] = buttonsStarted[1] = buttonsStarted[2] = buttonsStarted[3] = buttonsStarted[4] = false;
+		buttonsReleased[0] = buttonsReleased[1] = buttonsReleased[2] = buttonsReleased[3] = buttonsReleased[4] = false;
 		moved = false;
 		movementX = 0;
 		movementY = 0;
@@ -170,12 +170,13 @@ class Mouse extends VirtualInput {
 	}
 
 	public function reset() {
-		buttonsDown[0] = buttonsDown[1] = buttonsDown[2] = false;
+		buttonsDown[0] = buttonsDown[1] = buttonsDown[2] = buttonsDown[3] = buttonsDown[4] = false;
 		endFrame();
 	}
 
 	function buttonIndex(button: String): Int {
-		return button == "left" ? 0 : (button == "right" ? 1 : 2);
+		for (i in 0...buttons.length) if (buttons[i] == button) return i;
+		return 0;
 	}
 
 	public function down(button = "left"): Bool {
@@ -216,6 +217,8 @@ class Mouse extends VirtualInput {
 	}
 
 	function downListener(index: Int, x: Int, y: Int) {
+		if (Input.getPen().inUse) return;
+
 		buttonsDown[index] = true;
 		buttonsStarted[index] = true;
 		this.x = x;
@@ -231,6 +234,8 @@ class Mouse extends VirtualInput {
 	}
 
 	function upListener(index: Int, x: Int, y: Int) {
+		if (Input.getPen().inUse) return;
+
 		buttonsDown[index] = false;
 		buttonsReleased[index] = true;
 		this.x = x;
@@ -332,11 +337,13 @@ class Pen extends VirtualInput {
 	public var movementY(default, null) = 0.0;
 	public var pressure(default, null) = 0.0;
 	public var connected = false;
+	public var inUse = false;
 	var lastX = -1.0;
 	var lastY = -1.0;
 
 	public function new() {
-		kha.input.Pen.get().notify(downListener, upListener, moveListener);
+		var pen = kha.input.Pen.get();
+		if (pen != null) pen.notify(downListener, upListener, moveListener);
 	}
 
 	public function endFrame() {
@@ -345,6 +352,7 @@ class Pen extends VirtualInput {
 		moved = false;
 		movementX = 0;
 		movementY = 0;
+		inUse = false;
 	}
 
 	public function reset() {
@@ -374,14 +382,27 @@ class Pen extends VirtualInput {
 		this.x = x;
 		this.y = y;
 		this.pressure = pressure;
+
+		#if (!kha_android && !kha_ios)
+		@:privateAccess Input.getMouse().downListener(0, x, y);
+		#end
 	}
 
 	function upListener(x: Int, y: Int, pressure: Float) {
+		#if (!kha_android && !kha_ios)
+		if (buttonsStarted[0]) { buttonsStarted[0] = false; inUse = true; return; }
+		#end
+
 		buttonsDown[0] = false;
 		buttonsReleased[0] = true;
 		this.x = x;
 		this.y = y;
 		this.pressure = pressure;
+
+		#if (!kha_android && !kha_ios)
+		@:privateAccess Input.getMouse().upListener(0, x, y);
+		inUse = true; // On pen release, additional mouse down & up events are fired at once - filter those out
+		#end
 	}
 
 	function moveListener(x: Int, y: Int, pressure: Float) {
@@ -629,6 +650,9 @@ class Gamepad extends VirtualInput {
 	public static var buttonsPS = ["cross", "circle", "square", "triangle", "l1", "r1", "l2", "r2", "share", "options", "l3", "r3", "up", "down", "left", "right", "home", "touchpad"];
 	public static var buttonsXBOX = ["a", "b", "x", "y", "l1", "r1", "l2", "r2", "share", "options", "l3", "r3", "up", "down", "left", "right", "home", "touchpad"];
 	public static var buttons = buttonsPS;
+
+	public var id(get, never): String;
+	inline function get_id() return kha.input.Gamepad.get(num).id;
 
 	var buttonsDown: Array<Float> = []; // Intensity 0 - 1
 	var buttonsStarted: Array<Bool> = [];

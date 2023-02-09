@@ -198,6 +198,10 @@ class Uniforms {
 					}
 
 					if (!paramsSet) {
+						if (rt.raw.name.startsWith("bloom")) {
+							// Use bilinear filter for bloom mips to get correct blur
+							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+						}
 						if (samplerID.startsWith("shadowMap")) {
 							if (rt.isCubeMap) {
 								#if (!arm_legacy)
@@ -321,13 +325,6 @@ class Uniforms {
 				#if arm_debug
 				case "_input": {
 					helpVec.set(Input.getMouse().x / iron.App.w(), Input.getMouse().y / iron.App.h(), Input.getMouse().down() ? 1.0 : 0.0, 0.0);
-					v = helpVec;
-				}
-				#end
-				#if kha_metal
-				case "_clearColor": {
-					var col = RenderPath.active.clearColor;
-					helpVec.set(col.R, col.G, col.B, col.A);
 					v = helpVec;
 				}
 				#end
