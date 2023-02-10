@@ -70,7 +70,7 @@ class RenderPath {
 	public var onVoxelize: Void->Bool = null;
 	public function voxelize() { // Returns true if scene should be voxelized
 		if (onVoxelize != null) return onVoxelize();
-		#if arm_voxelgi_revoxelize
+		#if arm_voxelgi_revox
 		return true;
 		#else
 		return ++voxelized > 2 ? false : true;
