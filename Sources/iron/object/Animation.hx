@@ -179,7 +179,7 @@ class Animation {
 		m._32 = vp.z;
 	}
 
-	public function setFrame(frame) {
+	public function setFrame(frame: Int) {
 		time = 0;
 		frameIndex = frame;
 		update(frame * Scene.active.raw.frame_time);
