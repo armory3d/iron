@@ -206,6 +206,10 @@ class Animation {
 	public function totalFrames(): Int {
 		return 0;
 	}
+	
+	public function getOactions(): Array<TSceneFormat> {
+		return null;
+	}
 
 	#if arm_debug
 	public static var animationTime = 0.0;
