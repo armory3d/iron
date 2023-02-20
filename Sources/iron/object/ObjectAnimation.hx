@@ -26,6 +26,10 @@ class ObjectAnimation extends Animation {
 		for (a in oactions) if (a != null && a.objects[0].name == action) return a.objects[0];
 		return null;
 	}
+	
+	override public function getOactions(): Array<TSceneFormat> {
+		return oactions;
+	}
 
 	override public function play(action = "", onComplete: Void->Void = null, blendTime = 0.0, speed = 1.0, loop = true) {
 		super.play(action, onComplete, blendTime, speed, loop);
