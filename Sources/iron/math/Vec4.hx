@@ -208,6 +208,17 @@ class Vec4 {
 		return this;
 	}
 
+	public inline function moveToward(v: Vec4, delta: FastFloat): Vec4 {
+		var target = v.clone();
+		var diff = target.sub(this);
+		var l = diff.length();
+
+		if (l <= delta || l == 0.0) setFrom(v);
+		else add(diff.mult(1.0 / l * delta));
+
+		return this;
+	}
+
 	public static inline function xAxis(): Vec4 {
 		return new Vec4(1.0, 0.0, 0.0);
 	}
