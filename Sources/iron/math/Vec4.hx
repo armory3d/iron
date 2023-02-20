@@ -208,7 +208,7 @@ class Vec4 {
 		return this;
 	}
 
-	public inline function moveToward(v: Vec4, delta: FastFloat): Vec4 {
+	public inline function moveTowards(v: Vec4, delta: FastFloat): Vec4 {
 		var target = v.clone();
 		var diff = target.sub(this);
 		var l = diff.length();
