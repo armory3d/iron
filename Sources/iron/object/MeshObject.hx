@@ -143,7 +143,7 @@ class MeshObject extends Object {
 		if (skip_context == context) return setCulled(isShadow, true);
 		if (force_context != null && force_context != context) return setCulled(isShadow, true);
 
-		#if (!arm_voxelgi_revoxelize) // No revox - do not voxelize moving objects
+		#if (!arm_voxelgi_revox) // No revox - do not voxelize moving objects
 		if (context == "voxel" && raw != null && raw.mobile == true) return setCulled(isShadow, true);
 		#end
 

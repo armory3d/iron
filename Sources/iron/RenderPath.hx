@@ -19,7 +19,6 @@ import iron.object.MeshObject;
 import iron.object.Uniforms;
 
 class RenderPath {
-
 	public static var active: RenderPath;
 
 	public var frameScissor = false;
@@ -65,7 +64,7 @@ class RenderPath {
 	var depthBuffers: Array<{name: String, format: String}> = [];
 	var additionalTargets: Array<kha.Canvas>;
 
-	#if rp_voxels
+	#if (rp_voxels != "Off")
 	public var voxelized = 0;
 	public var onVoxelize: Void->Bool = null;
 	public function voxelize() { // Returns true if scene should be voxelized
