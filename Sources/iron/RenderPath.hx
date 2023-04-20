@@ -95,11 +95,9 @@ class RenderPath {
 	public function renderFrame(g: Graphics) {
 		if (!ready || paused || iron.App.w() == 0 || iron.App.h() == 0) return;
 
-		#if arm_resizable
 		if (lastW > 0 && (lastW != iron.App.w() || lastH != iron.App.h())) resize();
 		lastW = iron.App.w();
 		lastH = iron.App.h();
-		#end
 
 		frameTime = Time.time() - lastFrameTime;
 		lastFrameTime = Time.time();
@@ -156,12 +154,10 @@ class RenderPath {
 				currentH = iron.App.h();
 				if (frameScissor) setFrameScissor();
 				begin(frameG);
-				#if arm_appwh
 				if (!isProbe) {
 					setCurrentViewport(iron.App.w(), iron.App.h());
 					setCurrentScissor(iron.App.w(), iron.App.h());
 				}
-				#end
 			}
 		}
 		else { // Render target
@@ -697,12 +693,10 @@ class RenderPath {
 					setFrameScissor();
 				}
 				beginStream(frameG);
-				#if arm_appwh
 				if (!isProbe) {
 					setCurrentViewport(iron.App.w(), iron.App.h());
 					setCurrentScissor(iron.App.w(), iron.App.h());
 				}
-				#end
 			}
 		}
 		else { // Render target
