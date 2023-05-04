@@ -215,7 +215,6 @@ class Scene {
 				if (done != null) done(o);
 				#if (rp_voxels != "Off") // Revoxelize
 				RenderPath.active.voxelized = 0;
-				armory.renderpath.RenderPathCreator.clipmap_to_update = (armory.renderpath.RenderPathCreator.clipmap_to_update + 1) % armory.renderpath.RenderPathCreator.CLIPMAP_COUNT;
 				#end
 
 				#if (rp_background == "World")

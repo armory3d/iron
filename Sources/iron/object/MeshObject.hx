@@ -249,6 +249,8 @@ class MeshObject extends Object {
 			if (context == "voxel") {
 				// Voxelize using the lowest lod
 				lod = cast lods[lods.length - 1];
+				armory.renderpath.RenderPathCreator.clipmap_to_update = (armory.renderpath.RenderPathCreator.clipmap_to_update + 1) % armory.renderpath.RenderPathCreator.CLIPMAP_COUNT;
+
 			}
 			else {
 				// Select lod
