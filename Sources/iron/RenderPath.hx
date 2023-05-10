@@ -64,19 +64,6 @@ class RenderPath {
 	var depthBuffers: Array<{name: String, format: String}> = [];
 	var additionalTargets: Array<kha.Canvas>;
 
-	#if (rp_voxels != "Off")
-	public var voxelized = 0;
-	public var onVoxelize: Void->Bool = null;
-	public function voxelize() { // Returns true if scene should be voxelized
-		if (onVoxelize != null) return onVoxelize();
-		#if arm_voxelgi_revox
-		return true;
-		#else
-		return ++voxelized > 2 ? false : true;
-		#end
-	}
-	#end
-
 	#if arm_debug
 	public static var drawCalls = 0;
 	public static var batchBuckets = 0;

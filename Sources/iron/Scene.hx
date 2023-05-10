@@ -27,6 +27,7 @@ import iron.data.TerrainStream;
 import iron.data.SceneStream;
 import iron.data.MeshBatch;
 import iron.system.Time;
+
 using StringTools;
 
 class Scene {
@@ -213,9 +214,6 @@ class Scene {
 		Data.getSceneRaw(sceneName, function(format: TSceneFormat) {
 			Scene.create(format, function(o: Object) {
 				if (done != null) done(o);
-				#if (rp_voxels != "Off") // Revoxelize
-				RenderPath.active.voxelized = 0;
-				#end
 
 				#if (rp_background == "World")
 				if (removeWorldShader != null) {
