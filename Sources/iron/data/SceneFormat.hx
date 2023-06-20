@@ -109,6 +109,7 @@ typedef TIndexArray = {
 #end
 	public var values: Uint32Array; // size = 3
 	public var material: Int;
+	@:optional public var vertex_map: Uint32Array; // size = 3
 }
 
 #if js
