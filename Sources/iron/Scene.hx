@@ -573,7 +573,7 @@ class Scene {
 			var object = addObject(parent);
 			returnObject(object, o, function(ro: Object) {
 				if (o.group_ref != null) { // Instantiate group objects
-					spawnGroup(format, o.group_ref, ro, function() { done(ro); });
+					spawnGroup(format, o.group_ref, ro, () -> done(ro), () -> done(ro) /* also call done when failed to ensure loading progress */);
 				}
 				else done(ro);
 			});
@@ -586,6 +586,7 @@ class Scene {
 		var object_refs = getGroupObjectRefs(groupRef, format);
 
 		if (object_refs == null) { // Group doesn't exist
+			trace('Failed to spawn group "$groupRef", group doesn\'t exist');
 			if (failed != null) failed();
 		}
 		else if (object_refs.length == 0) {
