@@ -33,12 +33,15 @@ class MeshBatch {
 			m.materials != null &&
 			m.materials.length == 1 &&
 			!m.data.geom.instanced &&
+			!m.data.isSkinned &&
+			m.data.raw.morph_target == null &&
 			!m.depthRead;
 		return batch;
 	}
 
 	public function addMesh(m: MeshObject, isLod: Bool): Bool {
-		if (!isBatchable(m) || isLod) { // No instancing, multimat or lod batching
+		// No instancing, multimat, skinning, morph targets or lod batching
+		if (!isBatchable(m) || isLod) {
 			nonBatched.push(m);
 			return false;
 		}

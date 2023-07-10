@@ -205,6 +205,21 @@ class Quat {
 	}
 
 	/**
+		Invert the given quaternion and store the result in this one.
+		@param	q Quaternion to invert.
+		@return	This quaternion.
+	**/
+	public inline function inverse(q: Quat): Quat {
+		var sqsum = q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w;
+		sqsum = -1 / sqsum;
+		x = q.x * sqsum;
+		y = q.y * sqsum;
+		z = q.z * sqsum;
+		w = -q.w * sqsum;
+		return this;
+	}
+
+	/**
 		Copy the rotation of another quaternion to this one.
 		@param	q A quaternion to copy.
 		@return	This quaternion.
