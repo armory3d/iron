@@ -190,12 +190,12 @@ typedef TBindConstant = {
 @:structInit class TBindConstant {
 #end
 	public var name: String;
-	@:optional public var vec4: Float32Array;
-	@:optional public var vec3: Float32Array;
-	@:optional public var vec2: Float32Array;
-	@:optional public var float: Null<FastFloat>;
-	@:optional public var bool: Null<Bool>;
-	@:optional public var int: Null<Int>;
+	@:optional public var vec4Value: Float32Array;
+	@:optional public var vec3Value: Float32Array;
+	@:optional public var vec2Value: Float32Array;
+	@:optional public var floatValue: Null<FastFloat>;
+	@:optional public var boolValue: Null<Bool>;
+	@:optional public var intValue: Null<Int>;
 }
 
 #if js
@@ -275,12 +275,12 @@ typedef TShaderConstant = {
 	public var name: String;
 	public var type: String;
 	@:optional public var link: String;
-	@:optional public var vec4: Float32Array;
-	@:optional public var vec3: Float32Array;
-	@:optional public var vec2: Float32Array;
-	@:optional public var float: Null<FastFloat>;
-	@:optional public var bool: Null<Bool>;
-	@:optional public var int: Null<Int>;
+	@:optional public var vec4Value: Float32Array;
+	@:optional public var vec3Value: Float32Array;
+	@:optional public var vec2Value: Float32Array;
+	@:optional public var floatValue: Null<FastFloat>;
+	@:optional public var boolValue: Null<Bool>;
+	@:optional public var intValue: Null<Int>;
 	@:optional public var is_arm_parameter: Null<Bool>;
 }
 
