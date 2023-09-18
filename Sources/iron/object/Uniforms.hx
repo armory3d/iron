@@ -1199,12 +1199,12 @@ class Uniforms {
 
 	static function setMaterialConstant(g: Graphics, location: ConstantLocation, c: TShaderConstant, matc: TBindConstant) {
 		switch (c.type) {
-			case "vec4": g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);
-			case "vec3": g.setFloat3(location, matc.vec3[0], matc.vec3[1], matc.vec3[2]);
-			case "vec2": g.setFloat2(location, matc.vec2[0], matc.vec2[1]);
-			case "float": g.setFloat(location,  matc.float);
-			case "bool": g.setBool(location, matc.bool);
-			case "int": g.setInt(location, matc.int);
+			case "vec4": g.setFloat4(location, matc.vec4Value[0], matc.vec4Value[1], matc.vec4Value[2], matc.vec4Value[3]);
+			case "vec3": g.setFloat3(location, matc.vec3Value[0], matc.vec3Value[1], matc.vec3Value[2]);
+			case "vec2": g.setFloat2(location, matc.vec2Value[0], matc.vec2Value[1]);
+			case "float": g.setFloat(location,  matc.floatValue);
+			case "bool": g.setBool(location, matc.boolValue);
+			case "int": g.setInt(location, matc.intValue);
 		}
 	}
 
