@@ -118,6 +118,24 @@ class MeshObject extends Object {
 		tilesheet = new Tilesheet(sceneName, tilesheet_ref, tilesheet_action_ref);
 	}
 
+	public function setActiveTilesheet(sceneName: String, tilesheet_ref: String, tilesheet_action_ref: String) {
+		var set = false;
+		// Check if tilesheet already created
+		for (ts in Scene.active.tilesheets) {
+			if (ts.raw.name == tilesheet_ref) {
+				tilesheet = ts;
+				tilesheet.play(tilesheet_action_ref);
+				set = true;
+				break;
+			}
+		}
+		// If not already created
+		if (!set) {
+			setupTilesheet(sceneName, tilesheet_ref, tilesheet_action_ref);
+		}
+
+	}
+
 	inline function isLodMaterial(): Bool {
 		return (raw != null && raw.lod_material != null && raw.lod_material == true);
 	}
