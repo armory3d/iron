@@ -59,6 +59,23 @@ class Tilesheet {
 		Scene.active.tilesheets.remove(this);
 	}
 
+	/**
+	 * Set the frame of the current active tilesheet action. Automatically un-pauses action.
+	 * @param frame Frame offset with 0 as the first frame of the active action.
+	 **/
+	public function setFrameOffset(frame: Int) {
+		setFrame(action.start + frame);
+		paused = false;
+	}
+
+	/**
+	 * Returns the current frame.
+	 * @return Frame offset with 0 as the first frame of the active action.
+	 */
+	public function getFrameOffset(): Int {
+		return frame - action.start;
+	}
+
 	function update() {
 		if (!ready || paused || action.start >= action.end) return;
 
