@@ -101,10 +101,10 @@ class ParticleSystem {
 		dimx = object.transform.dim.x;
 		dimy = object.transform.dim.y;
 
-		if (object.tilesheet != null) {
-			tilesx = object.tilesheet.raw.tilesx;
-			tilesy = object.tilesheet.raw.tilesy;
-			tilesFramerate = object.tilesheet.raw.framerate;
+		if (object.activeTilesheet != null) {
+			tilesx = object.activeTilesheet.raw.tilesx;
+			tilesy = object.activeTilesheet.raw.tilesy;
+			tilesFramerate = object.activeTilesheet.raw.framerate;
 		}
 
 		// Animate
