@@ -26,6 +26,7 @@ class MeshObject extends Object {
 	public var screenSize = 0.0;
 	public var frustumCulling = true;
 	public var activeTilesheet: Tilesheet = null;
+	public var tilesheets: Array<Tilesheet> = null;
 	public var skip_context: String = null; // Do not draw this context
 	public var force_context: String = null; // Draw only this context
 	static var lastPipeline: PipelineState = null;
@@ -80,6 +81,7 @@ class MeshObject extends Object {
 		}
 		#end
 		if (activeTilesheet != null) activeTilesheet.remove();
+		if (tilesheets != null) for (ts in tilesheets) { ts.remove(); }
 		if (Scene.active != null) Scene.active.meshes.remove(this);
 		data.refcount--;
 		super.remove();
@@ -116,17 +118,21 @@ class MeshObject extends Object {
 
 	public function setupTilesheet(sceneName: String, tilesheet_ref: String, tilesheet_action_ref: String) {
 		activeTilesheet = new Tilesheet(sceneName, tilesheet_ref, tilesheet_action_ref);
+		if(tilesheets == null) tilesheets = new Array<Tilesheet>();
+		tilesheets.push(activeTilesheet);
 	}
 
 	public function setActiveTilesheet(sceneName: String, tilesheet_ref: String, tilesheet_action_ref: String) {
 		var set = false;
 		// Check if tilesheet already created
-		for (ts in Scene.active.tilesheets) {
-			if (ts.raw.name == tilesheet_ref) {
-				tilesheet = ts;
-				tilesheet.play(tilesheet_action_ref);
-				set = true;
-				break;
+		if (tilesheets != null) {
+			for (ts in tilesheets) {
+				if (ts.raw.name == tilesheet_ref) {
+					activeTilesheet = ts;
+					activeTilesheet.play(tilesheet_action_ref);
+					set = true;
+					break;
+				}
 			}
 		}
 		// If not already created
