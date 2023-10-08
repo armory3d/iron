@@ -1020,6 +1020,11 @@ class Uniforms {
 					vx = ts.tileX;
 					vy = ts.tileY;
 				}
+				case "_tilesheetTiles": {
+					var ts = cast(object, MeshObject).activeTilesheet;
+					vx = ts.raw.tilesx;
+					vy = ts.raw.tilesy;
+				}
 				#if arm_morph_target
 				case "_morphScaleOffset": {
 					var mt = cast(object, MeshObject).morphTarget;
