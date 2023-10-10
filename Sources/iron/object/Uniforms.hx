@@ -939,6 +939,34 @@ class Uniforms {
 					helpMat3.setFrom4(helpMat);
 					m = helpMat3;
 				}
+				case "_normalMatrixSphere": {
+					helpMat.setFrom(object.transform.world);
+					// Align to camera..
+					helpMat.multmat(camera.V);
+					helpMat._00 = 1.0; helpMat._10 = 0.0; helpMat._20 = 0.0;
+					helpMat._01 = 0.0; helpMat._11 = 1.0; helpMat._21 = 0.0;
+					helpMat._02 = 0.0; helpMat._12 = 0.0; helpMat._22 = 1.0;
+					helpMat2.getInverse(camera.V);
+					helpMat.multmat(helpMat2);
+					helpMat2.getInverse(helpMat);
+					helpMat2.transpose3x3();
+					helpMat3.setFrom4(helpMat2);
+					m = helpMat3;
+				}
+				case "_normalMatrixCylinder": {
+					helpMat.setFrom(object.transform.world);
+					// Align to camera..
+					helpMat.multmat(camera.V);
+					helpMat._00 = 1.0; helpMat._20 = 0.0;
+					helpMat._01 = 0.0; helpMat._21 = 0.0;
+					helpMat._02 = 0.0; helpMat._22 = 1.0;
+					helpMat2.getInverse(camera.V);
+					helpMat.multmat(helpMat2);
+					helpMat2.getInverse(helpMat);
+					helpMat2.transpose3x3();
+					helpMat3.setFrom4(helpMat2);
+					m = helpMat3;
+				}
 				case "_viewMatrix3": {
 					#if arm_centerworld
 					helpMat3.setFrom4(vmat(camera.V));
