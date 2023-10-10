@@ -1044,9 +1044,14 @@ class Uniforms {
 			var vy: Null<kha.FastFloat> = null;
 			switch (c.link) {
 				case "_tilesheetOffset": {
-					var ts = cast(object, MeshObject).tilesheet;
+					var ts = cast(object, MeshObject).activeTilesheet;
 					vx = ts.tileX;
 					vy = ts.tileY;
+				}
+				case "_tilesheetTiles": {
+					var ts = cast(object, MeshObject).activeTilesheet;
+					vx = ts.raw.tilesx;
+					vy = ts.raw.tilesy;
 				}
 				#if arm_morph_target
 				case "_morphScaleOffset": {
