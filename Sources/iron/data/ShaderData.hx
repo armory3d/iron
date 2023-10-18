@@ -81,7 +81,7 @@ class ShaderContext {
 	public function new(raw: TShaderContext, done: ShaderContext->Void, overrideContext: TShaderOverride = null) {
 		this.raw = raw;
 		#if (rp_voxels == "Off")
-		if (raw.name == "voxel") {
+		if (raw.name == "voxel" || raw.name == "voxelbounce") {
 			done(this);
 			return;
 		}

@@ -157,7 +157,7 @@ class MeshObject extends Object {
 			// particleSystems for update, particleOwner for render
 			if (particleSystems != null || particleOwner != null) radiusScale *= 1000;
 			#end
-			if (context == "voxel") radiusScale *= 100;
+			if (context == "voxel" || context == "voxelbounce") radiusScale *= 100;
 			if (data.geom.instanced) radiusScale *= 100;
 			var isShadow = context == "shadowmap";
 			var frustumPlanes = isShadow ? light.frustumPlanes : camera.frustumPlanes;
@@ -242,7 +242,7 @@ class MeshObject extends Object {
 		if (raw != null && raw.lods != null && raw.lods.length > 0) {
 			computeScreenSize(Scene.active.camera);
 			initLods();
-			if (context == "voxel") {
+			if (context == "voxel" || context == "voxelbounce") {
 				// Voxelize using the lowest lod
 				lod = cast lods[lods.length - 1];
 			}
