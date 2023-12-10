@@ -124,7 +124,6 @@ class RenderPath {
 		commands();
 
 		if (!isProbe) frame++;
-
 	}
 
 	public function setTarget(target: String, additional: Array<String> = null, viewportScale = 1.0) {

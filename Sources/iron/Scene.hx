@@ -237,6 +237,10 @@ class Scene {
 		#end
 		for (anim in animations) anim.update(Time.delta);
 		for (e in empties) if (e != null && e.parent != null) e.transform.update();
+
+		#if (rp_voxels != "Off")
+		armory.renderpath.RenderPathCreator.clipmapLevel = (armory.renderpath.RenderPathCreator.clipmapLevel + 1) % Main.voxelgiClipmapCount;
+		#end
 	}
 
 	public function renderFrame(g: kha.graphics4.Graphics) {
