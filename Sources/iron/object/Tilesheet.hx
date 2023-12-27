@@ -45,6 +45,7 @@ class Tilesheet {
 		}
 		setFrame(action.start);
 		paused = false;
+		time = 0.0;
 	}
 
 	public function pause() {
