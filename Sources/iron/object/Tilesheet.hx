@@ -45,6 +45,7 @@ class Tilesheet {
 		}
 		setFrame(action.start);
 		paused = false;
+		time = 0.0;
 	}
 
 	public function pause() {
@@ -100,16 +101,17 @@ class Tilesheet {
 	function setFrame(f: Int) {
 		frame = f;
 
+		// Action end
+		if (frame > action.end && action.start < action.end) {
+			if (onActionComplete != null) onActionComplete();
+			if (action.loop) setFrame(action.start);
+			else paused = true;
+			return;
+		}
+
 		var tx = frame % raw.tilesx;
 		var ty = Std.int(frame / raw.tilesx);
 		tileX = tx * (1 / raw.tilesx);
 		tileY = ty * (1 / raw.tilesy);
-
-		// Action end
-		if (frame >= action.end && action.start < action.end) {
-			if (onActionComplete != null) onActionComplete();
-			if (action.loop) setFrame(action.start);
-			else paused = true;
-		}
 	}
 }
