@@ -10,7 +10,7 @@ import iron.data.SceneFormat;
 class ObjectAnimation extends Animation {
 
 	public var object: Object;
-	var oactions: Array<TSceneFormat>;
+	public var oactions: Array<TSceneFormat>;
 	var oaction: TObj;
 	var s0: FastFloat = 0.0;
 	var bezierFrameIndex = -1;

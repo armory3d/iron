@@ -2,17 +2,10 @@ package iron;
 
 class App {
 
-	#if arm_appwh
-	public static inline function w(): Int { return arm.App.w(); }
-	public static inline function h(): Int { return arm.App.h(); }
-	public static inline function x(): Int { return arm.App.x(); }
-	public static inline function y(): Int { return arm.App.y(); }
-	#else
-	public static inline function w(): Int { return kha.System.windowWidth(); }
-	public static inline function h(): Int { return kha.System.windowHeight(); }
-	public static inline function x(): Int { return 0; }
-	public static inline function y(): Int { return 0; }
-	#end
+	public static dynamic function w(): Int { return kha.System.windowWidth(); }
+	public static dynamic function h(): Int { return kha.System.windowHeight(); }
+	public static dynamic function x(): Int { return 0; }
+	public static dynamic function y(): Int { return 0; }
 
 	static var onResets: Array<Void->Void> = null;
 	static var onEndFrames: Array<Void->Void> = null;
@@ -30,11 +23,9 @@ class App {
 	public static var renderPathTime: Float;
 	public static var endFrameCallbacks: Array<Void->Void> = [];
 	#end
-	#if arm_resizable
 	static var lastw = -1;
 	static var lasth = -1;
 	public static var onResize: Void->Void = null;
-	#end
 
 	public static function init(done: Void->Void) {
 		new App(done);
@@ -94,7 +85,6 @@ class App {
 		updateTime = kha.Scheduler.realTime() - startTime;
 		#end
 
-		#if arm_resizable
 		// Rebuild projection on window resize
 		if (lastw == -1) {
 			lastw = App.w();
@@ -110,7 +100,6 @@ class App {
 		}
 		lastw = App.w();
 		lasth = App.h();
-		#end
 	}
 
 	static function render(frames: Array<kha.Framebuffer>) {

@@ -25,7 +25,8 @@ class MeshObject extends Object {
 	public var cameraDistance: Float;
 	public var screenSize = 0.0;
 	public var frustumCulling = true;
-	public var tilesheet: Tilesheet = null;
+	public var activeTilesheet: Tilesheet = null;
+	public var tilesheets: Array<Tilesheet> = null;
 	public var skip_context: String = null; // Do not draw this context
 	public var force_context: String = null; // Draw only this context
 	static var lastPipeline: PipelineState = null;
@@ -79,7 +80,8 @@ class MeshObject extends Object {
 			particleSystems = null;
 		}
 		#end
-		if (tilesheet != null) tilesheet.remove();
+		if (activeTilesheet != null) activeTilesheet.remove();
+		if (tilesheets != null) for (ts in tilesheets) { ts.remove(); }
 		if (Scene.active != null) Scene.active.meshes.remove(this);
 		data.refcount--;
 		super.remove();
@@ -115,7 +117,29 @@ class MeshObject extends Object {
 	#end
 
 	public function setupTilesheet(sceneName: String, tilesheet_ref: String, tilesheet_action_ref: String) {
-		tilesheet = new Tilesheet(sceneName, tilesheet_ref, tilesheet_action_ref);
+		activeTilesheet = new Tilesheet(sceneName, tilesheet_ref, tilesheet_action_ref);
+		if(tilesheets == null) tilesheets = new Array<Tilesheet>();
+		tilesheets.push(activeTilesheet);
+	}
+
+	public function setActiveTilesheet(sceneName: String, tilesheet_ref: String, tilesheet_action_ref: String) {
+		var set = false;
+		// Check if tilesheet already created
+		if (tilesheets != null) {
+			for (ts in tilesheets) {
+				if (ts.raw.name == tilesheet_ref) {
+					activeTilesheet = ts;
+					activeTilesheet.play(tilesheet_action_ref);
+					set = true;
+					break;
+				}
+			}
+		}
+		// If not already created
+		if (!set) {
+			setupTilesheet(sceneName, tilesheet_ref, tilesheet_action_ref);
+		}
+
 	}
 
 	inline function isLodMaterial(): Bool {
@@ -143,10 +167,6 @@ class MeshObject extends Object {
 		if (skip_context == context) return setCulled(isShadow, true);
 		if (force_context != null && force_context != context) return setCulled(isShadow, true);
 
-		#if (!arm_voxelgi_revox) // No revox - do not voxelize moving objects
-		if (context == "voxel" && raw != null && raw.mobile == true) return setCulled(isShadow, true);
-		#end
-
 		return setCulled(isShadow, false);
 	}
 
@@ -161,7 +181,7 @@ class MeshObject extends Object {
 			// particleSystems for update, particleOwner for render
 			if (particleSystems != null || particleOwner != null) radiusScale *= 1000;
 			#end
-			if (context == "voxel") radiusScale *= 100;
+			if (context == "voxel" || context == "voxelbounce") radiusScale *= 100;
 			if (data.geom.instanced) radiusScale *= 100;
 			var isShadow = context == "shadowmap";
 			var frustumPlanes = isShadow ? light.frustumPlanes : camera.frustumPlanes;
@@ -246,7 +266,7 @@ class MeshObject extends Object {
 		if (raw != null && raw.lods != null && raw.lods.length > 0) {
 			computeScreenSize(Scene.active.camera);
 			initLods();
-			if (context == "voxel") {
+			if (context == "voxel" || context == "voxelbounce") {
 				// Voxelize using the lowest lod
 				lod = cast lods[lods.length - 1];
 			}

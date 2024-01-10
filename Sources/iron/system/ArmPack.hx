@@ -214,22 +214,24 @@ class ArmPack {
 						o.writeInt32(d.length);
 						o.writeFullBytes(d, 0, d.length);
 					}
-					default: {}
+					default: writeObject(o, d);
 				}
 			}
-			case TObject: {
-				var f = Reflect.fields(d);
-				o.writeByte(0xdf);
-				o.writeInt32(f.length);
-				for (k in f) {
-					o.writeByte(0xdb);
-					var b = Bytes.ofString(k);
-					o.writeInt32(b.length);
-					o.writeFullBytes(b, 0, b.length);
-					write(o, Reflect.field(d, k));
-				}
-			}
+			case TObject: writeObject(o, d);
 			default: {}
+		}
+	}
+
+	static function writeObject(o: BytesOutput, d: Dynamic) {
+		var f = Reflect.fields(d);
+		o.writeByte(0xdf);
+		o.writeInt32(f.length);
+		for (k in f) {
+			o.writeByte(0xdb);
+			var b = Bytes.ofString(k);
+			o.writeInt32(b.length);
+			o.writeFullBytes(b, 0, b.length);
+			write(o, Reflect.field(d, k));
 		}
 	}
 
