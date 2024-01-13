@@ -3,7 +3,7 @@ package iron.data;
 import haxe.Json;
 import iron.data.SceneFormat;
 import iron.system.ArmPack;
-import iron.system.Lz4;
+//import iron.system.Lz4;
 using StringTools;
 
 // Global data list and asynchronous data loading
@@ -312,9 +312,11 @@ class Data {
 		loadingSceneRaws.set(file, [done]);
 
 		// If no extension specified, set to .arm
-		var compressed = file.endsWith(".lz4");
+		//var compressed = file.endsWith(".lz4");
 		var isJson = file.endsWith(".json");
-		var ext = (compressed || isJson || file.endsWith(".arm")) ? "" : ".arm";
+		//var ext = (compressed || isJson || file.endsWith(".arm")) ? "" : ".arm";
+		var ext = (isJson || file.endsWith(".arm")) ? "" : ".arm";
+
 
 		getBlob(file + ext, function(b: kha.Blob) {
 			var parsed: TSceneFormat = null;

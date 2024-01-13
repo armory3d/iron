@@ -79,6 +79,7 @@ class RenderPath {
 		if(iron.Scene.active.camera.transform.diff() && armory.renderpath.RenderPathCreator.clipmapLevel == 0) {
 			voxelized = 0;
 		}
+		/*
 		else
 			for (mesh in iron.Scene.active.meshes) {
 				if (mesh.transform.diff() && armory.renderpath.RenderPathCreator.clipmapLevel == 0) {
@@ -86,6 +87,7 @@ class RenderPath {
 					break;
 				}
 			}
+		*/
 		return ++voxelized > Main.voxelgiClipmapCount ? false : true;
 	}
 	#end

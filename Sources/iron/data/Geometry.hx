@@ -6,7 +6,7 @@ import kha.graphics4.IndexBuffer;
 import kha.graphics4.Usage;
 import kha.graphics4.VertexStructure;
 import kha.graphics4.VertexData;
-import kha.arrays.ByteArray;
+//import kha.arrays.ByteArray;
 import kha.arrays.Float32Array;
 import kha.arrays.Uint32Array;
 import kha.arrays.Int16Array;
@@ -28,7 +28,7 @@ class Geometry {
 	public var name = "";
 
 	public var ready = false;
-	public var vertices: ByteArray;
+	public var vertices: Float32Array;
 	public var indices: Array<Uint32Array>;
 	public var numTris = 0;
 	public var materialIndices: Array<Int>;
@@ -144,11 +144,11 @@ class Geometry {
 		instancedVB.unlock();
 	}
 
-	public function copyVertices(vertices: ByteArray, offset = 0, fakeUVs = false) {
+	public function copyVertices(vertices: Float32Array, offset = 0, fakeUVs = false) {
 		buildVertices(vertices, vertexArrays, offset, fakeUVs);
 	}
 
-	static function buildVertices(vertices: ByteArray, vertexArrays: Array<TVertexArray>, offset = 0, fakeUVs = false, uvsIndex = -1) {
+	static function buildVertices(vertices: Float32Array, vertexArrays: Array<TVertexArray>, offset = 0, fakeUVs = false, uvsIndex = -1) {
 		var numVertices = verticesCount(vertexArrays[0]);
 		var di = -1 + offset;
 		for (i in 0...numVertices) {
