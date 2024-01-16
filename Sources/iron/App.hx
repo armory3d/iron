@@ -135,6 +135,10 @@ class App {
 		#if arm_debug
 		renderPathTime = kha.Scheduler.realTime() - startTime;
 		#end
+
+		#if (rp_voxels != "Off")
+		armory.renderpath.RenderPathCreator.clipmapLevel = (armory.renderpath.RenderPathCreator.clipmapLevel + 1) % Main.voxelgiClipmapCount;
+		#end
 	}
 
 	static function render2D(frame: kha.Framebuffer) {

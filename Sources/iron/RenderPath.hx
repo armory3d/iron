@@ -73,23 +73,6 @@ class RenderPath {
 	public static var numTrisShadow = 0;
 	#end
 
-	#if (rp_voxels != "Off")
-	static var voxelized = 0;
-	public function voxelize() : Bool {
-		if(iron.Scene.active.camera.transform.diff() && armory.renderpath.RenderPathCreator.clipmapLevel == 0) {
-			voxelized = 0;
-		}
-		else
-			for (mesh in iron.Scene.active.meshes) {
-				if (mesh.transform.diff() && armory.renderpath.RenderPathCreator.clipmapLevel == 0) {
-					voxelized = 0;
-					break;
-				}
-			}
-		return ++voxelized > Main.voxelgiClipmapCount ? false : true;
-	}
-	#end
-
 	public static function setActive(renderPath: RenderPath) {
 		active = renderPath;
 	}
