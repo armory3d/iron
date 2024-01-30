@@ -53,10 +53,6 @@ class RenderPath {
 	public var currentW: Int;
 	public var currentH: Int;
 	public var currentD: Int;
-	#if kha_metal
-	public var clearShader: String = null;
-	public var clearColor: kha.Color = 0xff000000;
-	#end
 	var lastW = 0;
 	var lastH = 0;
 	var bindParams: Array<String>;
@@ -68,19 +64,6 @@ class RenderPath {
 	var cachedShaderContexts: Map<String, CachedShaderContext> = new Map();
 	var depthBuffers: Array<{name: String, format: String}> = [];
 	var additionalTargets: Array<kha.Canvas>;
-
-	#if (rp_voxels != "Off")
-	public var voxelized = 0;
-	public var onVoxelize: Void->Bool = null;
-	public function voxelize() { // Returns true if scene should be voxelized
-		if (onVoxelize != null) return onVoxelize();
-		#if arm_voxelgi_revoxelize
-		return true;
-		#else
-		return ++voxelized > 2 ? false : true;
-		#end
-	}
-	#end
 
 	#if arm_debug
 	public static var drawCalls = 0;
@@ -100,11 +83,9 @@ class RenderPath {
 	public function renderFrame(g: Graphics) {
 		if (!ready || paused || iron.App.w() == 0 || iron.App.h() == 0) return;
 
-		#if arm_resizable
 		if (lastW > 0 && (lastW != iron.App.w() || lastH != iron.App.h())) resize();
 		lastW = iron.App.w();
 		lastH = iron.App.h();
-		#end
 
 		frameTime = Time.time() - lastFrameTime;
 		lastFrameTime = Time.time();
@@ -161,12 +142,10 @@ class RenderPath {
 				currentH = iron.App.h();
 				if (frameScissor) setFrameScissor();
 				begin(frameG);
-				#if arm_appwh
 				if (!isProbe) {
 					setCurrentViewport(iron.App.w(), iron.App.h());
 					setCurrentScissor(iron.App.w(), iron.App.h());
 				}
-				#end
 			}
 		}
 		else { // Render target
@@ -246,22 +225,6 @@ class RenderPath {
 	}
 
 	public function clearTarget(colorFlag: Null<Int> = null, depthFlag: Null<Float> = null) {
-		#if kha_metal
-		if (clearShader != null) {
-			clearColor = colorFlag != null ? colorFlag : 0xff000000;
-			var ext = "";
-			if (colorFlag != null) ext += "_color";
-			if (depthFlag != null) ext += "_depth";
-			ext += "_" + currentTarget.raw.format.toLowerCase();
-			var cc: CachedShaderContext = cachedShaderContexts.get(clearShader + ext);
-			if (ConstData.screenAlignedVB == null) ConstData.createScreenAlignedData();
-			currentG.setPipeline(cc.context.pipeState);
-			Uniforms.setContextConstants(currentG, cc.context, bindParams);
-			currentG.setVertexBuffer(ConstData.screenAlignedVB);
-			currentG.setIndexBuffer(ConstData.screenAlignedIB);
-			currentG.drawIndexedVertices();
-		}
-		#else
 		if (colorFlag == -1) { // -1 == 0xffffffff
 			if (Scene.active.world != null) {
 				colorFlag = Scene.active.world.raw.background_color;
@@ -272,7 +235,6 @@ class RenderPath {
 			}
 		}
 		currentG.clear(colorFlag, depthFlag, null);
-		#end
 	}
 
 	public function clearImage(target: String, color: Int) {
@@ -401,7 +363,6 @@ class RenderPath {
 					isReadingDepth = true;
 				}
 			#end
-
 			m.render(g, context, _bindParams);
 		}
 	}
@@ -719,12 +680,10 @@ class RenderPath {
 					setFrameScissor();
 				}
 				beginStream(frameG);
-				#if arm_appwh
 				if (!isProbe) {
 					setCurrentViewport(iron.App.w(), iron.App.h());
 					setCurrentScissor(iron.App.w(), iron.App.h());
 				}
-				#end
 			}
 		}
 		else { // Render target

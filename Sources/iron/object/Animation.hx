@@ -179,6 +179,12 @@ class Animation {
 		m._32 = vp.z;
 	}
 
+	public function setFrame(frame: Int) {
+		time = 0;
+		frameIndex = frame;
+		update(frame * Scene.active.raw.frame_time);
+	}
+
 	public function notifyOnMarker(name: String, onMarker: Void->Void) {
 		if (markerEvents == null) markerEvents = new Map();
 		var ar = markerEvents.get(name);

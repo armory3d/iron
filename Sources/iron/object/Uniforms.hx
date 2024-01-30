@@ -180,7 +180,7 @@ class Uniforms {
 					if (isImage) {
 						g.setImageTexture(context.textureUnits[j], rt.image); // image2D/3D
 						// Multiple voxel volumes, always set params
-						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
+						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
 						paramsSet = true;
 					}
 					else if (rt.isCubeMap) {
@@ -198,6 +198,10 @@ class Uniforms {
 					}
 
 					if (!paramsSet) {
+						if (rt.raw.name.startsWith("bloom")) {
+							// Use bilinear filter for bloom mips to get correct blur
+							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+						}
 						if (samplerID.startsWith("shadowMap")) {
 							if (rt.isCubeMap) {
 								#if (!arm_legacy)
@@ -321,13 +325,6 @@ class Uniforms {
 				#if arm_debug
 				case "_input": {
 					helpVec.set(Input.getMouse().x / iron.App.w(), Input.getMouse().y / iron.App.h(), Input.getMouse().down() ? 1.0 : 0.0, 0.0);
-					v = helpVec;
-				}
-				#end
-				#if kha_metal
-				case "_clearColor": {
-					var col = RenderPath.active.clearColor;
-					helpVec.set(col.R, col.G, col.B, col.A);
 					v = helpVec;
 				}
 				#end
@@ -942,6 +939,34 @@ class Uniforms {
 					helpMat3.setFrom4(helpMat);
 					m = helpMat3;
 				}
+				case "_normalMatrixSphere": {
+					helpMat.setFrom(object.transform.world);
+					// Align to camera..
+					helpMat.multmat(camera.V);
+					helpMat._00 = 1.0; helpMat._10 = 0.0; helpMat._20 = 0.0;
+					helpMat._01 = 0.0; helpMat._11 = 1.0; helpMat._21 = 0.0;
+					helpMat._02 = 0.0; helpMat._12 = 0.0; helpMat._22 = 1.0;
+					helpMat2.getInverse(camera.V);
+					helpMat.multmat(helpMat2);
+					helpMat2.getInverse(helpMat);
+					helpMat2.transpose3x3();
+					helpMat3.setFrom4(helpMat2);
+					m = helpMat3;
+				}
+				case "_normalMatrixCylinder": {
+					helpMat.setFrom(object.transform.world);
+					// Align to camera..
+					helpMat.multmat(camera.V);
+					helpMat._00 = 1.0; helpMat._20 = 0.0;
+					helpMat._01 = 0.0; helpMat._21 = 0.0;
+					helpMat._02 = 0.0; helpMat._22 = 1.0;
+					helpMat2.getInverse(camera.V);
+					helpMat.multmat(helpMat2);
+					helpMat2.getInverse(helpMat);
+					helpMat2.transpose3x3();
+					helpMat3.setFrom4(helpMat2);
+					m = helpMat3;
+				}
 				case "_viewMatrix3": {
 					#if arm_centerworld
 					helpMat3.setFrom4(vmat(camera.V));
@@ -1019,9 +1044,14 @@ class Uniforms {
 			var vy: Null<kha.FastFloat> = null;
 			switch (c.link) {
 				case "_tilesheetOffset": {
-					var ts = cast(object, MeshObject).tilesheet;
+					var ts = cast(object, MeshObject).activeTilesheet;
 					vx = ts.tileX;
 					vy = ts.tileY;
+				}
+				case "_tilesheetTiles": {
+					var ts = cast(object, MeshObject).activeTilesheet;
+					vx = ts.raw.tilesx;
+					vy = ts.raw.tilesy;
 				}
 				#if arm_morph_target
 				case "_morphScaleOffset": {
@@ -1202,12 +1232,12 @@ class Uniforms {
 
 	static function setMaterialConstant(g: Graphics, location: ConstantLocation, c: TShaderConstant, matc: TBindConstant) {
 		switch (c.type) {
-			case "vec4": g.setFloat4(location, matc.vec4[0], matc.vec4[1], matc.vec4[2], matc.vec4[3]);
-			case "vec3": g.setFloat3(location, matc.vec3[0], matc.vec3[1], matc.vec3[2]);
-			case "vec2": g.setFloat2(location, matc.vec2[0], matc.vec2[1]);
-			case "float": g.setFloat(location,  matc.float);
-			case "bool": g.setBool(location, matc.bool);
-			case "int": g.setInt(location, matc.int);
+			case "vec4": g.setFloat4(location, matc.vec4Value[0], matc.vec4Value[1], matc.vec4Value[2], matc.vec4Value[3]);
+			case "vec3": g.setFloat3(location, matc.vec3Value[0], matc.vec3Value[1], matc.vec3Value[2]);
+			case "vec2": g.setFloat2(location, matc.vec2Value[0], matc.vec2Value[1]);
+			case "float": g.setFloat(location,  matc.floatValue);
+			case "bool": g.setBool(location, matc.boolValue);
+			case "int": g.setInt(location, matc.intValue);
 		}
 	}
 

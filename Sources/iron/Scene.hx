@@ -213,9 +213,6 @@ class Scene {
 		Data.getSceneRaw(sceneName, function(format: TSceneFormat) {
 			Scene.create(format, function(o: Object) {
 				if (done != null) done(o);
-				#if (rp_voxels != "Off") // Revoxelize
-				RenderPath.active.voxelized = 0;
-				#end
 
 				#if (rp_background == "World")
 				if (removeWorldShader != null) {
@@ -325,7 +322,7 @@ class Scene {
 		if (g == null) {
 			g = [];
 			groups.set(name, g);
-			var refs = getGroupObjectRefs(name);
+			var refs = getGroupObjectRefs(name, active.raw);
 			if (refs == null) return g;
 			for (ref in refs) {
 				var c = getChild(ref);
@@ -573,7 +570,7 @@ class Scene {
 			var object = addObject(parent);
 			returnObject(object, o, function(ro: Object) {
 				if (o.group_ref != null) { // Instantiate group objects
-					spawnGroup(format, o.group_ref, ro, function() { done(ro); });
+					spawnGroup(format, o.group_ref, ro, () -> done(ro), () -> done(ro) /* also call done when failed to ensure loading progress */);
 				}
 				else done(ro);
 			});
@@ -583,9 +580,10 @@ class Scene {
 
 	function spawnGroup(format: TSceneFormat, groupRef: String, groupOwner: Object, done: Void->Void, ?failed: Void->Void) {
 		var spawned = 0;
-		var object_refs = getGroupObjectRefs(groupRef);
+		var object_refs = getGroupObjectRefs(groupRef, format);
 
 		if (object_refs == null) { // Group doesn't exist
+			trace('Failed to spawn group "$groupRef", group doesn\'t exist');
 			if (failed != null) failed();
 		}
 		else if (object_refs.length == 0) {
@@ -597,7 +595,7 @@ class Scene {
 				spawnObject(object_ref, groupOwner, function(spawnedObject: Object) {
 					// Apply collection/group instance offset to all
 					// top-level parents of that group
-					if (!isObjectInGroup(groupRef, spawnedObject.parent)) {
+					if (!isObjectInGroup(groupRef, spawnedObject.parent, format)) {
 						for (group in format.groups) {
 							if (group.name == groupRef) {
 								spawnedObject.transform.applyParent();
@@ -614,7 +612,7 @@ class Scene {
 						groupOwner.transform.reset();
 						done();
 					}
-				});
+				}, true, format);
 			}
 		}
 	}
@@ -623,10 +621,11 @@ class Scene {
 		Returns all object names of the given group.
 		Returns `null` if the group does not exist.
 		@param group_ref The name of the group
+		@param format The raw scene data
 		@return `Array<String>`
 	**/
-	function getGroupObjectRefs(group_ref: String): Array<String> {
-		for (g in active.raw.groups) if (g.name == group_ref) return g.object_refs;
+	function getGroupObjectRefs(group_ref: String, format: TSceneFormat): Array<String> {
+		for (g in format.groups) if (g.name == group_ref) return g.object_refs;
 		return null;
 	}
 
@@ -634,16 +633,17 @@ class Scene {
 		Returns all objects in scene data format (`TObj`) of the given group.
 		If the group does not exist or is empty, an empty array is returned.
 		@param groupRef The name of the group
+		@param format The raw scene data
 		@return `Array<TObj>`
 	**/
-	function getGroupObjectsRaw(groupRef: String): Array<TObj> {
-		var objectRefs = getGroupObjectRefs(groupRef);
+	function getGroupObjectsRaw(groupRef: String, format: TSceneFormat): Array<TObj> {
+		var objectRefs = getGroupObjectRefs(groupRef, format);
 		var objects: Array<TObj> = new Array<TObj>();
 
 		if (objectRefs == null) return objects;
 
 		for (objRef in objectRefs) {
-			var rawObj = getRawObjectByName(raw, objRef);
+			var rawObj = getRawObjectByName(format, objRef);
 			objects.push(rawObj);
 
 			var childRefs = getChildObjectsRaw(rawObj);
@@ -677,10 +677,11 @@ class Scene {
 		Checks if an object is an element of the given group.
 		@param groupRef The name of the group
 		@param object The object
+		@param format The raw scene data
 		@return Bool
 	**/
-	function isObjectInGroup(groupRef: String, object: Object): Bool {
-		for (obj in getGroupObjectsRaw(groupRef)) {
+	function isObjectInGroup(groupRef: String, object: Object, format: TSceneFormat): Bool {
+		for (obj in getGroupObjectsRaw(groupRef, format)) {
 			if (obj.name == object.name) {
 				return true;
 			}

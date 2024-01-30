@@ -45,6 +45,7 @@ class Tilesheet {
 		}
 		setFrame(action.start);
 		paused = false;
+		time = 0.0;
 	}
 
 	public function pause() {
@@ -57,6 +58,23 @@ class Tilesheet {
 
 	public function remove() {
 		Scene.active.tilesheets.remove(this);
+	}
+
+	/**
+	 * Set the frame of the current active tilesheet action. Automatically un-pauses action.
+	 * @param frame Frame offset with 0 as the first frame of the active action.
+	 **/
+	public function setFrameOffset(frame: Int) {
+		setFrame(action.start + frame);
+		paused = false;
+	}
+
+	/**
+	 * Returns the current frame.
+	 * @return Frame offset with 0 as the first frame of the active action.
+	 */
+	public function getFrameOffset(): Int {
+		return frame - action.start;
 	}
 
 	function update() {
@@ -83,16 +101,17 @@ class Tilesheet {
 	function setFrame(f: Int) {
 		frame = f;
 
+		// Action end
+		if (frame > action.end && action.start < action.end) {
+			if (onActionComplete != null) onActionComplete();
+			if (action.loop) setFrame(action.start);
+			else paused = true;
+			return;
+		}
+
 		var tx = frame % raw.tilesx;
 		var ty = Std.int(frame / raw.tilesx);
 		tileX = tx * (1 / raw.tilesx);
 		tileY = ty * (1 / raw.tilesy);
-
-		// Action end
-		if (frame >= action.end && action.start < action.end) {
-			if (onActionComplete != null) onActionComplete();
-			if (action.loop) setFrame(action.start);
-			else paused = true;
-		}
 	}
 }

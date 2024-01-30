@@ -598,7 +598,7 @@ class Data {
 	}
 
 	public static function isAbsolute(file: String): Bool {
-		return file.charAt(0) == "/" || file.charAt(1) == ":" || (file.charAt(0) == "\\" && file.charAt(1) == "\\");
+		return file.charAt(0) == "/" || file.charAt(1) == ":" || file.charAt(4) == ":" || (file.charAt(0) == "\\" && file.charAt(1) == "\\");
 	}
 
 	static inline function isUp(file: String): Bool {
