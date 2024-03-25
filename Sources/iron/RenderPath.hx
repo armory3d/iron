@@ -62,7 +62,7 @@ class RenderPath {
 	var lastFrameTime = 0.0;
 	var loading = 0;
 	var cachedShaderContexts: Map<String, CachedShaderContext> = new Map();
-	var depthBuffers: Array<{name: String, format: String}> = [];
+	public var depthBuffers: Array<{name: String, format: String}> = [];
 	var additionalTargets: Array<kha.Canvas>;
 
 	#if rp_voxels
@@ -110,6 +110,34 @@ class RenderPath {
 		culled = 0;
 		numTrisMesh = 0;
 		numTrisShadow = 0;
+		#end
+
+		#if (rp_voxels != "Off")
+		armory.renderpath.RenderPathCreator.clipmapLevel = (armory.renderpath.RenderPathCreator.clipmapLevel + 1) % Main.voxelgiClipmapCount;
+		var clipmap = armory.renderpath.RenderPathCreator.clipmaps[armory.renderpath.RenderPathCreator.clipmapLevel];
+
+		clipmap.voxelSize = armory.renderpath.RenderPathCreator.clipmaps[0].voxelSize * Math.pow(2.0, armory.renderpath.RenderPathCreator.clipmapLevel);
+
+		var texelSize = 2.0 * clipmap.voxelSize;
+		var camera = iron.Scene.active.camera;
+		var center = new iron.math.Vec3(
+			Math.floor(camera.transform.worldx() / texelSize) * texelSize,
+			Math.floor(camera.transform.worldy() / texelSize) * texelSize,
+			Math.floor(camera.transform.worldz() / texelSize) * texelSize
+		);
+
+		clipmap.offset_prev.x = Std.int((clipmap.center.x - center.x) / texelSize);
+		clipmap.offset_prev.y = Std.int((clipmap.center.y - center.y) / texelSize);
+		clipmap.offset_prev.z = Std.int((clipmap.center.z - center.z) / texelSize);
+		clipmap.center = center;
+
+		var res = armory.renderpath.Inc.getVoxelRes();
+		var extents = new iron.math.Vec3(clipmap.voxelSize * res, clipmap.voxelSize * res, clipmap.voxelSize * res);
+		if (clipmap.extents.x != extents.x || clipmap.extents.y != extents.y || clipmap.extents.z != extents.z)
+		{
+			armory.renderpath.RenderPathCreator.pre_clear = true;
+		}
+		clipmap.extents = extents;
 		#end
 
 		// Render to screen or probe
@@ -539,7 +567,7 @@ class RenderPath {
 			}
 		}
 
-		// Resize textures
+		// Resize textures FIXME: this doesn't seam to resize 2D images (not renderTargets)
 		for (rt in renderTargets) {
 			if (rt != null && rt.raw.width == 0) {
 				App.notifyOnInit(rt.image.unload);

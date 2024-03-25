@@ -178,9 +178,14 @@ class Uniforms {
 					}
 
 					if (isImage) {
-						g.setImageTexture(context.textureUnits[j], rt.image); // image2D/3D
 						// Multiple voxel volumes, always set params
-						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
+						g.setImageTexture(context.textureUnits[j], rt.image); // image2D/3D
+						if (rt.raw.depth <= 1) {
+							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+						}
+						else {
+							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+						}
 						paramsSet = true;
 					}
 					else if (rt.isCubeMap) {

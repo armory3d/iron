@@ -35,9 +35,6 @@ class App {
 		done();
 		kha.System.notifyOnFrames(render);
 		kha.Scheduler.addTimeTask(update, 0, iron.system.Time.delta);
-		#if (rp_voxels != "Off")
-		kha.Scheduler.addTimeTask(update_clipmaps, 0, iron.system.Time.delta / Main.voxelgiClipmapCount);
-		#end
 	}
 
 	public static function reset() {
@@ -48,26 +45,6 @@ class App {
 		traitRenders2D = [];
 		if (onResets != null) for (f in onResets) f();
 	}
-
-	#if (rp_voxels != "Off")
-	static function update_clipmaps() {
-		var texelSize = Main.voxelgiVoxelSize * 2.0 * Math.pow(2.0, armory.renderpath.Clipmap.clipmapLevel);
-		var camera = iron.Scene.active.camera;
-		var center = new iron.math.Vec3(
-			Math.floor(camera.transform.worldx() / texelSize) * texelSize,
-			Math.floor(camera.transform.worldy() / texelSize) * texelSize,
-			Math.floor(camera.transform.worldz() / texelSize) * texelSize
-		);
-
-		armory.renderpath.Clipmap.clipmap_center_last.x = Std.int((armory.renderpath.Clipmap.clipmap_center.x - center.x) / texelSize);
-		armory.renderpath.Clipmap.clipmap_center_last.y = Std.int((armory.renderpath.Clipmap.clipmap_center.y - center.y) / texelSize);
-		armory.renderpath.Clipmap.clipmap_center_last.z = Std.int((armory.renderpath.Clipmap.clipmap_center.z - center.z) / texelSize);
-
-		armory.renderpath.Clipmap.clipmap_center = center;
-
-		armory.renderpath.Clipmap.clipmapLevel = (armory.renderpath.Clipmap.clipmapLevel + 1) % Main.voxelgiClipmapCount;
-	}
-	#end
 
 	static function update() {
 		if (Scene.active == null || !Scene.active.ready) return;
