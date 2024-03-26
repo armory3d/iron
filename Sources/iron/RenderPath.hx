@@ -567,7 +567,7 @@ class RenderPath {
 			}
 		}
 
-		// Resize textures FIXME: this doesn't seam to resize 2D images (not renderTargets)
+		// Resize textures FIXME: this doesn't seem to resize 2D images
 		for (rt in renderTargets) {
 			if (rt != null && rt.raw.width == 0) {
 				App.notifyOnInit(rt.image.unload);
@@ -581,6 +581,16 @@ class RenderPath {
 				rt.image.setDepthStencilFrom(depthToRenderTarget.get(rt.depthStencilFrom).image);
 			}
 		}
+
+		#if (rp_voxels != "Off")
+		#if (rp_voxels == "Voxel GI")
+		armory.renderpath.Inc.initGI("voxels_diffuse");
+		armory.renderpath.Inc.initGI("voxels_specular");
+		#else
+		armory.renderpath.Inc.initGI("voxels_ao");
+		#end
+		armory.renderpath.RenderPathCreator.res_pre_clear = true;
+		#end
 	}
 
 	public function createRenderTarget(t: RenderTargetRaw): RenderTarget {
