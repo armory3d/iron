@@ -168,7 +168,7 @@ class MeshObject extends Object {
 		if (force_context != null && force_context != context) return setCulled(isShadow, true);
 
 		#if (!arm_voxelgi_revox) // No revox - do not voxelize moving objects
-		if (context == "voxel" && raw != null && raw.mobile == true) return setCulled(isShadow, true);
+		//if (context == "voxel" && raw != null && raw.mobile == true) return setCulled(isShadow, true);
 		#end
 
 		return setCulled(isShadow, false);
@@ -185,7 +185,7 @@ class MeshObject extends Object {
 			// particleSystems for update, particleOwner for render
 			if (particleSystems != null || particleOwner != null) radiusScale *= 1000;
 			#end
-			if (context == "voxel") radiusScale *= 100;
+			//if (context == "voxel") radiusScale *= 100;
 			if (data.geom.instanced) radiusScale *= 100;
 			var isShadow = context == "shadowmap";
 			var frustumPlanes = isShadow ? light.frustumPlanes : camera.frustumPlanes;
