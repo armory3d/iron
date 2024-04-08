@@ -634,6 +634,8 @@ class LightObject extends Object {
 		return 8;
 		#elseif (rp_max_lights == 16)
 		return 16;
+		#elseif (rp_max_lights == 24)
+		return 24;
 		#elseif (rp_max_lights == 32)
 		return 32;
 		#elseif (rp_max_lights == 64)
@@ -648,6 +650,8 @@ class LightObject extends Object {
 		return 8;
 		#elseif (rp_max_lights_cluster == 16)
 		return 16;
+		#elseif (rp_max_lights_cluster == 24)
+		return 24;
 		#elseif (rp_max_lights_cluster == 32)
 		return 32;
 		#elseif (rp_max_lights_cluster == 64)
