@@ -17,6 +17,7 @@ import iron.object.Object;
 import iron.object.LightObject;
 import iron.object.MeshObject;
 import iron.object.Uniforms;
+import iron.object.Clipmap;
 
 class RenderPath {
 
@@ -65,15 +66,39 @@ class RenderPath {
 	var depthBuffers: Array<{name: String, format: String}> = [];
 	var additionalTargets: Array<kha.Canvas>;
 
-	#if rp_voxels
-	public var voxelized = 0;
-	public var onVoxelize: Void->Bool = null;
-	public function voxelize() { // Returns true if scene should be voxelized
-		if (onVoxelize != null) return onVoxelize();
-		#if arm_voxelgi_revox
-		return true;
+	#if (rp_voxels != "Off")
+	public static var pre_clear = true;
+	public static var res_pre_clear = true;
+	public static var clipmapLevel = 0;
+	public static var clipmaps:Array<Clipmap>;
+
+	public static inline function getVoxelRes(): Int {
+		#if (rp_voxelgi_resolution == 512)
+		return 512;
+		#elseif (rp_voxelgi_resolution == 256)
+		return 256;
+		#elseif (rp_voxelgi_resolution == 128)
+		return 128;
+		#elseif (rp_voxelgi_resolution == 64)
+		return 64;
+		#elseif (rp_voxelgi_resolution == 32)
+		return 32;
 		#else
-		return ++voxelized > 2 ? false : true;
+		return 0;
+		#end
+	}
+
+	public static inline function getVoxelResZ(): Float {
+		#if (rp_voxelgi_resolution_z == 1.0)
+		return 1.0;
+		#elseif (rp_voxelgi_resolution_z == 0.5)
+		return 0.5;
+		#elseif (rp_voxelgi_resolution_z == 0.25)
+		return 0.25;
+		#elseif (rp_voxelgi_resolution_z == 0.125)
+		return 0.125;
+		#else
+		return 0.0;
 		#end
 	}
 	#end
@@ -110,6 +135,35 @@ class RenderPath {
 		culled = 0;
 		numTrisMesh = 0;
 		numTrisShadow = 0;
+		#end
+
+		#if (rp_voxels != "Off")
+		clipmapLevel = (clipmapLevel + 1) % Main.voxelgiClipmapCount;
+		var clipmap = clipmaps[clipmapLevel];
+
+		clipmap.voxelSize = clipmaps[0].voxelSize * Math.pow(2.0, clipmapLevel);
+
+		var texelSize = 2.0 * clipmap.voxelSize;
+		var camera = iron.Scene.active.camera;
+		var center = new iron.math.Vec3(
+			Math.floor(camera.transform.worldx() / texelSize) * texelSize,
+			Math.floor(camera.transform.worldy() / texelSize) * texelSize,
+			Math.floor(camera.transform.worldz() / texelSize) * texelSize
+		);
+
+		clipmap.offset_prev.x = Std.int((clipmap.center.x - center.x) / texelSize);
+		clipmap.offset_prev.y = Std.int((clipmap.center.y - center.y) / texelSize);
+		clipmap.offset_prev.z = Std.int((clipmap.center.z - center.z) / texelSize);
+		clipmap.center = center;
+
+		var res = getVoxelRes();
+		var resZ = getVoxelResZ();
+		var extents = new iron.math.Vec3(clipmap.voxelSize * res, clipmap.voxelSize * res, clipmap.voxelSize * resZ);
+		if (clipmap.extents.x != extents.x || clipmap.extents.y != extents.y || clipmap.extents.z != extents.z)
+		{
+			pre_clear = true;
+		}
+		clipmap.extents = extents;
 		#end
 
 		// Render to screen or probe
@@ -517,7 +571,8 @@ class RenderPath {
 			if (rt == null ||
 				rt.raw.width > 0 ||
 				rt.depthStencilFrom == "" ||
-				rt == depthToRenderTarget.get(rt.depthStencilFrom)) {
+				rt == depthToRenderTarget.get(rt.depthStencilFrom) ||
+				rt.raw.is_image == true) {
 				continue;
 			}
 
@@ -526,7 +581,8 @@ class RenderPath {
 				if (rt2 == null ||
 					rt2.raw.width > 0 ||
 					rt2.depthStencilFrom != "" ||
-					depthToRenderTarget.get(rt2.raw.depth_buffer) != null) {
+					depthToRenderTarget.get(rt2.raw.depth_buffer) != null ||
+					rt2.raw.is_image == true) {
 					continue;
 				}
 
@@ -553,6 +609,10 @@ class RenderPath {
 				rt.image.setDepthStencilFrom(depthToRenderTarget.get(rt.depthStencilFrom).image);
 			}
 		}
+
+		#if (rp_voxels != "Off")
+		res_pre_clear = true;
+		#end
 	}
 
 	public function createRenderTarget(t: RenderTargetRaw): RenderTarget {
@@ -630,7 +690,8 @@ class RenderPath {
 			// Image only
 			var img = Image.create3D(width, height, depth,
 				t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
-			if (t.mipmaps) img.generateMipmaps(1000); // Allocate mipmaps
+			if (t.mipmaps)
+				img.generateMipmaps(1000); // Allocate mipmaps
 			return img;
 		}
 		else { // 2D texture
