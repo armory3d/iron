@@ -571,8 +571,7 @@ class RenderPath {
 			if (rt == null ||
 				rt.raw.width > 0 ||
 				rt.depthStencilFrom == "" ||
-				rt == depthToRenderTarget.get(rt.depthStencilFrom) ||
-				rt.raw.is_image == true) {
+				rt == depthToRenderTarget.get(rt.depthStencilFrom)) {
 				continue;
 			}
 
@@ -690,14 +689,15 @@ class RenderPath {
 			// Image only
 			var img = Image.create3D(width, height, depth,
 				t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
-			if (t.mipmaps)
-				img.generateMipmaps(1000); // Allocate mipmaps
-			return img;
+			if (t.mipmaps) img.generateMipmaps(1000); // Allocate mipmaps
+				return img;
 		}
 		else { // 2D texture
 			if (t.is_image != null && t.is_image) { // Image
-				return Image.create(width, height,
+				var img = Image.create(width, height,
 					t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
+				if (t.mipmaps) img.generateMipmaps(1000); // Allocate mipmaps
+					return img;
 			}
 			else { // Render target
 				return Image.createRenderTarget(width, height,

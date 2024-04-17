@@ -181,10 +181,10 @@ class Uniforms {
 						// Multiple voxel volumes, always set params
 						g.setImageTexture(context.textureUnits[j], rt.image); // image2D/3D
 						if (rt.raw.depth <= 1) {
-							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
+							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 						}
 						else {
-							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Mirror, TextureAddressing.Mirror, TextureAddressing.Mirror, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
+							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 						}
 						paramsSet = true;
 					}
