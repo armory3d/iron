@@ -183,8 +183,13 @@ class Uniforms {
 						if (rt.raw.name.startsWith("voxels_")) {
 							g.setTextureParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.LinearMipFilter);
 						}
-						else if (rt.raw.name.startsWith("voxels")) {
-							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Mirror, TextureAddressing.Mirror, TextureAddressing.Mirror, TextureFilter.LinearFilter, TextureFilter.PointFilter, MipMapFilter.NoMipFilter);
+						else if (rt.raw.name.startsWith("voxelsOut"))
+						{
+							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.PointFilter, TextureFilter.PointFilter, MipMapFilter.LinearMipFilter);
+						}
+						else if (rt.raw.name.startsWith("voxels"))
+						{
+							g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.LinearFilter, MipMapFilter.NoMipFilter);
 						}
 						paramsSet = true;
 					}
