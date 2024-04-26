@@ -689,7 +689,7 @@ class RenderPath {
 			// Image only
 			var img = Image.create3D(width, height, depth,
 				t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
-			if (t.mipmaps) img.generateMipmaps(Main.voxelgiClipmapCount); // Allocate mipmaps
+			if (t.mipmaps) img.generateMipmaps(1000); // Allocate mipmaps
 				return img;
 		}
 		else { // 2D texture
