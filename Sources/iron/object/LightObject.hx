@@ -18,7 +18,7 @@ class LightObject extends Object {
 	public var lightInAtlas = false;
 	public var culledLight = false;
 	public static var pointLightsData: kha.arrays.Float32Array = null;
-	public var shadowMapScale = 1.0;//when in forward, we drawMeshes() which will set this only after drawing shadowmap. This locks the drawing of the atlases so it's better to initialize it at 1.0
+	public var shadowMapScale = 1.0;//when in forward, we drawMeshes() which will set this only after drawing shadowmap. This blocks the drawing of the atlases so it's better to initialize it at 1.0
 	// Data used in uniforms
 	public var tileOffsetX: Array<Float> = [0.0];
 	public var tileOffsetY: Array<Float> = [0.0];

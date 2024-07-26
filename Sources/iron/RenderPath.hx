@@ -689,11 +689,7 @@ class RenderPath {
 		if (height < 1) height = 1;
 		if (t.depth != null && t.depth > 1) { // 3D texture
 			// Image only
-			var img = Image.create3D(width, height, depth,
-				t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
-			if (t.mipmaps)
-				img.generateMipmaps(1); // Allocate mipmaps
-			return img;
+			return Image.create3D(width, height, depth, t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
 		}
 		else { // 2D texture
 			if (t.is_image != null && t.is_image) { // Image
