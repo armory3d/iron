@@ -83,6 +83,8 @@ class RenderPath {
 		return 64;
 		#elseif (rp_voxelgi_resolution == 32)
 		return 32;
+		#elseif (rp_voxelgi_resolution == 16)
+		return 16;
 		#else
 		return 0;
 		#end
@@ -689,15 +691,17 @@ class RenderPath {
 			// Image only
 			var img = Image.create3D(width, height, depth,
 				t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
-			if (t.mipmaps) img.generateMipmaps(1000); // Allocate mipmaps
-				return img;
+			if (t.mipmaps)
+				img.generateMipmaps(1000); // Allocate mipmaps
+			return img;
 		}
 		else { // 2D texture
 			if (t.is_image != null && t.is_image) { // Image
 				var img = Image.create(width, height,
 					t.format != null ? getTextureFormat(t.format) : TextureFormat.RGBA32);
-				if (t.mipmaps) img.generateMipmaps(1000); // Allocate mipmaps
-					return img;
+				if (t.mipmaps)
+					img.generateMipmaps(1000); // Allocate mipmaps
+				return img;
 			}
 			else { // Render target
 				return Image.createRenderTarget(width, height,
