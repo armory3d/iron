@@ -230,7 +230,8 @@ class MeshObject extends Object {
 
 	public function render(g: Graphics, context: String, bindParams: Array<String>) {
 		if (data == null || !data.geom.ready) return; // Data not yet streamed
-		if (!visible) return; // Skip render if object is hidden
+		if (!visible && !visibleShadow) return; // Skip render if object is hidden
+		if ((visibleShadow && !visible) && context != "voxel" && context != "shadowmap") return;
 		if (cullMesh(context, Scene.active.camera, RenderPath.active.light)) return;
 		var meshContext = raw != null ? context == "mesh" : false;
 
