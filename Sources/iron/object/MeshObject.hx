@@ -161,8 +161,8 @@ class MeshObject extends Object {
 		if (!isLodMaterial() && !validContext(mats, context)) return true;
 
 		var isShadow = context == "shadowmap";
-		if (!visibleMesh && !isShadow) return setCulled(isShadow, true);
-		if (!visibleShadow && isShadow) return setCulled(isShadow, true);
+		if (!visible && !isShadow) return setCulled(isShadow, true);
+		//if (!visibleShadow && isShadow) return setCulled(isShadow, true);
 
 		if (skip_context == context) return setCulled(isShadow, true);
 		if (force_context != null && force_context != context) return setCulled(isShadow, true);

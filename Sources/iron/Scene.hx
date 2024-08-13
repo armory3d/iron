@@ -828,7 +828,6 @@ class Scene {
 			object.raw = o;
 			object.name = o.name;
 			if (o.visible != null) object.visible = o.visible;
-			if (o.visible_mesh != null) object.visibleMesh = o.visible_mesh;
 			if (o.visible_shadow != null) object.visibleShadow = o.visible_shadow;
 
 			createConstraints(o.constraints, object);
