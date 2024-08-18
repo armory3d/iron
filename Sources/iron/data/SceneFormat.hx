@@ -451,6 +451,7 @@ typedef TObj = {
 	@:optional public var visible: Null<Bool>;
 	@:optional public var visible_mesh: Null<Bool>;
 	@:optional public var visible_shadow: Null<Bool>;
+	@:optional public var only_shadows: Null<Bool>;
 	@:optional public var mobile: Null<Bool>;
 	@:optional public var spawn: Null<Bool>; // Auto add object when creating scene
 	@:optional public var local_only: Null<Bool>; // Apply parent matrix

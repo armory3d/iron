@@ -16,9 +16,10 @@ class LightObject extends Object {
 	#if arm_shadowmap_atlas
 	public var tileNotifyOnRemove: Void -> Void;
 	public var lightInAtlas = false;
+	public var lightInAtlasTransparent = false;
 	public var culledLight = false;
 	public static var pointLightsData: kha.arrays.Float32Array = null;
-	public var shadowMapScale = 1.0; // When in forward if this defaults to 0.0, the atlas are not drawn before being bound.
+	public var shadowMapScale = 0.0; // When in forward if this defaults to 0.0, the atlas are not drawn before being bound.
 	// Data used in uniforms
 	public var tileOffsetX: Array<Float> = [0.0];
 	public var tileOffsetY: Array<Float> = [0.0];
