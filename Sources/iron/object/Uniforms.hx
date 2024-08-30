@@ -173,7 +173,7 @@ class Uniforms {
 					var paramsSet = false;
 
 					if (rt.raw.depth > 1) { // sampler3D
-						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.AnisotropicFilter, MipMapFilter.LinearMipFilter);
+						g.setTexture3DParameters(context.textureUnits[j], TextureAddressing.Clamp, TextureAddressing.Clamp, TextureAddressing.Clamp, TextureFilter.LinearFilter, TextureFilter.AnisotropicFilter, MipMapFilter.NoMipFilter);
 						paramsSet = true;
 					}
 
