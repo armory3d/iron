@@ -841,6 +841,20 @@ class Scene {
 				for (p in o.properties) object.properties.set(p.name, p.value);
 			}
 
+			if (o.vertex_groups != null) {
+				object.vertex_groups = new Map();
+				for (p in o.vertex_groups){
+					var verts = [];
+					for(i in 0...Std.int(p.value.length/3)){
+						var x = Std.parseFloat(p.value[i*3]);
+						var y = Std.parseFloat(p.value[i*3+1]);
+						var z = Std.parseFloat(p.value[i*3+2]);
+						verts.push(new iron.math.Vec4(x, y, z, 1));
+					}
+					object.vertex_groups.set(p.name, verts);
+				}
+			}
+
 			// If the scene is still initializing, traits will be created later
 			// to ensure that object references for trait properties are valid
 			if (!active.initializing) createTraits(o.traits, object);
