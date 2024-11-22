@@ -438,6 +438,7 @@ typedef TObj = {
 	@:optional public var lod_material: Null<Bool>;
 	@:optional public var traits: Array<TTrait>;
 	@:optional public var properties: Array<TProperty>;
+	@:optional public var vertex_groups: Array<TVertex_groups>;
 	@:optional public var constraints: Array<TConstraint>;
 	@:optional public var dimensions: Float32Array; // Geometry objects
 	@:optional public var object_actions: Array<String>;
@@ -465,6 +466,15 @@ typedef TObj = {
 typedef TProperty = {
 #else
 @:structInit class TProperty {
+#end
+	public var name: String;
+	public var value: Dynamic;
+}
+
+#if js
+typedef TVertex_groups = {
+#else
+@:structInit class TVertex_groups {
 #end
 	public var name: String;
 	public var value: Dynamic;

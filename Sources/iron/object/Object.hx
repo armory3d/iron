@@ -2,6 +2,7 @@ package iron.object;
 
 import iron.Trait;
 import iron.data.SceneFormat;
+import iron.math.Vec4;
 
 class Object {
 	static var uidCounter = 0;
@@ -25,6 +26,7 @@ class Object {
 	public var culled = false; // Object was culled last frame
 	public var culledMesh = false;
 	public var culledShadow = false;
+	public var vertex_groups: Map<String, Array<Vec4>> = null;
 	public var properties: Map<String, Dynamic> = null;
 	var isEmpty = false;
 
